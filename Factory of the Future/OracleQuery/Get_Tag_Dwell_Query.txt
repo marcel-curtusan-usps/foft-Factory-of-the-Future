@@ -1,0 +1,21 @@
+﻿select 
+tagId as "tagId", 
+tagName as "tagName", 
+zoneName as "zoneName", 
+zoneId as "zoneId",
+positionTS as "positionTS",
+start_date_time as "start_date_time", 
+end_date_time as "end_date_time",  
+coordinateSystemId as "coordinateSystemId", 
+coordinateSystemName as "coordinateSystemName", 
+facilityName as "facilityName", 
+facilityZip as "facilityZip", 
+fdbid as "fdbid", 
+facilityNass as "facilityNass", 
+stillInZone as "stillInZone", 
+craftName as "craftName",  
+tagType as "tagType",  
+badgeId as "badgeId", 
+facilitylocaleKey as "facilitylocaleKey" 
+from TAG_DWELL_ZONE
+where end_date_time is null

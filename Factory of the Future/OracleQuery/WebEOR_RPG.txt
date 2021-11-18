@@ -1,0 +1,14 @@
+﻿select  
+MACH_TYPE_DESC as mpe_type, 
+MACHINE_NBR as mpe_number,
+MACHINE_SORT_PROGRAM_NAME as cur_sortplan,
+0 as cur_thruput_ophr,
+0 as tot_sortplan_vol,
+THROUGHPUT_RATE as rpg_est_thruput_ophr, 
+TOTAL_PIECES_FED_CNT as rpg_est_vol, 
+TO_CHAR(START_DTM,'MM/DD/YYYY HH24:MI:SS') as current_run_start, 
+TO_CHAR(END_DTM,'MM/DD/YYYY HH24:MI:SS') as current_run_end,
+MAIL_OPERATION_NBR as cur_operation_id
+from EOR_PLNDOR.rpg_output_plan
+where TRUNC(START_DATE) BETWEEN TRUNC(TO_DATE(TO_CHAR(:STARTDate), 'DD-MM-YYYY')) AND TRUNC(TO_DATE(TO_CHAR(:ENDDate), 'DD-MM-YYYY'))
+order by MACH_TYPE_DESC , MACHINE_NBR ,START_DTM
