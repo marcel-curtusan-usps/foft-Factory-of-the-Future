@@ -4,14 +4,14 @@ Factory of the future is a web-based ASP.NET Application, FOTF Application is de
 
 1. Data sources Include but not limited to:
 
-MPE Watch (mail processing equipment watch )
-AGVM (autonomous ground vehicle management )
-SV (surface visibility)
-Quuppa
-SELS RT (sensors enable location system real time )
-CTS (Container tracking system)
-P2P (performance two plan)
+  i. MPE Watch (mail processing equipment watch )
+  ii. AGVM (autonomous ground vehicle management )
+  iii. SV (surface visibility)
+  iv. Quuppa
+  v. SELS RT (sensors enable location system real time )
+  vi. CTS (Container tracking system)
+  vii. P2P (performance two plan)
 
 2. Running Application:
 
-to build the application you will need to specify the local drive So that application can store log information.
+  1.to build the application you will need to specify the local drive So that application can store log information.
