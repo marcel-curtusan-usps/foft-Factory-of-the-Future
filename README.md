@@ -13,5 +13,4 @@ Factory of the future is a web-based ASP.NET Application, FOTF Application is de
   vii. P2P (performance two plan)
 
 2. Running Application:
-
-  1.to build the application you will need to specify the local drive So that application can store log information.
+  i.to build the application you will need to specify the local drive So that application can store log information.
