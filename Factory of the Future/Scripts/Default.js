@@ -1377,7 +1377,7 @@ $(function () {
                     control.state('exit-fullscreen');
                 }
             }, {
-                icon: '<i class="bi-fullscreen-exit" title="Exit Full Screen"></i>',
+                icon: '<i class="pi-iconFullScreenExit" title="Exit Full Screen"></i>',
                 stateName: 'exit-fullscreen',
                 title: 'Exit Full Screen',
                 onClick: function (control) {
@@ -2532,20 +2532,7 @@ $(function () {
         }).appendTo(tbody);
     }
     /*****CTS**start***/
-    function formatTime(value_time) {
-        try {
-            if (!$.isEmptyObject(timezone)) {
-                if (timezone.hasOwnProperty("Facility_TimeZone")) {
-                    var time = moment(value_time).tz(timezone.Facility_TimeZone);
-                    if (time._isValid) {
-                        return time.format("HH:mm");
-                    }
-                }
-            }
-        } catch (e) {
-            console.log(e);
-        }
-    }
+
     async function GetCTSDockDepart() {
         try {
             $.connection.FOTFManager.server.getCTSList("dockdeparted").done(function (Data) {
@@ -3186,6 +3173,32 @@ $(function () {
         return false;
     });
 });
+function formatTime(value_time) {
+    try {
+        if (!$.isEmptyObject(timezone)) {
+            if (timezone.hasOwnProperty("Facility_TimeZone")) {
+                var time = moment(value_time).tz(timezone.Facility_TimeZone);
+                if (time._isValid) {
+                    return time.format("HH:mm");
+                }
+            }
+        }
+    } catch (e) {
+        console.log(e);
+    }
+}
+function formatDateTime(value_time) {
+    try {
+
+        var time = moment(value_time);
+        if (time._isValid) {
+            return time.format("M/D/YYYY h:mm a");
+        }
+
+    } catch (e) {
+        console.log(e);
+    }
+}
 function capitalize_Words(str) {
     return str.replace(/\w\S*/g, function (txt) {
         return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();

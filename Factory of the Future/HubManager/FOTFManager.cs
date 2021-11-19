@@ -1741,14 +1741,17 @@ namespace Factory_of_the_Future
                     }
                     if (string.IsNullOrEmpty((string)tag["properties"]["craftName"]))
                     {
-                        int equalsIndex = tag["properties"]["name"].ToString().IndexOf("_", 1);
-                        if ((equalsIndex > -1))
+                        if (!string.IsNullOrEmpty(tag["properties"]["name"].ToString()))
                         {
-                            string[] namesplit = tag["properties"]["name"].ToString().Split('_');
-                            if (namesplit.Length > 1)
+                            int equalsIndex = tag["properties"]["name"].ToString().IndexOf("_", 1);
+                            if ((equalsIndex > -1))
                             {
-                                tag["properties"]["craftName"] = namesplit[0];
-                                tag["properties"]["badgeId"] = namesplit[1];
+                                string[] namesplit = tag["properties"]["name"].ToString().Split('_');
+                                if (namesplit.Length > 1)
+                                {
+                                    tag["properties"]["craftName"] = namesplit[0];
+                                    tag["properties"]["badgeId"] = namesplit[1];
+                                }
                             }
                         }
                     }
@@ -2238,7 +2241,9 @@ namespace Factory_of_the_Future
                             user.Property("Facility_Name").Value = ((string)user.Property("Facility_Name").Value != Global.AppSettings.Property("FACILITY_NAME").Value.ToString()) ? Global.AppSettings.Property("FACILITY_NAME").Value.ToString() : Global.AppSettings.Property("FACILITY_NAME").Value.ToString();
                             user.Property("Facility_TimeZone").Value = ((string)user.Property("Facility_TimeZone").Value != Global.AppSettings.Property("FACILITY_TIMEZONE").Value.ToString()) ? Global.AppSettings.Property("FACILITY_TIMEZONE").Value.ToString() : Global.AppSettings.Property("FACILITY_TIMEZONE").Value.ToString();
                             user.Property("App_Type").Value = ((string)user.Property("App_Type").Value != Global.AppSettings.Property("APPLICATION_NAME").Value.ToString()) ? Global.AppSettings.Property("APPLICATION_NAME").Value.ToString() : Global.AppSettings.Property("APPLICATION_NAME").Value.ToString();
-
+                            user.Property("Login_Date").Value = DateTime.Now;
+                           //log of user logging in.
+                           new User_Log().LoginUser(Global.CodeBase.Parent.FullName.ToString(), user);
                         }
                     }
                     else
@@ -2273,6 +2278,7 @@ namespace Factory_of_the_Future
                             new_user.Property("FirstName").Value = ADuser.Property("FirstName").Value;
                             new_user.Property("ZipCode").Value = ADuser.Property("ZipCode").Value;
                         }
+                        //log of user logging in.
                         new User_Log().LoginUser(Global.CodeBase.Parent.FullName.ToString(), new_user);
 
                         Global._users.TryAdd(user_id, new_user);

@@ -499,7 +499,7 @@ function formatcontainerdetailsrow(properties)
         name: properties.siteName,
         sitetype: properties.siteType,
         event: properties.event,
-        eventdatetime: properties.EventDtmfmt,
+        eventdatetime: formatDateTime(properties.EventDtmfmt),
         location: checkValue(properties.location) ? properties.location : "",
         bin: checkValue(properties.binName) ? properties.binName: "",
         trailer: checkValue(properties.trailer) ? properties.trailer : "",

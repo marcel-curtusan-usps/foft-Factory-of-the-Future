@@ -459,7 +459,7 @@ function GetMacineBackground(starttime, throughput, expectedthr) {
         if (expectedthr != '' && throughput != '') {
             var expTP = parseInt(expectedthr, 10);
             var ThrPt = parseInt(throughput, 10);
-            if (!$.isNumeric(expTP) && !$.isNumeric(ThrPt)) {
+            if ($.isNumeric(expTP) && $.isNumeric(ThrPt)) {
                 var percent = (ThrPt / expTP) * 100;
                 if (percent >= 100) {
                     //return '#88FF88';
