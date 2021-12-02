@@ -17,6 +17,7 @@ using System.Text.RegularExpressions;
 using System.Threading;
 using System.Web;
 using System.Web.Http;
+using System.Web.Security;
 
 namespace Factory_of_the_Future
 {
@@ -62,6 +63,9 @@ namespace Factory_of_the_Future
 
         ////AGV LoctionZone
         //public static ConcurrentDictionary<string, JObject> AGVLocationZones = new ConcurrentDictionary<string, JObject>();
+
+        //Trips
+        public static ConcurrentDictionary<string, JObject> Trips = new ConcurrentDictionary<string, JObject>();
 
         //CTS DockDeparted
         public static ConcurrentDictionary<string, JObject> CTS_DockDeparted = new ConcurrentDictionary<string, JObject>();
@@ -110,15 +114,7 @@ namespace Factory_of_the_Future
         public static readonly ConcurrentDictionary<string, JObject> _users = new ConcurrentDictionary<string, JObject>();
         public static Dictionary<string, string> TimeZoneConvert = new Dictionary<string, string>()
     {
-        { "Africa/Bangui", "W. Central Africa Standard Time" },
-        { "Africa/Cairo", "Egypt Standard Time" },
-        { "Africa/Casablanca", "Morocco Standard Time" },
-        { "Africa/Harare", "South Africa Standard Time" },
-        { "Africa/Johannesburg", "South Africa Standard Time" },
-        { "Africa/Lagos", "W. Central Africa Standard Time" },
-        { "Africa/Monrovia", "Greenwich Standard Time" },
-        { "Africa/Nairobi", "E. Africa Standard Time" },
-        { "Africa/Windhoek", "Namibia Standard Time" },
+    
         { "America/Anchorage", "Alaskan Standard Time" },
         { "America/Argentina/San_Juan", "Argentina Standard Time" },
         { "America/Asuncion", "Paraguay Standard Time" },
@@ -139,7 +135,6 @@ namespace Factory_of_the_Future
         { "America/Indiana/Indianapolis", "US Eastern Standard Time" },
         { "America/La_Paz", "SA Western Standard Time" },
         { "America/Los_Angeles", "Pacific Standard Time" },
-        { "America/Mexico_City", "Mexico Standard Time" },
         { "America/Montevideo", "Montevideo Standard Time" },
         { "America/New_York", "Eastern Standard Time" },
         { "America/Noronha", "UTC-02" },
@@ -150,88 +145,9 @@ namespace Factory_of_the_Future
         { "America/Sao_Paulo", "E. South America Standard Time" },
         { "America/St_Johns", "Newfoundland Standard Time" },
         { "America/Tijuana", "Pacific Standard Time" },
-        { "Antarctica/McMurdo", "New Zealand Standard Time" },
-        { "Atlantic/South_Georgia", "UTC-02" },
-        { "Asia/Almaty", "Central Asia Standard Time" },
-        { "Asia/Amman", "Jordan Standard Time" },
-        { "Asia/Baghdad", "Arabic Standard Time" },
-        { "Asia/Baku", "Azerbaijan Standard Time" },
-        { "Asia/Bangkok", "SE Asia Standard Time" },
-        { "Asia/Beirut", "Middle East Standard Time" },
-        { "Asia/Calcutta", "India Standard Time" },
-        { "Asia/Colombo", "Sri Lanka Standard Time" },
-        { "Asia/Damascus", "Syria Standard Time" },
-        { "Asia/Dhaka", "Bangladesh Standard Time" },
-        { "Asia/Dubai", "Arabian Standard Time" },
-        { "Asia/Irkutsk", "North Asia East Standard Time" },
-        { "Asia/Jerusalem", "Israel Standard Time" },
-        { "Asia/Kabul", "Afghanistan Standard Time" },
-        { "Asia/Kamchatka", "Kamchatka Standard Time" },
-        { "Asia/Karachi", "Pakistan Standard Time" },
-        { "Asia/Katmandu", "Nepal Standard Time" },
-        { "Asia/Kolkata", "India Standard Time" },
-        { "Asia/Krasnoyarsk", "North Asia Standard Time" },
-        { "Asia/Kuala_Lumpur", "Singapore Standard Time" },
-        { "Asia/Kuwait", "Arab Standard Time" },
-        { "Asia/Magadan", "Magadan Standard Time" },
-        { "Asia/Muscat", "Arabian Standard Time" },
-        { "Asia/Novosibirsk", "N. Central Asia Standard Time" },
-        { "Asia/Oral", "West Asia Standard Time" },
-        { "Asia/Rangoon", "Myanmar Standard Time" },
-        { "Asia/Riyadh", "Arab Standard Time" },
-        { "Asia/Seoul", "Korea Standard Time" },
-        { "Asia/Shanghai", "China Standard Time" },
-        { "Asia/Singapore", "Singapore Standard Time" },
-        { "Asia/Taipei", "Taipei Standard Time" },
-        { "Asia/Tashkent", "West Asia Standard Time" },
-        { "Asia/Tbilisi", "Georgian Standard Time" },
-        { "Asia/Tehran", "Iran Standard Time" },
-        { "Asia/Tokyo", "Tokyo Standard Time" },
-        { "Asia/Ulaanbaatar", "Ulaanbaatar Standard Time" },
-        { "Asia/Vladivostok", "Vladivostok Standard Time" },
-        { "Asia/Yakutsk", "Yakutsk Standard Time" },
-        { "Asia/Yekaterinburg", "Ekaterinburg Standard Time" },
-        { "Asia/Yerevan", "Armenian Standard Time" },
-        { "Atlantic/Azores", "Azores Standard Time" },
-        { "Atlantic/Cape_Verde", "Cape Verde Standard Time" },
-        { "Atlantic/Reykjavik", "Greenwich Standard Time" },
-        { "Australia/Adelaide", "Cen. Australia Standard Time" },
-        { "Australia/Brisbane", "E. Australia Standard Time" },
-        { "Australia/Darwin", "AUS Central Standard Time" },
-        { "Australia/Hobart", "Tasmania Standard Time" },
-        { "Australia/Perth", "W. Australia Standard Time" },
-        { "Australia/Sydney", "AUS Eastern Standard Time" },
-        { "Etc/GMT", "UTC" },
-        { "Etc/GMT+11", "UTC-11" },
-        { "Etc/GMT+12", "Dateline Standard Time" },
-        { "Etc/GMT+2", "UTC-02" },
-        { "Etc/GMT-12", "UTC+12" },
-        { "Europe/Amsterdam", "W. Europe Standard Time" },
-        { "Europe/Athens", "GTB Standard Time" },
-        { "Europe/Belgrade", "Central Europe Standard Time" },
-        { "Europe/Berlin", "W. Europe Standard Time" },
-        { "Europe/Brussels", "Romance Standard Time" },
-        { "Europe/Budapest", "Central Europe Standard Time" },
-        { "Europe/Dublin", "GMT Standard Time" },
-        { "Europe/Helsinki", "FLE Standard Time" },
-        { "Europe/Istanbul", "GTB Standard Time" },
-        { "Europe/Kiev", "FLE Standard Time" },
-        { "Europe/London", "GMT Standard Time" },
-        { "Europe/Minsk", "E. Europe Standard Time" },
-        { "Europe/Moscow", "Russian Standard Time" },
-        { "Europe/Paris", "Romance Standard Time" },
-        { "Europe/Sarajevo", "Central European Standard Time" },
-        { "Europe/Warsaw", "Central European Standard Time" },
-        { "Indian/Mauritius", "Mauritius Standard Time" },
         { "Pacific/Apia", "Samoa Standard Time" },
-        { "Pacific/Auckland", "New Zealand Standard Time" },
-        { "Pacific/Fiji", "Fiji Standard Time" },
-        { "Pacific/Guadalcanal", "Central Pacific Standard Time" },
         { "Pacific/Guam", "West Pacific Standard Time" },
-        { "Pacific/Honolulu", "Hawaiian Standard Time" },
-        { "Pacific/Pago_Pago", "UTC-11" },
-        { "Pacific/Port_Moresby", "West Pacific Standard Time" },
-        { "Pacific/Tongatapu", "Tonga Standard Time" }
+        { "Pacific/Honolulu", "Hawaiian Standard Time" }
     };
 
         public static bool Connected { get; set; }
@@ -415,10 +331,10 @@ namespace Factory_of_the_Future
                 if (SERVER_ACTIVE)
                 {
                     //Load Tags
-                    if (Tag.Count == 0)
-                    {
-                        Get_Tag_Data();
-                    }
+                    //if (Tag.Count == 0)
+                    //{
+                    //    Get_Tag_Data();
+                    //}
                     //Load Tag Dwell
                     //if (Tag_Dwell.Count == 0)
                     //{
@@ -478,7 +394,11 @@ namespace Factory_of_the_Future
                                         if (udpclient != null)
                                         {
                                             while (udpclient.BytesReceived != 4)
+                                            {
+                                                m.Property("API_CONNECTED").Value = true;
+                                                m.Property("LASTTIME_API_CONNECTED").Value = DateTime.Now;
                                                 Thread.Yield();
+                                            }
                                         }
                                     }
                                     catch (Exception ex)
@@ -612,80 +532,6 @@ namespace Factory_of_the_Future
             }
         }
 
-        private void Get_Tag_Data()
-        {
-            try
-            {
-                string notificationlist = new FileIO().Read(string.Concat(Logdirpath, ConfigurationFloder), "Notification.json");
-                if (!string.IsNullOrEmpty(notificationlist))
-                {
-                    if (IsValidJson(notificationlist))
-                    {
-                        JArray list = JArray.Parse(notificationlist);
-                        if (list != null)
-                        {
-                            if (list.HasValues)
-                            {
-                                foreach (JObject item in list.Children())
-                                {
-                                    JObject notification = new JObject_List().Notification_Conditions;
-                                    foreach (dynamic kv in item.Children())
-                                    {
-                                        if (notification.ContainsKey(kv.Name))
-                                        {
-                                            if (kv.Value != notification.Property(kv.Name).Value)
-                                            {
-                                                notification.Property(kv.Name).Value = kv.Value;
-                                            }
-                                        }
-                                    }
-
-                                    if (!Notification_Conditions.ContainsKey((int)notification.Property("ID").Value))
-                                    {
-                                        Notification_Conditions.TryAdd((int)notification.Property("ID").Value, notification);
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-            catch (Exception e)
-            {
-                new ErrorLogger().ExceptionLog(e);
-            }
-        }
-
-        private void Get_Tag_Dwell()
-        {
-            try
-            {
-                //make the db request
-                JObject DB_Request = new JObject(new JProperty("FACILITYNASS", (string)Global.AppSettings.Property("FACILITY_NASS_CODE").Value),
-                    new JProperty("FDBID", (string)Global.AppSettings.Property("FACILITY_ID").Value)
-                );
-                // call the DB
-                //JArray DB_tag_dwell = new Oracle_DB_Calls().GetData("Get_Tag_Dwell_Query.txt", DB_Request);
-                //if (DB_tag_dwell.HasValues)
-                //{
-                //    //loop though the data load in to Tag_Dwell
-                //    foreach (JObject tagitem in DB_tag_dwell.Children())
-                //    {
-                //        tagitem.Property("stillInZone").Value = (bool)tagitem.Property("stillInZone").Value;
-                //        tagitem.Property("start_date_time").Value = (DateTime)tagitem.Property("start_date_time").Value;
-                //        if (Global.Tag_Dwell.TryAdd((string)tagitem.Property("coordinateSystemId").Value + (string)tagitem.Property("tagId").Value + (string)tagitem.Property("zoneId").Value, tagitem))
-                //        {
-                //        }
-                //    }
-
-                //}
-            }
-            catch (Exception e)
-            {
-                new ErrorLogger().ExceptionLog(e);
-            }
-        }
-
         private void Get_Notification_Conditions()
         {
             try
@@ -800,25 +646,150 @@ namespace Factory_of_the_Future
                                 foreach (JObject item in list.Children())
                                 {
                                     JObject api = new JObject_List().API;
-                                    item.Property("API_CONNECTED").Value = false;
-                                    foreach (dynamic kv in api.Children())
-                                    {
-                                        if (item.ContainsKey(kv.Name))
-                                        {
-                                            if (kv.Name == "LASTTIME_API_CONNECTED")
-                                            {
-                                                continue;
-                                            }
-                                            if (kv.Value != item.Property(kv.Name).Value)
-                                            {
-                                                api.Property(kv.Name).Value = item.Property(kv.Name).Value;
-                                            }
-                                        }
-                                    }
-
+                                    item["API_CONNECTED"] = false;
+                                    item["LASTTIME_API_CONNECTED"] = DateTime.Now.AddDays(-30);
+                                    api.Merge(item, new JsonMergeSettings { MergeArrayHandling = MergeArrayHandling.Union });
                                     if (!API_List.ContainsKey((int)api.Property("ID").Value))
                                     {
-                                        API_List.TryAdd((int)api.Property("ID").Value, api);
+                                        API_List.TryAdd((int)api["ID"], api);                                      
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                new ErrorLogger().ExceptionLog(e);
+            }
+        }
+
+        private void GetAppSettings()
+        {
+            try
+            {
+                string file_content = "";
+                //appsetting
+
+                if (string.IsNullOrEmpty(file_content))
+                {
+                    file_content = new FileIO().Read(string.Concat(CodeBase.Parent.FullName.ToString(), Appsetting), "AppSettings.json");
+                }
+
+                if (!string.IsNullOrEmpty(file_content))
+                {
+                    if (IsValidJson(file_content))
+                    {
+                        JObject filejsonrray = JObject.Parse(file_content);
+                        if (filejsonrray.HasValues)
+                        {
+                            AppSettings = filejsonrray;
+                        }
+                    }
+                }
+                else
+                {
+                    if (!AppSettings.HasValues)
+                    {
+                        if (!AppSettings.ContainsKey("APPLICATION_NAME")) { AppSettings.Add(new JProperty("APPLICATION_NAME", "Factory of the Future")); }
+                        if (!AppSettings.ContainsKey("FACILITY_NAME")) { AppSettings.Add(new JProperty("FACILITY_NAME", "")); }
+                        if (!AppSettings.ContainsKey("FACILITY_ZIP")) { AppSettings.Add(new JProperty("FACILITY_ZIP", "")); }
+                        if (!AppSettings.ContainsKey("FACILITY_ID")) { AppSettings.Add(new JProperty("FACILITY_ID", "")); }
+                        if (!AppSettings.ContainsKey("FACILITY_NASS_CODE")) { AppSettings.Add(new JProperty("FACILITY_NASS_CODE", "")); }
+                        if (!AppSettings.ContainsKey("RETENTION_TIMER_SECONDS")) { AppSettings.Add(new JProperty("RETENTION_TIMER_SECONDS", "0")); }
+                        if (!AppSettings.ContainsKey("RETENTION_TIMER_MINUTES")) { AppSettings.Add(new JProperty("RETENTION_TIMER_MINUTES", "10")); }
+                        if (!AppSettings.ContainsKey("RETENTION_TIMER_HOURS")) { AppSettings.Add(new JProperty("RETENTION_TIMER_HOURS", "0")); }
+                        if (!AppSettings.ContainsKey("RETENTION_DAYS")) { AppSettings.Add(new JProperty("RETENTION_DAYS", "60")); }
+                        if (!AppSettings.ContainsKey("RETENTION_MAX_FILE_SIZE")) { AppSettings.Add(new JProperty("RETENTION_MAX_FILE_SIZE", "1073741824")); }
+                        if (!AppSettings.ContainsKey("SERVER_ACTIVE")) { AppSettings.Add(new JProperty("SERVER_ACTIVE", "true")); }
+                        if (!AppSettings.ContainsKey("SERVER_ACTIVE_HOSTNAME")) { AppSettings.Add(new JProperty("SERVER_ACTIVE_HOSTNAME", "")); }
+                        if (!AppSettings.ContainsKey("Domain")) { AppSettings.Add(new JProperty("Domain", "USA.DCE.USPS.GOV")); }
+                        if (!AppSettings.ContainsKey("ADUSAContainer")) { AppSettings.Add(new JProperty("ADUSAContainer", "DC=usa,DC=dce,DC=usps,DC=gov")); }
+                        if (!AppSettings.ContainsKey("API_KEY")) { AppSettings.Add(new JProperty("API_KEY", "QUdWUE9SVEFMVXNlcjpBZ3ZQb3J0YWx1JGVyMDE=")); }
+                        if (!AppSettings.ContainsKey("LOG_LOCATION")) { AppSettings.Add(new JProperty("LOG_LOCATION", "")); }
+                        if (!AppSettings.ContainsKey("ADMINOVERRIDEUSER")) { AppSettings.Add(new JProperty("ADMINOVERRIDEUSER", "")); }
+                        if (!AppSettings.ContainsKey("REMOTEDB")) { AppSettings.Add(new JProperty("REMOTEDB", true)); }
+                        if (!AppSettings.ContainsKey("ROLES_ADMIN")) { AppSettings.Add(new JProperty("ROLES_ADMIN", "TC Admins")); }
+                        if (!AppSettings.ContainsKey("ROLES_OPERATOR")) { AppSettings.Add(new JProperty("ROLES_OPERATOR", "TC Operator")); }
+                        if (!AppSettings.ContainsKey("ROLES_MAINTENANCE")) { AppSettings.Add(new JProperty("ROLES_MAINTENANCE", "TC Maintenance")); }
+                        if (!AppSettings.ContainsKey("ROLES_OIE")) { AppSettings.Add(new JProperty("ROLES_OIE", "Operations Industrial Engineers")); }
+                        if (!AppSettings.ContainsKey("ORACONNSTRING")) { AppSettings.Add(new JProperty("ORACONNSTRING", "rCTak7p+l/f5zECB1hvqOunOVIYlx85vkDRiQUqmcm1Y9H8GlrRjGPJHYAvYhhLbuYSJJumZHV+gHcgKf7r8Fqu0XOMp87riVLLMk5WVIDm3nCb1jx+Z58H6cqYer74r4PpPOVFvSSq8uokfDpa2Bw==")); }
+                        if (!AppSettings.ContainsKey("ORACONNASSTRING")) { AppSettings.Add(new JProperty("ORACONNASSTRING", "")); }
+                    }
+                }
+                //this will check the attributes if any default are mission it will add it.
+                if (AppSettings.HasValues)
+                {
+                    if (!AppSettings.ContainsKey("APPLICATION_NAME")) { AppSettings.Add(new JProperty("APPLICATION_NAME", "Factory of the Future")); }
+                    if (!AppSettings.ContainsKey("FACILITY_NAME")) { AppSettings.Add(new JProperty("FACILITY_NAME", "")); }
+                    if (!AppSettings.ContainsKey("FACILITY_ZIP")) { AppSettings.Add(new JProperty("FACILITY_ZIP", "")); }
+                    if (!AppSettings.ContainsKey("FACILITY_ID")) { AppSettings.Add(new JProperty("FACILITY_ID", "")); }
+                    if (!AppSettings.ContainsKey("FACILITY_NASS_CODE")) { AppSettings.Add(new JProperty("FACILITY_NASS_CODE", "")); }
+                    if (!AppSettings.ContainsKey("RETENTION_TIMER_SECONDS")) { AppSettings.Add(new JProperty("RETENTION_TIMER_SECONDS", "0")); }
+                    if (!AppSettings.ContainsKey("RETENTION_TIMER_MINUTES")) { AppSettings.Add(new JProperty("RETENTION_TIMER_MINUTES", "10")); }
+                    if (!AppSettings.ContainsKey("RETENTION_TIMER_HOURS")) { AppSettings.Add(new JProperty("RETENTION_TIMER_HOURS", "0")); }
+                    if (!AppSettings.ContainsKey("RETENTION_DAYS")) { AppSettings.Add(new JProperty("RETENTION_DAYS", "60")); }
+                    if (!AppSettings.ContainsKey("RETENTION_MAX_FILE_SIZE")) { AppSettings.Add(new JProperty("RETENTION_MAX_FILE_SIZE", "1073741824")); }
+                    if (!AppSettings.ContainsKey("SERVER_ACTIVE")) { AppSettings.Add(new JProperty("SERVER_ACTIVE", "true")); }
+                    if (!AppSettings.ContainsKey("SERVER_ACTIVE_HOSTNAME")) { AppSettings.Add(new JProperty("SERVER_ACTIVE_HOSTNAME", "")); }
+                    if (!AppSettings.ContainsKey("Domain")) { AppSettings.Add(new JProperty("Domain", "USA.DCE.USPS.GOV")); }
+                    if (!AppSettings.ContainsKey("ADUSAContainer")) { AppSettings.Add(new JProperty("ADUSAContainer", "DC=usa,DC=dce,DC=usps,DC=gov")); }
+                    if (!AppSettings.ContainsKey("API_KEY")) { AppSettings.Add(new JProperty("API_KEY", "QUdWUE9SVEFMVXNlcjpBZ3ZQb3J0YWx1JGVyMDE=")); }
+                    if (!AppSettings.ContainsKey("LOG_LOCATION")) { AppSettings.Add(new JProperty("LOG_LOCATION", "")); }
+                    if (!AppSettings.ContainsKey("ADMINOVERRIDEUSER")) { AppSettings.Add(new JProperty("ADMINOVERRIDEUSER", "")); }
+                    if (!AppSettings.ContainsKey("REMOTEDB")) { AppSettings.Add(new JProperty("REMOTEDB", true)); }
+                    if (!AppSettings.ContainsKey("ROLES_ADMIN")) { AppSettings.Add(new JProperty("ROLES_ADMIN", "TC Admins")); }
+                    if (!AppSettings.ContainsKey("ROLES_OPERATOR")) { AppSettings.Add(new JProperty("ROLES_OPERATOR", "TC Operator")); }
+                    if (!AppSettings.ContainsKey("ROLES_MAINTENANCE")) { AppSettings.Add(new JProperty("ROLES_MAINTENANCE", "TC Maintenance")); }
+                    if (!AppSettings.ContainsKey("ROLES_OIE")) { AppSettings.Add(new JProperty("ROLES_OIE", "Operations Industrial Engineers")); }
+                    if (!AppSettings.ContainsKey("ORACONNSTRING")) { AppSettings.Add(new JProperty("ORACONNSTRING", "rCTak7p+l/f5zECB1hvqOunOVIYlx85vkDRiQUqmcm1Y9H8GlrRjGPJHYAvYhhLbuYSJJumZHV+gHcgKf7r8Fqu0XOMp87riVLLMk5WVIDm3nCb1jx+Z58H6cqYer74r4PpPOVFvSSq8uokfDpa2Bw==")); }
+                    if (!AppSettings.ContainsKey("ORACONNASSTRING")) { AppSettings.Add(new JProperty("ORACONNASSTRING", "")); }
+                    //check if system has log drive
+                    if (AppSettings.ContainsKey("LOG_LOCATION"))
+                    {
+                        if (!string.IsNullOrEmpty(AppSettings.Property("LOG_LOCATION").Value.ToString()))
+                        {
+                            // set the Log dir path to web configure value.
+                            if (new Directory_Check().DirPath(new DirectoryInfo(AppSettings.Property("LOG_LOCATION").Value.ToString())))
+                            {
+                                file_content = new FileIO().Read(string.Concat(AppSettings.Property("LOG_LOCATION").Value.ToString(), ConfigurationFloder), "AppSettings.json");
+
+                                if (!string.IsNullOrEmpty(file_content))
+                                {
+                                    if (IsValidJson(file_content))
+                                    {
+                                        JObject filejsonrray = JObject.Parse(file_content);
+                                        if (filejsonrray.HasValues)
+                                        {
+                                            AppSettings = filejsonrray;
+                                        }
+                                    }
+                                }
+
+                                //if directory does not exists then create
+                                if (!Logdirpath.Exists)
+                                {
+                                    Directory.CreateDirectory(Logdirpath.FullName);
+                                }
+                                else
+                                {
+                                    DirectoryInfo configLogdirpath = new DirectoryInfo(string.Concat(AppSettings.Property("LOG_LOCATION").Value.ToString(), ConfigurationFloder));
+                                    if (!configLogdirpath.Exists)
+                                    {
+                                        FileInfo file = new FileInfo(string.Concat(AppSettings.Property("LOG_LOCATION").Value.ToString(), ConfigurationFloder, "\\", "AppSettings.json"));
+                                        if (!file.Exists)
+                                        {
+                                            new FileIO().Write(string.Concat(AppSettings.Property("LOG_LOCATION").Value.ToString(), ConfigurationFloder, "\\"), "AppSettings.json", JsonConvert.SerializeObject(AppSettings, Newtonsoft.Json.Formatting.Indented));
+                                        }
+                                    }
+                                    else
+                                    {
+                                        FileInfo file = new FileInfo(string.Concat(AppSettings.Property("LOG_LOCATION").Value.ToString(), ConfigurationFloder, "\\", "AppSettings.json"));
+                                        if (!file.Exists)
+                                        {
+                                            new FileIO().Write(string.Concat(AppSettings.Property("LOG_LOCATION").Value.ToString(), ConfigurationFloder), "AppSettings.json", JsonConvert.SerializeObject(AppSettings, Newtonsoft.Json.Formatting.Indented));
+                                        }
                                     }
                                 }
                             }
@@ -1056,152 +1027,9 @@ namespace Factory_of_the_Future
             }
         }
 
-        private void GetAppSettings()
-        {
-            try
-            {
-                string file_content = "";
-                //appsetting
-
-                if (string.IsNullOrEmpty(file_content))
-                {
-                    file_content = new FileIO().Read(string.Concat(CodeBase.Parent.FullName.ToString(), Appsetting), "AppSettings.json");
-                }
-
-                if (!string.IsNullOrEmpty(file_content))
-                {
-                    if (IsValidJson(file_content))
-                    {
-                        JObject filejsonrray = JObject.Parse(file_content);
-                        if (filejsonrray.HasValues)
-                        {
-                            AppSettings = filejsonrray;
-                        }
-                    }
-                }
-                else
-                {
-                    if (!AppSettings.HasValues)
-                    {
-                        if (!AppSettings.ContainsKey("APPLICATION_NAME")) { AppSettings.Add(new JProperty("APPLICATION_NAME", "Factory of the Future")); }
-                        if (!AppSettings.ContainsKey("FACILITY_NAME")) { AppSettings.Add(new JProperty("FACILITY_NAME", "")); }
-                        if (!AppSettings.ContainsKey("FACILITY_ZIP")) { AppSettings.Add(new JProperty("FACILITY_ZIP", "")); }
-                        if (!AppSettings.ContainsKey("FACILITY_ID")) { AppSettings.Add(new JProperty("FACILITY_ID", "")); }
-                        if (!AppSettings.ContainsKey("FACILITY_NASS_CODE")) { AppSettings.Add(new JProperty("FACILITY_NASS_CODE", "")); }
-                        if (!AppSettings.ContainsKey("RETENTION_TIMER_SECONDS")) { AppSettings.Add(new JProperty("RETENTION_TIMER_SECONDS", "0")); }
-                        if (!AppSettings.ContainsKey("RETENTION_TIMER_MINUTES")) { AppSettings.Add(new JProperty("RETENTION_TIMER_MINUTES", "10")); }
-                        if (!AppSettings.ContainsKey("RETENTION_TIMER_HOURS")) { AppSettings.Add(new JProperty("RETENTION_TIMER_HOURS", "0")); }
-                        if (!AppSettings.ContainsKey("RETENTION_DAYS")) { AppSettings.Add(new JProperty("RETENTION_DAYS", "60")); }
-                        if (!AppSettings.ContainsKey("RETENTION_MAX_FILE_SIZE")) { AppSettings.Add(new JProperty("RETENTION_MAX_FILE_SIZE", "1073741824")); }
-                        if (!AppSettings.ContainsKey("SERVER_ACTIVE")) { AppSettings.Add(new JProperty("SERVER_ACTIVE", "true")); }
-                        if (!AppSettings.ContainsKey("SERVER_ACTIVE_HOSTNAME")) { AppSettings.Add(new JProperty("SERVER_ACTIVE_HOSTNAME", "")); }
-                        if (!AppSettings.ContainsKey("Domain")) { AppSettings.Add(new JProperty("Domain", "USA.DCE.USPS.GOV")); }
-                        if (!AppSettings.ContainsKey("ADUSAContainer")) { AppSettings.Add(new JProperty("ADUSAContainer", "DC=usa,DC=dce,DC=usps,DC=gov")); }
-                        if (!AppSettings.ContainsKey("API_KEY")) { AppSettings.Add(new JProperty("API_KEY", "QUdWUE9SVEFMVXNlcjpBZ3ZQb3J0YWx1JGVyMDE=")); }
-                        if (!AppSettings.ContainsKey("LOG_LOCATION")) { AppSettings.Add(new JProperty("LOG_LOCATION", "")); }
-                        if (!AppSettings.ContainsKey("ADMINOVERRIDEUSER")) { AppSettings.Add(new JProperty("ADMINOVERRIDEUSER", "")); }
-                        if (!AppSettings.ContainsKey("REMOTEDB")) { AppSettings.Add(new JProperty("REMOTEDB", true)); }
-                        if (!AppSettings.ContainsKey("ROLES_ADMIN")) { AppSettings.Add(new JProperty("ROLES_ADMIN", "TC Admins")); }
-                        if (!AppSettings.ContainsKey("ROLES_OPERATOR")) { AppSettings.Add(new JProperty("ROLES_OPERATOR", "TC Operator")); }
-                        if (!AppSettings.ContainsKey("ROLES_MAINTENANCE")) { AppSettings.Add(new JProperty("ROLES_MAINTENANCE", "TC Maintenance")); }
-                        if (!AppSettings.ContainsKey("ROLES_OIE")) { AppSettings.Add(new JProperty("ROLES_OIE", "Operations Industrial Engineers")); }
-                        if (!AppSettings.ContainsKey("ORACONNSTRING")) { AppSettings.Add(new JProperty("ORACONNSTRING", "rCTak7p+l/f5zECB1hvqOunOVIYlx85vkDRiQUqmcm1Y9H8GlrRjGPJHYAvYhhLbuYSJJumZHV+gHcgKf7r8Fqu0XOMp87riVLLMk5WVIDm3nCb1jx+Z58H6cqYer74r4PpPOVFvSSq8uokfDpa2Bw==")); }
-                        if (!AppSettings.ContainsKey("ORACONNASSTRING")) { AppSettings.Add(new JProperty("ORACONNASSTRING", "")); }
-                    }
-                }
-                //this will check the attributes if any default are mission it will add it.
-                if (AppSettings.HasValues)
-                {
-                    if (!AppSettings.ContainsKey("APPLICATION_NAME")) { AppSettings.Add(new JProperty("APPLICATION_NAME", "Factory of the Future")); }
-                    if (!AppSettings.ContainsKey("FACILITY_NAME")) { AppSettings.Add(new JProperty("FACILITY_NAME", "")); }
-                    if (!AppSettings.ContainsKey("FACILITY_ZIP")) { AppSettings.Add(new JProperty("FACILITY_ZIP", "")); }
-                    if (!AppSettings.ContainsKey("FACILITY_ID")) { AppSettings.Add(new JProperty("FACILITY_ID", "")); }
-                    if (!AppSettings.ContainsKey("FACILITY_NASS_CODE")) { AppSettings.Add(new JProperty("FACILITY_NASS_CODE", "")); }
-                    if (!AppSettings.ContainsKey("RETENTION_TIMER_SECONDS")) { AppSettings.Add(new JProperty("RETENTION_TIMER_SECONDS", "0")); }
-                    if (!AppSettings.ContainsKey("RETENTION_TIMER_MINUTES")) { AppSettings.Add(new JProperty("RETENTION_TIMER_MINUTES", "10")); }
-                    if (!AppSettings.ContainsKey("RETENTION_TIMER_HOURS")) { AppSettings.Add(new JProperty("RETENTION_TIMER_HOURS", "0")); }
-                    if (!AppSettings.ContainsKey("RETENTION_DAYS")) { AppSettings.Add(new JProperty("RETENTION_DAYS", "60")); }
-                    if (!AppSettings.ContainsKey("RETENTION_MAX_FILE_SIZE")) { AppSettings.Add(new JProperty("RETENTION_MAX_FILE_SIZE", "1073741824")); }
-                    if (!AppSettings.ContainsKey("SERVER_ACTIVE")) { AppSettings.Add(new JProperty("SERVER_ACTIVE", "true")); }
-                    if (!AppSettings.ContainsKey("SERVER_ACTIVE_HOSTNAME")) { AppSettings.Add(new JProperty("SERVER_ACTIVE_HOSTNAME", "")); }
-                    if (!AppSettings.ContainsKey("Domain")) { AppSettings.Add(new JProperty("Domain", "USA.DCE.USPS.GOV")); }
-                    if (!AppSettings.ContainsKey("ADUSAContainer")) { AppSettings.Add(new JProperty("ADUSAContainer", "DC=usa,DC=dce,DC=usps,DC=gov")); }
-                    if (!AppSettings.ContainsKey("API_KEY")) { AppSettings.Add(new JProperty("API_KEY", "QUdWUE9SVEFMVXNlcjpBZ3ZQb3J0YWx1JGVyMDE=")); }
-                    if (!AppSettings.ContainsKey("LOG_LOCATION")) { AppSettings.Add(new JProperty("LOG_LOCATION", "")); }
-                    if (!AppSettings.ContainsKey("ADMINOVERRIDEUSER")) { AppSettings.Add(new JProperty("ADMINOVERRIDEUSER", "")); }
-                    if (!AppSettings.ContainsKey("REMOTEDB")) { AppSettings.Add(new JProperty("REMOTEDB", true)); }
-                    if (!AppSettings.ContainsKey("ROLES_ADMIN")) { AppSettings.Add(new JProperty("ROLES_ADMIN", "TC Admins")); }
-                    if (!AppSettings.ContainsKey("ROLES_OPERATOR")) { AppSettings.Add(new JProperty("ROLES_OPERATOR", "TC Operator")); }
-                    if (!AppSettings.ContainsKey("ROLES_MAINTENANCE")) { AppSettings.Add(new JProperty("ROLES_MAINTENANCE", "TC Maintenance")); }
-                    if (!AppSettings.ContainsKey("ROLES_OIE")) { AppSettings.Add(new JProperty("ROLES_OIE", "Operations Industrial Engineers")); }
-                    if (!AppSettings.ContainsKey("ORACONNSTRING")) { AppSettings.Add(new JProperty("ORACONNSTRING", "rCTak7p+l/f5zECB1hvqOunOVIYlx85vkDRiQUqmcm1Y9H8GlrRjGPJHYAvYhhLbuYSJJumZHV+gHcgKf7r8Fqu0XOMp87riVLLMk5WVIDm3nCb1jx+Z58H6cqYer74r4PpPOVFvSSq8uokfDpa2Bw==")); }
-                    if (!AppSettings.ContainsKey("ORACONNASSTRING")) { AppSettings.Add(new JProperty("ORACONNASSTRING", "")); }
-                    //check if system has log drive
-                    if (AppSettings.ContainsKey("LOG_LOCATION"))
-                    {
-                        if (!string.IsNullOrEmpty(AppSettings.Property("LOG_LOCATION").Value.ToString()))
-                        {
-                            // set the Log dir path to web configure value.
-                            Logdirpath = new DirectoryInfo(AppSettings.Property("LOG_LOCATION").Value.ToString());
-                            if (Global.Logdirpath.Root.Exists)
-                            {
-                                Global.SERVER_ACTIVE = true;
-
-                                file_content = new FileIO().Read(string.Concat(AppSettings.Property("LOG_LOCATION").Value.ToString(), ConfigurationFloder), "AppSettings.json");
-
-                                if (!string.IsNullOrEmpty(file_content))
-                                {
-                                    if (IsValidJson(file_content))
-                                    {
-                                        JObject filejsonrray = JObject.Parse(file_content);
-                                        if (filejsonrray.HasValues)
-                                        {
-                                            AppSettings = filejsonrray;
-                                        }
-                                    }
-                                }
-                            }
-                            else
-                            {
-                                Global.SERVER_ACTIVE = false;
-                            }
-                            //if directory does not exists then create
-                            if (!Logdirpath.Exists)
-                            {
-                                Directory.CreateDirectory(Logdirpath.FullName);
-                            }
-                            else
-                            {
-                                DirectoryInfo configLogdirpath = new DirectoryInfo(string.Concat(AppSettings.Property("LOG_LOCATION").Value.ToString(), ConfigurationFloder));
-                                if (!configLogdirpath.Exists)
-                                {
-                                    FileInfo file = new FileInfo(string.Concat(AppSettings.Property("LOG_LOCATION").Value.ToString(), ConfigurationFloder, "\\", "AppSettings.json"));
-                                    if (!file.Exists)
-                                    {
-                                        new FileIO().Write(string.Concat(AppSettings.Property("LOG_LOCATION").Value.ToString(), ConfigurationFloder, "\\"), "AppSettings.json", JsonConvert.SerializeObject(AppSettings, Newtonsoft.Json.Formatting.Indented));
-                                    }
-                                }
-                                else
-                                {
-                                    FileInfo file = new FileInfo(string.Concat(AppSettings.Property("LOG_LOCATION").Value.ToString(), ConfigurationFloder, "\\", "AppSettings.json"));
-                                    if (!file.Exists)
-                                    {
-                                        new FileIO().Write(string.Concat(AppSettings.Property("LOG_LOCATION").Value.ToString(), ConfigurationFloder), "AppSettings.json", JsonConvert.SerializeObject(AppSettings, Newtonsoft.Json.Formatting.Indented));
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-            catch (Exception e)
-            {
-                new ErrorLogger().ExceptionLog(e);
-            }
-        }
-
         protected void Application_AuthenticateRequest(object sender, EventArgs e)
         {
+          
             var request = HttpContext.Current.Request;
             var authHeader = request.Headers["APIAuthorization"];
             string credentials = string.Empty;
@@ -1358,7 +1186,7 @@ namespace Factory_of_the_Future
                 List<string> list = new List<string>();
 
                 var host = Dns.GetHostEntry(Dns.GetHostName());
-                string resultString = string.Join(string.Empty, Regex.Matches(host.HostName, @"\d+").OfType<Match>().Select(m => m.Value));
+               // string resultString = string.Join(string.Empty, Regex.Matches(host.HostName, @"\d+").OfType<Match>().Select(m => m.Value));
 
                 string hostname = host.HostName.Split('.').Select(x => x).FirstOrDefault();
                 if (!string.IsNullOrEmpty(hostname))

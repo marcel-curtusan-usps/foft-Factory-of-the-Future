@@ -13,12 +13,25 @@ namespace Factory_of_the_Future
             {
                 try
                 {
-                    string svr_active = Global.AppSettings.ContainsKey("SERVER_ACTIVE") ? Global.AppSettings.Property("SERVER_ACTIVE").Value.ToString().Trim() : "";
                     if (logdirpath != null && logdirpath.Root.Exists)
                     {
-                        Global.SERVER_ACTIVE = true;
-                        Global.AppSettings.Property("SERVER_ACTIVE").Value = true;
-                        return true;
+                     
+                        if (logdirpath.FullName == Global.CodeBase.Parent.FullName)
+                        {
+                            Global.SERVER_ACTIVE = false;
+                            Global.AppSettings.Property("SERVER_ACTIVE").Value = false;
+                            Global.Logdirpath = null;
+                            return false;
+                        }
+                        else
+                        {
+                            Global.SERVER_ACTIVE = true;
+                            Global.AppSettings.Property("SERVER_ACTIVE").Value = true;
+                            Global.Logdirpath = logdirpath;
+                            return true;
+                        }
+                      
+                      
                     }
                     else
                     {

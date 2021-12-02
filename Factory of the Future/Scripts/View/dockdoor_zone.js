@@ -195,7 +195,7 @@ async function LoadDockDoorTable(dataproperties, table) {
         if (!$.isEmptyObject(dataproperties)) {
             $('table[id=' + table + '] tbody').empty();
             if (/dockdoortable/i.test(table)) {
-                tempdata = [];
+               let tempdata = [];
                 $('div[id=dockdoor_div]').css('display', 'block');
                 $('div[id=trailer_div]').css('display', 'block');
                 $('div[id=machine_div]').css('display', 'none');
@@ -422,7 +422,7 @@ async function LoadDoorDetails(door) {
             }
         });
     }
-};
+}
 function SortByind(a, b) {
     return a.sortind < b.sortind ? -1 : a.sortind > b.sortind ? 1 : 0;
 }

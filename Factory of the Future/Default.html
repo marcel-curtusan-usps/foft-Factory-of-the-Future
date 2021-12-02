@@ -239,9 +239,16 @@
                                         <label class="col-form-label">Attribute:</label><input class="form-control" disabled="disabled" id="modalKeyID">
                                     </div>
                                 </div>
-                                <div class="form-group row">
+                                <div class="form-group row valuediv" style="display:block">
                                     <div class="col">
                                         <label class="col-form-label">Value:</label><input class="form-control" id="modalValueID"><span class="text-info" id="error_modalValueID"></span>
+                                    </div>
+                                </div>
+                                <div class="form-group row timezonediv" style="display:none">
+                                    <div class="col">
+                                        <label class="col-form-label">Value:</label>
+                                        <select class="form-control" id="timezoneValueID"></select>
+                                        <span class="text-info" id="error_timezoneValueID"></span>
                                     </div>
                                 </div>
                             </div>
@@ -399,8 +406,13 @@
                             <div class="form-group col">
                                 <label class="control-label">Name</label><input id="machine_name" type="text" class="form-control" name="machine_name"><span id="errormachine_name" class="text-danger"></span>
                             </div>
-                            <div class="form-group col">
+                            <div class="form-group col-4">
                                 <label class="control-label">Number</label><input id="machine_number" type="text" class="form-control" name="machine_number"><span id="error_machine_number" class="text-danger"></span>
+                            </div>
+                        </div>
+                        <div class="row mr-0 ml-0">
+                            <div class="form-group col-4">
+                                <label class="control-label">Zone LDC</label><input id="zone_ldc" type="text" class="form-control" name="zone_ldc"><span id="errorzone_ldc" class="text-danger"></span>
                             </div>
                         </div>
 
@@ -428,30 +440,30 @@
                         <button class="col-1 close" type="button" data-dismiss="modal" aria-label="Close"><i class="pi-iconExit float-right mt-2 mr-2"></i></button>
                     </div>
                     <div class="modal-body">
-                            <div class="card-body pb-0">
-                                <div class="table-responsive">
-                                    <table class="table table-striped table-sm table-hover mb-0 border-bottom" id="containerdetailstable">
-                                        <thead class="thead-dark">
-                                            <tr>
-                                                <th style="width: 4%;">Site</th>
-                                                <th style="width: 10%;">Site Name</th>
-                                                <th style="width: 9%;">Site Type</th>
-                                                <th style="width: 7%;">Event</th>
-                                                <th style="width: 15%;">Event Time</th>
-                                                <th style="width: 10%;">Location</th>
-                                                <th style="width: 5%;">Bin</th>
-                                                <th style="width: 10%; ">Trailer</th>
-                                                <th style="width: 5%;">Route</th>
-                                                <th style="width: 5%;">Trip</th>
-                                                <th style="width: 10%;">Source</th>
-                                                <th style="width: 10%;">User</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                        </tbody>
-                                    </table>
-                                </div>
+                        <div class="card-body pb-0">
+                            <div class="table-responsive">
+                                <table class="table table-striped table-sm table-hover mb-0 border-bottom" id="containerdetailstable">
+                                    <thead class="thead-dark">
+                                        <tr>
+                                            <th style="width: 4%;">Site</th>
+                                            <th style="width: 10%;">Site Name</th>
+                                            <th style="width: 9%;">Site Type</th>
+                                            <th style="width: 7%;">Event</th>
+                                            <th style="width: 15%;">Event Time</th>
+                                            <th style="width: 10%;">Location</th>
+                                            <th style="width: 5%;">Bin</th>
+                                            <th style="width: 10%; ">Trailer</th>
+                                            <th style="width: 5%;">Route</th>
+                                            <th style="width: 5%;">Trip</th>
+                                            <th style="width: 10%;">Source</th>
+                                            <th style="width: 10%;">User</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                    </tbody>
+                                </table>
                             </div>
+                        </div>
                     </div>
                     <div class="modal-footer1">
                         <div class="col">
@@ -568,6 +580,14 @@
                             <div id="div_vehicle">
                                 <div class="table-responsive">
                                     <table class="table table-sm table-hover mb-0 border-bottom" id="vehicletable">
+                                        <thead class="thead-dark"></thead>
+                                        <tbody></tbody>
+                                    </table>
+                                </div>
+                            </div>
+                            <div id="div_vehicle_mission">
+                                <div class="table-responsive">
+                                    <table class="table table-sm table-hover mb-0 border-bottom" id="vehiclemissiontable">
                                         <thead class="thead-dark"></thead>
                                         <tbody></tbody>
                                     </table>
@@ -931,8 +951,8 @@
                                 <div class="input-group flex-fill px-0 mt-2 mx-3">
                                     <input type="text" id="inputsearchbtn" class="form-control input-border-light" placeholder="Enter badge or equipment ID" aria-label="Tag / Equipment Name" aria-describedby="searchbtn" style="font-size: 14px; ">
                                     <!--<div class="input-group-append">
-                                    <button class="btn btn-outline-secondary" type="button" id="searchbtn">Search</button>
-                                </div>-->
+                                        <button class="btn btn-outline-secondary" type="button" id="searchbtn">Search</button>
+                                    </div>-->
                                 </div>
                                 <p class="smaller text-secondary mb-0 mt-1 ml-2">Start search by entering any letter or number of a badge or vehicle ID</p>
                             </div>
@@ -1109,6 +1129,10 @@
     <script src="Scripts/Filter.js"></script>
     <!--Load default settings for the site-->
     <script src="Scripts/Default.js"></script>
+    <!--Load application settings for the site-->
+    <script src="Scripts/View/application_setting.js"></script>
+    <!--Notification-->
+    <script src="Scripts/View/notification.js"></script>
     <!--Views for API Connection-->
     <script src="Scripts/View/connection.js"></script>
     <!--Views for stage location zone details-->
@@ -1125,7 +1149,10 @@
     <script src="Scripts/View/agvlocation_zone.js"></script>
     <!--Views for dock door zone details-->
     <script src="Scripts/View/dockdoor_zone.js"></script>
+    <!--Views for trips-->
+    <script src="Scripts/View/arrive_depart_trips.js"></script>
     <!--QR Code js-->
     <script src="Scripts/QRCode/qrcode.min.js"></script>
+
 </body>
 </html>

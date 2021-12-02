@@ -25,6 +25,7 @@
     <NuGetPackageImportStamp>
     </NuGetPackageImportStamp>
     <TypeScriptToolsVersion>4.3</TypeScriptToolsVersion>
+    <CodeAnalysisRuleSet>..\.sonarlint\9209_factory-of-the-futurecsharp.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -34,6 +35,7 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <CodeAnalysisRuleSet>..\.sonarlint\9209_factory-of-the-futurecsharp.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -43,6 +45,7 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <CodeAnalysisRuleSet>..\.sonarlint\9209_factory-of-the-futurecsharp.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Microsoft.AspNet.SignalR.Core, Version=2.4.2.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
@@ -108,6 +111,9 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <AdditionalFiles Include="..\.sonarlint\9209_factory-of-the-future\CSharp\SonarLint.xml">
+      <Link>SonarLint.xml</Link>
+    </AdditionalFiles>
     <Content Include="Content\bootstrap-grid.css" />
     <Content Include="Content\bootstrap-grid.min.css" />
     <Content Include="Content\bootstrap-icons.css" />
@@ -234,6 +240,13 @@
     <Content Include="Content\_base.scss" />
     <Content Include="AppSetting\AppSettings.json" />
     <Content Include="Content\bootstrap-icons.json" />
+    <Content Include="..\.sonarlint\9209_factory-of-the-futurecsharp.ruleset">
+      <Link>9209_factory-of-the-futurecsharp.ruleset</Link>
+    </Content>
+    <None Include="compilerconfig.json" />
+    <None Include="compilerconfig.json.defaults">
+      <DependentUpon>compilerconfig.json</DependentUpon>
+    </None>
     <None Include="Scripts\jquery-3.6.0.intellisense.js" />
     <Content Include="Scripts\jquery-3.6.0.js" />
     <Content Include="Scripts\jquery-3.6.0.min.js" />
@@ -351,9 +364,12 @@
     <Content Include="Scripts\umd\popper.js" />
     <Content Include="Scripts\umd\popper.min.js" />
     <Content Include="Scripts\View\agvlocation_zone.js" />
+    <Content Include="Scripts\View\application_setting.js" />
+    <Content Include="Scripts\View\arrive_depart_trips.js" />
     <Content Include="Scripts\View\connection.js" />
     <Content Include="Scripts\View\dockdoor_zone.js" />
     <Content Include="Scripts\View\machine_zone.js" />
+    <Content Include="Scripts\View\notification.js" />
     <Content Include="Scripts\View\person_tag.js" />
     <Content Include="Scripts\View\stange_zone.js" />
     <Content Include="Scripts\View\vehicle.js" />
@@ -381,6 +397,7 @@
     <Compile Include="Controllers\IncomingDataController.cs" />
     <Compile Include="Controllers\SVContainersController.cs" />
     <Compile Include="Controllers\TagsController.cs" />
+    <Compile Include="Controllers\TimeZoneController.cs" />
     <Compile Include="Controllers\UploadFilesController.cs" />
     <Compile Include="Database_Calls\Oracle_DB_Calls.cs" />
     <Compile Include="Data_Retention\Data_Retention.cs" />

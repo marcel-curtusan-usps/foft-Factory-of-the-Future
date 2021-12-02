@@ -33,8 +33,8 @@ async function updateVehicleTag(vehicleupdate) {
                         if (vehicles._layers[layerindex].feature.properties.id === vehicleupdate.properties.id) {
                             if (/^AGV/i.test(vehicleupdate.properties.name)) {
                                 try {
-                                    var dataId = $('#vehicletagid').attr("data-id");
-                                    if (dataId === vehicleupdate.properties.id) {
+                                    var data_Id = $('#vehicletagid').attr("data-id");
+                                    if (data_Id === vehicleupdate.properties.id) {
                                         if ($('input[type=checkbox][name=followvehicle]')[0].checked) {
                                             map.setView(new L.LatLng(vehicleupdate.geometry.coordinates[1], vehicleupdate.geometry.coordinates[0]), 4);
                                         }
@@ -88,40 +88,22 @@ async function updateVehicleTag(vehicleupdate) {
                                             }
                                         }
                                         if (vehicleupdate.properties.hasOwnProperty("inMission")) {
-                                            if (vehicleupdate.properties.inMission) {
-                                                var vehicle_div = $("tr[id=inmission]");
-                                                if (vehicle_div.length > 0) {
+                                            let tagid = $('#vehicletagid').attr("data-id");
+                                            if (tagid === vehicleupdate.properties.id) {
+                                                if (vehicleupdate.properties.inMission) {
                                                     //this is when vhicle is in a mission
-                                                    $tagtop_Table = $('table[id=tagtoptable]');
-
+                                                    $tagtop_Table = $('table[id=vehiclemissiontable]');
                                                     $tagtop_Table_Body = $tagtop_Table.find('tbody');
                                                     $tagtop_Table_Body.empty();
-                                                    $tagtop_agvmissionrow_template = '<tr id=inmission><td>In Misison</td>' +
-                                                        '<tr id=pickupLocation_{TagId}><td>Pickup Location:</td><td>{pickupLocation}</td></tr>' +
-                                                        '<tr id=pickupLocationEta_{TagId}><td>ETA to Pickup:</td><td>{pickupLocationEta}</td></tr>' +
-                                                        '<tr id=dropoffLocation_{TagId}><td>Drop-Off Location:</td><td>{dropoffLocation}</td></tr>' +
-                                                        '<tr id=endLocation_{TagId}><td>End Location:</td><td>{endLocation}</td></tr>' +
-                                                        '</tr>';
-                                                    function formattagtoprow(properties) {
-                                                        return $.extend(properties, {
-                                                            TagId: properties.id,
-                                                            name: properties.name,
-                                                            inMission: properties.hasOwnProperty("inMission") ? properties.inMission === true ? "Yes" : "No" : "No",
-                                                            pickupLocation: properties.hasOwnProperty("pickupLocation") ? Get_location_Code(properties.pickupLocation) : "N/A",
-                                                            dropoffLocation: properties.hasOwnProperty("dropoffLocation") ? Get_location_Code(properties.dropoffLocation) : "N/A",
-                                                            endLocation: properties.hasOwnProperty("endLocation") ? Get_location_Code(properties.endLocation) : "N/A",
-                                                            pickupLocationEta: properties.hasOwnProperty("etaToPickup") ? properties.etaToPickup : "N/A",
-                                                        });
-                                                    }
+                                                    $tagtop_Table_Body.append(agvmissionrow_template.supplant(formatvehiclemissionrow(vehicleupdate.properties)));
 
-                                                    $tagtop_Table_Body.append($tagtop_agvmissionrow_template.supplant(formattagtoprow(vehicleupdate.properties)));
                                                 }
-                                            }
-                                            else {
-                                                var vehicle_div = $("tr[id=inmission]")
-                                                //$('div[id=div_vehicle]').find('button[id=' + vehicleupdate.properties.name + '][name=vehicle]');
-                                                if (vehicle_div.length > 0) {
-                                                    $(vehicle_div).remove();
+                                                else {
+                                                    var vehicle_div = $("tr[id=inmission]")
+                                                    //$('div[id=div_vehicle]').find('button[id=' + vehicleupdate.properties.name + '][name=vehicle]');
+                                                    if (vehicle_div.length > 0) {
+                                                        $(vehicle_div).remove();
+                                                    }
                                                 }
                                             }
                                         }
@@ -226,8 +208,13 @@ var vehicles = new L.GeoJSON(null, {
 async function LoadVehicleTable(dataproperties, table) {
     try {
         if (!$.isEmptyObject(dataproperties)) {
-            $('table[id=' + table + '] tbody').empty();
             if (/vehicletable/i.test(table)) {
+                let vehicletop_Table = $('table[id=' + table + ']');
+                let vehicletop_Table_Body = vehicletop_Table.find('tbody');
+                vehicletop_Table_Body.empty();
+                let vehiclemission_Table = $('table[id=vehiclemissiontable]');
+                let vehiclemission_Table_Body = vehiclemission_Table.find('tbody');
+                vehiclemission_Table_Body.empty();
                 $('div[id=agvlocation_div]').css('display', 'none');
                 $('div[id=dockdoor_div]').css('display', 'none');
                 $('div[id=trailer_div]').css('display', 'none');
@@ -238,88 +225,75 @@ async function LoadVehicleTable(dataproperties, table) {
                 $('div[id=vehicle_div]').css('display', 'block');
                 $('div[id=dps_div]').css('display', 'none');
                 $zoneSelect[0].selectize.setValue(-1, true);
-                $tagtop_Table = $('table[id=' + table + ']');
-                $tagtop_Table_Body = $tagtop_Table.find('tbody');
                 if (!/AGV/i.test(dataproperties.name)) {
-                    $tagtop_agvrow_template = '<tr data-id="{TagId}" id="vehicletagid"><td>Vehicle Name:</td><td class="text-left">{name}</td><td>Tag ID:</td><td>{TagId}</td></tr>' +
-                        '</td></tr>"';
+                    vehicletop_Table_Body.append(pivrow_template.supplant(formatvehicleinforow(dataproperties)));
                 }
 
                 if (/^AGV/i.test(dataproperties.name)) {
-                    try {
-                        //this is for battery and state of the vehicle
-                        $tagtop_agvrow_template = '<tr data-id="{TagId}" id="vehicletagid"><td>Vehicle Name:</td><td class="text-left">{name}</td><td>Tag ID:</td><td>{TagId}</td></tr>' +
-                            '<tr><td>State:</td><td colspan="3"><button id="{name}" name="vehicle" class="btn btn-block btn-sm {vehiclestateCategory} vehiclehistory" style="margin-bottom: 2px;" value="{vehiclestate}">{vehiclestate}</button></td></tr>"' +
-                            '<tr><td>Battery:</td><td colspan="3">' +
-                            '<div class="progress">' +
-                            '<div class="progress-bar btn-sm {vehicleBatteryProgressBar}"  name="{name}_progressbar" role="progressbar" aria-valuenow="{batterylevelnum}" aria-valuemin="0" aria-valuemax="100" style="width: {batterylevelnum}%;">' +
-                            '<span name="{name}_batter_level" style="color: black; position: absolute;" data-batter_lvl="{batterylevelnum}">{batterylevelnum} % Charged</span>' +
-                            '</div>' +
-                            '</div>' + '</td></tr>"';
-                        function formattagtoprow(properties) {
-                            return $.extend(properties, {
-                                TagId: properties.id,
-                                name: properties.name,
-                                batterylevelnum: properties.hasOwnProperty("vehicleBatteryPercent") ? properties.vehicleBatteryPercent : 0,
-                                vehiclenumber: properties.name.replace(/[^0-9.]/g, '').replace(/^0+/, ''),
-                                vehiclestate: properties.hasOwnProperty("state") ? Get_Vehicle_Status(properties.state.replace(/VState/ig, "")) : "N/A",
-                                vehicleBatteryProgressBar: Get_Vehicle_Progress(properties.hasOwnProperty("vehicleBatteryPercent") ? properties.vehicleBatteryPercent : 0),
-                                vehiclestateCategory: properties.hasOwnProperty("vehicleCategory") ? Get_Vehicle_Catagory(properties.vehicleCategory) : "btn-outline-info",
-                                vehiclestatecolor: properties.hasOwnProperty("state") ? properties.state : "red"
-                            });
+                    vehicletop_Table_Body.append(agvrow_template.supplant(formatvehicleinforow(dataproperties)));
+                    if (dataproperties.hasOwnProperty("inMission")) {
+                        if (dataproperties.inMission) {
+                            vehiclemission_Table_Body.empty();
+                            vehiclemission_Table_Body.append(agvmissionrow_template.supplant(formatvehiclemissionrow(dataproperties)));
                         }
-
-                        $tagtop_Table_Body.append($tagtop_agvrow_template.supplant(formattagtoprow(dataproperties)));
-
-                        if (dataproperties.hasOwnProperty("inMission")) {
-                            if (feature.properties.inMission) {
-                                //this is when vehicle is in a mission
-                                $tagtop_agvmissionrow_template = '<tr id=inmission><td>In Mission</td><td>' +
-                                    '<tr id=pickupLocation_{TagId}><td>Pickup Location:</td><td>{pickupLocation}</td></tr>' +
-                                    '<tr id=pickupLocationEta_{TagId}><td>ETA to Pickup:</td><td>{pickupLocationEta}</td></tr>' +
-                                    '<tr id=dropoffLocation_{TagId}><td>Drop-Off Location:</td><td>{dropoffLocation}</td></tr>' +
-                                    '<tr id=endLocation_{TagId}><td>End Location:</td><td>{endLocation}</td></tr>' +
-                                    '</td></tr>';
-                                function formattagtoprow(properties) {
-                                    return $.extend(properties, {
-                                        TagId: properties.id,
-                                        name: properties.name,
-                                        inMission: properties.hasOwnProperty("inMission") ? properties.inMission === true ? "Yes" : "No" : "No",
-                                        pickupLocation: properties.hasOwnProperty("pickupLocation") ? Get_location_Code(properties.pickupLocation) : "N/A",
-                                        dropoffLocation: properties.hasOwnProperty("dropoffLocation") ? Get_location_Code(properties.dropoffLocation) : "N/A",
-                                        endLocation: properties.hasOwnProperty("endLocation") ? Get_location_Code(properties.endLocation) : "N/A",
-                                        pickupLocationEta: properties.hasOwnProperty("etaToPickup") ? properties.etaToPickup : "N/A",
-                                    });
-                                }
-
-                                $tagtop_Table_Body.append($tagtop_agvmissionrow_template.supplant(formattagtoprow(feature.properties)));
-                            }
+                        else {
+                            vehiclemission_Table_Body.empty();
                         }
-                    } catch (e) {
+                    } else {
+                        vehiclemission_Table_Body.empty();
                     }
-                }
-                else {
-                    function formattagtoprow(properties) {
-                        return $.extend(properties, {
-                            TagId: properties.id,
-                            name: properties.name,
-                            batterylevelnum: properties.hasOwnProperty("vehicleBatteryPercent") ? properties.vehicleBatteryPercent : 0,
-                            vehiclenumber: properties.name.replace(/[^0-9.]/g, '').replace(/^0+/, ''),
-                            vehiclestate: properties.hasOwnProperty("state") ? Get_Vehicle_Status(properties.state.replace(/VState/ig, "")) : "N/A",
-                            vehicleBatteryProgressBar: Get_Vehicle_Progress(properties.hasOwnProperty("vehicleBatteryPercent") ? properties.vehicleBatteryPercent : 0),
-                            vehiclestateCategory: properties.hasOwnProperty("vehicleCategory") ? Get_Vehicle_Catagory(properties.vehicleCategory) : "btn-outline-info",
-                            vehiclestatecolor: properties.hasOwnProperty("state") ? properties.state : "red"
-                        });
-                    }
-                    $tagtop_Table_Body.append($tagtop_agvrow_template.supplant(formattagtoprow(dataproperties)));
                 }
             }
         }
     } catch (e) {
         console.log(e);
     }
-};
+}
+let pivrow_template = '<tr data-id="{TagId}" id="vehicletagid"><td>Vehicle Name:</td><td class="text-left">{name}</td><td>Tag ID:</td><td>{TagId}</td></tr>' +
+    '</td></tr>"';
+let agvrow_template = '<tr data-id="{TagId}" id="vehicletagid"><td>Vehicle Name:</td><td class="text-left">{name}</td><td>Tag ID:</td><td>{TagId}</td></tr>' +
+    '<tr><td>State:</td><td colspan="3"><button id="{name}" name="vehicle" class="btn btn-block btn-sm {vehiclestateCategory} vehiclehistory" style="margin-bottom: 2px;" value="{vehiclestate}">{vehiclestate}</button></td></tr>"' +
+    '<tr><td>Battery:</td><td colspan="3">' +
+    '<div class="progress">' +
+    '<div class="progress-bar btn-sm {vehicleBatteryProgressBar}"  name="{name}_progressbar" role="progressbar" aria-valuenow="{batterylevelnum}" aria-valuemin="0" aria-valuemax="100" style="width: {batterylevelnum}%;">' +
+    '<span name="{name}_batter_level" style="color: black; position: absolute;" data-batter_lvl="{batterylevelnum}">{batterylevelnum} % Charged</span>' +
+    '</div>' +
+    '</div>' + '</td></tr>"';
+let agvmissionrow_template = '<tr class="text-center" id=inmission><td class="font-weight-bold" colspan="2" >In Mission Status</td>' +
+    '<tr id=pickupLocation_{TagId}><td>Pickup Location:</td><td>{pickuplocation}</td></tr>' +
+    '<tr id=pickupLocationEta_{TagId}><td>ETA to Pickup:</td><td>{pickuplocationEta}</td></tr>' +
+    '<tr id=dropoffLocation_{TagId}><td>Drop-Off Location:</td><td>{dropofflocation}</td></tr>' +
+    '<tr id=endLocation_{TagId}><td>End Location:</td><td>{endlocation}</td></tr>' +
+    '<tr><td>Placard:</td><td>{mtelplacard}</td></tr>' +
+    '</tr>';
+function formatvehicleinforow(properties) {
+    return $.extend(properties, {
+        TagId: properties.id,
+        name: properties.name,
+        batterylevelnum: properties.hasOwnProperty("vehicleBatteryPercent") ? properties.vehicleBatteryPercent : 0,
+        vehiclenumber: properties.name.replace(/[^0-9.]/g, '').replace(/^0+/, ''),
+        vehiclestate: properties.hasOwnProperty("state") ? Get_Vehicle_Status(properties.state.replace(/VState/ig, "")) : "N/A",
+        vehicleBatteryProgressBar: Get_Vehicle_Progress(properties.hasOwnProperty("vehicleBatteryPercent") ? properties.vehicleBatteryPercent : 0),
+        vehiclestateCategory: properties.hasOwnProperty("vehicleCategory") ? Get_Vehicle_Catagory(properties.vehicleCategory) : "btn-outline-info",
+        vehiclestatecolor: properties.hasOwnProperty("state") ? properties.state : "red"
+    });
+}
+function formatvehiclemissionrow(properties) {
+    return $.extend(properties, {
+        TagId: properties.id,
+        name: properties.name,
+        inMission: properties.hasOwnProperty("inMission") ? properties.inMission === true ? "Yes" : "No" : "No",
+        pickuplocation: properties.hasOwnProperty("pickupLocation") ? Get_location_Code(properties.pickupLocation) : "N/A",
+        dropofflocation: properties.hasOwnProperty("dropoffLocation") ? Get_location_Code(properties.dropoffLocation) : "N/A",
+        endlocation: properties.hasOwnProperty("endLocation") ? Get_location_Code(properties.endLocation) : "N/A",
+        pickuplocationEta: properties.hasOwnProperty("etaToPickup") ? properties.etaToPickup : "N/A",
+        mtelplacard: properties.hasOwnProperty("placard") ? properties.placard : "N/A"
+    });
+}
 function Get_Vehicle_Catagory(category) {
+    if (category === "btn-outline-info") {
+        return "btn-success";
+    }
     if (category === "1") {
         return "btn-success";
     }

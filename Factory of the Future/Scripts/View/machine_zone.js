@@ -80,7 +80,7 @@ $(function () {
 var polygonMachine = new L.GeoJSON(null, {
     style: function (feature) {
         if (feature.properties.visible) {
-            var style = "";
+            var style = {};
             var sortplan = feature.properties.hasOwnProperty("MPEWatchData") ? feature.properties.MPEWatchData.hasOwnProperty("cur_sortplan") ? feature.properties.MPEWatchData.cur_sortplan : "" : "";
             var endofrun = feature.properties.hasOwnProperty("MPEWatchData") ? feature.properties.MPEWatchData.hasOwnProperty("current_run_end") ? feature.properties.MPEWatchData.current_run_end : "" : "";
             var startofrun = feature.properties.hasOwnProperty("MPEWatchData") ? feature.properties.MPEWatchData.hasOwnProperty("current_run_start") ? feature.properties.MPEWatchData.current_run_start : "" : "";
@@ -138,34 +138,21 @@ var polygonMachine = new L.GeoJSON(null, {
 async function LoadMachineTables(dataproperties, table) {
     try {
         if (!$.isEmptyObject(dataproperties)) {
+            $('div[id=dockdoor_div]').css('display', 'none');
+            $('div[id=trailer_div]').css('display', 'none');
+            $('div[id=area_div]').css('display', 'none');
+            $('div[id=agvlocation_div]').css('display', 'none');
+            $('div[id=vehicle_div]').css('display', 'none');
+            $('div[id=machine_div]').css('display', 'block');
+            $('div[id=ctstabs_div]').css('display', 'block');
             if (/machinetable/i.test(table)) {
                 
                 $zoneSelect[0].selectize.setValue(dataproperties.id, true);
                 $('button[name=machineinfoedit]').attr('id', dataproperties.id)
-                $('div[id=dockdoor_div]').css('display', 'none');
-                $('div[id=trailer_div]').css('display', 'none');
-                $('div[id=area_div]').css('display', 'none');
-                $('div[id=agvlocation_div]').css('display', 'none');
-                $('div[id=vehicle_div]').css('display', 'none');
-                $('div[id=machine_div]').css('display', 'block');
-                $('div[id=ctstabs_div]').css('display', 'block');
                 $('div[id=dps_div]').css('display', 'none');
                 let machinetop_Table = $('table[id=' + table + ']');
                 let machinetop_Table_Body = machinetop_Table.find('tbody');
                 machinetop_Table_Body.empty();
-                let machinetop_row_template = '<tr data-id="{zoneId}"><td>{zoneType}</td><td>{zoneName}</td><td><span class="badge badge-pill {stateBadge}" style="font-size: 12px;">{stateText}</span></td></tr>' +
-                    '<tr><td>Sort Plan</td><td colspan="2">{sortPlan}</td></tr>' +
-                    '<tr><td>Operation Number</td><td colspan="2">{opNum}</td></tr>' +
-                    '<tr><td>Start</td><td colspan="2">{sortPlanStart}</td></tr>' +
-                    '<tr><td>End</td><td colspan="2">{sortPlanEnd}</td></tr>' +
-                    '<tr><td>Estimated Completion</td><td colspan="2">{estComp}</td>/tr>' +
-                    '<tr><td>Pieces Fed</td><td colspan="2">{peicesFed}</td></tr>' +
-                    '<tr><td>Throughput</td><td colspan="2">{throughput}</td></tr>' +
-                    '<tr><td>RPG Vol</td><td colspan="2">{rpgVol}</td></tr>' +
-                    '<tr><td>Expected Throughput</td><td colspan="2">{expThroughput}</td></tr>' +
-                    '<tr id="fullbin_tr" style="display: none;"><td>Full Bins</td><td colspan="2" style="white-space: normal; word-wrap:break-word;">{fullBins}</td></tr>'
-                    ;
-              
                 machinetop_Table_Body.append(machinetop_row_template.supplant(formatmachinetoprow(dataproperties)));
 
                 if (dataproperties.MPEWatchData.hasOwnProperty("bin_full_bins")) {
@@ -186,46 +173,11 @@ async function LoadMachineTables(dataproperties, table) {
                 if (dataproperties.hasOwnProperty("DPSData")) {
                     if (checkValue(dataproperties.DPSData)) {
                         $zoneSelect[0].selectize.setValue(dataproperties.id, true);
-                        $('div[id=dockdoor_div]').css('display', 'none');
-                        $('div[id=trailer_div]').css('display', 'none');
-                        $('div[id=area_div]').css('display', 'none');
-                        $('div[id=agvlocation_div]').css('display', 'none');
-                        $('div[id=vehicle_div]').css('display', 'none');
-                        $('div[id=machine_div]').css('display', 'block');
-                        $('div[id=ctstabs_div]').css('display', 'block');
                         $('div[id=dps_div]').css('display', 'block');
-                        $dpstop_Table = $('table[id=' + table + ']');
-                        $dpstop_Table_Body = $dpstop_Table.find('tbody')
-                        $dpstop_Table_Body.empty();
-                        $dpstop_row_template =
-                            '<tr><td>DPS Sort Plans</td><td>{dpssortplans}</td><td></td></tr>' +
-                            '<tr><td><b>First Pass</b></td><td></td><td></td></tr>' +
-                            '<tr><td>Pieces Fed</td><td>{piecesfedfirstpass}</td><td></td></tr>' +
-                            '<tr><td>Pieces Rejected</td><td>{piecesrejectedfirstpass}</td><td></td></tr>' +
-                            '<tr><td>Pieces To Second Pass</td><td>{piecestosecondpass}</td><td></td></tr>' +
-                            '<tr><td>Rec. 2nd Pass Start Time</td><td>{recomendedstartactual}</td><td></td></tr>' +
-                            '<tr><td><b>Second Pass</b></td><td></td><td></td></tr>' +
-                            '<tr><td>Pieces Fed</td><td>{piecesfedsecondpass}</td><td></td></tr>' +
-                            '<tr><td>Pieces Rejected</td><td>{piecesrejectedsecondpass}</td><td></td></tr>' +
-                            '<tr><td>Pieces Remaining</td><td>{piecesremainingsecondpass}</td><td></td></tr>' +
-                            '<tr><td>Est. Completion Time</td><td>{completiondateTime}</td><td></td></tr>'
-                            ;
-                        function formatdpstoprow(properties) {
-                            return $.extend(properties, {
-                                dpssortplans: properties.hasOwnProperty("DPSData") ? properties.DPSData.hasOwnProperty("sortplan_name_perf") ? properties.DPSData.sortplan_name_perf : "" : "",
-                                piecesfedfirstpass: properties.hasOwnProperty("DPSData") ? properties.DPSData.hasOwnProperty("pieces_fed_1st_cnt") ? digits(properties.DPSData.pieces_fed_1st_cnt) : "" : "",
-                                piecesrejectedfirstpass: properties.hasOwnProperty("DPSData") ? properties.DPSData.hasOwnProperty("pieces_rejected_1st_cnt") ? digits(properties.DPSData.pieces_rejected_1st_cnt) : "" : "",
-                                piecestosecondpass: properties.hasOwnProperty("DPSData") ? properties.DPSData.hasOwnProperty("pieces_to_2nd_pass") ? digits(properties.DPSData.pieces_to_2nd_pass) : "" : "",
-                                piecesfedsecondpass: properties.hasOwnProperty("DPSData") ? properties.DPSData.hasOwnProperty("pieces_fed_2nd_cnt") ? digits(properties.DPSData.pieces_fed_2nd_cnt) : "" : "",
-                                piecesrejectedsecondpass: properties.hasOwnProperty("DPSData") ? properties.DPSData.hasOwnProperty("pieces_rejected_2nd_cnt") ? digits(properties.DPSData.pieces_rejected_2nd_cnt) : "" : "",
-                                piecesremainingsecondpass: properties.hasOwnProperty("DPSData") ? properties.DPSData.hasOwnProperty("pieces_remaining") ? digits(properties.DPSData.pieces_remaining) : "" : "",
-                                timetocompleteactual: properties.hasOwnProperty("DPSData") ? properties.DPSData.hasOwnProperty("time_to_comp_actual") ? digits(properties.DPSData.time_to_comp_actual) : "" : "",
-                                timeleftsecondpassactual: properties.hasOwnProperty("DPSData") ? properties.DPSData.hasOwnProperty("time_to_2nd_pass_actual") ? digits(properties.DPSData.time_to_2nd_pass_actual) : "" : "",
-                                recomendedstartactual: properties.hasOwnProperty("DPSData") ? properties.DPSData.hasOwnProperty("rec_2nd_pass_start_actual") ? properties.DPSData.rec_2nd_pass_start_actual : "" : "",
-                                completiondateTime: properties.hasOwnProperty("DPSData") ? properties.DPSData.hasOwnProperty("time_to_comp_actual_DateTime") ? properties.DPSData.time_to_comp_actual_DateTime : "" : "",
-                            });
-                        }
-                        $dpstop_Table_Body.append($dpstop_row_template.supplant(formatdpstoprow(dataproperties)));
+                        let dpstop_Table = $('table[id=' + table + ']');
+                        let dpstop_Table_Body = dpstop_Table.find('tbody')
+                        dpstop_Table_Body.empty();
+                        dpstop_Table_Body.append(dpstop_row_template.supplant(formatdpstoprow(dataproperties)));
                     }
                 }
             }
@@ -255,6 +207,46 @@ function formatmachinetoprow(properties) {
         fullBins: properties.hasOwnProperty("MPEWatchData") ? properties.MPEWatchData.hasOwnProperty("bin_full_bins") ? properties.MPEWatchData.bin_full_bins : "" : "",
     });
 }
+let machinetop_row_template = '<tr data-id="{zoneId}"><td>{zoneType}</td><td>{zoneName}</td><td><span class="badge badge-pill {stateBadge}" style="font-size: 12px;">{stateText}</span></td></tr>' +
+    '<tr><td>Sort Plan</td><td colspan="2">{sortPlan}</td></tr>' +
+    '<tr><td>Operation Number</td><td colspan="2">{opNum}</td></tr>' +
+    '<tr><td>Start</td><td colspan="2">{sortPlanStart}</td></tr>' +
+    '<tr><td>End</td><td colspan="2">{sortPlanEnd}</td></tr>' +
+    '<tr><td>Estimated Completion</td><td colspan="2">{estComp}</td>/tr>' +
+    '<tr><td>Pieces Fed</td><td colspan="2">{peicesFed}</td></tr>' +
+    '<tr><td>Throughput</td><td colspan="2">{throughput}</td></tr>' +
+    '<tr><td>RPG Vol</td><td colspan="2">{rpgVol}</td></tr>' +
+    '<tr><td>Expected Throughput</td><td colspan="2">{expThroughput}</td></tr>' +
+    '<tr id="fullbin_tr" style="display: none;"><td>Full Bins</td><td colspan="2" style="white-space: normal; word-wrap:break-word;">{fullBins}</td></tr>'
+    ;
+function formatdpstoprow(properties) {
+    return $.extend(properties, {
+        dpssortplans: properties.hasOwnProperty("DPSData") ? properties.DPSData.hasOwnProperty("sortplan_name_perf") ? properties.DPSData.sortplan_name_perf : "" : "",
+        piecesfedfirstpass: properties.hasOwnProperty("DPSData") ? properties.DPSData.hasOwnProperty("pieces_fed_1st_cnt") ? digits(properties.DPSData.pieces_fed_1st_cnt) : "" : "",
+        piecesrejectedfirstpass: properties.hasOwnProperty("DPSData") ? properties.DPSData.hasOwnProperty("pieces_rejected_1st_cnt") ? digits(properties.DPSData.pieces_rejected_1st_cnt) : "" : "",
+        piecestosecondpass: properties.hasOwnProperty("DPSData") ? properties.DPSData.hasOwnProperty("pieces_to_2nd_pass") ? digits(properties.DPSData.pieces_to_2nd_pass) : "" : "",
+        piecesfedsecondpass: properties.hasOwnProperty("DPSData") ? properties.DPSData.hasOwnProperty("pieces_fed_2nd_cnt") ? digits(properties.DPSData.pieces_fed_2nd_cnt) : "" : "",
+        piecesrejectedsecondpass: properties.hasOwnProperty("DPSData") ? properties.DPSData.hasOwnProperty("pieces_rejected_2nd_cnt") ? digits(properties.DPSData.pieces_rejected_2nd_cnt) : "" : "",
+        piecesremainingsecondpass: properties.hasOwnProperty("DPSData") ? properties.DPSData.hasOwnProperty("pieces_remaining") ? digits(properties.DPSData.pieces_remaining) : "" : "",
+        timetocompleteactual: properties.hasOwnProperty("DPSData") ? properties.DPSData.hasOwnProperty("time_to_comp_actual") ? digits(properties.DPSData.time_to_comp_actual) : "" : "",
+        timeleftsecondpassactual: properties.hasOwnProperty("DPSData") ? properties.DPSData.hasOwnProperty("time_to_2nd_pass_actual") ? digits(properties.DPSData.time_to_2nd_pass_actual) : "" : "",
+        recomendedstartactual: properties.hasOwnProperty("DPSData") ? properties.DPSData.hasOwnProperty("rec_2nd_pass_start_actual") ? properties.DPSData.rec_2nd_pass_start_actual : "" : "",
+        completiondateTime: properties.hasOwnProperty("DPSData") ? properties.DPSData.hasOwnProperty("time_to_comp_actual_DateTime") ? properties.DPSData.time_to_comp_actual_DateTime : "" : "",
+    });
+}
+let dpstop_row_template =
+    '<tr><td>DPS Sort Plans</td><td>{dpssortplans}</td><td></td></tr>' +
+    '<tr><td><b>First Pass</b></td><td></td><td></td></tr>' +
+    '<tr><td>Pieces Fed</td><td>{piecesfedfirstpass}</td><td></td></tr>' +
+    '<tr><td>Pieces Rejected</td><td>{piecesrejectedfirstpass}</td><td></td></tr>' +
+    '<tr><td>Pieces To Second Pass</td><td>{piecestosecondpass}</td><td></td></tr>' +
+    '<tr><td>Rec. 2nd Pass Start Time</td><td>{recomendedstartactual}</td><td></td></tr>' +
+    '<tr><td><b>Second Pass</b></td><td></td><td></td></tr>' +
+    '<tr><td>Pieces Fed</td><td>{piecesfedsecondpass}</td><td></td></tr>' +
+    '<tr><td>Pieces Rejected</td><td>{piecesrejectedsecondpass}</td><td></td></tr>' +
+    '<tr><td>Pieces Remaining</td><td>{piecesremainingsecondpass}</td><td></td></tr>' +
+    '<tr><td>Est. Completion Time</td><td>{completiondateTime}</td><td></td></tr>'
+    ;
 
 async function LoadMachineDetails(selcValue) {
     try {
@@ -280,6 +272,12 @@ async function LoadMachineDetails(selcValue) {
     }
 
 }
+$('#zoneselect').change(function (e) {
+    $('input[type=checkbox][name=followvehicle]').prop('checked', false).change();
+    var selcValue = this.value;
+    LoadMachineDetails(selcValue);
+
+});
 function getstatebadge(properties) {
     if (properties.hasOwnProperty("MPEWatchData")) {
         if (properties.MPEWatchData.hasOwnProperty("current_run_end")) {
@@ -364,6 +362,7 @@ async function Edit_Machine_Info(id) {
                 if (!$.isEmptyObject(Data)) {
                     $('input[type=text][name=machine_name]').val(Data.MPE_Type);
                     $('input[type=text][name=machine_number]').val(Data.MPE_Number);
+                    $('input[type=text][name=zone_ldc]').val(Data.Zone_LDC);
                     $('input[type=text][name=machine_id]').val(Data.id);
 
 
@@ -373,6 +372,7 @@ async function Edit_Machine_Info(id) {
                             var jsonObject = {};
                             $('input[type=text][name=machine_name]').val() !== Data.MPE_Type ? jsonObject.MPE_Type = $('input[type=text][name=machine_name]').val() : "";
                             $('input[type=text][name=machine_number]').val() !== Data.MPE_Number ? jsonObject.MPE_Number = $('input[type=text][name=machine_number]').val() : "";
+                            $('input[type=text][name=zone_ldc]').val() !== Data.Zone_LDC ? jsonObject.Zone_LDC = $('input[type=text][name=zone_ldc]').val() : "";
 
 
                             if (!$.isEmptyObject(jsonObject)) {

@@ -126,6 +126,16 @@ namespace Factory_of_the_Future
         }
 
         /// <summary>
+        /// Get Trips Data
+        /// </summary>
+        /// <returns></returns>
+        public IEnumerable<JToken> GetTripsList()
+        {
+            return _managerHub.GetTripsList();
+        }
+
+
+        /// <summary>
         /// Get CTS Data
         /// </summary>
         /// <returns></returns>

@@ -7,7 +7,7 @@ namespace Factory_of_the_Future
     {
         internal void ExceptionLog(Exception e)
         {
-            if (new Directory_Check().DirPath(Global.CodeBase.Parent))
+            if (new Directory_Check().DirPath(Global.Logdirpath))
             {
                 if (Global.AppSettings.ContainsKey("APPLICATION_NAME"))
                 {
@@ -38,7 +38,7 @@ namespace Factory_of_the_Future
                         errorBuilder.Append("Exception:TargetSite = " + e.TargetSite);
                         errorBuilder.Append("Exception:Source = " + e.Source);
 
-                        new FileIO().Write(string.Concat(Global.CodeBase.Parent.FullName.ToString()), "FOTF_Applogs_" + DateTime.Now.ToString("yyyy-MM-dd") + ".text", errorBuilder.ToString());
+                        new FileIO().Write(string.Concat(Global.CodeBase.Parent.FullName.ToString()), (string)Global.AppSettings.Property("APPLICATION_NAME").Value + "_Applogs_" + DateTime.Now.ToString("yyyy-MM-dd") + ".text", errorBuilder.ToString());
                     }
                 }
             }
@@ -54,6 +54,20 @@ namespace Factory_of_the_Future
                     errorBuilder.Append("DateTime = " + DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fff"));
                     errorBuilder.Append(" Data = " + Data);
                     new FileIO().Write(string.Concat(Global.Logdirpath, Global.LogFloder, "\\"), type + "_" + DateTime.Now.ToString("yyyy-MM-dd") + ".text", errorBuilder.ToString());
+                }
+            }
+            else
+            {
+                if (new Directory_Check().DirPath(Global.CodeBase.Parent))
+                {
+                    if (Global.AppSettings.ContainsKey("APPLICATION_NAME"))
+                    {
+                        StringBuilder errorBuilder = new StringBuilder(Global.AppSettings.Property("APPLICATION_NAME").Value.ToString() + " " + type + " Info ");
+                        errorBuilder.Append("DateTime = " + DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fff"));
+                        errorBuilder.Append(" Data = " + Data);
+
+                        new FileIO().Write(string.Concat(Global.CodeBase.Parent.FullName.ToString()), (string)Global.AppSettings.Property("APPLICATION_NAME").Value + "_Applogs_" + DateTime.Now.ToString("yyyy-MM-dd") + ".text", errorBuilder.ToString());
+                    }
                 }
             }
         }

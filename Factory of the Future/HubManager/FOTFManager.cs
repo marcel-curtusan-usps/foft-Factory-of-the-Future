@@ -111,13 +111,10 @@ namespace Factory_of_the_Future
                         if (Global.TimeZoneConvert.TryGetValue((string)Global.AppSettings.Property("FACILITY_TIMEZONE").Value, out string windowsTimeZoneId))
                         {
                             dtLastUpdate = TimeZoneInfo.ConvertTime(dtLastUpdate, TimeZoneInfo.FindSystemTimeZoneById(windowsTimeZoneId));
-                            BroadcastClockStatus(dtLastUpdate);
+                           
                         }
                     }
-                    else
-                    {
-                        BroadcastClockStatus(dtLastUpdate);
-                    }
+                    BroadcastClockStatus(dtLastUpdate);
                     _updateClockStatus = false;
                 }
             }
@@ -1040,7 +1037,18 @@ namespace Factory_of_the_Future
                 return false;
             }
         }
-
+        internal IEnumerable<JToken> GetTripsList()
+        {
+            try
+            {
+                return Global.Trips.Select(y => y.Value).ToList();
+            }
+            catch (Exception e)
+            {
+                new ErrorLogger().ExceptionLog(e);
+                return new JObject();
+            }
+        }
         internal IEnumerable<JToken> GetCTSList(string type)
         {
             try
@@ -2156,14 +2164,8 @@ namespace Factory_of_the_Future
                                             {
                                                 Global.AppSettings.Property(item.Key).Value = kv.Value.ToString();
                                                 Global.Logdirpath = new DirectoryInfo(kv.Value.ToString());
-                                                if (Global.Logdirpath.Root.Exists)
-                                                {
-                                                    Global.SERVER_ACTIVE = true;
-                                                }
-                                                else
-                                                {
-                                                    Global.SERVER_ACTIVE = false;
-                                                }
+                                                new Directory_Check().DirPath(Global.Logdirpath);
+                                               
                                             }
                                         }
                                         else

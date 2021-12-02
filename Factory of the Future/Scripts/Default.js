@@ -496,38 +496,7 @@ $(function () {
             }
         });
     });
-    $('#AppSetting_value_Modal').on('hidden.bs.modal', function () {
-        $(this)
-            .find("input[type=text],textarea,select")
-            .css({ "border-color": "#D3D3D3" })
-            .val('')
-            .end()
-            .find("span[class=text]")
-            .css("border-color", "#FF0000")
-            .val('')
-            .text("")
-            .end()
-            .find('input[type=checkbox]')
-            .prop('checked', false).change();
 
-        if (!$('#AppSetting_Modal').hasClass('in')) {
-            $('#AppSetting_Modal').addClass('modal-open');
-        }
-    });
-    $('#AppSetting_value_Modal').on('shown.bs.modal', function () {
-        $('span[id=error_apisubmitBtn]').text("");
-        $('button[id=apisubmitBtn]').prop('disabled', true);
-        //Connection name Validation
-        if (!checkValue($('input[id=modalValueID]').val())) {
-            $('input[id=modalValueID]').removeClass('is-valid').addClass('is-invalid');
-            $('span[id=error_modalValueID]').text("Please Enter Value");
-        }
-        else {
-            $('input[id=modalValueID]').removeClass('is-invalid').addClass('is-valid');
-            $('span[id=error_modalValueID]').text("");
-            enableConnectionSubmit();
-        }
-    });
     $('#UserTag_Modal').on('hidden.bs.modal', function () {
         $(this)
             .find("input[type=text],textarea,select")
@@ -569,7 +538,7 @@ $(function () {
         $('input[type=text][name=machine_name]').keyup(function () {
             if (!checkValue($('input[type=text][name=machine_name]').val())) {
                 $('input[type=text][name=machine_name]').css("border-color", "#FF0000").removeClass('is-valid').addClass('is-invalid');
-                $('span[id=error_machine_name]').text("Please Enter Message Type");
+                $('span[id=error_machine_name]').text("Please Enter Machine Name");
             }
             else {
                 $('input[type=text][name=machine_name]').css("border-color", "#2eb82e").removeClass('is-invalid').addClass('is-valid');
@@ -581,7 +550,7 @@ $(function () {
         //Connection name Validation
         if (!checkValue($('input[type=text][name=machine_name]').val())) {
             $('input[type=text][name=machine_name]').css("border-color", "#FF0000").removeClass('is-valid').addClass('is-invalid');
-            $('span[id=error_machine_name]').text("Please Enter MPE Name");
+            $('span[id=error_machine_name]').text("Please Enter Machine Name");
         }
         else {
             $('input[type=text][name=machine_name]').css("border-color", "#2eb82e").removeClass('is-invalid').addClass('is-valid');
@@ -591,7 +560,7 @@ $(function () {
         $('input[type=text][name=machine_number]').keyup(function () {
             if (!checkValue($('input[type=text][name=machine_number]').val())) {
                 $('input[type=text][name=machine_number]').css("border-color", "#FF0000").removeClass('is-valid').addClass('is-invalid');
-                $('span[id=error_machine_number]').text("Please Enter Message Type");
+                $('span[id=error_machine_number]').text("Please Enter Machine Number");
             }
             else {
                 $('input[type=text][name=machine_number]').css("border-color", "#2eb82e").removeClass('is-invalid').addClass('is-valid');
@@ -603,12 +572,32 @@ $(function () {
         //Request Type Validation
         if (!checkValue($('input[type=text][name=machine_number]').val())) {
             $('input[type=text][name=machine_number]').css("border-color", "#FF0000").removeClass('is-valid').addClass('is-invalid');
-            $('span[id=error_machine_number]').text("Please Enter Number");
+            $('span[id=error_machine_number]').text("Please Enter Machine Number");
         }
         else {
             $('input[type=text][name=machine_number]').css("border-color", "#2eb82e").removeClass('is-invalid').addClass('is-valid');
             $('span[id=error_machine_number]').text("");
         }
+        //Request Type Validation
+        if (checkValue($('input[type=text][name=zone_ldc]').val())) {
+            $('input[type=text][name=zone_ldc]').css("border-color", "#2eb82e").removeClass('is-invalid').addClass('is-valid');
+            $('span[id=error_zone_ldc]').text("");
+        }
+        else {
+            $('input[type=text][name=zone_ldc]').css("border-color", "#D3D3D3").removeClass('is-invalid').removeClass('is-valid');
+            $('span[id=error_zone_ldc]').text("");
+        }
+        //Request zone LDC Keyup
+        $('input[type=text][name=zone_ldc]').keyup(function () {
+            if (checkValue($('input[type=text][name=zone_ldc]').val())) {
+                $('input[type=text][name=zone_ldc]').css("border-color", "#2eb82e").removeClass('is-invalid').addClass('is-valid');
+                $('span[id=error_zone_ldc]').text("");
+            }
+            else {
+                $('input[type=text][name=zone_ldc]').css("border-color", "#D3D3D3").removeClass('is-invalid').removeClass('is-valid');
+                $('span[id=error_zone_ldc]').text("");
+            }
+        });
     });
     $('input[id=warning_condition]').on("slide", function (slideEvt) {
         $('span[id=warning_conditionpickvalue]').text(slideEvt.value);
@@ -617,7 +606,7 @@ $(function () {
     $.extend(fotfmanager.client, {
         updateClock: async (timer) => {
             $('#localTime').val(moment(timer).format('H:mm:ss'));
-            ///bagdecomplient();
+            ///badgecomplaint();
             zonecurrentStaff();
             var visible = sidebar._getTab("reports");
             if (visible) {
@@ -637,479 +626,204 @@ $(function () {
         updateMachineStatus: async (updateMachine) => { updateMachineZone(updateMachine) },
         updateAGVLocationStatus: async (updateAGVLocation) => { updateAGVLocationZone(updateAGVLocation) },
         updateStageZoneStatus: async (updateStage) => { updateStageZone(updateStage) },
-        updateCTSDepartedStatus: async (CTSData) => {
-            try {
-                $ctsdockDcardtop_Table = $('table[id=ctsdockdepartedtable]');
-                $ctsdockDcardtop_Table_Body = $ctsdockDcardtop_Table.find('tbody');
-                $ctsdockDcardtop_row_template = '<tr data-id=ctsOB_{routetrip} data-route={route} data-trip={trip}  data-door={door}  class={trbackground}>' +
-                    '<td class="text-center">{schd}</td>' +
-                    '<td class="text-center">{departed}</td>' +
-                    '<td class="{background}">{btnloadDoor}</td>' +
-                    '<td class="text-center">{leg}</td>' +
-                    '<td data-toggle="tooltip" title="{dest}">{dest}</td>' +
-                    '<td class="text-center">{close}</td>' +
-                    '<td class="text-center">{load}</td>' +
-                    '<td>{btnloadPercent}</td>' +
-                    '</tr>"';
+        updateNotification: async (updatenotification) => { updateNotification(updatenotification) },
+        /*Trips calls*/
+        updateTripsStatus: async (updatetripsstatus) => { updateTrips(updatetripsstatus)} ,
 
-                function formatctsdockDcardtoprow(properties) {
-                    return $.extend(properties, {
-                        schd: checkValue(properties.ScheduledTZ) ? formatTime(properties.ScheduledTZ) : "",
-                        departed: checkValue(properties.DepartedTZ) ? formatTime(properties.DepartedTZ) : "",
-                        door: checkValue(properties.Door) ? properties.Door : "",
-                        routetrip: properties.Route + properties.Trip,
-                        route: properties.Route,
-                        trip: properties.Trip,
-                        leg: properties.Leg,
-                        dest: properties.Destination,
-                        load: properties.Load,
-                        background: checkValue(properties.Door) ? "" : "purpleBg",
-                        trbackground: "",// Gettimediff(properties.ScheduledTZ),
-                        close: properties.Closed,
-                        btnloadPercent: Load_btn_details(properties),
-                        btnloadDoor: Load_btn_door(properties),
-                        dataproperties: properties
-                    });
-                }
-                var findtrdataid = $ctsdockDcardtop_Table_Body.find('tr[data-id=ctsOB_' + CTSData.Route + CTSData.Trip + ']');
-                if (findtrdataid.length > 0) {
-                    if (CTSData.CTS_Remove) {
-                        $ctsdockDcardtop_Table_Body.find('tr[data-id=ctsOB_' + CTSData.Route + CTSData.Trip + ']').remove();
-                    }
-                    else {
-                        $ctsdockDcardtop_Table_Body.find('tr[data-id=ctsOB_' + CTSData.Route + CTSData.Trip + ']').replaceWith($ctsdockDcardtop_row_template.supplant(formatctsdockDcardtoprow(CTSData)));
-                    }
-                }
-                else {
-                    if (!CTSData.CTS_Remove) {
-                        $ctsdockDcardtop_Table_Body.append($ctsdockDcardtop_row_template.supplant(formatctsdockDcardtoprow(CTSData)));
-                    }
-                }
-            } catch (e) {
-                console.log(e);
-            }
-        },
-        updateCTSLocalDepartedStatus: async (CTSlocalData) => {
-            try {
-                $ctslocaldockDcardtop_Table = $('table[id=ctslocaldockdepartedtable]');
-                $ctslocaldockDcardtop_Table_Body = $ctslocaldockDcardtop_Table.find('tbody');
-                $ctslocalcard_row_template = '<tr data-id=localctsOB_{routetrip} data-route={route} data-trip={trip} data-door={door} class={trbackground}>' +
-                    '<td class="text-center">{schd}</td>' +
-                    '<td class="text-center">{departed}</td>' +
-                    '<td class="{background}">{btnloadDoor}</td>' +
-                    '<td class="text-center">{leg}</td>' +
-                    '<td data-toggle="tooltip" title="{dest}">{dest}</td>' +
-                    '<td class="text-center">{close}</td>' +
-                    '<td class="text-center">{load}</td>' +
-                    '<td>{loadPercent}</td>' +
-                    '</tr>"';
+        /*re-factor the CTS Calls*/
+        //updateCTSDepartedStatus: async (CTSData) => {
+        //    try {
+        //        $ctsdockDcardtop_Table = $('table[id=ctsdockdepartedtable]');
+        //        $ctsdockDcardtop_Table_Body = $ctsdockDcardtop_Table.find('tbody');
+        //        $ctsdockDcardtop_row_template = '<tr data-id=ctsOB_{routetrip} data-route={route} data-trip={trip}  data-door={door}  class={trbackground}>' +
+        //            '<td class="text-center">{schd}</td>' +
+        //            '<td class="text-center">{departed}</td>' +
+        //            '<td class="{background}">{btnloadDoor}</td>' +
+        //            '<td class="text-center">{leg}</td>' +
+        //            '<td data-toggle="tooltip" title="{dest}">{dest}</td>' +
+        //            '<td class="text-center">{close}</td>' +
+        //            '<td class="text-center">{load}</td>' +
+        //            '<td>{btnloadPercent}</td>' +
+        //            '</tr>"';
 
-                function formatctslocaldockDcardtoprow(properties) {
-                    return $.extend(properties, {
-                        schd: checkValue(properties.ScheduledTZ) ? moment(properties.ScheduledTZ).format("HH:mm") : "",
-                        departed: checkValue(properties.DepartedTZ) ? moment(properties.DepartedTZ).format("HH:mm") : "",
-                        door: checkValue(properties.Door) ? properties.Door : "",
-                        routetrip: properties.Route + properties.Trip,
-                        route: properties.Route,
-                        trip: properties.Trip,
-                        leg: properties.Leg,
-                        dest: properties.Destination,
-                        load: properties.Load,
-                        background: checkValue(properties.Door) ? "" : "purpleBg",
-                        trbackground: "",// Gettimediff(properties.ScheduledTZ),
-                        close: properties.Closed,
-                        loadPercent: '<button class="btn btn-outline-info btn-sm btn-block" disabled name="ctsdetails">' + properties.LoadPercent + '%</button>',
-                        btnloadDoor: Load_btn_door(properties),
-                        dataproperties: properties
-                    });
-                }
-                var findtrdataid = $ctslocaldockDcardtop_Table_Body.find('tr[data-id=localctsOB_' + CTSlocalData.Route + CTSlocalData.Trip + ']');
-                if (findtrdataid.length > 0) {
-                    if (CTSlocalData.CTS_Remove) {
-                        $ctslocaldockDcardtop_Table_Body.find('tr[data-id=localctsOB_' + CTSlocalData.Route + CTSlocalData.Trip + ']').remove();
-                    }
-                    else {
-                        $ctslocaldockDcardtop_Table_Body.find('tr[data-id=localctsOB_' + CTSlocalData.Route + CTSlocalData.Trip + ']').replaceWith($ctslocalcard_row_template.supplant(formatctslocaldockDcardtoprow(CTSlocalData)));
-                    }
-                }
-                else {
-                    if (!CTSlocalData.CTS_Remove) {
-                        $ctslocaldockDcardtop_Table_Body.append($ctslocalcard_row_template.supplant(formatctslocaldockDcardtoprow(CTSlocalData)));
-                    }
-                }
-            } catch (e) {
-                console.log(e)
-            }
-        },
-        updateCTSInboundStatus: async (CTSInboundData) => {
-            try {
-                $ctsIncardtop_Table = $('table[id=ctsintoptable]');
-                $ctsIncardtop_Table_Body = $ctsIncardtop_Table.find('tbody');
-                $ctsIncardtop_row_template = '<tr data-id="in_{routetrip}" data-door="{door}">' +
-                    '<td class="text-center" class="{inbackground}">{sch_Arrive}</td>' +
-                    '<td class="text-center" class="{inbackground}">{arrived}</td>' +
-                    '<td class="text-center" class="{background}">{btnloadDoor}</td>' +
-                    '<td class="text-center">{leg_Origin}</td>' +
-                    '<td data-toggle="tooltip" title="{site_Name}">{site_Name}</td>' +
-                    '</tr>';
+        //        function formatctsdockDcardtoprow(properties) {
+        //            return $.extend(properties, {
+        //                schd: checkValue(properties.ScheduledTZ) ? formatTime(properties.ScheduledTZ) : "",
+        //                departed: checkValue(properties.DepartedTZ) ? formatTime(properties.DepartedTZ) : "",
+        //                door: checkValue(properties.Door) ? properties.Door : "",
+        //                routetrip: properties.Route + properties.Trip,
+        //                route: properties.Route,
+        //                trip: properties.Trip,
+        //                leg: properties.Leg,
+        //                dest: properties.Destination,
+        //                load: properties.Load,
+        //                background: checkValue(properties.Door) ? "" : "purpleBg",
+        //                trbackground: "",// Gettimediff(properties.ScheduledTZ),
+        //                close: properties.Closed,
+        //                btnloadPercent: Load_btn_details(properties),
+        //                btnloadDoor: Load_btn_door(properties),
+        //                dataproperties: properties
+        //            });
+        //        }
+        //        var findtrdataid = $ctsdockDcardtop_Table_Body.find('tr[data-id=ctsOB_' + CTSData.Route + CTSData.Trip + ']');
+        //        if (findtrdataid.length > 0) {
+        //            if (CTSData.CTS_Remove) {
+        //                $ctsdockDcardtop_Table_Body.find('tr[data-id=ctsOB_' + CTSData.Route + CTSData.Trip + ']').remove();
+        //            }
+        //            else {
+        //                $ctsdockDcardtop_Table_Body.find('tr[data-id=ctsOB_' + CTSData.Route + CTSData.Trip + ']').replaceWith($ctsdockDcardtop_row_template.supplant(formatctsdockDcardtoprow(CTSData)));
+        //            }
+        //        }
+        //        else {
+        //            if (!CTSData.CTS_Remove) {
+        //                $ctsdockDcardtop_Table_Body.append($ctsdockDcardtop_row_template.supplant(formatctsdockDcardtoprow(CTSData)));
+        //            }
+        //        }
+        //    } catch (e) {
+        //        console.log(e);
+        //    }
+        //},
+        //updateCTSLocalDepartedStatus: async (CTSlocalData) => {
+        //    try {
+        //        $ctslocaldockDcardtop_Table = $('table[id=ctslocaldockdepartedtable]');
+        //        $ctslocaldockDcardtop_Table_Body = $ctslocaldockDcardtop_Table.find('tbody');
+        //        $ctslocalcard_row_template = '<tr data-id=localctsOB_{routetrip} data-route={route} data-trip={trip} data-door={door} class={trbackground}>' +
+        //            '<td class="text-center">{schd}</td>' +
+        //            '<td class="text-center">{departed}</td>' +
+        //            '<td class="{background}">{btnloadDoor}</td>' +
+        //            '<td class="text-center">{leg}</td>' +
+        //            '<td data-toggle="tooltip" title="{dest}">{dest}</td>' +
+        //            '<td class="text-center">{close}</td>' +
+        //            '<td class="text-center">{load}</td>' +
+        //            '<td>{loadPercent}</td>' +
+        //            '</tr>"';
 
-                function formatctsIncardtoprow(properties) {
-                    return $.extend(properties, {
-                        sch_Arrive: checkValue(properties.ScheduledTZ) ? formatTime(properties.ScheduledTZ) : "",
-                        arrived: checkValue(properties.ActualTZ) ? formatTime(properties.ActualTZ) : "",
-                        routetrip: properties.RouteID + properties.TripID,
-                        door: properties.hasOwnProperty("doorNumber") ? properties.doorNumber : "",
-                        route: properties.RouteID,
-                        trip: properties.TripID,
-                        inbackground: "", //GettimediffforInbound(properties.Scheduled, properties.Actual),
-                        leg_Origin: properties.LegOrigin,
-                        site_Name: properties.SiteName,
-                        btnloadDoor: Load_btn_door(properties)
-                    });
-                }
-                var findtrdataid = $ctsIncardtop_Table_Body.find('tr[data-id=in_' + CTSInboundData.RouteID + CTSInboundData.TripID + ']');
-                if (findtrdataid.length > 0) {
-                    if (CTSInboundData.CTS_Remove) {
-                        $ctsIncardtop_Table_Body.find('tr[data-id=in_' + CTSInboundData.RouteID + CTSInboundData.TripID + ']').remove();
-                    }
-                    else {
-                        $ctsIncardtop_Table_Body.find('tr[data-id=in_' + CTSInboundData.RouteID + CTSInboundData.TripID + ']').replaceWith($ctsIncardtop_row_template.supplant(formatctsIncardtoprow(CTSInboundData)));
-                    }
-                }
-                else {
-                    if (!CTSInboundData.CTS_Remove) {
-                        $ctsIncardtop_Table_Body.append($ctsIncardtop_row_template.supplant(formatctsIncardtoprow(CTSInboundData)));
-                    }
-                }
-            } catch (e) {
-                console.log(e)
-            }
-        },
-        updateCTSOutoundStatus: async (CTSOutoundData) => {
-            try {
-                $ctsOutcardtop_Table = $('table[id=ctsouttoptable]');
-                $ctsOutcardtop_Table_Body = $ctsOutcardtop_Table.find('tbody');
-                $ctsOutcardtop_row_template = '<tr data-id=out_{routetrip} data-door={door} >' +
-                    '<td class="text-center" class="{inbackground}">{sch_Arrive}</td>' +
-                    '<td class="text-center" class="{inbackground}">{arrived}</td>' +
-                    '<td class="text-center" class="{background}">{btnloadDoor}</td>' +
-                    '<td class="text-center">{leg_Origin}</td>' +
-                    '<td data-toggle="tooltip" title="{site_Name}">{site_Name}</td>' +
-                    '</tr>';
+        //        function formatctslocaldockDcardtoprow(properties) {
+        //            return $.extend(properties, {
+        //                schd: checkValue(properties.ScheduledTZ) ? moment(properties.ScheduledTZ).format("HH:mm") : "",
+        //                departed: checkValue(properties.DepartedTZ) ? moment(properties.DepartedTZ).format("HH:mm") : "",
+        //                door: checkValue(properties.Door) ? properties.Door : "",
+        //                routetrip: properties.Route + properties.Trip,
+        //                route: properties.Route,
+        //                trip: properties.Trip,
+        //                leg: properties.Leg,
+        //                dest: properties.Destination,
+        //                load: properties.Load,
+        //                background: checkValue(properties.Door) ? "" : "purpleBg",
+        //                trbackground: "",// Gettimediff(properties.ScheduledTZ),
+        //                close: properties.Closed,
+        //                loadPercent: '<button class="btn btn-outline-info btn-sm btn-block" disabled name="ctsdetails">' + properties.LoadPercent + '%</button>',
+        //                btnloadDoor: Load_btn_door(properties),
+        //                dataproperties: properties
+        //            });
+        //        }
+        //        var findtrdataid = $ctslocaldockDcardtop_Table_Body.find('tr[data-id=localctsOB_' + CTSlocalData.Route + CTSlocalData.Trip + ']');
+        //        if (findtrdataid.length > 0) {
+        //            if (CTSlocalData.CTS_Remove) {
+        //                $ctslocaldockDcardtop_Table_Body.find('tr[data-id=localctsOB_' + CTSlocalData.Route + CTSlocalData.Trip + ']').remove();
+        //            }
+        //            else {
+        //                $ctslocaldockDcardtop_Table_Body.find('tr[data-id=localctsOB_' + CTSlocalData.Route + CTSlocalData.Trip + ']').replaceWith($ctslocalcard_row_template.supplant(formatctslocaldockDcardtoprow(CTSlocalData)));
+        //            }
+        //        }
+        //        else {
+        //            if (!CTSlocalData.CTS_Remove) {
+        //                $ctslocaldockDcardtop_Table_Body.append($ctslocalcard_row_template.supplant(formatctslocaldockDcardtoprow(CTSlocalData)));
+        //            }
+        //        }
+        //    } catch (e) {
+        //        console.log(e)
+        //    }
+        //},
+        //updateCTSInboundStatus: async (CTSInboundData) => {
+        //    try {
+        //        $ctsIncardtop_Table = $('table[id=ctsintoptable]');
+        //        $ctsIncardtop_Table_Body = $ctsIncardtop_Table.find('tbody');
+        //        $ctsIncardtop_row_template = '<tr data-id="in_{routetrip}" data-door="{door}">' +
+        //            '<td class="text-center" class="{inbackground}">{sch_Arrive}</td>' +
+        //            '<td class="text-center" class="{inbackground}">{arrived}</td>' +
+        //            '<td class="text-center" class="{background}">{btnloadDoor}</td>' +
+        //            '<td class="text-center">{leg_Origin}</td>' +
+        //            '<td data-toggle="tooltip" title="{site_Name}">{site_Name}</td>' +
+        //            '</tr>';
 
-                function formatctsOutcardtoprow(properties) {
-                    return $.extend(properties, {
-                        sch_Arrive: checkValue(properties.ScheduledTZ) ? moment(properties.ScheduledTZ).format("HH:mm") : "",
-                        arrived: checkValue(properties.ActualTZ) ? moment(properties.ActualTZ).format("HH:mm") : "",
-                        routetrip: properties.RouteID + properties.TripID,
-                        door: properties.hasOwnProperty("doorNumber") ? properties.doorNumber : "",
-                        route: properties.RouteID,
-                        trip: properties.TripID,
-                        firstlegDest: checkValue(properties.FirstLegDest) ? properties.FirstLegDest : "",
-                        firstlegSite: checkValue(properties.FirstLegSite) ? properties.FirstLegSite : "",
-                        btnloadDoor: Load_btn_door(properties)
-                    });
-                }
-                var findtrdataid = $ctsOutcardtop_Table_Body.find('tr[data-id=out_' + CTSOutoundData.RouteID + CTSOutoundData.TripID + ']');
-                if (findtrdataid.length > 0) {
-                    if (CTSOutoundData.CTS_Remove) {
-                        $ctsOutcardtop_Table_Body.find('tr[data-id=out_' + CTSOutoundData.RouteID + CTSOutoundData.TripID + ']').remove();
-                    }
-                    else {
-                        $ctsOutcardtop_Table_Body.find('tr[data-id=out_' + CTSOutoundData.RouteID + CTSOutoundData.TripID + ']').replaceWith($ctsOutcardtop_row_template.supplant(formatctsOutcardtoprow(CTSOutoundData)));
-                    }
-                }
-                else {
-                    if (!CTSOutoundData.CTS_Remove) {
-                        $ctsOutcardtop_Table_Body.append($ctsOutcardtop_row_template.supplant(formatctsOutcardtoprow(CTSOutoundData)));
-                    }
-                }
-            } catch (e) {
-                console.log(e);
-            }
-        },
-        updateNotification: async (updatenotification) => {
-            try {
-                if (updatenotification) {
-                    var notificationindex = notification.filter(x => x.NOTIFICATIONGID === updatenotification.NOTIFICATIONGID).map(x => x).length;
-                    var indexobj = -0;
-                    var Vehiclecount = -0;
-                    var ctscount = -0;
-                    var machinecount = -0;
+        //        function formatctsIncardtoprow(properties) {
+        //            return $.extend(properties, {
+        //                sch_Arrive: checkValue(properties.ScheduledTZ) ? formatTime(properties.ScheduledTZ) : "",
+        //                arrived: checkValue(properties.ActualTZ) ? formatTime(properties.ActualTZ) : "",
+        //                routetrip: properties.RouteID + properties.TripID,
+        //                door: properties.hasOwnProperty("doorNumber") ? properties.doorNumber : "",
+        //                route: properties.RouteID,
+        //                trip: properties.TripID,
+        //                inbackground: "", //GettimediffforInbound(properties.Scheduled, properties.Actual),
+        //                leg_Origin: properties.LegOrigin,
+        //                site_Name: properties.SiteName,
+        //                btnloadDoor: Load_btn_door(properties)
+        //            });
+        //        }
+        //        var findtrdataid = $ctsIncardtop_Table_Body.find('tr[data-id=in_' + CTSInboundData.RouteID + CTSInboundData.TripID + ']');
+        //        if (findtrdataid.length > 0) {
+        //            if (CTSInboundData.CTS_Remove) {
+        //                $ctsIncardtop_Table_Body.find('tr[data-id=in_' + CTSInboundData.RouteID + CTSInboundData.TripID + ']').remove();
+        //            }
+        //            else {
+        //                $ctsIncardtop_Table_Body.find('tr[data-id=in_' + CTSInboundData.RouteID + CTSInboundData.TripID + ']').replaceWith($ctsIncardtop_row_template.supplant(formatctsIncardtoprow(CTSInboundData)));
+        //            }
+        //        }
+        //        else {
+        //            if (!CTSInboundData.CTS_Remove) {
+        //                $ctsIncardtop_Table_Body.append($ctsIncardtop_row_template.supplant(formatctsIncardtoprow(CTSInboundData)));
+        //            }
+        //        }
+        //    } catch (e) {
+        //        console.log(e)
+        //    }
+        //},
+        //updateCTSOutoundStatus: async (CTSOutoundData) => {
+        //    try {
+        //        $ctsOutcardtop_Table = $('table[id=ctsouttoptable]');
+        //        $ctsOutcardtop_Table_Body = $ctsOutcardtop_Table.find('tbody');
+        //        $ctsOutcardtop_row_template = '<tr data-id=out_{routetrip} data-door={door} >' +
+        //            '<td class="text-center" class="{inbackground}">{sch_Arrive}</td>' +
+        //            '<td class="text-center" class="{inbackground}">{arrived}</td>' +
+        //            '<td class="text-center" class="{background}">{btnloadDoor}</td>' +
+        //            '<td class="text-center">{leg_Origin}</td>' +
+        //            '<td data-toggle="tooltip" title="{site_Name}">{site_Name}</td>' +
+        //            '</tr>';
 
-                    if (notificationindex === 0) {
-                        notification.push(updatenotification);
-                    }
-                    if (notificationindex > 0) {
-                        if (updatenotification.hasOwnProperty("DELETE")) {
-                            if (updatenotification.DELETE) {
-                                notification.forEach(function (obj) {
-                                    if (obj.NOTIFICATIONGID === updatenotification.NOTIFICATIONGID) {
-                                        notification.splice(notification.indexOf(obj), 1);
-                                    }
-                                })
-                            }
-                        }
-                        else {
-                            notification.forEach(function (obj) {
-                                if (obj.NOTIFICATIONGID === updatenotification.NOTIFICATIONGID) {
-                                    indexobj = notification.indexOf(obj);
-                                }
-                            })
-                        }
-
-                        $Table = {};
-                        if (updatenotification.TYPE === "vehicle") {
-                            $Table = $('table[id=agvnotificationtable]');
-                        }
-                        if (updatenotification.TYPE === "CTS") {
-                            $Table = $('table[id=ctsnotificationtable]');
-                        }
-                        if ($Table.length > 0) {
-                            $Table_Body = $Table.find('tbody');
-                            var findtrdataid = $Table_Body.find('tr[data-id=' + updatenotification.NOTIFICATIONGID + ']');
-
-                            $row_template =
-                                '<tr data-id={id} style=background-color:{conditioncolor} data-toggle=collapse data-target=#{action_text} class=accordion-toggle>' +
-                                '<td>{name}</td>' +
-                                '<td><button class="btn btn-outline-info btn-sm btn-block tagdetails" data-tag="{tagid}" >{type}</button></td>' +
-                                '<td>{duration}</td>' +
-                                '</tr>'
-                                ;
-                            function formatnotifirow(properties, indx) {
-                                return $.extend(properties, {
-                                    id: properties.NOTIFICATIONGID,
-                                    tagid: properties.TAGID,
-                                    name: properties.NAME,
-                                    type: properties.VEHICLENAME,
-                                    condition: properties.CONDITIONS,
-                                    duration: calculateDuration(properties.VEHICLETIME),
-                                    conditioncolor: conditioncolor(properties.VEHICLETIME, parseInt(properties.WARNING), parseInt(properties.CRITICAL)),
-                                    warning_action_text: properties.WARNING_ACTION,
-                                    critical_action_text: properties.CRITICAL_ACTION,
-                                    action_text: conditionaction_text(properties.VEHICLETIME, parseInt(properties.WARNING), parseInt(properties.CRITICAL)) + "_" + properties.NOTIFICATIONGID,
-                                    indexobj: indx
-                                });
-                            }
-
-                            if (findtrdataid.length > 0) {
-                                if (updatenotification.hasOwnProperty("DELETE")) {
-                                    $Table_Body.find('tr[data-id=' + updatenotification.NOTIFICATIONGID + ']').remove();
-                                }
-                                else {
-                                    $Table_Body.find('tr[data-id=' + updatenotification.NOTIFICATIONGID + ']').replaceWith($row_template.supplant(formatnotifirow(updatenotification)));
-                                }
-                            }
-                            else {
-                                $Table_Body.append($row_template.supplant(formatnotifirow(updatenotification)));
-                            }
-                            //if (parseInt(indexobj) >= 0) {
-                            //    if (notification[indexobj].hasOwnProperty("SHOWTOAST")) {
-                            //        if (notification[indexobj].SHOWTOAST === true) {
-                            //            ///////////////// need to development this more.///////////////////
-                            //            // html template for critical toast alert message
-                            //            $toast_alert_critical_template =
-                            //                '<div id="{id}" class="toast alert-danger show" role="alert" data-autohide="false">' +
-                            //                '<div class="toast-header alert-danger py-2">' +
-                            //                '<i class="pi-iconCriticalTriangle rounded mr-2"></i> ' +
-                            //                '<strong class="mr-auto">Critical</strong>' +
-                            //                '<small id="{id}_duration">{duration}</small>' +
-                            //                '<button type="button" class="ml-2 mb-1 close" data-dismiss="toast" data-index="{indexobj}" aria-label="Close">' +
-                            //                '<span aria-hidden="true" class="iconSmall"><i class="pi-iconExit" style="color: #000;"></i></span>' +
-                            //                '</button>' +
-                            //                '</div>' +
-                            //                '<div class="toast-body">' +
-                            //                '<!-- Collapsible section -->' +
-                            //                '<a class="btn btn-link d-flex justify-content-between" data-toggle="collapse" href="#collapseSection" role="button" aria-expanded="false" aria-controls="collapseSection">' +
-                            //                '<div>{name} - {type} - {condition}</div>' +
-                            //                '<div class="iconXSmall"><i class="pi-iconCaretDownFill"></i></div>' +
-                            //                '</a>' +
-                            //                '<div class="collapse" id="collapseSection">' +
-                            //                '<div class="mt-1">' +
-                            //                '<ol class="pl-4 mb-0">' +
-                            //                '<li class="pb-1">{ResolutionText1}</li>' +
-                            //                '<li class="pb-1">{ResolutionText2}</li>' +
-                            //                '<li class="pb-1">{ResolutionText3}</li>' +
-                            //                '</ol>' +
-                            //                '</div>' +
-                            //                '<div class="d-flex justify-content-between">' +
-                            //                '<div class="col-8">' +
-                            //                '<small>Are the instructions helpful?</small>' +
-                            //                '<div class="col-12 d-flex justify-content-start">' +
-                            //                '<button class="btn btn-light border-0 iconMedium px-2"><i class="pi-iconThumbUpOutline"></i></button>' +
-                            //                '<button class="btn btn-light border-0 iconMedium px-2 ml-3"><i class="pi-iconThumbDownOutline"></i></button>' +
-                            //                '</div>' +
-                            //                '</div>' +
-                            //                '<div class="col-4 d-flex justify-content-between px-0 pt-4">' +
-                            //                '<button class="btn btn-light iconMedium px-2"><i class="pi-iconEdit"></i></button>' +
-                            //                '<button class="btn btn-light iconMedium px-2"><i class="pi-iconSnooze"></i></button>' +
-                            //                '<button class="btn btn-light iconMedium px-2"><i class="pi-iconSubmit"></i></button>' +
-                            //                '</div>' +
-                            //                '</div>' +
-                            //                '</div>' +
-                            //                '</div>' +
-                            //                '</div>'
-                            //                ;
-
-                            //            // html template for warning toast alert message
-                            //            $toast_alert_warning_template =
-                            //                '<div id="{id}" class="toast alert-warning show" role="alert" data-autohide="false">' +
-                            //                '<div class="toast-header alert-warning py-2">' +
-                            //                '<i class="pi-iconWarningSquare rounded mr-2"></i>' +
-                            //                '<strong class="mr-auto">Warning</strong>' +
-                            //                '<small>{duration}</small>' +
-                            //                '<button type="button" class="ml-2 mb-1 close" data-dismiss="toast" data-index="{indexobj}" aria-label="Close">' +
-                            //                '<span aria-hidden="true" class="iconSmall"><i class="pi-iconExit"></i></span>' +
-                            //                '</button>' +
-                            //                '</div>' +
-                            //                '<div class="toast-body">' +
-                            //                '<!-- Collapsible section -->' +
-                            //                '<a class="btn btn-link d-flex justify-content-between" data-toggle="collapse" href="#collapseSection1" role="button" aria-expanded="false" aria-controls="collapseSection1">' +
-                            //                '<div>{name} - {type} - {condition}</div>' +
-                            //                '<div class="iconXSmall"><i class="pi-iconCaretDownFill"></i></div>' +
-                            //                '</a>' +
-                            //                '<div class="collapse" id="collapseSection1">' +
-                            //                '<div class="mt-1">' +
-                            //                '<ol class="pl-4 mb-0">' +
-                            //                '<li class="pb-1">{ResolutionText1}</li>' +
-                            //                '<li class="pb-1">{ResolutionText2}</li>' +
-                            //                '<li class="pb-1">{ResolutionText3}</li>' +
-                            //                '</ol>' +
-                            //                '</div>' +
-                            //                '<div class="d-flex justify-content-between">' +
-                            //                '<div class="col-8">' +
-                            //                '<small>Are the instructions helpful?</small>' +
-                            //                '<div class="col-12 d-flex justify-content-start">' +
-                            //                '<button class="btn btn-light border-0 iconMedium px-2"><i class="pi-iconThumbUpOutline"></i></button>' +
-                            //                '<button class="btn btn-light border-0 iconMedium px-2 ml-3"><i class="pi-iconThumbDownOutline"></i></button>' +
-                            //                '</div>' +
-                            //                '</div>' +
-                            //                '<div class="col-4 d-flex justify-content-between px-0 pt-4">' +
-                            //                '<button class="btn btn-light iconMedium px-2"><i class="pi-iconEdit"></i></button>' +
-                            //                '<button class="btn btn-light iconMedium px-2"><i class="pi-iconSnooze"></i></button>' +
-                            //                '<button class="btn btn-light iconMedium px-2"><i class="pi-iconSubmit"></i></button>' +
-                            //                '</div>' +
-                            //                '</div>' +
-                            //                '</div>' +
-                            //                '</div>' +
-                            //                '</div>'
-                            //                ;
-                            //            var color = conditioncolor(updatenotification.VEHICLETIME, parseInt(updatenotification.WARNING), parseInt(updatenotification.CRITICAL));
-                            //            var condition_div = $("div[id=" + updatenotification.NOTIFICATIONGID + "]")
-                            //            // determine whether to generate a critical or a warning toast alert based on message criteria with default being warning
-                            //            // determine whether notification needs to be deleted, updated or replaced.
-                            //            // if notification already exists
-                            //            if (findtrdataid.length > 0) {
-                            //                // determine if notification is marked for deletion and delete
-                            //                if (updatenotification.hasOwnProperty("DELETE")) {
-                            //                    $("div[id=" + updatenotification.NOTIFICATIONGID + "]").remove();
-                            //                }
-                            //                // replace existing notification with updated notification
-                            //                else {
-                            //                    // critical toast alert
-                            //                    if (color === "#bd213052") {
-                            //                        if (condition_div.length === 0) {
-                            //                            $('#toastnotification').append($toast_alert_critical_template.supplant(formatnotifirow(updatenotification, indexobj)));
-                            //                        }
-
-                            //                        if ($("div[id=" + updatenotification.NOTIFICATIONGID + "]").hasClass('show')) {
-                            //                            $("small[id=" + updatenotification.NOTIFICATIONGID + "_duration]").text(calculateDuration(updatenotification.VEHICLETIME));
-                            //                        }
-                            //                        else {
-                            //                            $("div[id=" + updatenotification.NOTIFICATIONGID + "]").toast('show');
-                            //                        }
-
-                            //                    }
-                            //                    // warning toast alert
-                            //                    if (color === "#ffff0080") {
-                            //                        $("div[id=" + updatenotification.NOTIFICATIONGID + "]").toast('show');
-                            //                    }
-                            //                }
-                            //            }
-                            //            // when notification does not exist and must be added
-                            //            else {
-                            //                // critical toast alert
-                            //                if (color === "#bd213052") {
-                            //                    if (condition_div.length === 0) {
-                            //                        $('#toastnotification').append($toast_alert_critical_template.supplant(formatnotifirow(updatenotification, indexobj)));
-                            //                        $("div[id=" + updatenotification.NOTIFICATIONGID + "]").toast('show');
-                            //                    }
-                            //                }
-                            //                // warning toast alert
-                            //                if (color === "#ffff0080") {
-                            //                    if (condition_div.length === 0) {
-                            //                        $('#toastnotification').append($toast_alert_warning_template.supplant(formatnotifirow(updatenotification, indexobj)));
-                            //                        $("div[id=" + updatenotification.NOTIFICATIONGID + "]").toast('show');
-                            //                    }
-                            //                }
-                            //            }
-                            //        };
-                            //    }
-                            //}
-                        }
-                    }
-
-                    //$('div[class=toast]').on('hidden.bs.toast', function () {
-                    //    if (notification[indexobj].hasOwnProperty("SHOWTOAST")) {
-                    //        if (notification[indexobj].SHOWTOAST = false) { }
-                    //    }
-                    //})
-
-                    Vehiclecount = notification.filter(x => x.TYPE === "vehicle").map(x => x).length
-                    ctscount = notification.filter(x => x.TYPE === "CTS").map(x => x).length
-                    machinecount = notification.filter(x => x.TYPE === "machine").map(x => x).length
-
-                    //AGV Counts
-                    if (Vehiclecount > 0) {
-                        if (parseInt($('#agvnotificaion_number').text()) !== Vehiclecount) {
-                            $('#agvnotificaion_number').text(Vehiclecount);
-                        }
-
-                        //if ($('#agvnotificaion').hasClass("not_bell_ring")) {
-                        //    $('#agvnotificaion').removeClass("not_bell_ring").addClass("bell_ring");
-                        //}
-                    }
-                    else {
-                        $('#agvnotificaion_number').text("");
-                        //if ($('#agvnotificaion').hasClass("bell_ring")) {
-                        //    $('#agvnotificaion').removeClass("bell_ring").addClass("not_bell_ring");
-                        //}
-                    }
-                    // CTS Counts
-                    if (ctscount > 0) {
-                        $('#ctsnotificaion_number').text(Vehiclecount);
-                        //if ($('#ctsnotificaion').hasClass("not_bell_ring")) {
-                        //    $('#ctsnotificaion').removeClass("not_bell_ring").addClass("bell_ring");
-                        //}
-                    }
-                    else {
-                        $('#ctsnotificaion_number').text("");
-                        //if ($('#ctsnotificaion').hasClass("bell_ring")) {
-                        //    $('#ctsnotificaion').removeClass("bell_ring").addClass("not_bell_ring");
-                        //}
-                    }
-                    //machine counts
-                    if (machinecount > 0) {
-                        $('#machinenotificaion_number').text(Vehiclecount);
-                        //if ($('#machinenotificaion').hasClass("not_bell_ring")) {
-                        //    $('#machinenotificaion').removeClass("not_bell_ring").addClass("bell_ring");
-                        //}
-                    }
-                    else {
-                        $('#machinenotificaion_number').text("");
-                        //if ($('#machinenotificaion').hasClass("bell_ring")) {
-                        //    $('#machinenotificaion').removeClass("bell_ring").addClass("not_bell_ring");
-                        //}
-                    }
-                }
-            }
-            catch (e) {
-                console.log(e);
-            }
-        }
+        //        function formatctsOutcardtoprow(properties) {
+        //            return $.extend(properties, {
+        //                sch_Arrive: checkValue(properties.ScheduledTZ) ? moment(properties.ScheduledTZ).format("HH:mm") : "",
+        //                arrived: checkValue(properties.ActualTZ) ? moment(properties.ActualTZ).format("HH:mm") : "",
+        //                routetrip: properties.RouteID + properties.TripID,
+        //                door: properties.hasOwnProperty("doorNumber") ? properties.doorNumber : "",
+        //                route: properties.RouteID,
+        //                trip: properties.TripID,
+        //                firstlegDest: checkValue(properties.FirstLegDest) ? properties.FirstLegDest : "",
+        //                firstlegSite: checkValue(properties.FirstLegSite) ? properties.FirstLegSite : "",
+        //                btnloadDoor: Load_btn_door(properties)
+        //            });
+        //        }
+        //        var findtrdataid = $ctsOutcardtop_Table_Body.find('tr[data-id=out_' + CTSOutoundData.RouteID + CTSOutoundData.TripID + ']');
+        //        if (findtrdataid.length > 0) {
+        //            if (CTSOutoundData.CTS_Remove) {
+        //                $ctsOutcardtop_Table_Body.find('tr[data-id=out_' + CTSOutoundData.RouteID + CTSOutoundData.TripID + ']').remove();
+        //            }
+        //            else {
+        //                $ctsOutcardtop_Table_Body.find('tr[data-id=out_' + CTSOutoundData.RouteID + CTSOutoundData.TripID + ']').replaceWith($ctsOutcardtop_row_template.supplant(formatctsOutcardtoprow(CTSOutoundData)));
+        //            }
+        //        }
+        //        else {
+        //            if (!CTSOutoundData.CTS_Remove) {
+        //                $ctsOutcardtop_Table_Body.append($ctsOutcardtop_row_template.supplant(formatctsOutcardtoprow(CTSOutoundData)));
+        //            }
+        //        }
+        //    } catch (e) {
+        //        console.log(e);
+        //    }
+        //},
+        
     });
-    var notification = [];
-
     //setup map
     map = L.map('map', {
         crs: L.CRS.Simple,
@@ -1117,7 +831,7 @@ $(function () {
         preferCanvas: true,
         markerZoomAnimation: false,
         minZoom: 2,
-        maxZoom: 6,
+        maxZoom: 8,
         zoomControl: false,
         measureControl: true,
         tap: false,
@@ -1735,10 +1449,10 @@ $(function () {
                         map.setView([MapData.HeightMeter / 2, MapData.WidthMeter / 2], 1.5);
                         //L.control.mousePosition().addTo(map);
                         
-                        GetCTSInbound();
-                        GetCTSDockDepart();
-                        GetCTSLocalDockDepart();
-                        GetCTSOutbound();
+                        //GetCTSInbound();
+                        //GetCTSDockDepart();
+                        //GetCTSLocalDockDepart();
+                        //GetCTSOutbound();
                     }
                 }
                 if ($.isEmptyObject(map)) {
@@ -1770,6 +1484,7 @@ $(function () {
             .then(init_dockdoor())
             .then(init_agvlocation())
             .then(init_zones())
+            .then(init_arrive_depart_trips())
 
             .catch(
             function (err) {
@@ -1781,6 +1496,9 @@ $(function () {
         create: false,
         sortField: "text",
     }
+    $('.selectize-dropdown').click(function (e) {
+        e.stopPropagation();        // To fix zone select scroll bug. May need to be revisited
+    })
     $zoneSelect = $("#zoneselect").selectize(options);
     /**User  Modal***/
     function EditUserInfo(layerindex) {
@@ -1837,85 +1555,7 @@ $(function () {
             console.log(e);
         }
     }
-    //appsetting
-    function Edit_AppSetting(table) {
-        $.connection.FOTFManager.server.getAppSettingdata().done(function (AppsettingData) {
-            if (AppsettingData) {
-                $AppSettingTable = $('table[id=' + table + ']');
-                $AppSettingTable_Body = $AppSettingTable.find('tbody');
-                $AppSettingTable_row_template = '<tr data-id="{id}" data-value="{value}">' +
-                    '<td >{id}</td>' +
-                    '<td >{value}</td>' +
-                    '<td>{action}</td>' +
-                    '</tr>';
 
-                $AppSettingTable_Body.empty();
-                var index = 0;
-                function formatAppSetting(key, value, index) {
-                    return $.extend(key, value, index, {
-                        number: index,
-                        id: key,
-                        value: value,
-                        action: Get_Action_State()
-                    });
-                }
-                $.each(AppsettingData, function (key, value) {
-                    var setting = formatAppSetting(key, value, index++);
-                    $AppSettingTable_Body.append($AppSettingTable_row_template.supplant(setting));
-                });
-                //$('button[name=editappsetting]').off().on("click", function (e) {
-                //    Edit_AppSetting_Value(this.id, this.value);
-                //    $('button[id=appsettingvalue]').prop('disabled', false);
-                //    $('span[id=error_appsettingvalue]').text("");
-                //});
-                // $('#AppSetting_Modal').modal();
-
-                $('button[name=editappsetting]').on('click', function () {
-                    var td = $(this);
-                    var tr = $(td).closest('tr'),
-                        id = tr.attr('data-id'),
-                        value = tr.attr('data-value');
-                    Edit_AppSetting_Value(id, value, table);
-                });
-            }
-        });
-
-        function Get_Action_State() {
-            if (/^Admin/i.test(User.Role)) {
-                return '<div class="btn-toolbar" role="toolbar">' +
-                    '<div class="btn-group mr-2" role="group" >' +
-                    '<button class="btn btn-light btn-sm mx-1 pi-iconEdit" name="editappsetting"></button>' +
-                    '</div>';
-            }
-            else {
-                return '';
-            }
-        }
-        function Edit_AppSetting_Value(id, value, table) {
-            $('#appsettingvaluemodalHeader').text('Edit ' + id + ' Setting');
-            $('input[id=modalKeyID]').val(id);
-            $('input[id=modalValueID]').val(value);
-            $('button[id=appsettingvalue]').off().on('click', function () {
-                $('button[id=appsettingvalue]').prop('disabled', true);
-                var jsonObject = {};
-                $('input[id=modalValueID]').val() !== value ? jsonObject[id] = $('input[id=modalValueID]').val() : "";
-                if (!$.isEmptyObject(jsonObject)) {
-                    $.connection.FOTFManager.server.editAppSettingdata(JSON.stringify(jsonObject)).done(function (AppSettingData) {
-                        if (AppSettingData.hasOwnProperty("RESPONSE_CODE")) {
-                            $('span[id=error_appsettingvalue]').text(AppSettingData.hasOwnProperty("RESPONSE_MSG") ? AppSettingData.RESPONSE_MSG : "");
-                            setTimeout(function () { $("#AppSetting_value_Modal").modal('hide'); }, 3000);
-                        }
-                        else {
-                            $('span[id=error_appsettingvalue]').text("Application Setting has been update");
-                            Edit_AppSetting();
-                            setTimeout(function () { $("#AppSetting_value_Modal").modal('hide'); }, 3000);
-                        }
-                    });
-                }
-            });
-            $('#AppSetting_value_Modal').modal();
-        }
-    }
     // Start the connection
     $.connection.hub.qs = { 'page_type': "FOTF".toUpperCase() };
     $.connection.hub.start()
@@ -2210,229 +1850,6 @@ $(function () {
             //    .appendTo($('div[id=div_userprofile]'));
         });
     }
-    async function LoadNotificationsetup(data, table) {
-        $.connection.FOTFManager.server.getNotification_ConditionsList(0).done(function (NotificationData) {
-            $Table = $('table[id=' + table + ']');
-            $Table_Body = $Table.find('tbody');
-
-            $Table_Body.empty();
-            $row_template = '<tr data-id="{id}" class="{button_collor}">' +
-                '<td>{name}</td>' +
-                '<td class="text-center">{warning}</td>' +
-                '<td class="text-center">{critical}</td>' +
-                '<td class="text-center">{status}</td>' +
-                '<td>' +
-                '<button class="btn btn-light btn-sm mx-1 pi-iconEdit" name="notificationedit"></button>' +
-                '<button class="btn btn-light btn-sm mx-1 pi-trashFill" name="notificationdelete"></button>' +
-                '</td>' +
-                '</tr>';
-
-            //format for the time
-            //current_run_start : 2021-05-25 13:30:54
-            function formatmachinetoprow(properties) {
-                return $.extend(properties, {
-                    id: properties.ID,
-                    name: properties.NAME,
-                    type: properties.TYPE,
-                    condition: properties.CONDITIONS,
-                    warning: properties.WARNING,
-                    warning_action: properties.WARNING_ACTION,
-                    warning_color: properties.WARNING_COLOR,
-                    critical: properties.CRITICAL,
-                    critical_action: properties.CRITICAL_ACTION,
-                    critical_color: properties.CRITICAL_COLOR,
-                    status: GetnotificationStatus(properties),
-                    button_collor: Get_notificationColor(properties)
-                });
-            }
-            $.each(NotificationData, function () {
-                $Table_Body.append($row_template.supplant(formatmachinetoprow(this)));
-            });
-            $('button[name=notificationedit]').on('click', function () {
-                var td = $(this);
-                var tr = $(td).closest('tr'),
-                    id = tr.attr('data-id');
-                Notificationsetup(id, table);
-            });
-            $('button[name=notificationdelete]').on('click', function () {
-                var td = $(this);
-                var tr = $(td).closest('tr'),
-                    id = tr.attr('data-id');
-                NotificationRemove(id, table);
-            });
-        });
-        function GetnotificationStatus(data) {
-            if (data.ACTIVE_CONDITION) {
-                return "Active";
-            }
-            else {
-                return "Disabled";
-            }
-        }
-        function Get_notificationColor(data) {
-            if (data.ACTIVE_CONDITION) {
-                return "table-success";
-            }
-            else {
-                return "table-warning";
-            }
-        }
-    }
-    async function Notificationsetup(data) {
-        if ($.isEmptyObject(data)) {
-            $('#notification_SetupHeader').text('Add New Notification');
-            sidebar.close('notificationsetup');
-            $('#notificationsubmitBtn').css("display", "block");
-            $('#editnotificationsubmitBtn').css("display", "none");
-            $('#Notification_Setup_Modal').modal();
-            $('button[id=notificationsubmitBtn]').prop('disabled', false);
-            $('button[id=notificationsubmitBtn]').off().on('click', function () {
-                $('button[id=notificationsubmitBtn]').prop('disabled', true);
-                var jsonObject = {};
-
-                //condition active
-                jsonObject.ACTIVE_CONDITION = $('input[type=checkbox][name=condition_active]')[0].checked;
-                checkValue($('input[type=text][name=condition_name]').val()) ? jsonObject.NAME = $('input[type=text][name=condition_name]').val() : '';
-                checkValue($('select[name=condition_type] option:selected').val()) ? jsonObject.TYPE = $('select[name=condition_type] option:selected').val() : '';
-                checkValue($('input[type=text][name=condition]').val()) ? jsonObject.CONDITIONS = $('input[type=text][name=condition]').val() : '';
-                checkValue($('input[id=warning_condition]').val()) ? jsonObject.WARNING = $('input[id=warning_condition]').val() : '';
-                checkValue($('input[id=critical_condition]').val()) ? jsonObject.CRITICAL = $('input[id=critical_condition]').val() : '';
-                checkValue($('textarea[id=warning_action]').val()) ? jsonObject.WARNING_ACTION = $('textarea[id=warning_action]').val() : '';
-                checkValue($('textarea[id=critical_action]').val()) ? jsonObject.CRITICAL_ACTION = $('textarea[id=critical_action]').val() : '';
-                if (!$.isEmptyObject(jsonObject)) {
-                    jsonObject.CREATED_BY_USERNAME = User.UserId;
-                    $.connection.FOTFManager.server.addNotification_Conditions(JSON.stringify(jsonObject)).done(function (Data) {
-                        if (Data.length > 0) {
-                            if (Data[0].hasOwnProperty("ERROR_MESSAGE")) {
-                                $('span[id=error_notificationsubmitBtn]').text("Error " + Data[0].ERROR_MESSAGE);
-                                setTimeout(function () { $("#Notification_Setup_Modal").modal('hide'); }, 3000);
-                            }
-                            else {
-                                $('span[id=error_notificationsubmitBtn]').text("Condition has been Added");
-                                LoadNotificationsetup(Data, "notificationsetuptable");
-                                setTimeout(function () { $("#Notification_Setup_Modal").modal('hide'); sidebar.open('notificationsetup'); }, 1500);
-                            }
-                        }
-                        else {
-                            $('span[id=error_notificationsubmitBtn]').text("Error with the Data");
-                        }
-                    });
-                };
-            });
-        }
-        else {
-            if ($.isNumeric(data)) {
-                var id = parseInt(data);
-                $('#notificationsubmitBtn').css("display", "none");
-                $('#editnotificationsubmitBtn').css("display", "block");
-                $.connection.FOTFManager.server.getNotification_ConditionsList(id).done(function (N_Data) {
-                    if (N_Data.length > 0) {
-                        $('#notification_SetupHeader').text('Edit Notification');
-                        if (N_Data[0].ACTIVE_CONDITION) {
-                            if (!$('input[type=checkbox][name=condition_active]')[0].checked) {
-                                $('input[type=checkbox][name=condition_active]').prop('checked', true).change();
-                            }
-                        }
-                        else {
-                            if ($('input[type=checkbox][name=condition_active]')[0].checked) {
-                                $('input[type=checkbox][name=condition_active]').prop('checked', false).change();
-                            }
-                        }
-                        $('select[name=condition_type]').val(N_Data[0].TYPE)
-                        $('input[type=text][name=condition_name]').val(N_Data[0].NAME);
-                        $('input[type=text][name=condition]').val(N_Data[0].CONDITIONS);
-                        $('.warning_conditionpickvalue').html($.isNumeric(N_Data[0].WARNING) ? parseInt(N_Data[0].WARNING) : 0);
-                        $('input[id=warning_condition]').val($.isNumeric(N_Data[0].WARNING) ? parseInt(N_Data[0].WARNING) : 0)
-                        $('.critical_conditionpickvalue').html($.isNumeric(N_Data[0].CRITICAL) ? parseInt(N_Data[0].CRITICAL) : 0);
-                        $('input[id=critical_condition]').val($.isNumeric(N_Data[0].CRITICAL) ? parseInt(N_Data[0].CRITICAL) : 0)
-                        $('textarea[id=warning_action]').val(N_Data[0].WARNING_ACTION);
-                        $('textarea[id=critical_action]').val(N_Data[0].CRITICAL_ACTION);
-                    }
-                    $('button[id=editnotificationsubmitBtn]').prop('disabled', false);
-                    $('button[id=editnotificationsubmitBtn]').off().on('click', function () {
-                        $('button[id=editnotificationsubmitBtn]').prop('disabled', true);
-                        var jsonObject = {};
-
-                        //condition active
-                        jsonObject.ACTIVE_CONDITION = $('input[type=checkbox][name=condition_active]')[0].checked;
-                        jsonObject.ID = id;
-                        $('input[type=text][name=condition_name]').val() !== jsonObject.NAME ? jsonObject.NAME = $('input[type=text][name=condition_name]').val() : '';
-                        $('select[name=condition_type] option:selected').val() !== jsonObject.TYPE ? jsonObject.TYPE = $('select[name=condition_type] option:selected').val() : '';
-                        $('input[type=text][name=condition]').val() !== jsonObject.CONDITIONS ? jsonObject.CONDITIONS = $('input[type=text][name=condition]').val() : '';
-                        $('input[id=warning_condition]').val() !== jsonObject.WARNING ? jsonObject.WARNING = $('input[id=warning_condition]').val() : '';
-                        $('input[id=critical_condition]').val() !== jsonObject.CRITICAL ? jsonObject.CRITICAL = $('input[id=critical_condition]').val() : '';
-                        $('textarea[id=warning_action]').val() !== jsonObject.WARNING_ACTION ? jsonObject.WARNING_ACTION = $('textarea[id=warning_action]').val() : '';
-                        $('textarea[id=critical_action]').val() !== jsonObject.CRITICAL_ACTION ? jsonObject.CRITICAL_ACTION = $('textarea[id=critical_action]').val() : '';
-                        if (!$.isEmptyObject(jsonObject)) {
-                            jsonObject.LASTUPDATE_BY_USERNAME = User.UserId;
-                            $.connection.FOTFManager.server.editNotification_Conditions(JSON.stringify(jsonObject)).done(function (Data) {
-                                if (Data.length === 0) {
-                                    $('span[id=error_notificationsubmitBtn]').text("Unable to loaded Condition");
-                                    setTimeout(function () { $("#Notification_Setup_Modal").modal('hide'); }, 3000);
-                                }
-                                else {
-                                    $('span[id=error_notificationsubmitBtn]').text("Condition has been Edited");
-                                    LoadNotificationsetup(Data, "notificationsetuptable");
-                                    setTimeout(function () { $("#Notification_Setup_Modal").modal('hide'); sidebar.open('notificationsetup'); }, 1500);
-                                }
-                            });
-                        };
-                    });
-
-                    sidebar.close('notificationsetup');
-                    $('#Notification_Setup_Modal').modal();
-                });
-            }
-        }
-    }
-    async function NotificationRemove(data) {
-        //RemoveNotificationModal
-        if ($.isNumeric(data)) {
-            var id = parseInt(data);
-            sidebar.close('notificationsetup');
-            $('#removeNotificationHeader').text('Remove Notification');
-            $('#RemoveNotificationModal').modal();
-
-            $('button[id=removeNotification]').off().on('click', function () {
-                var jsonObject = { ID: id };
-                $.connection.FOTFManager.server.deleteNotification_Conditions(JSON.stringify(jsonObject)).done(function (Data) {
-                    setTimeout(function () { $("#RemoveNotificationModal").modal('hide'); sidebar.open('notificationsetup'); }, 1500);
-                    $('#RemoveNotificationModal').modal();
-                })
-            });
-        }
-    }
-    async function GetAGVnotificationinfoInfo(table, type) {
-        // sort the data
-        notification.sort(SortByVehicleName);
-        $Table = $('table[id=' + table + ']');
-        $Table_Body = $Table.find('tbody');
-        $Table_Body.empty();
-        $row_template =
-            '<tr data-id={id} style=background-color:{conditioncolor} data-toggle=collapse data-target=#{action_text} class=accordion-toggle>' +
-            '<td>{name}</td>' +
-            '<td><button class="btn btn-outline-info btn-sm btn-block tagdetails" data-tag="{tagid}">{type}</button></td>' +
-            '<td>{duration}</td>' +
-            '</tr>'
-            ;
-        function formatnotifirow(properties) {
-            return $.extend(properties, {
-                id: properties.NOTIFICATIONGID,
-                tagid: properties.TAGID,
-                name: properties.NAME,
-                type: properties.VEHICLENAME,
-                condition: properties.CONDITIONS,
-                duration: calculateDuration(properties.VEHICLETIME),
-                conditioncolor: conditioncolor(properties.VEHICLETIME, parseInt(properties.WARNING), parseInt(properties.CRITICAL)),
-                warning_action_text: properties.WARNING_ACTION,
-                critical_action_text: properties.CRITICAL_ACTION,
-                action_text: conditionaction_text(properties.VEHICLETIME, parseInt(properties.WARNING), parseInt(properties.CRITICAL)) + properties.NOTIFICATIONGID,
-            });
-        }
-        $.each(notification, function () {
-            $Table_Body.append($row_template.supplant(formatnotifirow(this)));
-        });
-    }
     async function LoadtagDetails(tagid) {
         try {
             if (map.hasOwnProperty("_layers")) {
@@ -2451,68 +1868,6 @@ $(function () {
             console.log(e);
         }
     }
-    function conditioncolor(time, war_min, crit_min) {
-        if (checkValue(time)) {
-            var conditiontime = moment(time);  // 5am PDT
-            var curenttime = moment();
-            if (conditiontime._isValid) {
-                var d = moment.duration(curenttime.diff(conditiontime));
-                var minutes = Math.floor(d._milliseconds / 60000);
-
-                if (minutes < war_min && minutes < crit_min) {
-                    return "white";
-                }
-                else if (minutes >= war_min && minutes < crit_min) {
-                    return "#ffff0080";
-                }
-                else if (minutes >= crit_min) {
-                    return "#bd213052";
-                }
-            }
-            else {
-                return "";
-            }
-        }
-    }
-    function conditionaction_text(time, war_min, crit_min) {
-        if (checkValue(time)) {
-            var conditiontime = moment(time);  // 5am PDT
-            var curenttime = moment();
-            if (conditiontime._isValid) {
-                var d = moment.duration(curenttime.diff(conditiontime));
-                var minutes = Math.floor(d._milliseconds / 60000);
-                if (minutes < war_min && minutes < crit_min) {
-                    return "W_";
-                }
-                if (minutes >= war_min && minutes < crit_min) {
-                    return "W_";
-                }
-                else if (minutes >= crit_min) {
-                    return "C_";
-                }
-            }
-            else {
-                return "NONE";
-            }
-        }
-    }
-    function calculateDuration(time) {
-        if (checkValue(time)) {
-            var conditiontime = moment(time);  // 5am PDT
-            var curenttime = moment();
-            if (conditiontime._isValid) {
-                var d = moment.duration(curenttime.diff(conditiontime));
-                return moment.duration(d._milliseconds, "milliseconds").format("d [days], h [hrs], m [min], s [sec], SS [ms]", {
-                    useSignificantDigits: true,
-                    trunc: true,
-                    precision: 3
-                });
-            }
-            else {
-                return "";
-            }
-        }
-    };
     async function GetCTSnotificationinfoInfo() {
     }
     function setHeight() {
@@ -2581,7 +1936,6 @@ $(function () {
             console.log(e);
         }
     };
-
     async function GetCTSLocalDockDepart() {
         $.connection.FOTFManager.server.getCTSList("local").done(function (Data) {
             // sort the data by date using moment.js
@@ -2788,13 +2142,7 @@ $(function () {
             LoadContainerDetails(doorid, placardid);
         }
     });
-    $(document).on('click', '.doordetails', function () {
-        var td = $(this);
-        var doorid = td.attr('data-doorid');
-        if (checkValue(doorid)) {
-            LoadDoorDetails(doorid);
-        }
-    });
+  
     $(document).on('click', '.tagdetails', function (e) {
         var td = $(this);
         var tagid = td.attr('data-tag');
@@ -3107,9 +2455,7 @@ $(function () {
             nasscode: NASS_Code
         });
     }
-    function SortByVehicleName(a, b) {
-        return a.VEHICLENAME < b.VEHICLENAME ? -1 : a.VEHICLENAME > b.VEHICLENAME ? 1 : 0;
-    }
+
     function enableNotificationSubmit() {
         //AGV connections
         if ($('input[type=text][name=condition_name]').hasClass('is-valid') &&
@@ -3139,13 +2485,7 @@ $(function () {
         });
     }
  
-    //order
-    function OrderBy(a, b, n) {
-        if (n) return a - b;
-        if (a < b) return -1;
-        if (a > b) return 1;
-        return 0;
-    }
+   
     //sort table header
     $('th').click(function () {
         var $th = $(this).closest('th');
@@ -3173,11 +2513,14 @@ $(function () {
         return false;
     });
 });
+function SortByVehicleName(a, b) {
+    return a.VEHICLENAME < b.VEHICLENAME ? -1 : a.VEHICLENAME > b.VEHICLENAME ? 1 : 0;
+}
 function formatTime(value_time) {
     try {
         if (!$.isEmptyObject(timezone)) {
             if (timezone.hasOwnProperty("Facility_TimeZone")) {
-                var time = moment(value_time).tz(timezone.Facility_TimeZone);
+                var time = moment(value_time);
                 if (time._isValid) {
                     return time.format("HH:mm");
                 }
@@ -3222,10 +2565,17 @@ function IPAddress_validator(value) {
     }
     return value;
 }
-
+//order
+function OrderBy(a, b, n) {
+    if (n) return a - b;
+    if (a < b) return -1;
+    if (a > b) return 1;
+    return 0;
+}
 function SortByTagName(a, b) {
     return a.name < b.name ? -1 : a.name > b.name ? 1 : 0;
 }
+
 function GetPeopleInZone(zone, P2Pdata, staffarray) {
     //staffing
     var planstaffarray = [];
