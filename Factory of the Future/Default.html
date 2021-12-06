@@ -653,9 +653,9 @@
                             </div>
                         </div>
 
-                        <div id="ctstabs_div" class="card bg-white" style="display: block;">
+                        <div id="ctstabs_div" class="card bg-white container-fluid filterable" style="display: block;">
                             <div class="card-header pl-1 border-bottom">
-                                <h6 class="control-label sectionHeader ml-1 mb-1">Dock/Door: Trailer Info</h6>
+                                <h6 class="control-label sectionHeader ml-1 mb-1">Arrive/Depart Trips</h6>
                             </div>
                             <ul id="cts_tabs" class="nav nav-tabs flex-column flex-sm-row card-header pt-0 px-1 mb-1">
                                 <li class="nav-item"><a href="#cts_1" class="nav-link active" data-toggle="tab">OB Trips</a></li>
@@ -668,7 +668,7 @@
                             </ul>
                             <div class="tab-content">
                                 <div class="tab-pane fade show active" id="cts_1">
-                                    <div id="div_cts_dockdeparted">
+                                    <div id="div_cts_dockdeparted" >
                                         <div class="bg-white px-1">
                                             <div class="card-body">
                                                 <div class="table-responsive fixedHeader variableHeight">
@@ -677,12 +677,21 @@
                                                             <tr>
                                                                 <th class="row-cts-schd">Schd</th>
                                                                 <th class="row-cts-depart">Deprt</th>
+                                                                <th class="row-cts-rt">Route-Trip</th>
                                                                 <th class="row-cts-door">Door</th>
                                                                 <th class="row-cts-leg">Leg</th>
                                                                 <th class="row-cts-dest">Dest</th>
-                                                                <th class="row-cts-close">Close</th>
-                                                                <th class="row-cts-load">Load</th>
-                                                                <th>Load%</th>
+                                                                <!--<th class="row-cts-close">Close</th>
+        <th class="row-cts-load">Load</th>
+        <th>Load%</th>-->
+                                                            </tr>
+                                                            <tr class="filters">
+                                                                <td><input class="frow-comp-1" id="obshc" type="text" placeholder="Schd"></td>
+                                                                <td><input class="frow-comp-2" id="obdepart" type="text" placeholder="Depart"></td>
+                                                                <td><input class="frow-comp-3" id="obrt" type="text" placeholder="Route-Trip"></td>
+                                                                <td><input class="frow-comp-4" id="obdoor" type="text" placeholder="Door"></td>
+                                                                <td><input class="frow-comp-4" id="obleg" type="text" placeholder="Leg"></td>
+                                                                <td><input class="frow-comp-4" id="obdest" type="text" placeholder="Dest"></td>
                                                             </tr>
                                                         </thead>
                                                         <tbody></tbody>
@@ -702,12 +711,13 @@
                                                             <tr>
                                                                 <th class="row-cts-schd">Schd</th>
                                                                 <th class="row-cts-depart">Deprt</th>
+                                                                <th class="row-cts-rt">Route-Trip</th>
                                                                 <th class="row-cts-door">Door</th>
                                                                 <th class="row-cts-leg">Leg</th>
                                                                 <th class="row-cts-dest">Dest</th>
-                                                                <th class="row-cts-close">Close</th>
-                                                                <th class="row-cts-load">Load</th>
-                                                                <th>Load%</th>
+                                                                <!--<th class="row-cts-close">Close</th>
+    <th class="row-cts-load">Load</th>
+    <th>Load%</th>-->
                                                             </tr>
                                                         </thead>
                                                         <tbody>
@@ -728,6 +738,7 @@
                                                             <tr>
                                                                 <th class="row-cts-schd">Schd</th>
                                                                 <th class="row-cts-depart">Departed</th>
+                                                                <th class="row-cts-rt">Route-Trip</th>
                                                                 <th class="row-cts-door">Door</th>
                                                                 <th class="row-cts-leg">Dest</th>
                                                                 <th class="row-cts-dest">Site Name</th>
@@ -749,7 +760,8 @@
                                                         <thead class="thead-dark">
                                                             <tr>
                                                                 <th class="row-cts-schd">Schd</th>
-                                                                <th class="row-cts-schd">Arrived</th>
+                                                                <th class="row-cts-depart">Arrived</th>
+                                                                <th class="row-cts-rt">Route-Trip</th>
                                                                 <th class="row-cts-door">Door</th>
                                                                 <th class="row-cts-leg">Leg Origin</th>
                                                                 <th class="row-cts-dest">Site Name</th>

@@ -356,18 +356,6 @@ namespace Factory_of_the_Future
            
         }
 
-        private static DateTime SVdatetimeformat(JObject eventDtm)
-        {
-           
-                return new DateTime(eventDtm.ContainsKey("year") ? (int)eventDtm.Property("year").Value : 0,
-                                                eventDtm.ContainsKey("month") ? ((int)eventDtm.Property("month").Value + 1) : 0,
-                                                eventDtm.ContainsKey("dayOfMonth") ? (int)eventDtm.Property("dayOfMonth").Value : 0,
-                                                eventDtm.ContainsKey("hourOfDay") ? (int)eventDtm.Property("hourOfDay").Value : 0,
-                                                eventDtm.ContainsKey("minute") ? (int)eventDtm.Property("minute").Value : 0,
-                                                            eventDtm.ContainsKey("second") ? (int)eventDtm.Property("second").Value : 0);
-           
-        }
-
         private static void Trips(JObject jsonObject, string message_type)
         {
             try
@@ -375,111 +363,149 @@ namespace Factory_of_the_Future
                 if (jsonObject.HasValues)
                 {
                     JToken trips = jsonObject.SelectToken(message_type);
-                    foreach ( JObject trip in trips)
+                    if (trips != null)
                     {
-
-                        /*Scheduled 
-                         * EnRoute
-                         * IntheYard
-                         * Unloading 
-                         * Canceled 
-                         * Complete 
-                         * Loading 
-                         * Departed 
-                         * Omitted 
-                         * Ready to Depart*/
-                        if (trip.ContainsKey("status") && !Regex.IsMatch(trip["status"].ToString(), "(CANCELED|Omitted)", RegexOptions.IgnoreCase))
+                        List<Trips> Trips = JsonConvert.DeserializeObject<List<Trips>>(JsonConvert.SerializeObject(trips));
+                        foreach (Trips tripitem in Trips)
                         {
-                            if (Global.Trips.ContainsKey(string.Concat(trip["route"], trip["trip"])))
+                            if (!string.IsNullOrEmpty(tripitem.Status) && Regex.IsMatch(tripitem.Status, "(CANCELED|Omitted)", RegexOptions.IgnoreCase))
                             {
-                             
-                                Global.Trips.AddOrUpdate(string.Concat(trip["route"], trip["trip"]), trip, 
-                                    (key, existingVal) =>
-                                    {
-                                        if (trip.ContainsKey("operDate"))
-                                        {
-                                            existingVal["operationDate"] = SVdatetimeformat((JObject)trip["operDate"]).ToString();
-                                        }
-                                        if (trip.ContainsKey("scheduledDtm"))
-                                        {
-                                            existingVal["scheduledDate"] = SVdatetimeformat((JObject)trip["scheduledDtm"]).ToString();
-                                        }
-                                        if (trip.ContainsKey("actualDtm"))
-                                        {
-                                            existingVal["actualDate"] = SVdatetimeformat((JObject)trip["actualDtm"]).ToString();
-                                        }
-                                        if (trip.ContainsKey("doorDtm"))
-                                        {
-                                            existingVal["doorDate"] = SVdatetimeformat((JObject)trip["doorDtm"]).ToString();
-                                        }
-                                        if (trip.ContainsKey("legScheduledDtm"))
-                                        {
-                                            existingVal["legScheduledDate"] = SVdatetimeformat((JObject)trip["legScheduledDtm"]);
-                                        }
-                                        //legActualDtm
-                                        if (trip.ContainsKey("legActualDtm"))
-                                        {
-                                            existingVal["legActualDate"] = SVdatetimeformat((JObject)trip["legActualDtm"]);
-                                        }
-                                        if (trip.ContainsKey("legDoorDtm"))
-                                        {
-                                            existingVal["legDoorDate"] = SVdatetimeformat((JObject)trip["legDoorDtm"]);
-                                        }
-                                        existingVal["routetriplegs"] = GetItinerary(trip["route"].ToString(), trip["trip"].ToString(), Connection["NASS_CODE"].ToString());
-                                        return existingVal;
-                                    });
+                                if (Global.Trips.ContainsKey(string.Concat(tripitem.Route, tripitem.Trip)))
+                                {
+                                    Global.Trips.TryRemove(string.Concat(tripitem.Route, tripitem.Trip), out Trips temp1);
+                                }
                             }
                             else
                             {
-                                if (trip.ContainsKey("operDate"))
+                                if (Global.Trips.ContainsKey(string.Concat(tripitem.Route, tripitem.Trip)))
                                 {
-                                    trip["operationDate"] = SVdatetimeformat((JObject)trip["operDate"]).ToString();
-                                }
-                                if (trip.ContainsKey("scheduledDtm"))
-                                {
-                                    trip["scheduledDate"] = SVdatetimeformat((JObject)trip["scheduledDtm"]).ToString();
-                                }
-                                if (trip.ContainsKey("actualDtm"))
-                                {
-                                    trip["actualDate"] = SVdatetimeformat((JObject)trip["actualDtm"]).ToString();
-                                }
-                                if (trip.ContainsKey("doorDtm"))
-                                {
-                                    trip["doorDate"] = SVdatetimeformat((JObject)trip["doorDtm"]).ToString();
-                                }
-                                if (trip.ContainsKey("legScheduledDtm"))
-                                {
-                                    trip["legScheduledDate"] = SVdatetimeformat((JObject)trip["legScheduledDtm"]) ;
-                                }
-                                if (trip.ContainsKey("legActualDtm"))
-                                {
-                                    trip["legActualDate"] = SVdatetimeformat((JObject)trip["legActualDtm"]);
-                                }
-                                if (trip.ContainsKey("legDoorDtm"))
-                                {
-                                    trip["legDoorDate"] = SVdatetimeformat((JObject)trip["legDoorDtm"]);
-                                }
-                                trip["routetriplegs"] = GetItinerary(trip["route"].ToString(), trip["trip"].ToString(), Connection["NASS_CODE"].ToString());
+                                    Global.Trips.AddOrUpdate(string.Concat(tripitem.Route, tripitem.Trip), tripitem,
+                                        (key, existingVal) =>
+                                        {
+                                            if (existingVal.OperDate != null)
+                                            {
+                                                DateTime OperDatefmt = Global.SVdatetimeformat(JObject.Parse(JsonConvert.SerializeObject(existingVal.OperDate)));
+                                                new ItineraryTripUpdate(GetItinerary(tripitem.Route, tripitem.Trip, Connection["NASS_CODE"].ToString(), OperDatefmt));
+                                            }
+                                            return existingVal;
 
-                                Global.Trips.TryAdd(string.Concat(trip["route"], trip["trip"]), trip);
+                                        });
+                                }
+                                else
+                                {
+                                    Global.Trips.TryAdd(string.Concat(tripitem.Route, tripitem.Trip), tripitem);
+                                }
                             }
-                        }
-                        else
-                        {
-                            if (Global.Trips.ContainsKey(string.Concat(trip["route"], trip["trip"])))
-                            {
-                                Global.Trips.TryRemove(string.Concat(trip["route"], trip["trip"]), out JObject temp);
-                            }
+                            //foreach (JObject trip in trips.Children())
+                            //{
+
+                            //    /*Scheduled 
+                            //     * EnRoute
+                            //     * IntheYard
+                            //     * Unloading 
+                            //     * Canceled 
+                            //     * Complete 
+                            //     * Loading 
+                            //     * Departed 
+                            //     * Omitted 
+                            //     * Ready to Depart*/
+                            //    if (trip.ContainsKey("status") && Regex.IsMatch(trip["status"].ToString(), "(CANCELED|Omitted)", RegexOptions.IgnoreCase))
+                            //    {
+                            //        if (Global.Trips.ContainsKey(string.Concat(trip["route"], trip["trip"])))
+                            //        {
+                            //            Global.Trips.TryRemove(string.Concat(trip["route"], trip["trip"]), out JObject temp);
+                            //        }
+                            //    }
+                            //    else
+                            //    {
+                            //        if (Global.Trips.ContainsKey(string.Concat(trip["route"], trip["trip"])))
+                            //        {
+
+                            //            Global.Trips.AddOrUpdate(string.Concat(trip["route"], trip["trip"]), trip,
+                            //                (key, existingVal) =>
+                            //                {
+                            //                    if (trip.ContainsKey("operDate"))
+                            //                    {
+                            //                        existingVal["operationDate"] = Global.SVdatetimeformat((JObject)trip["operDate"]);
+                            //                    }
+                            //                    if (trip.ContainsKey("scheduledDtm"))
+                            //                    {
+                            //                        existingVal["scheduledDate"] = Global.SVdatetimeformat((JObject)trip["scheduledDtm"]);
+                            //                    }
+                            //                    if (trip.ContainsKey("actualDtm"))
+                            //                    {
+                            //                        existingVal["actualDate"] = Global.SVdatetimeformat((JObject)trip["actualDtm"]);
+                            //                    }
+                            //                    if (trip.ContainsKey("doorDtm"))
+                            //                    {
+                            //                        existingVal["doorDate"] = Global.SVdatetimeformat((JObject)trip["doorDtm"]);
+                            //                    }
+                            //                    if (trip.ContainsKey("legScheduledDtm"))
+                            //                    {
+                            //                        existingVal["legScheduledDate"] = Global.SVdatetimeformat((JObject)trip["legScheduledDtm"]);
+                            //                    }
+                            //                //legActualDtm
+                            //                if (trip.ContainsKey("legActualDtm"))
+                            //                    {
+                            //                        existingVal["legActualDate"] = Global.SVdatetimeformat((JObject)trip["legActualDtm"]);
+                            //                    }
+                            //                    if (trip.ContainsKey("legDoorDtm"))
+                            //                    {
+                            //                        existingVal["legDoorDate"] = Global.SVdatetimeformat((JObject)trip["legDoorDtm"]);
+                            //                    }
+                            //                    new ItineraryTripUpdate(GetItinerary(trip["route"].ToString(), trip["trip"].ToString(), Connection["NASS_CODE"].ToString(), (DateTime)existingVal["operationDate"]));
+
+                            //                    return existingVal;
+                            //                });
+
+                            //        }
+                            //        else
+                            //        {
+                            //            if (trip.ContainsKey("operDate"))
+                            //            {
+                            //                trip["operationDate"] = Global.SVdatetimeformat((JObject)trip["operDate"]);
+                            //            }
+                            //            if (trip.ContainsKey("scheduledDtm"))
+                            //            {
+                            //                trip["scheduledDate"] = Global.SVdatetimeformat((JObject)trip["scheduledDtm"]);
+                            //            }
+                            //            if (trip.ContainsKey("actualDtm"))
+                            //            {
+                            //                trip["actualDate"] = Global.SVdatetimeformat((JObject)trip["actualDtm"]);
+                            //            }
+                            //            if (trip.ContainsKey("doorDtm"))
+                            //            {
+                            //                trip["doorDate"] = Global.SVdatetimeformat((JObject)trip["doorDtm"]);
+                            //            }
+                            //            if (trip.ContainsKey("legScheduledDtm"))
+                            //            {
+                            //                trip["legScheduledDate"] = Global.SVdatetimeformat((JObject)trip["legScheduledDtm"]);
+                            //            }
+                            //            if (trip.ContainsKey("legActualDtm"))
+                            //            {
+                            //                trip["legActualDate"] = Global.SVdatetimeformat((JObject)trip["legActualDtm"]);
+                            //            }
+                            //            if (trip.ContainsKey("legDoorDtm"))
+                            //            {
+                            //                trip["legDoorDate"] = Global.SVdatetimeformat((JObject)trip["legDoorDtm"]);
+                            //            }
+
+                            //            Global.Trips.TryAdd(string.Concat(trip["route"], trip["trip"]), trip);
+                            //            new ItineraryTripUpdate(GetItinerary(trip["route"].ToString(), trip["trip"].ToString(), Connection["NASS_CODE"].ToString(), (DateTime)trip["operationDate"]));
+
+                            //        }
+                            //    }
+                            //}
                         }
                     }
                 }
                 //remove older data this does the clean up.
-                Global.Trips.Where(r => (DateTime)r.Value["operationDate"] <= DateTime.Now.AddDays(-3)).Select(y => y.Key).ToList().ForEach(m => {
-                    if (!Global.Trips.TryRemove(m, out JObject valout))
-                    {
-                        new ErrorLogger().CustomLog(string.Concat("Unable to remove item from Trip Array",valout), string.Concat((string)Global.AppSettings.Property("APPLICATION_NAME").Value, "Applogs"));
-                    };
-                });
+                //Global.Trips.Where(r => DateTime.Now.Subtract((DateTime)r.Value["scheduledDate"]).TotalHours > 8.0).Select(y => y.Key).ToList().ForEach(m => {
+                //    if (!Global.Trips.TryRemove(m, out JObject valout))
+                //    {
+                //        new ErrorLogger().CustomLog(string.Concat("Unable to remove item from Trip Array",valout), string.Concat((string)Global.AppSettings.Property("APPLICATION_NAME").Value, "Applogs"));
+                //    }
+                //});
             }
             catch (Exception e)
             {
@@ -487,14 +513,14 @@ namespace Factory_of_the_Future
             }
         }
 
-        private static JArray GetItinerary(string route, string trip, string nasscode)
+        private static JArray GetItinerary(string route, string trip, string nasscode , DateTime start_time)
         {
             JArray temp = new JArray();
             try
             {
-                string start_time = string.Concat(DateTime.Now.ToString("yyyy-MM-dd'T'"), "00:00:00");
+                //string start_time = string.Concat(DateTime.Now.ToString("yyyy-MM-dd'T'"), "00:00:00");
 
-                Uri parURL = new Uri(string.Format((string)Global.AppSettings.Property("SV_ITINERARY").Value, route, trip, start_time));
+                Uri parURL = new Uri(string.Format((string)Global.AppSettings.Property("SV_ITINERARY").Value, route, trip, string.Concat(start_time.ToString("yyyy-MM-dd'T'"), "00:00:00")));
                 string SV_Response = SendMessage.SV_Get(parURL.AbsoluteUri);
                 if (!string.IsNullOrEmpty(SV_Response))
                 {
@@ -554,7 +580,7 @@ namespace Factory_of_the_Future
                                     }
                                     if (item.ContainsKey("scheduledDtm"))
                                     {
-                                        schDtm = SVdatetimeformat((JObject)item.Property("scheduledDtm").Value);
+                                        schDtm = Global.SVdatetimeformat((JObject)item.Property("scheduledDtm").Value);
                                         m["properties"]["scheduledDepart"] = schDtm;
                                     }
                                     else
@@ -668,6 +694,13 @@ namespace Factory_of_the_Future
                                     if (update_info)
                                     {
                                         m["properties"]["Zone_Update"] = true;
+                                    }
+
+                                    ///update trips info
+                                    ///
+                                    if (Global.Trips.ContainsKey(string.Concat(item["route"], item["trip"])))
+                                    {
+                                       new DoorTripsUpdate(item);
                                     }
                                 }
                             }

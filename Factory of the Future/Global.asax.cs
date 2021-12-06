@@ -65,7 +65,7 @@ namespace Factory_of_the_Future
         //public static ConcurrentDictionary<string, JObject> AGVLocationZones = new ConcurrentDictionary<string, JObject>();
 
         //Trips
-        public static ConcurrentDictionary<string, JObject> Trips = new ConcurrentDictionary<string, JObject>();
+        public static ConcurrentDictionary<string, Trips> Trips = new ConcurrentDictionary<string, Trips>();
 
         //CTS DockDeparted
         public static ConcurrentDictionary<string, JObject> CTS_DockDeparted = new ConcurrentDictionary<string, JObject>();
@@ -1224,6 +1224,17 @@ namespace Factory_of_the_Future
         public static DateTime UnixTimeStampToDateTime(long unixTimeStamp)
         {
             return DateTimeOffset.FromUnixTimeMilliseconds(unixTimeStamp).DateTime.ToLocalTime();
+        }
+        public static DateTime SVdatetimeformat(JObject eventDtm)
+        {
+
+            return new DateTime(eventDtm.ContainsKey("year") ? (int)eventDtm.Property("year").Value : 0,
+                                            eventDtm.ContainsKey("month") ? ((int)eventDtm.Property("month").Value + 1) : 0,
+                                            eventDtm.ContainsKey("dayOfMonth") ? (int)eventDtm.Property("dayOfMonth").Value : 0,
+                                            eventDtm.ContainsKey("hourOfDay") ? (int)eventDtm.Property("hourOfDay").Value : 0,
+                                            eventDtm.ContainsKey("minute") ? (int)eventDtm.Property("minute").Value : 0,
+                                                        eventDtm.ContainsKey("second") ? (int)eventDtm.Property("second").Value : 0);
+
         }
     }
 }

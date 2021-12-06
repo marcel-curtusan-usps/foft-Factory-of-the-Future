@@ -830,8 +830,8 @@ $(function () {
         renderer: L.canvas({ padding: 0.5 }),
         preferCanvas: true,
         markerZoomAnimation: false,
-        minZoom: 2,
-        maxZoom: 8,
+        minZoom: 1,
+        maxZoom: 5,
         zoomControl: false,
         measureControl: true,
         tap: false,
@@ -875,7 +875,7 @@ $(function () {
         options: {
             position: 'topright'
         },
-        onAdd: function (map) {
+        onAdd: function () {
             var container = L.DomUtil.create('input');
             container.id = "localTime";
             container.type = "button";
@@ -1414,7 +1414,7 @@ $(function () {
                                     options: {
                                         position: 'topright'
                                     },
-                                    onAdd: function (map) {
+                                    onAdd: function () {
                                         var container = L.DomUtil.create('input');
                                         container.type = "button";
                                         container.id = "environment";

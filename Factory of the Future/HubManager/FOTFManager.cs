@@ -1037,7 +1037,7 @@ namespace Factory_of_the_Future
                 return false;
             }
         }
-        internal IEnumerable<JToken> GetTripsList()
+        internal IEnumerable<Trips> GetTripsList()
         {
             try
             {
@@ -1046,7 +1046,7 @@ namespace Factory_of_the_Future
             catch (Exception e)
             {
                 new ErrorLogger().ExceptionLog(e);
-                return new JObject();
+                return null;
             }
         }
         internal IEnumerable<JToken> GetCTSList(string type)

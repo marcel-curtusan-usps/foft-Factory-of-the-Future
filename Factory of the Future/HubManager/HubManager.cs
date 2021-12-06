@@ -129,7 +129,7 @@ namespace Factory_of_the_Future
         /// Get Trips Data
         /// </summary>
         /// <returns></returns>
-        public IEnumerable<JToken> GetTripsList()
+        public IEnumerable<Trips> GetTripsList()
         {
             return _managerHub.GetTripsList();
         }

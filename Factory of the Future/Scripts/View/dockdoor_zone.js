@@ -194,8 +194,9 @@ async function LoadDockDoorTable(dataproperties, table) {
     try {
         if (!$.isEmptyObject(dataproperties)) {
             $('table[id=' + table + '] tbody').empty();
+            let loadtriphisory = false;
             if (/dockdoortable/i.test(table)) {
-               let tempdata = [];
+                let tempdata = [];
                 $('div[id=dockdoor_div]').css('display', 'block');
                 $('div[id=trailer_div]').css('display', 'block');
                 $('div[id=machine_div]').css('display', 'none');
@@ -219,176 +220,185 @@ async function LoadDockDoorTable(dataproperties, table) {
                             value: "(" + dataproperties.svDoorData.legSiteId + ") " + dataproperties.svDoorData.legSiteName
                         })
                     }
-                    if (dataproperties.svDoorData.hasOwnProperty("route")) {
-                        tempdata.push({
-                            name: "Route-Trip",
-                            value: dataproperties.svDoorData.route + "-" + dataproperties.svDoorData.trip
-                        })
+                    else {
+                        loadtriphisory = true;
                     }
-                    if (dataproperties.svDoorData.hasOwnProperty("trailerBarcode")) {
-                        tempdata.push({
-                            name: "Trailer Barcode",
-                            value: dataproperties.svDoorData.trailerBarcode
-                        })
-                    }
-                    if (dataproperties.svDoorData.hasOwnProperty("status")) {
-                        tempdata.push({
-                            name: "Load Status",
-                            value: dataproperties.svDoorData.status
-                        })
-                    }
-                    //if (dataproperties.svDoorData.hasOwnProperty("driverBarcode")) {
-                    //    tempdata.push({
-                    //        name: "Driver Barcode",
-                    //        value: dataproperties.svDoorData.driverBarcode
-                    //    })
-                    //}
-                    //if (dataproperties.svDoorData.hasOwnProperty("driverFirstName")) {
-                    //    var lastname = "";
-                    //    if (dataproperties.svDoorData.hasOwnProperty("driverLastName")) {
-                    //        lastname = dataproperties.svDoorData.driverLastName;
-                    //    }
-
-                    //    tempdata.push({
-                    //        name: "Driver Name",
-                    //        value: dataproperties.svDoorData.driverFirstName + " " + lastname
-                    //    })
-                    //}
-                    //if (dataproperties.svDoorData.hasOwnProperty("driverPhoneNumber")) {
-                    //    tempdata.push({
-                    //        name: "Driver Phone Number",
-                    //        value: dataproperties.svDoorData.driverPhoneNumber
-                    //    })
-                    //}
-                    //if (dataproperties.svDoorData.hasOwnProperty("loadPercent")) {
-                    //    tempdata.push({
-                    //        name: "Load Percent",
-                    //        value: dataproperties.svDoorData.loadPercent
-                    //    })
-                    //}
-                    if (dataproperties.svDoorData.hasOwnProperty("tripDirectionInd")) {
-                        tempdata.push({
-                            name: "Direction",
-                            value: dataproperties.svDoorData.tripDirectionInd === "O" ? "Out-bound" : "In-bound"
-                        })
-                    }
-                    if (dataproperties.svDoorData.hasOwnProperty("scheduledDtm")) {
-                        tempdata.push({
-                            name: "Scheduled To Depart",
-                            value: (dataproperties.svDoorData.scheduledDtm.month + 1) + "-" + dataproperties.svDoorData.scheduledDtm.dayOfMonth + "-" + dataproperties.svDoorData.scheduledDtm.year + " " +
-                                pad(dataproperties.svDoorData.scheduledDtm.hourOfDay, 2) + ":" + pad(dataproperties.svDoorData.scheduledDtm.minute, 2) + ":" + pad(dataproperties.svDoorData.scheduledDtm.second, 2)
-                        })
-                    }
-                    if (dataproperties.svDoorData.tripDirectionInd === "I") {
-                        if (dataproperties.svDoorData.hasOwnProperty("actualDtm")) {
+                    if (!loadtriphisory) {
+                        if (dataproperties.svDoorData.hasOwnProperty("route")) {
                             tempdata.push({
-                                name: "Actual Arrive Time ",
-                                value: (dataproperties.svDoorData.actualDtm.month + 1) + "-" + dataproperties.svDoorData.actualDtm.dayOfMonth + "-" + dataproperties.svDoorData.actualDtm.year + " " +
-                                    pad(dataproperties.svDoorData.actualDtm.hourOfDay, 2) + ":" + pad(dataproperties.svDoorData.actualDtm.minute, 2) + ":" + pad(dataproperties.svDoorData.actualDtm.second, 2)
+                                name: "Route-Trip",
+                                value: dataproperties.svDoorData.route + "-" + dataproperties.svDoorData.trip
                             })
+                        }
+                        if (dataproperties.svDoorData.hasOwnProperty("trailerBarcode")) {
+                            tempdata.push({
+                                name: "Trailer Barcode",
+                                value: dataproperties.svDoorData.trailerBarcode
+                            })
+                        }
+                        if (dataproperties.svDoorData.hasOwnProperty("status")) {
+                            tempdata.push({
+                                name: "Load Status",
+                                value: dataproperties.svDoorData.status
+                            })
+                        }
+                        //if (dataproperties.svDoorData.hasOwnProperty("driverBarcode")) {
+                        //    tempdata.push({
+                        //        name: "Driver Barcode",
+                        //        value: dataproperties.svDoorData.driverBarcode
+                        //    })
+                        //}
+                        //if (dataproperties.svDoorData.hasOwnProperty("driverFirstName")) {
+                        //    var lastname = "";
+                        //    if (dataproperties.svDoorData.hasOwnProperty("driverLastName")) {
+                        //        lastname = dataproperties.svDoorData.driverLastName;
+                        //    }
+
+                        //    tempdata.push({
+                        //        name: "Driver Name",
+                        //        value: dataproperties.svDoorData.driverFirstName + " " + lastname
+                        //    })
+                        //}
+                        //if (dataproperties.svDoorData.hasOwnProperty("driverPhoneNumber")) {
+                        //    tempdata.push({
+                        //        name: "Driver Phone Number",
+                        //        value: dataproperties.svDoorData.driverPhoneNumber
+                        //    })
+                        //}
+                        //if (dataproperties.svDoorData.hasOwnProperty("loadPercent")) {
+                        //    tempdata.push({
+                        //        name: "Load Percent",
+                        //        value: dataproperties.svDoorData.loadPercent
+                        //    })
+                        //}
+                        if (dataproperties.svDoorData.hasOwnProperty("tripDirectionInd")) {
+                            tempdata.push({
+                                name: "Direction",
+                                value: dataproperties.svDoorData.tripDirectionInd === "O" ? "Out-bound" : "In-bound"
+                            })
+                        }
+                        if (dataproperties.svDoorData.hasOwnProperty("scheduledDtm")) {
+                            tempdata.push({
+                                name: "Scheduled To Depart",
+                                value: (dataproperties.svDoorData.scheduledDtm.month + 1) + "-" + dataproperties.svDoorData.scheduledDtm.dayOfMonth + "-" + dataproperties.svDoorData.scheduledDtm.year + " " +
+                                    pad(dataproperties.svDoorData.scheduledDtm.hourOfDay, 2) + ":" + pad(dataproperties.svDoorData.scheduledDtm.minute, 2) + ":" + pad(dataproperties.svDoorData.scheduledDtm.second, 2)
+                            })
+                        }
+                        if (dataproperties.svDoorData.tripDirectionInd === "I") {
+                            if (dataproperties.svDoorData.hasOwnProperty("actualDtm")) {
+                                tempdata.push({
+                                    name: "Actual Arrive Time ",
+                                    value: (dataproperties.svDoorData.actualDtm.month + 1) + "-" + dataproperties.svDoorData.actualDtm.dayOfMonth + "-" + dataproperties.svDoorData.actualDtm.year + " " +
+                                        pad(dataproperties.svDoorData.actualDtm.hourOfDay, 2) + ":" + pad(dataproperties.svDoorData.actualDtm.minute, 2) + ":" + pad(dataproperties.svDoorData.actualDtm.second, 2)
+                                })
+                            }
+                            else {
+                                tempdata.push({
+                                    name: "Actual Arrive Time ",
+                                    value: "Has Not Arrived"
+                                })
+                            }
+                        }
+                    }
+                    $dockdoortop_Table = $('table[id=' + table + ']');
+                    $dockdoortop_Table_Body = $dockdoortop_Table.find('tbody');
+                    $dockdoortop_Table_Body.empty();
+                    $dockdoortop_row_template = '<tr data-id=' + dataproperties.id + '>' +
+                        '<td class="text-right" style="border-right-style:solid" >{name}</td>' +
+                        '<td class="text-left">{value}</td>' +
+                        '</tr>';
+
+                    function formatdockdoortoprow(properties) {
+                        return $.extend(properties, {
+                            name: properties.name.replace(/^0+/, ''),
+                            value: properties.value
+                        });
+                    }
+                    $.each(tempdata, function () {
+                        $dockdoortop_Table_Body.append($dockdoortop_row_template.supplant(formatdockdoortoprow(this)));
+                    });
+                    $container_Table = $('table[id=containertable]');
+                    $container_Table_Body = $container_Table.find('tbody');
+
+                    $('button[name=container_counts]').text(0 + "/" + 0);
+                    $container_row_template = '<tr>' +
+                        '<td data-input="dest" class="text-center">{dest}</td>' +
+                        '<td data-input="location" class="text-center">{location}</td>' +
+                        '<td data-input="placard" class="text-center"><a data-doorid=' + dataproperties.id + ' data-placardid={placard} class=containerdetails>{placard}</a></td>' +
+                        '<td data-input="status" class="text-center {backgroundcolorstatus}">{status}</td>' +
+                        '</tr>"';
+
+
+                    if (dataproperties.svDoorData.hasOwnProperty("tripDirectionInd")) {
+                        //var legSite = dataproperties.svDoorData.tripDirectionInd === "I" ? User.NASS_Code : dataproperties.svDoorData.legSiteId;
+                        //$.connection.FOTFManager.server.getContainer(legSite, dataproperties.svDoorData.tripDirectionInd, dataproperties.svDoorData.route, dataproperties.svDoorData.trip).done(function (Data) {
+
+                        if (dataproperties.svDoorData.containers.length > 0) {
+                            var loadedcount = 0;
+                            var unloadedcount = 0;
+                            var loaddata = [];
+                            $container_Table_Body.empty();
+                            $.each(dataproperties.svDoorData.containers, function (index, d) {
+                                if (!d.containerTerminate) {
+                                    if (dataproperties.svDoorData.tripDirectionInd === "O") {
+                                        if (d.containerAtDest === false) {
+                                            if (d.hasLoadScans === true && d.Otrailer === dataproperties.svDoorData.trailerBarcode) {
+                                                loadedcount++
+                                                d.constainerStatus = "Loaded";
+                                                d.sortind = 2;
+                                                loaddata.push(d);
+                                            }
+                                            if (d.hasLoadScans === false && d.hasAssignScans === true && d.hasCloseScans === true) {
+                                                unloadedcount++;
+                                                d.constainerStatus = "Close";
+                                                d.sortind = 0;
+                                                loaddata.push(d);
+                                            }
+                                            //if (d.containerRedirectedDest === true && d.hasLoadScans === false) {
+                                            //    unloadedcount++
+                                            //    d.constainerStatus = "Unloaded";
+                                            //    d.sortind = 1;
+                                            //    loaddata.push(d);
+                                            //}
+                                            //if (d.containerRedirectedDest === false && d.hasLoadScans === true) {
+                                            //    loadedcount++
+                                            //    d.constainerStatus = "Loaded";
+                                            //    d.sortind = 2;
+                                            //    loaddata.push(d);
+                                            //}
+                                        }
+                                    }
+                                    if (dataproperties.svDoorData.tripDirectionInd === "I") {
+                                        if (d.hasUnloadScans === true && d.Itrailer === dataproperties.svDoorData.trailerBarcode) {
+                                            unloadedcount++
+                                            d.constainerStatus = "Unloaded";
+                                            d.sortind = 1;
+                                            loaddata.push(this);
+                                        }
+                                    }
+                                }
+                            });
+                            loaddata.sort(SortByind);
+                            $.each(loaddata, function () {
+                                $container_Table_Body.append($container_row_template.supplant(formatctscontainerrow(this)));
+                            });
+
+                            $('button[name=container_counts]').text(loadedcount + "/" + unloadedcount);
                         }
                         else {
-                            tempdata.push({
-                                name: "Actual Arrive Time ",
-                                value: "Has Not Arrived"
-                            })
+                            $('button[name=container_counts]').text(0 + "/" + 0);
+                            $container_Table_Body.empty();
                         }
-                    }
-                }
-                $dockdoortop_Table = $('table[id=' + table + ']');
-                $dockdoortop_Table_Body = $dockdoortop_Table.find('tbody');
-                $dockdoortop_Table_Body.empty();
-                $dockdoortop_row_template = '<tr data-id=' + dataproperties.id + '>' +
-                    '<td class="text-right" style="border-right-style:solid" >{name}</td>' +
-                    '<td class="text-left">{value}</td>' +
-                    '</tr>';
-
-                function formatdockdoortoprow(properties) {
-                    return $.extend(properties, {
-                        name: properties.name.replace(/^0+/, ''),
-                        value: properties.value
-                    });
-                }
-                $.each(tempdata, function () {
-                    $dockdoortop_Table_Body.append($dockdoortop_row_template.supplant(formatdockdoortoprow(this)));
-                });
-                $container_Table = $('table[id=containertable]');
-                $container_Table_Body = $container_Table.find('tbody');
-
-                $('button[name=container_counts]').text(0 + "/" + 0);
-                $container_row_template = '<tr>' +
-                    '<td data-input="dest" class="text-center">{dest}</td>' +
-                    '<td data-input="location" class="text-center">{location}</td>' +
-                    '<td data-input="placard" class="text-center"><a data-doorid=' + dataproperties.id + ' data-placardid={placard} class=containerdetails>{placard}</a></td>' +
-                    '<td data-input="status" class="text-center {backgroundcolorstatus}">{status}</td>' +
-                    '</tr>"';
-
-              
-                if (dataproperties.svDoorData.hasOwnProperty("tripDirectionInd")) {
-                    //var legSite = dataproperties.svDoorData.tripDirectionInd === "I" ? User.NASS_Code : dataproperties.svDoorData.legSiteId;
-                    //$.connection.FOTFManager.server.getContainer(legSite, dataproperties.svDoorData.tripDirectionInd, dataproperties.svDoorData.route, dataproperties.svDoorData.trip).done(function (Data) {
-
-                    if (dataproperties.svDoorData.containers.length > 0) {
-                        var loadedcount = 0;
-                        var unloadedcount = 0;
-                        var loaddata = [];
-                        $container_Table_Body.empty();
-                        $.each(dataproperties.svDoorData.containers, function (index, d) {
-                            if (!d.containerTerminate) {
-                                if (dataproperties.svDoorData.tripDirectionInd === "O") {
-                                    if (d.containerAtDest === false) {
-                                        if (d.hasLoadScans === true && d.Otrailer === dataproperties.svDoorData.trailerBarcode) {
-                                            loadedcount++
-                                            d.constainerStatus = "Loaded";
-                                            d.sortind = 2;
-                                            loaddata.push(d);
-                                        }
-                                        if (d.hasLoadScans === false && d.hasAssignScans === true && d.hasCloseScans === true) {
-                                            unloadedcount++;
-                                            d.constainerStatus = "Close";
-                                            d.sortind = 0;
-                                            loaddata.push(d);
-                                        }
-                                        //if (d.containerRedirectedDest === true && d.hasLoadScans === false) {
-                                        //    unloadedcount++
-                                        //    d.constainerStatus = "Unloaded";
-                                        //    d.sortind = 1;
-                                        //    loaddata.push(d);
-                                        //}
-                                        //if (d.containerRedirectedDest === false && d.hasLoadScans === true) {
-                                        //    loadedcount++
-                                        //    d.constainerStatus = "Loaded";
-                                        //    d.sortind = 2;
-                                        //    loaddata.push(d);
-                                        //}
-                                    }
-                                }
-                                if (dataproperties.svDoorData.tripDirectionInd === "I") {
-                                    if (d.hasUnloadScans === true && d.Itrailer === dataproperties.svDoorData.trailerBarcode) {
-                                        unloadedcount++
-                                        d.constainerStatus = "Unloaded";
-                                        d.sortind = 1;
-                                        loaddata.push(this);
-                                    }
-                                }
-                            }
-                        });
-                        loaddata.sort(SortByind);
-                        $.each(loaddata, function () {
-                            $container_Table_Body.append($container_row_template.supplant(formatctscontainerrow(this)));
-                        });
-
-                        $('button[name=container_counts]').text(loadedcount + "/" + unloadedcount);
+                        //});
                     }
                     else {
                         $('button[name=container_counts]').text(0 + "/" + 0);
                         $container_Table_Body.empty();
                     }
-                    //});
-                }
-                else {
-                    $('button[name=container_counts]').text(0 + "/" + 0);
-                    $container_Table_Body.empty();
+
+                    if (loadtriphisory) {
+                        $('div[id=trailer_div]').css('display', 'none');
+                    }
                 }
             }
         }

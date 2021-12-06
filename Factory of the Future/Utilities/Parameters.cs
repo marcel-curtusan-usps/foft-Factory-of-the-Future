@@ -347,16 +347,6 @@ namespace Factory_of_the_Future
         public int sortind { get; set; }
     }
 
-    internal class SVdatetimeformat
-    {
-        private EventDtm eventDtm;
-
-        public SVdatetimeformat(EventDtm eventDtm)
-        {
-            this.eventDtm = eventDtm;
-        }
-    }
-
     public class Container
     {
         [JsonProperty("SQLTypeName")]
@@ -487,4 +477,429 @@ namespace Factory_of_the_Future
         [JsonProperty("NASS_CODE")]
         public string NASS_CODE;
     }
+
+    public class Event
+    {
+        [JsonProperty("eventName")]
+        public string EventName { get; set; }
+
+        [JsonProperty("eventDtm")]
+        public EventDtm EventDtm { get; set; }
+
+        [JsonProperty("siteId")]
+        public string SiteId { get; set; }
+
+        [JsonProperty("userId")]
+        public string UserId { get; set; }
+    }
+
+    public class ScanCount
+    {
+        [JsonProperty("SQLTypeName")]
+        public string SQLTypeName { get; set; }
+
+        [JsonProperty("containerTypeCode")]
+        public string ContainerTypeCode { get; set; }
+
+        [JsonProperty("loadCount")]
+        public int LoadCount { get; set; }
+
+        [JsonProperty("unloadCount")]
+        public int UnloadCount { get; set; }
+
+        [JsonProperty("emptyLoadCount")]
+        public int EmptyLoadCount { get; set; }
+
+        [JsonProperty("emptyUnloadCount")]
+        public int EmptyUnloadCount { get; set; }
+
+        [JsonProperty("unscanLdCount")]
+        public int UnscanLdCount { get; set; }
+
+        [JsonProperty("unscanUnldCount")]
+        public int UnscanUnldCount { get; set; }
+
+        [JsonProperty("destBundleCount")]
+        public int DestBundleCount { get; set; }
+
+        [JsonProperty("destPieceCount")]
+        public int DestPieceCount { get; set; }
+
+        [JsonProperty("destPackageCount")]
+        public int DestPackageCount { get; set; }
+    }
+
+    public class Form5500
+    {
+        [JsonProperty("routeTripLegId")]
+        public int RouteTripLegId { get; set; }
+
+        [JsonProperty("formTypeCode")]
+        public string FormTypeCode { get; set; }
+
+        [JsonProperty("tripDirection")]
+        public string TripDirection { get; set; }
+
+        [JsonProperty("excptnCode")]
+        public string ExcptnCode { get; set; }
+
+        [JsonProperty("preparerName")]
+        public string PreparerName { get; set; }
+
+        [JsonProperty("updtUserId")]
+        public string UpdtUserId { get; set; }
+
+        [JsonProperty("exceptionList")]
+        public List<string> ExceptionList { get; set; }
+
+        [JsonProperty("createdDtm")]
+        public EventDtm CreatedDtm { get; set; }
+    }
+
+    public class Form5466
+    {
+        [JsonProperty("routeTripLegId")]
+        public int RouteTripLegId { get; set; }
+
+        [JsonProperty("formTypeCode")]
+        public string FormTypeCode { get; set; }
+
+        [JsonProperty("tripDirection")]
+        public string TripDirection { get; set; }
+
+        [JsonProperty("excptnCode")]
+        public string ExcptnCode { get; set; }
+
+        [JsonProperty("preparerName")]
+        public string PreparerName { get; set; }
+
+        [JsonProperty("updtUserId")]
+        public string UpdtUserId { get; set; }
+
+        [JsonProperty("exceptionList")]
+        public List<string> ExceptionList { get; set; }
+
+        [JsonProperty("createdDtm")]
+        public EventDtm CreatedDtm { get; set; }
+    }
+
+    public class Form5500L
+    {
+        [JsonProperty("routeTripLegId")]
+        public int RouteTripLegId { get; set; }
+
+        [JsonProperty("formTypeCode")]
+        public string FormTypeCode { get; set; }
+
+        [JsonProperty("tripDirection")]
+        public string TripDirection { get; set; }
+
+        [JsonProperty("excptnCode")]
+        public string ExcptnCode { get; set; }
+
+        [JsonProperty("preparerName")]
+        public string PreparerName { get; set; }
+
+        [JsonProperty("updtUserId")]
+        public string UpdtUserId { get; set; }
+
+        [JsonProperty("exceptionList")]
+        public List<string> ExceptionList { get; set; }
+
+        [JsonProperty("createdDtm")]
+        public EventDtm CreatedDtm { get; set; }
+    }
+    //Arrive/Depart is used to view and process the network trips scheduled at the current facility
+    public class Trips
+    {
+        [JsonProperty("SQLTypeName")]
+        public string SQLTypeName { get; set; }
+
+        [JsonProperty("routeTripId")]
+        public int RouteTripId { get; set; }
+
+        [JsonProperty("routeTripLegId")]
+        public int RouteTripLegId { get; set; }
+
+        [JsonProperty("route")]
+        public string Route { get; set; }
+
+        [JsonProperty("trip")]
+        public string Trip { get; set; }
+
+        [JsonProperty("tripDirectionInd")]
+        public string TripDirectionInd { get; set; }
+
+        [JsonProperty("legNumber")]
+        public int LegNumber { get; set; }
+
+        [JsonProperty("serviceTypeCode")]
+        public string ServiceTypeCode { get; set; }
+
+        [JsonProperty("legSiteId")]
+        public string LegSiteId { get; set; }
+
+        [JsonProperty("legSiteName")]
+        public string LegSiteName { get; set; }
+
+        [JsonProperty("tripSiteId")]
+        public string TripSiteId { get; set; }
+
+        [JsonProperty("tripSiteName")]
+        public string TripSiteName { get; set; }
+
+        [JsonProperty("status")]
+        public string Status { get; set; }
+
+        [JsonProperty("legStatus")]
+        public string LegStatus { get; set; }
+
+        [JsonProperty("scheduledDtm")]
+        public EventDtm ScheduledDtm { get; set; }
+
+        [JsonProperty("legScheduledDtm")]
+        public EventDtm LegScheduledDtm { get; set; }
+
+        [JsonProperty("isEmpty")]
+        public bool IsEmpty { get; set; }
+
+        [JsonProperty("nonStandardTripInd")]
+        public string NonStandardTripInd { get; set; }
+
+        [JsonProperty("createdUserId")]
+        public string CreatedUserId { get; set; }
+
+        [JsonProperty("transpFreqCode")]
+        public string TranspFreqCode { get; set; }
+
+        [JsonProperty("cancelUserId")]
+        public string CancelUserId { get; set; }
+
+        [JsonProperty("cancelReason")]
+        public string CancelReason { get; set; }
+
+        [JsonProperty("cancelDtm")]
+        public EventDtm CancelDtm { get; set; }
+
+        [JsonProperty("containers")]
+        public List<object> Containers { get; set; }
+
+        [JsonProperty("handlingUnits")]
+        public List<object> HandlingUnits { get; set; }
+
+        [JsonProperty("events")]
+        public List<Event> Events { get; set; }
+
+        [JsonProperty("apptIrregs")]
+        public List<object> ApptIrregs { get; set; }
+
+        [JsonProperty("imageCount")]
+        public int ImageCount { get; set; }
+
+        [JsonProperty("scanCounts")]
+        public List<ScanCount> ScanCounts { get; set; }
+
+        [JsonProperty("form5397Ind")]
+        public string Form5397Ind { get; set; }
+
+        [JsonProperty("originAreaName")]
+        public string OriginAreaName { get; set; }
+
+        [JsonProperty("originDistrictName")]
+        public string OriginDistrictName { get; set; }
+
+        [JsonProperty("originSiteName")]
+        public string OriginSiteName { get; set; }
+
+        [JsonProperty("originSiteId")]
+        public string OriginSiteId { get; set; }
+
+        [JsonProperty("destAreaName")]
+        public string DestAreaName { get; set; }
+
+        [JsonProperty("destDistrictName")]
+        public string DestDistrictName { get; set; }
+
+        [JsonProperty("destSiteName")]
+        public string DestSiteName { get; set; }
+
+        [JsonProperty("destSiteId")]
+        public string DestSiteId { get; set; }
+
+        [JsonProperty("tourNumber")]
+        public int TourNumber { get; set; }
+
+        [JsonProperty("ymsSiteInd")]
+        public string YmsSiteInd { get; set; }
+
+        [JsonProperty("hasManualEdit")]
+        public string HasManualEdit { get; set; }
+
+        [JsonProperty("yardMgmtInd")]
+        public string YardMgmtInd { get; set; }
+
+        [JsonProperty("supplier")]
+        public string Supplier { get; set; }
+
+        [JsonProperty("updatedScheduleInd")]
+        public string UpdatedScheduleInd { get; set; }
+
+        [JsonProperty("notUnloadedInd")]
+        public string NotUnloadedInd { get; set; }
+
+        [JsonProperty("operDate")]
+        public EventDtm OperDate { get; set; }
+
+        [JsonProperty("initialOriginSiteId")]
+        public string InitialOriginSiteId { get; set; }
+
+        [JsonProperty("initialOriginSiteName")]
+        public string InitialOriginSiteName { get; set; }
+
+        [JsonProperty("finalDestSiteId")]
+        public string FinalDestSiteId { get; set; }
+
+        [JsonProperty("finalDestSiteName")]
+        public string FinalDestSiteName { get; set; }
+
+        [JsonProperty("isAODU")]
+        public string IsAODU { get; set; }
+
+        [JsonProperty("redirected")]
+        public string Redirected { get; set; }
+
+        [JsonProperty("originRegionName")]
+        public string OriginRegionName { get; set; }
+
+        [JsonProperty("originDivisionName")]
+        public string OriginDivisionName { get; set; }
+
+        [JsonProperty("destRegionName")]
+        public string DestRegionName { get; set; }
+
+        [JsonProperty("destDivisionName")]
+        public string DestDivisionName { get; set; }
+
+        [JsonProperty("transpFreqNo")]
+        public int? TranspFreqNo { get; set; }
+
+        [JsonProperty("extraTripReasonCode")]
+        public int? ExtraTripReasonCode { get; set; }
+
+        [JsonProperty("form5500")]
+        public Form5500 Form5500 { get; set; }
+
+        [JsonProperty("legGpsId")]
+        public string LegGpsId { get; set; }
+
+        [JsonProperty("legGpsIdSource")]
+        public string LegGpsIdSource { get; set; }
+
+        [JsonProperty("actualDtm")]
+        public EventDtm ActualDtm { get; set; }
+        [JsonProperty("legActualDtm")]
+        public EventDtm LegActualDtm { get; set; }
+        [JsonProperty("driverFirstName")]
+        public string DriverFirstName { get; set; }
+
+        [JsonProperty("driverLastName")]
+        public string DriverLastName { get; set; }
+
+        [JsonProperty("driverPhoneNumber")]
+        public string DriverPhoneNumber { get; set; }
+
+        [JsonProperty("driverBarcode")]
+        public string DriverBarcode { get; set; }
+
+        [JsonProperty("driverId")]
+        public int? DriverId { get; set; }
+
+        [JsonProperty("vanNumber")]
+        public string VanNumber { get; set; }
+
+        [JsonProperty("trailerBarcode")]
+        public string TrailerBarcode { get; set; }
+
+        [JsonProperty("trailerLengthCode")]
+        public string TrailerLengthCode { get; set; }
+
+        [JsonProperty("mspBarcode")]
+        public string MspBarcode { get; set; }
+
+        [JsonProperty("doorDtm")]
+        public EventDtm DoorDtm { get; set; }
+
+        [JsonProperty("legDoorDtm")]
+        public EventDtm LegDoorDtm { get; set; }
+
+        [JsonProperty("actualDtmSource")]
+        public string ActualDtmSource { get; set; }
+
+        [JsonProperty("gpsId")]
+        public string GpsId { get; set; }
+
+        [JsonProperty("gpsIdSource")]
+        public string GpsIdSource { get; set; }
+
+        [JsonProperty("gpsSiteDtm")]
+        public EventDtm GpsSiteDtm { get; set; }
+      
+        [JsonProperty("loadPercent")]
+        public int? LoadPercent { get; set; }
+
+        [JsonProperty("loadUnldStartDtm")]
+        public EventDtm LoadUnldStartDtm { get; set; }
+    
+        [JsonProperty("loadUnldEndDtm")]
+        public EventDtm LoadUnldEndDtm { get; set; }
+      
+        [JsonProperty("doorId")]
+        public string DoorId { get; set; }
+
+        [JsonProperty("doorNumber")]
+        public string DoorNumber { get; set; }
+
+        [JsonProperty("originSeal")]
+        public string OriginSeal { get; set; }
+
+        [JsonProperty("destSeal")]
+        public string DestSeal { get; set; }
+
+        [JsonProperty("destComments")]
+        public string DestComments { get; set; }
+
+        [JsonProperty("delayCode")]
+        public int? DelayCode { get; set; }
+
+        [JsonProperty("delayReason")]
+        public string DelayReason { get; set; }
+
+        [JsonProperty("form5466")]
+        public Form5466 Form5466 { get; set; }
+
+        [JsonProperty("legGateDtm")]
+        public EventDtm LegGateDtm { get; set; }
+
+        [JsonProperty("form5500L")]
+        public Form5500L Form5500L { get; set; }
+
+        [JsonProperty("originComments")]
+        public string OriginComments { get; set; }
+
+        [JsonProperty("bedLoadPercent")]
+        public int? BedLoadPercent { get; set; }
+
+        [JsonProperty("scheduledArrDTM", NullValueHandling = NullValueHandling.Ignore)]
+        public DateTime ScheduledArrDTM { get; set; }
+
+        [JsonProperty("scheduledDepDTM", NullValueHandling = NullValueHandling.Ignore)]
+        public DateTime ScheduledDepDTM { get; set; }
+
+        [JsonProperty("actDepartureDtm", NullValueHandling = NullValueHandling.Ignore)]
+        public DateTime ActDepartureDtm { get; set; }
+
+        [JsonProperty("actArrivalDtm", NullValueHandling = NullValueHandling.Ignore)]
+        public DateTime ActArrivalDtm { get; set; }
+    }
+
 }
