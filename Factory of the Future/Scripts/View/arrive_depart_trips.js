@@ -28,7 +28,7 @@ async function process_trips(trip)
         switch (trip.isAODU) {
             case "Y":
                 if (/^o$/i.test(trip.tripDirectionInd)) {
-                    if (trip.hasOwnProperty("actualDate")) {
+                    if (formatSVTime(trip.actDepartureDtm) === "" && trip.doorNumber === null) {
                         scheouttrips_Table_Body.append(scheouttrips_row_template.supplant(formatscheouttriprow(trip)));
                     }
                     else {
@@ -38,11 +38,10 @@ async function process_trips(trip)
                     scheintrips_Table_Body.append(scheintrips_row_template.supplant(formatscheintriprow(trip)));
 
                 }
-             
                 break;
             case "N":
                 if (/^o$/i.test(trip.tripDirectionInd)) {
-                    if (trip.hasOwnProperty("actualDate")) {
+                    if (formatSVTime(trip.actDepartureDtm) === "" && trip.doorNumber === null) {
                         scheouttrips_Table_Body.append(scheouttrips_row_template.supplant(formatscheouttriprow(trip)));
                     }
                     else {
@@ -64,10 +63,10 @@ Outbound network trips
  */
 function formatobtriprow(properties) {
     return $.extend(properties, {
-        schd: properties.hasOwnProperty("scheduledDate") ? formatSVTime(properties.scheduledDate) : "" ,
-        departed: properties.hasOwnProperty("actualDate") ? formatSVTime(properties.actualDate) : "",
-        door: properties.hasOwnProperty("doorNumber") ? properties.doorNumber : "",
-        routetrip: properties.route + properties.rrip,
+        schd: properties.hasOwnProperty("scheduledDepDTM") ? formatSVTime(properties.scheduledDepDTM) : "" ,
+        departed: properties.hasOwnProperty("actDepartureDtm") ? formatSVTime(properties.actDepartureDtm) : "",
+        door: checkValue(properties.doorNumber) ? properties.doorNumber : "0",
+        routetrip: properties.route + properties.trip,
         route: properties.route,
         trip: properties.trip,
         leg: properties.legSiteId,
@@ -85,10 +84,10 @@ let ob_trips_Table_Body = ob_trips_Table.find('tbody');
 let ob_trips_row_template = '<tr data-id=ctsOB_{routetrip} data-route={route} data-trip={trip}  data-door={door}  class={trbackground}>' +
     '<td class="text-center">{schd}</td>' +
     '<td class="text-center">{departed}</td>' +
-    '<td class="text-left">{route}-{trip}</td>' +
-    '<td class="text-center">{btnloadDoor}</td>' +
-    '<td class="text-center">{leg}</td>' +
-    '<td data-toggle="tooltip" title="{dest}">{dest}</td>' +
+    '<td data-input="obrt" class="text-left">{route}-{trip}</td>' +
+    '<td data-input="obdoor" class="text-center">{btnloadDoor}</td>' +
+    '<td data-input="obleg" class="text-center">{leg}</td>' +
+    '<td data-input="obdest" data-toggle="tooltip" title="{dest}">{dest}</td>' +
     //'<td class="text-center">{close}</td>' +
     //'<td class="text-center">{load}</td>' +
     //'<td class="text-center">{btnloadPercent}</td>' +
@@ -114,9 +113,9 @@ let oblocal_trips_row_template = '<tr data-id=localctsOB_{routetrip} data-route=
 
 function formatoblocaltriprow(properties) {
     return $.extend(properties, {
-        schd: properties.hasOwnProperty("scheduledDate") ? formatSVTime(properties.scheduledDate) : "",
-        departed: properties.hasOwnProperty("actualDate") ? formatSVTime(properties.actualDate) : "",
-        door: properties.hasOwnProperty("doorNumber") ? properties.doorNumber : "",
+        schd: properties.hasOwnProperty("scheduledDepDTM") ? formatSVTime(properties.scheduledDepDTM) : "",
+        departed: properties.hasOwnProperty("actDepartureDtm") ? formatSVTime(properties.actDepartureDtm) : "",
+        door: checkValue(properties.doorNumber) ? properties.doorNumber : "0",
         routetrip: properties.route + properties.trip,
         route: properties.route,
         trip: properties.trip,
@@ -149,7 +148,7 @@ function formatscheouttriprow(properties) {
         schd: properties.hasOwnProperty("scheduledDepDTM") ? formatSVTime(properties.scheduledDepDTM) : "",
         departed: properties.hasOwnProperty("actDepartureDtm") ? formatSVTime(properties.actDepartureDtm) : "",
         routetrip: properties.route + properties.trip,
-        door: properties.hasOwnProperty("doorNumber") ? properties.doorNumber : "",
+        door: checkValue(properties.doorNumber) ? properties.doorNumber : "0",
         route: properties.route,
         trip: properties.trip,
         firstlegDest: properties.legSiteId,
@@ -174,8 +173,8 @@ function formatscheintriprow(properties) {
     return $.extend(properties, {
         schd: properties.hasOwnProperty("scheduledArrDTM") ? formatSVTime(properties.scheduledArrDTM) : "",
         arrived: properties.hasOwnProperty("actArrivalDtm") ? formatSVTime(properties.actArrivalDtm) : "",
-        routetrip: properties.route + properties.route,
-        door: properties.hasOwnProperty("doorNumber") ? properties.doorNumber : "",
+        routetrip: properties.route + properties.trip,
+        door: checkValue(properties.doorNumber) ? properties.doorNumber : "0",
         route: properties.route,
         trip: properties.route,
         inbackground: "", //GettimediffforInbound(properties.Scheduled, properties.Actual),
@@ -207,6 +206,9 @@ function formatSVTime(value_time) {
     try {
         var time = moment(value_time);
         if (time._isValid) {
+            if (time.year() === 1) {
+                return "";
+            }
             return time.format("HH:mm");
         }
     } catch (e) {

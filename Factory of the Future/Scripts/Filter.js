@@ -1,4 +1,5 @@
 $(document).ready(function () {
+    try {
          $(".filterable .filters input").keyup(function (t) {
             if ("9" != (t.keyCode || t.which)) {
                 var e = $(this),
@@ -17,5 +18,8 @@ $(document).ready(function () {
 
                     }).show();
             }
-        })
+         })
+    } catch (e) {
+        console.log(e);
+    }
 });

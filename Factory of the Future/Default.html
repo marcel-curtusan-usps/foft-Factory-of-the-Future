@@ -606,7 +606,7 @@
                             <div>
                                 <div class="card-body pb-0">
                                     <div class="table-responsive fixedHeader variableHeight filterable">
-                                        <table class="table table-sm table-hover mb-0 border-bottom" id="containertable">
+                                        <table class="table table-striped table-sm table-hover mb-0 border-bottom" id="containertable">
                                             <thead class="thead-dark">
                                                 <tr>
                                                     <th style="width: 15%; ">Dest</th>
@@ -653,7 +653,7 @@
                             </div>
                         </div>
 
-                        <div id="ctstabs_div" class="card bg-white container-fluid filterable" style="display: block;">
+                        <div id="ctstabs_div" class="card bg-white" style="display: block;">
                             <div class="card-header pl-1 border-bottom">
                                 <h6 class="control-label sectionHeader ml-1 mb-1">Arrive/Depart Trips</h6>
                             </div>
@@ -671,7 +671,7 @@
                                     <div id="div_cts_dockdeparted" >
                                         <div class="bg-white px-1">
                                             <div class="card-body">
-                                                <div class="table-responsive fixedHeader variableHeight">
+                                                <div class="table-responsive fixedHeader variableHeight filterable">
                                                     <table class="table table-striped table-sm table-hover mb-1 border-bottom" id="ctsdockdepartedtable">
                                                         <thead class="thead-dark">
                                                             <tr>
@@ -686,8 +686,8 @@
         <th>Load%</th>-->
                                                             </tr>
                                                             <tr class="filters">
-                                                                <td><input class="frow-comp-1" id="obshc" type="text" placeholder="Schd"></td>
-                                                                <td><input class="frow-comp-2" id="obdepart" type="text" placeholder="Depart"></td>
+                                                                <td></td>
+                                                                <td></td>
                                                                 <td><input class="frow-comp-3" id="obrt" type="text" placeholder="Route-Trip"></td>
                                                                 <td><input class="frow-comp-4" id="obdoor" type="text" placeholder="Door"></td>
                                                                 <td><input class="frow-comp-4" id="obleg" type="text" placeholder="Leg"></td>
@@ -801,15 +801,15 @@
                             </div>
                         </div>
 
-                        <div id="div_complianceinfo" class="container-fluid filterable">
+                        <div id="div_complianceinfo" class="container-fluid ">
                             <div class="card w-100">
                                 <div class="card-header pl-1">
                                     <h6 class="sectionHeader ml-1 mb-1">Undetected Badges <span class="badge-info badge" name="undetected_count">0</span></h6>
                                     <p class="smaller text-secondary mb-0 ml-2">Verify badges for these users are being worn and are functioning</p>
                                 </div>
                                 <div class="card-body">
-                                    <div class="table-responsive fixedHeader variableHeight">
-                                        <table class="table table-sm table-hover mb-1 border-bottom" id="compliancetable">
+                                    <div class="table-responsive fixedHeader variableHeight filterable">
+                                        <table class="table table-striped table-sm table-hover mb-1 border-bottom" id="compliancetable">
                                             <thead class="thead-dark">
                                                 <tr>
                                                     <th class="row-comp-1">Badge</th>
