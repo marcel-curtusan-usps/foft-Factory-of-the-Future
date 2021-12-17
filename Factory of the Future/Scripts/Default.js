@@ -884,7 +884,19 @@ $(function () {
         }
     });
     map.addControl(new timedisplay());
-  
+
+    var ClockMessage = L.Control.extend({
+        options: {
+            position: 'topright'
+        },
+        onAdd: function (map) {
+            var container = L.DomUtil.create('input');
+            container.id = "twentyfourmessage";
+            container.type = "button";
+            container.className = "btn btn-secondary btn-sm";
+            return container;
+        }
+    });
 
    
     map.addControl(sidebar);
