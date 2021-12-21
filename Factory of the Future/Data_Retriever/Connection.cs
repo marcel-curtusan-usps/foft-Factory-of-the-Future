@@ -575,7 +575,7 @@ namespace Factory_of_the_Future
                         m.Property("LASTTIME_API_CONNECTED").Value = DateTime.Now;
                         m.Property("UPDATE_STATUS").Value = true;
                     });
-
+                    new ErrorLogger().ExceptionLog(ex);
                     // Check if Board is 404
                     if (ex.Status == WebExceptionStatus.ProtocolError & ex.Response != null)
                     {

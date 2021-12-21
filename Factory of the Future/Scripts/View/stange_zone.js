@@ -23,49 +23,20 @@ var exitAreas = new L.GeoJSON(null, {
     },
     onEachFeature: function (feature, layer) {
         layer.on('click', function (e) {
-            //set to the center of the polygon.
             $('input[type=checkbox][name=followvehicle]').prop('checked', false).change();
             map.setView(e.latlng);
             sidebar.open('home');
-            //$('select[id=zoneselect]').val(feature.properties.id);
-            $zoneSelect[0].selectize.setValue(feature.properties.id, true);
-            $('div[id=div_area]').empty();
-            $divhome = $('div[id=div_area]');
-            $('div[id=machine_div]').css('display', 'none');
-            $('div[id=agvlocation_div]').css('display', 'none');
-            $('div[id=dockdoor_div]').css('display', 'none');
-            $('div[id=trailer_div]').css('display', 'none');
-            $('div[id=ctstabs_div]').css('display', 'none');
-            $('div[id=area_div]').css('display', 'block');
-            $('div[id=dps_div]').css('display', 'none');
-            //var zonecardTemplate = '<div class="card">' +
-            var zonecardTemplate = '<div class="card-body">' +
-                //'<div class="card-body">' +
-                '<div class="table-responsive">' +
-                '<table class="table table-sm table-hover" id="areazonetoptable">' +
-                '<tbody></tbody>' +
-                '</table>' +
-                '</div>' +
-                //'</div>' +
-                '</div >';
-            $divhome.append(zonecardTemplate);
-            $zonetop_Table = $('table[id=areazonetoptable]');
-            $zonetop_Table_Body = $zonetop_Table.find('tbody');
-            $zonetop_row_template = '<tr data-id="{zoneId}"><td>{zone_type}</td><td>{zoneId}</td></tr>"';
+            LoadstageTables(feature.properties, "areazonetoptable");
 
-            function formatzonetoprow(properties) {
-                return $.extend(properties, {
-                    zoneId: properties.name,
-                    zone_type: properties.Zone_Type
-                });
-            }
         });
+        layer.bindTooltip(feature.properties.name, {
+            permanent: true,
+            direction: 'center',
+            //opacity: 0.8,
+            opacity: 1,
+            className: 'location'
+        }).openTooltip();
         exitAreas.bringToBack();
-    },
-    filter: function (feature, layer) {
-        if (feature.properties.visible) {
-            return false;
-        }
     }
 })
 var polyholesAreas = new L.GeoJSON(null, {
@@ -84,44 +55,9 @@ var polyholesAreas = new L.GeoJSON(null, {
             $('input[type=checkbox][name=followvehicle]').prop('checked', false).change();
             map.setView(e.latlng);
             sidebar.open('home');
-            //$('select[id=zoneselect]').val(feature.properties.id);
-            $zoneSelect[0].selectize.setValue(feature.properties.id, true);
-            $('div[id=div_area]').empty();
-            $divhome = $('div[id=div_area]');
-            $('div[id=machine_div]').css('display', 'none');
-            $('div[id=agvlocation_div]').css('display', 'none');
-            $('div[id=dockdoor_div]').css('display', 'none');
-            $('div[id=trailer_div]').css('display', 'none');
-            $('div[id=ctstabs_div]').css('display', 'none');
-            $('div[id=area_div]').css('display', 'block');
-            $('div[id=dps_div]').css('display', 'none');
-            //var zonecardTemplate = '<div class="card">' +
-            var zonecardTemplate = '<div class="card-body">' +
-                //'<div class="card-body">' +
-                '<div class="table-responsive">' +
-                '<table class="table table-sm table-hover" id="areazonetoptable">' +
-                '<tbody></tbody>' +
-                '</table>' +
-                '</div>' +
-                //'</div>' +
-                '</div >';
-            $divhome.append(zonecardTemplate);
-            $zonetop_Table = $('table[id=areazonetoptable]');
-            $zonetop_Table_Body = $zonetop_Table.find('tbody');
-            $zonetop_row_template = '<tr data-id="{zoneId}"><td>{zone_type}</td><td>{zoneId}</td></tr>"';
-
-            function formatzonetoprow(properties) {
-                return $.extend(properties, {
-                    zoneId: properties.name,
-                    zone_type: properties.Zone_Type
-                });
-            }
-            $zonetop_Table_Body.append($zonetop_row_template.supplant(formatzonetoprow(feature.properties)));
-            var p2pdata = feature.properties.hasOwnProperty("P2PData") ? feature.properties.P2PData : "";
-            var CurrentStaff = [];
-            GetPeopleInZone(feature.properties.id, p2pdata, CurrentStaff);
+            LoadstageTables(feature.properties, "areazonetoptable");
         });
-        layer.bindTooltip(feature.properties.name.replace(/^Staging_/i, ''), {
+        layer.bindTooltip(feature.properties.name, {
             permanent: true,
             direction: 'center',
             //opacity: 0.8,
@@ -147,44 +83,9 @@ var ebrAreas = new L.GeoJSON(null, {
             $('input[type=checkbox][name=followvehicle]').prop('checked', false).change();
             map.setView(e.latlng);
             sidebar.open('home');
-            //$('select[id=zoneselect]').val(feature.properties.id);
-            $zoneSelect[0].selectize.setValue(feature.properties.id, true);
-            $('div[id=div_area]').empty();
-            $divhome = $('div[id=div_area]');
-            $('div[id=machine_div]').css('display', 'none');
-            $('div[id=agvlocation_div]').css('display', 'none');
-            $('div[id=dockdoor_div]').css('display', 'none');
-            $('div[id=trailer_div]').css('display', 'none');
-            $('div[id=ctstabs_div]').css('display', 'none');
-            $('div[id=area_div]').css('display', 'block');
-            $('div[id=dps_div]').css('display', 'none');
-            //var zonecardTemplate = '<div class="card">' +
-            var zonecardTemplate = '<div class="card-body">' +
-                //'<div class="card-body">' +
-                '<div class="table-responsive">' +
-                '<table class="table table-sm table-hover" id="areazonetoptable">' +
-                '<tbody></tbody>' +
-                '</table>' +
-                '</div>' +
-                //'</div>' +
-                '</div >';
-            $divhome.append(zonecardTemplate);
-            $zonetop_Table = $('table[id=areazonetoptable]');
-            $zonetop_Table_Body = $zonetop_Table.find('tbody');
-            $zonetop_row_template = '<tr data-id="{zoneId}"><td>{zone_type}</td><td>{zoneId}</td></tr>"';
-
-            function formatzonetoprow(properties) {
-                return $.extend(properties, {
-                    zoneId: properties.name,
-                    zone_type: properties.Zone_Type
-                });
-            }
-            $zonetop_Table_Body.append($zonetop_row_template.supplant(formatzonetoprow(feature.properties)));
-            var p2pdata = feature.properties.hasOwnProperty("P2PData") ? feature.properties.P2PData : "";
-            var CurrentStaff = [];
-            GetPeopleInZone(feature.properties.id, p2pdata, CurrentStaff);
+            LoadstageTables(feature.properties, "areazonetoptable");
         });
-        layer.bindTooltip(feature.properties.name.replace(/^Staging_/i, ''), {
+        layer.bindTooltip(feature.properties.name, {
             permanent: true,
             direction: 'center',
             //opacity: 0.8,
@@ -210,44 +111,9 @@ var walkwayAreas = new L.GeoJSON(null, {
             $('input[type=checkbox][name=followvehicle]').prop('checked', false).change();
             map.setView(e.latlng);
             sidebar.open('home');
-            //$('select[id=zoneselect]').val(feature.properties.id);
-            $zoneSelect[0].selectize.setValue(feature.properties.id, true);
-            $('div[id=div_area]').empty();
-            $divhome = $('div[id=div_area]');
-            $('div[id=machine_div]').css('display', 'none');
-            $('div[id=agvlocation_div]').css('display', 'none');
-            $('div[id=dockdoor_div]').css('display', 'none');
-            $('div[id=trailer_div]').css('display', 'none');
-            $('div[id=ctstabs_div]').css('display', 'none');
-            $('div[id=area_div]').css('display', 'block');
-            $('div[id=dps_div]').css('display', 'none');
-            //var zonecardTemplate = '<div class="card">' +
-            var zonecardTemplate = '<div class="card-body">' +
-                //'<div class="card-body">' +
-                '<div class="table-responsive">' +
-                '<table class="table table-sm table-hover" id="areazonetoptable">' +
-                '<tbody></tbody>' +
-                '</table>' +
-                '</div>' +
-                //'</div>' +
-                '</div >';
-            $divhome.append(zonecardTemplate);
-            $zonetop_Table = $('table[id=areazonetoptable]');
-            $zonetop_Table_Body = $zonetop_Table.find('tbody');
-            $zonetop_row_template = '<tr data-id="{zoneId}"><td>{zone_type}</td><td>{zoneId}</td></tr>"';
-
-            function formatzonetoprow(properties) {
-                return $.extend(properties, {
-                    zoneId: properties.name,
-                    zone_type: properties.Zone_Type
-                });
-            }
-            $zonetop_Table_Body.append($zonetop_row_template.supplant(formatzonetoprow(feature.properties)));
-            var p2pdata = feature.properties.hasOwnProperty("P2PData") ? feature.properties.P2PData : "";
-            var CurrentStaff = [];
-            GetPeopleInZone(feature.properties.id, p2pdata, CurrentStaff);
+            LoadstageTables(feature.properties, "areazonetoptable");
         });
-        layer.bindTooltip(feature.properties.name.replace(/^Staging_/i, ''), {
+        layer.bindTooltip(feature.properties.name, {
             permanent: true,
             direction: 'center',
             //opacity: 0.8,

@@ -6,7 +6,7 @@
 $.extend(fotfmanager.client, {
     updateNotification: async (updatenotification) => { updateNotification(updatenotification) }
 });
-$('#Notification_Setup_Modal').on('hidden.bs.modal', () => {
+$('#Notification_Setup_Modal').on('hidden.bs.modal', function () {
     $(this)
         .find("input[type=text],textarea,select")
         .val('')
@@ -19,7 +19,7 @@ $('#Notification_Setup_Modal').on('hidden.bs.modal', () => {
         .prop('checked', false).change()
         .end();
 });
-$('#Notification_Setup_Modal').on('shown.bs.modal', () => {
+$('#Notification_Setup_Modal').on('shown.bs.modal', function () {
     $('.warning_conditionpickvalue').html($('input[id=warning_condition]').val());
     $('input[id=warning_condition]').on('input change', () => {
         $('.warning_conditionpickvalue').html($('input[id=warning_condition]').val());

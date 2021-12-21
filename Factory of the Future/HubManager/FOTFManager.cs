@@ -2166,6 +2166,7 @@ namespace Factory_of_the_Future
                                 }
                                 else
                                 {
+                                    objectdata["name"] = objectdata["MPE_Type"] + "-" + objectdata["MPE_Number"].ToString().PadLeft(3, '0');
                                     if (Global.Zone_Info.TryAdd(id, objectdata))
                                     {
                                         updateZone = true;

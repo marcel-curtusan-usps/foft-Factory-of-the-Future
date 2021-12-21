@@ -192,7 +192,7 @@ async function LoadDockDoorTable(dataproperties) {
                 if (dataproperties.routetripData.hasOwnProperty("loadPercent")) {
                     tempdata.push({
                         name: "Load Percent",
-                        value: dataproperties.routetripData.loadPercent
+                        value: checkValue(dataproperties.routetripData.loadPercent) ? dataproperties.routetripData.loadPercent : 0 
                     })
                 }
                 if (dataproperties.routetripData.hasOwnProperty("tripDirectionInd")) {

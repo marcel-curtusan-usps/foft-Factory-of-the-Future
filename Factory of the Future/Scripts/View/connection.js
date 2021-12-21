@@ -4,7 +4,7 @@ $.extend(fotfmanager.client, {
     updateQSMStatus: async (Connectionupdate) => { updateConnection(Connectionupdate) }
 });
 //on close clear all inputs
-$('#API_Connection_Modal').on('hidden.bs.modal', () => {
+$('#API_Connection_Modal').on('hidden.bs.modal', function () {
     $(this)
         .find("input[type=text],textarea,select")
         .css({ "border-color": "#D3D3D3" })
@@ -19,7 +19,7 @@ $('#API_Connection_Modal').on('hidden.bs.modal', () => {
         .prop('checked', false).change();
 });
 //on open set rules
-$('#API_Connection_Modal').on('shown.bs.modal', () => {
+$('#API_Connection_Modal').on('shown.bs.modal', function () {
     $('span[id=error_apisubmitBtn]').text("");
     $('button[id=apisubmitBtn]').prop('disabled', true);
     //Connection name Validation
