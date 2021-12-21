@@ -76,7 +76,7 @@ namespace Factory_of_the_Future
         {
             get
             {
-                api["ID"] = 0;
+                api["ID"] = Guid.NewGuid();
                 api["CONNECTION_NAME"] = "";
                 api["CREATED_DATE"] =  DateTime.Now;
                 api["CREATED_BY_USERNAME"] = "";
@@ -132,7 +132,6 @@ namespace Factory_of_the_Future
                 zoneproperties["Zone_Update"] = false;
                 zoneproperties["Zone_Type"] = "";
                 zoneproperties["MPEWatchData"] = "";
-                zoneproperties["nameOverride"] = false;
                 zoneproperties["MPE_Type"] = "";
                 zoneproperties["MPE_Number"] = "";
                 zoneproperties["DPSData"] = "";
@@ -194,6 +193,32 @@ namespace Factory_of_the_Future
             set { return; }
         }
 
+        public JObject GeoJSON_Locators
+        {
+            get
+            {
+                return new JObject(
+                    new JProperty("type", "Feature"),
+              new JProperty("geometry",
+              new JObject(new JProperty("type", ""),
+               new JProperty("coordinates", new JArray()))),
+              new JProperty("properties", Locater));
+            }
+            set { return; }
+        }
+        public JObject locater = new JObject();
+        public JObject Locater
+        {
+            get
+            {
+
+                locater["state"] = "";
+                locater["Tag_Type"] = "";
+                locater["Tag_Update"] = false;
+                return locater;
+            }
+            set { return; }
+        }
         public JObject map = new JObject();
 
         public JObject Map
@@ -409,7 +434,7 @@ namespace Factory_of_the_Future
     public class Connection
     {
         [JsonProperty("ID")]
-        public int ID;
+        public string ID;
 
         [JsonProperty("CONNECTION_NAME")]
         public string CONNECTION_NAME;
@@ -630,6 +655,8 @@ namespace Factory_of_the_Future
         [JsonProperty("tripDirectionInd")]
         public string TripDirectionInd { get; set; }
 
+        [JsonProperty("destSite")]
+        public string DestSite { get; set; }
         [JsonProperty("legNumber")]
         public int LegNumber { get; set; }
 
@@ -655,10 +682,50 @@ namespace Factory_of_the_Future
         public string LegStatus { get; set; }
 
         [JsonProperty("scheduledDtm")]
-        public EventDtm ScheduledDtm { get; set; }
+        public EventDtm _scheduledDtm { get; set; }
+        public DateTime ScheduledDtm
+        {
+            get
+            {
+
+                if (_scheduledDtm != null)
+                {
+                    return Global.SVdatetimeformat(JObject.Parse(JsonConvert.SerializeObject(_scheduledDtm)));
+                }
+                return new DateTime(1, 1, 1);
+
+            }
+            set { return; }
+        }
+
+        [JsonProperty("timeToDepart")]
+        public double TimeToDepart { get; set; }
+
+        [JsonProperty("actArrivalDtm")]
+        public DateTime ActArrivalDtm { get; set; }
+
+        [JsonProperty("trip_Update")]
+        public bool Trip_Update { get; set; }
+
+        [JsonProperty("actDepartureDtm")]
+        public DateTime ActDepartureDtm { get; set; }
 
         [JsonProperty("legScheduledDtm")]
-        public EventDtm LegScheduledDtm { get; set; }
+        public EventDtm _legScheduledDtm { get; set; }
+        public DateTime LegScheduledDtm
+        {
+            get
+            {
+
+                if (_legScheduledDtm != null)
+                {
+                    return Global.SVdatetimeformat(JObject.Parse(JsonConvert.SerializeObject(_legScheduledDtm)));
+                }
+                return new DateTime(1, 1, 1);
+
+            }
+            set { return; }
+        }
 
         [JsonProperty("isEmpty")]
         public bool IsEmpty { get; set; }
@@ -679,10 +746,27 @@ namespace Factory_of_the_Future
         public string CancelReason { get; set; }
 
         [JsonProperty("cancelDtm")]
-        public EventDtm CancelDtm { get; set; }
+        public EventDtm _cancelDtm { get; set; }
+        public DateTime CancelDtm
+        {
+            get
+            {
+
+                if (_cancelDtm != null)
+                {
+                    return Global.SVdatetimeformat(JObject.Parse(JsonConvert.SerializeObject(_cancelDtm)));
+                }
+                return new DateTime(1, 1, 1);
+
+            }
+            set { return; }
+        }
 
         [JsonProperty("containers")]
-        public List<object> Containers { get; set; }
+        public IEnumerable<Container> Containers { get; set; }
+
+        [JsonProperty("unloadedcontainers")]
+        public int UnloadedContainers { get; set; }
 
         [JsonProperty("handlingUnits")]
         public List<object> HandlingUnits { get; set; }
@@ -748,7 +832,22 @@ namespace Factory_of_the_Future
         public string NotUnloadedInd { get; set; }
 
         [JsonProperty("operDate")]
-        public EventDtm OperDate { get; set; }
+        public EventDtm _operDate { get; set; }
+        public DateTime OperDate
+        {
+            get
+            {
+
+                if (_operDate != null)
+                {
+                    return Global.SVdatetimeformat(JObject.Parse(JsonConvert.SerializeObject(_operDate)));
+                }
+
+                return new DateTime(1, 1, 1);
+
+            }
+            set { return; }
+        }
 
         [JsonProperty("initialOriginSiteId")]
         public string InitialOriginSiteId { get; set; }
@@ -796,9 +895,39 @@ namespace Factory_of_the_Future
         public string LegGpsIdSource { get; set; }
 
         [JsonProperty("actualDtm")]
-        public EventDtm ActualDtm { get; set; }
+        public EventDtm _actualDtm { get; set; }
+        public DateTime ActualDtm
+        {
+            get
+            {
+                if (_actualDtm != null)
+                {
+                    return Global.SVdatetimeformat(JObject.Parse(JsonConvert.SerializeObject(_actualDtm)));
+                }
+
+                return new DateTime(1, 1, 1);
+
+            }
+            set { return; }
+        }
+
         [JsonProperty("legActualDtm")]
-        public EventDtm LegActualDtm { get; set; }
+        public EventDtm _legActualDtm { get; set; }
+        public DateTime LegActualDtm
+        {
+            get
+            {
+
+                if (_legActualDtm != null)
+                {
+                    return Global.SVdatetimeformat(JObject.Parse(JsonConvert.SerializeObject(_legActualDtm)));
+                }
+
+                return new DateTime(1, 1, 1);
+
+            }
+            set { return; }
+        }
         [JsonProperty("driverFirstName")]
         public string DriverFirstName { get; set; }
 
@@ -827,10 +956,40 @@ namespace Factory_of_the_Future
         public string MspBarcode { get; set; }
 
         [JsonProperty("doorDtm")]
-        public EventDtm DoorDtm { get; set; }
+        public EventDtm _doorDtm { get; set; }
+        public DateTime DoorDtm
+        {
+            get
+            {
+
+                if (_doorDtm != null)
+                {
+                    return Global.SVdatetimeformat(JObject.Parse(JsonConvert.SerializeObject(_doorDtm)));
+                }
+
+                return new DateTime(1, 1, 1);
+
+            }
+            set { return; }
+        }
 
         [JsonProperty("legDoorDtm")]
-        public EventDtm LegDoorDtm { get; set; }
+        public EventDtm _legDoorDtm { get; set; }
+        public DateTime LegDoorDtm
+        {
+            get
+            {
+
+                if (_legDoorDtm != null)
+                {
+                    return Global.SVdatetimeformat(JObject.Parse(JsonConvert.SerializeObject(_legDoorDtm)));
+                }
+
+                return new DateTime(1, 1, 1);
+
+            }
+            set { return; }
+        }
 
         [JsonProperty("actualDtmSource")]
         public string ActualDtmSource { get; set; }
@@ -842,17 +1001,61 @@ namespace Factory_of_the_Future
         public string GpsIdSource { get; set; }
 
         [JsonProperty("gpsSiteDtm")]
-        public EventDtm GpsSiteDtm { get; set; }
-      
+        public EventDtm _gpsSiteDtm { get; set; }
+        public DateTime GpsSiteDtm
+        {
+            get
+            {
+
+                if (_gpsSiteDtm != null)
+                {
+                    return Global.SVdatetimeformat(JObject.Parse(JsonConvert.SerializeObject(_gpsSiteDtm)));
+                }
+
+                return new DateTime(1, 1, 1);
+            }
+            set { return; }
+        }
+
         [JsonProperty("loadPercent")]
         public int? LoadPercent { get; set; }
 
         [JsonProperty("loadUnldStartDtm")]
-        public EventDtm LoadUnldStartDtm { get; set; }
-    
+        public EventDtm _loadUnldStartDtm { get; set; }
+        public DateTime LoadUnldStartDtm
+        {
+            get
+            {
+
+                if (_loadUnldStartDtm != null)
+                {
+                    return Global.SVdatetimeformat(JObject.Parse(JsonConvert.SerializeObject(_loadUnldStartDtm)));
+                }
+               
+                    return new DateTime(1, 1, 1);
+              
+            }
+            set { return; }
+        }
+
         [JsonProperty("loadUnldEndDtm")]
-        public EventDtm LoadUnldEndDtm { get; set; }
-      
+        public EventDtm _loadUnldEndDtm { get; set; }
+        public DateTime LoadUnldEndDtm
+        {
+            get
+            {
+
+                if (_loadUnldEndDtm != null)
+                {
+                    return Global.SVdatetimeformat(JObject.Parse(JsonConvert.SerializeObject(_loadUnldEndDtm)));
+                }
+
+                return new DateTime(1, 1, 1);
+            }
+            set { return; }
+        }
+
+
         [JsonProperty("doorId")]
         public string DoorId { get; set; }
 
@@ -878,7 +1081,22 @@ namespace Factory_of_the_Future
         public Form5466 Form5466 { get; set; }
 
         [JsonProperty("legGateDtm")]
-        public EventDtm LegGateDtm { get; set; }
+        public EventDtm _legGateDtm { get; set; }
+        public DateTime LegGateDtm
+        {
+            get
+            {
+
+                if (_legGateDtm != null)
+                {
+                    return Global.SVdatetimeformat(JObject.Parse(JsonConvert.SerializeObject(_legGateDtm)));
+                }
+
+                return new DateTime(1, 1, 1); ;
+            }
+        
+            set { return; }
+        }
 
         [JsonProperty("form5500L")]
         public Form5500L Form5500L { get; set; }
@@ -889,17 +1107,145 @@ namespace Factory_of_the_Future
         [JsonProperty("bedLoadPercent")]
         public int? BedLoadPercent { get; set; }
 
-        [JsonProperty("scheduledArrDTM", NullValueHandling = NullValueHandling.Ignore)]
-        public DateTime ScheduledArrDTM { get; set; }
+        [JsonProperty("legs")]
+        public List<Leg> Legs;
 
-        [JsonProperty("scheduledDepDTM", NullValueHandling = NullValueHandling.Ignore)]
-        public DateTime ScheduledDepDTM { get; set; }
-
-        [JsonProperty("actDepartureDtm", NullValueHandling = NullValueHandling.Ignore)]
-        public DateTime ActDepartureDtm { get; set; }
-
-        [JsonProperty("actArrivalDtm", NullValueHandling = NullValueHandling.Ignore)]
-        public DateTime ActArrivalDtm { get; set; }
+    
     }
+    public class Leg
+    {
+        [JsonProperty("routeTripLegId")]
+        public int RouteTripLegId;
 
+        [JsonProperty("routeTripId")]
+        public int RouteTripId;
+
+        [JsonProperty("legNumber")]
+        public int LegNumber;
+
+        [JsonProperty("legDestSiteID")]
+        public string LegDestSiteID;
+
+        [JsonProperty("legOriginSiteID")]
+        public string LegOriginSiteID;
+
+        [JsonProperty("scheduledArrDTM")]
+        public EventDtm _scheduledArrDTM { get; set; }
+        public DateTime ScheduledArrDTM
+        {
+            get
+            {
+
+                if (_scheduledArrDTM != null)
+                {
+                    return Global.SVdatetimeformat(JObject.Parse(JsonConvert.SerializeObject(_scheduledArrDTM)));
+                }
+
+                return new DateTime(1, 1, 1);
+
+            }
+            set { return; }
+        }
+
+        [JsonProperty("scheduledDepDTM")]
+        public EventDtm _scheduledDepDTM { get; set; }
+        public DateTime ScheduledDepDTM
+        {
+            get
+            {
+                if (_scheduledDepDTM != null)
+                {
+                    return Global.SVdatetimeformat(JObject.Parse(JsonConvert.SerializeObject(_scheduledDepDTM)));
+                }
+
+                return new DateTime(1, 1, 1);
+
+            }
+            set { return; }
+        }
+        [JsonProperty("actDepartureDtm")]
+        private EventDtm _actDepartureDtm { get; set; }
+        public DateTime ActDepartureDtm
+        {
+            get
+            {
+                if (_actDepartureDtm != null)
+                {
+                    return Global.SVdatetimeformat(JObject.Parse(JsonConvert.SerializeObject(_actDepartureDtm)));
+                }
+
+                return new DateTime(1, 1, 1);
+
+            }
+            set { return; }
+        }
+
+        [JsonProperty("actArrivalDtm")]
+        private EventDtm _actArrivalDtm { get; set; }
+        public DateTime ActArrivalDtm
+        {
+            get
+            {
+                if (_actArrivalDtm != null)
+                {
+                    return Global.SVdatetimeformat(JObject.Parse(JsonConvert.SerializeObject(_actArrivalDtm)));
+                }
+                return new DateTime(1, 1, 1);
+            }
+            set { return; }
+        }
+
+        [JsonProperty("createdDtm")]
+        private EventDtm _createdDtm { get; set; }
+        public DateTime CreatedDtm
+        {
+            get
+            {
+                if (_createdDtm != null)
+                {
+                    return Global.SVdatetimeformat(JObject.Parse(JsonConvert.SerializeObject(_createdDtm)));
+                }
+               return new DateTime(1, 1, 1);
+                
+            }
+            set { return; }
+        }
+
+        [JsonProperty("lastUpdtDtm")]
+        private EventDtm _lastUpdtDtm { get; set; }
+        public DateTime LastUpdtDtm
+        {
+            get
+            {
+                if (_lastUpdtDtm != null)
+                {
+                    return Global.SVdatetimeformat(JObject.Parse(JsonConvert.SerializeObject(_lastUpdtDtm)));
+                }
+                else
+                {
+                    return new DateTime(1, 1, 1);
+                }
+        
+            }
+            set { return; }
+        }
+
+        [JsonProperty("legDestSiteName")]
+        public string LegDestSiteName;
+
+        [JsonProperty("legOriginSiteName")]
+        public string LegOriginSiteName;
+
+        [JsonProperty("outboundProcessedInd")]
+        public string OutboundProcessedInd;
+
+        [JsonProperty("inboundProcessedInd")]
+        public string InboundProcessedInd;
+
+        [JsonProperty("legDestMSPBarcode")]
+        public string LegDestMSPBarcode;
+
+        [JsonProperty("legOriginMSPBarcode")]
+        public string LegOriginMSPBarcode;
+    }
 }

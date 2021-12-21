@@ -39,7 +39,7 @@ namespace Factory_of_the_Future
         /// /API section
         /// </summary>
         /// <returns></returns>
-        public IEnumerable<JToken> GetAPIList(int data)
+        public IEnumerable<JToken> GetAPIList(string data)
         {
             return _managerHub.GetAPIList(data);
         }
@@ -133,8 +133,22 @@ namespace Factory_of_the_Future
         {
             return _managerHub.GetTripsList();
         }
-
-
+        /// <summary>
+        /// Get Specific Trips Data
+        /// </summary>
+        /// <returns></returns>
+        public IEnumerable<Trips> GetRouteTripsInfo(string id)
+        {
+            return _managerHub.GetRouteTripsInfo(id);
+        }
+        /// <summary>
+        /// Get Specific placard data
+        /// </summary>
+        /// <returns></returns>
+        public IEnumerable<Container> GetContainerInfo(string id)
+        {
+            return _managerHub.GetContainerInfo(id);
+        }
         /// <summary>
         /// Get CTS Data
         /// </summary>
@@ -203,12 +217,20 @@ namespace Factory_of_the_Future
         }
 
         /// <summary>
-        /// Get dock door Zones
+        /// Get View Ports Zones
         /// </summary>
         /// <returns></returns>
         public IEnumerable<JToken> GetViewPortsZonesList()
         {
             return _managerHub.GetViewPortsZonesList();
+        }
+        /// <summary>
+        /// Get Locator Tags
+        /// </summary>
+        /// <returns></returns>
+        public IEnumerable<JToken> GetLocatorsList()
+        {
+            return _managerHub.GetLocatorsList();
         }
 
         /// <summary>

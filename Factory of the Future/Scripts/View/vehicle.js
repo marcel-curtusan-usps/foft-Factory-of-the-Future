@@ -1,6 +1,11 @@
 ﻿/*
 *this is for the Vehicle data load 
 */
+
+$.extend(fotfmanager.client, {
+    updateVehicleTagStatus: async (vehicleupdate) => { updateVehicleTag(vehicleupdate) }
+});
+
 async function updateVehicleTag(vehicleupdate) {
     try {
         map.whenReady(() => {

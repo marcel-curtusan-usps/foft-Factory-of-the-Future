@@ -142,13 +142,15 @@
                                 <label class="control-label">Condition</label><input id="condition" type="text" class="form-control" name="condition"><span id="error_condition" class="text-danger"></span>
                             </div>
                             <div class="form-group col-6">
-                                <label class="control-label">Condition Type</label><select id="condition_type" class="form-control" name="condition_type">
+                                <label class="control-label">Condition Type</label>
+                                <select id="condition_type" class="form-control" name="condition_type">
                                     <option value=""></option>
                                     <option value="automation">Automation</option>
                                     <option value="apiconnection">API Connection</option>
-                                    <option value="CTS">CTS</option>
+                                    <option value="dockdoor">Dock Door</option>
                                     <option value="vehicle">Vehicle</option>
-                                </select><span id="error_condition_type" class="text-danger"></span>
+                                </select>
+                                <span id="error_condition_type" class="text-danger"></span>
                             </div>
                         </div>
                         <div class="row">
@@ -474,6 +476,29 @@
                 </div>
             </div>
         </div>
+        <div class="modal fade" id="RouteTripDetails_Modal" tabindex="-1" style="z-index: 12000;" role="dialog" data-backdrop="static" aria-labelledby="RouteTrip_Modal_Label">
+            <div class="modal-dialog" style="max-width: 85%;">
+                <div class="modal-content bg-white">
+                    <div class="modal-header1">
+                        <div class="col-11">
+                            <h3 class="modal-title1" id="modalRouteTripDetailsHeader_ID"><span aria-hidden="true"></span></h3>
+                        </div>
+                        <button class="col-1 close" type="button" data-dismiss="modal" aria-label="Close"><i class="pi-iconExit float-right mt-2 mr-2"></i></button>
+                    </div>
+                    <div class="modal-body" id="RouteTripDetailscard">
+                        <div class="card-body pb-0">
+
+                        </div>
+                    </div>
+                    <div class="modal-footer1">
+                        <div class="col">
+                            <button class="btn btn-outline-secondary float-left" type="button" data-dismiss="modal">Close</button>
+                        </div>
+                        <div class="col text-center"><span class="text-info" id="error_containerdetailsubmitBtn"></span></div>
+                    </div>
+                </div>
+            </div>
+        </div>
         <!-- Sidebar panel content -->
         <div class="leaflet-sidebar leaflet-control leaflet-sidebar-left leaflet-touch collapsed" id="sidebar">
             <div class="leaflet-sidebar-content">
@@ -554,16 +579,21 @@
 
                         <div id="dockdoor_div" class="card bg-white mt-2 pb-1" style="display: none; ">
                             <div class="card-header pl-1 border-bottom">
-                                <h6 class="control-label sectionHeader ml-1 mb-1">Dock Door Info</h6>
+                                <h6 class="control-label sectionHeader ml-1 mb-1 d-flex justify-content-between">
+                                    Dock Door
+                                    <span class="btn btn-secondary border-0 badge-info badge" name="doornumberid"></span>
+                                    <span class="d-flex justify-content-between">
+                                        Status:
+                                        <span class="btn btn-secondary border-0 badge-info badge" name="doorstatus"></span>
+                                    </span>
+                                </h6>
                             </div>
-                            <div id="div_dockdoor">
-                                <div class="card-body pb-0">
-                                    <div class="table-responsive">
-                                        <table class="table table-sm table-hover mb-0 border-bottom" id="dockdoortable">
-                                            <thead class="thead-dark"></thead>
-                                            <tbody></tbody>
-                                        </table>
-                                    </div>
+                            <div class="card-body pb-0" id="div_dockdoor">
+                                <div class="table-responsive">
+                                    <table class="table table-sm table-hover mb-0 border-bottom" id="dockdoortable">
+                                        <thead class="thead-dark"></thead>
+                                        <tbody></tbody>
+                                    </table>
                                 </div>
                             </div>
                         </div>
@@ -658,17 +688,17 @@
                                 <h6 class="control-label sectionHeader ml-1 mb-1">Arrive/Depart Trips</h6>
                             </div>
                             <ul id="cts_tabs" class="nav nav-tabs flex-column flex-sm-row card-header pt-0 px-1 mb-1">
-                                <li class="nav-item"><a href="#cts_1" class="nav-link active" data-toggle="tab">OB Trips</a></li>
+                                <li class="nav-item"><a href="#cts_1" class="nav-link active" data-toggle="tab">OB Network</a></li>
                                 <li class="nav-item"><i class="pi-iconDividerSlanted"></i></li>
                                 <li class="nav-item"><a href="#cts_2" class="nav-link" data-toggle="tab">OB Local</a></li>
                                 <li class="nav-item"><i class="pi-iconDividerSlanted"></i></li>
-                                <li class="nav-item"><a href="#cts_3" class="nav-link" data-toggle="tab">Out Schd</a></li>
+                                <li class="nav-item"><a href="#cts_3" class="nav-link" data-toggle="tab">Out Scheduled</a></li>
                                 <li class="nav-item"><i class="pi-iconDividerSlanted"></i></li>
-                                <li class="nav-item"><a href="#cts_4" class="nav-link" data-toggle="tab">In Schd</a></li>
+                                <li class="nav-item"><a href="#cts_4" class="nav-link" data-toggle="tab">In Scheduled</a></li>
                             </ul>
                             <div class="tab-content">
                                 <div class="tab-pane fade show active" id="cts_1">
-                                    <div id="div_cts_dockdeparted" >
+                                    <div id="div_cts_dockdeparted">
                                         <div class="bg-white px-1">
                                             <div class="card-body">
                                                 <div class="table-responsive fixedHeader variableHeight filterable">
@@ -682,16 +712,8 @@
                                                                 <th class="row-cts-leg">Leg</th>
                                                                 <th class="row-cts-dest">Dest</th>
                                                                 <!--<th class="row-cts-close">Close</th>
-        <th class="row-cts-load">Load</th>
-        <th>Load%</th>-->
-                                                            </tr>
-                                                            <tr class="filters">
-                                                                <td></td>
-                                                                <td></td>
-                                                                <td><input class="frow-comp-3" id="obrt" type="text" placeholder="Route-Trip"></td>
-                                                                <td><input class="frow-comp-4" id="obdoor" type="text" placeholder="Door"></td>
-                                                                <td><input class="frow-comp-4" id="obleg" type="text" placeholder="Leg"></td>
-                                                                <td><input class="frow-comp-4" id="obdest" type="text" placeholder="Dest"></td>
+                                                                <th class="row-cts-load">Load</th>
+                                                                <th>Load%</th>-->
                                                             </tr>
                                                         </thead>
                                                         <tbody></tbody>
@@ -716,8 +738,8 @@
                                                                 <th class="row-cts-leg">Leg</th>
                                                                 <th class="row-cts-dest">Dest</th>
                                                                 <!--<th class="row-cts-close">Close</th>
-    <th class="row-cts-load">Load</th>
-    <th>Load%</th>-->
+                                                                <th class="row-cts-load">Load</th>
+                                                                <th>Load%</th>-->
                                                             </tr>
                                                         </thead>
                                                         <tbody>
@@ -778,7 +800,6 @@
                         </div>
                     </div>
                 </div>
-
                 <!-- Sidebar panel Report Information -->
                 <div class="leaflet-sidebar-pane overflow-auto" id="reports">
                     <h4>Report Information</h4>
@@ -851,7 +872,26 @@
                         </div>
                     </div>
                 </div>
-
+                <!-- Sidebar panel Trips Notification -->
+                <div class="leaflet-sidebar-pane overflow-auto" id="tripsnotificationinfo">
+                    <h4>Trips Notification</h4>
+                    <div class="btn-toolbar" role="toolbar" id="tripsnotificationinfo_div">
+                        <div id="div_tripsnotification" class="container-fluid">
+                            <div class="card w-100">
+                                <div class="card-header pl-1">
+                                    <h6 class="sectionHeader ml-1 mb-1">Trips Status</h6>
+                                </div>
+                                <div class="card-body">
+                                    <div class="table-responsive fixedHeader variableHeight">
+                                        <table class="table table-sm table-hover table-condensed mb-1 border-bottom" id="tripsnotificationtable">
+                                            <tbody></tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
                 <!-- Sidebar panel AGV Notification -->
                 <div class="leaflet-sidebar-pane overflow-auto" id="agvnotificationinfo">
                     <h4>AGV Notification</h4>
@@ -879,7 +919,6 @@
                         </div>
                     </div>
                 </div>
-
                 <!-- Sidebar panel Notification Setup -->
                 <div class="leaflet-sidebar-pane overflow-auto" id="notificationsetup">
                     <h4>Notification Setup</h4>
@@ -906,7 +945,6 @@
                         </div>
                     </div>
                 </div>
-
                 <!-- Sidebar panel User Profile -->
                 <div class="leaflet-sidebar-pane overflow-auto" id="userprofile">
                     <h4>User Profile</h4>
@@ -994,6 +1032,7 @@
                 <ul class="mb-3">
                     <li class="" title="User Profile"><a class="" href="#userprofile" role="tab"><i class="pi-iconUserProfile"></i></a></li>
                     <li class="" title="AGV Notification"><a class="" href="#agvnotificationinfo" role="tab"><i id="agvnotificaion" class="pi-iconVehicle" title="AGV Notification"><span class="badge badge-notify bell-notification" id="agvnotificaion_number"></span></i></a></li>
+                    <li class="" title="Trips Notification"><a class="" href="#tripsnotificationinfo" role="tab"><i id="tripsnotificaion" class="pi-iconDockTruck"><span class="badge badge-notify bell-notification" id="tripsnotificaion_number"></span></i></a></li>
                     <li class="" title="Report Information"><a class="" href="#reports" role="tab"><i class="pi-iconStaffing"></i></a></li>
                     <li class="" title=""><a class="" href="#home" role="tab"><i class="pi-iconMenuOpen"></i></a></li>
                     <!--<li class="" title="View Ports"><a class="" href="#viewports" role="tab"><i class="pi-iconViewport"></i></a></li>-->
@@ -1133,7 +1172,8 @@
     <script src="Scripts/jquery.signalR-2.4.2.js"></script>
     <script src="signalr/hubs/"></script>
     <script src="Scripts/leaflet/leaflet.js"></script>
-    <!--<script src="Scripts/leaflet/Plugins/leaflet-geoman.js"></script>-->
+    <script src="Scripts/leaflet/Plugins/leaflet-geoman.js"></script>
+
     <script src="Scripts/leaflet/Plugins/leaflet-sidebar.js"></script>
     <!--<script src="Scripts/leaflet/Plugins/leaflet.mousecoordinate.js"></script>-->
     <script src="Scripts/leaflet/Plugins/easy-button.js"></script>
@@ -1163,6 +1203,10 @@
     <script src="Scripts/View/dockdoor_zone.js"></script>
     <!--Views for trips-->
     <script src="Scripts/View/arrive_depart_trips.js"></script>
+    <!--Views for locators-->
+    <script src="Scripts/View/locators.js"></script>
+    <!--geometry editing -->
+    <script src="Scripts/View/geometry_editing.js"></script>
     <!--QR Code js-->
     <script src="Scripts/QRCode/qrcode.min.js"></script>
 

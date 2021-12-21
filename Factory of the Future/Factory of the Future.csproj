@@ -369,6 +369,8 @@
     <Content Include="Scripts\View\arrive_depart_trips.js" />
     <Content Include="Scripts\View\connection.js" />
     <Content Include="Scripts\View\dockdoor_zone.js" />
+    <Content Include="Scripts\View\geometry_editing.js" />
+    <Content Include="Scripts\View\locators.js" />
     <Content Include="Scripts\View\machine_zone.js" />
     <Content Include="Scripts\View\notification.js" />
     <Content Include="Scripts\View\person_tag.js" />
@@ -403,24 +405,22 @@
     <Compile Include="Database_Calls\Oracle_DB_Calls.cs" />
     <Compile Include="Data_Retention\Data_Retention.cs" />
     <Compile Include="Data_Retention\StartDataRetentionProcess.cs" />
-    <Compile Include="Data_Retriever\HandleAsyncProcess.cs" />
-    <Compile Include="Data_Retriever\SourceAPI.cs" />
-    <Compile Include="Data_Retriever\SourceDataProcess.cs" />
-    <Compile Include="Data_Retriever\StartDRProcess.cs" />
+    <Compile Include="Data_Retriever\Connection.cs" />
+    <Compile Include="Data_Retriever\ConnectionContainer.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
     <Compile Include="HubManager\ConnectionMapping.cs" />
     <Compile Include="HubManager\HubManager.cs" />
     <Compile Include="HubManager\FOTFManager.cs" />
+    <Compile Include="ThreadsProcess.cs" />
+    <Compile Include="UDP_Listener\UdpServer.cs" />
     <Compile Include="Utilities\ItineraryTripUpdate.cs" />
     <Compile Include="ProcessReceivedMessage\ProcessRecvdMsg.cs" />
     <Compile Include="Utilities\DoorTripsUpdate.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Startup.cs" />
     <Compile Include="UDP_Listener\Buffer.cs" />
-    <Compile Include="UDP_Listener\MulticastUdpClient.cs" />
-    <Compile Include="UDP_Listener\UdpClient.cs" />
     <Compile Include="Utilities\AsyncAPICall.cs" />
     <Compile Include="Utilities\Directory_Check.cs" />
     <Compile Include="Utilities\ErrorLogger.cs" />

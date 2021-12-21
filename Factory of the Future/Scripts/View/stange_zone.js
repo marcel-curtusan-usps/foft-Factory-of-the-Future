@@ -1,6 +1,9 @@
 ﻿/*
  this is for stage zone
  */
+$.extend(fotfmanager.client, {
+    updateStageZoneStatus: async (updateStage) => { updateStageZone(updateStage) }
+});
 async function updateStageZone() {
     try {
     } catch (e) {

@@ -120,6 +120,7 @@ namespace Factory_of_the_Future
             }
         }
 
+     
         private void BroadcastClockStatus(DateTime dtLastUpdate)
         {
             Clients.All.updateClock(dtLastUpdate);
@@ -654,7 +655,7 @@ namespace Factory_of_the_Future
                 if (!_updateZoneStatus)
                 {
                     _updateZoneStatus = true;
-                    Global.Zones.Where(u => (bool)u.Value["properties"]["Zone_Update"] == true && u.Value["properties"]["Zone_Type"].ToString() == "Area").Select(x => x.Value).ToList().ForEach(zoneitem =>
+                    Global.Zones.Where(u => (bool)u.Value["properties"]["Zone_Update"] && u.Value["properties"]["Zone_Type"].ToString() == "Area").Select(x => x.Value).ToList().ForEach(zoneitem =>
                     {
 
                         if (TryUpdateZoneStatus(zoneitem))
@@ -1049,6 +1050,30 @@ namespace Factory_of_the_Future
                 return null;
             }
         }
+        internal IEnumerable<Trips> GetRouteTripsInfo(string id)
+        {
+            try
+            {
+                return Global.Trips.Where(r => r.Key == id).Select(y => y.Value).ToList();
+            }
+            catch (Exception e)
+            {
+                new ErrorLogger().ExceptionLog(e);
+                return null;
+            }
+        }
+        internal IEnumerable<Container> GetContainerInfo(string id)
+        {
+            try
+            {
+                return Global.Containers.Where(r => r.Key == id).Select(y => y.Value).ToList();
+            }
+            catch (Exception e)
+            {
+                new ErrorLogger().ExceptionLog(e);
+                return null;
+            }
+        }
         internal IEnumerable<JToken> GetCTSList(string type)
         {
             try
@@ -1090,7 +1115,7 @@ namespace Factory_of_the_Future
                     _updatingQSMStatus = true;
                     if (Global.API_List.Count > 0)
                     {
-                        foreach (JObject QSMitem in Global.API_List.Where(r => (bool)r.Value["UPDATE_STATUS"] == true).Select(x => x.Value).ToList())
+                        foreach (JObject QSMitem in Global.API_List.Where(r => (bool)r.Value["UPDATE_STATUS"]).Select(x => x.Value).ToList())
                         {
                             if (TryUpdateQSMStaus(QSMitem))
                             {
@@ -1162,6 +1187,25 @@ namespace Factory_of_the_Future
                 return new JObject();
             }
         }
+        internal IEnumerable<JToken> GetLocatorsList()
+        {
+            try
+            {
+                if (Global.Tag.Count() > 0)
+                {
+                    return Global.Tag.Where(x => x.Value["properties"]["Tag_Type"].ToString().EndsWith("Locater")).Select(y => y.Value).ToList();
+                }
+                else
+                {
+                    return new JObject();
+                }
+            }
+            catch (Exception e)
+            {
+                new ErrorLogger().ExceptionLog(e);
+                return new JObject();
+            }
+        }
 
         internal IEnumerable<JToken> GetDockDoorZonesList()
         {
@@ -1193,7 +1237,7 @@ namespace Factory_of_the_Future
             //status = "CRITICAL";
 
             // For testing:
-            //if (dockDoor["properties"]["svDoorData"]["doorNumber"].ToString() == "22")
+            //if (dockDoor["properties"]["routetripData"]["doorNumber"].ToString() == "22")
             //{
             //    status = "CRITICAL";
             //}
@@ -1638,7 +1682,7 @@ namespace Factory_of_the_Future
         {
             try
             {
-                // Make call to update svDoorData.alertState
+                // Make call to update routetripData.alertState
                 //dockDoor["properties"]["alertState"] = GetDoorAlertState(dockDoor);
                 //if (dockDoor["properties"]["alertState"].ToString().ToUpper() != "OKAY")
                 //{
@@ -1880,17 +1924,17 @@ namespace Factory_of_the_Future
             }
         }
 
-        internal IEnumerable<JToken> GetAPIList(int id)
+        internal IEnumerable<JToken> GetAPIList(string id)
         {
             try
             {
-                if (id <= 0)
+                if (string.IsNullOrEmpty(id))
                 {
                     return Global.API_List.Select(x => x.Value);
                 }
                 else
                 {
-                    return Global.API_List.Where(r => (int)r.Value.Property("ID").Value == id).Select(x => x.Value);
+                    return Global.API_List.Where(r => (string)r.Value.Property("ID").Value == id).Select(x => x.Value);
                 }
             }
             catch (Exception e)
@@ -1902,7 +1946,7 @@ namespace Factory_of_the_Future
 
         internal IEnumerable<JToken> AddAPI(string data)
         {
-            int id = 0;
+            string id = string.Empty;
             try
             {
                 bool fileUpdate = false;
@@ -1917,13 +1961,13 @@ namespace Factory_of_the_Future
                             {
                                 objectdata["NASS_CODE"] = Global.AppSettings["FACILITY_NASS_CODE"].ToString();
                             }
-                            
-                            objectdata["ID"] = Global.API_List.Count > 0 ? (Global.API_List.Count() + 1) : 1;
-                            id = (int)objectdata["ID"];
+                           
                             JObject api = new JObject_List().API;
+                            id = (string)api["ID"];
                             api.Merge(objectdata, new JsonMergeSettings { MergeArrayHandling = MergeArrayHandling.Union });
-                            if (Global.API_List.TryAdd((int)api["ID"], api))
+                            if (Global.API_List.TryAdd((string)api["ID"], api))
                             {
+                                Global.RunningConnection.Add(JsonConvert.DeserializeObject<Connection>(JsonConvert.SerializeObject(api)));
                                 fileUpdate = true;
                             }
 
@@ -1946,7 +1990,7 @@ namespace Factory_of_the_Future
 
         internal IEnumerable<JToken> EditAPI(string data)
         {
-            int id = 0;
+            string id = string.Empty;
             try
             {
                 bool fileUpdate = false;
@@ -1961,23 +2005,63 @@ namespace Factory_of_the_Future
                             objectdata["UPDATE_STATUS"] = true;
                             if (objectdata.ContainsKey("ID"))
                             {
-                                id = (int)objectdata["ID"];
-                                if (Global.API_List.ContainsKey((int)objectdata.Property("ID").Value))
+                                id = (string)objectdata["ID"];
+                                if (Global.API_List.ContainsKey((string)objectdata.Property("ID").Value))
                                 {
-                                    if (Global.API_List.TryGetValue((int)objectdata.Property("ID").Value, out JObject oldobjectdata))
+                                    if (Global.API_List.TryGetValue((string)objectdata.Property("ID").Value, out JObject oldobjectdata))
                                     {
                                         oldobjectdata.Merge(objectdata, new JsonMergeSettings { MergeArrayHandling = MergeArrayHandling.Union });
                                         fileUpdate = true;
-                                        if (!(bool)oldobjectdata["ACTIVE_CONNECTION"])
+                                        foreach (Api_Connection Connection_item in Global.RunningConnection.Connection)
                                         {
-                                            oldobjectdata["API_CONNECTED"] = false;
-                                            if ((bool)oldobjectdata["UDP_CONNECTION"])
+                                            if (Connection_item.ID == id)
                                             {
-                                                Global.StopUdpClient();
+                                                if (objectdata.ContainsKey("ACTIVE_CONNECTION"))
+                                                {
+                                                    if (!(bool)objectdata["ACTIVE_CONNECTION"])
+                                                    {
+                                                        if ((bool)oldobjectdata["UDP_CONNECTION"])
+                                                        {
+                                                            Connection_item._StopUDPListener();
+                                                        }
+                                                        else
+                                                        {
+                                                            Connection_item.ConstantRefresh = false;
+                                                            Connection_item.Stop();
+                                                        }
+                                                  
+                                                    }
+                                                    else if ((bool)objectdata["ACTIVE_CONNECTION"])
+                                                    {
+                                                        if ((bool)oldobjectdata["UDP_CONNECTION"])
+                                                        {
+                                                            Connection_item._StartUDPListener();
+                                                        }
+                                                        else
+                                                        {
+                                                            Connection_item.ConstantRefresh = true;
+                                                            Connection_item._ThreadDownload();
+                                                            Connection_item._ThreadRefresh();
+                                                        }
+                                                    }
+                                                }
+                                                Connection_item.API_Info = JsonConvert.DeserializeObject<Connection>(JsonConvert.SerializeObject(oldobjectdata));
+
                                             }
                                         }
 
-                                    }
+                                     
+                                        
+                                            //if (!(bool)oldobjectdata["ACTIVE_CONNECTION"])
+                                            //{
+                                            //    oldobjectdata["API_CONNECTED"] = false;
+                                            //    if ((bool)oldobjectdata["UDP_CONNECTION"])
+                                            //    {
+                                            //        Global.StopUdpClient();
+                                            //    }
+                                            //}
+
+                                        }
                                 }
                             }
                         }
@@ -1999,6 +2083,7 @@ namespace Factory_of_the_Future
 
         internal IEnumerable<JToken> RemoveAPI(string data)
         {
+            string id = string.Empty;
             try
             {
                 JObject api = JObject.Parse(data);
@@ -2006,15 +2091,32 @@ namespace Factory_of_the_Future
                 {
                     if (api.ContainsKey("ID"))
                     {
-                        if (Global.API_List.TryRemove((int)api["ID"], out JObject outtemp))
+                        id = (string)api["ID"];
+                        foreach (Api_Connection Connection_item in Global.RunningConnection.Connection)
                         {
-                            new FileIO().Write(string.Concat(Global.Logdirpath, Global.ConfigurationFloder), "API_Connection.json", JsonConvert.SerializeObject(Global.API_List.Select(x => x.Value), Formatting.Indented));
-                            return Global.API_List.Select(e => e.Value).ToList();
+                            if (Connection_item.ID == id)
+                            {
+                                if (Global.API_List.TryRemove((string)api["ID"], out JObject outtemp))
+                                {
+                                    if (Connection_item.API_Info.UDP_CONNECTION)
+                                    {
+                                        Connection_item.UDPDelete();
+                                        Global.RunningConnection.Connection.Remove(Connection_item);
+                                        new FileIO().Write(string.Concat(Global.Logdirpath, Global.ConfigurationFloder), "API_Connection.json", JsonConvert.SerializeObject(Global.API_List.Select(x => x.Value), Formatting.Indented));
+                                        return Global.API_List.Select(e => e.Value).ToList();
+                                    }
+                                    else
+                                    {
+                                        Connection_item.Stop_Delete();
+                                        Global.RunningConnection.Connection.Remove(Connection_item);
+                                        new FileIO().Write(string.Concat(Global.Logdirpath, Global.ConfigurationFloder), "API_Connection.json", JsonConvert.SerializeObject(Global.API_List.Select(x => x.Value), Formatting.Indented));
+                                        return Global.API_List.Select(e => e.Value).ToList();
+                                    }
+                                }
+                                
+                            }
                         }
-                        else
-                        {
-                            return new JObject(new JProperty("ERROR_MESSAGE", "ID not found in list"));
-                        }
+                        return new JObject(new JProperty("ERROR_MESSAGE", "ID not found in list"));
                     }
                     else
                     {
@@ -2034,10 +2136,12 @@ namespace Factory_of_the_Future
         }
         internal IEnumerable<JToken> EditZone(string data)
         {
-            string id = "0";
+            string id = string.Empty;
+            
             try
             {
                 bool fileUpdate = false;
+                bool updateZone = false;
                 if (!string.IsNullOrEmpty(data))
                 {
                     if (Global.IsValidJson(data))
@@ -2048,23 +2152,36 @@ namespace Factory_of_the_Future
                             if (objectdata.ContainsKey("id"))
                             {
                                 id = objectdata["id"].ToString();
-                                if (Global.Zones.ContainsKey(objectdata["id"].ToString()))
+                                objectdata["Zone_Update"] = true;
+                                if (Global.Zone_Info.ContainsKey(id))
                                 {
-                                    if (Global.Zones.TryGetValue(objectdata["id"].ToString(), out JObject oldobjectdata))
+                                    if (Global.Zone_Info.TryGetValue(id, out JObject zoneinfodata))
                                     {
-                                        ((JObject)oldobjectdata["properties"]).Merge(objectdata, new JsonMergeSettings { MergeArrayHandling = MergeArrayHandling.Union });
-                                       
-                                        if ((bool)oldobjectdata["properties"]["nameOverride"] != true)
-                                        {
-                                            oldobjectdata["properties"]["nameOverride"] = true;
-                                        }
-                                        oldobjectdata["properties"]["name"] = oldobjectdata["properties"]["MPE_Type"] + "-"
-                                            + oldobjectdata["properties"]["MPE_Number"].ToString().PadLeft(3, '0');
-
+                                      
+                                        (zoneinfodata).Merge(objectdata, new JsonMergeSettings { MergeArrayHandling = MergeArrayHandling.Union });
+                                        zoneinfodata["name"] = zoneinfodata["MPE_Type"] + "-" + zoneinfodata["MPE_Number"].ToString().PadLeft(3, '0');
+                                        updateZone = true;
                                         fileUpdate = true;
-                                        if (fileUpdate)
+                                    } 
+                                }
+                                else
+                                {
+                                    if (Global.Zone_Info.TryAdd(id, objectdata))
+                                    {
+                                        updateZone = true;
+                                        fileUpdate = true;
+                                    } 
+                                }
+                                if (updateZone)
+                                {
+                                    if (Global.Zone_Info.TryGetValue(id, out JObject zoneinfodata))
+                                    {
+                                        if (Global.Zones.ContainsKey(id))
                                         {
-                                            oldobjectdata["properties"]["Zone_Update"] = true;
+                                            if (Global.Zones.TryGetValue(id, out JObject oldobjectdata))
+                                            {
+                                                ((JObject)oldobjectdata["properties"]).Merge(zoneinfodata, new JsonMergeSettings { MergeArrayHandling = MergeArrayHandling.Union });
+                                            }
                                         }
                                     }
                                 }
@@ -2075,7 +2192,7 @@ namespace Factory_of_the_Future
 
                 if (fileUpdate)
                 {
-                    new FileIO().Write(string.Concat(Global.Logdirpath, Global.ConfigurationFloder), "Zones.json", JsonConvert.SerializeObject(Global.Zones.Select(x => x.Value).ToList(), Formatting.Indented));
+                    new FileIO().Write(string.Concat(Global.Logdirpath, Global.ConfigurationFloder), "Zones.json", JsonConvert.SerializeObject(Global.Zone_Info.Select(x => x.Value).ToList(), Formatting.Indented));
                 }
                 return Global.Zones.Where(w => w.Key == id).Select(s => s.Value).ToList();
             }
