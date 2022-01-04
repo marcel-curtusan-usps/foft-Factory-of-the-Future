@@ -2,6 +2,93 @@
  * this is use to setup a the machine information and other function
  * 
  * **/
+//on close clear all inputs
+$('#Zone_Modal').on('hidden.bs.modal', function () {
+    $(this)
+        .find("input[type=text],textarea,select")
+        .css({ "border-color": "#D3D3D3" })
+        .val('')
+        .end()
+        .find("span[class=text]")
+        .css("border-color", "#FF0000")
+        .val('')
+        .text("")
+        .end()
+        .find('input[type=checkbox]')
+        .prop('checked', false).change();
+});
+//on open set rules
+$('#Zone_Modal').on('shown.bs.modal', function () {
+    $('span[id=error_machinesubmitBtn]').text("");
+    $('button[id=machinesubmitBtn]').prop('disabled', true);
+    //Request Type Keyup
+    $('input[type=text][name=machine_name]').keyup(function () {
+        if (!checkValue($('input[type=text][name=machine_name]').val())) {
+            $('input[type=text][name=machine_name]').css("border-color", "#FF0000").removeClass('is-valid').addClass('is-invalid');
+            $('span[id=error_machine_name]').text("Please Enter Machine Name");
+        }
+        else {
+            $('input[type=text][name=machine_name]').css("border-color", "#2eb82e").removeClass('is-invalid').addClass('is-valid');
+            $('span[id=error_machine_name]').text("");
+        }
+
+        enablezoneSubmit();
+    });
+    //Connection name Validation
+    if (!checkValue($('input[type=text][name=machine_name]').val())) {
+        $('input[type=text][name=machine_name]').css("border-color", "#FF0000").removeClass('is-valid').addClass('is-invalid');
+        $('span[id=error_machine_name]').text("Please Enter Machine Name");
+    }
+    else {
+        $('input[type=text][name=machine_name]').css("border-color", "#2eb82e").removeClass('is-invalid').addClass('is-valid');
+        $('span[id=error_machine_name]').text("");
+    }
+    //Request Type Keyup
+    $('input[type=text][name=machine_number]').keyup(function () {
+        if (!checkValue($('input[type=text][name=machine_number]').val())) {
+            $('input[type=text][name=machine_number]').css("border-color", "#FF0000").removeClass('is-valid').addClass('is-invalid');
+            $('span[id=error_machine_number]').text("Please Enter Machine Number");
+        }
+        else {
+            $('input[type=text][name=machine_number]').css("border-color", "#2eb82e").removeClass('is-invalid').addClass('is-valid');
+            $('span[id=error_machine_number]').text("");
+        }
+
+        enablezoneSubmit();
+    });
+    //Request Type Validation
+    if (!checkValue($('input[type=text][name=machine_number]').val())) {
+        $('input[type=text][name=machine_number]').css("border-color", "#FF0000").removeClass('is-valid').addClass('is-invalid');
+        $('span[id=error_machine_number]').text("Please Enter Machine Number");
+    }
+    else {
+        $('input[type=text][name=machine_number]').css("border-color", "#2eb82e").removeClass('is-invalid').addClass('is-valid');
+        $('span[id=error_machine_number]').text("");
+    }
+    //Request Type Validation
+    if (checkValue($('input[type=text][name=zone_ldc]').val())) {
+        $('input[type=text][name=zone_ldc]').css("border-color", "#2eb82e").removeClass('is-invalid').addClass('is-valid');
+        $('span[id=error_zone_ldc]').text("");
+    }
+    else {
+        $('input[type=text][name=zone_ldc]').css("border-color", "#D3D3D3").removeClass('is-invalid').removeClass('is-valid');
+        $('span[id=error_zone_ldc]').text("");
+    }
+    //Request zone LDC Keyup
+    $('input[type=text][name=zone_ldc]').keyup(function () {
+        if (checkValue($('input[type=text][name=zone_ldc]').val())) {
+            $('input[type=text][name=zone_ldc]').css("border-color", "#2eb82e").removeClass('is-invalid').addClass('is-valid');
+            $('span[id=error_zone_ldc]').text("");
+        }
+        else {
+            $('input[type=text][name=zone_ldc]').css("border-color", "#D3D3D3").removeClass('is-invalid').removeClass('is-valid');
+            $('span[id=error_zone_ldc]').text("");
+        }
+    });
+});
+$.extend(fotfmanager.client, {
+    updateMachineStatus: async (updateMachine) => { updateMachineZone(updateMachine) }
+});
 
 async function updateMachineZone(machineupdate) {
     try {
@@ -11,6 +98,9 @@ async function updateMachineZone(machineupdate) {
                 $.map(polygonMachine._layers, function (layer, i) {
                     if (layer.hasOwnProperty("feature")) {
                         if (layer.feature.properties.id === machineupdate.properties.id) {
+                            if (layer.feature.properties.name != machineupdate.properties.name) {
+                                layer.setTooltipContent(machineupdate.properties.name + "<br/>" + "Staffing: " + machineupdate.properties.CurrentStaff);
+                            }
                             layer.feature.properties = machineupdate.properties;
                             layerindex = layer._leaflet_id;
                             return false;
@@ -28,11 +118,11 @@ async function updateMachineZone(machineupdate) {
                                 LoadMachineTables(machineupdate.properties, 'machinetable');
                             }
                         }
-                        var sortplan = machineupdate.properties.hasOwnProperty("MPEWatchData") ? machineupdate.properties.MPEWatchData.hasOwnProperty("cur_sortplan") ? machineupdate.properties.MPEWatchData.cur_sortplan : "" : "";
-                        var endofrun = machineupdate.properties.hasOwnProperty("MPEWatchData") ? machineupdate.properties.MPEWatchData.hasOwnProperty("current_run_end") ? machineupdate.properties.MPEWatchData.current_run_end : "" : "";
-                        var startofrun = machineupdate.properties.hasOwnProperty("MPEWatchData") ? machineupdate.properties.MPEWatchData.hasOwnProperty("current_run_start") ? machineupdate.properties.MPEWatchData.current_run_start : "" : "";
-                        var expectedTP = machineupdate.properties.hasOwnProperty("MPEWatchData") ? machineupdate.properties.MPEWatchData.hasOwnProperty("expected_throughput") ? machineupdate.properties.MPEWatchData.expected_throughput : "" : "";
-                        var throughput = machineupdate.properties.hasOwnProperty("MPEWatchData") ? machineupdate.properties.MPEWatchData.hasOwnProperty("cur_thruput_ophr") ? machineupdate.properties.MPEWatchData.cur_thruput_ophr : "" : "";
+                        var sortplan =  machineupdate.properties.MPEWatchData.hasOwnProperty("cur_sortplan") ? machineupdate.properties.MPEWatchData.cur_sortplan : "";
+                        var endofrun =  machineupdate.properties.MPEWatchData.hasOwnProperty("current_run_end") ? machineupdate.properties.MPEWatchData.current_run_end : "";
+                        var startofrun = machineupdate.properties.MPEWatchData.hasOwnProperty("current_run_start") ? machineupdate.properties.MPEWatchData.current_run_start : "" ;
+                        var expectedTP = machineupdate.properties.MPEWatchData.hasOwnProperty("expected_throughput") ? machineupdate.properties.MPEWatchData.expected_throughput : "" ;
+                        var throughput = machineupdate.properties.MPEWatchData.hasOwnProperty("cur_thruput_ophr") ? machineupdate.properties.MPEWatchData.cur_thruput_ophr : "" ;
 
                         if (checkValue(sortplan) && !checkValue(endofrun)) {
                             var fillColor = GetMacineBackground(startofrun, throughput, expectedTP);
@@ -259,7 +349,6 @@ async function LoadMachineDetails(selcValue) {
                             (layer._bounds._southWest.lng + layer._bounds._northEast.lng) / 2);
                         map.setView(Center, 3);
                         if (/Machine/i.test(layer.feature.properties.Zone_Type)) {
-                            //Loadtable(layer.feature.properties.id, 'machinetable');
                             LoadMachineTables(layer.feature.properties, 'machinetable');
                         }
                         return false;
@@ -369,24 +458,24 @@ async function Edit_Machine_Info(id) {
                     $('button[id=machinesubmitBtn]').off().on('click', function () {
                         try {
                             $('button[id=machinesubmitBtn]').prop('disabled', true);
-                            var jsonObject = {};
-                            $('input[type=text][name=machine_name]').val() !== Data.MPE_Type ? jsonObject.MPE_Type = $('input[type=text][name=machine_name]').val() : "";
-                            $('input[type=text][name=machine_number]').val() !== Data.MPE_Number ? jsonObject.MPE_Number = $('input[type=text][name=machine_number]').val() : "";
-                            $('input[type=text][name=zone_ldc]').val() !== Data.Zone_LDC ? jsonObject.Zone_LDC = $('input[type=text][name=zone_ldc]').val() : "";
-
+                            var jsonObject = {
+                            MPE_Type: $('input[type=text][name=machine_name]').val(),
+                            MPE_Number: $('input[type=text][name=machine_number]').val(),
+                            Zone_LDC: $('input[type=text][name=zone_ldc]').val()
+                            };
 
                             if (!$.isEmptyObject(jsonObject)) {
                                 jsonObject.id = Data.id;
-                                fotfmanager.server.editZone(JSON.stringify(jsonObject)).done(function (Data) {
-                                    if (Data.length === 1) {
-                                        if (Data[0].hasOwnProperty("properties")) {
-                                            if (Data[0].properties.hasOwnProperty("id")) {
-                                                $('span[id=error_machinesubmitBtn]').text(Data[0].properties.MPE_Type + " Zone has been Updated.");
-                                                updateMachineZone(Data);
+                                fotfmanager.server.editZone(JSON.stringify(jsonObject)).done(function (updatedData) {
+                                    if (updatedData.length === 1) {
+                                        if (updatedData[0].hasOwnProperty("properties")) {
+                                            if (updatedData[0].properties.hasOwnProperty("id")) {
+                                                $('span[id=error_machinesubmitBtn]').text(updatedData[0].properties.MPE_Type + " Zone has been Updated.");
+                                                updateMachineZone(updatedData[0]);
                                                 setTimeout(function () { $("#Zone_Modal").modal('hide'); }, 1500);
                                             }
                                             else {
-                                                $('span[id=error_machinesubmitBtn]').text(Data[0].properties.MPE_Type + " Zone error Updating ");
+                                                $('span[id=error_machinesubmitBtn]').text(updatedData[0].properties.MPE_Type + " Zone error Updating ");
                                                 setTimeout(function () { $("#Zone_Modal").modal('hide'); }, 1500);
                                             }
                                         }
@@ -431,8 +520,9 @@ async function init_machine() {
     //Get MachineZones list
     fotfmanager.server.getMachineZonesList().done(function (machinedatazone) {
         if (machinedatazone.length > 0) {
-            polygonMachine.addData(machinedatazone);
-
+            $.each(machinedatazone, function () {
+                updateMachineZone(this);
+            });
             var options = $('#zoneselect option');
             var arr = options.map(function (_, o) { return { t: $(o).text(), v: o.value }; }).get();
             arr.sort(function (o1, o2) { return o1.t > o2.t ? 1 : o1.t < o2.t ? -1 : 0; });
@@ -462,7 +552,6 @@ function GetMacineBackground(starttime, throughput, expectedthr) {
             if ($.isNumeric(expTP) && $.isNumeric(ThrPt)) {
                 var percent = (ThrPt / expTP) * 100;
                 if (percent >= 100) {
-                    //return '#88FF88';
                     return '#3573b1'; //'#cce5ff'
                 }
                 if (percent >= 90) {

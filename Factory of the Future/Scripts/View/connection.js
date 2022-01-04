@@ -1,4 +1,316 @@
 ﻿/**/
+
+$.extend(fotfmanager.client, {
+    updateQSMStatus: async (Connectionupdate) => { updateConnection(Connectionupdate) }
+});
+//on close clear all inputs
+$('#API_Connection_Modal').on('hidden.bs.modal', function () {
+    $(this)
+        .find("input[type=text],textarea,select")
+        .css({ "border-color": "#D3D3D3" })
+        .val('')
+        .end()
+        .find("span[class=text]")
+        .css("border-color", "#FF0000")
+        .val('')
+        .text("")
+        .end()
+        .find('input[type=checkbox]')
+        .prop('checked', false).change();
+});
+//on open set rules
+$('#API_Connection_Modal').on('shown.bs.modal', function () {
+    $('span[id=error_apisubmitBtn]').text("");
+    $('button[id=apisubmitBtn]').prop('disabled', true);
+    //Connection name Validation
+    if (!checkValue($('input[type=text][name=connection_name]').val())) {
+        $('input[type=text][name=connection_name]').css("border-color", "#FF0000").removeClass('is-valid').addClass('is-invalid');
+        $('span[id=error_connection_name]').text("Please Enter Connection Name");
+    }
+    else {
+        $('input[type=text][name=connection_name]').css("border-color", "#2eb82e").removeClass('is-invalid').addClass('is-valid');
+        $('span[id=error_connection_name]').text("");
+    }
+    //Connection name Keyup
+    $('input[type=text][name=connection_name]').keyup(function () {
+        if (!checkValue($('input[type=text][name=connection_name]').val())) {
+            $('input[type=text][name=connection_name]').css("border-color", "#FF0000").removeClass('is-valid').addClass('is-invalid');
+            $('span[id=error_connection_name]').text("Please Enter Connection Name");
+        }
+        else {
+            $('input[type=text][name=connection_name]').css("border-color", "#2eb82e").removeClass('is-invalid').addClass('is-valid');
+            $('span[id=error_connection_name]').text("");
+        }
+        if (!$('input[type=checkbox][name=udp_connection]').is(':checked')) {
+            enableConnectionSubmit();
+        }
+        else {
+            enableudpSubmit();
+        }
+    });
+
+    //Request Type Validation
+    if (!checkValue($('input[type=text][name=message_type]').val())) {
+        $('input[type=text][name=message_type]').css("border-color", "#FF0000").removeClass('is-valid').addClass('is-invalid');
+        $('span[id=error_message_type]').text("Please Enter Message Type");
+    }
+    else {
+        $('input[type=text][name=message_type]').css("border-color", "#2eb82e").removeClass('is-invalid').addClass('is-valid');
+        $('span[id=error_message_type]').text("");
+    }
+    //Request Type Keyup
+    $('input[type=text][name=message_type]').keyup(function () {
+        if (!checkValue($('input[type=text][name=message_type]').val())) {
+            $('input[type=text][name=message_type]').css("border-color", "#FF0000").removeClass('is-valid').addClass('is-invalid');
+            $('span[id=error_message_type]').text("Please Enter Message Type");
+        }
+        else {
+            $('input[type=text][name=message_type]').css("border-color", "#2eb82e").removeClass('is-invalid').addClass('is-valid');
+            $('span[id=error_message_type]').text("");
+        }
+        if (!$('input[type=checkbox][name=udp_connection]').is(':checked')) {
+            enableConnectionSubmit();
+        }
+        else {
+            enableudpSubmit();
+        }
+    });
+    //Data Retrieve Occurrences Validation
+    if (!checkValue($('select[name=data_retrieve] option:selected').val())) {
+        $('select[name=data_retrieve]').css("border-color", "#FF0000").removeClass('is-valid').addClass('is-invalid');
+        $('span[id=error_data_retrieve]').text("Select Data Retrieve Occurrences");
+    }
+    else {
+        $('select[name=data_retrieve]').css("border-color", "#2eb82e").removeClass('is-invalid').addClass('is-valid');
+        $('span[id=error_data_retrieve]').text("");
+    }
+    //Data Retrieve Occurrences Keyup
+    $('select[name=data_retrieve]').change(function () {
+        if (!checkValue($('select[name=data_retrieve] option:selected').val())) {
+            $('select[name=data_retrieve]').css("border-color", "#FF0000").removeClass('is-valid').addClass('is-invalid');
+            $('span[id=error_data_retrieve]').text("Select Data Retrieve Occurrences");
+        }
+        else {
+            $('select[name=data_retrieve]').css("border-color", "#2eb82e").removeClass('is-invalid').addClass('is-valid');
+            $('span[id=error_data_retrieve]').text("");
+        }
+        if (!$('input[type=checkbox][name=udp_connection]').is(':checked')) {
+            enableConnectionSubmit();
+        }
+        else {
+            enableudpSubmit();
+        }
+    });
+    // Address Validation
+    if (!checkValue($('input[type=text][name=ip_address]').val())) {
+        $('input[type=text][name=ip_address]').css("border-color", "#FF0000").removeClass('is-valid').addClass('is-invalid');
+        $('span[id=error_ip_address]').text("Please Enter Valid IP address");
+    }
+    else {
+        $('input[type=text][name=ip_address]').css("border-color", "#2eb82e").removeClass('is-invalid').addClass('is-valid');
+        $('span[id=error_ip_address]').text("");
+    }
+    //IP Address Keyup
+    $('input[type=text][name=ip_address]').keyup(function () {
+        if (IPAddress_validator($('input[type=text][name=ip_address]').val()) === 'Invalid IP Address') {
+            $('input[type=text][name=ip_address]').css("border-color", "#FF0000");
+            $('span[id=error_ip_address]').text("Please Enter Valid IP Address!");
+        }
+        else {
+            $('input[type=text][name=ip_address]').css({ "border-color": "#2eb82e" }).removeClass('is-invalid').addClass('is-valid');
+            $('span[id=error_ip_address]').text("");
+        }
+        enableConnectionSubmit();
+    });
+    //port Validation
+    if (!checkValue($('input[type=text][name=port_number]').val())) {
+        $('input[type=text][name=port_number]').css({ "border-color": "#FF0000" }).removeClass('is-valid').addClass('is-invalid');
+        $('span[id=error_port_number]').text("Please Enter Port Number");
+    }
+    else {
+        $('input[type=text][name=port_number]').css("border-color", "#2eb82e").removeClass('is-invalid').addClass('is-valid');
+        $('span[id=error_port_number]').text("");
+    }
+    //Port Keyup
+    $('input[type=text][name=port_number]').keyup(function () {
+        if ($.isNumeric($('input[type=text][name=port_number]').val())) {
+            if ($('input[type=text][name=port_number]').val().length > 65535) {
+                $('input[type=text][name=port_number]').css({ "border-color": "#FF0000" }).removeClass('is-valid').addClass('is-invalid');
+                $('span[id=error_port_number]').text("Please Enter Port Number!");
+            }
+            else if ($('input[type=text][name=port_number]').val().length < 0) {
+                $('input[type=text][name=port_number]').css({ "border-color": "#FF0000" }).removeClass('is-valid').addClass('is-invalid');
+                $('span[id=error_port_number]').text("Please Enter Port Number!");
+            }
+            else {
+                $('input[type=text][name=port_number]').css({ "border-color": "#2eb82e" }).removeClass('is-invalid').addClass('is-valid');
+                $('span[id=error_port_number]').text("");
+            }
+        }
+        else {
+            $('input[type=text][name=port_number]').css({ "border-color": "#FF0000" }).removeClass('is-valid').addClass('is-invalid');
+            $('span[id=error_port_number]').text("Please Enter Port Number!");
+        }
+        if (!$('input[type=checkbox][name=udp_connection]').is(':checked')) {
+            enableConnectionSubmit();
+        }
+        else {
+            enableudpSubmit();
+        }
+    });
+    //Vendor URL
+    if (!checkValue($('input[type=text][name=url]').val())) {
+        $('input[type=text][name=url]').css("border-color", "#FF0000").removeClass('is-valid').addClass('is-invalid');
+        $('span[id=error_url]').text("Please Enter API URL");
+    } else {
+        $('input[type=text][name=url]').css("border-color", "#2eb82e").removeClass('is-invalid').addClass('is-valid');
+        $('span[id=error_url]').text("");
+    }
+    //URL Keyup
+    $('input[type=text][name=url]').keyup(function () {
+        if (!checkValue($('input[type=text][name=url]').val())) {
+            $('input[type=text][name=url]').css("border-color", "#FF0000").removeClass('is-valid').addClass('is-invalid');
+            $('span[id=error_url]').text("Please Enter API URL");
+        }
+        else {
+            $('input[type=text][name=url]').css("border-color", "#2eb82e").removeClass('is-invalid').addClass('is-valid');
+            $('span[id=error_url]').text("");
+        }
+        enableConnectionSubmit();
+    });
+    //Administrator Email Address
+    if (!checkValue($('input[type=text][name=admin_email_recepient]').val())) {
+        $('input[type=text][name=admin_email_recepient]').css("border-color", "#FF0000").removeClass('is-valid').addClass('is-invalid');
+        $('span[id=error_admin_email_recepient]').text("Please Enter Administrator Email Address");
+    }
+    else {
+        $('input[type=text][name=admin_email_recepient]').css("border-color", "#2eb82e").removeClass('is-invalid').addClass('is-valid');
+        $('span[id=error_admin_email_recepient]').text("");
+    }
+    //Admin Email Key-up
+    $('input[type=text][name=admin_email_recepient]').keyup(function () {
+        if (!checkValue($('input[type=text][name=admin_email_recepient]').val())) {
+            $('input[type=text][name=admin_email_recepient]').css("border-color", "#FF0000").removeClass('is-valid').addClass('is-invalid');
+            $('span[id=error_admin_email_recepient]').text("Please Enter Administrator Email Address");
+        }
+        else {
+            $('input[type=text][name=admin_email_recepient]').css("border-color", "#2eb82e").removeClass('is-invalid').addClass('is-valid');
+            $('span[id=error_admin_email_recepient]').text("");
+        }
+        if (!$('input[type=checkbox][name=udp_connection]').is(':checked')) {
+            enableConnectionSubmit();
+        }
+        else {
+            enableudpSubmit();
+        }
+    });
+    //outapikey Validation
+    if (!checkValue($('input[type=text][name=outgoingapikey]').val())) {
+        $('input[type=text][name=outgoingapikey]').css("border-color", "#FF0000").removeClass('is-valid').addClass('is-invalid');
+        $('span[id=error_outgoingapikey]').text("Please Enter API Key");
+    }
+    else {
+        $('input[type=text][name=outgoingapikey]').css("border-color", "#2eb82e").removeClass('is-invalid').addClass('is-valid');
+        $('span[id=error_outgoingapikey]').text("");
+    }
+    //Admin Email Keyup
+    $('input[type=text][name=outgoingapikey]').keyup(function () {
+        if (!checkValue($('input[type=text][name=outgoingapikey]').val())) {
+            $('input[type=text][name=outgoingapikey]').css("border-color", "#FF0000").removeClass('is-valid').addClass('is-invalid');
+            $('span[id=error_outgoingapikey]').text("Please Enter API Key");
+        }
+        else {
+            $('input[type=text][name=outgoingapikey]').css("border-color", "#2eb82e").removeClass('is-invalid').addClass('is-valid');
+            $('span[id=error_outgoingapikey]').text("");
+        }
+        enableConnectionSubmit();
+    });
+    if ($('input[type=checkbox][name=udp_connection]').is(':checked')) {
+        $('input[type=text][name=url]').prop("disabled", true);
+        $('input[type=text][name=url]').val('');
+        $('input[type=text][name=url]').css("border-color", "#D3D3D3").removeClass('is-valid').removeClass('is-invalid');
+        $('span[id=error_url]').text("");
+        $('input[type=text][name=outgoingapikey]').prop("disabled", true);
+        $('input[type=text][name=outgoingapikey]').val('');
+        $('input[type=text][name=outgoingapikey]').css("border-color", "#D3D3D3").removeClass('is-valid').removeClass('is-invalid');
+        $('span[id=error_outgoingapikey]').text("");
+        $('input[type=text][name=ip_address]').prop("disabled", true);
+        $('input[type=text][name=ip_address]').val('');
+        $('input[type=text][name=ip_address]').css("border-color", "#D3D3D3").removeClass('is-valid').removeClass('is-invalid');
+        $('span[id=error_ip_address]').text("");
+        $('input[type=text][name=hostanme]').prop("disabled", true);
+        $('input[type=text][name=hostanme]').val('');
+        $('input[type=text][name=hostanme]').css("border-color", "#D3D3D3").removeClass('is-valid').removeClass('is-invalid');
+        $('span[id=error_hostanme]').text("");
+        $('select[name=data_retrieve]').prop("disabled", true);
+        $('select[name=data_retrieve]').val(' ');
+        $('select[name=data_retrieve]').css("border-color", "#D3D3D3").removeClass('is-valid').removeClass('is-invalid');
+        $('span[id=error_data_retrieve]').text("");
+    }
+    $('input[type=checkbox][name=udp_connection]').change(() => {
+        if (!$('input[type=checkbox][name=udp_connection]').is(':checked')) {
+            $('input[type=text][name=url]').prop("disabled", false);
+            if (!checkValue($('input[type=text][name=url]').val())) {
+                $('input[type=text][name=url]').css("border-color", "#FF0000").removeClass('is-valid').addClass('is-invalid');
+                $('span[id=error_url]').text("Please Enter API URL");
+            } else {
+                $('input[type=text][name=url]').css("border-color", "#2eb82e").removeClass('is-invalid').addClass('is-valid');
+                $('span[id=error_url]').text("");
+            }
+            $('input[type=text][name=outgoingapikey]').prop("disabled", false);
+            if (!checkValue($('input[type=text][name=outgoingapikey]').val())) {
+                $('input[type=text][name=outgoingapikey]').css("border-color", "#FF0000").removeClass('is-valid').addClass('is-invalid');
+                $('span[id=error_outgoingapikey]').text("Please Enter API Key");
+            }
+            else {
+                $('input[type=text][name=outgoingapikey]').css("border-color", "#2eb82e").removeClass('is-invalid').addClass('is-valid');
+                $('span[id=error_outgoingapikey]').text("");
+            }
+            $('input[type=text][name=hostanme]').prop("disabled", false);
+            //
+            $('select[name=data_retrieve]').prop("disabled", false);
+            if (!checkValue($('select[name=data_retrieve] option:selected').val())) {
+                $('select[name=data_retrieve]').css("border-color", "#FF0000").removeClass('is-valid').addClass('is-invalid');
+                $('span[id=error_data_retrieve]').text("Select Data Retrieve Occurrences");
+            }
+            else {
+                $('select[name=data_retrieve]').css("border-color", "#2eb82e").removeClass('is-invalid').addClass('is-valid');
+                $('span[id=error_data_retrieve]').text("");
+            }
+            $('input[type=text][name=ip_address]').prop("disabled", false);
+            if (!checkValue($('input[type=text][name=ip_address]').val())) {
+                $('input[type=text][name=ip_address]').css("border-color", "#FF0000").removeClass('is-valid').addClass('is-invalid');
+                $('span[id=error_ip_address]').text("Please Enter Valid IP address");
+            }
+            else {
+                $('input[type=text][name=ip_address]').css("border-color", "#2eb82e").removeClass('is-invalid').addClass('is-valid');
+                $('span[id=error_ip_address]').text("");
+            }
+        }
+        else {
+            $('input[type=text][name=url]').prop("disabled", true);
+            $('input[type=text][name=url]').val('');
+            $('input[type=text][name=url]').css("border-color", "#D3D3D3").removeClass('is-valid').removeClass('is-invalid');
+            $('span[id=error_url]').text("");
+            $('input[type=text][name=outgoingapikey]').prop("disabled", true);
+            $('input[type=text][name=outgoingapikey]').val('');
+            $('input[type=text][name=outgoingapikey]').css("border-color", "#D3D3D3").removeClass('is-valid').removeClass('is-invalid');
+            $('span[id=error_outgoingapikey]').text("");
+            $('input[type=text][name=ip_address]').prop("disabled", true);
+            $('input[type=text][name=ip_address]').val('');
+            $('input[type=text][name=ip_address]').css("border-color", "#D3D3D3").removeClass('is-valid').removeClass('is-invalid');
+            $('span[id=error_ip_address]').text("");
+            $('input[type=text][name=hostanme]').prop("disabled", true);
+            $('input[type=text][name=hostanme]').val('');
+            $('input[type=text][name=hostanme]').css("border-color", "#D3D3D3").removeClass('is-valid').removeClass('is-invalid');
+            $('span[id=error_hostanme]').text("");
+            $('select[name=data_retrieve]').prop("disabled", true);
+            $('select[name=data_retrieve]').val(' ');
+            $('select[name=data_retrieve]').css("border-color", "#D3D3D3").removeClass('is-valid').removeClass('is-invalid');
+            $('span[id=error_data_retrieve]').text("");
+        }
+    });
+});
 async function updateConnection(Connectionupdate) {
     try {
         if (/^Admin/i.test(User.Role)) {
@@ -17,34 +329,52 @@ async function updateConnection(Connectionupdate) {
                     }
                 }
                 else {
-                    $Table = $('table[id=connectiontable]');
-                    $Table_Body = $Table.find('tbody');
-                    $row_template = '<tr data-id="{id}" class="{button_color}" id="api_{id}">' +
-                        '<td class="align-middle">{name}</td>' +
-                        '<td class="align-middle">{messagetype}</td>' +
-                        '<td class="font-weight-bold align-middle text-center" id="apistatus_{id}">{connected}</td>' +
-                        '<td class="d-flex align-middle justify-content-center">' +
-                        '<button class="btn btn-light btn-sm mx-1 pi-iconEdit connectionedit"></button>' +
-                        '<button class="btn btn-light btn-sm mx-1 pi-trashFill connectiondelete"></button>' +
-                        '</td>' +
-                        '</tr>';
-                    function formatQSMlayout(conn_status) {
-                        return $.extend(conn_status, {
-                            id: conn_status.ID,
-                            name: conn_status.CONNECTION_NAME,
-                            messagetype: conn_status.MESSAGE_TYPE,
-                            connected: GetConnectionStatus(conn_status),
-                            button_color: Get_Color(conn_status)
-                        });
-                    }
-
-                    $Table_Body.append($row_template.supplant(formatQSMlayout(Connectionupdate)));
+                 
+                    connection_Table_Body.append(connection_row_template.supplant(formatQSMlayout(Connectionupdate)));
                 }
             }
         }
     } catch (e) {
         console.log(e);
     }
+}
+async function init_connection() {
+    try {
+        fotfmanager.server.getAPIList("").done(function (connectiondata) {
+            if (connectiondata.length > 0) {
+                connection_Table = $('table[id=connectiontable]');
+                connection_Table_Body = connection_Table.find('tbody');
+                connectiondata.sort(SortByConnectionName);
+
+                connection_Table_Body.empty();
+                $.each(connectiondata, function () {
+                    connection_Table_Body.append(connection_row_template.supplant(formatQSMlayout(this)));
+                });
+            }
+        });
+    } catch (e) {
+        console.log(e);
+    }
+}
+let connection_Table , connection_Table_Body;
+
+let connection_row_template = '<tr data-id="{id}" class="{button_color}" id="api_{id}">' +
+    '<td class="align-middle">{name}</td>' +
+    '<td class="align-middle">{messagetype}</td>' +
+    '<td class="font-weight-bold align-middle text-center" id="apistatus_{id}">{connected}</td>' +
+    '<td class="d-flex align-middle justify-content-center">' +
+    '<button class="btn btn-light btn-sm mx-1 pi-iconEdit connectionedit"></button>' +
+    '<button class="btn btn-light btn-sm mx-1 pi-trashFill connectiondelete"></button>' +
+    '</td>' +
+    '</tr>';
+function formatQSMlayout(conn_status) {
+    return $.extend(conn_status, {
+        id: conn_status.ID,
+        name: conn_status.CONNECTION_NAME,
+        messagetype: conn_status.MESSAGE_TYPE,
+        connected: GetConnectionStatus(conn_status),
+        button_color: Get_Color(conn_status)
+    });
 }
 function Add_Connection() {
     $('#modalHeader_ID').text('Add API Connection');
@@ -119,16 +449,7 @@ function Edit_Connection(id) {
                     }
                 }
             });
-            $('input[type=checkbox][name=udp_connection]').change(() => {
-                if (Data.UDP_CONNECTION !== $('input[type=checkbox][name=udp_connection]').is(':checked')) {
-                    $('button[id=apisubmitBtn]').prop('disabled', false);
-                    enableudpSubmit();
-                }
-                if (Data.UDP_CONNECTION === $('input[type=checkbox][name=udp_connection]').is(':checked')) {
-                    $('button[id=apisubmitBtn]').prop('disabled', true);
-                    enableudpSubmit();
-                }
-            });
+            $('input[type=checkbox][name=udp_connection]').prop('disabled', true);
             if (!$.isEmptyObject(Data)) {
                 $('input[type=text][name=connection_name]').val(Data.CONNECTION_NAME);
                 $('input[type=text][name=ip_address]').val(Data.IP_ADDRESS);
@@ -253,27 +574,24 @@ function Get_Color(data) {
         return "table-warning";
     }
 }
-function Remove_Connection(data) {
+function Remove_Connection(id) {
     try {
-        //RemoveNotificationModal
-        if ($.isNumeric(data)) {
-            var id = parseInt(data);
-            sidebar.close('connections');
-            $('#removeAPImodalHeader_ID').text('Remove API Connection');
-            $('#RemoveConfirmationModal').modal();
+        sidebar.close('connections');
+        $('#removeAPImodalHeader_ID').text('Remove Connection');
+        $('#RemoveConfirmationModal').modal();
 
-            $('button[id=remove_server_connection]').off().on('click', function () {
-                var jsonObject = { ID: id };
-                $.connection.FOTFManager.server.removeAPI(JSON.stringify(jsonObject)).done(function (Data) {
-                    $("#api_" + id).remove();
-                    setTimeout(function () {
-                        $("#RemoveConfirmationModal").modal('hide');
-                        sidebar.open('connections');
-                    }, 1500);
-                    $('#RemoveConfirmationModal').modal();
-                })
-            });
-        }
+        $('button[id=remove_server_connection]').off().on('click', function () {
+            var jsonObject = { ID: id };
+            $.connection.FOTFManager.server.removeAPI(JSON.stringify(jsonObject)).done(function (Data) {
+                $("#api_" + id).remove();
+                setTimeout(function () {
+                    $("#RemoveConfirmationModal").modal('hide');
+                    sidebar.open('connections');
+                }, 1500);
+                $('#RemoveConfirmationModal').modal();
+            })
+        });
+
     } catch (e) {
         console.log(e);
     }

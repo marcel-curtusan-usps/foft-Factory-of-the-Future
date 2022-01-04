@@ -1,6 +1,9 @@
 ﻿/*
 this is for the person details.
  */
+$.extend(fotfmanager.client, {
+    updatePersonTagStatus: async (tagupdate) => { updatePersonTag(tagupdate) }
+});
 async function updatePersonTag(tagpositionupdate) {
     try {
         map.whenReady(() => {

@@ -1,7 +1,9 @@
 ﻿ /*
   this is for AGV location 
   */
-
+$.extend(fotfmanager.client, {
+    updateAGVLocationStatus: async (updateAGVLocation) => { updateAGVLocationZone(updateAGVLocation) }
+});
 
 var agvLocations = new L.GeoJSON(null, {
     style: function (feature) {
@@ -28,7 +30,7 @@ var agvLocations = new L.GeoJSON(null, {
 
             map.setView(e.latlng, 3);
             sidebar.open('home');
-            LoadAGVLocationTables(feature.properties, "agvlocationtable")
+            LoadAGVLocationTables(feature.properties)
         });
         layer.bindTooltip(Get_location_Code(feature.properties.name), {
             direction: 'center',
@@ -40,44 +42,48 @@ var agvLocations = new L.GeoJSON(null, {
 async function updateAGVLocationZone(locationupdate) {
     try {
         if (agvLocations.hasOwnProperty("_layers")) {
+            var layerindex = -0;
             $.map(agvLocations._layers, function (layer, i) {
                 if (layer.hasOwnProperty("feature")) {
                     if (layer.feature.properties.id === locationupdate.properties.id) {
                         layer.feature.properties = locationupdate.properties;
-                        if (layer.feature.properties.hasOwnProperty("inMission") && layer.feature.properties.inMission) {
-                            agvLocations._layers[layer._leaflet_id].setStyle({
-                                weight: 1,
-                                opacity: 1,
-                                color: '#3573b1',
-                                fillColor: '#28a745',
-                                fillOpacity: 0.5
-                            });
-                        }
-                        else {
-                            agvLocations._layers[layer._leaflet_id].setStyle({
-                                weight: 1,
-                                opacity: 1,
-                                color: '#3573b1',
-                                fillColor: '#9a9ea4',
-                                fillOpacity: 0.2
-                            });
-                        }
+                        layerindex = layer._leaflet_id;
                         return false;
                     }
                 }
             });
-           
+            if (layerindex !== -0) {
+                updatelocation(layerindex)
+            }
+            else {
+                agvLocations.addData(locationupdate);
+            }
         }
-        else {
-            agvLocations.addData(locationupdate);
-        }
-
-
     } catch (e) {
         console.log(e);
     }
 }
-async function LoadAGVLocationTables(dataproperties, table) {
+async function updatelocation(layerindex) {
+    if (agvLocations._layers[layerindex].feature.properties.hasOwnProperty("inMission") && agvLocations._layers[layerindex].feature.properties.inMission) {
+        agvLocations._layers[layerindex].setStyle({
+            weight: 1,
+            opacity: 1,
+            color: '#3573b1',
+            fillColor: '#28a745',
+            fillOpacity: 0.5
+        });
+    }
+    else {
+        agvLocations._layers[layerindex].setStyle({
+            weight: 1,
+            opacity: 1,
+            color: '#3573b1',
+            fillColor: '#9a9ea4',
+            fillOpacity: 0.2
+        });
+    }
+}
+async function LoadAGVLocationTables(dataproperties) {
     try {
         $('div[id=agvlocation_div]').css('display', 'block');
         $('div[id=area_div]').css('display', 'none');
@@ -88,17 +94,17 @@ async function LoadAGVLocationTables(dataproperties, table) {
         $('div[id=ctstabs_div]').css('display', 'none');
         $('div[id=vehicle_div]').css('display', 'none');
         $('div[id=dps_div]').css('display', 'none');
-        let agvlocation_Table = $('table[id=' + table + ']');
-        let agvlocation_Table_Body = agvlocation_Table.find('tbody');
-        agvlocation_Table_Body.empty();
-        let agvlocation_row_template = '<tr data-id="{zoneId}"><td>{zone_type}</td><td>{zoneId}</td></tr>"';
 
+        agvlocation_Table_Body.empty();
        
         agvlocation_Table_Body.append(agvlocation_row_template.supplant(formatAGVzonetoprow(dataproperties)));
     } catch (e) {
         console.log(e)
     }
 }
+let agvlocation_Table = $('table[id=agvlocationtable]');
+let agvlocation_Table_Body = agvlocation_Table.find('tbody');
+let agvlocation_row_template = '<tr data-id="{zoneId}"><td>{zone_type}</td><td>{zoneId}</td></tr>"';
 function formatAGVzonetoprow(properties) {
     return $.extend(properties, {
         zoneId: Get_location_Code(properties.name),
@@ -124,7 +130,9 @@ async function init_agvlocation() {
     //Get AGV Location list
     fotfmanager.server.getAGVLocationZonesList().done(function (agvlocationzoneData) {
         if (agvlocationzoneData.length > 0) {
-            agvLocations.addData(agvlocationzoneData);
+            $.each(agvlocationzoneData, function () {
+                updateAGVLocationZone(this);
+            });
         }
     });
 }

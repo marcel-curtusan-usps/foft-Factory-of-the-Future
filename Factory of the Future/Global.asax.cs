@@ -41,13 +41,17 @@ namespace Factory_of_the_Future
         public static string HWSerialNumber = string.Empty;
         public static string ServerHostname = string.Empty;
         public static string ipaddress = "";
-        public static ConcurrentDictionary<int, JObject> API_List = new ConcurrentDictionary<int, JObject>();
+        public static ConnectionContainer RunningConnection = new ConnectionContainer();
+
+        public static ConcurrentDictionary<string, JObject> API_List = new ConcurrentDictionary<string, JObject>();
 
         // Tag
         public static ConcurrentDictionary<string, JObject> Tag = new ConcurrentDictionary<string, JObject>();
 
         //Zone
         public static ConcurrentDictionary<string, JObject> Zones = new ConcurrentDictionary<string, JObject>();
+        //Zone info
+        public static ConcurrentDictionary<string, JObject> Zone_Info = new ConcurrentDictionary<string, JObject>();
 
         ////Viewports
         //public static ConcurrentDictionary<string, JObject> ViewPorts = new ConcurrentDictionary<string, JObject>();
@@ -154,20 +158,10 @@ namespace Factory_of_the_Future
         public static bool Disconnected { get; set; }
         public static bool Errors { get; set; }
 
-        private static MulticastUdpClient udpclient = null;
+       
         public static BackgroundWorker worker = new BackgroundWorker();
 
         public static bool stopWorker = false;
-
-        //background worker for checking configuration files
-        public static BackgroundWorker APIWorker = new BackgroundWorker();
-
-        public static bool APIStopWorker = false;
-
-        //background worker for checking configuration files
-        public static BackgroundWorker TagAPIWorker = new BackgroundWorker();
-
-        public static bool TagAPIStopWorker = false;
 
         //background worker for Retention of data on server
         public static BackgroundWorker DataRetentionWorker = new BackgroundWorker();
@@ -175,122 +169,119 @@ namespace Factory_of_the_Future
         public static bool DataRetentionStopWorker = false;
         protected void Application_Start()
         {
-            //get version
-            System.Reflection.Assembly assembly = System.Reflection.Assembly.GetExecutingAssembly();
-            FileVersionInfo fvi = FileVersionInfo.GetVersionInfo(assembly.Location);
-            VersionInfo = string.Concat(fvi.FileMajorPart.ToString() + ".", fvi.FileMinorPart.ToString() + ".", fvi.FileBuildPart.ToString() + ".", fvi.FilePrivatePart.ToString());
-            CodeBase = new DirectoryInfo(new Uri(assembly.CodeBase).LocalPath).Parent;
-            ///////////////////////////////////////////////
-            //////////////////////////////////////////////
-            ///Super Important///////////////////////////
-            ////////////////////////////////////////////
-            ///////////////////////////////////////////
-            //read AppSetting file fist
-            GetAppSettings();
-            //get ip address and zip code from hostname
-            ipaddress = GetLocalIpAddress();
-
-
-            if (string.IsNullOrEmpty(Application_Environment))
+            try
             {
-                if (AppSettings.ContainsKey("DEV_SVRP_IP"))
-                {
-                    if ((string)AppSettings.Property("DEV_SVRP_IP").Value == ipaddress)
-                    {
-                        Application_Environment = "DEV";
-                    }
-                }
-                if (AppSettings.ContainsKey("DEV_SVRS_IP"))
-                {
-                    if ((string)AppSettings.Property("dev_SVRS_IP").Value == ipaddress)
-                    {
-                        Application_Environment = "DEV";
-                    }
-                }
-                if (AppSettings.ContainsKey("SIT_SVRP_IP"))
-                {
-                    if ((string)AppSettings.Property("SIT_SVRP_IP").Value == ipaddress)
-                    {
-                        Application_Environment = "SIT";
-                    }
-                }
-                if (AppSettings.ContainsKey("SIT_SVRS_IP"))
-                {
-                    if ((string)AppSettings.Property("SIT_SVRS_IP").Value == ipaddress)
-                    {
-                        Application_Environment = "SIT";
-                    }
-                }
-                if (AppSettings.ContainsKey("CAT_SVRS_IP"))
-                {
-                    if ((string)AppSettings.Property("CAT_SVRS_IP").Value == ipaddress)
-                    {
-                        Application_Environment = "CAT";
-                    }
-                }
-                if (AppSettings.ContainsKey("CAT_SVRP_IP"))
-                {
-                    if ((string)AppSettings.Property("CAT_SVRP_IP").Value == ipaddress)
-                    {
-                        Application_Environment = "CAT";
-                    }
-                }
+
+
+                //get version
+                System.Reflection.Assembly assembly = System.Reflection.Assembly.GetExecutingAssembly();
+                FileVersionInfo fvi = FileVersionInfo.GetVersionInfo(assembly.Location);
+                VersionInfo = string.Concat(fvi.FileMajorPart.ToString() + ".", fvi.FileMinorPart.ToString() + ".", fvi.FileBuildPart.ToString() + ".", fvi.FilePrivatePart.ToString());
+                CodeBase = new DirectoryInfo(new Uri(assembly.CodeBase).LocalPath).Parent;
+                ///////////////////////////////////////////////
+                //////////////////////////////////////////////
+                ///Super Important///////////////////////////
+                ////////////////////////////////////////////
+                ///////////////////////////////////////////
+                //read AppSetting file fist
+                GetAppSettings();
+                //get ip address and zip code from hostname
+                ipaddress = GetLocalIpAddress();
+
 
                 if (string.IsNullOrEmpty(Application_Environment))
                 {
-                    Application_Environment = "PROD";
-                }
-            }
-            if (!QSM_List.ContainsKey("SERVER"))
-            {
-                JObject qsm = new JObject_List().QSM_Connection;
-                qsm.Property("CONNECTION_NAME").Value = "SERVER";
-                qsm.Property("NUMBER_OF_CONNECTION").Value = ServerHostname;
-                qsm.Property("INDEX").Value = 1;
-                if (!QSM_List.TryAdd("SERVER", qsm))
-                {
-                    new ErrorLogger().CustomLog(string.Concat("Error adding Server connection to QSM"), string.Concat((string)Global.AppSettings.Property("APPLICATION_NAME").Value, "Applogs"));
-                }
-            }
+                    if (AppSettings.ContainsKey("DEV_SVRP_IP"))
+                    {
+                        if ((string)AppSettings.Property("DEV_SVRP_IP").Value == ipaddress)
+                        {
+                            Application_Environment = "DEV";
+                        }
+                    }
+                    if (AppSettings.ContainsKey("DEV_SVRS_IP"))
+                    {
+                        if ((string)AppSettings.Property("dev_SVRS_IP").Value == ipaddress)
+                        {
+                            Application_Environment = "DEV";
+                        }
+                    }
+                    if (AppSettings.ContainsKey("SIT_SVRP_IP"))
+                    {
+                        if ((string)AppSettings.Property("SIT_SVRP_IP").Value == ipaddress)
+                        {
+                            Application_Environment = "SIT";
+                        }
+                    }
+                    if (AppSettings.ContainsKey("SIT_SVRS_IP"))
+                    {
+                        if ((string)AppSettings.Property("SIT_SVRS_IP").Value == ipaddress)
+                        {
+                            Application_Environment = "SIT";
+                        }
+                    }
+                    if (AppSettings.ContainsKey("CAT_SVRS_IP"))
+                    {
+                        if ((string)AppSettings.Property("CAT_SVRS_IP").Value == ipaddress)
+                        {
+                            Application_Environment = "CAT";
+                        }
+                    }
+                    if (AppSettings.ContainsKey("CAT_SVRP_IP"))
+                    {
+                        if ((string)AppSettings.Property("CAT_SVRP_IP").Value == ipaddress)
+                        {
+                            Application_Environment = "CAT";
+                        }
+                    }
 
-            if (!string.IsNullOrEmpty(AppSettings.ContainsKey("ORACONNSTRING") ? (string)AppSettings.Property("ORACONNSTRING").Value : ""))
-            {
-                JObject qsm = new JObject_List().QSM_Connection;
-                qsm.Property("CONNECTION_NAME").Value = "DATABASE";
-                qsm.Property("NUMBER_OF_CONNECTION").Value = ServerHostname;
-                qsm.Property("INDEX").Value = 2;
-                if (!QSM_List.TryAdd("DATABASE", qsm))
-                {
-                    new ErrorLogger().CustomLog(string.Concat("Error adding Databse connection to QSM"), string.Concat((string)Global.AppSettings.Property("APPLICATION_NAME").Value, "Applogs"));
+                    if (string.IsNullOrEmpty(Application_Environment))
+                    {
+                        Application_Environment = "PROD";
+                    }
                 }
-            }
-            //configuration worker
-            worker.DoWork += new DoWorkEventHandler(DoWork);
-            worker.WorkerReportsProgress = true;
-            worker.WorkerSupportsCancellation = true;
-            worker.RunWorkerCompleted += new RunWorkerCompletedEventHandler(WorkerCompleted);
-            //API worker
-            APIWorker.DoWork += new DoWorkEventHandler(APIDoWork);
-            APIWorker.WorkerReportsProgress = true;
-            APIWorker.WorkerSupportsCancellation = true;
-            APIWorker.RunWorkerCompleted += new RunWorkerCompletedEventHandler(APIWorkerCompleted);
-            //TAG API worker
-            TagAPIWorker.DoWork += new DoWorkEventHandler(TagAPIDoWork);
-            TagAPIWorker.WorkerReportsProgress = true;
-            TagAPIWorker.WorkerSupportsCancellation = true;
-            TagAPIWorker.RunWorkerCompleted += new RunWorkerCompletedEventHandler(TagAPIWorkerCompleted);
-            //DataRetentionWorker
-            DataRetentionWorker.DoWork += new DoWorkEventHandler(DataRetentionDoWork);
-            DataRetentionWorker.WorkerReportsProgress = true;
-            DataRetentionWorker.WorkerSupportsCancellation = true;
-            DataRetentionWorker.RunWorkerCompleted += new RunWorkerCompletedEventHandler(DataRetentionWorkerCompleted);
+                if (!QSM_List.ContainsKey("SERVER"))
+                {
+                    JObject qsm = new JObject_List().QSM_Connection;
+                    qsm.Property("CONNECTION_NAME").Value = "SERVER";
+                    qsm.Property("NUMBER_OF_CONNECTION").Value = ServerHostname;
+                    qsm.Property("INDEX").Value = 1;
+                    if (!QSM_List.TryAdd("SERVER", qsm))
+                    {
+                        new ErrorLogger().CustomLog(string.Concat("Error adding Server connection to QSM"), string.Concat((string)Global.AppSettings.Property("APPLICATION_NAME").Value, "Applogs"));
+                    }
+                }
 
-            // Calling the DoWork Method Asynchronously
-            worker.RunWorkerAsync();
-            APIWorker.RunWorkerAsync();
-            TagAPIWorker.RunWorkerAsync();
-            DataRetentionWorker.RunWorkerAsync();
-            GlobalConfiguration.Configure(WebApiConfig.Register);
+                if (!string.IsNullOrEmpty(AppSettings.ContainsKey("ORACONNSTRING") ? (string)AppSettings.Property("ORACONNSTRING").Value : ""))
+                {
+                    JObject qsm = new JObject_List().QSM_Connection;
+                    qsm.Property("CONNECTION_NAME").Value = "DATABASE";
+                    qsm.Property("NUMBER_OF_CONNECTION").Value = ServerHostname;
+                    qsm.Property("INDEX").Value = 2;
+                    if (!QSM_List.TryAdd("DATABASE", qsm))
+                    {
+                        new ErrorLogger().CustomLog(string.Concat("Error adding Databse connection to QSM"), string.Concat((string)Global.AppSettings.Property("APPLICATION_NAME").Value, "Applogs"));
+                    }
+                }
+                //configuration worker
+                worker.DoWork += new DoWorkEventHandler(DoWork);
+                worker.WorkerReportsProgress = true;
+                worker.WorkerSupportsCancellation = true;
+                worker.RunWorkerCompleted += new RunWorkerCompletedEventHandler(WorkerCompleted);       
+                //DataRetentionWorker
+                DataRetentionWorker.DoWork += new DoWorkEventHandler(DataRetentionDoWork);
+                DataRetentionWorker.WorkerReportsProgress = true;
+                DataRetentionWorker.WorkerSupportsCancellation = true;
+                DataRetentionWorker.RunWorkerCompleted += new RunWorkerCompletedEventHandler(DataRetentionWorkerCompleted);
+
+                // Calling the DoWork Method Asynchronously
+                worker.RunWorkerAsync();
+                DataRetentionWorker.RunWorkerAsync();
+                GlobalConfiguration.Configure(WebApiConfig.Register);
+            }
+            catch (Exception ex)
+            {
+                new ErrorLogger().ExceptionLog(ex);
+            }
         }
         private void WorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
         {
@@ -330,30 +321,23 @@ namespace Factory_of_the_Future
                 //this is used to check if this is the active server.
                 if (SERVER_ACTIVE)
                 {
-                    //Load Tags
-                    //if (Tag.Count == 0)
-                    //{
-                    //    Get_Tag_Data();
-                    //}
-                    //Load Tag Dwell
-                    //if (Tag_Dwell.Count == 0)
-                    //{
-                    //    Get_Tag_Dwell();
-                    //}
+                    
                     //Load server Configuration
                     if (API_List.Count == 0)
                     {
                         Get_API_List();
                     }
-                    if (Zones.Count == 0)
+                    //Zone info
+                    if (Zone_Info.Count == 0)
                     {
-                        Get_Zones_List();
+                        Get_Zone_Info_List();
                     }
                     //Load floor plan Configuration
                     if (Map.Count == 0)
                     {
                         Get_FloorPlan();
                     }
+                    //Load P2P Data
                     if (Sortplans.Count == 0)
                     {
                         Get_P2PData();
@@ -362,53 +346,11 @@ namespace Factory_of_the_Future
                     {
                         Get_Notification_Conditions();
                     }
-                    if (udpclient == null)
+                    if (RunningConnection.Connection.Count == 0)
                     {
-                        API_List.Where(v => (bool)v.Value.Property("UDP_CONNECTION").Value == true &&
-                        (bool)v.Value.Property("ACTIVE_CONNECTION").Value == true).Select(y => y.Value).ToList().ForEach(m =>
-                        {
-                            if (!string.IsNullOrEmpty(m.ContainsKey("PORT") ? (string)m.Property("PORT").Value : ""))
-                            {
-                                int port = !string.IsNullOrEmpty((string)m.Property("PORT").Value) ? Convert.ToInt32(m.Property("PORT").Value) : 0;
-                                if (port > 0)
-                                {
-                                    try
-                                    {
-                                        // Create and connect multi cast client
-                                        udpclient = new MulticastUdpClient("0.0.0.0", port);
-                                        udpclient.SetupMulticast(true);
-                                        udpclient.Connect();
-                                        if (udpclient.IsConnected)
-                                        {
-                                            m.Property("API_CONNECTED").Value = true;
-                                            m.Property("LASTTIME_API_CONNECTED").Value = DateTime.Now;
-                                            m.Property("UPDATE_STATUS").Value = true;
-                                        }
-                                        while (!udpclient.IsConnected)
-                                        {
-                                            m.Property("API_CONNECTED").Value = false;
-                                            m.Property("UPDATE_STATUS").Value = true;
-                                            Thread.Yield();
-                                        }
-                                        // Wait for all data processed...
-                                        if (udpclient != null)
-                                        {
-                                            while (udpclient.BytesReceived != 4)
-                                            {
-                                                m.Property("API_CONNECTED").Value = true;
-                                                m.Property("LASTTIME_API_CONNECTED").Value = DateTime.Now;
-                                                Thread.Yield();
-                                            }
-                                        }
-                                    }
-                                    catch (Exception ex)
-                                    {
-                                        m.Property("API_CONNECTED").Value = false;
-                                        new ErrorLogger().ExceptionLog(ex);
-                                    }
-                                }
-                            }
-                        });
+                        Thread ConectionSetupThread = new Thread(new ThreadStart(ConectionSetup));
+                        ConectionSetupThread.IsBackground = true;
+                        ConectionSetupThread.Start();
                     }
                 }
                 if (!SERVER_ACTIVE)
@@ -416,12 +358,12 @@ namespace Factory_of_the_Future
                     //clear Server connection
                     if (API_List.Count != 0)
                     {
-                        API_List = new ConcurrentDictionary<int, JObject>();
+                        API_List = new ConcurrentDictionary<string, JObject>();
                     }
                     //clear Zone
-                    if (Zones.Count != 0)
+                    if (Zone_Info.Count != 0)
                     {
-                        Zones = new ConcurrentDictionary<string, JObject>();
+                        Zone_Info = new ConcurrentDictionary<string, JObject>();
                     }
 
                     //clear Notification Conditions
@@ -429,11 +371,15 @@ namespace Factory_of_the_Future
                     {
                         Notification_Conditions = new ConcurrentDictionary<int, JObject>();
                     }
-
-                    //clear tag data
-                    if (Tag.Count != 0)
+                    //clear floor plan Configuration
+                    if (Map.Count != 0)
                     {
-                        Tag = new ConcurrentDictionary<string, JObject>();
+                        Map = new ConcurrentDictionary<string, JObject>();
+                    }
+                    //clear P2P Data
+                    if (Sortplans.Count != 0)
+                    {
+                        Sortplans = new ConcurrentDictionary<string, JObject>();
                     }
                     if (Logdirpath != null)
                     {
@@ -463,14 +409,6 @@ namespace Factory_of_the_Future
                             }
                         }
                     }
-                    if (udpclient != null)
-                    {
-                        if (!udpclient.IsDisposed)
-                        {
-                            udpclient.Dispose();
-                            udpclient = null;
-                        }
-                    }
                 }
             }
             catch (Exception ex)
@@ -479,33 +417,25 @@ namespace Factory_of_the_Future
             }
         }
 
-        private void Get_Zones_List()
+        private void Get_Zone_Info_List()
         {
             try
             {
-                string api_config = new FileIO().Read(string.Concat(Logdirpath, ConfigurationFloder), "Zones.json");
-                if (!string.IsNullOrEmpty(api_config))
+                string zone_info = new FileIO().Read(string.Concat(Logdirpath, ConfigurationFloder), "Zones.json");
+                if (!string.IsNullOrEmpty(zone_info))
                 {
-                    if (IsValidJson(api_config))
+                    if (IsValidJson(zone_info))
                     {
-                        JArray list = JArray.Parse(api_config);
+                        JArray list = JArray.Parse(zone_info);
                         if (list != null)
                         {
                             if (list.HasValues)
                             {
                                 foreach (JObject item in list.Children())
                                 {
-                                    if (!Zones.ContainsKey(item["properties"]["id"].ToString()))
+                                    if (!Zone_Info.ContainsKey(item["id"].ToString()))
                                     {
-
-                                        item["properties"]["MPEWatchData"] = "";
-                                        if (item["properties"]["Zone_Type"].ToString().StartsWith("DockDoor"))
-                                        {
-                                            item["properties"]["svDoorData"] = "";
-                                            item["properties"]["unloadedcount"] = 0;
-                                            item["properties"]["timeToDepart"] = 60;
-                                        }
-                                        Zones.TryAdd(item["properties"]["id"].ToString(), item);
+                                        Zone_Info.TryAdd(item["id"].ToString(), item);
                                     }
 
                                 }
@@ -520,15 +450,21 @@ namespace Factory_of_the_Future
             }
         }
 
-        public static void StopUdpClient()
+        private void ConectionSetup()
         {
-            if (udpclient != null)
+            try
             {
-                if (!udpclient.IsDisposed)
+
+                foreach (JObject item in Global.API_List.Values)
                 {
-                    udpclient.Dispose();
-                    udpclient = null;
+                    RunningConnection.Add(JsonConvert.DeserializeObject<Connection>(JsonConvert.SerializeObject(item)));
                 }
+
+            }
+            catch (Exception e)
+            {
+
+                new ErrorLogger().ExceptionLog(e);
             }
         }
 
@@ -607,17 +543,23 @@ namespace Factory_of_the_Future
         {
             try
             {
-                string ProjectData = new FileIO().Read(string.Concat(Logdirpath, ConfigurationFloder), "ProjectData.json");
-                if (!string.IsNullOrEmpty(ProjectData))
+                if (AppSettings.ContainsKey("LOCAL_PROJECT_DATA"))
                 {
-                    if (IsValidJson(ProjectData))
+                    if ((bool)AppSettings.Property("LOCAL_PROJECT_DATA").Value)
                     {
-                        JObject list = JObject.Parse(ProjectData);
-                        if (list != null)
+                        string ProjectData = new FileIO().Read(string.Concat(Logdirpath, ConfigurationFloder), "ProjectData.json");
+                        if (!string.IsNullOrEmpty(ProjectData))
                         {
-                            if (list.HasValues)
+                            if (IsValidJson(ProjectData))
                             {
-                                new ProcessRecvdMsg().StartProcess(list, new JObject());
+                                JObject list = JObject.Parse(ProjectData);
+                                if (list != null)
+                                {
+                                    if (list.HasValues)
+                                    {
+                                        new ProcessRecvdMsg().StartProcess(list, new JObject());
+                                    }
+                                }
                             }
                         }
                     }
@@ -645,13 +587,14 @@ namespace Factory_of_the_Future
                             {
                                 foreach (JObject item in list.Children())
                                 {
-                                    JObject api = new JObject_List().API;
-                                    item["API_CONNECTED"] = false;
-                                    item["LASTTIME_API_CONNECTED"] = DateTime.Now.AddDays(-30);
-                                    api.Merge(item, new JsonMergeSettings { MergeArrayHandling = MergeArrayHandling.Union });
-                                    if (!API_List.ContainsKey((int)api.Property("ID").Value))
+                                    //JObject api = new JObject_List().API;
+                                    //item["API_CONNECTED"] = false;
+                                    //api["ID"] = item["ID"];
+                                    //item["LASTTIME_API_CONNECTED"] = DateTime.Now.AddDays(-30);
+                                    //api.Merge(item, new JsonMergeSettings { MergeArrayHandling = MergeArrayHandling.Union });
+                                    if (!API_List.ContainsKey((string)item.Property("ID").Value))
                                     {
-                                        API_List.TryAdd((int)api["ID"], api);                                      
+                                        API_List.TryAdd((string)item["ID"], item);                                      
                                     }
                                 }
                             }
@@ -704,6 +647,7 @@ namespace Factory_of_the_Future
                         if (!AppSettings.ContainsKey("RETENTION_MAX_FILE_SIZE")) { AppSettings.Add(new JProperty("RETENTION_MAX_FILE_SIZE", "1073741824")); }
                         if (!AppSettings.ContainsKey("SERVER_ACTIVE")) { AppSettings.Add(new JProperty("SERVER_ACTIVE", "true")); }
                         if (!AppSettings.ContainsKey("SERVER_ACTIVE_HOSTNAME")) { AppSettings.Add(new JProperty("SERVER_ACTIVE_HOSTNAME", "")); }
+                        if (!AppSettings.ContainsKey("LOCAL_PROJECT_DATA")) { AppSettings.Add(new JProperty("LOCAL_PROJECT_DATA", false)); }
                         if (!AppSettings.ContainsKey("Domain")) { AppSettings.Add(new JProperty("Domain", "USA.DCE.USPS.GOV")); }
                         if (!AppSettings.ContainsKey("ADUSAContainer")) { AppSettings.Add(new JProperty("ADUSAContainer", "DC=usa,DC=dce,DC=usps,DC=gov")); }
                         if (!AppSettings.ContainsKey("API_KEY")) { AppSettings.Add(new JProperty("API_KEY", "QUdWUE9SVEFMVXNlcjpBZ3ZQb3J0YWx1JGVyMDE=")); }
@@ -733,6 +677,7 @@ namespace Factory_of_the_Future
                     if (!AppSettings.ContainsKey("RETENTION_MAX_FILE_SIZE")) { AppSettings.Add(new JProperty("RETENTION_MAX_FILE_SIZE", "1073741824")); }
                     if (!AppSettings.ContainsKey("SERVER_ACTIVE")) { AppSettings.Add(new JProperty("SERVER_ACTIVE", "true")); }
                     if (!AppSettings.ContainsKey("SERVER_ACTIVE_HOSTNAME")) { AppSettings.Add(new JProperty("SERVER_ACTIVE_HOSTNAME", "")); }
+                    if (!AppSettings.ContainsKey("LOCAL_PROJECT_DATA")) { AppSettings.Add(new JProperty("LOCAL_PROJECT_DATA", false)); }
                     if (!AppSettings.ContainsKey("Domain")) { AppSettings.Add(new JProperty("Domain", "USA.DCE.USPS.GOV")); }
                     if (!AppSettings.ContainsKey("ADUSAContainer")) { AppSettings.Add(new JProperty("ADUSAContainer", "DC=usa,DC=dce,DC=usps,DC=gov")); }
                     if (!AppSettings.ContainsKey("API_KEY")) { AppSettings.Add(new JProperty("API_KEY", "QUdWUE9SVEFMVXNlcjpBZ3ZQb3J0YWx1JGVyMDE=")); }
@@ -849,176 +794,6 @@ namespace Factory_of_the_Future
                     StartProcess = new Data_Retention.StartProcess(manualEvents[0]);
                     ThreadPool.QueueUserWorkItem(new WaitCallback(StartDataRetentionProcess.StartProcess), StartProcess);
                     WaitHandle.WaitAll(manualEvents);
-                }
-            }
-            catch (Exception ex)
-            {
-                new ErrorLogger().ExceptionLog(ex);
-            }
-        }
-
-        private void APIWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
-        {
-            try
-            {
-                if (sender is BackgroundWorker worker)
-                {
-                    int hours = 0;
-                    int min = 0;
-                    int sec = 1;
-                    double tm = new TimeSpan(hours, min, sec).TotalMilliseconds;
-                    Thread.Sleep(Convert.ToInt32(tm));
-                    if (!APIStopWorker)
-                    {
-                        worker.RunWorkerAsync();
-                    }
-                    else
-                    {
-                        while (APIStopWorker)
-                        {
-                            Thread.Sleep(new TimeSpan(hours, min, sec).Milliseconds);
-                        }
-                        worker.RunWorkerAsync();
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                new ErrorLogger().ExceptionLog(ex);
-            }
-        }
-
-        private void APIDoWork(object sender, DoWorkEventArgs e)
-        {
-            try
-            {
-                if (Global.API_List.Count > 0)
-                {
-                    JArray svr_conn_list = new JArray();
-
-                    foreach (JObject item in Global.API_List.Values)
-                    {
-
-                        if ((bool)item.Property("ACTIVE_CONNECTION").Value)
-                        {
-                            if ((string)item.Property("MESSAGE_TYPE").Value != "getTagPosition")
-                            {
-                                if (DateTime.Now.Subtract((DateTime)item.Property("LASTTIME_API_CONNECTED").Value).TotalMilliseconds >= (double)item.Property("DATA_RETRIEVE").Value)
-                                {
-                                    svr_conn_list.Add(item);
-                                }
-                            }
-                        }
-                    }
-                    if (svr_conn_list.Count > 0)
-                    {
-                        //Parallel.ForEach(svr_conn_list, (requestUrl) => {
-                        //    ResultList.Add(HttpRequestHandler<string>.Get(requestUrl));
-                        //});
-                        //foreach (JObject item in svr_conn_list.Children())
-                        //{
-                        //    new HandleAsyncProcess(ProcessType.Parallel, true, item);
-                        //}
-                        SourceData_Process SourceData_list;
-                        ManualResetEvent[] manualEvents;
-                        manualEvents = new ManualResetEvent[svr_conn_list.Count];
-                        for (int i = 0; i < svr_conn_list.Count; i++)
-                        {
-                            manualEvents[i] = new ManualResetEvent(false);
-                            SourceData_list = new SourceData_Process((JObject)svr_conn_list[i], manualEvents[i]);
-                            ThreadPool.QueueUserWorkItem(new WaitCallback(SourceDataProcess.Start_processor), SourceData_list);
-                        }
-
-                        WaitHandle.WaitAll(manualEvents, -1, false);
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                new ErrorLogger().ExceptionLog(ex);
-            }
-        }
-
-        private void TagAPIWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
-        {
-            try
-            {
-                if (sender is BackgroundWorker worker)
-                {
-                    //int hours = 0;
-                    //int min = 0;
-                    //int sec = 1;
-                    //double tm = new TimeSpan(hours, min, sec).TotalMilliseconds;
-                    //Thread.Sleep(Convert.ToInt32(tm));
-                    if (!TagAPIStopWorker)
-                    {
-                        worker.RunWorkerAsync();
-                    }
-                    else
-                    {
-                        while (TagAPIStopWorker)
-                        {
-                            Thread.Sleep(250);
-                        }
-                        worker.RunWorkerAsync();
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                new ErrorLogger().ExceptionLog(ex);
-            }
-        }
-
-        private void TagAPIDoWork(object sender, DoWorkEventArgs e)
-        {
-            try
-            {
-                if (Global.API_List.Count > 0)
-                {
-                    JArray svr_conn_list = new JArray();
-
-                    foreach (JObject item in Global.API_List.Values)
-                    {
-                        if (item.ContainsKey("CONNECTION_NAME"))
-                        {
-                            if ((string)item.Property("MESSAGE_TYPE").Value == "getTagPosition" && (bool)item.Property("UDP_CONNECTION").Value == false)
-                            {
-                                if ((bool)item.Property("ACTIVE_CONNECTION").Value)
-                                {
-                                    if (DateTime.Now.Subtract((DateTime)item.Property("LASTTIME_API_CONNECTED").Value).TotalMilliseconds >= (int)item.Property("DATA_RETRIEVE").Value)
-                                    {
-                                        svr_conn_list.Add(item);
-                                    }
-                                }
-                                if ((bool)item.Property("ACTIVE_CONNECTION").Value == false && (bool)item.Property("API_CONNECTED").Value == true)
-                                {
-                                    if (Global.API_List.ContainsKey((int)item.Property("ID").Value))
-                                    {
-                                        if (Global.API_List.TryGetValue((int)item.Property("ID").Value, out JObject Svr_con))
-                                        {
-                                            Svr_con.Property("API_CONNECTED").Value = false;
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                    if (svr_conn_list.Count > 0)
-                    {
-                        SourceData_Process SourceData_list;
-                        ManualResetEvent[] manualEvents;
-                        manualEvents = new ManualResetEvent[svr_conn_list.Count];
-                        for (int i = 0; i < svr_conn_list.Count; i++)
-                        {
-
-                            manualEvents[i] = new ManualResetEvent(false);
-                            SourceData_list = new SourceData_Process((JObject)svr_conn_list[i], manualEvents[i]);
-                            ThreadPool.QueueUserWorkItem(new WaitCallback(SourceDataProcess.Start_processor), SourceData_list);
-                        }
-
-                        WaitHandle.WaitAll(manualEvents, -1, false);
-                    }
                 }
             }
             catch (Exception ex)

@@ -2,6 +2,158 @@
 * this is use to setup a the Notification information and other function
 *
 * **/
+
+$.extend(fotfmanager.client, {
+    updateNotification: async (updatenotification) => { updateNotification(updatenotification) }
+});
+$('#Notification_Setup_Modal').on('hidden.bs.modal', function () {
+    $(this)
+        .find("input[type=text],textarea,select")
+        .val('')
+        .end()
+        .find("span[class=text]")
+        .val('')
+        .text("")
+        .end()
+        .find('input[type=checkbox]')
+        .prop('checked', false).change()
+        .end();
+});
+$('#Notification_Setup_Modal').on('shown.bs.modal', function () {
+    $('.warning_conditionpickvalue').html($('input[id=warning_condition]').val());
+    $('input[id=warning_condition]').on('input change', () => {
+        $('.warning_conditionpickvalue').html($('input[id=warning_condition]').val());
+    });
+    $('.critical_conditionpickvalue').html($('input[id=critical_condition]').val());
+    $('input[id=critical_condition]').on('input change', () => {
+        $('.critical_conditionpickvalue').html($('input[id=critical_condition]').val());
+    });
+    $('span[id=error_notificationsubmitBtn]').text("");
+    //Condition name Validation
+    if (!checkValue($('input[type=text][name=condition_name]').val())) {
+        $('input[type=text][name=condition_name]').removeClass('is-valid').addClass('is-invalid');
+        $('span[id=error_condition_name]').text("Please enter Condition Name");
+    }
+    else {
+        $('input[type=text][name=condition_name]').removeClass('is-invalid').addClass('is-valid');
+        $('span[id=error_condition_name]').text("");
+    }
+    // condition Validation
+    if (!checkValue($('input[type=text][name=condition]').val())) {
+        $('input[type=text][name=condition]').removeClass('is-valid').addClass('is-invalid');
+        $('span[id=error_condition]').text("Please Enter Condition");
+    }
+    else {
+        $('input[type=text][name=condition]').removeClass('is-invalid').addClass('is-valid');
+        $('span[id=error_condition]').text("");
+    }
+    // condition_type type Validation
+    //if (!checkValue($('select[name=condition_type]').val())) {
+    //    $('select[name=condition_type]').removeClass('is-valid').addClass('is-invalid');
+    //    $('span[id=error_condition_type]').text("Please Select Condition Type");
+    //}
+    //else {
+    //    $('select[name=condition_type]').removeClass('is-invalid').addClass('is-valid');
+    //    $('span[id=error_condition_type]').text("");
+    //}
+    //warning_condition Validation
+    if (!checkValue($('input[type=text][name=warning_condition]').val())) {
+        $('input[type=text][name=warning_condition]').removeClass('is-valid').addClass('is-invalid');
+        $('span[id=error_warning_condition]').text("Please Condition Time in Minutes");
+    }
+    else {
+        $('input[type=text][name=warning_condition]').removeClass('is-invalid').addClass('is-valid');
+        $('span[id=warning_condition]').text("");
+    }
+    //critical_condition Validation
+    if (!checkValue($('input[type=text][name=critical_condition]').val())) {
+        $('input[type=text][name=critical_condition]').removeClass('is-valid').addClass('is-invalid');
+        $('span[id=error_critical_condition]').text("Please Condition Time in Minutes");
+    }
+    else {
+        $('input[type=text][name=critical_condition]').removeClass('is-invalid').addClass('is-valid');
+        $('span[id=error_critical_condition]').text("");
+    }
+    enableNotificationSubmit();
+
+    $('input[type=text][name=critical_condition]').keyup(function () {
+        if ($.isNumeric($('input[type=text][name=critical_condition]').val())) {
+            if (!validateNum(parseInt($('input[type=text][name=critical_condition]').val()), 0, 60)) {
+                $('input[type=text][name=critical_condition]').removeClass('is-valid').addClass('is-invalid');
+                $('span[id=error_critical_condition]').text("Invalid Number");
+            }
+            else {
+                $('input[type=text][name=critical_condition]').removeClass('is-invalid').addClass('is-valid');
+                $('span[id=error_critical_condition]').text("");
+            }
+        }
+        else if (checkValue($('input[type=text][name=critical_condition]').val())) {
+            $('input[type=text][name=critical_condition]').removeClass('is-valid').addClass('is-invalid');
+            $('span[id=error_critical_condition]').text("Enter Number");
+        }
+        else if (!checkValue($('input[type=text][name=critical_condition]').val())) {
+            $('input[type=text][name=critical_condition]').removeClass('is-valid').addClass('is-invalid');
+            $('span[id=error_critical_condition]').text("Enter Number");
+        }
+        enableNotificationSubmit();
+    });
+    $('input[type=text][name=warning_condition]').keyup(function () {
+        if ($.isNumeric($('input[type=text][name=warning_condition]').val())) {
+            if (!validateNum(parseInt($('input[type=text][name=warning_condition]').val()), 0, 60)) {
+                $('input[type=text][name=warning_condition]').removeClass('is-valid').addClass('is-invalid');
+                $('span[id=error_warning_condition]').text("Invalid Number");
+            }
+            else {
+                $('input[type=text][name=warning_condition]').removeClass('is-invalid').addClass('is-valid');
+                $('span[id=error_warning_condition]').text("");
+            }
+        }
+        else if (checkValue($('input[type=text][name=warning_condition]').val())) {
+            $('input[type=text][name=warning_condition]').removeClass('is-valid').addClass('is-invalid');
+            $('span[id=error_warning_condition]').text("Enter Number");
+        }
+        else if (!checkValue($('input[type=text][name=warning_condition]').val())) {
+            $('input[type=text][name=warning_condition]').removeClass('is-valid').addClass('is-invalid');
+            $('span[id=error_warning_condition]').text("Enter Number");
+        }
+        enableNotificationSubmit();
+    });
+    $('input[type=text][name=condition]').keyup(function () {
+        if (!checkValue($('input[type=text][name=condition]').val())) {
+            $('input[type=text][name=condition]').removeClass('is-valid').addClass('is-invalid');
+            $('span[id=error_condition]').text("Please Enter Condition");
+        }
+        else {
+            $('input[type=text][name=condition]').removeClass('is-invalid').addClass('is-valid');
+            $('span[id=error_condition]').text("");
+        }
+        enableNotificationSubmit();
+    });
+    $('input[type=text][name=condition_name]').keyup(function () {
+        //hostname Validation
+
+        if (!checkValue($('input[type=text][name=condition_name]').val())) {
+            $('input[type=text][name=condition_name]').removeClass('is-valid').addClass('is-invalid');
+            $('span[id=error_condition_name]').text("Please Enter Condition Name");
+        }
+        else {
+            $('input[type=text][name=condition_name]').removeClass('is-invalid').addClass('is-valid');
+            $('span[id=error_condition_name]').text("");
+        }
+        enableNotificationSubmit();
+    });
+    $('select[name=condition_type]').change(function () {
+        if (!checkValue($('select[name=condition_type]').val())) {
+            $('select[name=condition_type]').removeClass('is-valid').addClass('is-invalid');
+            $('span[id=error_servercontenttype]').text("Please Select Condition Type");
+        }
+        else {
+            $('select[name=condition_type]').removeClass('is-invalid').addClass('is-valid');
+            $('span[id=error_condition_type]').text("");
+        }
+        enableNotificationSubmit();
+    });
+});
 var notification = [];
 async function updateNotification(updatenotification) {
     try {
@@ -258,6 +410,27 @@ async function updateNotification(updatenotification) {
         console.log(e);
     }
 }
+
+function LoadNotificationsetup(Data, table) {
+    $.connection.FOTFManager.server.getNotification_ConditionsList(0).done(function (NotificationData) {
+        notificationTable_Body.empty();
+        $.each(NotificationData, function () {
+            notificationTable_Body.append(notificationTable_row_template.supplant(formatnotificationrow(this)));
+        });
+        $('button[name=notificationedit]').on('click', function () {
+            var td = $(this);
+            var tr = $(td).closest('tr'),
+                id = tr.attr('data-id');
+            Notificationsetup(id, table);
+        });
+        $('button[name=notificationdelete]').on('click', function () {
+            var td = $(this);
+            var tr = $(td).closest('tr'),
+                id = tr.attr('data-id');
+            NotificationRemove(id, table);
+        });
+    });
+}
 let row_template =
     '<tr data-id={id} style=background-color:{conditioncolor} data-toggle=collapse data-target=#{action_text} class=accordion-toggle>' +
     '<td>{name}</td>' +
@@ -280,75 +453,52 @@ function formatnotifirow(properties, indx) {
         indexobj: indx
     });
 }
-async function LoadNotificationsetup(data, table) {
-    $.connection.FOTFManager.server.getNotification_ConditionsList(0).done(function (NotificationData) {
-        $Table = $('table[id=' + table + ']');
-        $Table_Body = $Table.find('tbody');
+let notificationTable = $('table[id=notificationsetuptable]');
+let notificationTable_Body = notificationTable.find('tbody');
 
-        $Table_Body.empty();
-        $row_template = '<tr data-id="{id}" class="{button_collor}">' +
-            '<td>{name}</td>' +
-            '<td class="text-center">{warning}</td>' +
-            '<td class="text-center">{critical}</td>' +
-            '<td class="text-center">{status}</td>' +
-            '<td>' +
-            '<button class="btn btn-light btn-sm mx-1 pi-iconEdit" name="notificationedit"></button>' +
-            '<button class="btn btn-light btn-sm mx-1 pi-trashFill" name="notificationdelete"></button>' +
-            '</td>' +
-            '</tr>';
-
-        //format for the time
-        //current_run_start : 2021-05-25 13:30:54
-        function formatmachinetoprow(properties) {
-            return $.extend(properties, {
-                id: properties.ID,
-                name: properties.NAME,
-                type: properties.TYPE,
-                condition: properties.CONDITIONS,
-                warning: properties.WARNING,
-                warning_action: properties.WARNING_ACTION,
-                warning_color: properties.WARNING_COLOR,
-                critical: properties.CRITICAL,
-                critical_action: properties.CRITICAL_ACTION,
-                critical_color: properties.CRITICAL_COLOR,
-                status: GetnotificationStatus(properties),
-                button_collor: Get_notificationColor(properties)
-            });
-        }
-        $.each(NotificationData, function () {
-            $Table_Body.append($row_template.supplant(formatmachinetoprow(this)));
-        });
-        $('button[name=notificationedit]').on('click', function () {
-            var td = $(this);
-            var tr = $(td).closest('tr'),
-                id = tr.attr('data-id');
-            Notificationsetup(id, table);
-        });
-        $('button[name=notificationdelete]').on('click', function () {
-            var td = $(this);
-            var tr = $(td).closest('tr'),
-                id = tr.attr('data-id');
-            NotificationRemove(id, table);
-        });
-    });
-    function GetnotificationStatus(data) {
-        if (data.ACTIVE_CONDITION) {
-            return "Active";
-        }
-        else {
-            return "Disabled";
-        }
+let notificationTable_row_template = '<tr data-id="{id}" class="{button_collor}">' +
+    '<td>{name}</td>' +
+    '<td class="text-center">{warning}</td>' +
+    '<td class="text-center">{critical}</td>' +
+    '<td class="text-center">{status}</td>' +
+    '<td>' +
+    '<button class="btn btn-light btn-sm mx-1 pi-iconEdit" name="notificationedit"></button>' +
+    '<button class="btn btn-light btn-sm mx-1 pi-trashFill" name="notificationdelete"></button>' +
+    '</td>' +
+    '</tr>';
+function GetnotificationStatus(data) {
+    if (data.ACTIVE_CONDITION) {
+        return "Active";
     }
-    function Get_notificationColor(data) {
-        if (data.ACTIVE_CONDITION) {
-            return "table-success";
-        }
-        else {
-            return "table-warning";
-        }
+    else {
+        return "Disabled";
     }
 }
-async function Notificationsetup(data) {
+function Get_notificationColor(data) {
+    if (data.ACTIVE_CONDITION) {
+        return "table-success";
+    }
+    else {
+        return "table-warning";
+    }
+}
+function formatnotificationrow(properties) {
+    return $.extend(properties, {
+        id: properties.ID,
+        name: properties.NAME,
+        type: properties.TYPE,
+        condition: properties.CONDITIONS,
+        warning: properties.WARNING,
+        warning_action: properties.WARNING_ACTION,
+        warning_color: properties.WARNING_COLOR,
+        critical: properties.CRITICAL,
+        critical_action: properties.CRITICAL_ACTION,
+        critical_color: properties.CRITICAL_COLOR,
+        status: GetnotificationStatus(properties),
+        button_collor: Get_notificationColor(properties)
+    })
+}
+async function Notificationsetup(data,table) {
     if ($.isEmptyObject(data)) {
         $('#notification_SetupHeader').text('Add New Notification');
         sidebar.close('notificationsetup');
@@ -375,11 +525,11 @@ async function Notificationsetup(data) {
                     if (Data.length > 0) {
                         if (Data[0].hasOwnProperty("ERROR_MESSAGE")) {
                             $('span[id=error_notificationsubmitBtn]').text("Error " + Data[0].ERROR_MESSAGE);
-                            setTimeout(function () { $("#Notification_Setup_Modal").modal('hide'); }, 3000);
+                            setTimeout(function () { $("#Notification_Setup_Modal").modal('hide'); }, 1500);
                         }
                         else {
                             $('span[id=error_notificationsubmitBtn]').text("Condition has been Added");
-                            LoadNotificationsetup(Data, "notificationsetuptable");
+                            LoadNotificationsetup(Data, table);
                             setTimeout(function () { $("#Notification_Setup_Modal").modal('hide'); sidebar.open('notificationsetup'); }, 1500);
                         }
                     }
@@ -442,7 +592,7 @@ async function Notificationsetup(data) {
                             }
                             else {
                                 $('span[id=error_notificationsubmitBtn]').text("Condition has been Edited");
-                                LoadNotificationsetup(Data, "notificationsetuptable");
+                                LoadNotificationsetup(Data, table);
                                 setTimeout(function () { $("#Notification_Setup_Modal").modal('hide'); sidebar.open('notificationsetup'); }, 1500);
                             }
                         });
@@ -455,7 +605,7 @@ async function Notificationsetup(data) {
         }
     }
 }
-async function NotificationRemove(data) {
+async function NotificationRemove(data, table) {
     //RemoveNotificationModal
     if ($.isNumeric(data)) {
         var id = parseInt(data);
@@ -466,6 +616,7 @@ async function NotificationRemove(data) {
         $('button[id=removeNotification]').off().on('click', function () {
             var jsonObject = { ID: id };
             $.connection.FOTFManager.server.deleteNotification_Conditions(JSON.stringify(jsonObject)).done(function (Data) {
+                LoadNotificationsetup(Data, table);
                 setTimeout(function () { $("#RemoveNotificationModal").modal('hide'); sidebar.open('notificationsetup'); }, 1500);
                 $('#RemoveNotificationModal').modal();
             })
@@ -564,4 +715,4 @@ function calculateDuration(time) {
             return "";
         }
     }
-};
+}

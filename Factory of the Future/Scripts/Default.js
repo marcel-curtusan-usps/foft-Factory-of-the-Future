@@ -21,7 +21,7 @@ var sidebar = L.control.sidebar({
 var container = new L.FeatureGroup();
 
 let fotfmanager = $.connection.FOTFManager;
-$(function () {
+$(() => {
     $("form").submit(function () { return false; });
 
     setHeight();
@@ -30,154 +30,7 @@ $(function () {
     });
 
     //on close clear all IDS inputs
-    $('#Notification_Setup_Modal').on('hidden.bs.modal', () => {
-        $(this)
-            .find("input[type=text],textarea,select")
-            .val('')
-            .end()
-            .find("span[class=text]")
-            .val('')
-            .text("")
-            .end()
-            .find('input[type=checkbox]')
-            .prop('checked', false).change()
-            .end();
-    });
-    $('#Notification_Setup_Modal').on('shown.bs.modal', () => {
-        $('.warning_conditionpickvalue').html($('input[id=warning_condition]').val());
-        $('input[id=warning_condition]').on('input change', () => {
-            $('.warning_conditionpickvalue').html($('input[id=warning_condition]').val());
-        });
-        $('.critical_conditionpickvalue').html($('input[id=critical_condition]').val());
-        $('input[id=critical_condition]').on('input change', () => {
-            $('.critical_conditionpickvalue').html($('input[id=critical_condition]').val());
-        });
-        $('span[id=error_notificationsubmitBtn]').text("");
-        //Condition name Validation
-        if (!checkValue($('input[type=text][name=condition_name]').val())) {
-            $('input[type=text][name=condition_name]').removeClass('is-valid').addClass('is-invalid');
-            $('span[id=error_condition_name]').text("Please enter Condition Name");
-        }
-        else {
-            $('input[type=text][name=condition_name]').removeClass('is-invalid').addClass('is-valid');
-            $('span[id=error_condition_name]').text("");
-        }
-        // condition Validation
-        if (!checkValue($('input[type=text][name=condition]').val())) {
-            $('input[type=text][name=condition]').removeClass('is-valid').addClass('is-invalid');
-            $('span[id=error_condition]').text("Please Enter Condition");
-        }
-        else {
-            $('input[type=text][name=condition]').removeClass('is-invalid').addClass('is-valid');
-            $('span[id=error_condition]').text("");
-        }
-        // condition_type type Validation
-        //if (!checkValue($('select[name=condition_type]').val())) {
-        //    $('select[name=condition_type]').removeClass('is-valid').addClass('is-invalid');
-        //    $('span[id=error_condition_type]').text("Please Select Condition Type");
-        //}
-        //else {
-        //    $('select[name=condition_type]').removeClass('is-invalid').addClass('is-valid');
-        //    $('span[id=error_condition_type]').text("");
-        //}
-        //warning_condition Validation
-        if (!checkValue($('input[type=text][name=warning_condition]').val())) {
-            $('input[type=text][name=warning_condition]').removeClass('is-valid').addClass('is-invalid');
-            $('span[id=error_warning_condition]').text("Please Condition Time in Minutes");
-        }
-        else {
-            $('input[type=text][name=warning_condition]').removeClass('is-invalid').addClass('is-valid');
-            $('span[id=warning_condition]').text("");
-        }
-        //critical_condition Validation
-        if (!checkValue($('input[type=text][name=critical_condition]').val())) {
-            $('input[type=text][name=critical_condition]').removeClass('is-valid').addClass('is-invalid');
-            $('span[id=error_critical_condition]').text("Please Condition Time in Minutes");
-        }
-        else {
-            $('input[type=text][name=critical_condition]').removeClass('is-invalid').addClass('is-valid');
-            $('span[id=error_critical_condition]').text("");
-        }
-        enableNotificationSubmit();
 
-        $('input[type=text][name=critical_condition]').keyup(function () {
-            if ($.isNumeric($('input[type=text][name=critical_condition]').val())) {
-                if (!validateNum(parseInt($('input[type=text][name=critical_condition]').val()), 0, 60)) {
-                    $('input[type=text][name=critical_condition]').removeClass('is-valid').addClass('is-invalid');
-                    $('span[id=error_critical_condition]').text("Invalid Number");
-                }
-                else {
-                    $('input[type=text][name=critical_condition]').removeClass('is-invalid').addClass('is-valid');
-                    $('span[id=error_critical_condition]').text("");
-                }
-            }
-            else if (checkValue($('input[type=text][name=critical_condition]').val())) {
-                $('input[type=text][name=critical_condition]').removeClass('is-valid').addClass('is-invalid');
-                $('span[id=error_critical_condition]').text("Enter Number");
-            }
-            else if (!checkValue($('input[type=text][name=critical_condition]').val())) {
-                $('input[type=text][name=critical_condition]').removeClass('is-valid').addClass('is-invalid');
-                $('span[id=error_critical_condition]').text("Enter Number");
-            }
-            enableNotificationSubmit();
-        });
-        $('input[type=text][name=warning_condition]').keyup(function () {
-            if ($.isNumeric($('input[type=text][name=warning_condition]').val())) {
-                if (!validateNum(parseInt($('input[type=text][name=warning_condition]').val()), 0, 60)) {
-                    $('input[type=text][name=warning_condition]').removeClass('is-valid').addClass('is-invalid');
-                    $('span[id=error_warning_condition]').text("Invalid Number");
-                }
-                else {
-                    $('input[type=text][name=warning_condition]').removeClass('is-invalid').addClass('is-valid');
-                    $('span[id=error_warning_condition]').text("");
-                }
-            }
-            else if (checkValue($('input[type=text][name=warning_condition]').val())) {
-                $('input[type=text][name=warning_condition]').removeClass('is-valid').addClass('is-invalid');
-                $('span[id=error_warning_condition]').text("Enter Number");
-            }
-            else if (!checkValue($('input[type=text][name=warning_condition]').val())) {
-                $('input[type=text][name=warning_condition]').removeClass('is-valid').addClass('is-invalid');
-                $('span[id=error_warning_condition]').text("Enter Number");
-            }
-            enableNotificationSubmit();
-        });
-        $('input[type=text][name=condition]').keyup(function () {
-            if (!checkValue($('input[type=text][name=condition]').val())) {
-                $('input[type=text][name=condition]').removeClass('is-valid').addClass('is-invalid');
-                $('span[id=error_condition]').text("Please Enter Condition");
-            }
-            else {
-                $('input[type=text][name=condition]').removeClass('is-invalid').addClass('is-valid');
-                $('span[id=error_condition]').text("");
-            }
-            enableNotificationSubmit();
-        });
-        $('input[type=text][name=condition_name]').keyup(function () {
-            //hostname Validation
-
-            if (!checkValue($('input[type=text][name=condition_name]').val())) {
-                $('input[type=text][name=condition_name]').removeClass('is-valid').addClass('is-invalid');
-                $('span[id=error_condition_name]').text("Please Enter Condition Name");
-            }
-            else {
-                $('input[type=text][name=condition_name]').removeClass('is-invalid').addClass('is-valid');
-                $('span[id=error_condition_name]').text("");
-            }
-            enableNotificationSubmit();
-        });
-        $('select[name=condition_type]').change(function () {
-            if (!checkValue($('select[name=condition_type]').val())) {
-                $('select[name=condition_type]').removeClass('is-valid').addClass('is-invalid');
-                $('span[id=error_servercontenttype]').text("Please Select Condition Type");
-            }
-            else {
-                $('select[name=condition_type]').removeClass('is-invalid').addClass('is-valid');
-                $('span[id=error_condition_type]').text("");
-            }
-            enableNotificationSubmit();
-        });
-    });
     $('#CTS_Details_Modal').on('hidden.bs.modal', () => {
         $CTSDetails_Table = $('table[id=ctsdetailstable]');
         $CTSDetails_Table_Header = $CTSDetails_Table.find('thead');
@@ -188,315 +41,6 @@ $(function () {
     $('#CTS_Details_Modal').on('shown.bs.modal', () => {
         $("#modal-preloader").show();
     });
-    //on close clear all inputs
-    $('#API_Connection_Modal').on('hidden.bs.modal', function () {
-        $(this)
-            .find("input[type=text],textarea,select")
-            .css({ "border-color": "#D3D3D3" })
-            .val('')
-            .end()
-            .find("span[class=text]")
-            .css("border-color", "#FF0000")
-            .val('')
-            .text("")
-            .end()
-            .find('input[type=checkbox]')
-            .prop('checked', false).change();
-    });
-    //on open set rules
-    $('#API_Connection_Modal').on('shown.bs.modal', () => {
-        $('span[id=error_apisubmitBtn]').text("");
-        $('button[id=apisubmitBtn]').prop('disabled', true);
-        //Connection name Validation
-        if (!checkValue($('input[type=text][name=connection_name]').val())) {
-            $('input[type=text][name=connection_name]').css("border-color", "#FF0000").removeClass('is-valid').addClass('is-invalid');
-            $('span[id=error_connection_name]').text("Please Enter Connection Name");
-        }
-        else {
-            $('input[type=text][name=connection_name]').css("border-color", "#2eb82e").removeClass('is-invalid').addClass('is-valid');
-            $('span[id=error_connection_name]').text("");
-        }
-        //Connection name Keyup
-        $('input[type=text][name=connection_name]').keyup(function () {
-            if (!checkValue($('input[type=text][name=connection_name]').val())) {
-                $('input[type=text][name=connection_name]').css("border-color", "#FF0000").removeClass('is-valid').addClass('is-invalid');
-                $('span[id=error_connection_name]').text("Please Enter Connection Name");
-            }
-            else {
-                $('input[type=text][name=connection_name]').css("border-color", "#2eb82e").removeClass('is-invalid').addClass('is-valid');
-                $('span[id=error_connection_name]').text("");
-            }
-            if (!$('input[type=checkbox][name=udp_connection]').is(':checked')) {
-                enableConnectionSubmit();
-            }
-            else {
-                enableudpSubmit();
-            }
-        });
-
-        //Request Type Validation
-        if (!checkValue($('input[type=text][name=message_type]').val())) {
-            $('input[type=text][name=message_type]').css("border-color", "#FF0000").removeClass('is-valid').addClass('is-invalid');
-            $('span[id=error_message_type]').text("Please Enter Message Type");
-        }
-        else {
-            $('input[type=text][name=message_type]').css("border-color", "#2eb82e").removeClass('is-invalid').addClass('is-valid');
-            $('span[id=error_message_type]').text("");
-        }
-        //Request Type Keyup
-        $('input[type=text][name=message_type]').keyup(function () {
-            if (!checkValue($('input[type=text][name=message_type]').val())) {
-                $('input[type=text][name=message_type]').css("border-color", "#FF0000").removeClass('is-valid').addClass('is-invalid');
-                $('span[id=error_message_type]').text("Please Enter Message Type");
-            }
-            else {
-                $('input[type=text][name=message_type]').css("border-color", "#2eb82e").removeClass('is-invalid').addClass('is-valid');
-                $('span[id=error_message_type]').text("");
-            }
-            if (!$('input[type=checkbox][name=udp_connection]').is(':checked')) {
-                enableConnectionSubmit();
-            }
-            else {
-                enableudpSubmit();
-            }
-        });
-        //Data Retrieve Occurrences Validation
-        if (!checkValue($('select[name=data_retrieve] option:selected').val())) {
-            $('select[name=data_retrieve]').css("border-color", "#FF0000").removeClass('is-valid').addClass('is-invalid');
-            $('span[id=error_data_retrieve]').text("Select Data Retrieve Occurrences");
-        }
-        else {
-            $('select[name=data_retrieve]').css("border-color", "#2eb82e").removeClass('is-invalid').addClass('is-valid');
-            $('span[id=error_data_retrieve]').text("");
-        }
-        //Data Retrieve Occurrences Keyup
-        $('select[name=data_retrieve]').change(function () {
-            if (!checkValue($('select[name=data_retrieve] option:selected').val())) {
-                $('select[name=data_retrieve]').css("border-color", "#FF0000").removeClass('is-valid').addClass('is-invalid');
-                $('span[id=error_data_retrieve]').text("Select Data Retrieve Occurrences");
-            }
-            else {
-                $('select[name=data_retrieve]').css("border-color", "#2eb82e").removeClass('is-invalid').addClass('is-valid');
-                $('span[id=error_data_retrieve]').text("");
-            }
-            if (!$('input[type=checkbox][name=udp_connection]').is(':checked')) {
-                enableConnectionSubmit();
-            }
-            else {
-                enableudpSubmit();
-            }
-        });
-        // Address Validation
-        if (!checkValue($('input[type=text][name=ip_address]').val())) {
-            $('input[type=text][name=ip_address]').css("border-color", "#FF0000").removeClass('is-valid').addClass('is-invalid');
-            $('span[id=error_ip_address]').text("Please Enter Valid IP address");
-        }
-        else {
-            $('input[type=text][name=ip_address]').css("border-color", "#2eb82e").removeClass('is-invalid').addClass('is-valid');
-            $('span[id=error_ip_address]').text("");
-        }
-        //IP Address Keyup
-        $('input[type=text][name=ip_address]').keyup(function () {
-            if (IPAddress_validator($('input[type=text][name=ip_address]').val()) === 'Invalid IP Address') {
-                $('input[type=text][name=ip_address]').css("border-color", "#FF0000");
-                $('span[id=error_ip_address]').text("Please Enter Valid IP Address!");
-            }
-            else {
-                $('input[type=text][name=ip_address]').css({ "border-color": "#2eb82e" }).removeClass('is-invalid').addClass('is-valid');
-                $('span[id=error_ip_address]').text("");
-            }
-            enableConnectionSubmit();
-        });
-        //port Validation
-        if (!checkValue($('input[type=text][name=port_number]').val())) {
-            $('input[type=text][name=port_number]').css({ "border-color": "#FF0000" }).removeClass('is-valid').addClass('is-invalid');
-            $('span[id=error_port_number]').text("Please Enter Port Number");
-        }
-        else {
-            $('input[type=text][name=port_number]').css("border-color", "#2eb82e").removeClass('is-invalid').addClass('is-valid');
-            $('span[id=error_port_number]').text("");
-        }
-        //Port Keyup
-        $('input[type=text][name=port_number]').keyup(function () {
-            if ($.isNumeric($('input[type=text][name=port_number]').val())) {
-                if ($('input[type=text][name=port_number]').val().length > 65535) {
-                    $('input[type=text][name=port_number]').css({ "border-color": "#FF0000" }).removeClass('is-valid').addClass('is-invalid');
-                    $('span[id=error_port_number]').text("Please Enter Port Number!");
-                }
-                else if ($('input[type=text][name=port_number]').val().length < 0) {
-                    $('input[type=text][name=port_number]').css({ "border-color": "#FF0000" }).removeClass('is-valid').addClass('is-invalid');
-                    $('span[id=error_port_number]').text("Please Enter Port Number!");
-                }
-                else {
-                    $('input[type=text][name=port_number]').css({ "border-color": "#2eb82e" }).removeClass('is-invalid').addClass('is-valid');
-                    $('span[id=error_port_number]').text("");
-                }
-            }
-            else {
-                $('input[type=text][name=port_number]').css({ "border-color": "#FF0000" }).removeClass('is-valid').addClass('is-invalid');
-                $('span[id=error_port_number]').text("Please Enter Port Number!");
-            }
-            if (!$('input[type=checkbox][name=udp_connection]').is(':checked')) {
-                enableConnectionSubmit();
-            }
-            else {
-                enableudpSubmit();
-            }
-        });
-        //Vendor URL
-        if (!checkValue($('input[type=text][name=url]').val())) {
-            $('input[type=text][name=url]').css("border-color", "#FF0000").removeClass('is-valid').addClass('is-invalid');
-            $('span[id=error_url]').text("Please Enter API URL");
-        } else {
-            $('input[type=text][name=url]').css("border-color", "#2eb82e").removeClass('is-invalid').addClass('is-valid');
-            $('span[id=error_url]').text("");
-        }
-        //URL Keyup
-        $('input[type=text][name=url]').keyup(function () {
-            if (!checkValue($('input[type=text][name=url]').val())) {
-                $('input[type=text][name=url]').css("border-color", "#FF0000").removeClass('is-valid').addClass('is-invalid');
-                $('span[id=error_url]').text("Please Enter API URL");
-            }
-            else {
-                $('input[type=text][name=url]').css("border-color", "#2eb82e").removeClass('is-invalid').addClass('is-valid');
-                $('span[id=error_url]').text("");
-            }
-            enableConnectionSubmit();
-        });
-        //Administrator Email Address
-        if (!checkValue($('input[type=text][name=admin_email_recepient]').val())) {
-            $('input[type=text][name=admin_email_recepient]').css("border-color", "#FF0000").removeClass('is-valid').addClass('is-invalid');
-            $('span[id=error_admin_email_recepient]').text("Please Enter Administrator Email Address");
-        }
-        else {
-            $('input[type=text][name=admin_email_recepient]').css("border-color", "#2eb82e").removeClass('is-invalid').addClass('is-valid');
-            $('span[id=error_admin_email_recepient]').text("");
-        }
-        //Admin Email Key-up
-        $('input[type=text][name=admin_email_recepient]').keyup(function () {
-            if (!checkValue($('input[type=text][name=admin_email_recepient]').val())) {
-                $('input[type=text][name=admin_email_recepient]').css("border-color", "#FF0000").removeClass('is-valid').addClass('is-invalid');
-                $('span[id=error_admin_email_recepient]').text("Please Enter Administrator Email Address");
-            }
-            else {
-                $('input[type=text][name=admin_email_recepient]').css("border-color", "#2eb82e").removeClass('is-invalid').addClass('is-valid');
-                $('span[id=error_admin_email_recepient]').text("");
-            }
-            if (!$('input[type=checkbox][name=udp_connection]').is(':checked')) {
-                enableConnectionSubmit();
-            }
-            else {
-                enableudpSubmit();
-            }
-        });
-        //outapikey Validation
-        if (!checkValue($('input[type=text][name=outgoingapikey]').val())) {
-            $('input[type=text][name=outgoingapikey]').css("border-color", "#FF0000").removeClass('is-valid').addClass('is-invalid');
-            $('span[id=error_outgoingapikey]').text("Please Enter API Key");
-        }
-        else {
-            $('input[type=text][name=outgoingapikey]').css("border-color", "#2eb82e").removeClass('is-invalid').addClass('is-valid');
-            $('span[id=error_outgoingapikey]').text("");
-        }
-        //Admin Email Keyup
-        $('input[type=text][name=outgoingapikey]').keyup(function () {
-            if (!checkValue($('input[type=text][name=outgoingapikey]').val())) {
-                $('input[type=text][name=outgoingapikey]').css("border-color", "#FF0000").removeClass('is-valid').addClass('is-invalid');
-                $('span[id=error_outgoingapikey]').text("Please Enter API Key");
-            }
-            else {
-                $('input[type=text][name=outgoingapikey]').css("border-color", "#2eb82e").removeClass('is-invalid').addClass('is-valid');
-                $('span[id=error_outgoingapikey]').text("");
-            }
-            enableConnectionSubmit();
-        });
-        if ($('input[type=checkbox][name=udp_connection]').is(':checked')) {
-            $('input[type=text][name=url]').prop("disabled", true);
-            $('input[type=text][name=url]').val('');
-            $('input[type=text][name=url]').css("border-color", "#D3D3D3").removeClass('is-valid').removeClass('is-invalid');
-            $('span[id=error_url]').text("");
-            $('input[type=text][name=outgoingapikey]').prop("disabled", true);
-            $('input[type=text][name=outgoingapikey]').val('');
-            $('input[type=text][name=outgoingapikey]').css("border-color", "#D3D3D3").removeClass('is-valid').removeClass('is-invalid');
-            $('span[id=error_outgoingapikey]').text("");
-            $('input[type=text][name=ip_address]').prop("disabled", true);
-            $('input[type=text][name=ip_address]').val('');
-            $('input[type=text][name=ip_address]').css("border-color", "#D3D3D3").removeClass('is-valid').removeClass('is-invalid');
-            $('span[id=error_ip_address]').text("");
-            $('input[type=text][name=hostanme]').prop("disabled", true);
-            $('input[type=text][name=hostanme]').val('');
-            $('input[type=text][name=hostanme]').css("border-color", "#D3D3D3").removeClass('is-valid').removeClass('is-invalid');
-            $('span[id=error_hostanme]').text("");
-            $('select[name=data_retrieve]').prop("disabled", true);
-            $('select[name=data_retrieve]').val(' ');
-            $('select[name=data_retrieve]').css("border-color", "#D3D3D3").removeClass('is-valid').removeClass('is-invalid');
-            $('span[id=error_data_retrieve]').text("");
-        }
-        $('input[type=checkbox][name=udp_connection]').change(() => {
-            if (!$('input[type=checkbox][name=udp_connection]').is(':checked')) {
-                $('input[type=text][name=url]').prop("disabled", false);
-                if (!checkValue($('input[type=text][name=url]').val())) {
-                    $('input[type=text][name=url]').css("border-color", "#FF0000").removeClass('is-valid').addClass('is-invalid');
-                    $('span[id=error_url]').text("Please Enter API URL");
-                } else {
-                    $('input[type=text][name=url]').css("border-color", "#2eb82e").removeClass('is-invalid').addClass('is-valid');
-                    $('span[id=error_url]').text("");
-                }
-                $('input[type=text][name=outgoingapikey]').prop("disabled", false);
-                if (!checkValue($('input[type=text][name=outgoingapikey]').val())) {
-                    $('input[type=text][name=outgoingapikey]').css("border-color", "#FF0000").removeClass('is-valid').addClass('is-invalid');
-                    $('span[id=error_outgoingapikey]').text("Please Enter API Key");
-                }
-                else {
-                    $('input[type=text][name=outgoingapikey]').css("border-color", "#2eb82e").removeClass('is-invalid').addClass('is-valid');
-                    $('span[id=error_outgoingapikey]').text("");
-                }
-                $('input[type=text][name=hostanme]').prop("disabled", false);
-                //
-                $('select[name=data_retrieve]').prop("disabled", false);
-                if (!checkValue($('select[name=data_retrieve] option:selected').val())) {
-                    $('select[name=data_retrieve]').css("border-color", "#FF0000").removeClass('is-valid').addClass('is-invalid');
-                    $('span[id=error_data_retrieve]').text("Select Data Retrieve Occurrences");
-                }
-                else {
-                    $('select[name=data_retrieve]').css("border-color", "#2eb82e").removeClass('is-invalid').addClass('is-valid');
-                    $('span[id=error_data_retrieve]').text("");
-                }
-                $('input[type=text][name=ip_address]').prop("disabled", false);
-                if (!checkValue($('input[type=text][name=ip_address]').val())) {
-                    $('input[type=text][name=ip_address]').css("border-color", "#FF0000").removeClass('is-valid').addClass('is-invalid');
-                    $('span[id=error_ip_address]').text("Please Enter Valid IP address");
-                }
-                else {
-                    $('input[type=text][name=ip_address]').css("border-color", "#2eb82e").removeClass('is-invalid').addClass('is-valid');
-                    $('span[id=error_ip_address]').text("");
-                }
-            }
-            else {
-                $('input[type=text][name=url]').prop("disabled", true);
-                $('input[type=text][name=url]').val('');
-                $('input[type=text][name=url]').css("border-color", "#D3D3D3").removeClass('is-valid').removeClass('is-invalid');
-                $('span[id=error_url]').text("");
-                $('input[type=text][name=outgoingapikey]').prop("disabled", true);
-                $('input[type=text][name=outgoingapikey]').val('');
-                $('input[type=text][name=outgoingapikey]').css("border-color", "#D3D3D3").removeClass('is-valid').removeClass('is-invalid');
-                $('span[id=error_outgoingapikey]').text("");
-                $('input[type=text][name=ip_address]').prop("disabled", true);
-                $('input[type=text][name=ip_address]').val('');
-                $('input[type=text][name=ip_address]').css("border-color", "#D3D3D3").removeClass('is-valid').removeClass('is-invalid');
-                $('span[id=error_ip_address]').text("");
-                $('input[type=text][name=hostanme]').prop("disabled", true);
-                $('input[type=text][name=hostanme]').val('');
-                $('input[type=text][name=hostanme]').css("border-color", "#D3D3D3").removeClass('is-valid').removeClass('is-invalid');
-                $('span[id=error_hostanme]').text("");
-                $('select[name=data_retrieve]').prop("disabled", true);
-                $('select[name=data_retrieve]').val(' ');
-                $('select[name=data_retrieve]').css("border-color", "#D3D3D3").removeClass('is-valid').removeClass('is-invalid');
-                $('span[id=error_data_retrieve]').text("");
-            }
-        });
-    });
-
     $('#UserTag_Modal').on('hidden.bs.modal', function () {
         $(this)
             .find("input[type=text],textarea,select")
@@ -515,90 +59,7 @@ $(function () {
             $('#UserTag_Modal').addClass('modal-open');
         }
     });
-    //on close clear all inputs
-    $('#Zone_Modal').on('hidden.bs.modal', function () {
-        $(this)
-            .find("input[type=text],textarea,select")
-            .css({ "border-color": "#D3D3D3" })
-            .val('')
-            .end()
-            .find("span[class=text]")
-            .css("border-color", "#FF0000")
-            .val('')
-            .text("")
-            .end()
-            .find('input[type=checkbox]')
-            .prop('checked', false).change();
-    });
-    //on open set rules
-    $('#Zone_Modal').on('shown.bs.modal', () => {
-        $('span[id=error_machinesubmitBtn]').text("");
-        $('button[id=machinesubmitBtn]').prop('disabled', true);
-        //Request Type Keyup
-        $('input[type=text][name=machine_name]').keyup(function () {
-            if (!checkValue($('input[type=text][name=machine_name]').val())) {
-                $('input[type=text][name=machine_name]').css("border-color", "#FF0000").removeClass('is-valid').addClass('is-invalid');
-                $('span[id=error_machine_name]').text("Please Enter Machine Name");
-            }
-            else {
-                $('input[type=text][name=machine_name]').css("border-color", "#2eb82e").removeClass('is-invalid').addClass('is-valid');
-                $('span[id=error_machine_name]').text("");
-            }
 
-            enablezoneSubmit();
-        });
-        //Connection name Validation
-        if (!checkValue($('input[type=text][name=machine_name]').val())) {
-            $('input[type=text][name=machine_name]').css("border-color", "#FF0000").removeClass('is-valid').addClass('is-invalid');
-            $('span[id=error_machine_name]').text("Please Enter Machine Name");
-        }
-        else {
-            $('input[type=text][name=machine_name]').css("border-color", "#2eb82e").removeClass('is-invalid').addClass('is-valid');
-            $('span[id=error_machine_name]').text("");
-        }
-        //Request Type Keyup
-        $('input[type=text][name=machine_number]').keyup(function () {
-            if (!checkValue($('input[type=text][name=machine_number]').val())) {
-                $('input[type=text][name=machine_number]').css("border-color", "#FF0000").removeClass('is-valid').addClass('is-invalid');
-                $('span[id=error_machine_number]').text("Please Enter Machine Number");
-            }
-            else {
-                $('input[type=text][name=machine_number]').css("border-color", "#2eb82e").removeClass('is-invalid').addClass('is-valid');
-                $('span[id=error_machine_number]').text("");
-            }
-
-            enablezoneSubmit();
-        });
-        //Request Type Validation
-        if (!checkValue($('input[type=text][name=machine_number]').val())) {
-            $('input[type=text][name=machine_number]').css("border-color", "#FF0000").removeClass('is-valid').addClass('is-invalid');
-            $('span[id=error_machine_number]').text("Please Enter Machine Number");
-        }
-        else {
-            $('input[type=text][name=machine_number]').css("border-color", "#2eb82e").removeClass('is-invalid').addClass('is-valid');
-            $('span[id=error_machine_number]').text("");
-        }
-        //Request Type Validation
-        if (checkValue($('input[type=text][name=zone_ldc]').val())) {
-            $('input[type=text][name=zone_ldc]').css("border-color", "#2eb82e").removeClass('is-invalid').addClass('is-valid');
-            $('span[id=error_zone_ldc]').text("");
-        }
-        else {
-            $('input[type=text][name=zone_ldc]').css("border-color", "#D3D3D3").removeClass('is-invalid').removeClass('is-valid');
-            $('span[id=error_zone_ldc]').text("");
-        }
-        //Request zone LDC Keyup
-        $('input[type=text][name=zone_ldc]').keyup(function () {
-            if (checkValue($('input[type=text][name=zone_ldc]').val())) {
-                $('input[type=text][name=zone_ldc]').css("border-color", "#2eb82e").removeClass('is-invalid').addClass('is-valid');
-                $('span[id=error_zone_ldc]').text("");
-            }
-            else {
-                $('input[type=text][name=zone_ldc]').css("border-color", "#D3D3D3").removeClass('is-invalid').removeClass('is-valid');
-                $('span[id=error_zone_ldc]').text("");
-            }
-        });
-    });
     $('input[id=warning_condition]').on("slide", function (slideEvt) {
         $('span[id=warning_conditionpickvalue]').text(slideEvt.value);
     });
@@ -619,211 +80,7 @@ $(function () {
                 }
             }
 
-        },
-
-        updateQSMStatus: async (Connectionupdate) => { updateConnection(Connectionupdate) },
-        updatePersonTagStatus: async (tagupdate) => { updatePersonTag(tagupdate) },
-        updateVehicleTagStatus: async (vehicleupdate) => { updateVehicleTag(vehicleupdate) },
-        updateDockDoorStatus: async (dockdoorupdate) => { updateDockDoorZone(dockdoorupdate) },
-        updateMachineStatus: async (updateMachine) => { updateMachineZone(updateMachine) },
-        updateAGVLocationStatus: async (updateAGVLocation) => { updateAGVLocationZone(updateAGVLocation) },
-        updateStageZoneStatus: async (updateStage) => { updateStageZone(updateStage) },
-        updateNotification: async (updatenotification) => { updateNotification(updatenotification) },
-        /*Trips calls*/
-        updateTripsStatus: async (updatetripsstatus) => { updateTrips(updatetripsstatus)} ,
-
-        /*re-factor the CTS Calls*/
-        //updateCTSDepartedStatus: async (CTSData) => {
-        //    try {
-        //        $ctsdockDcardtop_Table = $('table[id=ctsdockdepartedtable]');
-        //        $ctsdockDcardtop_Table_Body = $ctsdockDcardtop_Table.find('tbody');
-        //        $ctsdockDcardtop_row_template = '<tr data-id=ctsOB_{routetrip} data-route={route} data-trip={trip}  data-door={door}  class={trbackground}>' +
-        //            '<td class="text-center">{schd}</td>' +
-        //            '<td class="text-center">{departed}</td>' +
-        //            '<td class="{background}">{btnloadDoor}</td>' +
-        //            '<td class="text-center">{leg}</td>' +
-        //            '<td data-toggle="tooltip" title="{dest}">{dest}</td>' +
-        //            '<td class="text-center">{close}</td>' +
-        //            '<td class="text-center">{load}</td>' +
-        //            '<td>{btnloadPercent}</td>' +
-        //            '</tr>"';
-
-        //        function formatctsdockDcardtoprow(properties) {
-        //            return $.extend(properties, {
-        //                schd: checkValue(properties.ScheduledTZ) ? formatTime(properties.ScheduledTZ) : "",
-        //                departed: checkValue(properties.DepartedTZ) ? formatTime(properties.DepartedTZ) : "",
-        //                door: checkValue(properties.Door) ? properties.Door : "",
-        //                routetrip: properties.Route + properties.Trip,
-        //                route: properties.Route,
-        //                trip: properties.Trip,
-        //                leg: properties.Leg,
-        //                dest: properties.Destination,
-        //                load: properties.Load,
-        //                background: checkValue(properties.Door) ? "" : "purpleBg",
-        //                trbackground: "",// Gettimediff(properties.ScheduledTZ),
-        //                close: properties.Closed,
-        //                btnloadPercent: Load_btn_details(properties),
-        //                btnloadDoor: Load_btn_door(properties),
-        //                dataproperties: properties
-        //            });
-        //        }
-        //        var findtrdataid = $ctsdockDcardtop_Table_Body.find('tr[data-id=ctsOB_' + CTSData.Route + CTSData.Trip + ']');
-        //        if (findtrdataid.length > 0) {
-        //            if (CTSData.CTS_Remove) {
-        //                $ctsdockDcardtop_Table_Body.find('tr[data-id=ctsOB_' + CTSData.Route + CTSData.Trip + ']').remove();
-        //            }
-        //            else {
-        //                $ctsdockDcardtop_Table_Body.find('tr[data-id=ctsOB_' + CTSData.Route + CTSData.Trip + ']').replaceWith($ctsdockDcardtop_row_template.supplant(formatctsdockDcardtoprow(CTSData)));
-        //            }
-        //        }
-        //        else {
-        //            if (!CTSData.CTS_Remove) {
-        //                $ctsdockDcardtop_Table_Body.append($ctsdockDcardtop_row_template.supplant(formatctsdockDcardtoprow(CTSData)));
-        //            }
-        //        }
-        //    } catch (e) {
-        //        console.log(e);
-        //    }
-        //},
-        //updateCTSLocalDepartedStatus: async (CTSlocalData) => {
-        //    try {
-        //        $ctslocaldockDcardtop_Table = $('table[id=ctslocaldockdepartedtable]');
-        //        $ctslocaldockDcardtop_Table_Body = $ctslocaldockDcardtop_Table.find('tbody');
-        //        $ctslocalcard_row_template = '<tr data-id=localctsOB_{routetrip} data-route={route} data-trip={trip} data-door={door} class={trbackground}>' +
-        //            '<td class="text-center">{schd}</td>' +
-        //            '<td class="text-center">{departed}</td>' +
-        //            '<td class="{background}">{btnloadDoor}</td>' +
-        //            '<td class="text-center">{leg}</td>' +
-        //            '<td data-toggle="tooltip" title="{dest}">{dest}</td>' +
-        //            '<td class="text-center">{close}</td>' +
-        //            '<td class="text-center">{load}</td>' +
-        //            '<td>{loadPercent}</td>' +
-        //            '</tr>"';
-
-        //        function formatctslocaldockDcardtoprow(properties) {
-        //            return $.extend(properties, {
-        //                schd: checkValue(properties.ScheduledTZ) ? moment(properties.ScheduledTZ).format("HH:mm") : "",
-        //                departed: checkValue(properties.DepartedTZ) ? moment(properties.DepartedTZ).format("HH:mm") : "",
-        //                door: checkValue(properties.Door) ? properties.Door : "",
-        //                routetrip: properties.Route + properties.Trip,
-        //                route: properties.Route,
-        //                trip: properties.Trip,
-        //                leg: properties.Leg,
-        //                dest: properties.Destination,
-        //                load: properties.Load,
-        //                background: checkValue(properties.Door) ? "" : "purpleBg",
-        //                trbackground: "",// Gettimediff(properties.ScheduledTZ),
-        //                close: properties.Closed,
-        //                loadPercent: '<button class="btn btn-outline-info btn-sm btn-block" disabled name="ctsdetails">' + properties.LoadPercent + '%</button>',
-        //                btnloadDoor: Load_btn_door(properties),
-        //                dataproperties: properties
-        //            });
-        //        }
-        //        var findtrdataid = $ctslocaldockDcardtop_Table_Body.find('tr[data-id=localctsOB_' + CTSlocalData.Route + CTSlocalData.Trip + ']');
-        //        if (findtrdataid.length > 0) {
-        //            if (CTSlocalData.CTS_Remove) {
-        //                $ctslocaldockDcardtop_Table_Body.find('tr[data-id=localctsOB_' + CTSlocalData.Route + CTSlocalData.Trip + ']').remove();
-        //            }
-        //            else {
-        //                $ctslocaldockDcardtop_Table_Body.find('tr[data-id=localctsOB_' + CTSlocalData.Route + CTSlocalData.Trip + ']').replaceWith($ctslocalcard_row_template.supplant(formatctslocaldockDcardtoprow(CTSlocalData)));
-        //            }
-        //        }
-        //        else {
-        //            if (!CTSlocalData.CTS_Remove) {
-        //                $ctslocaldockDcardtop_Table_Body.append($ctslocalcard_row_template.supplant(formatctslocaldockDcardtoprow(CTSlocalData)));
-        //            }
-        //        }
-        //    } catch (e) {
-        //        console.log(e)
-        //    }
-        //},
-        //updateCTSInboundStatus: async (CTSInboundData) => {
-        //    try {
-        //        $ctsIncardtop_Table = $('table[id=ctsintoptable]');
-        //        $ctsIncardtop_Table_Body = $ctsIncardtop_Table.find('tbody');
-        //        $ctsIncardtop_row_template = '<tr data-id="in_{routetrip}" data-door="{door}">' +
-        //            '<td class="text-center" class="{inbackground}">{sch_Arrive}</td>' +
-        //            '<td class="text-center" class="{inbackground}">{arrived}</td>' +
-        //            '<td class="text-center" class="{background}">{btnloadDoor}</td>' +
-        //            '<td class="text-center">{leg_Origin}</td>' +
-        //            '<td data-toggle="tooltip" title="{site_Name}">{site_Name}</td>' +
-        //            '</tr>';
-
-        //        function formatctsIncardtoprow(properties) {
-        //            return $.extend(properties, {
-        //                sch_Arrive: checkValue(properties.ScheduledTZ) ? formatTime(properties.ScheduledTZ) : "",
-        //                arrived: checkValue(properties.ActualTZ) ? formatTime(properties.ActualTZ) : "",
-        //                routetrip: properties.RouteID + properties.TripID,
-        //                door: properties.hasOwnProperty("doorNumber") ? properties.doorNumber : "",
-        //                route: properties.RouteID,
-        //                trip: properties.TripID,
-        //                inbackground: "", //GettimediffforInbound(properties.Scheduled, properties.Actual),
-        //                leg_Origin: properties.LegOrigin,
-        //                site_Name: properties.SiteName,
-        //                btnloadDoor: Load_btn_door(properties)
-        //            });
-        //        }
-        //        var findtrdataid = $ctsIncardtop_Table_Body.find('tr[data-id=in_' + CTSInboundData.RouteID + CTSInboundData.TripID + ']');
-        //        if (findtrdataid.length > 0) {
-        //            if (CTSInboundData.CTS_Remove) {
-        //                $ctsIncardtop_Table_Body.find('tr[data-id=in_' + CTSInboundData.RouteID + CTSInboundData.TripID + ']').remove();
-        //            }
-        //            else {
-        //                $ctsIncardtop_Table_Body.find('tr[data-id=in_' + CTSInboundData.RouteID + CTSInboundData.TripID + ']').replaceWith($ctsIncardtop_row_template.supplant(formatctsIncardtoprow(CTSInboundData)));
-        //            }
-        //        }
-        //        else {
-        //            if (!CTSInboundData.CTS_Remove) {
-        //                $ctsIncardtop_Table_Body.append($ctsIncardtop_row_template.supplant(formatctsIncardtoprow(CTSInboundData)));
-        //            }
-        //        }
-        //    } catch (e) {
-        //        console.log(e)
-        //    }
-        //},
-        //updateCTSOutoundStatus: async (CTSOutoundData) => {
-        //    try {
-        //        $ctsOutcardtop_Table = $('table[id=ctsouttoptable]');
-        //        $ctsOutcardtop_Table_Body = $ctsOutcardtop_Table.find('tbody');
-        //        $ctsOutcardtop_row_template = '<tr data-id=out_{routetrip} data-door={door} >' +
-        //            '<td class="text-center" class="{inbackground}">{sch_Arrive}</td>' +
-        //            '<td class="text-center" class="{inbackground}">{arrived}</td>' +
-        //            '<td class="text-center" class="{background}">{btnloadDoor}</td>' +
-        //            '<td class="text-center">{leg_Origin}</td>' +
-        //            '<td data-toggle="tooltip" title="{site_Name}">{site_Name}</td>' +
-        //            '</tr>';
-
-        //        function formatctsOutcardtoprow(properties) {
-        //            return $.extend(properties, {
-        //                sch_Arrive: checkValue(properties.ScheduledTZ) ? moment(properties.ScheduledTZ).format("HH:mm") : "",
-        //                arrived: checkValue(properties.ActualTZ) ? moment(properties.ActualTZ).format("HH:mm") : "",
-        //                routetrip: properties.RouteID + properties.TripID,
-        //                door: properties.hasOwnProperty("doorNumber") ? properties.doorNumber : "",
-        //                route: properties.RouteID,
-        //                trip: properties.TripID,
-        //                firstlegDest: checkValue(properties.FirstLegDest) ? properties.FirstLegDest : "",
-        //                firstlegSite: checkValue(properties.FirstLegSite) ? properties.FirstLegSite : "",
-        //                btnloadDoor: Load_btn_door(properties)
-        //            });
-        //        }
-        //        var findtrdataid = $ctsOutcardtop_Table_Body.find('tr[data-id=out_' + CTSOutoundData.RouteID + CTSOutoundData.TripID + ']');
-        //        if (findtrdataid.length > 0) {
-        //            if (CTSOutoundData.CTS_Remove) {
-        //                $ctsOutcardtop_Table_Body.find('tr[data-id=out_' + CTSOutoundData.RouteID + CTSOutoundData.TripID + ']').remove();
-        //            }
-        //            else {
-        //                $ctsOutcardtop_Table_Body.find('tr[data-id=out_' + CTSOutoundData.RouteID + CTSOutoundData.TripID + ']').replaceWith($ctsOutcardtop_row_template.supplant(formatctsOutcardtoprow(CTSOutoundData)));
-        //            }
-        //        }
-        //        else {
-        //            if (!CTSOutoundData.CTS_Remove) {
-        //                $ctsOutcardtop_Table_Body.append($ctsOutcardtop_row_template.supplant(formatctsOutcardtoprow(CTSOutoundData)));
-        //            }
-        //        }
-        //    } catch (e) {
-        //        console.log(e);
-        //    }
-        //},
+        }
         
     });
     //setup map
@@ -837,11 +94,12 @@ $(function () {
         zoomControl: false,
         measureControl: true,
         tap: false,
-        layers: [polygonMachine, vehicles, agvLocations, container, stagingAreas, circleMarker,dockDoors]
+        layers: [polygonMachine, vehicles, agvLocations, container, stagingAreas, circleMarker, dockDoors, locatorMarker]
     });
     var overlayMaps = {
         "Vehicles Tag": vehicles,
         "SELS Tag": circleMarker,
+        "Locators": locatorMarker,
         "AGV Locations": agvLocations,
         "MPE Work Areas": polygonMachine,
         "Dock Doors": dockDoors,
@@ -853,36 +111,17 @@ $(function () {
         "Polygon Holes": polyholesAreas
     };
 
-    /**zoom function ingress or decrees the size of the icon */
-    //map.on('zoom', function () {
-    //    var currentZoom = map.getZoom();
-    //    if (currentZoom > 12) {
-    //        markerslayer.eachLayer(function (layer) {
-    //            if (layer.feature.properties.num < 0.5)
-    //                return layer.setIcon(ar_icon_1);
-    //            else if (feature.properties.num < 1.0)
-    //                return layer.setIcon(ar_icon_2);
-    //        });
-    //    } else {
-    //        markerslayer.eachLayer(function (layer) {
-    //            if (layer.feature.properties.num < 0.5)
-    //                return layer.setIcon(ar_icon_1_double_size);
-    //            else if (feature.properties.num < 1.0)
-    //                return layer.setIcon(ar_icon_2_double_size);
-    //        });
-    //    }
-    //});
 
     var timedisplay = L.Control.extend({
         options: {
             position: 'topright'
         },
         onAdd: function () {
-            var container = L.DomUtil.create('input');
-            container.id = "localTime";
-            container.type = "button";
-            container.className = "btn btn-secondary btn-sm";
-            return container;
+            var Domcntainer = L.DomUtil.create('input');
+            Domcntainer.id = "localTime";
+            Domcntainer.type = "button";
+            Domcntainer.className = "btn btn-secondary btn-sm";
+            return Domcntainer;
         }
     });
     map.addControl(new timedisplay());
@@ -917,39 +156,32 @@ $(function () {
    
     map.addControl(sidebar);
     sidebar.on('content', function (ev) {
+        sidebar.options.autopan = false;
         switch (ev.id) {
             case 'autopan':
-                sidebar.options.autopan = false;
                 break;
             case 'setting':
-                sidebar.options.autopan = false;
                 Edit_AppSetting("app_settingtable");
                 break;
             case 'reports':
                 GetUserInfo();
-                sidebar.options.autopan = false;
                 break;
             case 'userprofile':
                 GetUserProfile();
-                sidebar.options.autopan = false;
                 break;
             case 'agvnotificationinfo':
                 GetAGVnotificationinfoInfo("agvnotificationtable", "vehicle");
-                sidebar.options.autopan = false;
                 break;
             case 'ctsnotificationinfo':
                 GetCTSnotificationinfoInfo("ctsnotificationtable", "cts");
-                sidebar.options.autopan = false;
                 break;
             case 'notificationsetup':
-                sidebar.options.autopan = false;
                 LoadNotificationsetup({}, "notificationsetuptable");
                 break;
             default:
                 sidebar.options.autopan = false;
+                break;
         }
-    });
-    sidebar.on('closing', function (ev) {
     });
 
     $('#fotf-sidebar-close').on('click', function () {
@@ -1288,47 +520,21 @@ $(function () {
                         '</div >' +
                         '</div></div>'
                 });
+                init_connection();
+               // init_geometry_editing();
                 $('button[name=addconnection]').off().on('click', function () {
                     /* close the sidebar */
                     sidebar.close();
                     Add_Connection();
                 });
                 $('button[name=machineinfoedit]').css('display', 'block');
-                ////this for later
-                //var draw_options = {
-                //    position: 'topleft',
-                //    oneBlock: true,
-                //    snappingOption: false,
-                //    drawRectangle: true,
-                //    drawMarker: false,
-                //    drawPolygon: false,
-                //    drawPolyline: false,
-                //    drawCircleMarker: false,
-                //    drawCircle: false,
-                //    editMode: false,
-                //    cutPolygon: false,
-                //    dragMode: false
-                //};
-                //map.pm.addControls(draw_options);
-                //map.on('pm:create', function (e) {
-                //    var togeo = e.layer.toGeoJSON();
-                //    var geoProp = {
-                //        id: uuidv4(),
-                //        name: "",
-                //        location: "",
-                //        location_Type: "",
-                //        location_Update: "",
-                //        visible: false
-                //    }
-                //    togeo.properties = geoProp;
-                //    togeo.properties.visible = true;
-                //});
+            
             }
 
             $('button[name=addnotificationsetup]').off().on('click', function () {
                 /* close the sidebar */
                 sidebar.close();
-                Notificationsetup({});
+                Notificationsetup({},"notificationsetuptable");
             });
             if (/^Admin/i.test(User.Role)) {
                 sidebar.addPanel({
@@ -1354,16 +560,16 @@ $(function () {
                         '</div></div>'
                 });
             }
-            if (/(^PMCCUser$)|(^FSVCD0$)/i.test(User.UserId)) {
+            if (/(^PMCCUser$)/i.test(User.UserId)) {
                 //add QRCode
                 var QRCodedisplay = L.Control.extend({
                     options: {
                         position: 'topright'
                     },
-                    onAdd: function (map) {
-                        var container = L.DomUtil.create('div');
-                        container.id = "qrcodeUrl";
-                        return container;
+                    onAdd: function () {
+                        var Domcntainer = L.DomUtil.create('div');
+                        Domcntainer.id = "qrcodeUrl";
+                        return Domcntainer;
                     }
                 });
                 map.addControl(new QRCodedisplay());
@@ -1377,38 +583,6 @@ $(function () {
                     correctLevel: QRCode.CorrectLevel.H
                 });
             }
-            $.connection.FOTFManager.server.getAPIList(0).done(function (connectiondata) {
-                if (connectiondata.length > 0) {
-                    connectiondata.sort(SortByConnectionName);
-                    var table = "connectiontable";
-                    $Table = $('table[id=' + table + ']');
-                    $Table_Body = $Table.find('tbody');
-
-                    $Table_Body.empty();
-                    $row_template = '<tr data-id="{id}" class="{button_color}" id="api_{id}">' +
-                        '<td class="align-middle">{name}</td>' +
-                        '<td class="align-middle">{messagetype}</td>' +
-                        '<td class="font-weight-bold align-middle text-center" id="apistatus_{id}">{connected}</td>' +
-                        '<td class="d-flex align-middle justify-content-center">' +
-                        '<button class="btn btn-light btn-sm mx-1 pi-iconEdit connectionedit"></button>' +
-                        '<button class="btn btn-light btn-sm mx-1 pi-trashFill connectiondelete"></button>' +
-                        '</td>' +
-                        '</tr>';
-                    function formatQSMlayout(conn_status) {
-                        return $.extend(conn_status, {
-                            id: conn_status.ID,
-                            name: conn_status.CONNECTION_NAME,
-                            messagetype: conn_status.MESSAGE_TYPE,
-                            connected: GetConnectionStatus(conn_status),
-                            button_color: Get_Color(conn_status)
-                        });
-                    }
-                    $.each(connectiondata, function () {
-                        $Table_Body.append($row_template.supplant(formatQSMlayout(this)));
-                    });
-                }
-            });
-          
         });
     }
 
@@ -1446,12 +620,12 @@ $(function () {
                                         position: 'topright'
                                     },
                                     onAdd: function () {
-                                        var container = L.DomUtil.create('input');
-                                        container.type = "button";
-                                        container.id = "environment";
-                                        container.className = getEnv(MapData.Environment);
-                                        container.value = MapData.Environment;
-                                        return container;
+                                        var Domcntainer = L.DomUtil.create('input');
+                                        Domcntainer.type = "button";
+                                        Domcntainer.id = "environment";
+                                        Domcntainer.className = getEnv(MapData.Environment);
+                                        Domcntainer.value = MapData.Environment;
+                                        return Domcntainer;
                                     }
                                 });
                                 map.addControl(new Environment());
@@ -1478,12 +652,7 @@ $(function () {
                         L.imageOverlay(img.src, bounds).addTo(map);
                         //center image
                         map.setView([MapData.HeightMeter / 2, MapData.WidthMeter / 2], 1.5);
-                        //L.control.mousePosition().addTo(map);
-                        
-                        //GetCTSInbound();
-                        //GetCTSDockDepart();
-                        //GetCTSLocalDockDepart();
-                        //GetCTSOutbound();
+
                     }
                 }
                 if ($.isEmptyObject(map)) {
@@ -1516,6 +685,7 @@ $(function () {
             .then(init_agvlocation())
             .then(init_zones())
             .then(init_arrive_depart_trips())
+            .then(init_locators())
 
             .catch(
             function (err) {
@@ -1640,94 +810,6 @@ $(function () {
     $.connection.hub.connectionSlow(function () {
         conntoggle.state('conn-low');
     });
-    //badge compliance
-    async function bagdecomplient() {
-        try {
-            $compliance_Table = $('table[id=compliancetable]');
-            $compliance_Table_Body = $compliance_Table.find('tbody');
-            var uncomplientbadges = [];
-            if (circleMarker.hasOwnProperty("_layers")) {
-                $.map(circleMarker._layers, (layer) => {
-                    if (layer.hasOwnProperty("feature")) {
-                        if (layer.feature.properties.hasOwnProperty("Tag_Type")) {
-                            if (/person/i.test(layer.feature.properties.Tag_Type)) {
-                                if (layer.feature.properties.hasOwnProperty("positionTS")) {
-                                    var startTime = moment(layer.feature.properties.positionTS);
-                                    var endTime = moment();
-                                    var diffmillsec = endTime.diff(startTime, "milliseconds");
-
-                                    if (diffmillsec > layer.feature.properties.tagVisibleMils) {
-                                        layer.feature.properties.tagVisibleMils = diffmillsec;
-                                    }
-                                }
-                                if (layer.feature.properties.tagVisibleMils > 80000) {
-                                    //if (layer.options.opacity !== 0) {
-                                    //    layer.setStyle({
-                                    //        opacity: 0,
-                                    //        fillOpacity: 0,
-                                    //        fillColor: ''
-                                    //    });
-                                    //}
-                                    //this to hide tooltip
-                                    if (layer.hasOwnProperty("_tooltip")) {
-                                        if (layer._tooltip.hasOwnProperty("_container")) {
-                                            if (!layer._tooltip._container.classList.contains('tooltip-hidden')) {
-                                                layer._tooltip._container.classList.add('tooltip-hidden');
-                                            }
-                                        }
-                                    }
-                                }
-                                ////add to list
-                                //if (layer.feature.properties.hasOwnProperty("Tacs")) {
-                                //    if (layer.feature.properties.Tacs.hasOwnProperty("ldc")) {
-                                //        if (layer.feature.properties.isWearingTag === false) {
-                                //            uncomplientbadges.push(layer.feature.properties)
-                                //        }
-                                //    }
-                                //}
-                                ////remove from list
-                                //if (layer.feature.properties.isWearingTag === true) {
-                                //    var findtrdataid = $compliance_Table_Body.find('tr[data-tag=' + layer.feature.properties.id + ']');
-                                //    if (findtrdataid.length > 0) {
-                                //        $compliance_Table_Body.find('tr[data-tag=' + layer.feature.properties.id + ']').remove();
-                                //    }
-                                //}
-                            }
-                        }
-                    }
-                });
-            }
-            //if (uncomplientbadges.length > 0) {
-            //    $('span[name=undetected_count]').text(uncomplientbadges.length);
-            //    $compliance_Table_Body.empty();
-            //    $compliance_row_template = '<tr data-tag="{tag_id}">' +
-            //        '<td>{tag_name}</td>' +
-            //        '<td class="text-center">{ldc}</td>' +
-            //        '<td class="text-center">{op_code}</td>' +
-            //        '<td class="text-center">{paylocation}</td>' +
-            //        '</tr>'
-            //        ;
-            //    function formatcompliancerow(properties) {
-            //        return $.extend(properties, {
-            //            tag_id: properties.id,
-            //            tag_name: !/^n.a$/.test(properties.name) ? properties.name : /^n.a$/.test(properties.craftName) ? properties.craftName : properties.id,
-            //            ldc: properties.hasOwnProperty("Tacs") ? properties.Tacs.hasOwnProperty("ldc") ? properties.Tacs.ldc : "No LDC" : "No Tacs",
-            //            op_code: properties.hasOwnProperty("Tacs") ? properties.Tacs.hasOwnProperty("operationId") ? properties.Tacs.operationId : "No Op Code" : "No Tacs",
-            //            paylocation: properties.hasOwnProperty("Tacs") ? properties.Tacs.hasOwnProperty("payLocation") ? properties.Tacs.payLocation : "No payLocation" : "No Tacs"
-            //        });
-            //    }
-            //    $.map(uncomplientbadges, async function (properties, i) {
-            //        var findtrdataid = $compliance_Table_Body.find('tr[data-tag=' + properties.id + ']');
-            //        if (findtrdataid.length === 0) {
-            //            $compliance_Table_Body.append($compliance_row_template.supplant(formatcompliancerow(properties)));
-            //            sortTable($compliance_Table, 'asc');
-            //        }
-            //    })
-            //}
-        } catch (e) {
-            console.log(e);
-        }
-    }
     // current zone staff
     //TODO: look in to this more.
     async function zonecurrentStaff() {
@@ -1864,21 +946,7 @@ $(function () {
             $('#useremail').text(User.EmailAddress);
             $('#userphone').text(User.Phone);
             $('#usertitel').text(User.Role);
-            //$('div[id=div_userprofile]').empty();
-            //$('<div/>', { class: 'row ' })
-            //    .append($('<div/>', { class: 'col-xl-6 col-md-12"' })
-            //        .append($('<div/>', { class: 'card user-card-full' })
-            //            .append($('<div/>', { class: 'row m-l-0 m-r-0' })
-            //                .append($('<div/>', { class: 'col-sm-4 bg-c-lite-green user-profile' })
-            //                    .append($('<div/>', { class: 'card-block text-center text-white' })
-            //                        .append($('<div/>', { class: 'm-b-25' })
-            //                            .append($('<i/>', { class: 'bi-person' }))                                    )
-            //                        .append($('<h6/>', { class: 'f-w-600', text: User.FirstName + ' ' + User.SurName }))
-            //                        .append($('<p/>', { text: '' }))
-            //                        )
-            //            )
-            //        )))
-            //    .appendTo($('div[id=div_userprofile]'));
+
         });
     }
     async function LoadtagDetails(tagid) {
@@ -1899,12 +967,6 @@ $(function () {
             console.log(e);
         }
     }
-    async function GetCTSnotificationinfoInfo() {
-    }
-    function setHeight() {
-        var height = (this.window.innerHeight > 0 ? this.window.innerHeight : this.screen.height) - 1;
-        $('div[id=map]').css("min-height", height + "px");
-    };
     async function sortTable(table, order) {
         var asc = order === 'asc',
             tbody = table.find('tbody');
@@ -1917,217 +979,6 @@ $(function () {
             }
         }).appendTo(tbody);
     }
-    /*****CTS**start***/
-
-    async function GetCTSDockDepart() {
-        try {
-            $.connection.FOTFManager.server.getCTSList("dockdeparted").done(function (Data) {
-                // sort the data by date using moment.js
-                Data.sort(function (left, right) {
-                    return moment(left.ScheduledTZ).diff(moment(right.ScheduledTZ))
-                });
-                $('div[id=ctstabs_div]').css('display', 'block');
-                $ctsOutcardtop_Table = $('table[id=ctsdockdepartedtable]');
-                $ctsOutcardtop_Table_Body = $ctsOutcardtop_Table.find('tbody');
-                $ctsOutcardtop_row_template = '<tr data-id=ctsOB_{routetrip} data-route={route} data-trip={trip}  data-door={door}  class={trbackground}>' +
-                    '<td class="text-center">{schd}</td>' +
-                    '<td class="text-center">{departed}</td>' +
-                    '<td class="{background}">{btnloadDoor}</td>' +
-                    '<td class="text-center">{leg}</td>' +
-                    '<td data-toggle="tooltip" title="{dest}">{dest}</td>' +
-                    '<td class="text-center">{close}</td>' +
-                    '<td class="text-center">{load}</td>' +
-                    '<td class="text-center">{btnloadPercent}</td>' +
-                    '</tr>"';
-
-                function formatctsOutcardtoprow(properties) {
-                    return $.extend(properties, {
-                        schd: checkValue(properties.ScheduledTZ) ? formatTime(properties.ScheduledTZ) : "",
-                        departed: checkValue(properties.DepartedTZ) ? formatTime(properties.DepartedTZ) : "",
-                        door: checkValue(properties.Door) ? properties.Door : "",
-                        routetrip: properties.Route + properties.Trip,
-                        route: properties.Route,
-                        trip: properties.Trip,
-                        leg: properties.Leg,
-                        dest: properties.Destination,
-                        load: properties.Load,
-                        background: checkValue(properties.Door) ? "" : "purpleBg",
-                        trbackground: "",// Gettimediff(properties.ScheduledTZ),
-                        close: properties.Closed,
-                        btnloadPercent: Load_btn_details(properties),
-                        btnloadDoor: Load_btn_door(properties),
-                        dataproperties: properties
-                    });
-                }
-                $.each(Data, function () {
-                    $ctsOutcardtop_Table_Body.append($ctsOutcardtop_row_template.supplant(formatctsOutcardtoprow(this)));
-                });
-            });
-        } catch (e) {
-            console.log(e);
-        }
-    };
-    async function GetCTSLocalDockDepart() {
-        $.connection.FOTFManager.server.getCTSList("local").done(function (Data) {
-            // sort the data by date using moment.js
-            Data.sort(function (left, right) {
-                return moment(left.ScheduledTZ).diff(moment(right.ScheduledTZ))
-            });
-            $('div[id=ctstabs_div]').css('display', 'block');
-            $ctslocalcard_Table = $('table[id=ctslocaldockdepartedtable]');
-            $ctslocalcard_Table_Body = $ctslocalcard_Table.find('tbody');
-            $ctslocalcard_row_template = '<tr data-id=localctsOB_{routetrip} data-route={route} data-trip={trip} data-door={door} class={trbackground}>' +
-                '<td class="text-center">{schd}</td>' +
-                '<td class="text-center">{departed}</td>' +
-                '<td class="{background}">{btnloadDoor}</td>' +
-                '<td class="text-center">{leg}</td>' +
-                '<td data-toggle="tooltip" title="{dest}">{dest}</td>' +
-                '<td class="text-center">{close}</td>' +
-                '<td class="text-center">{load}</td>' +
-                '<td>{loadPercent}</td>' +
-                '</tr>"';
-
-            function formatctslocalcardtoprow(properties) {
-                return $.extend(properties, {
-                    schd: checkValue(properties.ScheduledTZ) ? formatTime(properties.ScheduledTZ) : "",
-                    departed: checkValue(properties.DepartedTZ) ? formatTime(properties.DepartedTZ) : "",
-                    door: checkValue(properties.Door) ? properties.Door : "",
-                    routetrip: properties.Route + properties.Trip,
-                    route: properties.Route,
-                    trip: properties.Trip,
-                    leg: properties.Leg,
-                    dest: properties.Destination,
-                    load: properties.Load,
-                    background: checkValue(properties.Door) ? "" : "purpleBg",
-                    trbackground: "",// Gettimediff(properties.ScheduledTZ),
-                    close: properties.Closed,
-                    loadPercent: properties.LoadPercent + '%',
-                    btnloadDoor: Load_btn_door(properties),
-                    dataproperties: properties
-                });
-            }
-            $.each(Data, function () {
-                $ctslocalcard_Table_Body.append($ctslocalcard_row_template.supplant(formatctslocalcardtoprow(this)));
-            });
-        });
-    };
-    async function GetCTSOutbound() {
-        $.connection.FOTFManager.server.getCTSList("outbound").done(function (Data) {
-            // sort the data by date using moment.js
-            Data.sort(function (left, right) {
-                return moment(left.ScheduledTZ).diff(moment(right.ScheduledTZ))
-            });
-            $('div[id=ctstabs_div]').css('display', 'block');
-            $ctsOutcardtop_Table = $('table[id=ctsouttoptable]');
-            $ctsOutcardtop_Table_Body = $ctsOutcardtop_Table.find('tbody');
-            $ctsOutcardtop_row_template = '<tr data-id=out_{routetrip} data-door={door} >' +
-                '<td class="text-center">{sch_Arrive}</td>' +
-                '<td class="text-center">{arrived}</td>' +
-                '<td class="{background}">{btnloadDoor}</td>' +
-                '<td class="text-center">{firstlegDest}</td>' +
-                '<td data-toggle="tooltip" title={firstlegSite}>{firstlegSite}</td>' +
-                '</tr>"';
-
-            function formatctsOutcardtoprow(properties) {
-                return $.extend(properties, {
-                    sch_Arrive: checkValue(properties.ScheduledTZ) ? formatTime(properties.ScheduledTZ) : "",
-                    arrived: checkValue(properties.ActualTZ) ? formatTime(properties.ActualTZ) : "",
-                    routetrip: properties.RouteID + properties.TripID,
-                    door: properties.hasOwnProperty("doorNumber") ? properties.doorNumber : "",
-                    route: properties.RouteID,
-                    trip: properties.TripID,
-                    firstlegDest: checkValue(properties.FirstLegDest) ? properties.FirstLegDest : "",
-                    firstlegSite: checkValue(properties.FirstLegSite) ? properties.FirstLegSite : "",
-                    btnloadDoor: Load_btn_door(properties)
-                });
-            }
-            $.each(Data, function () {
-                $ctsOutcardtop_Table_Body.append($ctsOutcardtop_row_template.supplant(formatctsOutcardtoprow(this)));
-            })
-        });
-    };
-    async function GetCTSInbound() {
-        try {
-            $.connection.FOTFManager.server.getCTSList("inbound").done(function (Data) {
-                // sort the data by date using moment.js
-                Data.sort(function (left, right) {
-                    return moment(left.ScheduledTZ).diff(moment(right.ScheduledTZ))
-                });
-                $('div[id=ctstabs_div]').css('display', 'block');
-                $ctsIncardtop_Table = $('table[id=ctsintoptable]');
-                $ctsIncardtop_Table_Body = $ctsIncardtop_Table.find('tbody');
-                $ctsIncardtop_row_template = '<tr data-id="in_{routetrip}" data-door="{door}">' +
-                    '<td class="text-center" class="{inbackground}">{sch_Arrive}</td>' +
-                    '<td class="text-center" class="{inbackground}">{arrived}</td>' +
-                    '<td class="text-center" class="{background}">{btnloadDoor}</td>' +
-                    '<td class="text-center">{leg_Origin}</td>' +
-                    '<td data-toggle="tooltip" title="{site_Name}">{site_Name}</td>' +
-                    '</tr>';
-
-                function formatctsIncardtoprow(properties) {
-                    return $.extend(properties, {
-                        sch_Arrive: checkValue(properties.ScheduledTZ) ? formatTime(properties.ScheduledTZ) : "",
-                        arrived: checkValue(properties.ActualTZ) ? formatTime(properties.ActualTZ) : "",
-                        routetrip: properties.RouteID + properties.TripID,
-                        door: properties.hasOwnProperty("doorNumber") ? properties.doorNumber : "",
-                        route: properties.RouteID,
-                        trip: properties.TripID,
-                        inbackground: "", //GettimediffforInbound(properties.Scheduled, properties.Actual),
-                        leg_Origin: properties.LegOrigin,
-                        site_Name: properties.SiteName,
-                        btnloadDoor: Load_btn_door(properties)
-                    });
-                }
-                $.each(Data, function () {
-                    $ctsIncardtop_Table_Body.append($ctsIncardtop_row_template.supplant(formatctsIncardtoprow(this)));
-                })
-            });
-        } catch (e) {
-            console.log(e);
-        }
-    };
-    async function LoadCTSDetails(td, route, trip, table) {
-        $.connection.FOTFManager.server.getCTSDetailsList(route, trip).done(function (Data) {
-            $("#modal-preloader").fadeOut(100);
-            var $tds = $(td).closest('tr').find('td'),
-                dest = $tds.eq(4).text(),
-                door = $tds.eq(2).text(),
-                sch = $tds.eq(0).text();
-            $('#ctsdetailsmodalHeader').text(dest);
-            if (Data.length > 0) {
-                try {
-                    $CTSDetails_Table = $('table[id=' + table + ']');
-                    $CTSDetails_Table_Header = $CTSDetails_Table.find('thead');
-                    $CTSDetails_Table_Header.empty();
-                    $CTSDetails_Table_Header_template = '<tr><th>Door</th><th>Count</th><th>Dest</th><th>Route/Trip 1</th><th>Bullpen</th><th>Type</th><th>Placard</th><th>Route</th><th>Trip</th><th>Status</th></tr>';
-                    $CTSDetails_Table_Header.append($CTSDetails_Table_Header_template);
-                    $CTSDetails_Table_Body = $CTSDetails_Table.find('tbody')
-                    $CTSDetails_Table_Body.empty();
-                    $CTSDetails_Table_row_template = '<tr><td class={background}>{door}</td><td>{count}</td><td>{dest}</td><td>{routetrip}</td><td>{bullpen}</td><td>{type}</td><td>{placard}</td><td>{route}</td><td>{trip}</td><td>{status}</td></tr>';
-
-                    function formatmachCTSDetailsrow(properties) {
-                        return $.extend(properties, {
-                            door: checkValue(properties.Door) ? properties.Door : "",
-                            background: checkValue(properties.Door) ? "" : "purpleBg",
-                            count: properties.Count,
-                            dest: properties.Destination,
-                            routetrip: properties.RouteTrip,
-                            bullpen: checkValue(properties.Bullpen) ? properties.Bullpen : "",
-                            type: properties.Type,
-                            placard: properties.Placard,
-                            route: properties.Route,
-                            trip: properties.Trip,
-                            status: properties.Status
-                        });
-                    }
-                    $.each(Data, function () {
-                        $CTSDetails_Table_Body.append($CTSDetails_Table_row_template.supplant(formatmachCTSDetailsrow(this)));
-                    });
-                } catch (e) {
-                }
-            }
-        });
-    };
     function Load_btn_details(properties) {
         if (properties.Closed > 0) {
             return '<button class="btn btn-outline-info btn-sm btn-block px-1 ctsdetails">' + properties.LoadPercent + '%</button>';
@@ -2509,12 +1360,7 @@ $(function () {
             return false;
         }
     }
-    function uuidv4() {
-        return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
-            var r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
-            return v.toString(16);
-        });
-    }
+
  
    
     //sort table header
@@ -2544,6 +1390,10 @@ $(function () {
         return false;
     });
 });
+function setHeight() {
+    var height = (this.window.innerHeight > 0 ? this.window.innerHeight : this.screen.height) - 1;
+    $('div[id=map]').css("min-height", height + "px");
+};
 function SortByVehicleName(a, b) {
     return a.VEHICLENAME < b.VEHICLENAME ? -1 : a.VEHICLENAME > b.VEHICLENAME ? 1 : 0;
 }
