@@ -144,6 +144,7 @@
     <Content Include="Content\icons\vehicle.png" />
     <Content Include="Content\icons\vh_bss.png" />
     <Content Include="Content\icons\vh_ss.png" />
+    <Content Include="Content\img\24_hour_clock.jpg" />
     <Content Include="Content\leaflet-geoman.css" />
     <Content Include="Content\leaflet-sidebar.css" />
     <Content Include="Content\leaflet-sidebar.min.css" />
@@ -248,6 +249,7 @@
     <None Include="compilerconfig.json.defaults">
       <DependentUpon>compilerconfig.json</DependentUpon>
     </None>
+    <None Include="Properties\PublishProfiles\FolderProfile.pubxml" />
     <None Include="Scripts\jquery-3.6.0.intellisense.js" />
     <Content Include="Scripts\jquery-3.6.0.js" />
     <Content Include="Scripts\jquery-3.6.0.min.js" />
@@ -376,6 +378,7 @@
     <Content Include="Scripts\View\notification.js" />
     <Content Include="Scripts\View\person_tag.js" />
     <Content Include="Scripts\View\stange_zone.js" />
+    <Content Include="Scripts\View\twenty_four_hour_clock.js" />
     <Content Include="Scripts\View\vehicle.js" />
     <Content Include="Scripts\View\viewports_zone.js" />
     <Content Include="Web.config" />

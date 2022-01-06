@@ -67,6 +67,8 @@ $(function () {
     $.extend(fotfmanager.client, {
         updateClock: async (timer) => {
             $('#localTime').val(moment(timer).format('H:mm:ss'));
+            $('#twentyfourmessage').text(GetTwentyFourMessage(timer));
+            SetClockHands(timer);
             ///badgecomplaint();
             zonecurrentStaff();
             var visible = sidebar._getTab("reports");
@@ -121,6 +123,9 @@ $(function () {
         }
     });
     map.addControl(new timedisplay());
+
+    Initiate24HourClock();
+   
     map.addControl(sidebar);
     sidebar.on('content', function (ev) {
         sidebar.options.autopan = false;
@@ -169,11 +174,13 @@ $(function () {
     }).on("show.bs.popover", function (e) {
         // hide all other popovers
         $('[data-toggle=popover]').not(e.target).popover('hide');
+        $('#twentyfourmessage').not(e.target).popover('hide');
         $('#layersContent').hide();
     });
     //Hide sidebar
     $('[role=tablist]').click(function (e) {
         $('[data-toggle=popover]').popover('hide');
+        $('#twentyfourmessage').popover('hide');
         $('#layersContent').hide();
     });
 
@@ -219,6 +226,7 @@ $(function () {
         sidebar.close();
         // close other popover
         $('[data-toggle=popover]').popover('hide');
+        $('#twentyfourmessage').popover('hide');
     });
 
     //add zoom button
@@ -1416,3 +1424,5 @@ function pad(str, max) {
     str = str.toString();
     return str.length < max ? pad("0" + str, max) : str;
 };
+
+
