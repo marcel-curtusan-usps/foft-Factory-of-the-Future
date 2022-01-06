@@ -68,7 +68,9 @@ $(function () {
         updateClock: async (timer) => {
             $('#localTime').val(moment(timer).format('H:mm:ss'));
             $('#twentyfourmessage').text(GetTwentyFourMessage(timer));
-            SetClockHands(timer);
+            if ($("#tfhcContent").length > 0) {
+                SetClockHands(timer);
+            }
             ///badgecomplaint();
             zonecurrentStaff();
             var visible = sidebar._getTab("reports");

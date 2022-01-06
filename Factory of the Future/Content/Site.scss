@@ -2032,3 +2032,45 @@ div.leaflet-control-layers {
     font-weight:bold;
     margin:0px;
 }
+/**24 Hour Clock*/
+#clockContainer {
+    position: relative;
+    margin: auto;
+    height: 27.75vw;
+    width: 45vw;
+    background: url('/Content/img/24_hour_clock.jpg') no-repeat;
+    background-size: 100%;
+}
+
+#hour,
+#minute,
+#second {
+    position: absolute;
+    background-color: #454444;
+    border-radius: 10px;
+    transform-origin: bottom;
+}
+
+#hour {
+    width: 0.85%;
+    height: 12.75%;
+    top: 41%;
+    left: 51.25%;
+    /*opacity: 0.5;*/
+}
+
+#minute {
+    width: 0.85%;
+    height: 17.75%;
+    top: 36%;
+    left: 51.25%;
+    /*opacity: 0.5;*/
+}
+
+#second {
+    width: 0.75%;
+    height: 22.75%;
+    top: 31%;
+    left: 51.25%;
+    /*opacity: 0.5;*/
+}
