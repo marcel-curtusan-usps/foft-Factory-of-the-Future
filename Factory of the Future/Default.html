@@ -461,8 +461,7 @@
                                             <th style="width: 10%;">User</th>
                                         </tr>
                                     </thead>
-                                    <tbody>
-                                    </tbody>
+                                    <tbody></tbody>
                                 </table>
                             </div>
                         </div>
@@ -536,8 +535,7 @@
                                 <div class="card-body pb-0">
                                     <div class="table-responsive">
                                         <table class="table table-striped table-sm table-hover mb-0 border-bottom" id="machinetable">
-                                            <tbody>
-                                            </tbody>
+                                            <tbody></tbody>
                                         </table>
                                     </div>
                                 </div>
@@ -651,8 +649,7 @@
                                                     <td><input class="frow-comp-4" id="status" type="text" placeholder="Status"></td>
                                                 </tr>
                                             </thead>
-                                            <tbody>
-                                            </tbody>
+                                            <tbody></tbody>
                                         </table>
                                     </div>
                                 </div>
@@ -675,8 +672,7 @@
                                                     <th>Planned</th>
                                                 </tr>
                                             </thead>
-                                            <tbody>
-                                            </tbody>
+                                            <tbody></tbody>
                                         </table>
                                     </div>
                                 </div>
@@ -742,8 +738,7 @@
                                                                 <th>Load%</th>-->
                                                             </tr>
                                                         </thead>
-                                                        <tbody>
-                                                        </tbody>
+                                                        <tbody></tbody>
                                                     </table>
                                                 </div>
                                             </div>
@@ -1160,6 +1155,17 @@
             <!--view ports Popover-->
             <div id="viewportsContent" class="w-100 d-flex justify-content-between">
             </div>
+
+            <!--24 Hour Clock Popover-->
+            <div id="tfhcContent" class="px-3">
+                <div class="">
+                    <div id="clockContainer">
+                        <div id="hour"></div>
+                        <div id="minute"></div>
+                        <div id="second"></div>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
     <script src="Scripts/jquery-3.6.0.js"></script>
@@ -1209,6 +1215,7 @@
     <script src="Scripts/View/geometry_editing.js"></script>
     <!--QR Code js-->
     <script src="Scripts/QRCode/qrcode.min.js"></script>
-
+    <!--24 Hour Clock js-->
+    <script src="Scripts/View/twenty_four_hour_clock.js"></script>
 </body>
 </html>
