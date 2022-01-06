@@ -29,10 +29,11 @@ namespace Factory_of_the_Future
         private readonly object updateQSMlock = new object();
         private readonly object updateMachineStatuslock = new object();
         private readonly object updateAGVLocationStatuslock = new object();
-        private readonly object updateCTSDepartedStatuslock = new object();
-        private readonly object updateCTSLocalDepartedStatuslock = new object();
-        private readonly object updateCTSInboundStatuslock = new object();
-        private readonly object updateCTSOutboundStatuslock = new object();
+        private readonly object updateSVTripsStatuslock = new object();
+        //private readonly object updateCTSDepartedStatuslock = new object();
+        //private readonly object updateCTSLocalDepartedStatuslock = new object();
+        //private readonly object updateCTSInboundStatuslock = new object();
+        //private readonly object updateCTSOutboundStatuslock = new object();
         private readonly object updateNotificationStatuslock = new object();
 
         //timers
@@ -45,10 +46,11 @@ namespace Factory_of_the_Future
         private readonly Timer QSM_timer;
         private readonly Timer Machine_timer;
         private readonly Timer AGVLocation_timer;
-        private readonly Timer CTSDeparted_timer;
-        private readonly Timer CTSLocalDeparted_timer;
-        private readonly Timer CTSInbound_timer;
-        private readonly Timer CTSOutbound_timer;
+        private readonly Timer SVTrips_timer;
+        //private readonly Timer CTSDeparted_timer;
+        //private readonly Timer CTSLocalDeparted_timer;
+        //private readonly Timer CTSInbound_timer;
+        //private readonly Timer CTSOutbound_timer;
         private readonly Timer Notification_timer;
 
         //status
@@ -61,10 +63,11 @@ namespace Factory_of_the_Future
         private volatile bool _updatingQSMStatus = false;
         private volatile bool _updateMachineStatus = false;
         private volatile bool _updateAGVLocationStatus = false;
-        private volatile bool _updateCTSDepartedStatus = false;
-        private readonly bool _updateCTSLocalDepartedStatus = false;
-        private volatile bool _updateCTSInboundStatus = false;
-        private volatile bool _updateCTSOutboundStatus = false;
+        private volatile bool _updateSVTripsStatus = false;
+        //private volatile bool _updateCTSDepartedStatus = false;
+        //private readonly bool _updateCTSLocalDepartedStatus = false;
+        //private volatile bool _updateCTSInboundStatus = false;
+        //private volatile bool _updateCTSOutboundStatus = false;
         private volatile bool _updateNotificationstatus = false;
 
         //private readonly Random _updateOrNotRandom = new Random();
@@ -85,11 +88,15 @@ namespace Factory_of_the_Future
             DockDoor_timer = new Timer(UpdateDockDoorStatus, null, _250milupdateInterval, _250milupdateInterval);
             Machine_timer = new Timer(UpdateMachineStatus, null, _updateInterval, _updateInterval);
             AGVLocation_timer = new Timer(UpdateAGVLocationStatus, null, _250milupdateInterval, _250milupdateInterval);
+            ///SV Trips Data
+            SVTrips_timer = new Timer(UpdateSVTripsStatus, null, _updateInterval, _updateInterval);
             /////CTS data timer
-            CTSDeparted_timer = new Timer(UpdateCTSDepartedStatus, null, _updateInterval, _updateInterval);
-            CTSLocalDeparted_timer = new Timer(UpdateCTSLocalDepartedStatus, null, _updateInterval, _updateInterval);
-            CTSInbound_timer = new Timer(UpdateCTSInboundStatus, null, _updateInterval, _updateInterval);
-            CTSOutbound_timer = new Timer(UpdateCTSOutboundStatus, null, _updateInterval, _updateInterval);
+            //CTSDeparted_timer = new Timer(UpdateCTSDepartedStatus, null, _updateInterval, _updateInterval);
+            //CTSLocalDeparted_timer = new Timer(UpdateCTSLocalDepartedStatus, null, _updateInterval, _updateInterval);
+            //CTSInbound_timer = new Timer(UpdateCTSInboundStatus, null, _updateInterval, _updateInterval);
+            //CTSOutbound_timer = new Timer(UpdateCTSOutboundStatus, null, _updateInterval, _updateInterval);
+            // SV Trip Data
+
             ////   Notification data timer
             Notification_timer = new Timer(UpdateNotificationtatus, null, _updateInterval, _updateInterval);
             ////Connection status
@@ -687,36 +694,98 @@ namespace Factory_of_the_Future
                 return false;
             }
         }
-
-        private void UpdateCTSOutboundStatus(object state)
+        private void UpdateSVTripsStatus(object state)
         {
-            lock (updateCTSOutboundStatuslock)
+            lock (updateSVTripsStatuslock)
             {
-                if (!_updateCTSOutboundStatus)
+                if (!_updateSVTripsStatus)
                 {
-                    _updateCTSOutboundStatus = true;
-                    foreach (JObject Outbounditem in Global.CTS_Outbound_Schedualed.Where(u => (bool)u.Value.Property("CTS_Update").Value == true).Select(x => x.Value))
+                    _updateSVTripsStatus = true;
+
+                    Global.Trips.Select(x => x.Value).ToList().ForEach(trip =>
                     {
-                        if (TryUpdateCTSOutboundStatus(Outbounditem))
+                        if (TrySVTripStatus(trip))
                         {
-                            BroadcastCTSOutboundStatus(Outbounditem);
+                            BroadcastSVTripsStatus(trip);
                         }
-                    }
-                    foreach (JObject removeOutbounditem in Global.CTS_Outbound_Schedualed.Where(u => (bool)u.Value.Property("CTS_Remove").Value == true).Select(x => x.Value))
-                    {
-                        string trip = removeOutbounditem.ContainsKey("TripID") ? (string)removeOutbounditem.Property("TripID").Value : "";
-                        string route = removeOutbounditem.ContainsKey("RouteID") ? (string)removeOutbounditem.Property("RouteID").Value : "";
-                        if (!string.IsNullOrEmpty(route) || !string.IsNullOrEmpty(trip))
-                        {
-                            string outboundID = route + trip;
-                            if (Global.CTS_Outbound_Schedualed.TryRemove(outboundID, out JObject exsitoutbound))
-                            {
-                            }
-                        }
-                    }
-                    _updateCTSOutboundStatus = false;
+                    });
+
+                    _updateSVTripsStatus = false;
                 }
             }
+        }
+
+        private bool TrySVTripStatus(Trips trip)
+        {
+            bool update = false;
+            double temptime = 0;
+            try
+            {
+                if (trip.Trip_Update)
+                {
+                    update = trip.Trip_Update;
+                }
+                
+                if (trip.TripDirectionInd == "I")
+                {
+                    
+                    temptime = GetTripMin(trip.ScheduledDtm);
+                    if (temptime != trip.TimeToArrive)
+                    {
+                        trip.TimeToArrive = temptime;
+                        update = true;
+                    }
+                    if (trip.TimeToArrive > -15)
+                    {
+                        trip.isTripLate = true;
+                        update = true;
+                    }                                 
+                }
+                if (trip.TripDirectionInd == "O")
+                {
+                    temptime = GetTripMin(trip.ScheduledDtm);
+                    if (temptime != trip.TimeToDepart)
+                    {
+                        trip.TimeToDepart = temptime;
+                        update = true;
+                    }
+                    if (trip.TimeToDepart > -15)
+                    {
+                        trip.isTripLate = true;
+                        update = true;
+                    }
+                }
+
+                return update;
+            }
+            catch (Exception e)
+            {
+                new ErrorLogger().ExceptionLog(e);
+                return update;
+            }
+        }
+
+        private double GetTripMin(DateTime scheduledDtm)
+        {
+            try
+            {
+                DateTime dtNow = DateTime.Now;
+                if (Global.TimeZoneConvert.TryGetValue((string)Global.AppSettings.Property("FACILITY_TIMEZONE").Value, out string windowsTimeZoneId))
+                {
+                    dtNow = TimeZoneInfo.ConvertTime(dtNow, TimeZoneInfo.FindSystemTimeZoneById(windowsTimeZoneId));
+                }
+                return Math.Round(scheduledDtm.Subtract(dtNow).TotalMinutes);
+            }
+            catch (Exception e)
+            {
+                new ErrorLogger().ExceptionLog(e);
+                return 0;
+            }
+        }
+
+        private void BroadcastSVTripsStatus(Trips trip)
+        {
+            Clients.All.updateSVTripsStatus(trip);
         }
 
         internal IEnumerable<JToken> GetCTSDetailsList(string route, string trip)
@@ -785,259 +854,290 @@ namespace Factory_of_the_Future
                 return new JObject();
             }
         }
+        
+        //private void UpdateCTSOutboundStatus(object state)
+        //{
+        //    lock (updateCTSOutboundStatuslock)
+        //    {
+        //        if (!_updateCTSOutboundStatus)
+        //        {
+        //            _updateCTSOutboundStatus = true;
+        //            foreach (JObject Outbounditem in Global.CTS_Outbound_Schedualed.Where(u => (bool)u.Value.Property("CTS_Update").Value == true).Select(x => x.Value))
+        //            {
+        //                if (TryUpdateCTSOutboundStatus(Outbounditem))
+        //                {
+        //                    BroadcastCTSOutboundStatus(Outbounditem);
+        //                }
+        //            }
+        //            foreach (JObject removeOutbounditem in Global.CTS_Outbound_Schedualed.Where(u => (bool)u.Value.Property("CTS_Remove").Value == true).Select(x => x.Value))
+        //            {
+        //                string trip = removeOutbounditem.ContainsKey("TripID") ? (string)removeOutbounditem.Property("TripID").Value : "";
+        //                string route = removeOutbounditem.ContainsKey("RouteID") ? (string)removeOutbounditem.Property("RouteID").Value : "";
+        //                if (!string.IsNullOrEmpty(route) || !string.IsNullOrEmpty(trip))
+        //                {
+        //                    string outboundID = route + trip;
+        //                    if (Global.CTS_Outbound_Schedualed.TryRemove(outboundID, out JObject exsitoutbound))
+        //                    {
+        //                    }
+        //                }
+        //            }
+        //            _updateCTSOutboundStatus = false;
+        //        }
+        //    }
+        //}
 
-        private void BroadcastCTSOutboundStatus(JObject outbounditem)
-        {
-            Clients.All.updateCTSOutboundStatus(outbounditem);
-        }
+        //private void BroadcastCTSOutboundStatus(JObject outbounditem)
+        //{
+        //    Clients.All.updateCTSOutboundStatus(outbounditem);
+        //}
 
-        private bool TryUpdateCTSOutboundStatus(JObject outbounditem)
-        {
-            try
-            {
-                string trip = outbounditem.ContainsKey("TripID") ? (string)outbounditem.Property("TripID").Value : "";
-                string route = outbounditem.ContainsKey("RouteID") ? (string)outbounditem.Property("RouteID").Value : "";
-                string outboundID = route + trip;
-                if (Global.CTS_Outbound_Schedualed.ContainsKey(outboundID))
-                {
-                    if (Global.CTS_Outbound_Schedualed.TryGetValue(outboundID, out JObject exsitoutbound))
-                    {
-                        exsitoutbound.Property("CTS_Update").Value = false;
-                        return true;
-                    }
-                    else
-                    {
-                        return false;
-                    }
-                }
-                else
-                {
-                    return false;
-                }
-            }
-            catch (Exception e)
-            {
-                new ErrorLogger().ExceptionLog(e);
-                return false;
-            }
-        }
+        //private bool TryUpdateCTSOutboundStatus(JObject outbounditem)
+        //{
+        //    try
+        //    {
+        //        string trip = outbounditem.ContainsKey("TripID") ? (string)outbounditem.Property("TripID").Value : "";
+        //        string route = outbounditem.ContainsKey("RouteID") ? (string)outbounditem.Property("RouteID").Value : "";
+        //        string outboundID = route + trip;
+        //        if (Global.CTS_Outbound_Schedualed.ContainsKey(outboundID))
+        //        {
+        //            if (Global.CTS_Outbound_Schedualed.TryGetValue(outboundID, out JObject exsitoutbound))
+        //            {
+        //                exsitoutbound.Property("CTS_Update").Value = false;
+        //                return true;
+        //            }
+        //            else
+        //            {
+        //                return false;
+        //            }
+        //        }
+        //        else
+        //        {
+        //            return false;
+        //        }
+        //    }
+        //    catch (Exception e)
+        //    {
+        //        new ErrorLogger().ExceptionLog(e);
+        //        return false;
+        //    }
+        //}
 
-        private void UpdateCTSInboundStatus(object state)
-        {
-            lock (updateCTSInboundStatuslock)
-            {
-                if (!_updateCTSInboundStatus)
-                {
-                    _updateCTSInboundStatus = true;
-                    foreach (JObject Inbounditem in Global.CTS_Inbound_Schedualed.Where(u => (bool)u.Value.Property("CTS_Update").Value == true).Select(x => x.Value))
-                    {
-                        if (TryUpdateCTSInboundStatus(Inbounditem))
-                        {
-                            BroadcastCTSInboundStatus(Inbounditem);
-                        }
-                    }
-                    foreach (JObject removeInbounditem in Global.CTS_Inbound_Schedualed.Where(u => (bool)u.Value.Property("CTS_Remove").Value == true).Select(x => x.Value))
-                    {
-                        string trip = removeInbounditem.ContainsKey("TripID") ? (string)removeInbounditem.Property("TripID").Value : "";
-                        string route = removeInbounditem.ContainsKey("RouteID") ? (string)removeInbounditem.Property("RouteID").Value : "";
-                        if (!string.IsNullOrEmpty(route) || !string.IsNullOrEmpty(trip))
-                        {
-                            string outboundID = route + trip;
-                            if (Global.CTS_Inbound_Schedualed.TryRemove(outboundID, out JObject exsitoutbound))
-                            {
-                            }
-                        }
-                    }
-                    _updateCTSInboundStatus = false;
-                }
-            }
-        }
+        //private void UpdateCTSInboundStatus(object state)
+        //{
+        //    lock (updateCTSInboundStatuslock)
+        //    {
+        //        if (!_updateCTSInboundStatus)
+        //        {
+        //            _updateCTSInboundStatus = true;
+        //            foreach (JObject Inbounditem in Global.CTS_Inbound_Schedualed.Where(u => (bool)u.Value.Property("CTS_Update").Value == true).Select(x => x.Value))
+        //            {
+        //                if (TryUpdateCTSInboundStatus(Inbounditem))
+        //                {
+        //                    BroadcastCTSInboundStatus(Inbounditem);
+        //                }
+        //            }
+        //            foreach (JObject removeInbounditem in Global.CTS_Inbound_Schedualed.Where(u => (bool)u.Value.Property("CTS_Remove").Value == true).Select(x => x.Value))
+        //            {
+        //                string trip = removeInbounditem.ContainsKey("TripID") ? (string)removeInbounditem.Property("TripID").Value : "";
+        //                string route = removeInbounditem.ContainsKey("RouteID") ? (string)removeInbounditem.Property("RouteID").Value : "";
+        //                if (!string.IsNullOrEmpty(route) || !string.IsNullOrEmpty(trip))
+        //                {
+        //                    string outboundID = route + trip;
+        //                    if (Global.CTS_Inbound_Schedualed.TryRemove(outboundID, out JObject exsitoutbound))
+        //                    {
+        //                    }
+        //                }
+        //            }
+        //            _updateCTSInboundStatus = false;
+        //        }
+        //    }
+        //}
 
-        private void BroadcastCTSInboundStatus(JObject inbounditem)
-        {
-            Clients.All.updateCTSInboundStatus(inbounditem);
-        }
+        //private void BroadcastCTSInboundStatus(JObject inbounditem)
+        //{
+        //    Clients.All.updateCTSInboundStatus(inbounditem);
+        //}
 
-        private bool TryUpdateCTSInboundStatus(JObject inbounditem)
-        {
-            try
-            {
-                string trip = inbounditem.ContainsKey("TripID") ? (string)inbounditem.Property("TripID").Value : "";
-                string route = inbounditem.ContainsKey("RouteID") ? (string)inbounditem.Property("RouteID").Value : "";
-                string inboundID = route + trip;
-                if (Global.CTS_Inbound_Schedualed.ContainsKey(inboundID))
-                {
-                    if (Global.CTS_Inbound_Schedualed.TryGetValue(inboundID, out JObject exsitinbound))
-                    {
-                        exsitinbound.Property("CTS_Update").Value = false;
-                        return true;
-                    }
-                    else
-                    {
-                        return false;
-                    }
-                }
-                else
-                {
-                    return false;
-                }
-            }
-            catch (Exception e)
-            {
-                new ErrorLogger().ExceptionLog(e);
-                return false;
-            }
-        }
+        //private bool TryUpdateCTSInboundStatus(JObject inbounditem)
+        //{
+        //    try
+        //    {
+        //        string trip = inbounditem.ContainsKey("TripID") ? (string)inbounditem.Property("TripID").Value : "";
+        //        string route = inbounditem.ContainsKey("RouteID") ? (string)inbounditem.Property("RouteID").Value : "";
+        //        string inboundID = route + trip;
+        //        if (Global.CTS_Inbound_Schedualed.ContainsKey(inboundID))
+        //        {
+        //            if (Global.CTS_Inbound_Schedualed.TryGetValue(inboundID, out JObject exsitinbound))
+        //            {
+        //                exsitinbound.Property("CTS_Update").Value = false;
+        //                return true;
+        //            }
+        //            else
+        //            {
+        //                return false;
+        //            }
+        //        }
+        //        else
+        //        {
+        //            return false;
+        //        }
+        //    }
+        //    catch (Exception e)
+        //    {
+        //        new ErrorLogger().ExceptionLog(e);
+        //        return false;
+        //    }
+        //}
+     
+        //private void UpdateCTSDepartedStatus(object state)
+        //{
+        //    lock (updateCTSDepartedStatuslock)
+        //    {
+        //        if (!_updateCTSDepartedStatus)
+        //        {
+        //            _updateCTSDepartedStatus = true;
+        //            foreach (JObject DockDeparted in Global.CTS_DockDeparted.Where(u => (bool)u.Value.Property("CTS_Update").Value == true).Select(x => x.Value))
+        //            {
+        //                if (TryUpdateCTSDepartedStatus(DockDeparted))
+        //                {
+        //                    BroadcastCTSDepartedStatus(DockDeparted);
+        //                }
+        //            }
+        //            foreach (JObject removeDockDeparted in Global.CTS_DockDeparted.Where(u => (bool)u.Value.Property("CTS_Remove").Value == true).Select(x => x.Value))
+        //            {
+        //                string trip = removeDockDeparted.ContainsKey("Trip") ? (string)removeDockDeparted.Property("Trip").Value : "";
+        //                string route = removeDockDeparted.ContainsKey("Route") ? (string)removeDockDeparted.Property("Route").Value : "";
+        //                if (!string.IsNullOrEmpty(route) || !string.IsNullOrEmpty(trip))
+        //                {
+        //                    string outboundID = route + trip;
+        //                    if (Global.CTS_DockDeparted.TryRemove(outboundID, out JObject exsitoutbound))
+        //                    {
+        //                    }
+        //                }
+        //            }
+        //            _updateCTSDepartedStatus = false;
+        //        }
+        //    }
+        //}
 
-        private void UpdateCTSDepartedStatus(object state)
-        {
-            lock (updateCTSDepartedStatuslock)
-            {
-                if (!_updateCTSDepartedStatus)
-                {
-                    _updateCTSDepartedStatus = true;
-                    foreach (JObject DockDeparted in Global.CTS_DockDeparted.Where(u => (bool)u.Value.Property("CTS_Update").Value == true).Select(x => x.Value))
-                    {
-                        if (TryUpdateCTSDepartedStatus(DockDeparted))
-                        {
-                            BroadcastCTSDepartedStatus(DockDeparted);
-                        }
-                    }
-                    foreach (JObject removeDockDeparted in Global.CTS_DockDeparted.Where(u => (bool)u.Value.Property("CTS_Remove").Value == true).Select(x => x.Value))
-                    {
-                        string trip = removeDockDeparted.ContainsKey("Trip") ? (string)removeDockDeparted.Property("Trip").Value : "";
-                        string route = removeDockDeparted.ContainsKey("Route") ? (string)removeDockDeparted.Property("Route").Value : "";
-                        if (!string.IsNullOrEmpty(route) || !string.IsNullOrEmpty(trip))
-                        {
-                            string outboundID = route + trip;
-                            if (Global.CTS_DockDeparted.TryRemove(outboundID, out JObject exsitoutbound))
-                            {
-                            }
-                        }
-                    }
-                    _updateCTSDepartedStatus = false;
-                }
-            }
-        }
+        //private void BroadcastCTSDepartedStatus(JObject aGV_Location)
+        //{
+        //    Clients.All.updateCTSDepartedStatus(aGV_Location);
+        //}
 
-        private void BroadcastCTSDepartedStatus(JObject aGV_Location)
-        {
-            Clients.All.updateCTSDepartedStatus(aGV_Location);
-        }
+        //private bool TryUpdateCTSDepartedStatus(JObject DockDeparted)
+        //{
+        //    try
+        //    {
+        //        string trip = DockDeparted.ContainsKey("Trip") ? (string)DockDeparted.Property("Trip").Value : "";
+        //        string route = DockDeparted.ContainsKey("Route") ? (string)DockDeparted.Property("Route").Value : "";
+        //        string DockDepartedID = route + trip;
+        //        if (Global.CTS_DockDeparted.ContainsKey(DockDepartedID))
+        //        {
+        //            if (Global.CTS_DockDeparted.TryGetValue(DockDepartedID, out JObject exsitDockDeparted))
+        //            {
+        //                exsitDockDeparted.Property("CTS_Update").Value = false;
+        //                return true;
+        //            }
+        //            else
+        //            {
+        //                return false;
+        //            }
+        //        }
+        //        else
+        //        {
+        //            return false;
+        //        }
+        //    }
+        //    catch (Exception e)
+        //    {
+        //        new ErrorLogger().ExceptionLog(e);
+        //        return false;
+        //    }
+        //}
 
-        private bool TryUpdateCTSDepartedStatus(JObject DockDeparted)
-        {
-            try
-            {
-                string trip = DockDeparted.ContainsKey("Trip") ? (string)DockDeparted.Property("Trip").Value : "";
-                string route = DockDeparted.ContainsKey("Route") ? (string)DockDeparted.Property("Route").Value : "";
-                string DockDepartedID = route + trip;
-                if (Global.CTS_DockDeparted.ContainsKey(DockDepartedID))
-                {
-                    if (Global.CTS_DockDeparted.TryGetValue(DockDepartedID, out JObject exsitDockDeparted))
-                    {
-                        exsitDockDeparted.Property("CTS_Update").Value = false;
-                        return true;
-                    }
-                    else
-                    {
-                        return false;
-                    }
-                }
-                else
-                {
-                    return false;
-                }
-            }
-            catch (Exception e)
-            {
-                new ErrorLogger().ExceptionLog(e);
-                return false;
-            }
-        }
+        //private void UpdateCTSLocalDepartedStatus(object state)
+        //{
+        //    lock (updateCTSLocalDepartedStatuslock)
+        //    {
+        //        if (!_updateCTSLocalDepartedStatus)
+        //        {
+        //            _updateCTSDepartedStatus = true;
+        //            foreach (JObject DockDeparted in Global.CTS_LocalDockDeparted.Where(u => (bool)u.Value.Property("CTS_Update").Value == true).Select(x => x.Value))
+        //            {
+        //                if (TryUpdateCTSLocalDepartedStatus(DockDeparted))
+        //                {
+        //                    if ((bool)DockDeparted.Property("CTS_Remove").Value == true)
+        //                    {
+        //                        string trip = DockDeparted.ContainsKey("Trip") ? (string)DockDeparted.Property("Trip").Value : "";
+        //                        string route = DockDeparted.ContainsKey("Route") ? (string)DockDeparted.Property("Route").Value : "";
+        //                        if (!string.IsNullOrEmpty(route) || !string.IsNullOrEmpty(trip))
+        //                        {
+        //                            string outboundID = route + trip;
+        //                            if (Global.CTS_LocalDockDeparted.TryRemove(outboundID, out JObject exsitoutbound))
+        //                            {
+        //                                BroadcastCTSLocalDepartedStatus(DockDeparted);
+        //                            }
+        //                        }
+        //                    }
+        //                    else
+        //                    {
+        //                        BroadcastCTSLocalDepartedStatus(DockDeparted);
+        //                    }
+        //                }
+        //            }
+        //            //foreach (JObject removeDockDeparted in Global.CTS_LocalDockDeparted.Where(u => (bool)u.Value.Property("CTS_Remove").Value == true).Select(x => x.Value))
+        //            //{
+        //            //    string trip = removeDockDeparted.ContainsKey("Trip") ? (string)removeDockDeparted.Property("Trip").Value : "";
+        //            //    string route = removeDockDeparted.ContainsKey("Route") ? (string)removeDockDeparted.Property("Route").Value : "";
+        //            //    if (!string.IsNullOrEmpty(route) || !string.IsNullOrEmpty(trip))
+        //            //    {
+        //            //        string outboundID = route + trip;
+        //            //        if (Global.CTS_LocalDockDeparted.TryRemove(outboundID, out JObject exsitoutbound))
+        //            //        {
+        //            //        }
+        //            //    }
+        //            //}
+        //            _updateCTSDepartedStatus = false;
+        //        }
+        //    }
+        //}
 
-        private void UpdateCTSLocalDepartedStatus(object state)
-        {
-            lock (updateCTSLocalDepartedStatuslock)
-            {
-                if (!_updateCTSLocalDepartedStatus)
-                {
-                    _updateCTSDepartedStatus = true;
-                    foreach (JObject DockDeparted in Global.CTS_LocalDockDeparted.Where(u => (bool)u.Value.Property("CTS_Update").Value == true).Select(x => x.Value))
-                    {
-                        if (TryUpdateCTSLocalDepartedStatus(DockDeparted))
-                        {
-                            if ((bool)DockDeparted.Property("CTS_Remove").Value == true)
-                            {
-                                string trip = DockDeparted.ContainsKey("Trip") ? (string)DockDeparted.Property("Trip").Value : "";
-                                string route = DockDeparted.ContainsKey("Route") ? (string)DockDeparted.Property("Route").Value : "";
-                                if (!string.IsNullOrEmpty(route) || !string.IsNullOrEmpty(trip))
-                                {
-                                    string outboundID = route + trip;
-                                    if (Global.CTS_LocalDockDeparted.TryRemove(outboundID, out JObject exsitoutbound))
-                                    {
-                                        BroadcastCTSLocalDepartedStatus(DockDeparted);
-                                    }
-                                }
-                            }
-                            else
-                            {
-                                BroadcastCTSLocalDepartedStatus(DockDeparted);
-                            }
-                        }
-                    }
-                    //foreach (JObject removeDockDeparted in Global.CTS_LocalDockDeparted.Where(u => (bool)u.Value.Property("CTS_Remove").Value == true).Select(x => x.Value))
-                    //{
-                    //    string trip = removeDockDeparted.ContainsKey("Trip") ? (string)removeDockDeparted.Property("Trip").Value : "";
-                    //    string route = removeDockDeparted.ContainsKey("Route") ? (string)removeDockDeparted.Property("Route").Value : "";
-                    //    if (!string.IsNullOrEmpty(route) || !string.IsNullOrEmpty(trip))
-                    //    {
-                    //        string outboundID = route + trip;
-                    //        if (Global.CTS_LocalDockDeparted.TryRemove(outboundID, out JObject exsitoutbound))
-                    //        {
-                    //        }
-                    //    }
-                    //}
-                    _updateCTSDepartedStatus = false;
-                }
-            }
-        }
+        //private void BroadcastCTSLocalDepartedStatus(JObject DockDeparted)
+        //{
+        //    Clients.All.updateCTSLocalDepartedStatus(DockDeparted);
+        //}
 
-        private void BroadcastCTSLocalDepartedStatus(JObject DockDeparted)
-        {
-            Clients.All.updateCTSLocalDepartedStatus(DockDeparted);
-        }
-
-        private bool TryUpdateCTSLocalDepartedStatus(JObject DockDeparted)
-        {
-            try
-            {
-                string trip = DockDeparted.ContainsKey("Trip") ? (string)DockDeparted.Property("Trip").Value : "";
-                string route = DockDeparted.ContainsKey("Route") ? (string)DockDeparted.Property("Route").Value : "";
-                string DockDepartedID = route + trip;
-                if (Global.CTS_LocalDockDeparted.ContainsKey(DockDepartedID))
-                {
-                    if (Global.CTS_LocalDockDeparted.TryGetValue(DockDepartedID, out JObject exsitDockDeparted))
-                    {
-                        exsitDockDeparted.Property("CTS_Update").Value = false;
-                        return true;
-                    }
-                    else
-                    {
-                        return false;
-                    }
-                }
-                else
-                {
-                    return false;
-                }
-            }
-            catch (Exception e)
-            {
-                new ErrorLogger().ExceptionLog(e);
-                return false;
-            }
-        }
+        //private bool TryUpdateCTSLocalDepartedStatus(JObject DockDeparted)
+        //{
+        //    try
+        //    {
+        //        string trip = DockDeparted.ContainsKey("Trip") ? (string)DockDeparted.Property("Trip").Value : "";
+        //        string route = DockDeparted.ContainsKey("Route") ? (string)DockDeparted.Property("Route").Value : "";
+        //        string DockDepartedID = route + trip;
+        //        if (Global.CTS_LocalDockDeparted.ContainsKey(DockDepartedID))
+        //        {
+        //            if (Global.CTS_LocalDockDeparted.TryGetValue(DockDepartedID, out JObject exsitDockDeparted))
+        //            {
+        //                exsitDockDeparted.Property("CTS_Update").Value = false;
+        //                return true;
+        //            }
+        //            else
+        //            {
+        //                return false;
+        //            }
+        //        }
+        //        else
+        //        {
+        //            return false;
+        //        }
+        //    }
+        //    catch (Exception e)
+        //    {
+        //        new ErrorLogger().ExceptionLog(e);
+        //        return false;
+        //    }
+        //}
         internal IEnumerable<Trips> GetTripsList()
         {
             try
@@ -1074,37 +1174,37 @@ namespace Factory_of_the_Future
                 return null;
             }
         }
-        internal IEnumerable<JToken> GetCTSList(string type)
-        {
-            try
-            {
-                if (type.StartsWith("in"))
-                {
-                    return Global.CTS_Inbound_Schedualed.Select(x => x.Value).ToList();
-                }
-                else if (type.StartsWith("dockdeparted"))
-                {
-                    return Global.CTS_DockDeparted.Select(x => x.Value).ToList();
-                }
-                else if (type.StartsWith("local"))
-                {
-                    return Global.CTS_LocalDockDeparted.Select(x => x.Value).ToList();
-                }
-                else if (type.StartsWith("out"))
-                {
-                    return Global.CTS_Outbound_Schedualed.Select(x => x.Value).ToList();
-                }
-                else
-                {
-                    return new JObject();
-                }
-            }
-            catch (Exception e)
-            {
-                new ErrorLogger().ExceptionLog(e);
-                return new JObject();
-            }
-        }
+        //internal IEnumerable<JToken> GetCTSList(string type)
+        //{
+        //    try
+        //    {
+        //        if (type.StartsWith("in"))
+        //        {
+        //            return Global.CTS_Inbound_Schedualed.Select(x => x.Value).ToList();
+        //        }
+        //        else if (type.StartsWith("dockdeparted"))
+        //        {
+        //            return Global.CTS_DockDeparted.Select(x => x.Value).ToList();
+        //        }
+        //        else if (type.StartsWith("local"))
+        //        {
+        //            return Global.CTS_LocalDockDeparted.Select(x => x.Value).ToList();
+        //        }
+        //        else if (type.StartsWith("out"))
+        //        {
+        //            return Global.CTS_Outbound_Schedualed.Select(x => x.Value).ToList();
+        //        }
+        //        else
+        //        {
+        //            return new JObject();
+        //        }
+        //    }
+        //    catch (Exception e)
+        //    {
+        //        new ErrorLogger().ExceptionLog(e);
+        //        return new JObject();
+        //    }
+        //}
 
         private void UpdateQSM(object state)
         {
@@ -1356,7 +1456,25 @@ namespace Factory_of_the_Future
                 return new JObject();
             }
         }
-
+        internal IEnumerable<JToken> GetCameraList()
+        {
+            try
+            {
+                if (Global.Camera_Info.Count() > 0)
+                {
+                    return Global.Camera_Info.Select(x => x.Value).ToList();
+                }
+                else
+                {
+                    return new JObject();
+                }
+            }
+            catch (Exception e)
+            {
+                new ErrorLogger().ExceptionLog(e);
+                return new JObject();
+            }
+        }
         internal IEnumerable<JToken> GetZonesList()
         {
             try

@@ -701,6 +701,12 @@ namespace Factory_of_the_Future
         [JsonProperty("timeToDepart")]
         public double TimeToDepart { get; set; }
 
+        [JsonProperty("timeToArrive")]
+        public double TimeToArrive { get; set; }
+
+        [JsonProperty("isTripLate")]
+        public bool isTripLate { get; set; }
+
         [JsonProperty("actArrivalDtm")]
         public DateTime ActArrivalDtm { get; set; }
 

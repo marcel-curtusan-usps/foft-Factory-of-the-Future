@@ -3,7 +3,7 @@
  */
 
 $.extend(fotfmanager.client, {
-    updateTripsStatus: async (updatetripsstatus) => { updateTrips(updatetripsstatus) }
+    updateSVTripsStatus: async (updatetripsstatus) => { updateTrips(updatetripsstatus) }
 });
 
 async function init_arrive_depart_trips() {
@@ -22,6 +22,9 @@ async function init_arrive_depart_trips() {
     } catch (e) {
         console.log(e);
     }
+}
+async function updateTrips() {
+
 }
 async function process_trips(trip)
 {

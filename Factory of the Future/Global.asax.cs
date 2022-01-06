@@ -52,6 +52,8 @@ namespace Factory_of_the_Future
         public static ConcurrentDictionary<string, JObject> Zones = new ConcurrentDictionary<string, JObject>();
         //Zone info
         public static ConcurrentDictionary<string, JObject> Zone_Info = new ConcurrentDictionary<string, JObject>();
+        //Camera info
+        public static ConcurrentDictionary<string, JObject> Camera_Info = new ConcurrentDictionary<string, JObject>();
 
         ////Viewports
         //public static ConcurrentDictionary<string, JObject> ViewPorts = new ConcurrentDictionary<string, JObject>();
@@ -71,17 +73,17 @@ namespace Factory_of_the_Future
         //Trips
         public static ConcurrentDictionary<string, Trips> Trips = new ConcurrentDictionary<string, Trips>();
 
-        //CTS DockDeparted
-        public static ConcurrentDictionary<string, JObject> CTS_DockDeparted = new ConcurrentDictionary<string, JObject>();
+        ////CTS DockDeparted
+        //public static ConcurrentDictionary<string, JObject> CTS_DockDeparted = new ConcurrentDictionary<string, JObject>();
 
-        //CTS LocalDockDeparted
-        public static ConcurrentDictionary<string, JObject> CTS_LocalDockDeparted = new ConcurrentDictionary<string, JObject>();
+        ////CTS LocalDockDeparted
+        //public static ConcurrentDictionary<string, JObject> CTS_LocalDockDeparted = new ConcurrentDictionary<string, JObject>();
 
-        //CTS Trips -> Inbound Trips Scheduled
-        public static ConcurrentDictionary<string, JObject> CTS_Inbound_Schedualed = new ConcurrentDictionary<string, JObject>();
+        ////CTS Trips -> Inbound Trips Scheduled
+        //public static ConcurrentDictionary<string, JObject> CTS_Inbound_Schedualed = new ConcurrentDictionary<string, JObject>();
 
-        //CTS Trips -> Outbound Trips Scheduled
-        public static ConcurrentDictionary<string, JObject> CTS_Outbound_Schedualed = new ConcurrentDictionary<string, JObject>();
+        ////CTS Trips -> Outbound Trips Scheduled
+        //public static ConcurrentDictionary<string, JObject> CTS_Outbound_Schedualed = new ConcurrentDictionary<string, JObject>();
 
         //list of containers
        // public static ConcurrentDictionary<string, JObject> Containers = new ConcurrentDictionary<string, JObject>();
@@ -332,6 +334,11 @@ namespace Factory_of_the_Future
                     {
                         Get_Zone_Info_List();
                     }
+                    //Camera info
+                    if (Camera_Info.Count == 0)
+                    {
+                        Get_Camera_Info_List();
+                    }
                     //Load floor plan Configuration
                     if (Map.Count == 0)
                     {
@@ -364,6 +371,11 @@ namespace Factory_of_the_Future
                     if (Zone_Info.Count != 0)
                     {
                         Zone_Info = new ConcurrentDictionary<string, JObject>();
+                    }
+                    //clear cameras
+                    if (Camera_Info.Count != 0)
+                    {
+                        Camera_Info = new ConcurrentDictionary<string, JObject>();
                     }
 
                     //clear Notification Conditions
@@ -414,6 +426,39 @@ namespace Factory_of_the_Future
             catch (Exception ex)
             {
                 new ErrorLogger().ExceptionLog(ex);
+            }
+        }
+
+        private void Get_Camera_Info_List()
+        {
+            try
+            {
+                string camera_info = new FileIO().Read(string.Concat(Logdirpath, ConfigurationFloder), "Web_Cameras.json");
+                if (!string.IsNullOrEmpty(camera_info))
+                {
+                    if (IsValidJson(camera_info))
+                    {
+                        JArray list = JArray.Parse(camera_info);
+                        if (list != null)
+                        {
+                            if (list.HasValues)
+                            {
+                                foreach (JObject item in list.Children())
+                                {
+                                    if (!Camera_Info.ContainsKey(item["CAMERA_NAME"].ToString()))
+                                    {
+                                        Camera_Info.TryAdd(item["CAMERA_NAME"].ToString(), item);
+                                    }
+
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                new ErrorLogger().ExceptionLog(e);
             }
         }
 

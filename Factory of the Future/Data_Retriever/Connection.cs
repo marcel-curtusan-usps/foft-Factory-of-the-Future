@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json.Linq;
+﻿using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -348,6 +349,8 @@ namespace Factory_of_the_Future
             this.Status = 1;
             JObject requestBody = null;
             DateTime dtNow = DateTime.Now;
+            string fdb = string.Empty;
+            string lkey = string.Empty;
             if (!string.IsNullOrEmpty((string)Global.AppSettings.Property("FACILITY_TIMEZONE").Value))
             {
                 if (Global.TimeZoneConvert.TryGetValue((string)Global.AppSettings.Property("FACILITY_TIMEZONE").Value, out string windowsTimeZoneId))
@@ -355,6 +358,14 @@ namespace Factory_of_the_Future
                     dtNow = TimeZoneInfo.ConvertTime(DateTime.Now, TimeZoneInfo.FindSystemTimeZoneById(windowsTimeZoneId));
 
                 }
+            }
+            if (!string.IsNullOrEmpty((string)Global.AppSettings.Property("FACILITY_ID").Value))
+            {
+                fdb = (string)Global.AppSettings.Property("FACILITY_ID").Value;
+            }
+            if (!string.IsNullOrEmpty((string)Global.AppSettings.Property("FACILITY_LKEY").Value))
+            {
+                lkey = (string)Global.AppSettings.Property("FACILITY_LKEY").Value;
             }
             string formatUrl = string.Empty;
             if (this.API_Info.CONNECTION_NAME.ToUpper().StartsWith("MPEWatch".ToUpper()))
@@ -420,6 +431,21 @@ namespace Factory_of_the_Future
                 string end_time = DateTime.Now.AddHours(+4).ToString("yyyy-MM-dd'T'HH:mm:ss");
                 formatUrl = string.Format(this.API_Info.URL, this.API_Info.NASS_CODE, start_time, end_time);
             }
+            else if (this.API_Info.CONNECTION_NAME.ToUpper().StartsWith("Web_Camera".ToUpper()))
+            {
+                if (!string.IsNullOrEmpty(fdb))
+                {
+                    formatUrl = string.Format(this.API_Info.URL, fdb);
+                }
+            }
+            else if (this.API_Info.CONNECTION_NAME.ToUpper().StartsWith("IV".ToUpper()))
+            {
+                if (!string.IsNullOrEmpty(lkey))
+                {
+                    requestBody = new JObject(new JProperty("lkey", lkey));
+                    formatUrl = string.Format(this.API_Info.URL, lkey);
+                }
+            }
             else if (this.API_Info.CONNECTION_NAME.ToUpper().StartsWith("SELS".ToUpper()))
             {
                 string data_source = this.API_Info.MESSAGE_TYPE;
@@ -458,13 +484,11 @@ namespace Factory_of_the_Future
                 }
             }
 
-            if (!string.IsNullOrEmpty(formatUrl))
+            if (!string.IsNullOrEmpty(formatUrl) && requestBody == null)
             {
 
                 /*
                  * Webrequest allows setting of proxy settings and Useragents
-                 * I could add a form to allow users to set proxy
-                 * settings per board
                  */
                 try
                 {
@@ -594,6 +618,148 @@ namespace Factory_of_the_Future
                 this.LastDownload = DateTime.Now;
                 this.Status = 0;
             }
+            if (!string.IsNullOrEmpty(formatUrl) && requestBody != null)
+            {
+
+                /*
+                 * Webrequest allows setting of proxy settings and Useragents
+                 */
+                try
+                {
+                    System.Net.ServicePointManager.SecurityProtocol |= SecurityProtocolType.Tls11 | SecurityProtocolType.Tls12;
+
+                    HttpWebRequest request = (HttpWebRequest)HttpWebRequest.Create(formatUrl);
+                    request.ContentType = "application/json";
+                    request.Method = "POST";
+                    using (var streamWriter = new StreamWriter(request.GetRequestStream()))
+                    {
+                        streamWriter.Write(JsonConvert.SerializeObject(requestBody, Formatting.Indented));
+                    }
+
+                    using (HttpWebResponse Response = (HttpWebResponse)request.GetResponse())
+                    {
+                        if (Response.StatusCode == HttpStatusCode.OK)
+                        {
+                            using (StreamReader reader = new System.IO.StreamReader(Response.GetResponseStream(), ASCIIEncoding.ASCII))
+                            {
+                                string result = reader.ReadToEnd();
+                                // process date
+                                if (!string.IsNullOrEmpty(result))
+                                {
+                                    Global.API_List.Where(x => (string)x.Value.Property("ID").Value == this.ID).Select(y => y.Value).ToList().ForEach(m =>
+                                    {
+                                        if (Global.IsValidJson(result))
+                                        {
+                                            if (result.StartsWith("{"))
+                                            {
+                                                JObject temp1 = JObject.Parse(result);
+                                                if (formatUrl.Contains("api_page.get_id"))
+                                                {
+                                                    temp1.Add(new JProperty("message", "mpe_watch_id"));
+                                                }
+
+                                                if (temp1.HasValues)
+                                                {
+                                                    Global.ProcessRecvdMsg_callback.StartProcess(temp1, m);
+                                                    m.Property("API_CONNECTED").Value = true;
+                                                }
+                                                else
+                                                {
+                                                    m.Property("API_CONNECTED").Value = false;
+                                                }
+
+                                                temp1 = null;
+                                            }
+                                            else if (result.StartsWith("["))
+                                            {
+                                                JArray tempdata = JArray.Parse(result);
+                                                if (tempdata.HasValues)
+                                                {
+                                                    JObject temp1 = new JObject(new JProperty((string)m.Property("MESSAGE_TYPE").Value, tempdata));
+                                                    Global.ProcessRecvdMsg_callback.StartProcess(temp1, m);
+                                                    tempdata = null;
+                                                    temp1 = null;
+
+
+                                                    m.Property("API_CONNECTED").Value = true;
+
+                                                }
+                                                else
+                                                {
+                                                    m.Property("API_CONNECTED").Value = false;
+                                                }
+                                            }
+                                            m.Property("UPDATE_STATUS").Value = true;
+                                            m.Property("LASTTIME_API_CONNECTED").Value = DateTime.Now;
+                                        }
+                                        else
+                                        {
+                                            if ((bool)m.Property("API_CONNECTED").Value)
+                                            {
+                                                m.Property("API_CONNECTED").Value = false;
+                                            }
+                                            m.Property("LASTTIME_API_CONNECTED").Value = DateTime.Now;
+                                            m.Property("UPDATE_STATUS").Value = true;
+                                        }
+
+                                    });
+                                }
+                                else
+                                {
+                                    Global.API_List.Where(x => (string)x.Value.Property("ID").Value == this.ID).Select(y => y.Value).ToList().ForEach(m =>
+                                    {
+                                        if ((bool)m.Property("API_CONNECTED").Value)
+                                        {
+                                            m.Property("API_CONNECTED").Value = false;
+                                        }
+                                        m.Property("LASTTIME_API_CONNECTED").Value = DateTime.Now;
+                                        m.Property("UPDATE_STATUS").Value = true;
+                                    });
+                                }
+
+                            }
+                        }
+                    }
+                    /*
+                     * LINQ To get rid of all scripts
+                     * this speeds the opening of the HTM
+                     * by ~500%
+                     */
+
+
+                }
+                catch (WebException ex)
+                {
+
+                    Global.API_List.Where(x => (string)x.Value.Property("ID").Value == this.ID).Select(y => y.Value).ToList().ForEach(m =>
+                    {
+                        if ((bool)m.Property("API_CONNECTED").Value)
+                        {
+                            m.Property("API_CONNECTED").Value = false;
+                        }
+                        m.Property("LASTTIME_API_CONNECTED").Value = DateTime.Now;
+                        m.Property("UPDATE_STATUS").Value = true;
+                    });
+                    new ErrorLogger().ExceptionLog(ex);
+                    // Check if Board is 404
+                    if (ex.Status == WebExceptionStatus.ProtocolError & ex.Response != null)
+                    {
+                        // Page not found, thread has 404'd
+                        HttpWebResponse Resp = (HttpWebResponse)ex.Response;
+                        if (Resp.StatusCode == HttpStatusCode.NotFound)
+                        {
+                            this.Status = 3;
+                            this.ConstantRefresh = false;
+
+                            return;
+                        }
+                    }
+                }
+                // Thread is complete. Return to idle
+                this.LastDownload = DateTime.Now;
+                this.Status = 0;
+            }
+
         }
 
         private string GetDataFromStream(WebResponse response)

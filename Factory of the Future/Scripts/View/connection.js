@@ -420,9 +420,6 @@ function Add_Connection() {
 }
 function Edit_Connection(id) {
     $('#modalHeader_ID').text('Edit API Connection');
-    if ($.isNumeric(id)) {
-        id = parseInt(id);
-    }
     sidebar.close('connections');
     $('button[id=apisubmitBtn]').prop('disabled', true);
     try {

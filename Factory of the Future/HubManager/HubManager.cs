@@ -153,10 +153,10 @@ namespace Factory_of_the_Future
         /// Get CTS Data
         /// </summary>
         /// <returns></returns>
-        public IEnumerable<JToken> GetCTSList(string type)
-        {
-            return _managerHub.GetCTSList(type);
-        }
+        //public IEnumerable<JToken> GetCTSList(string type)
+        //{
+        //    return _managerHub.GetCTSList(type);
+        //}
 
         /// <summary>
         /// Get CTS OB Details Data
@@ -167,6 +167,14 @@ namespace Factory_of_the_Future
             return _managerHub.GetCTSDetailsList(route, trip);
         }
 
+        /// <summary>
+        /// Get Camera feed
+        /// </summary>
+        /// <returns></returns>
+        public IEnumerable<JToken> GetCameraList()
+        {
+            return _managerHub.GetCameraList();
+        }
         /// <summary>
         /// Get Zones
         /// </summary>

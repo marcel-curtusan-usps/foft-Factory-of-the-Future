@@ -21,7 +21,7 @@ var sidebar = L.control.sidebar({
 var container = new L.FeatureGroup();
 
 let fotfmanager = $.connection.FOTFManager;
-$(() => {
+$(function () {
     $("form").submit(function () { return false; });
 
     setHeight();
@@ -108,8 +108,6 @@ $(() => {
         "Work Area": walkwayAreas,
         "Polygon Holes": polyholesAreas
     };
-
-
     var timedisplay = L.Control.extend({
         options: {
             position: 'topright'
@@ -123,9 +121,6 @@ $(() => {
         }
     });
     map.addControl(new timedisplay());
-  
-
-   
     map.addControl(sidebar);
     sidebar.on('content', function (ev) {
         sidebar.options.autopan = false;
@@ -201,16 +196,6 @@ $(() => {
         // close the sidebar
         sidebar.close();
     });
-    ////select zone
-    //$('#zoneselect').change(function (e) {
-    //    $('input[type=checkbox][name=followvehicle]').prop('checked', false).change();
-    //    var selcValue = this.value;
-    //    LoadMachineDetails(selcValue);
-
-    //});
-    // Add layers button - Originally on top right - REMOVE IF No longer use
-    //L.control.layers(null, overlayMaps, { position: 'bottomright'}).addTo(map);
-
     // Add Layer Popover - Proposed
     L.control.layers(null, overlayMaps, { position: 'bottomright', collapsed: false }).addTo(map);
     $('.leaflet-control-layers').addClass('layerPopover');
@@ -490,6 +475,38 @@ $(() => {
                         '</div></div>'
                 });
                 init_connection();
+                if (!/^https/i.test(window.location.protocol)) {
+                    sidebar.addPanel({
+                        id: 'camera_video',
+                        tab: '<i class="bi-camera-video"></i>',
+                        position: 'top',
+                        pane: '<div class="btn-toolbar" role="toolbar" id="camera_display">' +
+                            '<div id="div_camera" class="container-fluid">' +
+                            '<h4>Web Cameras</h4>' +
+                            '<button type="button" class="btn btn-primary float-left mb-2" name="addcamera">Add</button>' +
+                            '<div class="card w-100 bg-white mt-2 pb-1">' +
+                            '<div class="card-body">' +
+                            '<div class="table-responsive">' +
+                            '<table class="table table-sm table-hover table-condensed mb-1" id="cameratable" style="border-collapse:collapse;">' +
+                            '<thead class="thead-dark">' +
+                            '<tr>' +
+                            '<th class="row-connection-name">Name</th><th class="row-connection-type">Description</th><th class="row-connection-action">View Camera</th>' +
+                            '</tr>' +
+                            '</thead>' +
+                            '<tbody></tbody>' +
+                            '</table>' +
+                            '</div>' +
+                            '</div>' +
+                            '</div >' +
+                            '</div></div>'
+                    });
+                    init_cameras();
+                    $('button[name=addcamera]').off().on('click', function () {
+                        /* close the sidebar */
+                        sidebar.close();
+                        Add_Camera();
+                    });
+                }
                // init_geometry_editing();
                 $('button[name=addconnection]').off().on('click', function () {
                     /* close the sidebar */
@@ -528,6 +545,7 @@ $(() => {
                         '</div >' +
                         '</div></div>'
                 });
+               
             }
             if (/(^PMCCUser$)/i.test(User.UserId)) {
                 //add QRCode
@@ -761,7 +779,7 @@ $(() => {
             if (connectattp > 10) {
                 clearTimeout(connecttimer);
             }
-            connectattp + 1;
+            connectattp =+ 1;
             conntoggle.state('conn-off');
             $.connection.hub.start().done(function () {
                 console.log("Connected time" + new Date($.now()));
@@ -948,34 +966,6 @@ $(() => {
             }
         }).appendTo(tbody);
     }
-    function Load_btn_details(properties) {
-        if (properties.Closed > 0) {
-            return '<button class="btn btn-outline-info btn-sm btn-block px-1 ctsdetails">' + properties.LoadPercent + '%</button>';
-        }
-        else {
-            return properties.LoadPercent + '%';
-        }
-    }
-    function Load_btn_door(properties) {
-        if (properties.hasOwnProperty("doorNumber")) {
-            if (checkValue(properties.doorNumber)) {
-                return '<button class="btn btn-outline-info btn-sm btn-block px-1 doordetails" data-door="' + properties.doorNumber + '">' + properties.doorNumber + '</button>';
-            } else {
-                return '';
-            }
-        }
-        else if (properties.hasOwnProperty("Door")) {
-            if (checkValue(properties.Door)) {
-                return '<button class="btn btn-outline-info btn-sm btn-block px-1 doordetails" data-door="' + properties.Door + '">' + properties.Door + '</button>';
-            }
-            else {
-                return '';
-            }
-        }
-        else {
-            return '';
-        }
-    }
     $(document).on('click', '.ctsdetails', function () {
         var td = $(this);
         var tr = $(td).closest('tr'),
@@ -1039,123 +1029,16 @@ $(() => {
             id = tr.attr('data-id');
         Remove_Connection(id);
     });
-    /*****CTS End******/
-   
-    function GetChartData(machine) {
-        machinechartdata.destroy();
-        machinechartdata = new Chart(machinechart, {
-            type: 'bar',
-            data: {
-                labels: new function () {
-                    var headers = [];
-                    for (var i = 0; i <= 23; i++) {
-                        headers.push(pad(i, 2) + ':00');
-                    }
-                    return headers;
-                },
-                datasets: [
-                    {
-                        data: [478, 267, 734, 784, 433, 259]
-                    }
-                ]
-            },
-            options: {
-                plugins: {
-                    legend: {
-                        display: false,
-                    }
-                },
-                scales: {
-                    x: {
-                        grid: {
-                            display: false,
-                        }
-                    },
-                    y: {
-                        grid: {
-                            display: false,
-                        }
-                    }
-                },
-                responsive: true,
-                maintainAspectRatio: true,
-                title: {
-                    display: false
-                },
-                legend: {
-                    labels: {
-                        fontSize: 10
-                    }
-                },
-                tooltips: {
-                    callbacks: {
-                        label: function (tooltipItem, data) {
-                            return tooltipItem.yLabel.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
-                        },
-                    },
-                    backgroundColor: 'rgba(64,64,64,0.9)',
-                    position: 'nearest',
-                    mode: 'label',
-                    bodyFontStyle: 'normal'
-                },
-            }
-        });
-    }
-
-
-  
-    function Gettimediff(Scheduled) {
-        try {
-            var currenttime = moment().tz(Facility_TimeZone);  // 5am PDT
-            console.debug("time = " + currenttime.format());
-            var scheduledtime = moment(ScheduledTZ)
-            // calculate total duration
-            var timeduration = moment.duration(currenttime.diff(scheduledtime));
-            var timerange = moment.preciseDiff(scheduledtime, currenttime, true);
-            // duration in minutes
-            var minutes = parseInt(timeduration.asMinutes()) % 60;
-            if (minutes < 15) {
-                return "redBg";
-            }
-            if (minutes > 15 && minutes < 30) {
-                return "yellowBg";
-            }
-        } catch (e) {
-            console.error(e.toString());
-        }
-    }
-    function GettimediffforInbound(Scheduled, Actual) {
-        var result = "";
-        var actual = moment(Actual);  // 5am PDT
-        var scheduled = moment(Scheduled);
-        if (actual._isValid) {
-            // calculate total duration
-            var duration = moment.duration(actual.diff(scheduled));
-            // duration in minutes
-            var minutes = parseInt(duration.asMinutes()) % 60;
-            if (minutes < 1) {
-                result = "greenBg";
-            }
-        }
-        var currenttime = moment().tz(Facility_TimeZone);
-        if (!actual._isValid) {
-            //  calculate current to scheduled duration
-            var lateduration = moment.duration(currenttime.diff(scheduled));
-            var lateminutes = parseInt(lateduration.asMinutes()) % 60;
-
-            if (lateminutes <= 15) {
-                result = "redBg";
-            }
-            if (lateminutes > 15 && lateminutes < 30) {
-                result = "yellowBg";
-            }
-        }
-        return result;
-    }
+    $(document).on('click', '.camera_view', function () {
+        var td = $(this);
+        var tr = $(td).closest('tr');
+        let id = tr.attr('data-id');
+        let model = tr.attr('data-model');
+        let description = tr.attr('data-description');
+        View_Web_Camera(id, model, description);
+    });
     async function GetUserInfo() {
         try {
-
-
             // get people tags
             $.connection.FOTFManager.server.getPersonTagsList().done(function (Data) {
                 try {
@@ -1180,8 +1063,9 @@ $(() => {
                                             nameId_id = "";
                                         }
 
-                                        var currenttime = moment(feature.properties.Tag_TS);  // 5am PDT
-                                        var lastpositiontime = moment(feature.properties.positionTS);
+                                       // var currenttime = moment().tz();  // 5am PDT
+                                        let currenttime = moment().tz(timezone.Facility_TimeZone);
+                                        let lastpositiontime = moment(feature.properties.positionTS);
                                         if (currenttime._isValid && lastpositiontime._isValid) {
                                             // calculate total duration
                                             var duration = moment.duration(currenttime.diff(lastpositiontime));
@@ -1299,65 +1183,34 @@ $(() => {
         } catch (e) {
             console.log(e)
         }
-    }
+    }   
 
-    function formatURL(NASS_Code) {
-        return $.extend(NASS_Code, {
-            nasscode: NASS_Code
-        });
-    }
-
-    function enableNotificationSubmit() {
-        //AGV connections
-        if ($('input[type=text][name=condition_name]').hasClass('is-valid') &&
-            $('input[type=text][name=condition]').hasClass('is-valid') &&
-            $('input[id=warning_condition]').val() >= 0 &&
-            $('input[id=critical_condition]').val() >= 0) {
-            $('button[id=notificationsubmitBtn]').prop('disabled', false);
-            $('button[id=editnotificationsubmitBtn]').prop('disabled', false);
+});
+//sort table header
+$('th').click(function () {
+    var $th = $(this).closest('th');
+    $th.toggleClass('selected');
+    var isSelected = $th.hasClass('selected');
+    var isInput = $th.hasClass('input');
+    var column = $th.index();
+    var $table = $th.closest('table');
+    var isNum = $table.find('tbody > tr').children('td').eq(column).hasClass('num');
+    var rows = $table.find('tbody > tr').get();
+    rows.sort(function (rowA, rowB) {
+        if (isInput) {
+            var keyA = $(rowA).children('td').eq(column).children('input').val().toUpperCase();
+            var keyB = $(rowB).children('td').eq(column).children('input').val().toUpperCase();
+        } else {
+            var keyA = $(rowA).children('td').eq(column).text().toUpperCase();
+            var keyB = $(rowB).children('td').eq(column).text().toUpperCase();
         }
-        else {
-            $('button[id=notificationsubmitBtn]').prop('disabled', true);
-            $('button[id=editnotificationsubmitBtn]').prop('disabled', true);
-        }
-    }
-    function validateNum(input, min, max) {
-        if (input >= min && input <= max) {
-            return true;
-        }
-        else {
-            return false;
-        }
-    }
-
- 
-   
-    //sort table header
-    $('th').click(function () {
-        var $th = $(this).closest('th');
-        $th.toggleClass('selected');
-        var isSelected = $th.hasClass('selected');
-        var isInput = $th.hasClass('input');
-        var column = $th.index();
-        var $table = $th.closest('table');
-        var isNum = $table.find('tbody > tr').children('td').eq(column).hasClass('num');
-        var rows = $table.find('tbody > tr').get();
-        rows.sort(function (rowA, rowB) {
-            if (isInput) {
-                var keyA = $(rowA).children('td').eq(column).children('input').val().toUpperCase();
-                var keyB = $(rowB).children('td').eq(column).children('input').val().toUpperCase();
-            } else {
-                var keyA = $(rowA).children('td').eq(column).text().toUpperCase();
-                var keyB = $(rowB).children('td').eq(column).text().toUpperCase();
-            }
-            if (isSelected) return OrderBy(keyA, keyB, isNum);
-            return OrderBy(keyB, keyA, isNum);
-        });
-        $.each(rows, function (index, row) {
-            $table.children('tbody').append(row);
-        });
-        return false;
+        if (isSelected) return OrderBy(keyA, keyB, isNum);
+        return OrderBy(keyB, keyA, isNum);
     });
+    $.each(rows, function (index, row) {
+        $table.children('tbody').append(row);
+    });
+    return false;
 });
 function setHeight() {
     var height = (this.window.innerHeight > 0 ? this.window.innerHeight : this.screen.height) - 1;
@@ -1547,7 +1400,6 @@ function GetPeopleInZone(zone, P2Pdata, staffarray) {
         console.log(e);
     }
 }
-
 function digits(num) {
     return num.replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,");
 }
