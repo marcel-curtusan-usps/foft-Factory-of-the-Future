@@ -39,18 +39,18 @@ var dockDoors = new L.GeoJSON(null, {
                         style = {
                             weight: 2,
                             opacity: 1,
-                            color: '#3573b1',
-                            fillColor: '#ff0af7',
+                            color: '#3573b1',       // Blue
+                            fillColor: '#dc3545',   // Red. ff0af7 is Purple
                             fillOpacity: 0.5,
                             label: feature.properties.name
                         };
-                    }
+                    } 
                     else {
                         style = {
                             weight: 2,
                             opacity: 1,
-                            color: '#3573b1',
-                            fillColor: '#3573b1',//#98c9fa
+                            color: '#3573b1',       // Blue
+                            fillColor: '#3573b1',   // Blue. #98c9fa is lighter blue.
                             fillOpacity: 0.5,
                             label: feature.properties.name
                         };
@@ -60,8 +60,8 @@ var dockDoors = new L.GeoJSON(null, {
                     style = {
                         weight: 2,
                         opacity: 1,
-                        color: '#3573b1',
-                        fillColor: '#3573b1',//#98c9fa
+                        color: '#3573b1',       // Blue
+                        fillColor: '#3573b1',   // Blue. #98c9fa is lighter blue.
                         fillOpacity: 0.5,
                         label: feature.properties.name
                     };
@@ -358,7 +358,7 @@ async function updatedockdoor(layerindex) {
                         weight: 2,
                         opacity: 1,
                         color: '#3573b1',
-                        fillColor: '#ff0af7',
+                        fillColor: '#dc3545',   // Red. ff0af7 is Purple
                         fillOpacity: 0.5
                     });
                     if (dockDoors._layers[layerindex].feature.properties.routetripData.unloadedcontainers > 0) {
