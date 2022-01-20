@@ -681,7 +681,7 @@ $(function () {
             .then(init_dockdoor())
             .then(init_agvlocation())
             .then(init_zones())
-            .then(init_arrive_depart_trips())
+            .then(function () { init_arrive_depart_trips(); })
             .then(init_locators())
 
             .catch(
@@ -709,22 +709,16 @@ $(function () {
         try {
             if (map._layers[layerindex].hasOwnProperty("feature")) {
                 if (map._layers[layerindex].feature.hasOwnProperty("properties")) {
-                    $('input[type=text][name=employee_ein]').val(map._layers[layerindex].feature.properties.Employee_EIN);
-                    $('input[type=text][name=employee_name]').val(map._layers[layerindex].feature.properties.Employee_Name);
+                    $('input[type=text][name=empId]').val(map._layers[layerindex].feature.properties.Employee_EIN);
+                    $('input[type=text][name=empName]').val(map._layers[layerindex].feature.properties.Employee_Name);
                     $('input[type=text][name=tag_name]').val(map._layers[layerindex].feature.properties.name);
                     $('input[type=text][name=tag_id]').val(map._layers[layerindex].feature.properties.id);
-                    $('input[type=text][name=employee_group]').val(map._layers[layerindex].feature.properties.Employee_Group_type);
-                    $('input[type=text][name=employee_pl]').val(map._layers[layerindex].feature.properties.Employee_PL);
-                    $('input[type=text][name=employee_role]').val(map._layers[layerindex].feature.properties.Employee_Role);
                     $('button[id=usertagsubmitBtn]').off().on('click', function () {
                         try {
                             $('button[id=usertagsubmitBtn]').prop('disabled', true);
                             var jsonObject = {};
-                            $('input[type=text][name=employee_ein]').val() !== map._layers[layerindex].feature.properties.Employee_EIN ? jsonObject.Employee_EIN = $('input[type=text][name=employee_ein]').val() : "";
-                            $('input[type=text][name=employee_name]').val() !== map._layers[layerindex].feature.properties.Employee_Name ? jsonObject.Employee_Name = $('input[type=text][name=employee_name]').val() : "";
-                            $('input[type=text][name=employee_group]').val() !== map._layers[layerindex].feature.properties.Employee_Group_type ? jsonObject.Employee_Group_type = $('input[type=text][name=employee_group]').val() : "";
-                            $('input[type=text][name=employee_pl]').val() !== map._layers[layerindex].feature.properties.Employee_PL ? jsonObject.Employee_PL = $('input[type=text][name=employee_pl]').val() : "";
-                            $('input[type=text][name=employee_role]').text() !== map._layers[layerindex].feature.properties.Employee_Role ? jsonObject.Employee_Role = $('input[type=text][name=employee_role]').text() : "";
+                            $('input[type=text][name=empId]').val() !== map._layers[layerindex].feature.properties.Employee_EIN ? jsonObject.Employee_EIN = $('input[type=text][name=employee_ein]').val() : "";
+                            $('input[type=text][name=empName]').val() !== map._layers[layerindex].feature.properties.Employee_Name ? jsonObject.Employee_Name = $('input[type=text][name=employee_name]').val() : "";
                             if (!$.isEmptyObject(jsonObject)) {
                                 jsonObject.id = map._layers[layerindex].feature.properties.id;
                                 $.connection.FOTFManager.server.editTagInfo(JSON.stringify(jsonObject)).done(function (Data) {
@@ -1159,10 +1153,10 @@ $(function () {
             $.connection.FOTFManager.server.getUndetectedTagsList().done(function (undetectedtagsData) {
                 try {
                     if (undetectedtagsData.length > 0) {
-                        $compliance_Table = $('table[id=compliancetable]');
-                        $compliance_Table_Body = $compliance_Table.find('tbody');
+                        let compliance_Table = $('table[id=compliancetable]');
+                        let compliance_Table_Body = compliance_Table.find('tbody');
                         $('span[name=undetected_count]').text(undetectedtagsData.length);
-                        $compliance_row_template = '<tr data-tag="{tag_id}">' +
+                        let compliance_row_template = '<tr data-tag="undetected_{tag_id}">' +
                             '<td data-input="badge">{tag_name}</td>' +
                             '<td data-input="ldc" class="text-center">{ldc}</td>' +
                             '<td data-input="opcode" class="text-center">{op_code}</td>' +
@@ -1173,16 +1167,59 @@ $(function () {
                             return $.extend(properties, {
                                 tag_id: properties.id,
                                 tag_name: !/^n.a$/.test(properties.name) ? properties.name : /^n.a$/.test(properties.craftName) ? properties.craftName : properties.id,
-                                ldc: properties.hasOwnProperty("Tacs") ? properties.Tacs.hasOwnProperty("ldc") ? properties.Tacs.ldc : "No LDC" : "No Tacs",
-                                op_code: properties.hasOwnProperty("Tacs") ? properties.Tacs.hasOwnProperty("operationId") ? properties.Tacs.operationId : "No Op Code" : "No Tacs",
-                                paylocation: properties.hasOwnProperty("Tacs") ? properties.Tacs.hasOwnProperty("payLocation") ? properties.Tacs.payLocation : "No payLocation" : "No Tacs"
+                                ldc: properties.hasOwnProperty("tacs") ? properties.tacs.hasOwnProperty("ldc") ? properties.tacs.ldc : "No LDC" : "No Tacs",
+                                op_code: properties.hasOwnProperty("tacs") ? properties.tacs.hasOwnProperty("operationId") ? properties.tacs.operationId : "No Op Code" : "No Tacs",
+                                paylocation: properties.hasOwnProperty("tacs") ? properties.tacs.hasOwnProperty("payLocation") ? properties.tacs.payLocation : "No payLocation" : "No Tacs"
                             });
                         }
                         $.map(undetectedtagsData, async function (properties, i) {
-                            var findtrdataid = $compliance_Table_Body.find('tr[data-tag=' + properties.properties.id + ']');
+                            var findtrdataid = compliance_Table_Body.find('tr[data-tag=undetected_' + properties.properties.id + ']');
                             if (findtrdataid.length === 0) {
-                                $compliance_Table_Body.append($compliance_row_template.supplant(formatcompliancerow(properties.properties)));
-                                sortTable($compliance_Table, 'asc');
+                                if (properties.properties.tacs.fnAlert === "false") {
+                                    compliance_Table_Body.append(compliance_row_template.supplant(formatcompliancerow(properties.properties)));
+                                    sortTable(compliance_Table, 'asc');
+                                }
+                                else {
+                                    findtrdataid.remove();
+                                }
+                            }
+                        })
+                    }
+                } catch (e) {
+                    console.log(e);
+                }
+            });
+
+            //get LDC alerts
+            $.connection.FOTFManager.server.getLDCAlertTagsList().done(function (ldcalertstagsData) {
+                try {
+                    if (ldcalertstagsData.length > 0) {
+                        let LDCAlert_Table = $('table[id=ldcalerttable]');
+                        let LDCAlert_Table_Body = LDCAlert_Table.find('tbody');
+                        $('span[name=ldcaler_count]').text(ldcalertstagsData.length);
+                        let LDCAlert_row_template = '<tr data-tag="ldc_alert_{tag_id}">' +
+                            '<td data-input="badge">{tag_name}</td>' +
+                            '<td data-input="ldc" class="text-center">{ldc}</td>' +
+                            '<td data-input="ldc" class="text-center">{sels_ldc}</td>' +
+                            '<td data-input="opcode" class="text-center">{op_code}</td>' +
+                            '<td data-input="paylocation" class="text-center">{paylocation}</td>' +
+                            '</tr>'
+                            ;
+                        function formatldcalertsrow(properties) {
+                            return $.extend(properties, {
+                                tag_id: properties.id,
+                                tag_name: !/^n.a$/.test(properties.name) ? properties.name : /^n.a$/.test(properties.craftName) ? properties.craftName : properties.id,
+                                ldc: properties.hasOwnProperty("tacs") ? properties.tacs.hasOwnProperty("ldc") ? properties.tacs.ldc : "No LDC" : "No Tacs",
+                                sels_ldc: properties.hasOwnProperty("sels") ? properties.sels.hasOwnProperty("currentLDCs") ? properties.sels.currentLDCs[0] : "No LDC" : "No Tacs",
+                                op_code: properties.hasOwnProperty("tacs") ? properties.tacs.hasOwnProperty("operationId") ? properties.tacs.operationId : "No Op Code" : "No Tacs",
+                                paylocation: properties.hasOwnProperty("tacs") ? properties.tacs.hasOwnProperty("payLocation") ? properties.tacs.payLocation : "No payLocation" : "No Tacs"
+                            });
+                        }
+                        $.map(ldcalertstagsData, async function (properties, i) {
+                            var findtrdataid = LDCAlert_Table_Body.find('tr[data-tag=ldc_alert_' + properties.properties.id + ']');
+                            if (findtrdataid.length === 0) {
+                                LDCAlert_Table_Body.append(LDCAlert_row_template.supplant(formatldcalertsrow(properties.properties)));
+                                sortTable(LDCAlert_Table, 'asc');
                             }
                         })
                     }
@@ -1425,6 +1462,17 @@ function checkValue(value) {
 function pad(str, max) {
     str = str.toString();
     return str.length < max ? pad("0" + str, max) : str;
-};
-
-
+}
+function objSVTime(t) {
+    try {
+        var time = moment().set({ 'year': t.year, 'month': t.month, 'date': t.dayOfMonth, 'hour': t.hourOfDay, 'minute': t.minute, 'second': t.second });
+        if (time._isValid) {
+            if (time.year() === 1) {
+                return "";
+            }
+            return time.format("HH:mm");
+        }
+    } catch (e) {
+        console.log(e);
+    }
+}

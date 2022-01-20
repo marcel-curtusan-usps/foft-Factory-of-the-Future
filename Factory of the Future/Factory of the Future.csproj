@@ -368,7 +368,7 @@
     <Content Include="Scripts\umd\popper.min.js" />
     <Content Include="Scripts\View\agvlocation_zone.js" />
     <Content Include="Scripts\View\application_setting.js" />
-    <Content Include="Scripts\View\arrive_depart_trips.js" />
+    <Content Include="Scripts\View\trips.js" />
     <Content Include="Scripts\View\camera_video.js" />
     <Content Include="Scripts\View\connection.js" />
     <Content Include="Scripts\View\dockdoor_zone.js" />
@@ -417,6 +417,7 @@
     <Compile Include="HubManager\ConnectionMapping.cs" />
     <Compile Include="HubManager\HubManager.cs" />
     <Compile Include="HubManager\FOTFManager.cs" />
+    <Compile Include="ProcessReceivedMessage\ItineraryTrip_Update.cs" />
     <Compile Include="ThreadsProcess.cs" />
     <Compile Include="UDP_Listener\UdpServer.cs" />
     <Compile Include="Utilities\ItineraryTripUpdate.cs" />

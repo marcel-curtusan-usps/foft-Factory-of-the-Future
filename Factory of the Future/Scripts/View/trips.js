@@ -23,8 +23,41 @@ async function init_arrive_depart_trips() {
         console.log(e);
     }
 }
-async function updateTrips() {
+async function updateTrips(trip) {
+    let routetrip = trip.route + trip.trip + trip.tripDirectionInd;
+    let trname = $.find('tbody tr[data-id=' + routetrip + ']');
 
+    if (trname.length > 0) {
+        for (var i = 0; i < trname.length; i++) {
+            let tablename = $(trname[i]).closest('table').attr('id');
+            if (tablename.length > 0) {
+                if (trip.hasOwnProperty("state") && trip.state === "remove") {
+
+                    if (tripdataid.length > 0) {
+                        $('#' + tablename).find('tbody tr[data-id=' + routetrip + ']').remove()
+                    }
+                }
+                else {
+                    switch (tablename) {
+                        case "ctsdockdepartedtable":
+                            ob_trips_Table_Body.find('tbody tr[data-id=' + routetrip + ']').replaceWith(ob_trips_row_template.supplant(formatobtriprow(trip)));
+                            break;
+                        case "ctslocaldockdepartedtable":
+                            oblocal_trips_Table_Body.find('tbody tr[data-id=' + routetrip + ']').replaceWith(oblocal_trips_row_template.supplant(formatobtriprow(trip)));
+                            break;
+                        case "ctsouttoptable":
+                            scheouttrips_Table_Body.find('tbody tr[data-id=' + routetrip + ']').replaceWith(scheouttrips_row_template.supplant(formatobtriprow(trip)));
+                            break;
+                        case "ctsintoptable":
+                            scheintrips_Table_Body.find('tbody tr[data-id=' + routetrip + ']').replaceWith(scheintrips_row_template.supplant(formatobtriprow(trip)));
+                            break;
+                        default:
+                    }
+                }
+            }
+        }
+       
+    } 
 }
 async function process_trips(trip)
 {
@@ -67,8 +100,8 @@ Outbound network trips
  */
 function formatobtriprow(properties) {
     return $.extend(properties, {
-        schd: properties.hasOwnProperty("ScheduledDtm") ? formatSVTime(properties.ScheduledDtm) : "" ,
-        departed: properties.hasOwnProperty("ActualDtm") ? formatSVTime(properties.ActualDtm) : "",
+        schd: objSVTime(properties.scheduledDtm), //properties.hasOwnProperty("ScheduledDtm") ? formatSVTime(properties.ScheduledDtm) : "" ,
+        departed: properties.hasOwnProperty("ActualDtm") ? objSVTime(properties.actualDtm) : "",
         door: checkValue(properties.doorNumber) ? properties.doorNumber : "0",
         routetrip: properties.route + properties.trip + properties.tripDirectionInd,
         route: properties.route,
@@ -85,7 +118,7 @@ function formatobtriprow(properties) {
 }
 let ob_trips_Table = $('table[id=ctsdockdepartedtable]');
 let ob_trips_Table_Body = ob_trips_Table.find('tbody');
-let ob_trips_row_template = '<tr data-id=ctsOB_{routetrip} data-route={route} data-trip={trip}  data-door={door}  class={trbackground}>' +
+let ob_trips_row_template = '<tr data-id={routetrip} data-route={route} data-trip={trip}  data-door={door}  class={trbackground}>' +
     '<td class="text-center">{schd}</td>' +
     '<td class="text-center">{departed}</td>' +
     '<td>' +
@@ -105,7 +138,7 @@ let ob_trips_row_template = '<tr data-id=ctsOB_{routetrip} data-route={route} da
 
 let oblocal_trips_Table = $('table[id=ctslocaldockdepartedtable]');
 let oblocal_trips_Table_Body = oblocal_trips_Table.find('tbody');
-let oblocal_trips_row_template = '<tr data-id=localctsOB_{routetrip} data-route={route} data-trip={trip} data-door={door} class={trbackground}>' +
+let oblocal_trips_row_template = '<tr data-id={routetrip} data-route={route} data-trip={trip} data-door={door} class={trbackground}>' +
     '<td class="text-center">{schd}</td>' +
     '<td class="text-center">{departed}</td>' +
     '<td>'+
@@ -121,8 +154,8 @@ let oblocal_trips_row_template = '<tr data-id=localctsOB_{routetrip} data-route=
 
 function formatoblocaltriprow(properties) {
     return $.extend(properties, {
-        schd: properties.hasOwnProperty("ScheduledDtm") ? formatSVTime(properties.ScheduledDtm) : "",
-        departed: properties.hasOwnProperty("ActualDtm") ? formatSVTime(properties.ActualDtm) : "",
+        schd: objSVTime(properties.scheduledDtm),//properties.hasOwnProperty("ScheduledDtm") ? formatSVTime(properties.ScheduledDtm) : "",
+        departed: properties.hasOwnProperty("ActualDtm") ? objSVTime(properties.actualDtm) : "",
         door: checkValue(properties.doorNumber) ? properties.doorNumber : "0",
         routetrip: properties.route + properties.trip + properties.tripDirectionInd,
         route: properties.route,
@@ -143,7 +176,7 @@ Scheduled outbound trips
 */
 let scheouttrips_Table = $('table[id=ctsouttoptable]');
 let scheouttrips_Table_Body = scheouttrips_Table.find('tbody');
-let scheouttrips_row_template = '<tr data-id=out_{routetrip} data-door={door} >' +
+let scheouttrips_row_template = '<tr data-id={routetrip} data-door={door} >' +
     '<td class="text-center">{schd}</td>' +
     '<td class="text-center">{departed}</td>' +
     '<td>' +
@@ -155,8 +188,8 @@ let scheouttrips_row_template = '<tr data-id=out_{routetrip} data-door={door} >'
     '</tr>"';
 function formatscheouttriprow(properties) {
     return $.extend(properties, {
-        schd: properties.hasOwnProperty("ScheduledDtm") ? formatSVTime(properties.ScheduledDtm) : "",
-        departed: properties.hasOwnProperty("ActualDtm") ? formatSVTime(properties.ActualDtm) : "",
+        schd: objSVTime(properties.scheduledDtm),//properties.hasOwnProperty("ScheduledDtm") ? formatSVTime(properties.ScheduledDtm) : "",
+        departed: properties.hasOwnProperty("actualDtm") ? objSVTime(properties.actualDtm) : "",
         routetrip: properties.route + properties.trip + properties.tripDirectionInd,
         door: checkValue(properties.doorNumber) ? properties.doorNumber : "0",
         route: properties.route,
@@ -171,7 +204,7 @@ Scheduled inbound trips
 */
 let scheintrips_Table = $('table[id=ctsintoptable]');
 let scheintrips_Table_Body = scheintrips_Table.find('tbody');
-let scheintrips_row_template = '<tr data-id="in_{routetrip}" data-door="{door}">' +
+let scheintrips_row_template = '<tr data-id="{routetrip}" data-door="{door}">' +
     '<td  data-toggle="tooltip" title="{route} - {trip}" class="text-center" class="{inbackground}">{schd}</td>' +
     '<td class="text-center" class="{inbackground}">{arrived}</td>' +
     '<td>' +
@@ -183,8 +216,8 @@ let scheintrips_row_template = '<tr data-id="in_{routetrip}" data-door="{door}">
     '</tr>';
 function formatscheintriprow(properties) {
     return $.extend(properties, {
-        schd: properties.hasOwnProperty("LegScheduledDtm") ? formatSVTime(properties.LegScheduledDtm) : "",
-        arrived: properties.hasOwnProperty("ActArrivalDtm") ? formatSVTime(properties.ActArrivalDtm) : "",
+        schd: objSVTime(properties.scheduledDtm),//properties.hasOwnProperty("LegScheduledDtm") ? formatSVTime(properties.LegScheduledDtm) : "",
+        arrived: properties.hasOwnProperty("actArrivalDtm") ? objSVTime(properties.actArrivalDtm) : "",
         routetrip: properties.route + properties.trip + properties.tripDirectionInd ,
         door: checkValue(properties.doorNumber) ? properties.doorNumber : "0",
         route: properties.route,

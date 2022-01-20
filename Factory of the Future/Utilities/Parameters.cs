@@ -177,16 +177,13 @@ namespace Factory_of_the_Future
                 properties["Tag_TS"] = DateTime.Now;
                 properties["Tag_Type"] = "";
                 properties["Tag_Update"] = false;
-                properties["Employee_EIN"] = "";
-                properties["Employee_Group_type"] = "";
-                properties["Employee_Name"] = "";
-                properties["Employee_PL"] = "";
-                properties["Employee_Role"] = "";
-                properties["isLdcAlert"] =false;
+                properties["empId"] = "";
+                properties["emptype"] = "";
+                properties["empName"] = "";
+                properties["isLdcAlert"] = false;
                 properties["currentLDCs"] = "";
-                properties["Tacs"] = new JObject();
-                properties["HasTablet"] = false;
-                properties["TabletSN"] ="";
+                properties["tacs"] = new JObject();
+                properties["sels"] = new JObject();
                 properties["Raw_Data"] = "";
                 return properties;
             }
@@ -1116,7 +1113,9 @@ namespace Factory_of_the_Future
         [JsonProperty("legs")]
         public List<Leg> Legs;
 
-    
+        [JsonProperty("rawData")]
+        public string RawData;
+
     }
     public class Leg
     {

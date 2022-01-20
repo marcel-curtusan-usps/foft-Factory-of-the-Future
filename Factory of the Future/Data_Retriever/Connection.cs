@@ -5,8 +5,11 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Net.Security;
 using System.Net.Sockets;
+using System.Security.Cryptography.X509Certificates;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading;
 using System.Web;
 
@@ -427,8 +430,8 @@ namespace Factory_of_the_Future
             }
             else if (this.API_Info.CONNECTION_NAME.ToUpper().StartsWith("SV".ToUpper()))
             {
-                string start_time = string.Concat(DateTime.Now.AddHours(-4).ToString("yyyy-MM-dd'T'HH:"), "00:00");
-                string end_time = DateTime.Now.AddHours(+4).ToString("yyyy-MM-dd'T'HH:mm:ss");
+                string start_time = string.Concat(DateTime.Now.AddHours(-24).ToString("yyyy-MM-dd'T'HH:"), "00:00");
+                string end_time = DateTime.Now.AddHours(+5).ToString("yyyy-MM-dd'T'HH:mm:ss");
                 formatUrl = string.Format(this.API_Info.URL, this.API_Info.NASS_CODE, start_time, end_time);
             }
             else if (this.API_Info.CONNECTION_NAME.ToUpper().StartsWith("Web_Camera".ToUpper()))
@@ -454,10 +457,6 @@ namespace Factory_of_the_Future
                     string p2p_siteid = (string)Global.AppSettings.Property("FACILITY_P2P_SITEID").Value;
                     if (!string.IsNullOrEmpty(p2p_siteid))
                     {
-                        if (data_source.ToUpper().StartsWith("P2PBySite".ToUpper()))
-                        {
-                            requestBody = new JObject(new JProperty("siteId", p2p_siteid), new JProperty("operation", "bySite"));
-                        }
                         formatUrl = string.Format(this.API_Info.URL, p2p_siteid, data_source);
                     }
                 }
@@ -492,7 +491,8 @@ namespace Factory_of_the_Future
                  */
                 try
                 {
-                    System.Net.ServicePointManager.SecurityProtocol |= SecurityProtocolType.Tls11 | SecurityProtocolType.Tls12;
+                   ServicePointManager.SecurityProtocol |= SecurityProtocolType.Tls11 | SecurityProtocolType.Tls12;
+                   ServicePointManager.ServerCertificateValidationCallback = new RemoteCertificateValidationCallback(AcceptAllCertifications);
 
                     HttpWebRequest request = (HttpWebRequest)HttpWebRequest.Create(formatUrl);
                     using (HttpWebResponse Response = (HttpWebResponse)request.GetResponse())
@@ -501,6 +501,8 @@ namespace Factory_of_the_Future
                         {
                             using (StreamReader reader = new System.IO.StreamReader(Response.GetResponseStream(), ASCIIEncoding.ASCII))
                             {
+                                try
+                                {
                                 string result = reader.ReadToEnd();
                                 // process date
                                 if (!string.IsNullOrEmpty(result))
@@ -574,6 +576,12 @@ namespace Factory_of_the_Future
                                         m.Property("LASTTIME_API_CONNECTED").Value = DateTime.Now;
                                         m.Property("UPDATE_STATUS").Value = true;
                                     });
+                                }
+                                }
+                                catch (Exception e)
+                                {
+                                    new ErrorLogger().ExceptionLog(e);
+                                    this.Status = 3;
                                 }
 
                             }
@@ -626,7 +634,8 @@ namespace Factory_of_the_Future
                  */
                 try
                 {
-                    System.Net.ServicePointManager.SecurityProtocol |= SecurityProtocolType.Tls11 | SecurityProtocolType.Tls12;
+                    ServicePointManager.SecurityProtocol |= SecurityProtocolType.Tls11 | SecurityProtocolType.Tls12;
+                    ServicePointManager.ServerCertificateValidationCallback = new RemoteCertificateValidationCallback(AcceptAllCertifications);
 
                     HttpWebRequest request = (HttpWebRequest)HttpWebRequest.Create(formatUrl);
                     request.ContentType = "application/json";
@@ -652,6 +661,12 @@ namespace Factory_of_the_Future
                                         {
                                             if (result.StartsWith("{"))
                                             {
+                                                ////replace "dayOfMonth" to month and "hourOfDay" to day 
+                                                //if (this.API_Info.CONNECTION_NAME.ToUpper().StartsWith("SV".ToUpper()))
+                                                //{
+                                                //    Regex.Replace(result, @"dayOfMonth", "month", RegexOptions.IgnorePatternWhitespace);
+                                                //    Regex.Replace(result, @"hourOfDay", "hour", RegexOptions.IgnorePatternWhitespace);
+                                                //}
                                                 JObject temp1 = JObject.Parse(result);
                                                 if (formatUrl.Contains("api_page.get_id"))
                                                 {
@@ -720,6 +735,7 @@ namespace Factory_of_the_Future
                             }
                         }
                     }
+                    this.Status = 0;
                     /*
                      * LINQ To get rid of all scripts
                      * this speeds the opening of the HTM
@@ -759,7 +775,24 @@ namespace Factory_of_the_Future
                 this.LastDownload = DateTime.Now;
                 this.Status = 0;
             }
+            if (string.IsNullOrEmpty(formatUrl) && requestBody == null)
+            {
+                // Thread is complete. Return to idle
+                this.LastDownload = DateTime.Now;
+                this.Status = 0;
+            }
+       
 
+        }
+
+        private bool AcceptAllCertifications(object sender, X509Certificate certificate, X509Chain chain, SslPolicyErrors sslPolicyErrors)
+        {
+            if (sslPolicyErrors == SslPolicyErrors.None)
+            {
+                return true;
+            }
+
+            return false;
         }
 
         private string GetDataFromStream(WebResponse response)

@@ -161,7 +161,7 @@ async function updateNotification(updatenotification) {
             var notificationindex = notification.filter(x => x.NOTIFICATIONGID === updatenotification.NOTIFICATIONGID).map(x => x).length;
             let indexobj = -0;
             var Vehiclecount = -0;
-            var ctscount = -0;
+            var routetripcount = -0;
             var machinecount = -0;
 
             if (notificationindex === 0) {
@@ -184,182 +184,62 @@ async function updateNotification(updatenotification) {
                         }
                     })
                 }
-
                 let Table = {};
-                if (updatenotification.TYPE === "vehicle") {
-                    Table = $('table[id=agvnotificationtable]');
-                }
-                if (updatenotification.TYPE === "CTS") {
-                    Table = $('table[id=ctsnotificationtable]');
-                }
-                if (Table.length > 0) {
-                    let Table_Body = Table.find('tbody');
-                    var findtrdataid = Table_Body.find('tr[data-id=' + updatenotification.NOTIFICATIONGID + ']');
-                    if (findtrdataid.length > 0) {
-                        if (updatenotification.hasOwnProperty("DELETE")) {
-                            Table_Body.find('tr[data-id=' + updatenotification.NOTIFICATIONGID + ']').remove();
-                        }
-                        else {
-                            Table_Body.find('tr[data-id=' + updatenotification.NOTIFICATIONGID + ']').replaceWith(row_template.supplant(formatnotifirow(updatenotification)));
+
+                var triptabvisible = sidebar._getTab("tripsnotificationinfo");
+                if (triptabvisible) {
+                    if (triptabvisible.classList.length) {
+                        if (triptabvisible.classList.contains('active')) {
+                            Table = $('table[id=tripsnotificationtable]');
+                            if (Table.length > 0) {
+                                let Table_Body = Table.find('tbody');
+                                let findtrdataid = Table_Body.find('tr[data-id=' + updatenotification.NOTIFICATIONGID + ']');
+                                if (findtrdataid.length > 0) {
+                                    if (updatenotification.hasOwnProperty("DELETE")) {
+                                        Table_Body.find('tr[data-id=' + updatenotification.NOTIFICATIONGID + ']').remove();
+                                    }
+                                    else {
+
+                                        Table_Body.find('tr[data-id=' + updatenotification.NOTIFICATIONGID + ']').replaceWith(routetriprow_template.supplant(formatroutetripnotifirow(updatenotification)));
+                                    }
+                                }
+                                else {
+                                    Table_Body.append(routetriprow_template.supplant(formatroutetripnotifirow(updatenotification)));
+                                }
+                            }
                         }
                     }
-                    else {
-                        Table_Body.append(row_template.supplant(formatnotifirow(updatenotification)));
+                }
+
+
+                var agvtabvisible = sidebar._getTab("agvnotificationinfo");
+                if (agvtabvisible) {
+                    if (agvtabvisible.classList.length) {
+                        if (agvtabvisible.classList.contains('active')) {
+                            Table = $('table[id=agvnotificationtable]');
+                            if (Table.length > 0) {
+                                let Table_Body = Table.find('tbody');
+                                let findagvtrdataid = Table_Body.find('tr[data-id=' + updatenotification.NOTIFICATIONGID + ']');
+                                if (findagvtrdataid.length > 0) {
+                                    if (updatenotification.hasOwnProperty("DELETE")) {
+                                        Table_Body.find('tr[data-id=' + updatenotification.NOTIFICATIONGID + ']').remove();
+                                    }
+                                    else {
+                                        Table_Body.find('tr[data-id=' + updatenotification.NOTIFICATIONGID + ']').replaceWith(row_template.supplant(formatnotifirow(updatenotification)));
+                                    }
+                                }
+                                else {
+                                    Table_Body.append(row_template.supplant(formatnotifirow(updatenotification)));
+                                }
+                            }
+                        }
                     }
-                    //if (parseInt(indexobj) >= 0) {
-                    //    if (notification[indexobj].hasOwnProperty("SHOWTOAST")) {
-                    //        if (notification[indexobj].SHOWTOAST === true) {
-                    //            ///////////////// need to development this more.///////////////////
-                    //            // html template for critical toast alert message
-                    //            $toast_alert_critical_template =
-                    //                '<div id="{id}" class="toast alert-danger show" role="alert" data-autohide="false">' +
-                    //                '<div class="toast-header alert-danger py-2">' +
-                    //                '<i class="pi-iconCriticalTriangle rounded mr-2"></i> ' +
-                    //                '<strong class="mr-auto">Critical</strong>' +
-                    //                '<small id="{id}_duration">{duration}</small>' +
-                    //                '<button type="button" class="ml-2 mb-1 close" data-dismiss="toast" data-index="{indexobj}" aria-label="Close">' +
-                    //                '<span aria-hidden="true" class="iconSmall"><i class="pi-iconExit" style="color: #000;"></i></span>' +
-                    //                '</button>' +
-                    //                '</div>' +
-                    //                '<div class="toast-body">' +
-                    //                '<!-- Collapsible section -->' +
-                    //                '<a class="btn btn-link d-flex justify-content-between" data-toggle="collapse" href="#collapseSection" role="button" aria-expanded="false" aria-controls="collapseSection">' +
-                    //                '<div>{name} - {type} - {condition}</div>' +
-                    //                '<div class="iconXSmall"><i class="pi-iconCaretDownFill"></i></div>' +
-                    //                '</a>' +
-                    //                '<div class="collapse" id="collapseSection">' +
-                    //                '<div class="mt-1">' +
-                    //                '<ol class="pl-4 mb-0">' +
-                    //                '<li class="pb-1">{ResolutionText1}</li>' +
-                    //                '<li class="pb-1">{ResolutionText2}</li>' +
-                    //                '<li class="pb-1">{ResolutionText3}</li>' +
-                    //                '</ol>' +
-                    //                '</div>' +
-                    //                '<div class="d-flex justify-content-between">' +
-                    //                '<div class="col-8">' +
-                    //                '<small>Are the instructions helpful?</small>' +
-                    //                '<div class="col-12 d-flex justify-content-start">' +
-                    //                '<button class="btn btn-light border-0 iconMedium px-2"><i class="pi-iconThumbUpOutline"></i></button>' +
-                    //                '<button class="btn btn-light border-0 iconMedium px-2 ml-3"><i class="pi-iconThumbDownOutline"></i></button>' +
-                    //                '</div>' +
-                    //                '</div>' +
-                    //                '<div class="col-4 d-flex justify-content-between px-0 pt-4">' +
-                    //                '<button class="btn btn-light iconMedium px-2"><i class="pi-iconEdit"></i></button>' +
-                    //                '<button class="btn btn-light iconMedium px-2"><i class="pi-iconSnooze"></i></button>' +
-                    //                '<button class="btn btn-light iconMedium px-2"><i class="pi-iconSubmit"></i></button>' +
-                    //                '</div>' +
-                    //                '</div>' +
-                    //                '</div>' +
-                    //                '</div>' +
-                    //                '</div>'
-                    //                ;
-
-                    //            // html template for warning toast alert message
-                    //            $toast_alert_warning_template =
-                    //                '<div id="{id}" class="toast alert-warning show" role="alert" data-autohide="false">' +
-                    //                '<div class="toast-header alert-warning py-2">' +
-                    //                '<i class="pi-iconWarningSquare rounded mr-2"></i>' +
-                    //                '<strong class="mr-auto">Warning</strong>' +
-                    //                '<small>{duration}</small>' +
-                    //                '<button type="button" class="ml-2 mb-1 close" data-dismiss="toast" data-index="{indexobj}" aria-label="Close">' +
-                    //                '<span aria-hidden="true" class="iconSmall"><i class="pi-iconExit"></i></span>' +
-                    //                '</button>' +
-                    //                '</div>' +
-                    //                '<div class="toast-body">' +
-                    //                '<!-- Collapsible section -->' +
-                    //                '<a class="btn btn-link d-flex justify-content-between" data-toggle="collapse" href="#collapseSection1" role="button" aria-expanded="false" aria-controls="collapseSection1">' +
-                    //                '<div>{name} - {type} - {condition}</div>' +
-                    //                '<div class="iconXSmall"><i class="pi-iconCaretDownFill"></i></div>' +
-                    //                '</a>' +
-                    //                '<div class="collapse" id="collapseSection1">' +
-                    //                '<div class="mt-1">' +
-                    //                '<ol class="pl-4 mb-0">' +
-                    //                '<li class="pb-1">{ResolutionText1}</li>' +
-                    //                '<li class="pb-1">{ResolutionText2}</li>' +
-                    //                '<li class="pb-1">{ResolutionText3}</li>' +
-                    //                '</ol>' +
-                    //                '</div>' +
-                    //                '<div class="d-flex justify-content-between">' +
-                    //                '<div class="col-8">' +
-                    //                '<small>Are the instructions helpful?</small>' +
-                    //                '<div class="col-12 d-flex justify-content-start">' +
-                    //                '<button class="btn btn-light border-0 iconMedium px-2"><i class="pi-iconThumbUpOutline"></i></button>' +
-                    //                '<button class="btn btn-light border-0 iconMedium px-2 ml-3"><i class="pi-iconThumbDownOutline"></i></button>' +
-                    //                '</div>' +
-                    //                '</div>' +
-                    //                '<div class="col-4 d-flex justify-content-between px-0 pt-4">' +
-                    //                '<button class="btn btn-light iconMedium px-2"><i class="pi-iconEdit"></i></button>' +
-                    //                '<button class="btn btn-light iconMedium px-2"><i class="pi-iconSnooze"></i></button>' +
-                    //                '<button class="btn btn-light iconMedium px-2"><i class="pi-iconSubmit"></i></button>' +
-                    //                '</div>' +
-                    //                '</div>' +
-                    //                '</div>' +
-                    //                '</div>' +
-                    //                '</div>'
-                    //                ;
-                    //            var color = conditioncolor(updatenotification.VEHICLETIME, parseInt(updatenotification.WARNING), parseInt(updatenotification.CRITICAL));
-                    //            var condition_div = $("div[id=" + updatenotification.NOTIFICATIONGID + "]")
-                    //            // determine whether to generate a critical or a warning toast alert based on message criteria with default being warning
-                    //            // determine whether notification needs to be deleted, updated or replaced.
-                    //            // if notification already exists
-                    //            if (findtrdataid.length > 0) {
-                    //                // determine if notification is marked for deletion and delete
-                    //                if (updatenotification.hasOwnProperty("DELETE")) {
-                    //                    $("div[id=" + updatenotification.NOTIFICATIONGID + "]").remove();
-                    //                }
-                    //                // replace existing notification with updated notification
-                    //                else {
-                    //                    // critical toast alert
-                    //                    if (color === "#bd213052") {
-                    //                        if (condition_div.length === 0) {
-                    //                            $('#toastnotification').append($toast_alert_critical_template.supplant(formatnotifirow(updatenotification, indexobj)));
-                    //                        }
-
-                    //                        if ($("div[id=" + updatenotification.NOTIFICATIONGID + "]").hasClass('show')) {
-                    //                            $("small[id=" + updatenotification.NOTIFICATIONGID + "_duration]").text(calculateDuration(updatenotification.VEHICLETIME));
-                    //                        }
-                    //                        else {
-                    //                            $("div[id=" + updatenotification.NOTIFICATIONGID + "]").toast('show');
-                    //                        }
-
-                    //                    }
-                    //                    // warning toast alert
-                    //                    if (color === "#ffff0080") {
-                    //                        $("div[id=" + updatenotification.NOTIFICATIONGID + "]").toast('show');
-                    //                    }
-                    //                }
-                    //            }
-                    //            // when notification does not exist and must be added
-                    //            else {
-                    //                // critical toast alert
-                    //                if (color === "#bd213052") {
-                    //                    if (condition_div.length === 0) {
-                    //                        $('#toastnotification').append($toast_alert_critical_template.supplant(formatnotifirow(updatenotification, indexobj)));
-                    //                        $("div[id=" + updatenotification.NOTIFICATIONGID + "]").toast('show');
-                    //                    }
-                    //                }
-                    //                // warning toast alert
-                    //                if (color === "#ffff0080") {
-                    //                    if (condition_div.length === 0) {
-                    //                        $('#toastnotification').append($toast_alert_warning_template.supplant(formatnotifirow(updatenotification, indexobj)));
-                    //                        $("div[id=" + updatenotification.NOTIFICATIONGID + "]").toast('show');
-                    //                    }
-                    //                }
-                    //            }
-                    //        };
-                    //    }
-                    //}
                 }
             }
 
-            //$('div[class=toast]').on('hidden.bs.toast', function () {
-            //    if (notification[indexobj].hasOwnProperty("SHOWTOAST")) {
-            //        if (notification[indexobj].SHOWTOAST = false) { }
-            //    }
-            //})
 
             Vehiclecount = notification.filter(x => x.TYPE === "vehicle").map(x => x).length
-            ctscount = notification.filter(x => x.TYPE === "CTS").map(x => x).length
+            routetripcount = notification.filter(x => x.TYPE === "routetrip").map(x => x).length
             machinecount = notification.filter(x => x.TYPE === "machine").map(x => x).length
 
             //AGV Counts
@@ -367,42 +247,26 @@ async function updateNotification(updatenotification) {
                 if (parseInt($('#agvnotificaion_number').text()) !== Vehiclecount) {
                     $('#agvnotificaion_number').text(Vehiclecount);
                 }
-
-                //if ($('#agvnotificaion').hasClass("not_bell_ring")) {
-                //    $('#agvnotificaion').removeClass("not_bell_ring").addClass("bell_ring");
-                //}
             }
             else {
                 $('#agvnotificaion_number').text("");
-                //if ($('#agvnotificaion').hasClass("bell_ring")) {
-                //    $('#agvnotificaion').removeClass("bell_ring").addClass("not_bell_ring");
-                //}
             }
-            // CTS Counts
-            if (ctscount > 0) {
-                $('#ctsnotificaion_number').text(Vehiclecount);
-                //if ($('#ctsnotificaion').hasClass("not_bell_ring")) {
-                //    $('#ctsnotificaion').removeClass("not_bell_ring").addClass("bell_ring");
-                //}
+            // routetrip Counts
+            if (routetripcount > 0) {
+                if (parseInt($('#tripsnotificaion_number').text()) !== routetripcount) {
+                    $('#tripsnotificaion_number').text(routetripcount);
+                }
+                $('#ctsnotificaion_number').text(routetripcount);
             }
             else {
-                $('#ctsnotificaion_number').text("");
-                //if ($('#ctsnotificaion').hasClass("bell_ring")) {
-                //    $('#ctsnotificaion').removeClass("bell_ring").addClass("not_bell_ring");
-                //}
+                $('#tripsnotificaion_number').text("");
             }
             //machine counts
             if (machinecount > 0) {
                 $('#machinenotificaion_number').text(Vehiclecount);
-                //if ($('#machinenotificaion').hasClass("not_bell_ring")) {
-                //    $('#machinenotificaion').removeClass("not_bell_ring").addClass("bell_ring");
-                //}
             }
             else {
                 $('#machinenotificaion_number').text("");
-                //if ($('#machinenotificaion').hasClass("bell_ring")) {
-                //    $('#machinenotificaion').removeClass("bell_ring").addClass("not_bell_ring");
-                //}
             }
         }
     }
@@ -450,6 +314,37 @@ function formatnotifirow(properties, indx) {
         warning_action_text: properties.WARNING_ACTION,
         critical_action_text: properties.CRITICAL_ACTION,
         action_text: conditionaction_text(properties.VEHICLETIME, parseInt(properties.WARNING), parseInt(properties.CRITICAL)) + "_" + properties.NOTIFICATIONGID,
+        indexobj: indx
+    });
+}
+let routetriprow_template =
+'<tr data-id={id} style=background-color:{conditioncolor} data-toggle=collapse  class=accordion-toggle>' +
+    '<td class="text-center">{schd}</td>' +
+    '<td class="text-center">{duration}</td>' +
+    '<td class="text-center">{direction}</td>' +
+    '<td class="text-center">{door}</td>' +
+    '<td>' +
+    '<button class="btn btn-outline-info btn-sm btn-block px-1 routetripdetails" data-routetrip="{routetrip}" style="font-size:12px;">{route}-{trip}</button>' +
+    '</td> ' +
+    '<td data-toggle="tooltip" title="{dest}">{dest}</td>' +
+    '</tr>"';
+function formatroutetripnotifirow(properties, indx) {
+    return $.extend(properties, {
+        id: properties.NOTIFICATIONGID,
+        tagid: properties.TAGID,
+        schd: objSVTime(properties.scheduledDtm),
+        routetrip: properties.route + properties.trip + properties.tripDirectionInd,
+        route: properties.route,
+        trip: properties.trip,
+        direction: properties.tripDirectionInd,
+        leg: properties.legSiteId,
+        dest: properties.legSiteName,
+        condition: properties.CONDITIONS,
+        door: properties.tripDirectionInd === "I" ? "" : properties.hasOwnProperty("doorNumber") ? properties.doorNumber.replace(/^0+/, '') :"",
+        duration: calculateDuration(properties.scheduledDtm),
+        conditioncolor: conditioncolor(properties.VEHICLETIME, parseInt(properties.WARNING), parseInt(properties.CRITICAL)),
+        warning_action_text: properties.WARNING_ACTION,
+        critical_action_text: properties.CRITICAL_ACTION,
         indexobj: indx
     });
 }
@@ -699,13 +594,13 @@ function conditionaction_text(time, war_min, crit_min) {
         }
     }
 }
-function calculateDuration(time) {
-    if (checkValue(time)) {
-        var conditiontime = moment(time);  // 5am PDT
+function calculateDuration(t) {
+    if (checkValue(t)) {
+        var conditiontime = moment().tz(timezone.Facility_TimeZone).set({ 'year': t.year, 'month': t.month, 'date': t.dayOfMonth, 'hour': t.hourOfDay, 'minute': t.minute, 'second': t.second });//moment(time);  // 5am PDT
         var curenttime = moment();
         if (conditiontime._isValid) {
             var d = moment.duration(curenttime.diff(conditiontime));
-            return moment.duration(d._milliseconds, "milliseconds").format("d [days], h [hrs], m [min], s [sec], SS [ms]", {
+            return moment.duration(d._milliseconds, "milliseconds").format("d [days], h [hrs], m [min]", {
                 useSignificantDigits: true,
                 trunc: true,
                 precision: 3

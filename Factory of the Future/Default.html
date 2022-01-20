@@ -149,6 +149,7 @@
                                     <option value="apiconnection">API Connection</option>
                                     <option value="dockdoor">Dock Door</option>
                                     <option value="vehicle">Vehicle</option>
+                                    <option value="routetrip">RouteTrip</option>
                                 </select>
                                 <span id="error_condition_type" class="text-danger"></span>
                             </div>
@@ -432,17 +433,6 @@
                         <div class="row mr-0 ml-0">
                             <div class="form-group col-6">
                                 <label class="control-label">Tag MAC</label><input id="tag_id" type="text" class="form-control" name="tag_id" disabled><span id="error_tag_id" class="text-danger"></span>
-                            </div>
-                        </div>
-                        <div class="row mr-0 ml-0">
-                            <div class="form-group col-3">
-                                <label class="control-label">Employee Group</label><input id="employee_group" type="text" class="form-control" name="employee_group"><span id="error_employee_group" class="text-danger"></span>
-                            </div>
-                            <div class="form-group col-3">
-                                <label class="control-label">Employee P/L</label><input id="employee_pl" type="text" class="form-control" name="employee_pl"><span id="error_employee_pl" class="text-danger"></span>
-                            </div>
-                            <div class="form-group col-3">
-                                <label class="control-label">Employee Role</label><input id="employee_role" type="text" class="form-control" name="employee_role"><span id="error_employee_role" class="text-danger"></span>
                             </div>
                         </div>
                     </div>
@@ -778,8 +768,8 @@
                                                                 <th class="row-cts-leg">Leg</th>
                                                                 <th class="row-cts-dest">Dest</th>
                                                                 <!--<th class="row-cts-close">Close</th>
-                                                            <th class="row-cts-load">Load</th>
-                                                            <th>Load%</th>-->
+                                                                <th class="row-cts-load">Load</th>
+                                                                <th>Load%</th>-->
                                                             </tr>
                                                         </thead>
                                                         <tbody></tbody>
@@ -804,8 +794,8 @@
                                                                 <th class="row-cts-leg">Leg</th>
                                                                 <th class="row-cts-dest">Dest</th>
                                                                 <!--<th class="row-cts-close">Close</th>
-                                                            <th class="row-cts-load">Load</th>
-                                                            <th>Load%</th>-->
+                                                                <th class="row-cts-load">Load</th>
+                                                                <th>Load%</th>-->
                                                             </tr>
                                                         </thead>
                                                         <tbody></tbody>
@@ -919,15 +909,28 @@
                         <div id="div_notvaildldcinfo" class="container-fluid">
                             <div class="card w-100">
                                 <div class="card-header pl-1">
-                                    <h6 class="sectionHeader ml-1 mb-1">LDC to Work Zone Anomaly</h6>
+                                    <h6 class="sectionHeader ml-1 mb-1">LDC to Work Zone Anomaly <span class="badge-info badge" name="ldcaler_count">0</span></h6>
                                     <p class="smaller text-secondary mb-0 ml-2">Check employees’ TACS LDC. SELS Badge is physically present in a different LDC.</p>
                                 </div>
 
                                 <div class="card-body">
-                                    <div class="table-responsive fixedHeader variableHeight">
-                                        <table class="table table-sm table-hover mb-1 border-bottom" id="notvaildldctable">
+                                    <div class="table-responsive fixedHeader variableHeight filterable">
+                                        <table class="table table-sm table-hover mb-1 border-bottom" id="ldcalerttable">
                                             <thead class="thead-dark">
-                                                <tr><th>Badge</th><th>Zone</th><th>Current LDC</th><th>TACS LDC</th><th>OPN</th><th>P/L</th></tr>
+                                                <tr>
+                                                    <th class="row-comp-1">Badge</th>
+                                                    <th class="row-comp-2">LDC</th>
+                                                    <th class="row-comp-3">TACS LDC</th>
+                                                    <th class="row-comp-2">OPN</th>
+                                                    <th class="row-comp-2">P/L</th>
+                                                </tr>
+                                                <tr class="filters">
+                                                    <td><input class="frow-comp-1" id="badge" type="text" placeholder="Badge"></td>
+                                                    <td><input class="frow-comp-2" id="ldc" type="text" placeholder="LDC"></td>
+                                                    <td><input class="frow-comp-3" id="tacsldc" type="text" placeholder="TACS LDC"></td>
+                                                    <td><input class="frow-comp-3" id="opcode" type="text" placeholder="Op Code"></td>
+                                                    <td><input class="frow-comp-4" id="paylocation" type="text" placeholder="Pay Location"></td>
+                                                </tr>
                                             </thead>
                                             <tbody></tbody>
                                         </table>
@@ -944,11 +947,21 @@
                         <div id="div_tripsnotification" class="container-fluid">
                             <div class="card w-100">
                                 <div class="card-header pl-1">
-                                    <h6 class="sectionHeader ml-1 mb-1">Trips Status</h6>
+                                    <h6 class="sectionHeader ml-1 mb-1">Late Trips</h6>
                                 </div>
                                 <div class="card-body">
-                                    <div class="table-responsive fixedHeader variableHeight">
+                                    <div class="table-responsive fixedHeader">
                                         <table class="table table-sm table-hover table-condensed mb-1 border-bottom" id="tripsnotificationtable">
+                                            <thead class="thead-dark">
+                                                <tr>
+                                                    <th class="row-cts-schd">Schd</th>
+                                                    <th>Duration</th>
+                                                    <th>Direction</th>
+                                                    <th class="row-cts-door">Door</th>
+                                                    <th class="row-cts-rt">Route-Trip</th>
+                                                    <th class="row-cts-dest">Site Name</th>
+                                                </tr>
+                                            </thead>
                                             <tbody></tbody>
                                         </table>
                                     </div>
@@ -1066,8 +1079,8 @@
                                 <div class="input-group flex-fill px-0 mt-2 mx-3">
                                     <input type="text" id="inputsearchbtn" class="form-control input-border-light" placeholder="Enter badge or equipment ID" aria-label="Tag / Equipment Name" aria-describedby="searchbtn" style="font-size: 14px; ">
                                     <!--<div class="input-group-append">
-                                    <button class="btn btn-outline-secondary" type="button" id="searchbtn">Search</button>
-                                </div>-->
+                                        <button class="btn btn-outline-secondary" type="button" id="searchbtn">Search</button>
+                                    </div>-->
                                 </div>
                                 <p class="smaller text-secondary mb-0 mt-1 ml-2">Start search by entering any letter or number of a badge or vehicle ID</p>
                             </div>
@@ -1278,7 +1291,7 @@
     <!--Views for dock door zone details-->
     <script src="Scripts/View/dockdoor_zone.js"></script>
     <!--Views for trips-->
-    <script src="Scripts/View/arrive_depart_trips.js"></script>
+    <script src="Scripts/View/trips.js"></script>
     <!--Views for locator's-->
     <script src="Scripts/View/locators.js"></script>
     <!--geometry editing -->

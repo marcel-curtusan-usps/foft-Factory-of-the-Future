@@ -72,7 +72,8 @@ namespace Factory_of_the_Future
 
         //Trips
         public static ConcurrentDictionary<string, Trips> Trips = new ConcurrentDictionary<string, Trips>();
-
+        //Trips
+        public static ConcurrentDictionary<string, JObject> RouteTrips = new ConcurrentDictionary<string, JObject>();
         ////CTS DockDeparted
         //public static ConcurrentDictionary<string, JObject> CTS_DockDeparted = new ConcurrentDictionary<string, JObject>();
 
@@ -86,7 +87,7 @@ namespace Factory_of_the_Future
         //public static ConcurrentDictionary<string, JObject> CTS_Outbound_Schedualed = new ConcurrentDictionary<string, JObject>();
 
         //list of containers
-       // public static ConcurrentDictionary<string, JObject> Containers = new ConcurrentDictionary<string, JObject>();
+        // public static ConcurrentDictionary<string, JObject> Containers = new ConcurrentDictionary<string, JObject>();
         //list of containers
         public static ConcurrentDictionary<string, Container> Containers = new ConcurrentDictionary<string, Container>();
 

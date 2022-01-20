@@ -35,8 +35,8 @@ var dockDoors = new L.GeoJSON(null, {
         if (feature.properties.hasOwnProperty("routetripData")) {
             if (feature.properties.routetripData.hasOwnProperty("tripDirectionInd")) {
                 if (feature.properties.routetripData.tripDirectionInd === "O") {
-                    if (feature.properties.timeToDepart <= 30) {
-                        style = {
+                    if (feature.properties.routetripData.tripMin <= 30) {
+                        return {
                             weight: 2,
                             opacity: 1,
                             color: '#3573b1',
@@ -46,7 +46,7 @@ var dockDoors = new L.GeoJSON(null, {
                         };
                     }
                     else {
-                        style = {
+                        return {
                             weight: 2,
                             opacity: 1,
                             color: '#3573b1',
@@ -57,7 +57,7 @@ var dockDoors = new L.GeoJSON(null, {
                     }
                 }
                 else {
-                    style = {
+                    return {
                         weight: 2,
                         opacity: 1,
                         color: '#3573b1',
@@ -66,8 +66,6 @@ var dockDoors = new L.GeoJSON(null, {
                         label: feature.properties.name
                     };
                 }
-
-                return style;
             }
             else {
                 return {
@@ -96,7 +94,7 @@ var dockDoors = new L.GeoJSON(null, {
         if (feature.properties.hasOwnProperty("routetripData")) {
             if (feature.properties.routetripData.hasOwnProperty("tripDirectionInd")) {
                 if (feature.properties.routetripData.tripDirectionInd === "O") {
-                    if (feature.properties.timeToDepart <= 30 && feature.properties.unloadedcount > 0) {
+                    if (feature.properties.routetripData.tripMin <= 30 && feature.properties.routetripData.unloadedContainers > 0) {
                         dockdookflash = "doorflash"
                     }
                 }
@@ -353,7 +351,7 @@ async function updatedockdoor(layerindex) {
         if (dockDoors._layers[layerindex].feature.properties.routetripData.hasOwnProperty("tripDirectionInd")) {
          
             if (dockDoors._layers[layerindex].feature.properties.routetripData.tripDirectionInd === "O") {
-                if (dockDoors._layers[layerindex].feature.properties.routetripData.timeToDepart <= 30) {
+                if (dockDoors._layers[layerindex].feature.properties.routetripData.tripMin <= 30) {
                     dockDoors._layers[layerindex].setStyle({
                         weight: 2,
                         opacity: 1,
@@ -361,7 +359,7 @@ async function updatedockdoor(layerindex) {
                         fillColor: '#ff0af7',
                         fillOpacity: 0.5
                     });
-                    if (dockDoors._layers[layerindex].feature.properties.routetripData.unloadedcontainers > 0) {
+                    if (dockDoors._layers[layerindex].feature.properties.routetripData.unloadedContainers > 0) {
                         if (dockDoors._layers[layerindex].hasOwnProperty("_tooltip")) {
                             if (dockDoors._layers[layerindex]._tooltip.hasOwnProperty("_container")) {
                                 if (!dockDoors._layers[layerindex]._tooltip._container.classList.contains('doorflash')) {

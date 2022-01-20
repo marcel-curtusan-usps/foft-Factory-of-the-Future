@@ -72,9 +72,9 @@ namespace Factory_of_the_Future
                         //    break;
                         /*CTS Data End*/
                         /*SELS RT Data Start*/
-                        case "P2PBySite":
-                            P2PBySite(data, Message_type);
-                            break;
+                        //case "P2PBySite":
+                        //    P2PBySite(data, Message_type);
+                        //    break;
                         case "getTacsVsSels":
                             TacsVsSels(data, Message_type);
                             break;
@@ -494,107 +494,142 @@ namespace Factory_of_the_Future
                     JToken trips = jsonObject.SelectToken(message_type);
                     if (trips != null)
                     {
-                        List<Trips> Trips = JsonConvert.DeserializeObject<List<Trips>>(JsonConvert.SerializeObject(trips));
-                        foreach (Trips tripitem in Trips)
+                        foreach (JObject rt in trips.Children())
                         {
-                            string routtripid = string.Concat(tripitem.Route, tripitem.Trip, tripitem.TripDirectionInd);
-
-                            if (!string.IsNullOrEmpty(tripitem.Status) && Regex.IsMatch(tripitem.Status, "(CANCELED|Omitted)", RegexOptions.IgnoreCase))
+                            if (rt.ContainsKey("route") && rt.ContainsKey("trip") && rt.ContainsKey("tripDirectionInd"))
                             {
-                                if (Global.Trips.ContainsKey(routtripid))
-                                {
-                                    Global.Trips.TryRemove(routtripid, out Trips temp1);
-                                }
+                                string routtripid = string.Concat(rt["route"].ToString(), rt["trip"].ToString(), rt["tripDirectionInd"].ToString());
+                                rt["id"] = routtripid;
+                                rt["state"] = "";
+                                rt["destSite"] = "";
+                                Global.RouteTrips.AddOrUpdate(routtripid, rt, (key, existingVal) =>
+                               {
+                                   if (existingVal != rt)
+                                   {
+                                       existingVal.Merge(rt, new JsonMergeSettings { MergeArrayHandling = MergeArrayHandling.Replace });
+                                   }
+                                   if (string.IsNullOrEmpty(existingVal["destSite"].ToString()) && rt.ContainsKey("operDate"))
+                                   {
+                                       new ItineraryTrip_Update(GetItinerary(rt["route"].ToString(), rt["trip"].ToString(), Global.AppSettings.Property("FACILITY_NASS_CODE").Value.ToString(), GetSvDate((JObject)rt["operDate"])), rt["tripDirectionInd"].ToString());
+                                   }
+
+                                   return existingVal;
+                               });
                             }
-                            else
-                            {
-                                if (Global.Trips.ContainsKey(routtripid))
-                                {
-                                    Global.Trips.AddOrUpdate(routtripid, tripitem,
-                                        (key, existingVal) =>
-                                        {
-                                            if (tripitem != existingVal)
-                                            {
-                                                if (existingVal.TripDirectionInd == "O")
-                                                {
-
-                                                    if (!string.IsNullOrEmpty(existingVal.DestSite))
-                                                    {
-                                                        IEnumerable<Container> alltrailercontent = null;
-                                                        IEnumerable<Container> unloadedtrailerContent = Global.Containers.Where(r => !string.IsNullOrEmpty(r.Value.Dest) && Regex.IsMatch(r.Value.Dest, existingVal.DestSite, RegexOptions.IgnoreCase)
-                                                    && r.Value.hasLoadScans == false
-                                                    && r.Value.containerTerminate == false
-                                                    && r.Value.containerAtDest == false
-                                                    && r.Value.hasCloseScans == true).Select(y => y.Value).ToList();
-                                                        if (existingVal.UnloadedContainers != unloadedtrailerContent.Count())
-                                                        {
-                                                            existingVal.UnloadedContainers = unloadedtrailerContent.Count();
-                                                        }
-                                                        alltrailercontent = unloadedtrailerContent;
-                                                        if (!string.IsNullOrEmpty(existingVal.TrailerBarcode))
-                                                        {
-                                                            IEnumerable<Container> loadedtrailerContent = null;
-                                                            //for the loaded int the trailer
-                                                            loadedtrailerContent = Global.Containers.Where(r => !string.IsNullOrEmpty(r.Value.Otrailer)
-                                                               && Regex.IsMatch(r.Value.Otrailer, existingVal.TrailerBarcode, RegexOptions.IgnoreCase)
-                                                               && r.Value.hasLoadScans == true
-                                                               ).Select(y => y.Value).ToList();
-                                                            alltrailercontent = unloadedtrailerContent.Concat(loadedtrailerContent);
-                                                            loadedtrailerContent = null;
-                                                        }
-
-
-                                                        existingVal.Containers = alltrailercontent;
-                                                        unloadedtrailerContent = null;
-                                                        alltrailercontent = null;
-                                                    }
-                                                }
-                                                if (existingVal.TripDirectionInd == "I")
-                                                {
-                                                    if (!string.IsNullOrEmpty(existingVal.TrailerBarcode))
-                                                    {
-                                                        IEnumerable<Container> unloadedtrailerContent = Global.Containers.Where(r => !string.IsNullOrEmpty(r.Value.Itrailer)
-                                                        && Regex.IsMatch(r.Value.Itrailer, existingVal.TrailerBarcode, RegexOptions.IgnoreCase)
-
-                                                         ).Select(y => y.Value).ToList();
-                                                        existingVal.Containers = unloadedtrailerContent;
-                                                        unloadedtrailerContent = null;
-                                                    }
-                                                }
-                                                existingVal.Trip_Update = true;
-                                                if (string.IsNullOrEmpty(existingVal.DestSite))
-                                                {
-                                                    new ItineraryTripUpdate(GetItinerary(tripitem.Route, tripitem.Trip, Global.AppSettings.Property("FACILITY_NASS_CODE").Value.ToString(), existingVal.OperDate), existingVal.TripDirectionInd);
-                                                }
-                                            }
-                                            return existingVal;
-                                        });
-                                }
-                                else
-                                {
-
-                                    if (Global.Trips.TryAdd(routtripid, tripitem))
-                                    {
-                                        new ItineraryTripUpdate(GetItinerary(tripitem.Route, tripitem.Trip, Global.AppSettings.Property("FACILITY_NASS_CODE").Value.ToString(), tripitem.OperDate), tripitem.TripDirectionInd);
-                                    }
-                                }
-                            }
+                           
                         }
+                        //List<Trips> Trips = JsonConvert.DeserializeObject<List<Trips>>(JsonConvert.SerializeObject(trips));
+                        //foreach (Trips tripitem in Trips)
+                        //{
+                        //    string routtripid = string.Concat(tripitem.Route, tripitem.Trip, tripitem.TripDirectionInd);
+                        //    tripitem.RawData = JsonConvert.SerializeObject(tripitem, Formatting.Indented);
+                        //    if (!string.IsNullOrEmpty(tripitem.Status) && Regex.IsMatch(tripitem.Status, "(CANCELED|Omitted)", RegexOptions.IgnoreCase))
+                        //    {
+                        //        if (Global.Trips.ContainsKey(routtripid))
+                        //        {
+                        //            Global.Trips.TryRemove(routtripid, out Trips temp1);
+                        //        }
+                        //    }
+                        //    else
+                        //    {
+                        //        if (Global.Trips.ContainsKey(routtripid))
+                        //        {
+                        //            if (Global.Trips.TryGetValue(routtripid, out Trips _existingVal))
+                        //            {
+                        //                if (_existingVal.RawData != tripitem.RawData)
+                        //                {
+                        //                    Global.Trips.AddOrUpdate(routtripid, tripitem,
+                        //                  (key, existingVal) =>
+                        //                  {
+                        //                      existingVal.Trip_Update = true;
+                        //                      if (existingVal.TripDirectionInd == "O")
+                        //                      {
+                        //                          if (!string.IsNullOrEmpty(existingVal.DestSite))
+                        //                          {
+                        //                              IEnumerable<Container> alltrailercontent = null;
+                        //                              IEnumerable<Container> unloadedtrailerContent = Global.Containers.Where(r => !string.IsNullOrEmpty(r.Value.Dest) && Regex.IsMatch(r.Value.Dest, existingVal.DestSite, RegexOptions.IgnoreCase)
+                        //                          && r.Value.hasLoadScans == false
+                        //                          && r.Value.containerTerminate == false
+                        //                          && r.Value.containerAtDest == false
+                        //                          && r.Value.hasCloseScans == true).Select(y => y.Value).ToList();
+                        //                              if (existingVal.UnloadedContainers != unloadedtrailerContent.Count())
+                        //                              {
+                        //                                  existingVal.UnloadedContainers = unloadedtrailerContent.Count();
+                        //                              }
+                        //                              alltrailercontent = unloadedtrailerContent;
+                        //                              if (!string.IsNullOrEmpty(existingVal.TrailerBarcode))
+                        //                              {
+                        //                                  IEnumerable<Container> loadedtrailerContent = null;
+                        //                                  //for the loaded int the trailer
+                        //                                  loadedtrailerContent = Global.Containers.Where(r => !string.IsNullOrEmpty(r.Value.Otrailer)
+                        //                                       && Regex.IsMatch(r.Value.Otrailer, existingVal.TrailerBarcode, RegexOptions.IgnoreCase)
+                        //                                       && r.Value.hasLoadScans == true
+                        //                                       ).Select(y => y.Value).ToList();
+                        //                                  alltrailercontent = unloadedtrailerContent.Concat(loadedtrailerContent);
+                        //                                  loadedtrailerContent = null;
+                        //                              }
+
+
+                        //                              existingVal.Containers = alltrailercontent;
+                        //                              unloadedtrailerContent = null;
+                        //                              alltrailercontent = null;
+                        //                          }
+                        //                      }
+                        //                      if (existingVal.TripDirectionInd == "I")
+                        //                      {
+                        //                          if (!string.IsNullOrEmpty(existingVal.TrailerBarcode))
+                        //                          {
+                        //                              IEnumerable<Container> unloadedtrailerContent = Global.Containers.Where(r => !string.IsNullOrEmpty(r.Value.Itrailer)
+                        //                              && Regex.IsMatch(r.Value.Itrailer, existingVal.TrailerBarcode, RegexOptions.IgnoreCase)
+
+                        //                               ).Select(y => y.Value).ToList();
+                        //                              existingVal.Containers = unloadedtrailerContent;
+                        //                              unloadedtrailerContent = null;
+                        //                          }
+                        //                      }
+
+                        //                      if (string.IsNullOrEmpty(existingVal.DestSite))
+                        //                      {
+                        //                          new ItineraryTripUpdate(GetItinerary(tripitem.Route, tripitem.Trip, Global.AppSettings.Property("FACILITY_NASS_CODE").Value.ToString(), existingVal.OperDate), existingVal.TripDirectionInd);
+                        //                      }
+
+                        //                      return existingVal;
+                        //                  });
+                        //                }
+                        //            }
+
+                        //        }
+                        //        else
+                        //        {
+
+                        //            if (Global.Trips.TryAdd(routtripid, tripitem))
+                        //            {
+                        //                new ItineraryTripUpdate(GetItinerary(tripitem.Route, tripitem.Trip, Global.AppSettings.Property("FACILITY_NASS_CODE").Value.ToString(), tripitem.OperDate), tripitem.TripDirectionInd);
+                        //            }
+                        //        }
+                        //    }
+                        //}
                     }
                 }
                 //remove older data this does the clean up.
-                Global.Trips.Where(r => r.Value.ActDepartureDtm.Subtract(DateTime.Now).TotalHours > 3.0).Select(y => y.Key).ToList().ForEach(m =>
-                {
-                    if (!Global.Trips.TryRemove(m, out Trips valout))
-                    {
-                        new ErrorLogger().CustomLog(string.Concat("Unable to remove item from Trip Array", valout), string.Concat((string)Global.AppSettings.Property("APPLICATION_NAME").Value, "Applogs"));
-                    }
-                });
+                //Global.Trips.Where(r => r.Value.ActDepartureDtm.Subtract(DateTime.Now).TotalHours > 3.0).Select(y => y.Key).ToList().ForEach(m =>
+                //{
+                //    if (!Global.Trips.TryRemove(m, out Trips valout))
+                //    {
+                //        new ErrorLogger().CustomLog(string.Concat("Unable to remove item from Trip Array", valout), string.Concat((string)Global.AppSettings.Property("APPLICATION_NAME").Value, "Applogs"));
+                //    }
+                //});
             }
             catch (Exception e)
             {
                 new ErrorLogger().ExceptionLog(e);
             }
+        }
+
+        private static DateTime GetSvDate(JObject triptime)
+        {
+            DateTime tripDtm = new DateTime((int)triptime["year"], ((int)triptime["month"] + 1), (int)triptime["dayOfMonth"], (int)triptime["hourOfDay"], (int)triptime["minute"], (int)triptime["second"]);
+            return tripDtm;
         }
 
         private static JArray GetItinerary(string route, string trip, string nasscode , DateTime start_time)
@@ -641,90 +676,158 @@ namespace Factory_of_the_Future
                         Global.Zones.Where(x => x.Value["properties"]["Zone_Type"].ToString() == "DockDoor"
                         && x.Value["properties"]["doorNumber"].ToString() == item["doorNumber"].ToString().PadLeft(3, '0')).Select(l => l.Value).ToList().ForEach(m =>
                        {
+                           
                            if (item.ContainsKey("tripDirectionInd") && item.ContainsKey("route") && item.ContainsKey("trip"))
                            {
                                string routetripid = item.Property("route").Value.ToString() + item.Property("trip").Value.ToString() + item.Property("tripDirectionInd").Value.ToString();
-                               if (Global.Trips.TryGetValue(routetripid, out Trips rtrip))
+                               if (Global.RouteTrips.TryGetValue(routetripid, out JObject trip))
                                {
-
-                                   if (item.ContainsKey("trailerBarcode"))
+                                   if (trip.ContainsKey("destSite"))
                                    {
-                                       rtrip.TrailerBarcode = item.Property("trailerBarcode").Value.ToString();
-                                   }
-                                   if (item.ContainsKey("doorNumber"))
-                                   {
-                                       rtrip.DoorNumber = item["doorNumber"].ToString();
-                                   }
-                                   if (item.ContainsKey("doorId"))
-                                   {
-                                       rtrip.DoorId = item["doorId"].ToString();
-                                   }
-
-                                   DateTime dtNow = DateTime.Now;
-                                   if (!string.IsNullOrEmpty((string)Global.AppSettings.Property("FACILITY_TIMEZONE").Value))
-                                   {
-                                       if (Global.TimeZoneConvert.TryGetValue((string)Global.AppSettings.Property("FACILITY_TIMEZONE").Value, out string windowsTimeZoneId))
+                                       if (string.IsNullOrEmpty(trip["destSite"].ToString()))
                                        {
-                                           dtNow = TimeZoneInfo.ConvertTime(dtNow, TimeZoneInfo.FindSystemTimeZoneById(windowsTimeZoneId));
-                                       }
-                                   }
-                                   double totalmin = Math.Round(rtrip.ScheduledDtm.Subtract(dtNow).TotalMinutes);
-                                   if (totalmin != rtrip.TimeToDepart)
-                                   {
-                                       rtrip.TimeToDepart = totalmin;
-                                       update_info = true;
-                                   }
-                                    JObject tempdata = JObject.Parse(JsonConvert.SerializeObject(rtrip, Formatting.Indented));
-                                   if (m["properties"]["routetripData"].ToString() != tempdata.ToString() )
-                                   {
-                                       m["properties"]["routetripData"] = tempdata;
-                                       update_info = true;
-                                   }
-                                   tempdata = null;
-                               }
-                               else
-                               {
-                                   DateTime dtNow = DateTime.Now;
-                                   if (!string.IsNullOrEmpty((string)Global.AppSettings.Property("FACILITY_TIMEZONE").Value))
-                                   {
-                                       if (Global.TimeZoneConvert.TryGetValue((string)Global.AppSettings.Property("FACILITY_TIMEZONE").Value, out string windowsTimeZoneId))
-                                       {
-                                           dtNow = TimeZoneInfo.ConvertTime(dtNow, TimeZoneInfo.FindSystemTimeZoneById(windowsTimeZoneId));
-                                       }
-                                   }
-                                   DateTime scheuledDtm = new DateTime(1, 1, 1);
-                                   if (item.ContainsKey("scheduledDtm"))
-                                   {
-                                       scheuledDtm = Global.SVdatetimeformat(JObject.Parse(JsonConvert.SerializeObject(item["scheduledDtm"])));
-
-                                       double totalmin = Math.Round(scheuledDtm.Subtract(dtNow).TotalMinutes);
-                                       if (m.ContainsKey("TimeToDepart"))
-                                       {
-                                           if (totalmin != (double)m["TimeToDepart"])
+                                           if (trip.ContainsKey("operDate"))
                                            {
-                                               item["TimeToDepart"] = totalmin;
-                                               update_info = true;
+                                               new ItineraryTrip_Update(GetItinerary(item["route"].ToString(), item["trip"].ToString(), Global.AppSettings.Property("FACILITY_NASS_CODE").Value.ToString(), GetSvDate((JObject)trip["operDate"])), item["tripDirectionInd"].ToString());
                                            }
                                        }
-                                       else
+
+                                       if (!string.IsNullOrEmpty(trip["destSite"].ToString()) && item.ContainsKey("trailerBarcode"))
                                        {
-                                           m["TimeToDepart"] = totalmin;
+                                           if (trip["tripDirectionInd"].ToString() == "O")
+                                           {
+                                               IEnumerable<Container> alltrailercontent = null;
+                                               IEnumerable<Container> unloadedtrailerContent = Global.Containers.Where(r => !string.IsNullOrEmpty(r.Value.Dest) && Regex.IsMatch(r.Value.Dest, trip["destSite"].ToString(), RegexOptions.IgnoreCase)
+                                           && r.Value.hasLoadScans == false
+                                           && r.Value.containerTerminate == false
+                                           && r.Value.containerAtDest == false
+                                           && r.Value.hasCloseScans == true).Select(y => y.Value).ToList();
+                                               if ((int)trip["unloadedContainers"] != unloadedtrailerContent.Count())
+                                               {
+                                                   trip["unloadedContainers"] = unloadedtrailerContent.Count();
+                                               }
+                                               alltrailercontent = unloadedtrailerContent;
+                                               if (!string.IsNullOrEmpty(item["trailerBarcode"].ToString()))
+                                               {
+                                                   IEnumerable<Container> loadedtrailerContent = null;
+                                                   //for the loaded int the trailer
+                                                   loadedtrailerContent = Global.Containers.Where(r => !string.IsNullOrEmpty(r.Value.Otrailer)
+                                                        && Regex.IsMatch(r.Value.Otrailer, item["trailerBarcode"].ToString(), RegexOptions.IgnoreCase)
+                                                        && r.Value.hasLoadScans == true
+                                                        ).Select(y => y.Value).ToList();
+                                                   alltrailercontent = unloadedtrailerContent.Concat(loadedtrailerContent);
+                                                   loadedtrailerContent = null;
+                                               }
+
+
+                                               trip["containers"] = JArray.Parse(JsonConvert.SerializeObject(alltrailercontent, Formatting.Indented));
+                                               unloadedtrailerContent = null;
+                                               alltrailercontent = null;
+                                           }
+                                           if (trip["tripDirectionInd"].ToString() == "I")
+                                           {
+                                               if (!string.IsNullOrEmpty(item["trailerBarcode"].ToString()))
+                                               {
+                                                   IEnumerable<Container> unloadedtrailerContent = Global.Containers.Where(r => !string.IsNullOrEmpty(r.Value.Itrailer)
+                                                   && Regex.IsMatch(r.Value.Itrailer, item["trailerBarcode"].ToString(), RegexOptions.IgnoreCase)
+
+                                                    ).Select(y => y.Value).ToList();
+                                                   trip["containers"] = JArray.Parse(JsonConvert.SerializeObject(unloadedtrailerContent, Formatting.Indented));
+                                                   unloadedtrailerContent = null;
+
+                                               }
+                                           }
+
                                        }
                                    }
-                                   if (m["properties"]["routetripData"].ToString() != item.ToString())
+                                   else
                                    {
-                                       m["properties"]["routetripData"] = item;
-                                       update_info = true;
+                                       trip["destSite"] = "";
                                    }
+                                   ((JObject)trip).Merge(item, new JsonMergeSettings { MergeArrayHandling = MergeArrayHandling.Union });
+                                   m["properties"]["routetripData"] = trip;
+                                   update_info = true;
+
                                }
+                               //if (Global.Trips.TryGetValue(routetripid, out Trips rtrip))
+                               //{
+
+                               //    if (item.ContainsKey("trailerBarcode"))
+                               //    {
+                               //        rtrip.TrailerBarcode = item.Property("trailerBarcode").Value.ToString();
+                               //    }
+                               //    if (item.ContainsKey("doorNumber"))
+                               //    {
+                               //        rtrip.DoorNumber = item["doorNumber"].ToString();
+                               //    }
+                               //    if (item.ContainsKey("doorId"))
+                               //    {
+                               //        rtrip.DoorId = item["doorId"].ToString();
+                               //    }
+
+                               //    DateTime dtNow = DateTime.Now;
+                               //    if (!string.IsNullOrEmpty((string)Global.AppSettings.Property("FACILITY_TIMEZONE").Value))
+                               //    {
+                               //        if (Global.TimeZoneConvert.TryGetValue((string)Global.AppSettings.Property("FACILITY_TIMEZONE").Value, out string windowsTimeZoneId))
+                               //        {
+                               //            dtNow = TimeZoneInfo.ConvertTime(dtNow, TimeZoneInfo.FindSystemTimeZoneById(windowsTimeZoneId));
+                               //        }
+                               //    }
+                               //    double totalmin = Math.Round(rtrip.ScheduledDtm.Subtract(dtNow).TotalMinutes);
+                               //    if (totalmin != rtrip.TimeToDepart)
+                               //    {
+                               //        rtrip.TimeToDepart = totalmin;
+                               //        update_info = true;
+                               //    }
+                               //     JObject tempdata = JObject.Parse(JsonConvert.SerializeObject(rtrip, Formatting.Indented));
+                               //    if (m["properties"]["routetripData"].ToString() != tempdata.ToString() )
+                               //    {
+                               //        m["properties"]["routetripData"] = tempdata;
+                               //        update_info = true;
+                               //    }
+                               //    tempdata = null;
+                               //}
+                               //else
+                               //{
+                               //    DateTime dtNow = DateTime.Now;
+                               //    if (!string.IsNullOrEmpty((string)Global.AppSettings.Property("FACILITY_TIMEZONE").Value))
+                               //    {
+                               //        if (Global.TimeZoneConvert.TryGetValue((string)Global.AppSettings.Property("FACILITY_TIMEZONE").Value, out string windowsTimeZoneId))
+                               //        {
+                               //            dtNow = TimeZoneInfo.ConvertTime(dtNow, TimeZoneInfo.FindSystemTimeZoneById(windowsTimeZoneId));
+                               //        }
+                               //    }
+                               //    DateTime scheuledDtm = new DateTime(1, 1, 1);
+                               //    if (item.ContainsKey("scheduledDtm"))
+                               //    {
+                               //        scheuledDtm = Global.SVdatetimeformat(JObject.Parse(JsonConvert.SerializeObject(item["scheduledDtm"])));
+
+                               //        double totalmin = Math.Round(scheuledDtm.Subtract(dtNow).TotalMinutes);
+                               //        if (m.ContainsKey("TimeToDepart"))
+                               //        {
+                               //            if (totalmin != (double)m["TimeToDepart"])
+                               //            {
+                               //                item["TimeToDepart"] = totalmin;
+                               //                update_info = true;
+                               //            }
+                               //        }
+                               //        else
+                               //        {
+                               //            m["TimeToDepart"] = totalmin;
+                               //        }
+                               //    }
+                               //    if (m["properties"]["routetripData"].ToString() != item.ToString())
+                               //    {
+                               //        m["properties"]["routetripData"] = item;
+                               //        update_info = true;
+                               //    }
+                               //}
                            }
                            else
                            {
-                               if (m["properties"]["routetripData"].ToString() != item.ToString())
-                               {
-                                   m["properties"]["routetripData"] = item;
-                                   update_info = true;
-                               }
+                               m["properties"]["routetripData"] = item;
+                               update_info = true;
+
                            }
 
                            if (update_info)
@@ -734,13 +837,13 @@ namespace Factory_of_the_Future
                            }
 
                            ///update trips info
-                           if (item.ContainsKey("tripDirectionInd"))
-                           {
-                               if (Global.Trips.ContainsKey(string.Concat(item["route"], item["trip"], item["tripDirectionInd"])))
-                               {
-                                   new DoorTripsUpdate(item, item["tripDirectionInd"].ToString());
-                               }
-                           }
+                           //if (item.ContainsKey("tripDirectionInd"))
+                           //{
+                           //    if (Global.Trips.ContainsKey(string.Concat(item["route"], item["trip"], item["tripDirectionInd"])))
+                           //    {
+                           //        new DoorTripsUpdate(item, item["tripDirectionInd"].ToString());
+                           //    }
+                           //}
                        });
                     }
                     doorstatus = null;
@@ -806,49 +909,65 @@ namespace Factory_of_the_Future
             {
                 if (data.HasValues)
                 {
-                    foreach (JObject item in data.Children())
+                    if (data.ContainsKey(message_type))
                     {
-                        if (Global.Tag.ContainsKey((string)item.Property("tagId").Value))
+                        JToken LDCAnomaly = data.SelectToken(message_type);
+                        if (LDCAnomaly != null)
                         {
-                            if (Global.Tag.TryGetValue((string)item.Property("tagId").Value, out JObject tag))
+                            foreach (JObject item in LDCAnomaly.Children())
                             {
-                                if ((bool)((JObject)tag["properties"]).Property("isLdcAlert").Value == false)
+                                if (Global.Tag.ContainsKey((string)item.Property("tagId").Value))
                                 {
-                                    ((JObject)tag["properties"]).Property("isLdcAlert").Value = true;
+                                    Global.Tag.Where(r => r.Key == (string)item.Property("tagId").Value).Select(y => y.Value).ToList().ForEach(m =>
+                                    {
+                                        //tag.Merge(item, new JsonMergeSettings { MergeArrayHandling = MergeArrayHandling.Replace });
+                                        //tag["properties"]["Tag_Update"] = true;
+                                       
+                                        if (m["properties"]["empId"] != item.Property("empId").Value)
+                                        {
+                                            m["properties"]["empId"] = item.Property("empId").Value;
+
+                                        }
+                                        if (m["properties"]["tacs"].ToString() != item.Property("tacs").Value.ToString())
+                                        {
+                                            m["properties"]["tacs"] = item.Property("tacs").Value;
+
+                                        }
+                                        if (m["properties"]["sels"].ToString() != item.Property("sels").Value.ToString())
+                                        {
+                                            m["properties"]["sels"] = item.Property("sels").Value;
+
+                                        }
+                                        if (m["properties"]["isLdcAlert"].ToString() != item.Property("isLdcAlert").Value.ToString())
+                                        {
+                                            m["properties"]["isLdcAlert"] = item.Property("isLdcAlert").Value;
+
+                                        }
+                                    });
                                 }
-                                if (((JObject)tag["properties"]).Property("Employee_EIN").Value != item.Property("empId").Value)
+                                else
                                 {
-                                    ((JObject)tag["properties"]).Property("Employee_EIN").Value = item.Property("empId").Value;
+                                    JObject GeoJsonType = new JObject_List().GeoJSON_Tag;
+                                    JArray temp_zone = new JArray(new JObject(new JProperty("name", "NOTINZONE"), new JProperty("id", "NOTINZONE")));
+                                    ((JObject)GeoJsonType["geometry"]).Property("type").Value = "Point";
+                                    GeoJsonType["geometry"]["coordinates"] = new JArray(0, 0);
+                                    //((JObject)GeoJsonType["properties"]).Merge(item, new JsonMergeSettings { MergeArrayHandling = MergeArrayHandling.Replace });
+
+                                    GeoJsonType["properties"]["id"] = (string)item.Property("tagId").Value;
+                                    GeoJsonType["properties"]["zones"] = temp_zone;
+                                    GeoJsonType["properties"]["name"] = item.Property("tagName").Value;
+                                    GeoJsonType["properties"]["Tag_Type"] = "Person";
+                                    GeoJsonType["properties"]["isLdcAlert"] = item.Property("isLdcAlert").Value;
+                                    GeoJsonType["properties"]["empId"] = item.Property("empId").Value;
+                                    GeoJsonType["properties"]["tacs"] = item.Property("tacs").Value;
+                                    GeoJsonType["properties"]["sels"] = item.Property("sels").Value;
+                                    GeoJsonType["properties"]["positionTS"] = DateTime.Now.AddDays(-10).ToUniversalTime();
+                                    //add to the tags
+                                    if (!Global.Tag.ContainsKey((string)item.Property("tagId").Value))
+                                    {
+                                        Global.Tag.TryAdd((string)item.Property("tagId").Value, GeoJsonType);
+                                    }
                                 }
-                                if (((JObject)tag["properties"]).Property("Tacs").Value.ToString() != item.Property("tacs").Value.ToString())
-                                {
-                                    ((JObject)tag["properties"]).Property("Tacs").Value = item.Property("tacs").Value;
-                                }
-                                if (((JObject)tag["properties"]).Property("currentLDCs").Value.ToString() != ((JObject)item["sels"]["currentLDCs"]).Property("currentLDCs").Value.ToString())
-                                {
-                                    ((JObject)tag["properties"]).Property("currentLDCs").Value = ((JObject)item["sels"]["currentLDCs"]).Property("currentLDCs").Value.ToString();
-                                }
-                               ((JObject)tag["properties"]).Property("Tag_Update").Value = true;
-                            }
-                        }
-                        else
-                        {
-                            JObject GeoJsonType = new JObject_List().GeoJSON_Tag;
-                            JArray temp_zone = new JArray(new JObject(new JProperty("name", "NOTINZONE"), new JProperty("id", "NOTINZONE")));
-                            ((JObject)GeoJsonType["geometry"]).Property("type").Value = "Point";
-                            GeoJsonType["geometry"]["coordinates"] = new JArray(0, 0);
-                            ((JObject)GeoJsonType["properties"]).Property("id").Value = (string)item.Property("tagId").Value;
-                            ((JObject)GeoJsonType["properties"]).Property("zones").Value = temp_zone;
-                            ((JObject)GeoJsonType["properties"]).Property("name").Value = item.Property("tagName").Value;
-                            ((JObject)GeoJsonType["properties"]).Property("Tag_Type").Value = "Person";
-                            ((JObject)GeoJsonType["properties"]).Property("Employee_EIN").Value = item.Property("empId").Value;
-                            ((JObject)GeoJsonType["properties"]).Property("Tacs").Value = item.Property("tacs").Value;
-                            ((JObject)GeoJsonType["properties"]).Property("positionTS").Value = DateTime.Now.AddDays(-10).ToUniversalTime();
-                            ((JObject)GeoJsonType["properties"]).Property("Tag_Update").Value = true;
-                            //add to the tags
-                            if (!Global.Tag.ContainsKey((string)item.Property("tagId").Value))
-                            {
-                                Global.Tag.TryAdd((string)item.Property("tagId").Value, GeoJsonType);
                             }
                         }
                     }
@@ -856,14 +975,13 @@ namespace Factory_of_the_Future
                     {
                         Global.Tag.Where(u => u.Value["properties"]["Tag_Type"].ToString().EndsWith("Person")).Select(x => x.Value).ToList().ForEach(m =>
                         {
-                            var exsiting = data.SelectTokens("[?(@.tagId)]").Where(i => (string)i["tagId"] == (string)((JObject)m["properties"]).Property("id").Value).ToList();
+                            var exsiting = data.SelectToken(message_type).SelectTokens("[?(@.tagId)]").Where(i => (string)i["tagId"] == (string)m["properties"]["id"]).ToList();
 
                             if (exsiting.Count == 0)
                             {
-                                if ((bool)((JObject)m["properties"]).Property("isLdcAlert").Value == true)
+                                if (((JObject)m["properties"]).ContainsKey("isLdcAlert") && (bool)m["properties"]["isLdcAlert"])
                                 {
-                                    ((JObject)m["properties"]).Property("isLdcAlert").Value = false;
-                                    ((JObject)m["properties"]).Property("Tag_Update").Value = true;
+                                    m["properties"]["isLdcAlert"] = false;
                                 }
                             }
                         });
@@ -911,29 +1029,20 @@ namespace Factory_of_the_Future
                                 {
                                     Global.Tag.Where(r => r.Key == (string)item.Property("tagId").Value).Select(y => y.Value).ToList().ForEach(m =>
                                     {
-                                        bool update = false;
-                                        if ((bool)((JObject)m["properties"]).Property("isWearingTag").Value == true)
+                                      
+                                        if ((bool)m["properties"]["isWearingTag"] == true)
                                         {
-                                            ((JObject)m["properties"]).Property("isWearingTag").Value = false;
-                                            update = true;
+                                            m["properties"]["isWearingTag"] = false;
                                         }
-                                        if (((JObject)m["properties"]).Property("Employee_EIN").Value != item.Property("empId").Value)
+                                        if (m["properties"]["empId"] != item.Property("empId").Value)
                                         {
-                                            ((JObject)m["properties"]).Property("Employee_EIN").Value = item.Property("empId").Value;
-                                            update = true;
+                                            m["properties"]["empId"] = item.Property("empId").Value;
                                         }
-                                        if (((JObject)m["properties"]).Property("Tacs").Value.ToString() != item.Property("tacs").Value.ToString())
+                                        if (m["properties"]["tacs"].ToString() != item.Property("tacs").Value.ToString())
                                         {
-                                            ((JObject)m["properties"]).Property("Tacs").Value = item.Property("tacs").Value;
-                                            update = true;
+                                            m["properties"]["tacs"] = item.Property("tacs").Value;
                                         }
-                                        if (update)
-                                        {
-                                            if (!(bool)((JObject)m["properties"]).Property("Tag_Update").Value)
-                                            {
-                                                ((JObject)m["properties"]).Property("Tag_Update").Value = true;
-                                            }
-                                        }
+                                       
                                     });
                                 }
                                 else
@@ -942,14 +1051,14 @@ namespace Factory_of_the_Future
                                     JArray temp_zone = new JArray(new JObject(new JProperty("name", "NOTINZONE"), new JProperty("id", "NOTINZONE")));
                                     ((JObject)GeoJsonType["geometry"]).Property("type").Value = "Point";
                                     GeoJsonType["geometry"]["coordinates"] = new JArray(0, 0);
-                                    ((JObject)GeoJsonType["properties"]).Property("id").Value = (string)item.Property("tagId").Value;
-                                    ((JObject)GeoJsonType["properties"]).Property("zones").Value = temp_zone;
-                                    ((JObject)GeoJsonType["properties"]).Property("name").Value = item.Property("tagName").Value;
-                                    ((JObject)GeoJsonType["properties"]).Property("Tag_Type").Value = "Person";
-                                    ((JObject)GeoJsonType["properties"]).Property("Employee_EIN").Value = item.Property("empId").Value;
-                                    ((JObject)GeoJsonType["properties"]).Property("Tacs").Value = item.Property("tacs").Value;
-                                    ((JObject)GeoJsonType["properties"]).Property("positionTS").Value = DateTime.Now.AddDays(-10).ToUniversalTime();
-                                    ((JObject)GeoJsonType["properties"]).Property("Tag_Update").Value = true;
+                                    GeoJsonType["properties"]["id"] = (string)item.Property("tagId").Value;
+                                    GeoJsonType["properties"]["zones"] = temp_zone;
+                                    GeoJsonType["properties"]["name"] = item.Property("tagName").Value;
+                                    GeoJsonType["properties"]["Tag_Type"] = "Person";
+                                    GeoJsonType["properties"]["empId"] = item.Property("empId").Value;
+                                    GeoJsonType["properties"]["tacs"] = item.Property("tacs").Value;
+                                    GeoJsonType["properties"]["positionTS"] = DateTime.Now.AddDays(-10).ToUniversalTime();
+                                
                                     //add to the tags
                                     if (!Global.Tag.ContainsKey((string)item.Property("tagId").Value))
                                     {
@@ -961,14 +1070,14 @@ namespace Factory_of_the_Future
                             {
                                 Global.Tag.Where(u => u.Value["properties"]["Tag_Type"].ToString().EndsWith("Person")).Select(x => x.Value).ToList().ForEach(m =>
                                 {
-                                    var exsiting = missedSels.SelectTokens("[?(@.tagId)]").Where(i => (string)i["tagId"] == (string)((JObject)m["properties"]).Property("id").Value).ToList();
+                                    var exsiting = missedSels.SelectTokens("[?(@.tagId)]").Where(i => (string)i["tagId"] == (string)m["properties"]["id"]).ToList();
 
                                     if (exsiting.Count == 0)
                                     {
-                                        if ((bool)((JObject)m["properties"]).Property("isWearingTag").Value == false)
+                                        if ((bool)m["properties"]["isWearingTag"] == false)
                                         {
-                                            ((JObject)m["properties"]).Property("isWearingTag").Value = true;
-                                            ((JObject)m["properties"]).Property("Tag_Update").Value = true;
+                                            m["properties"]["isWearingTag"] = true;
+                                           
                                         }
                                     }
                                 });
@@ -2261,8 +2370,8 @@ namespace Factory_of_the_Future
                                                             // union array values together to avoid duplicates
                                                             MergeArrayHandling = MergeArrayHandling.Union
                                                         });
-                                                        ojbMerge.Add(new JProperty("VEHICLETIME", ((DateTime)((JObject)existingVa["properties"]).Property("vehicleTime").Value).ToUniversalTime()));
-                                                        ojbMerge.Add(new JProperty("VEHICLENAME", (string)((JObject)existingVa["properties"]).Property("name").Value));
+                                                        ojbMerge.Add(new JProperty("VEHICLETIME", ((DateTime)existingVa["properties"]["vehicleTime"]).ToUniversalTime()));
+                                                        ojbMerge.Add(new JProperty("VEHICLENAME", (string)existingVa["properties"]["name"]));
                                                         ojbMerge.Add(new JProperty("SHOWTOAST", true));
                                                         ojbMerge.Add(new JProperty("TAGID", (string)existingVa["properties"]["id"]));
                                                         ojbMerge.Add(new JProperty("NOTIFICATIONGID", (string)conditionitem.Property("ID").Value + (string)existingVa["properties"]["id"]));
@@ -2299,8 +2408,8 @@ namespace Factory_of_the_Future
                                                         // union array values together to avoid duplicates
                                                         MergeArrayHandling = MergeArrayHandling.Union
                                                     });
-                                                    ojbMerge.Add(new JProperty("VEHICLETIME", ((DateTime)((JObject)existingVa["properties"]).Property("vehicleTime").Value).ToUniversalTime()));
-                                                    ojbMerge.Add(new JProperty("VEHICLENAME", (string)((JObject)existingVa["properties"]).Property("name").Value));
+                                                    ojbMerge.Add(new JProperty("VEHICLETIME", ((DateTime)existingVa["properties"]["vehicleTime"]).ToUniversalTime()));
+                                                    ojbMerge.Add(new JProperty("VEHICLENAME", (string)existingVa["properties"]["name"]));
                                                     ojbMerge.Add(new JProperty("TAGID", (string)existingVa["properties"]["id"]));
                                                     ojbMerge.Add(new JProperty("NOTIFICATIONGID", (string)conditionitem.Property("ID").Value + (string)existingVa["properties"]["id"]));
                                                     ojbMerge.Add(new JProperty("UPDATE", true));

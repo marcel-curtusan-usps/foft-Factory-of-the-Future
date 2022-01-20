@@ -76,6 +76,8 @@ namespace Factory_of_the_Future
         private readonly TimeSpan _250milupdateInterval = TimeSpan.FromMilliseconds(250);
         private readonly TimeSpan _1000milupdateInterval = TimeSpan.FromMilliseconds(1000);
 
+    
+
         //init timers
         private FOTFManager(IHubConnectionContext<dynamic> clients)
         {
@@ -293,73 +295,42 @@ namespace Factory_of_the_Future
             try
             {
                 outnotification = notification;
-                if (Global.Tag.ContainsKey((string)notification.Property("TAGID").Value))
+
+                if ((bool)notification.Property("ACTIVE_CONDITION").Value)
                 {
-                    if (Global.Tag.TryGetValue((string)notification.Property("TAGID").Value, out JObject tag))
+                    if (outnotification.ContainsKey("DELETE"))
                     {
-                        if ((bool)notification.Property("ACTIVE_CONDITION").Value)
+                        if (Global.Notification.TryRemove((string)outnotification.Property("NOTIFICATIONGID").Value, out outnotification))
                         {
-                            if (outnotification.ContainsKey("DELETE"))
-                            {
-                                if (Global.Notification.TryRemove((string)outnotification.Property("NOTIFICATIONGID").Value, out outnotification))
-                                {
-                                    return true;
-                                }
-                                else
-                                {
-                                    return false;
-                                }
-                            }
-                            else
-                            {
-                                return true;
-                            }
+                            return true;
                         }
                         else
                         {
-                            if (Global.Notification.TryRemove((string)outnotification.Property("NOTIFICATIONGID").Value, out outnotification))
-                            {
-                                if (!outnotification.ContainsKey("DELETE"))
-                                {
-                                    outnotification.Add(new JProperty("DELETE", true));
-                                }
-
-                                return true;
-                            }
-                            else
-                            {
-                                return false;
-                            }
+                            return false;
                         }
                     }
                     else
                     {
-                        if (!outnotification.ContainsKey("DELETE"))
-                        {
-                            outnotification.Add(new JProperty("DELETE", true));
-                        }
                         return true;
                     }
                 }
                 else
                 {
-                    if (Global.Notification.TryRemove((string)notification.Property("NOTIFICATIONGID").Value, out outnotification))
+                    if (Global.Notification.TryRemove((string)outnotification.Property("NOTIFICATIONGID").Value, out outnotification))
                     {
                         if (!outnotification.ContainsKey("DELETE"))
                         {
                             outnotification.Add(new JProperty("DELETE", true));
                         }
+
                         return true;
                     }
                     else
                     {
-                        if (!outnotification.ContainsKey("DELETE"))
-                        {
-                            outnotification.Add(new JProperty("DELETE", true));
-                        }
-                        return true;
+                        return false;
                     }
                 }
+
             }
             catch (Exception e)
             {
@@ -702,7 +673,7 @@ namespace Factory_of_the_Future
                 {
                     _updateSVTripsStatus = true;
 
-                    Global.Trips.Select(x => x.Value).ToList().ForEach(trip =>
+                    Global.RouteTrips.Select(x => x.Value).ToList().ForEach(trip =>
                     {
                         if (TrySVTripStatus(trip))
                         {
@@ -715,45 +686,110 @@ namespace Factory_of_the_Future
             }
         }
 
-        private bool TrySVTripStatus(Trips trip)
+        private bool TrySVTripStatus(JObject trip)
         {
             bool update = false;
-            double temptime = 0;
+            string state = "ACTIVE";
             try
             {
-                if (trip.Trip_Update)
+                if (!trip.ContainsKey("unloadedContainers"))
                 {
-                    update = trip.Trip_Update;
+                    trip["unloadedContainers"] = 0;
                 }
+                if (!trip.ContainsKey("containers"))
+                {
+                    trip["containers"] = "";
+                }
+                //destSite
+                if (!trip.ContainsKey("destSite"))
+                {
+                    trip["destSite"] = "";
+                }
+                if (!trip.ContainsKey("tripMin"))
+                {
+                    trip["tripMin"] = 0;
+                }
+                if (!trip.ContainsKey("state"))
+                {
+                    trip["state"] = state;
+                }
+                if (trip.ContainsKey("status"))
+                {
+                    switch (trip["status"].ToString())
+                    {
+                        case "CANCELED":
+                            state = "CANCELED";
+                            break;
+                        case "DEPARTED":
+                            state = "DEPARTED";
+                            break;
+                        case "OMITTED":
+                            state = "OMITTED";
+                            break;
+                        case "COMPLETE":
+                            state = "COMPLETE";
+                            break;
+                        default:
+                            break;
+                    }
+
+                }
+                if (trip.ContainsKey("legStatus"))
+                {
+                    switch (trip["legStatus"].ToString())
+                    {
+                        case "CANCELED":
+                            state = "CANCELED";
+                            break;
+                        case "DEPARTED":
+                            state = "DEPARTED";
+                            break;
+                        case "OMITTED":
+                            state = "OMITTED";
+                            break;
+                        case "COMPLETE":
+                            state = "COMPLETE";
+                            break;
+                        default:
+                            break;
+                    }
+                }
+
+                double tripInMin = Get_TripMin((JObject)trip["scheduledDtm"]);
+                if (tripInMin != (double)trip["tripMin"])
+                {
+                    trip["tripMin"] = tripInMin;
+                    update = true;
+                }
+                //check the trip state
+                if (tripInMin <= -1 && state == "ACTIVE")
+                {
+                    state = "LATE";
+                    update = true;
+                }
+                if (tripInMin <= -30 && Regex.IsMatch(state, "(CANCELED|DEPARTED|OMITTED|COMPLETE)", RegexOptions.IgnoreCase) )
+                {
+                    state = "REMOVE";
+                    update = true;
+                }
+                if (tripInMin <= -1440 )
+                {
+                    state = "REMOVE";
+                    update = true;
+                }
+
+                CheckNotification(trip["state"].ToString(), state, "routetrip", trip);
+                    trip["state"] = state;
                 
-                if (trip.TripDirectionInd == "I")
+                if (state == "REMOVE")
                 {
-                    
-                    temptime = GetTripMin(trip.ScheduledDtm);
-                    if (temptime != trip.TimeToArrive)
+                    string routetripid = trip["route"].ToString() + trip["trip"].ToString() + trip["tripDirectionInd"].ToString();
+                    if (Global.RouteTrips.TryRemove(routetripid, out JObject r))
                     {
-                        trip.TimeToArrive = temptime;
+                        trip["state"] = state;
                         update = true;
                     }
-                    if (trip.TimeToArrive > -15)
-                    {
-                        trip.isTripLate = true;
-                        update = true;
-                    }                                 
-                }
-                if (trip.TripDirectionInd == "O")
-                {
-                    temptime = GetTripMin(trip.ScheduledDtm);
-                    if (temptime != trip.TimeToDepart)
-                    {
-                        trip.TimeToDepart = temptime;
-                        update = true;
-                    }
-                    if (trip.TimeToDepart > -15)
-                    {
-                        trip.isTripLate = true;
-                        update = true;
-                    }
+                  
                 }
 
                 return update;
@@ -762,6 +798,77 @@ namespace Factory_of_the_Future
             {
                 new ErrorLogger().ExceptionLog(e);
                 return update;
+            }
+        }
+
+        private void CheckNotification(string currentState, string NewState, string type, JObject trip)
+        {
+            try
+            {
+                if (currentState != NewState)
+                {
+                    //current condition
+                    Global.Notification_Conditions.Where(r => Regex.IsMatch(currentState, r.Value["CONDITIONS"].ToString(), RegexOptions.IgnoreCase)
+                    && r.Value["TYPE"].ToString().ToLower() == type.ToLower()
+                     && (bool)r.Value["ACTIVE_CONDITION"]).Select(x => x.Value).ToList().ForEach(currentCondition =>
+                     {
+                         if (Global.Notification.ContainsKey((string)currentCondition["ID"] + (string)trip["id"]))
+                         {
+                             if (Global.Notification.TryGetValue((string)currentCondition["ID"] + (string)trip["id"], out JObject ojbMerge))
+                             {
+                                 if (!ojbMerge.ContainsKey("DELETE"))
+                                 {
+                                     ojbMerge.Add(new JProperty("DELETE", true));
+                                 }
+                             }
+                         }
+                     });
+                    //new condition
+                    Global.Notification_Conditions.Where(r => Regex.IsMatch(NewState, r.Value["CONDITIONS"].ToString(), RegexOptions.IgnoreCase)
+                && r.Value["TYPE"].ToString().ToLower() == type.ToLower()
+                 && (bool)r.Value["ACTIVE_CONDITION"]).Select(x => x.Value).ToList().ForEach(newCondition =>
+                 {
+                     if (!Global.Notification.ContainsKey((string)newCondition["ID"] + (string)trip["id"]))
+                     {
+                         JObject ojbMerge = (JObject)newCondition.DeepClone();
+                         ojbMerge.Merge(trip, new JsonMergeSettings
+                         {
+                             // union array values together to avoid duplicates
+                             MergeArrayHandling = MergeArrayHandling.Union
+                         });
+
+                         ojbMerge.Add(new JProperty("SHOWTOAST", true));
+                         ojbMerge.Add(new JProperty("TAGID", (string)trip["id"]));
+                         ojbMerge.Add(new JProperty("NOTIFICATIONGID", (string)newCondition["ID"] + (string)trip["id"]));
+                         ojbMerge.Add(new JProperty("UPDATE", true));
+                         Global.Notification.TryAdd((string)newCondition["ID"] + (string)trip["id"], ojbMerge);
+                     }
+                 });
+
+                }
+            }
+            catch (Exception e)
+            {
+                new ErrorLogger().ExceptionLog(e);
+            }
+        }
+
+        private double Get_TripMin(JObject triptime)
+        {
+            try
+            {
+                DateTime dtNow = DateTime.Now;
+                if (Global.TimeZoneConvert.TryGetValue((string)Global.AppSettings.Property("FACILITY_TIMEZONE").Value, out string windowsTimeZoneId))
+                {
+                    dtNow = TimeZoneInfo.ConvertTime(dtNow, TimeZoneInfo.FindSystemTimeZoneById(windowsTimeZoneId));
+                }
+                DateTime tripDtm = new DateTime((int)triptime["year"], ((int)triptime["month"] +1 ), (int)triptime["dayOfMonth"], (int)triptime["hourOfDay"], (int)triptime["minute"], (int)triptime["second"]);
+                return Math.Round(tripDtm.Subtract(dtNow).TotalMinutes);
+            }
+            catch (Exception e)
+            {
+                new ErrorLogger().ExceptionLog(e);
+                return 0;
             }
         }
 
@@ -783,7 +890,7 @@ namespace Factory_of_the_Future
             }
         }
 
-        private void BroadcastSVTripsStatus(Trips trip)
+        private void BroadcastSVTripsStatus(JObject trip)
         {
             Clients.All.updateSVTripsStatus(trip);
         }
@@ -1138,11 +1245,11 @@ namespace Factory_of_the_Future
         //        return false;
         //    }
         //}
-        internal IEnumerable<Trips> GetTripsList()
+        internal IEnumerable<JObject> GetTripsList()
         {
             try
             {
-                return Global.Trips.Select(y => y.Value).ToList();
+                return Global.RouteTrips.Where(x => !Regex.IsMatch(x.Value["state"].ToString(), "(CANCELED|DEPARTED|OMITTED|COMPLETE)", RegexOptions.IgnoreCase)).Select(y => y.Value).ToList();
             }
             catch (Exception e)
             {
@@ -1522,8 +1629,29 @@ namespace Factory_of_the_Future
                 if (Global.Tag.Count() > 0)
                 {
                     return Global.Tag.Where(x => x.Value["properties"]["Tag_Type"].ToString().EndsWith("Person")
-                    && (bool)x.Value["properties"]["isWearingTag"] == false
-                    && ((JObject)x.Value["properties"]["Tacs"]).HasValues).Select(y => y.Value).ToList();
+                    && (bool)x.Value["properties"]["isWearingTag"] == false && !(bool)x.Value["properties"]["isLdcAlert"] == true
+                    && ((JObject)x.Value["properties"]["tacs"]).HasValues).Select(y => y.Value).ToList();
+                }
+                else
+                {
+                    return new JObject();
+                }
+            }
+            catch (Exception e)
+            {
+                new ErrorLogger().ExceptionLog(e);
+                return new JObject();
+            }
+        }
+        internal IEnumerable<JToken> GetLDCAlertTagsList()
+        {
+            try
+            {
+                if (Global.Tag.Count() > 0)
+                {
+                    return Global.Tag.Where(x => x.Value["properties"]["Tag_Type"].ToString().EndsWith("Person")
+                    && (bool)x.Value["properties"]["isLdcAlert"] == true
+                    && ((JObject)x.Value["properties"]["tacs"]).HasValues).Select(y => y.Value).ToList();
                 }
                 else
                 {

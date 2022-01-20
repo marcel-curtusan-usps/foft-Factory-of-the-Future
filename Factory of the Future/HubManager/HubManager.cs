@@ -125,11 +125,16 @@ namespace Factory_of_the_Future
             return _managerHub.GetUndetectedTagsList();
         }
 
+        public IEnumerable<JToken> GetLDCAlertTagsList()
+        {
+            return _managerHub.GetLDCAlertTagsList();
+        }
+
         /// <summary>
         /// Get Trips Data
         /// </summary>
         /// <returns></returns>
-        public IEnumerable<Trips> GetTripsList()
+        public IEnumerable<JObject> GetTripsList()
         {
             return _managerHub.GetTripsList();
         }
