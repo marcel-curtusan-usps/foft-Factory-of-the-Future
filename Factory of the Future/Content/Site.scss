@@ -503,7 +503,8 @@ td.thead-dark {
 }
 
 .doorflash {
-    background-color: #ff0af7;
+    /*background-color: #ff0af7;  <-- Purple*/
+    background-color: #dc3545;      /*Red*/
     border-radius: 100%;
     box-shadow: 1px 1px 3px #000;
 }
@@ -518,7 +519,8 @@ td.thead-dark {
     padding-top: 300%;
     margin: 0 auto;
     border-radius: 100%;
-    box-shadow: 0 0 6px 3px #ff0af7;
+    /*box-shadow: 0 0 6px 3px #ff0af7;  <-- Purple*/
+    box-shadow: 0 0 6px 3px #dc3545;   /*Red*/
     animation: pulse 1s ease-out 1.1s infinite;
 }
 
