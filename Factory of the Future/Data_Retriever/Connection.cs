@@ -464,10 +464,14 @@ namespace Factory_of_the_Future
             }
             else if (this.API_Info.CONNECTION_NAME.ToUpper().StartsWith("SELS".ToUpper()))
             {
-                string data_source = this.API_Info.MESSAGE_TYPE;
-                if (!string.IsNullOrEmpty(data_source))
+                string selsRT_siteid = (string)Global.AppSettings.Property("FACILITY_P2P_SITEID").Value;
+                if (!string.IsNullOrEmpty(selsRT_siteid))
                 {
-                    formatUrl = string.Format(this.API_Info.URL, data_source);
+                    string data_source = this.API_Info.MESSAGE_TYPE;
+                    if (!string.IsNullOrEmpty(data_source))
+                    {
+                        formatUrl = string.Format(this.API_Info.URL, selsRT_siteid, data_source);
+                    }
                 }
             }
             else if (this.API_Info.CONNECTION_NAME.ToUpper().StartsWith("Quuppa".ToUpper()))
