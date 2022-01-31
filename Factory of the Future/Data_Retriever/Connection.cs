@@ -350,6 +350,8 @@ namespace Factory_of_the_Future
              * the last runtime on this thread
              */
             this.Status = 1;
+            string NASS_CODE = Global.AppSettings.Property("FACILITY_NASS_CODE").Value.ToString();
+
             JObject requestBody = null;
             DateTime dtNow = DateTime.Now;
             string fdb = string.Empty;
@@ -430,9 +432,20 @@ namespace Factory_of_the_Future
             }
             else if (this.API_Info.CONNECTION_NAME.ToUpper().StartsWith("SV".ToUpper()))
             {
-                string start_time = string.Concat(DateTime.Now.AddHours(-24).ToString("yyyy-MM-dd'T'HH:"), "00:00");
-                string end_time = DateTime.Now.AddHours(+5).ToString("yyyy-MM-dd'T'HH:mm:ss");
-                formatUrl = string.Format(this.API_Info.URL, this.API_Info.NASS_CODE, start_time, end_time);
+                int.TryParse(this.API_Info.HOURS_BACK, out int hours_back);
+                int.TryParse(this.API_Info.HOURS_FORWARD, out int hours_forward);
+                if (hours_back > 0 && hours_forward >= 0)
+                {
+                    string start_time = string.Concat(DateTime.Now.AddHours(-hours_back).ToString("yyyy-MM-dd'T'HH:"), "00:00");
+                    string end_time = DateTime.Now.AddHours(+hours_forward).ToString("yyyy-MM-dd'T'HH:mm:ss");
+                    formatUrl = string.Format(this.API_Info.URL, NASS_CODE, start_time, end_time);
+                }
+                else
+                {
+                    string start_time = string.Concat(DateTime.Now.AddHours(-10).ToString("yyyy-MM-dd'T'HH:"), "00:00");
+                    string end_time = DateTime.Now.AddHours(+2).ToString("yyyy-MM-dd'T'HH:mm:ss");
+                    formatUrl = string.Format(this.API_Info.URL, NASS_CODE, start_time, end_time);
+                }
             }
             else if (this.API_Info.CONNECTION_NAME.ToUpper().StartsWith("Web_Camera".ToUpper()))
             {
@@ -454,11 +467,7 @@ namespace Factory_of_the_Future
                 string data_source = this.API_Info.MESSAGE_TYPE;
                 if (!string.IsNullOrEmpty(data_source))
                 {
-                    string p2p_siteid = (string)Global.AppSettings.Property("FACILITY_P2P_SITEID").Value;
-                    if (!string.IsNullOrEmpty(p2p_siteid))
-                    {
-                        formatUrl = string.Format(this.API_Info.URL, p2p_siteid, data_source);
-                    }
+                    formatUrl = string.Format(this.API_Info.URL, data_source);
                 }
             }
             else if (this.API_Info.CONNECTION_NAME.ToUpper().StartsWith("Quuppa".ToUpper()))
@@ -471,13 +480,13 @@ namespace Factory_of_the_Future
             }
             else if (this.API_Info.CONNECTION_NAME.ToUpper().StartsWith("CTS".ToUpper()))
             {
-                if (!string.IsNullOrEmpty(this.API_Info.NASS_CODE))
+                if (!string.IsNullOrEmpty(NASS_CODE))
                 {
                     if (!string.IsNullOrEmpty(this.API_Info.OUTGOING_APIKEY))
                     {
                         if (!string.IsNullOrEmpty(this.API_Info.MESSAGE_TYPE))
                         {
-                            formatUrl = string.Format(this.API_Info.URL, this.API_Info.MESSAGE_TYPE, this.API_Info.OUTGOING_APIKEY, this.API_Info.NASS_CODE);
+                            formatUrl = string.Format(this.API_Info.URL, this.API_Info.MESSAGE_TYPE, this.API_Info.OUTGOING_APIKEY, NASS_CODE);
                         }
                     }
                 }

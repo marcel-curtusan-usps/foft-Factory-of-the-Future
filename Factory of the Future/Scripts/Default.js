@@ -14,6 +14,7 @@ var connectattp = 0;
 var connecttimer;
 var timezone = {};
 var map = null;
+var bounds = [];
 //side bar setup
 var sidebar = L.control.sidebar({
     container: 'sidebar', position: 'left', autopan: false
@@ -60,13 +61,10 @@ $(function () {
         }
     });
 
-    $('input[id=warning_condition]').on("slide", function (slideEvt) {
-        $('span[id=warning_conditionpickvalue]').text(slideEvt.value);
-    });
 
     $.extend(fotfmanager.client, {
         updateClock: async (timer) => {
-            $('#localTime').val(moment(timer).format('H:mm:ss'));
+            updateTime(timer);
             $('#twentyfourmessage').text(GetTwentyFourMessage(timer));
             if ($("#tfhcContent").length > 0) {
                 SetClockHands(timer);
@@ -143,12 +141,12 @@ $(function () {
             case 'userprofile':
                 GetUserProfile();
                 break;
-            case 'agvnotificationinfo':
-                GetAGVnotificationinfoInfo("agvnotificationtable", "vehicle");
-                break;
-            case 'ctsnotificationinfo':
-                GetCTSnotificationinfoInfo("ctsnotificationtable", "cts");
-                break;
+            //case 'agvnotificationinfo':
+            //    GetAGVnotificationinfoInfo("agvnotificationtable", "vehicle");
+            //    break;
+            //case 'ctsnotificationinfo':
+            //    GetCTSnotificationinfoInfo("ctsnotificationtable", "cts");
+            //    break;
             case 'notificationsetup':
                 LoadNotificationsetup({}, "notificationsetuptable");
                 break;
@@ -194,7 +192,7 @@ $(function () {
             icon: '<div id="viewportsToggle" data-toggle="popover"><i class="pi-iconViewport align-self-center" title="Viewports"></i></div>'
         }]
     }).addTo(map);
-
+ 
     $('#viewportsToggle').popover({
         html: true,
         trigger: 'click',
@@ -205,6 +203,7 @@ $(function () {
         // close the sidebar
         sidebar.close();
     });
+   
     // Add Layer Popover - Proposed
     L.control.layers(null, overlayMaps, { position: 'bottomright', collapsed: false }).addTo(map);
     $('.leaflet-control-layers').addClass('layerPopover');
@@ -346,109 +345,7 @@ $(function () {
             event.preventDefault();
         }
     });
-    async function startSearch(sc) {
-        $search_Table = $('table[id=tagresulttable]');
-        $search_Table_Body = $search_Table.find('tbody');
-        $search_Table_Body.empty();
-        $search_row_template = '<tr data-id="{layer_id}" data-tag="{tag_id}">' +
-            '<td>{tag_name}</td>' +
-            '<td class="align-middle text-center">' +
-            '<button class="btn btn-light btn-sm mx-1 pi-iconEdit" name="tagedit"></button>' +
-
-            '</td>' +
-            '</tr>'
-            ;
-        function formatsearchrow(properties, layer_id) {
-            return $.extend(properties, {
-                layer_id: layer_id,
-                tag_id: properties.id,
-                tag_name: checkValue(properties.name) ? properties.name : properties.id
-            })
-        }
-        if (checkValue(sc)) {
-            var search = new RegExp(sc, 'i');
-            if (map.hasOwnProperty("_layers")) {
-                $.map(map._layers, function (layer, i) {
-                    if (layer.hasOwnProperty("feature")) {
-                        if (/(person)|(Vehicle$)/i.test(layer.feature.properties.Tag_Type)) {
-                            if (search.test(layer.feature.properties.name) || search.test(layer.feature.properties.id)) {
-                                $search_Table_Body.append($search_row_template.supplant(formatsearchrow(layer.feature.properties, layer._leaflet_id)));
-                                if (layer.hasOwnProperty("options")) {
-                                    if (layer.options.hasOwnProperty("fillColor")) {
-                                        if (!/red/i.test(layer.options.fillColor)) {
-                                            layer.setStyle({
-                                                fillColor: '#dc3545', //'red',
-                                            });
-                                        }
-                                    }
-                                }
-                                if (layer.hasOwnProperty("_tooltip")) {
-                                    if (layer._tooltip.hasOwnProperty("_container")) {
-                                        if (layer._tooltip._container.classList.contains('tooltip-hidden')) {
-                                            layer._tooltip._container.classList.remove('tooltip-hidden');
-                                        }
-                                        if (!layer._tooltip._container.classList.contains('searchflash')) {
-                                            layer._tooltip._container.classList.add('searchflash');
-                                        }
-                                    }
-                                }
-                            }
-                            else {
-                                if (!layer.feature.properties.hasOwnProperty("tagVisible")) {
-                                    if (!layer._tooltip._container.classList.contains('tooltip-hidden')) {
-                                        layer._tooltip._container.classList.add('tooltip-hidden');
-                                    }
-                                }
-                                if (layer.hasOwnProperty("_tooltip")) {
-                                    if (layer._tooltip.hasOwnProperty("_container")) {
-                                        if (layer._tooltip._container.classList.contains('searchflash')) {
-                                            layer._tooltip._container.classList.remove('searchflash');
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                });
-            }
-            $('button[name=tagedit]').on('click', function () {
-                var td = $(this);
-                var tr = $(td).closest('tr'),
-                    layer_id = tr.attr('data-id');
-
-                EditUserInfo(layer_id);
-            });
-            $('button[name=tagdelete]').on('click', function () {
-                var td = $(this);
-                var tr = $(td).closest('tr'),
-                    layer_id = tr.attr('data-id');
-
-                DeleteUserInfo(layer_id);
-            });
-        }
-        else {
-            if (map.hasOwnProperty("_layers")) {
-                $.map(map._layers, function (layer, i) {
-                    if (layer.hasOwnProperty("feature")) {
-                        if (/(person)|(Vehicle$)/i.test(layer.feature.properties.Tag_Type)) {
-                            if (layer.hasOwnProperty("_tooltip")) {
-                                if (layer._tooltip.hasOwnProperty("_container")) {
-                                    if (layer._tooltip._container.classList.contains('searchflash')) {
-                                        layer._tooltip._container.classList.remove('searchflash');
-                                    }
-                                    if (!layer.feature.properties.hasOwnProperty("tagVisible")) {
-                                        if (!layer._tooltip._container.classList.contains('tooltip-hidden')) {
-                                            layer._tooltip._container.classList.add('tooltip-hidden');
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                });
-            }
-        }
-    }
+   
 
     //machine chart
     //var machinechart = document.getElementById("machinePerformancechart").getContext("2d");
@@ -644,11 +541,13 @@ $(function () {
                         //load Base64 image
                         img.src = MapData.Base64Img;
                         //create he bound of the image.
-                        var bounds = [[MapData.YMeter, MapData.XMeter], [MapData.HeightMeter + MapData.YMeter, MapData.WidthMeter + MapData.XMeter]];
+                        bounds = [[MapData.YMeter, MapData.XMeter], [MapData.HeightMeter + MapData.YMeter, MapData.WidthMeter + MapData.XMeter]];
+                        var trackingarea = L.polygon(bounds, {});
                         //add the image to the map
-                        L.imageOverlay(img.src, bounds).addTo(map);
+                        L.imageOverlay(img.src, trackingarea.getBounds()).addTo(map);
+                        
                         //center image
-                        map.setView([MapData.HeightMeter / 2, MapData.WidthMeter / 2], 1.5);
+                        map.setView(trackingarea.getBounds().getCenter(), 1.5);
 
                     }
                 }
@@ -987,7 +886,23 @@ $(function () {
             LoadContainerDetails(doorid, placardid);
         }
     });
-  
+    //search tag edit
+    $(document).on('click', '.tagedit', function () {
+        var td = $(this);
+        var tr = $(td).closest('tr'),
+            layer_id = tr.attr('data-id');
+
+        EditUserInfo(layer_id);
+    });
+    //search tag delete
+    $(document).on('click', 'tagdelete', function () {
+        var td = $(this);
+        var tr = $(td).closest('tr'),
+            layer_id = tr.attr('data-id');
+
+        DeleteUserInfo(layer_id);
+    });
+    //search tag details
     $(document).on('click', '.tagdetails', function (e) {
         var td = $(this);
         var tagid = td.attr('data-tag');
@@ -1262,7 +1177,7 @@ $('th').click(function () {
 function setHeight() {
     var height = (this.window.innerHeight > 0 ? this.window.innerHeight : this.screen.height) - 1;
     $('div[id=map]').css("min-height", height + "px");
-};
+}
 function SortByVehicleName(a, b) {
     return a.VEHICLENAME < b.VEHICLENAME ? -1 : a.VEHICLENAME > b.VEHICLENAME ? 1 : 0;
 }
@@ -1303,8 +1218,8 @@ function IPAddress_validator(value) {
     if (value === "0.0.0.0" || value === "255.255.255.255" || ipArray === null)
         return "Invalid IP Address";
     else {
-        for (i = 1; i < ipArray.length; i++) {
-            thisSegment = ipArray[i];
+        for (let i = 1; i < ipArray.length; i++) {
+           let thisSegment = ipArray[i];
             if (thisSegment > 255) {
                 return "Invalid IP Address";
             }
@@ -1416,36 +1331,38 @@ function GetPeopleInZone(zone, P2Pdata, staffarray) {
         staffing.sort(SortByTagName);
 
         $('div[id=staff_div]').css('display', 'block');
-        $stafftop_Table = $('table[id=stafftable]');
-        $stafftop_Table_thead = $stafftop_Table.find('thead');
-        $stafftop_Table_thead.empty();
-        $stafftop_Table_thead.append('<tr><th>F1 Craft</th><th>Current</th><th>Planned</th></tr>');
-        $stafftop_Table_Body = $stafftop_Table.find('tbody');
-        $stafftop_Table_Body.empty();
-        $stafftop_row_template = '<tr data-id={staffName}>' +
-            '<td class="text-center">{staffName}</td>' +
-            '<td class="text-center">{staffNameId}</td>' +
-            '<td class="text-center">{planstaff}</td>' +
-            '</tr>"';
-        function formatstafftoprow(properties) {
-            return $.extend(properties, {
-                staffName: properties.name,
-                staffId: properties.id,
-                staffNameId: properties.hasOwnProperty("currentstaff") ? properties.currentstaff : 0,
-                planstaff: properties.hasOwnProperty("planstaff") ? properties.planstaff : 0,
-            });
-        }
+        let stafftop_Table = $('table[id=stafftable]');
+        let stafftop_Table_thead = stafftop_Table.find('thead');
+        stafftop_Table_thead.empty();
+        stafftop_Table_thead.append('<tr><th>F1 Craft</th><th>Current</th><th>Planned</th></tr>');
+        let stafftop_Table_Body = stafftop_Table.find('tbody');
+        stafftop_Table_Body.empty();
+  
+        
         staffCounts.push({
             name: 'Total',
             currentstaff: staffarray.length,
             planstaff: planstaffarray.length
         });
         $.each(staffCounts, function () {
-            $stafftop_Table_Body.append($stafftop_row_template.supplant(formatstafftoprow(this)));
+            stafftop_Table_Body.append(stafftop_row_template.supplant(formatstafftoprow(this)));
         })
     } catch (e) {
         console.log(e);
     }
+}
+let stafftop_row_template = '<tr data-id={staffName}>' +
+    '<td class="text-center">{staffName}</td>' +
+    '<td class="text-center">{staffNameId}</td>' +
+    '<td class="text-center">{planstaff}</td>' +
+    '</tr>"';
+function formatstafftoprow(properties) {
+    return $.extend(properties, {
+        staffName: properties.name,
+        staffId: properties.id,
+        staffNameId: properties.hasOwnProperty("currentstaff") ? properties.currentstaff : 0,
+        planstaff: properties.hasOwnProperty("planstaff") ? properties.planstaff : 0,
+    });
 }
 function digits(num) {
     return num.replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,");
@@ -1465,7 +1382,7 @@ function pad(str, max) {
 }
 function objSVTime(t) {
     try {
-        var time = moment().set({ 'year': t.year, 'month': t.month, 'date': t.dayOfMonth, 'hour': t.hourOfDay, 'minute': t.minute, 'second': t.second });
+        var time = moment().set({ 'year': t.year, 'month': t.month + 1, 'date': t.dayOfMonth, 'hour': t.hourOfDay, 'minute': t.minute, 'second': t.second });
         if (time._isValid) {
             if (time.year() === 1) {
                 return "";
@@ -1475,4 +1392,7 @@ function objSVTime(t) {
     } catch (e) {
         console.log(e);
     }
+}
+async function updateTime(t) {
+    $('#localTime').val(moment(t).format('H:mm'));
 }

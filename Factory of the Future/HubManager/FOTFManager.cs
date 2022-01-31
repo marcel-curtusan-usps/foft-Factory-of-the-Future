@@ -692,6 +692,7 @@ namespace Factory_of_the_Future
             string state = "ACTIVE";
             try
             {
+                trip["Trip_Update"] = false;
                 if (!trip.ContainsKey("unloadedContainers"))
                 {
                     trip["unloadedContainers"] = 0;
@@ -755,13 +756,13 @@ namespace Factory_of_the_Future
                     }
                 }
 
-                double tripInMin = Get_TripMin((JObject)trip["scheduledDtm"]);
-                if (tripInMin != (double)trip["tripMin"])
+                int tripInMin = Global.Get_TripMin((JObject)trip["scheduledDtm"]);
+                if (tripInMin != (int)trip["tripMin"])
                 {
                     trip["tripMin"] = tripInMin;
                     update = true;
                 }
-                //check the trip state
+                //check the trip state     
                 if (tripInMin <= -1 && state == "ACTIVE")
                 {
                     state = "LATE";
@@ -777,21 +778,31 @@ namespace Factory_of_the_Future
                     state = "REMOVE";
                     update = true;
                 }
-
                 CheckNotification(trip["state"].ToString(), state, "routetrip", trip);
+
+                if (string.IsNullOrEmpty(trip["state"].ToString()))
+                {
+                    trip["state"] = trip.ContainsKey("status") ? trip["status"].ToString() : trip.ContainsKey("legStatus") ? trip["legStatus"].ToString() : state;
+                }
+                else
+                {
                     trip["state"] = state;
-                
+                }
                 if (state == "REMOVE")
                 {
-                    string routetripid = trip["route"].ToString() + trip["trip"].ToString() + trip["tripDirectionInd"].ToString();
+                    string routetripid = string.Concat(trip["routeTripId"].ToString() + trip["routeTripLegId"].ToString());
                     if (Global.RouteTrips.TryRemove(routetripid, out JObject r))
                     {
                         trip["state"] = state;
+                        CheckNotification(trip["state"].ToString(), state, "routetrip", trip);
                         update = true;
                     }
                   
                 }
-
+                if (trip["state"].ToString() == state)
+                {
+                    update = false;
+                }
                 return update;
             }
             catch (Exception e)
@@ -853,24 +864,7 @@ namespace Factory_of_the_Future
             }
         }
 
-        private double Get_TripMin(JObject triptime)
-        {
-            try
-            {
-                DateTime dtNow = DateTime.Now;
-                if (Global.TimeZoneConvert.TryGetValue((string)Global.AppSettings.Property("FACILITY_TIMEZONE").Value, out string windowsTimeZoneId))
-                {
-                    dtNow = TimeZoneInfo.ConvertTime(dtNow, TimeZoneInfo.FindSystemTimeZoneById(windowsTimeZoneId));
-                }
-                DateTime tripDtm = new DateTime((int)triptime["year"], ((int)triptime["month"] +1 ), (int)triptime["dayOfMonth"], (int)triptime["hourOfDay"], (int)triptime["minute"], (int)triptime["second"]);
-                return Math.Round(tripDtm.Subtract(dtNow).TotalMinutes);
-            }
-            catch (Exception e)
-            {
-                new ErrorLogger().ExceptionLog(e);
-                return 0;
-            }
-        }
+     
 
         private double GetTripMin(DateTime scheduledDtm)
         {
@@ -1257,11 +1251,11 @@ namespace Factory_of_the_Future
                 return null;
             }
         }
-        internal IEnumerable<Trips> GetRouteTripsInfo(string id)
+        internal IEnumerable<JObject> GetRouteTripsInfo(string id)
         {
             try
             {
-                return Global.Trips.Where(r => r.Key == id).Select(y => y.Value).ToList();
+                return Global.RouteTrips.Where(r => r.Key == id).Select(y => y.Value).ToList();
             }
             catch (Exception e)
             {
@@ -1906,7 +1900,7 @@ namespace Factory_of_the_Future
                 {
                     _updateDockDoorStatus = true;
 
-                    Global.Zones.Where(u => (bool)u.Value["properties"]["Zone_Update"] == true && u.Value["properties"]["Zone_Type"].ToString() == "DockDoor").Select(x => x.Value).ToList().ForEach(DockDoor =>
+                    Global.Zones.Where(u => u.Value["properties"]["Zone_Type"].ToString() == "DockDoor" && (bool)u.Value["properties"]["Zone_Update"]).Select(x => x.Value).ToList().ForEach(DockDoor =>
                     {
                         if (TryUpdateDockDoorStatus(DockDoor))
                         {
@@ -1928,13 +1922,14 @@ namespace Factory_of_the_Future
         {
             try
             {
-                // Make call to update routetripData.alertState
-                //dockDoor["properties"]["alertState"] = GetDoorAlertState(dockDoor);
-                //if (dockDoor["properties"]["alertState"].ToString().ToUpper() != "OKAY")
-                //{
-                //    dockDoor["properties"]["alertMessage"] = dockDoor["properties"]["alertState"].ToString().ToUpper();
-                //}
-                dockDoor["properties"]["Zone_Update"] = false;
+                
+                    // Make call to update routetripData.alertState
+                    //dockDoor["properties"]["alertState"] = GetDoorAlertState(dockDoor);
+                    //if (dockDoor["properties"]["alertState"].ToString().ToUpper() != "OKAY")
+                    //{
+                    //    dockDoor["properties"]["alertMessage"] = dockDoor["properties"]["alertState"].ToString().ToUpper();
+                    //}
+                 dockDoor["properties"]["Zone_Update"] = false;
                 return true;
                 //string DockDoor_id = (string)dockDoor["properties"]["id"];
 
@@ -2203,11 +2198,6 @@ namespace Factory_of_the_Future
                         JObject objectdata = JObject.Parse(data);
                         if (objectdata.HasValues)
                         {
-                            if (!string.IsNullOrEmpty(Global.AppSettings["FACILITY_NASS_CODE"].ToString()))
-                            {
-                                objectdata["NASS_CODE"] = Global.AppSettings["FACILITY_NASS_CODE"].ToString();
-                            }
-                           
                             JObject api = new JObject_List().API;
                             id = (string)api["ID"];
                             api.Merge(objectdata, new JsonMergeSettings { MergeArrayHandling = MergeArrayHandling.Union });
@@ -2494,7 +2484,7 @@ namespace Factory_of_the_Future
                                         {
                                             Global.AppSettings.Property(item.Key).Value = Global.Encrypt(kv.Value.ToString());
                                         }
-                                        else if (kv.Key == "FACILITY_NASS_CODE")
+                                        if (kv.Key == "FACILITY_NASS_CODE")
                                         {
                                             if (GetData.Get_Site_Info((string)kv.Value, out JObject SiteInfo))
                                             {
@@ -2505,20 +2495,7 @@ namespace Factory_of_the_Future
                                                     Global.AppSettings.Property("FACILITY_ID").Value = SiteInfo.ContainsKey("fdbId") ? SiteInfo.Property("fdbId").Value : "";
                                                     Global.AppSettings.Property("FACILITY_ZIP").Value = SiteInfo.ContainsKey("zipCode") ? SiteInfo.Property("zipCode").Value : "";
                                                     Global.AppSettings.Property("FACILITY_LKEY").Value = SiteInfo.ContainsKey("localeKey") ? SiteInfo.Property("localeKey").Value : "";
-                                                }
-                                            }
-                                        }
-                                        else if (kv.Key == "FACILITY_NASS_CODE")
-                                        {
-                                            if (GetData.Get_Site_Info((string)kv.Value, out JObject SiteInfo))
-                                            {
-                                                if (SiteInfo.HasValues)
-                                                {
-                                                    Global.AppSettings.Property(item.Key).Value = kv.Value.ToString();
-                                                    Global.AppSettings.Property("FACILITY_NAME").Value = SiteInfo.ContainsKey("displayName") ? SiteInfo.Property("displayName").Value : "";
-                                                    Global.AppSettings.Property("FACILITY_ID").Value = SiteInfo.ContainsKey("fdbId") ? SiteInfo.Property("fdbId").Value : "";
-                                                    Global.AppSettings.Property("FACILITY_ZIP").Value = SiteInfo.ContainsKey("zipCode") ? SiteInfo.Property("zipCode").Value : "";
-                                                    Global.AppSettings.Property("FACILITY_LKEY").Value = SiteInfo.ContainsKey("localeKey") ? SiteInfo.Property("localeKey").Value : "";
+                                                    Global.LoglocationSetup();
                                                 }
                                             }
                                         }
@@ -2527,9 +2504,9 @@ namespace Factory_of_the_Future
                                             if (!string.IsNullOrEmpty(kv.Value.ToString()))
                                             {
                                                 Global.AppSettings.Property(item.Key).Value = kv.Value.ToString();
-                                                Global.Logdirpath = new DirectoryInfo(kv.Value.ToString());
-                                                new Directory_Check().DirPath(Global.Logdirpath);
-                                               
+                                                Global.LoglocationSetup();
+                                                //Global.Logdirpath = new DirectoryInfo(kv.Value.ToString());
+                                                //new Directory_Check().DirPath(Global.Logdirpath);
                                             }
                                         }
                                         else

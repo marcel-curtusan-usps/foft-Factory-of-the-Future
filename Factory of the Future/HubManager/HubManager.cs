@@ -142,7 +142,7 @@ namespace Factory_of_the_Future
         /// Get Specific Trips Data
         /// </summary>
         /// <returns></returns>
-        public IEnumerable<Trips> GetRouteTripsInfo(string id)
+        public IEnumerable<JObject> GetRouteTripsInfo(string id)
         {
             return _managerHub.GetRouteTripsInfo(id);
         }

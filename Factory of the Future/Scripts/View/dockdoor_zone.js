@@ -32,10 +32,10 @@ async function updateDockDoorZone(dockdoorzoneupdate) {
 
 var dockDoors = new L.GeoJSON(null, {
     style: function (feature) {
-        if (feature.properties.hasOwnProperty("routetripData")) {
-            if (feature.properties.routetripData.hasOwnProperty("tripDirectionInd")) {
-                if (feature.properties.routetripData.tripDirectionInd === "O") {
-                    if (feature.properties.routetripData.tripMin <= 30) {
+        if (feature.properties.hasOwnProperty("dockDoorData")) {
+            if (feature.properties.dockDoorData.hasOwnProperty("tripDirectionInd")) {
+                if (feature.properties.dockDoorData.tripDirectionInd === "O") {
+                    if (feature.properties.dockDoorData.tripMin <= 30) {
                         return {
                             weight: 2,
                             opacity: 1,
@@ -91,10 +91,10 @@ var dockDoors = new L.GeoJSON(null, {
     },
     onEachFeature: function (feature, layer) {
         var dockdookflash = "";
-        if (feature.properties.hasOwnProperty("routetripData")) {
-            if (feature.properties.routetripData.hasOwnProperty("tripDirectionInd")) {
-                if (feature.properties.routetripData.tripDirectionInd === "O") {
-                    if (feature.properties.routetripData.tripMin <= 30 && feature.properties.routetripData.unloadedContainers > 0) {
+        if (feature.properties.hasOwnProperty("dockDoorData")) {
+            if (feature.properties.dockDoorData.hasOwnProperty("tripDirectionInd")) {
+                if (feature.properties.dockDoorData.tripDirectionInd === "O") {
+                    if (feature.properties.dockDoorData.tripMin <= 30 && feature.properties.dockDoorData.unloadedContainers > 0) {
                         dockdookflash = "doorflash"
                     }
                 }
@@ -133,94 +133,96 @@ async function LoadDockDoorTable(dataproperties) {
             dockdoortop_Table_Body.empty();
             $('button[name=container_counts]').text(0 + "/" + 0);
             container_Table_Body.empty();
-            if (dataproperties.hasOwnProperty("routetripData") && dataproperties.routetripData.hasOwnProperty("trailerBarcode")) {
+            if (dataproperties.hasOwnProperty("dockDoorData") && dataproperties.dockDoorData.hasOwnProperty("trailerBarcode")) {
                 
-                if (dataproperties.routetripData.hasOwnProperty("doorNumber")) {
+                if (dataproperties.dockDoorData.hasOwnProperty("doorNumber")) {
                    
-                    $('span[name=doornumberid]').text(dataproperties.routetripData.doorNumber);
+                    $('span[name=doornumberid]').text(dataproperties.dockDoorData.doorNumber);
                 }
-                if (dataproperties.routetripData.hasOwnProperty("legSiteName")) {
+                if (dataproperties.dockDoorData.hasOwnProperty("legSiteName")) {
                     tempdata.push({
                         name: "Site Name",
-                        value: "(" + dataproperties.routetripData.legSiteId + ") " + dataproperties.routetripData.legSiteName
+                        value: "(" + dataproperties.dockDoorData.legSiteId + ") " + dataproperties.dockDoorData.legSiteName
                     })
                 }
-                if (dataproperties.routetripData.hasOwnProperty("route")) {
+                if (dataproperties.dockDoorData.hasOwnProperty("route")) {
                     tempdata.push({
                         name: "Route-Trip",
-                        value: dataproperties.routetripData.route + "-" + dataproperties.routetripData.trip
+                        value: dataproperties.dockDoorData.route + "-" + dataproperties.dockDoorData.trip
                     })
                 }
-                if (dataproperties.routetripData.hasOwnProperty("trailerBarcode")) {
+                if (dataproperties.dockDoorData.hasOwnProperty("trailerBarcode")) {
                     tempdata.push({
                         name: "Trailer Barcode",
-                        value: dataproperties.routetripData.trailerBarcode
+                        value: dataproperties.dockDoorData.trailerBarcode
                     })
                 }
-                if (dataproperties.routetripData.hasOwnProperty("status")) {
-                    if (checkValue(dataproperties.routetripData.status)) {
-                        $('span[name=doorstatus]').text(capitalize_Words(dataproperties.routetripData.status));
+                if (dataproperties.dockDoorData.hasOwnProperty("status")) {
+                    if (checkValue(dataproperties.dockDoorData.status)) {
+                        $('span[name=doorstatus]').text(capitalize_Words(dataproperties.dockDoorData.status));
                     }
                 }
                 else {
                     $('span[name=doorstatus]').text("Occupied");
                 }
-                //if (dataproperties.routetripData.hasOwnProperty("driverBarcode")) {
+                //if (dataproperties.dockDoorData.hasOwnProperty("driverBarcode")) {
                 //    tempdata.push({
                 //        name: "Driver Barcode",
-                //        value: dataproperties.routetripData.driverBarcode
+                //        value: dataproperties.dockDoorData.driverBarcode
                 //    })
                 //}
-                //if (dataproperties.routetripData.hasOwnProperty("driverFirstName")) {
+                //if (dataproperties.dockDoorData.hasOwnProperty("driverFirstName")) {
                 //    var lastname = "";
-                //    if (dataproperties.routetripData.hasOwnProperty("driverLastName")) {
-                //        lastname = dataproperties.routetripData.driverLastName;
+                //    if (dataproperties.dockDoorData.hasOwnProperty("driverLastName")) {
+                //        lastname = dataproperties.dockDoorData.driverLastName;
                 //    }
                 //    tempdata.push({
                 //        name: "Driver Name",
-                //        value: dataproperties.routetripData.driverFirstName + " " + lastname
+                //        value: dataproperties.dockDoorData.driverFirstName + " " + lastname
                 //    })
                 //}
-                //if (dataproperties.routetripData.hasOwnProperty("driverPhoneNumber")) {
+                //if (dataproperties.dockDoorData.hasOwnProperty("driverPhoneNumber")) {
                 //    tempdata.push({
                 //        name: "Driver Phone Number",
-                //        value: dataproperties.routetripData.driverPhoneNumber
+                //        value: dataproperties.dockDoorData.driverPhoneNumber
                 //    })
                 //}
-                if (dataproperties.routetripData.hasOwnProperty("loadPercent")) {
+                if (dataproperties.dockDoorData.hasOwnProperty("loadPercent")) {
                     tempdata.push({
                         name: "Load Percent",
-                        value: checkValue(dataproperties.routetripData.loadPercent) ? dataproperties.routetripData.loadPercent : 0 
+                        value: checkValue(dataproperties.dockDoorData.loadPercent) ? dataproperties.dockDoorData.loadPercent : 0 
                     })
                 }
-                if (dataproperties.routetripData.hasOwnProperty("tripDirectionInd")) {
+                if (dataproperties.dockDoorData.hasOwnProperty("mailerName")) {
+                    tempdata.push({
+                        name: "Mailer",
+                        value: checkValue(dataproperties.dockDoorData.mailerName) ? dataproperties.dockDoorData.mailerName : 0
+                    })
+                }
+                if (dataproperties.dockDoorData.hasOwnProperty("tripDirectionInd")) {
                     tempdata.push({
                         name: "Direction",
-                        value: dataproperties.routetripData.tripDirectionInd === "O" ? "Out-bound" : "In-bound"
+                        value: dataproperties.dockDoorData.tripDirectionInd === "O" ? "Out-bound" : "In-bound"
                     })
                 }
-                if (dataproperties.routetripData.hasOwnProperty("scheduledDtm")) {
-                    tempdata.push({
-                        name: "Scheduled To Depart",
-                        value: (dataproperties.routetripData.scheduledDtm.month + 1) + "-" + dataproperties.routetripData.scheduledDtm.dayOfMonth + "-" + dataproperties.routetripData.scheduledDtm.year + " " +
-                            pad(dataproperties.routetripData.scheduledDtm.hourOfDay, 2) + ":" + pad(dataproperties.routetripData.scheduledDtm.minute, 2) + ":" + pad(dataproperties.routetripData.scheduledDtm.second, 2)
-                    })
+
+                    if (dataproperties.dockDoorData.hasOwnProperty("scheduledDtm")) {
+                        tempdata.push({
+                            name: dataproperties.dockDoorData.tripDirectionInd === "O" ? "Scheduled To Depart" : "Scheduled Arrive Time",
+                            value: (dataproperties.dockDoorData.scheduledDtm.month + 1) + "-" + dataproperties.dockDoorData.scheduledDtm.dayOfMonth + "-" + dataproperties.dockDoorData.scheduledDtm.year + " " +
+                                pad(dataproperties.dockDoorData.scheduledDtm.hourOfDay, 2) + ":" + pad(dataproperties.dockDoorData.scheduledDtm.minute, 2) + ":" + pad(dataproperties.dockDoorData.scheduledDtm.second, 2)
+                        })
+                    }
+                
+                if (dataproperties.dockDoorData.tripDirectionInd === "I") {
+                    if (dataproperties.dockDoorData.hasOwnProperty("actualDtm")) {
+                        tempdata.push({
+                            name: "Actual Arrive Time",
+                            value: (dataproperties.dockDoorData.actualDtm.month + 1) + "-" + dataproperties.dockDoorData.actualDtm.dayOfMonth + "-" + dataproperties.dockDoorData.actualDtm.year + " " +
+                                pad(dataproperties.dockDoorData.actualDtm.hourOfDay, 2) + ":" + pad(dataproperties.dockDoorData.actualDtm.minute, 2) + ":" + pad(dataproperties.dockDoorData.actualDtm.second, 2)
+                        })
+                    }
                 }
-                //if (dataproperties.routetripData.tripDirectionInd === "I") {
-                //    if (dataproperties.routetripData.hasOwnProperty("actualDtm")) {
-                //        tempdata.push({
-                //            name: "Actual Arrive Time ",
-                //            value: (dataproperties.routetripData.actualDtm.month + 1) + "-" + dataproperties.routetripData.actualDtm.dayOfMonth + "-" + dataproperties.routetripData.actualDtm.year + " " +
-                //                pad(dataproperties.routetripData.actualDtm.hourOfDay, 2) + ":" + pad(dataproperties.routetripData.actualDtm.minute, 2) + ":" + pad(dataproperties.routetripData.actualDtm.second, 2)
-                //        })
-                //    }
-                //    else {
-                //        tempdata.push({
-                //            name: "Actual Arrive Time ",
-                //            value: "Has Not Arrived"
-                //        })
-                //    }
-                //}
                 $.each(tempdata, function () {
                     dockdoortop_Table_Body.append(dockdoortop_row_template.supplant(formatdockdoortoprow(this, dataproperties.id)));
                 });
@@ -229,20 +231,20 @@ async function LoadDockDoorTable(dataproperties) {
           
 
 
-                if (dataproperties.routetripData.hasOwnProperty("tripDirectionInd")) {
-                    //var legSite = dataproperties.routetripData.tripDirectionInd === "I" ? User.NASS_Code : dataproperties.routetripData.legSiteId;
-                    //$.connection.FOTFManager.server.getContainer(legSite, dataproperties.routetripData.tripDirectionInd, dataproperties.routetripData.route, dataproperties.routetripData.trip).done(function (Data) {
+                if (dataproperties.dockDoorData.hasOwnProperty("tripDirectionInd")) {
+                    //var legSite = dataproperties.dockDoorData.tripDirectionInd === "I" ? User.NASS_Code : dataproperties.dockDoorData.legSiteId;
+                    //$.connection.FOTFManager.server.getContainer(legSite, dataproperties.dockDoorData.tripDirectionInd, dataproperties.dockDoorData.route, dataproperties.dockDoorData.trip).done(function (Data) {
 
-                    if (dataproperties.routetripData.containers.length > 0) {
+                    if (dataproperties.dockDoorData.containers.length > 0) {
                         var loadedcount = 0;
                         var unloadedcount = 0;
                         var loaddata = [];
                         container_Table_Body.empty();
-                        $.each(dataproperties.routetripData.containers, function (index, d) {
+                        $.each(dataproperties.dockDoorData.containers, function (index, d) {
                             if (!d.containerTerminate) {
-                                if (dataproperties.routetripData.tripDirectionInd === "O") {
+                                if (dataproperties.dockDoorData.tripDirectionInd === "O") {
                                     if (d.containerAtDest === false) {
-                                        if (d.hasLoadScans === true && d.Otrailer === dataproperties.routetripData.trailerBarcode) {
+                                        if (d.hasLoadScans === true && d.Otrailer === dataproperties.dockDoorData.trailerBarcode) {
                                             loadedcount++
                                             d.constainerStatus = "Loaded";
                                             d.sortind = 2;
@@ -257,8 +259,8 @@ async function LoadDockDoorTable(dataproperties) {
 
                                     }
                                 }
-                                if (dataproperties.routetripData.tripDirectionInd === "I") {
-                                    if (d.hasUnloadScans === true && d.Itrailer === dataproperties.routetripData.trailerBarcode) {
+                                if (dataproperties.dockDoorData.tripDirectionInd === "I") {
+                                    if (d.hasUnloadScans === true && d.Itrailer === dataproperties.dockDoorData.trailerBarcode) {
                                         unloadedcount++
                                         d.constainerStatus = "Unloaded";
                                         d.sortind = 1;
@@ -291,14 +293,14 @@ async function LoadDockDoorTable(dataproperties) {
             }
             else {
                 $('div[id=trailer_div]').css('display', 'none');
-                if (dataproperties.routetripData.hasOwnProperty("doorNumber")) {
-                    $('span[name=doornumberid]').text(dataproperties.routetripData.doorNumber);
+                if (dataproperties.dockDoorData.hasOwnProperty("doorNumber")) {
+                    $('span[name=doornumberid]').text(dataproperties.dockDoorData.doorNumber);
                 }
                 else {
                     $('span[name=doornumberid]').text(parseInt(dataproperties.doorNumber));
                 }
-                if (dataproperties.routetripData.hasOwnProperty("status")) {
-                    $('span[name=doorstatus]').text(capitalize_Words(dataproperties.routetripData.status));
+                if (dataproperties.dockDoorData.hasOwnProperty("status")) {
+                    $('span[name=doorstatus]').text(capitalize_Words(dataproperties.dockDoorData.status));
                 }
                 else {
                     $('span[name=doorstatus]').text("Unknown");
@@ -347,11 +349,11 @@ let container_row_template = '<tr>' +
     '<td data-input="status" class="text-center {backgroundcolorstatus}">{status}</td>' +
     '</tr>"';
 async function updatedockdoor(layerindex) {
-    if (dockDoors._layers[layerindex].feature.properties.hasOwnProperty("routetripData")) {
-        if (dockDoors._layers[layerindex].feature.properties.routetripData.hasOwnProperty("tripDirectionInd")) {
+    if (dockDoors._layers[layerindex].feature.properties.hasOwnProperty("dockDoorData")) {
+        if (dockDoors._layers[layerindex].feature.properties.dockDoorData.hasOwnProperty("tripDirectionInd")) {
          
-            if (dockDoors._layers[layerindex].feature.properties.routetripData.tripDirectionInd === "O") {
-                if (dockDoors._layers[layerindex].feature.properties.routetripData.tripMin <= 30) {
+            if (dockDoors._layers[layerindex].feature.properties.dockDoorData.tripDirectionInd === "O") {
+                if (dockDoors._layers[layerindex].feature.properties.dockDoorData.tripMin <= 30) {
                     dockDoors._layers[layerindex].setStyle({
                         weight: 2,
                         opacity: 1,
@@ -359,7 +361,7 @@ async function updatedockdoor(layerindex) {
                         fillColor: '#dc3545',   // Red. ff0af7 is Purple
                         fillOpacity: 0.5
                     });
-                    if (dockDoors._layers[layerindex].feature.properties.routetripData.unloadedContainers > 0) {
+                    if (dockDoors._layers[layerindex].feature.properties.dockDoorData.unloadedContainers > 0) {
                         if (dockDoors._layers[layerindex].hasOwnProperty("_tooltip")) {
                             if (dockDoors._layers[layerindex]._tooltip.hasOwnProperty("_container")) {
                                 if (!dockDoors._layers[layerindex]._tooltip._container.classList.contains('doorflash')) {
@@ -395,6 +397,15 @@ async function updatedockdoor(layerindex) {
                         }
                     }
                 }
+            }
+            if (dockDoors._layers[layerindex].feature.properties.dockDoorData.tripDirectionInd === "I") {
+                dockDoors._layers[layerindex].setStyle({
+                    weight: 2,
+                    opacity: 1,
+                    color: '#3573b1',
+                    fillColor: '#3573b1',
+                    fillOpacity: 0.5
+                });
             }
             if ($('div[id=dockdoor_div]').is(':visible')) {
                 var findtrdataid = dockdoortop_Table_Body.find('tr[data-id=' + dockDoors._layers[layerindex].feature.properties.id + ']');
@@ -502,7 +513,7 @@ async function loadcontainerHistory(d, placardid) {
             '</tr>"';
 
         let containerHistory = {};
-        $.map(d.routetripData.containers, function (container, i) {
+        $.map(d.dockDoorData.containers, function (container, i) {
             if (container.placardBarcode === placardid) {
                 containerHistory = container.containerHistory
                 return false;

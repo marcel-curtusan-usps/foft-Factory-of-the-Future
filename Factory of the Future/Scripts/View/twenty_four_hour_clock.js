@@ -21,7 +21,7 @@ function GetTwentyFourMessage(time) {
     if (currtime.isBetween(moment('15:00:00', format), moment('20:00:00', format))) {
         return '20:00 80% Mail Canceled';
     }
-    if (currtime.isBetween(moment('20:00:00', format), moment('00:00:00', format))) {
+    if (currtime.isBetween(moment('20:00:00', format), moment('23:59:59', format))) {
         return '24:00 Outgoing Primary Completed';
     }
 }

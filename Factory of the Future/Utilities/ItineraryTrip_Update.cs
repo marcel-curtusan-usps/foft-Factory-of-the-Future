@@ -7,7 +7,7 @@ namespace Factory_of_the_Future
     internal class ItineraryTrip_Update
     {
         private JObject item;
-        public ItineraryTrip_Update(JArray jarrayitem, string tripDirectionInd)
+        public ItineraryTrip_Update(JArray jarrayitem, string tripDirectionInd, string routtripid)
         {
             try
             {
@@ -17,7 +17,7 @@ namespace Factory_of_the_Future
                     JToken legs = item.SelectToken("legs");
                     if (legs.Count() > 0)
                     {
-                        if (Global.RouteTrips.TryGetValue(string.Concat(item["route"], item["trip"], tripDirectionInd), out JObject existingVal))
+                        if (Global.RouteTrips.TryGetValue(routtripid, out JObject existingVal))
                         {
                             string destsites = "";
                             existingVal["Legs"] = legs;

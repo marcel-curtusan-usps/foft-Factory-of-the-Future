@@ -71,7 +71,7 @@ namespace Factory_of_the_Future
         //public static ConcurrentDictionary<string, JObject> AGVLocationZones = new ConcurrentDictionary<string, JObject>();
 
         //Trips
-        public static ConcurrentDictionary<string, Trips> Trips = new ConcurrentDictionary<string, Trips>();
+        //public static ConcurrentDictionary<string, Trips> Trips = new ConcurrentDictionary<string, Trips>();
         //Trips
         public static ConcurrentDictionary<string, JObject> RouteTrips = new ConcurrentDictionary<string, JObject>();
         ////CTS DockDeparted
@@ -394,34 +394,34 @@ namespace Factory_of_the_Future
                     {
                         Sortplans = new ConcurrentDictionary<string, JObject>();
                     }
-                    if (Logdirpath != null)
-                    {
-                        //if not null then check if the drive is available
-                        if (new Directory_Check().DirPath(Logdirpath))
-                        {
-                            if (!Logdirpath.Exists)
-                            {
-                                Directory.CreateDirectory(Logdirpath.FullName);
-                            }
-                        }
-                    }
-                    //check if Log directory is null
-                    if (Logdirpath == null)
-                    {
-                        if (AppSettings.ContainsKey("LOG_LOCATION"))
-                        {
-                            if (!string.IsNullOrEmpty(AppSettings.Property("LOG_LOCATION").Value.ToString()))
-                            {
-                                // set the Log dir path to web configure value.
-                                Logdirpath = new DirectoryInfo(AppSettings.Property("LOG_LOCATION").Value.ToString());
-                                //if directory does not exists then create
-                                if (!Logdirpath.Exists)
-                                {
-                                    Directory.CreateDirectory(Logdirpath.FullName);
-                                }
-                            }
-                        }
-                    }
+                    //if (Logdirpath != null)
+                    //{
+                    //    //if not null then check if the drive is available
+                    //    if (new Directory_Check().DirPath(Logdirpath))
+                    //    {
+                    //        if (!Logdirpath.Exists)
+                    //        {
+                    //            Directory.CreateDirectory(Logdirpath.FullName);
+                    //        }
+                    //    }
+                    //}
+                    ////check if Log directory is null
+                    //if (Logdirpath == null)
+                    //{
+                    //    if (AppSettings.ContainsKey("LOG_LOCATION"))
+                    //    {
+                    //        if (!string.IsNullOrEmpty(AppSettings.Property("LOG_LOCATION").Value.ToString()))
+                    //        {
+                    //            // set the Log dir path to web configure value.
+                    //            Logdirpath = new DirectoryInfo(AppSettings.Property("LOG_LOCATION").Value.ToString());
+                    //            //if directory does not exists then create
+                    //            if (!Logdirpath.Exists)
+                    //            {
+                    //                Directory.CreateDirectory(Logdirpath.FullName);
+                    //            }
+                    //        }
+                    //    }
+                    //}
                 }
             }
             catch (Exception ex)
@@ -681,11 +681,13 @@ namespace Factory_of_the_Future
                 {
                     if (!AppSettings.HasValues)
                     {
-                        if (!AppSettings.ContainsKey("APPLICATION_NAME")) { AppSettings.Add(new JProperty("APPLICATION_NAME", "Factory of the Future")); }
+                        if (!AppSettings.ContainsKey("APPLICATION_NAME")) { AppSettings.Add(new JProperty("APPLICATION_NAME", "FOTF")); }
                         if (!AppSettings.ContainsKey("FACILITY_NAME")) { AppSettings.Add(new JProperty("FACILITY_NAME", "")); }
                         if (!AppSettings.ContainsKey("FACILITY_ZIP")) { AppSettings.Add(new JProperty("FACILITY_ZIP", "")); }
                         if (!AppSettings.ContainsKey("FACILITY_ID")) { AppSettings.Add(new JProperty("FACILITY_ID", "")); }
                         if (!AppSettings.ContainsKey("FACILITY_NASS_CODE")) { AppSettings.Add(new JProperty("FACILITY_NASS_CODE", "")); }
+                        if (!AppSettings.ContainsKey("FACILITY_LKEY")) { AppSettings.Add(new JProperty("FACILITY_LKEY", "")); }
+                        if (!AppSettings.ContainsKey("FACILITY_TIMEZONE")) { AppSettings.Add(new JProperty("FACILITY_TIMEZONE", "")); };
                         if (!AppSettings.ContainsKey("RETENTION_TIMER_SECONDS")) { AppSettings.Add(new JProperty("RETENTION_TIMER_SECONDS", "0")); }
                         if (!AppSettings.ContainsKey("RETENTION_TIMER_MINUTES")) { AppSettings.Add(new JProperty("RETENTION_TIMER_MINUTES", "10")); }
                         if (!AppSettings.ContainsKey("RETENTION_TIMER_HOURS")) { AppSettings.Add(new JProperty("RETENTION_TIMER_HOURS", "0")); }
@@ -693,29 +695,26 @@ namespace Factory_of_the_Future
                         if (!AppSettings.ContainsKey("RETENTION_MAX_FILE_SIZE")) { AppSettings.Add(new JProperty("RETENTION_MAX_FILE_SIZE", "1073741824")); }
                         if (!AppSettings.ContainsKey("SERVER_ACTIVE")) { AppSettings.Add(new JProperty("SERVER_ACTIVE", "true")); }
                         if (!AppSettings.ContainsKey("SERVER_ACTIVE_HOSTNAME")) { AppSettings.Add(new JProperty("SERVER_ACTIVE_HOSTNAME", "")); }
-                        if (!AppSettings.ContainsKey("LOCAL_PROJECT_DATA")) { AppSettings.Add(new JProperty("LOCAL_PROJECT_DATA", false)); }
                         if (!AppSettings.ContainsKey("Domain")) { AppSettings.Add(new JProperty("Domain", "USA.DCE.USPS.GOV")); }
                         if (!AppSettings.ContainsKey("ADUSAContainer")) { AppSettings.Add(new JProperty("ADUSAContainer", "DC=usa,DC=dce,DC=usps,DC=gov")); }
-                        if (!AppSettings.ContainsKey("API_KEY")) { AppSettings.Add(new JProperty("API_KEY", "QUdWUE9SVEFMVXNlcjpBZ3ZQb3J0YWx1JGVyMDE=")); }
                         if (!AppSettings.ContainsKey("LOG_LOCATION")) { AppSettings.Add(new JProperty("LOG_LOCATION", "")); }
-                        if (!AppSettings.ContainsKey("ADMINOVERRIDEUSER")) { AppSettings.Add(new JProperty("ADMINOVERRIDEUSER", "")); }
                         if (!AppSettings.ContainsKey("REMOTEDB")) { AppSettings.Add(new JProperty("REMOTEDB", true)); }
                         if (!AppSettings.ContainsKey("ROLES_ADMIN")) { AppSettings.Add(new JProperty("ROLES_ADMIN", "TC Admins")); }
                         if (!AppSettings.ContainsKey("ROLES_OPERATOR")) { AppSettings.Add(new JProperty("ROLES_OPERATOR", "TC Operator")); }
                         if (!AppSettings.ContainsKey("ROLES_MAINTENANCE")) { AppSettings.Add(new JProperty("ROLES_MAINTENANCE", "TC Maintenance")); }
                         if (!AppSettings.ContainsKey("ROLES_OIE")) { AppSettings.Add(new JProperty("ROLES_OIE", "Operations Industrial Engineers")); }
-                        if (!AppSettings.ContainsKey("ORACONNSTRING")) { AppSettings.Add(new JProperty("ORACONNSTRING", "rCTak7p+l/f5zECB1hvqOunOVIYlx85vkDRiQUqmcm1Y9H8GlrRjGPJHYAvYhhLbuYSJJumZHV+gHcgKf7r8Fqu0XOMp87riVLLMk5WVIDm3nCb1jx+Z58H6cqYer74r4PpPOVFvSSq8uokfDpa2Bw==")); }
-                        if (!AppSettings.ContainsKey("ORACONNASSTRING")) { AppSettings.Add(new JProperty("ORACONNASSTRING", "")); }
                     }
                 }
                 //this will check the attributes if any default are mission it will add it.
                 if (AppSettings.HasValues)
                 {
-                    if (!AppSettings.ContainsKey("APPLICATION_NAME")) { AppSettings.Add(new JProperty("APPLICATION_NAME", "Factory of the Future")); }
+                    if (!AppSettings.ContainsKey("APPLICATION_NAME")) { AppSettings.Add(new JProperty("APPLICATION_NAME", "FOTF")); }
                     if (!AppSettings.ContainsKey("FACILITY_NAME")) { AppSettings.Add(new JProperty("FACILITY_NAME", "")); }
                     if (!AppSettings.ContainsKey("FACILITY_ZIP")) { AppSettings.Add(new JProperty("FACILITY_ZIP", "")); }
                     if (!AppSettings.ContainsKey("FACILITY_ID")) { AppSettings.Add(new JProperty("FACILITY_ID", "")); }
                     if (!AppSettings.ContainsKey("FACILITY_NASS_CODE")) { AppSettings.Add(new JProperty("FACILITY_NASS_CODE", "")); }
+                    if (!AppSettings.ContainsKey("FACILITY_LKEY")) { AppSettings.Add(new JProperty("FACILITY_LKEY", "")); }
+                    if (!AppSettings.ContainsKey("FACILITY_TIMEZONE")) { AppSettings.Add(new JProperty("FACILITY_TIMEZONE", "")); };
                     if (!AppSettings.ContainsKey("RETENTION_TIMER_SECONDS")) { AppSettings.Add(new JProperty("RETENTION_TIMER_SECONDS", "0")); }
                     if (!AppSettings.ContainsKey("RETENTION_TIMER_MINUTES")) { AppSettings.Add(new JProperty("RETENTION_TIMER_MINUTES", "10")); }
                     if (!AppSettings.ContainsKey("RETENTION_TIMER_HOURS")) { AppSettings.Add(new JProperty("RETENTION_TIMER_HOURS", "0")); }
@@ -723,74 +722,76 @@ namespace Factory_of_the_Future
                     if (!AppSettings.ContainsKey("RETENTION_MAX_FILE_SIZE")) { AppSettings.Add(new JProperty("RETENTION_MAX_FILE_SIZE", "1073741824")); }
                     if (!AppSettings.ContainsKey("SERVER_ACTIVE")) { AppSettings.Add(new JProperty("SERVER_ACTIVE", "true")); }
                     if (!AppSettings.ContainsKey("SERVER_ACTIVE_HOSTNAME")) { AppSettings.Add(new JProperty("SERVER_ACTIVE_HOSTNAME", "")); }
-                    if (!AppSettings.ContainsKey("LOCAL_PROJECT_DATA")) { AppSettings.Add(new JProperty("LOCAL_PROJECT_DATA", false)); }
                     if (!AppSettings.ContainsKey("Domain")) { AppSettings.Add(new JProperty("Domain", "USA.DCE.USPS.GOV")); }
                     if (!AppSettings.ContainsKey("ADUSAContainer")) { AppSettings.Add(new JProperty("ADUSAContainer", "DC=usa,DC=dce,DC=usps,DC=gov")); }
-                    if (!AppSettings.ContainsKey("API_KEY")) { AppSettings.Add(new JProperty("API_KEY", "QUdWUE9SVEFMVXNlcjpBZ3ZQb3J0YWx1JGVyMDE=")); }
                     if (!AppSettings.ContainsKey("LOG_LOCATION")) { AppSettings.Add(new JProperty("LOG_LOCATION", "")); }
-                    if (!AppSettings.ContainsKey("ADMINOVERRIDEUSER")) { AppSettings.Add(new JProperty("ADMINOVERRIDEUSER", "")); }
                     if (!AppSettings.ContainsKey("REMOTEDB")) { AppSettings.Add(new JProperty("REMOTEDB", true)); }
                     if (!AppSettings.ContainsKey("ROLES_ADMIN")) { AppSettings.Add(new JProperty("ROLES_ADMIN", "TC Admins")); }
                     if (!AppSettings.ContainsKey("ROLES_OPERATOR")) { AppSettings.Add(new JProperty("ROLES_OPERATOR", "TC Operator")); }
                     if (!AppSettings.ContainsKey("ROLES_MAINTENANCE")) { AppSettings.Add(new JProperty("ROLES_MAINTENANCE", "TC Maintenance")); }
                     if (!AppSettings.ContainsKey("ROLES_OIE")) { AppSettings.Add(new JProperty("ROLES_OIE", "Operations Industrial Engineers")); }
-                    if (!AppSettings.ContainsKey("ORACONNSTRING")) { AppSettings.Add(new JProperty("ORACONNSTRING", "rCTak7p+l/f5zECB1hvqOunOVIYlx85vkDRiQUqmcm1Y9H8GlrRjGPJHYAvYhhLbuYSJJumZHV+gHcgKf7r8Fqu0XOMp87riVLLMk5WVIDm3nCb1jx+Z58H6cqYer74r4PpPOVFvSSq8uokfDpa2Bw==")); }
-                    if (!AppSettings.ContainsKey("ORACONNASSTRING")) { AppSettings.Add(new JProperty("ORACONNASSTRING", "")); }
+
                     //check if system has log drive
                     if (AppSettings.ContainsKey("LOG_LOCATION"))
                     {
-                        if (!string.IsNullOrEmpty(AppSettings.Property("LOG_LOCATION").Value.ToString()))
-                        {
-                            // set the Log dir path to web configure value.
-                            if (new Directory_Check().DirPath(new DirectoryInfo(AppSettings.Property("LOG_LOCATION").Value.ToString())))
-                            {
-                                file_content = new FileIO().Read(string.Concat(AppSettings.Property("LOG_LOCATION").Value.ToString(), ConfigurationFloder), "AppSettings.json");
-
-                                if (!string.IsNullOrEmpty(file_content))
-                                {
-                                    if (IsValidJson(file_content))
-                                    {
-                                        JObject filejsonrray = JObject.Parse(file_content);
-                                        if (filejsonrray.HasValues)
-                                        {
-                                            AppSettings = filejsonrray;
-                                        }
-                                    }
-                                }
-
-                                //if directory does not exists then create
-                                if (!Logdirpath.Exists)
-                                {
-                                    Directory.CreateDirectory(Logdirpath.FullName);
-                                }
-                                else
-                                {
-                                    DirectoryInfo configLogdirpath = new DirectoryInfo(string.Concat(AppSettings.Property("LOG_LOCATION").Value.ToString(), ConfigurationFloder));
-                                    if (!configLogdirpath.Exists)
-                                    {
-                                        FileInfo file = new FileInfo(string.Concat(AppSettings.Property("LOG_LOCATION").Value.ToString(), ConfigurationFloder, "\\", "AppSettings.json"));
-                                        if (!file.Exists)
-                                        {
-                                            new FileIO().Write(string.Concat(AppSettings.Property("LOG_LOCATION").Value.ToString(), ConfigurationFloder, "\\"), "AppSettings.json", JsonConvert.SerializeObject(AppSettings, Newtonsoft.Json.Formatting.Indented));
-                                        }
-                                    }
-                                    else
-                                    {
-                                        FileInfo file = new FileInfo(string.Concat(AppSettings.Property("LOG_LOCATION").Value.ToString(), ConfigurationFloder, "\\", "AppSettings.json"));
-                                        if (!file.Exists)
-                                        {
-                                            new FileIO().Write(string.Concat(AppSettings.Property("LOG_LOCATION").Value.ToString(), ConfigurationFloder), "AppSettings.json", JsonConvert.SerializeObject(AppSettings, Newtonsoft.Json.Formatting.Indented));
-                                        }
-                                    }
-                                }
-                            }
-                        }
+                        LoglocationSetup();
                     }
                 }
             }
             catch (Exception e)
             {
                 new ErrorLogger().ExceptionLog(e);
+            }
+        }
+
+        public static void LoglocationSetup()
+        {
+            if (!string.IsNullOrEmpty(AppSettings.Property("LOG_LOCATION").Value.ToString()) && !string.IsNullOrEmpty(AppSettings.Property("FACILITY_NASS_CODE").Value.ToString()))
+            {
+                string logloc = string.Concat(AppSettings.Property("LOG_LOCATION").Value.ToString(), @"\", AppSettings.Property("APPLICATION_NAME").Value.ToString(), @"\", AppSettings.Property("FACILITY_NASS_CODE").Value.ToString());
+                // set the Log dir path to web configure value.
+                if (new Directory_Check().DirPath(new DirectoryInfo(logloc)))
+                {
+                   string file_content = new FileIO().Read(string.Concat(AppSettings.Property("LOG_LOCATION").Value.ToString(), ConfigurationFloder), "AppSettings.json");
+
+                    if (!string.IsNullOrEmpty(file_content))
+                    {
+                        if (IsValidJson(file_content))
+                        {
+                            JObject filejsonrray = JObject.Parse(file_content);
+                            if (filejsonrray.HasValues)
+                            {
+                                AppSettings.Merge(filejsonrray, new JsonMergeSettings { MergeArrayHandling = MergeArrayHandling.Union });
+                            }
+                        }
+                    }
+
+                    //if directory does not exists then create
+                    if (!Logdirpath.Exists)
+                    {
+                        Directory.CreateDirectory(Logdirpath.FullName);
+                    }
+                    else
+                    {
+                        DirectoryInfo configLogdirpath = new DirectoryInfo(string.Concat(AppSettings.Property("LOG_LOCATION").Value.ToString(), ConfigurationFloder));
+                        if (!configLogdirpath.Exists)
+                        {
+                            FileInfo file = new FileInfo(string.Concat(AppSettings.Property("LOG_LOCATION").Value.ToString(), ConfigurationFloder, "\\", "AppSettings.json"));
+                            if (!file.Exists)
+                            {
+                                new FileIO().Write(string.Concat(AppSettings.Property("LOG_LOCATION").Value.ToString(), ConfigurationFloder, "\\"), "AppSettings.json", JsonConvert.SerializeObject(AppSettings, Newtonsoft.Json.Formatting.Indented));
+                            }
+                        }
+                        else
+                        {
+                            FileInfo file = new FileInfo(string.Concat(AppSettings.Property("LOG_LOCATION").Value.ToString(), ConfigurationFloder, "\\", "AppSettings.json"));
+                            if (!file.Exists)
+                            {
+                                new FileIO().Write(string.Concat(AppSettings.Property("LOG_LOCATION").Value.ToString(), ConfigurationFloder), "AppSettings.json", JsonConvert.SerializeObject(AppSettings, Newtonsoft.Json.Formatting.Indented));
+                            }
+                        }
+                    }
+                }
             }
         }
 
@@ -1039,6 +1040,24 @@ namespace Factory_of_the_Future
             {
                 new ErrorLogger().ExceptionLog(e);
                 return null;
+            }
+        }
+        public static int Get_TripMin(JObject triptime)
+        {
+            try
+            {
+                DateTime dtNow = DateTime.Now;
+                if (Global.TimeZoneConvert.TryGetValue((string)Global.AppSettings.Property("FACILITY_TIMEZONE").Value, out string windowsTimeZoneId))
+                {
+                    dtNow = TimeZoneInfo.ConvertTime(dtNow, TimeZoneInfo.FindSystemTimeZoneById(windowsTimeZoneId));
+                }
+                DateTime tripDtm = new DateTime((int)triptime["year"], ((int)triptime["month"] + 1), (int)triptime["dayOfMonth"], (int)triptime["hourOfDay"], (int)triptime["minute"], (int)triptime["second"]);
+                return (int)Math.Ceiling(tripDtm.Subtract(dtNow).TotalMinutes);
+            }
+            catch (Exception e)
+            {
+                new ErrorLogger().ExceptionLog(e);
+                return 0;
             }
         }
 

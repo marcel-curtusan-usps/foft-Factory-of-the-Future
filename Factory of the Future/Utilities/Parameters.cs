@@ -237,6 +237,7 @@ namespace Factory_of_the_Future
                 map["Facility_TimeZone"] = "";
                 map["Environment"] = "";
                 map["Software_Version"] = "";
+                map["TrackingArea"] = "";
                 map["Map_Update"] = false;
                 return map;
             }
@@ -496,8 +497,11 @@ namespace Factory_of_the_Future
         [JsonProperty("MESSAGE_TYPE")]
         public string MESSAGE_TYPE;
 
-        [JsonProperty("NASS_CODE")]
-        public string NASS_CODE;
+        [JsonProperty("HOURS_BACK")]
+        public string HOURS_BACK;
+
+        [JsonProperty("HOURS_FORWARD")]
+        public string HOURS_FORWARD;
     }
 
     public class Event

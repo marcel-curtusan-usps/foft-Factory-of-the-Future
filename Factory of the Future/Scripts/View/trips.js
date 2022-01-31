@@ -24,18 +24,15 @@ async function init_arrive_depart_trips() {
     }
 }
 async function updateTrips(trip) {
-    let routetrip = trip.route + trip.trip + trip.tripDirectionInd;
+    let routetrip = trip.id;
     let trname = $.find('tbody tr[data-id=' + routetrip + ']');
 
     if (trname.length > 0) {
-        for (var i = 0; i < trname.length; i++) {
-            let tablename = $(trname[i]).closest('table').attr('id');
-            if (tablename.length > 0) {
-                if (trip.hasOwnProperty("state") && trip.state === "remove") {
-
-                    if (tripdataid.length > 0) {
-                        $('#' + tablename).find('tbody tr[data-id=' + routetrip + ']').remove()
-                    }
+        for (let tr_name of trname) {
+            let tablename = $(tr_name).closest('table').attr('id');
+            if (checkValue(tablename)) {
+                if (trip.hasOwnProperty("state") && /remove/i.test(trip.state)) {
+                        $('#' + tablename).find('tbody tr[data-id=' + routetrip + ']').remove();
                 }
                 else {
                     switch (tablename) {
@@ -57,7 +54,10 @@ async function updateTrips(trip) {
             }
         }
        
-    } 
+    }
+    else {
+        process_trips(trip);
+    }
 }
 async function process_trips(trip)
 {
@@ -65,12 +65,9 @@ async function process_trips(trip)
         switch (trip.isAODU) {
             case "Y":
                 if (/^o$/i.test(trip.tripDirectionInd)) {
-                    if (formatSVTime(trip.actDepartureDtm) === "" && trip.doorNumber === null) {
-                        scheouttrips_Table_Body.append(scheouttrips_row_template.supplant(formatscheouttriprow(trip)));
-                    }
-                    else {
-                        oblocal_trips_Table_Body.append(oblocal_trips_row_template.supplant(formatoblocaltriprow(trip)));
-                    }
+                    scheouttrips_Table_Body.append(scheouttrips_row_template.supplant(formatscheouttriprow(trip)));
+                    oblocal_trips_Table_Body.append(oblocal_trips_row_template.supplant(formatoblocaltriprow(trip)));
+
                 } else if (/^i$/i.test(trip.tripDirectionInd)) {
                     scheintrips_Table_Body.append(scheintrips_row_template.supplant(formatscheintriprow(trip)));
 
@@ -78,12 +75,8 @@ async function process_trips(trip)
                 break;
             case "N":
                 if (/^o$/i.test(trip.tripDirectionInd)) {
-                    if (formatSVTime(trip.actDepartureDtm) === "" && trip.doorNumber === null) {
-                        scheouttrips_Table_Body.append(scheouttrips_row_template.supplant(formatscheouttriprow(trip)));
-                    }
-                    else {
-                        ob_trips_Table_Body.append(ob_trips_row_template.supplant(formatobtriprow(trip)));
-                    }
+                    scheouttrips_Table_Body.append(scheouttrips_row_template.supplant(formatscheouttriprow(trip)));
+                    ob_trips_Table_Body.append(ob_trips_row_template.supplant(formatobtriprow(trip)));
                 } else if (/^i$/i.test(trip.tripDirectionInd)) {
                     scheintrips_Table_Body.append(scheintrips_row_template.supplant(formatscheintriprow(trip)));
                 }
@@ -101,10 +94,11 @@ Outbound network trips
 function formatobtriprow(properties) {
     return $.extend(properties, {
         schd: objSVTime(properties.scheduledDtm), //properties.hasOwnProperty("ScheduledDtm") ? formatSVTime(properties.ScheduledDtm) : "" ,
-        departed: properties.hasOwnProperty("ActualDtm") ? objSVTime(properties.actualDtm) : "",
+        departed: properties.hasOwnProperty("actualDtm") ? objSVTime(properties.actualDtm) : "",
         door: checkValue(properties.doorNumber) ? properties.doorNumber : "0",
         routetrip: properties.route + properties.trip + properties.tripDirectionInd,
         route: properties.route,
+        routeid: properties.id,
         trip: properties.trip,
         leg: properties.legSiteId,
         dest: properties.legSiteName,
@@ -118,11 +112,11 @@ function formatobtriprow(properties) {
 }
 let ob_trips_Table = $('table[id=ctsdockdepartedtable]');
 let ob_trips_Table_Body = ob_trips_Table.find('tbody');
-let ob_trips_row_template = '<tr data-id={routetrip} data-route={route} data-trip={trip}  data-door={door}  class={trbackground}>' +
+let ob_trips_row_template = '<tr data-id={routeid} data-route={route} data-trip={trip}  data-door={door}  class={trbackground}>' +
     '<td class="text-center">{schd}</td>' +
     '<td class="text-center">{departed}</td>' +
     '<td>' +
-    '<button class="btn btn-outline-info btn-sm btn-block px-1 routetripdetails" data-routetrip="{routetrip}" style="font-size:12px;">{route}-{trip}</button>' +
+    '<button class="btn btn-outline-info btn-sm btn-block px-1 routetripdetails" data-routetrip="{routeid}" style="font-size:12px;">{route}-{trip}</button>' +
     '</td>' +
     '<td class="text-center">{btnloadDoor}</td>' +
     '<td class="text-center">{leg}</td>' +
@@ -135,14 +129,32 @@ let ob_trips_row_template = '<tr data-id={routetrip} data-route={route} data-tri
 /*
  Outbound local trips 
  */
-
+function formatoblocaltriprow(properties) {
+    return $.extend(properties, {
+        schd: objSVTime(properties.scheduledDtm),//properties.hasOwnProperty("ScheduledDtm") ? formatSVTime(properties.ScheduledDtm) : "",
+        departed: properties.hasOwnProperty("actualDtm") ? objSVTime(properties.actualDtm) : "",
+        door: checkValue(properties.doorNumber) ? properties.doorNumber : "0",
+        routetrip: properties.route + properties.trip + properties.tripDirectionInd,
+        route: properties.route,
+        routeid: properties.id,
+        trip: properties.trip,
+        leg: properties.legSiteId,
+        dest: properties.legSiteName,
+        load: properties.hasOwnProperty("Load") ? properties.Load + '%' : "0",
+        trbackground: "",
+        close: properties.hasOwnProperty("Closed") ? properties.Closed + '%' : "0",
+        loadPercent: properties.hasOwnProperty("LoadPercent") ? properties.LoadPercent + '%' : "0 %",
+        btnloadDoor: Load_btn_door(properties),
+        dataproperties: properties
+    });
+}
 let oblocal_trips_Table = $('table[id=ctslocaldockdepartedtable]');
 let oblocal_trips_Table_Body = oblocal_trips_Table.find('tbody');
-let oblocal_trips_row_template = '<tr data-id={routetrip} data-route={route} data-trip={trip} data-door={door} class={trbackground}>' +
+let oblocal_trips_row_template = '<tr data-id={routeid} data-route={route} data-trip={trip} data-door={door} class={trbackground}>' +
     '<td class="text-center">{schd}</td>' +
     '<td class="text-center">{departed}</td>' +
     '<td>'+
-    '<button class="btn btn-outline-info btn-sm btn-block px-1 routetripdetails" data-routetrip="{routetrip}" style="font-size:12px;">{route}-{trip}</button>' +
+    '<button class="btn btn-outline-info btn-sm btn-block px-1 routetripdetails" data-routetrip="{routeid}" style="font-size:12px;">{route}-{trip}</button>' +
     '</td> ' +
     '<td class="{background}">{btnloadDoor}</td>' +
     '<td class="text-center">{leg}</td>' +
@@ -152,40 +164,11 @@ let oblocal_trips_row_template = '<tr data-id={routetrip} data-route={route} dat
     //'<td class="text-center">{loadPercent}</td>' +
     '</tr>"';
 
-function formatoblocaltriprow(properties) {
-    return $.extend(properties, {
-        schd: objSVTime(properties.scheduledDtm),//properties.hasOwnProperty("ScheduledDtm") ? formatSVTime(properties.ScheduledDtm) : "",
-        departed: properties.hasOwnProperty("ActualDtm") ? objSVTime(properties.actualDtm) : "",
-        door: checkValue(properties.doorNumber) ? properties.doorNumber : "0",
-        routetrip: properties.route + properties.trip + properties.tripDirectionInd,
-        route: properties.route,
-        trip: properties.trip,
-        leg: properties.legSiteId,
-        dest: properties.legSiteName,
-        load: properties.hasOwnProperty("Load") ? properties.Load + '%' : "0",
-        trbackground: "",
-        close: properties.hasOwnProperty("Closed") ? properties.Closed + '%' : "0", 
-        loadPercent: properties.hasOwnProperty("LoadPercent") ? properties.LoadPercent + '%' :"0 %",
-        btnloadDoor: Load_btn_door(properties),
-        dataproperties: properties
-    });
-}
+
 
 /*
 Scheduled outbound trips 
 */
-let scheouttrips_Table = $('table[id=ctsouttoptable]');
-let scheouttrips_Table_Body = scheouttrips_Table.find('tbody');
-let scheouttrips_row_template = '<tr data-id={routetrip} data-door={door} >' +
-    '<td class="text-center">{schd}</td>' +
-    '<td class="text-center">{departed}</td>' +
-    '<td>' +
-    '<button class="btn btn-outline-info btn-sm btn-block px-1 routetripdetails" data-routetrip="{routetrip}" style="font-size:12px;">{route}-{trip}</button>' +
-    '</td> ' +
-    '<td class="{background}">{btnloadDoor}</td>' +
-    '<td class="text-center">{firstlegDest}</td>' +
-    '<td data-toggle="tooltip" title={firstlegSite}>{firstlegSite}</td>' +
-    '</tr>"';
 function formatscheouttriprow(properties) {
     return $.extend(properties, {
         schd: objSVTime(properties.scheduledDtm),//properties.hasOwnProperty("ScheduledDtm") ? formatSVTime(properties.ScheduledDtm) : "",
@@ -193,34 +176,37 @@ function formatscheouttriprow(properties) {
         routetrip: properties.route + properties.trip + properties.tripDirectionInd,
         door: checkValue(properties.doorNumber) ? properties.doorNumber : "0",
         route: properties.route,
+        routeid: properties.id,
         trip: properties.trip,
         firstlegDest: properties.legSiteId,
         firstlegSite: properties.legSiteName,
         btnloadDoor: Load_btn_door(properties)
     });
 }
+let scheouttrips_Table = $('table[id=ctsouttoptable]');
+let scheouttrips_Table_Body = scheouttrips_Table.find('tbody');
+let scheouttrips_row_template = '<tr data-id={routeid} data-door={door} >' +
+    '<td class="text-center">{schd}</td>' +
+    '<td class="text-center">{departed}</td>' +
+    '<td>' +
+    '<button class="btn btn-outline-info btn-sm btn-block px-1 routetripdetails" data-routetrip="{routeid}" style="font-size:12px;">{route}-{trip}</button>' +
+    '</td> ' +
+    '<td class="{background}">{btnloadDoor}</td>' +
+    '<td class="text-center">{firstlegDest}</td>' +
+    '<td data-toggle="tooltip" title={firstlegSite}>{firstlegSite}</td>' +
+    '</tr>"';
+
 /*
 Scheduled inbound trips
 */
-let scheintrips_Table = $('table[id=ctsintoptable]');
-let scheintrips_Table_Body = scheintrips_Table.find('tbody');
-let scheintrips_row_template = '<tr data-id="{routetrip}" data-door="{door}">' +
-    '<td  data-toggle="tooltip" title="{route} - {trip}" class="text-center" class="{inbackground}">{schd}</td>' +
-    '<td class="text-center" class="{inbackground}">{arrived}</td>' +
-    '<td>' +
-    '<button class="btn btn-outline-info btn-sm btn-block px-1 routetripdetails" data-routetrip="{routetrip}" style="font-size:12px;">{route}-{trip}</button>' +
-    '</td> ' +
-    '<td class="text-center" class="{background}">{btnloadDoor}</td>' +
-    '<td class="text-center">{leg_Origin}</td>' +
-    '<td data-toggle="tooltip" title="{site_Name}">{site_Name}</td>' +
-    '</tr>';
 function formatscheintriprow(properties) {
     return $.extend(properties, {
         schd: objSVTime(properties.scheduledDtm),//properties.hasOwnProperty("LegScheduledDtm") ? formatSVTime(properties.LegScheduledDtm) : "",
-        arrived: properties.hasOwnProperty("actArrivalDtm") ? objSVTime(properties.actArrivalDtm) : "",
-        routetrip: properties.route + properties.trip + properties.tripDirectionInd ,
+        arrived: properties.hasOwnProperty("legActualDtm") ? objSVTime(properties.legActualDtm) : "",
+        routetrip: properties.route + properties.trip + properties.tripDirectionInd,
         door: checkValue(properties.doorNumber) ? properties.doorNumber : "0",
         route: properties.route,
+        routeid: properties.id,
         trip: properties.trip,
         inbackground: "", //GettimediffforInbound(properties.Scheduled, properties.Actual),
         leg_Origin: properties.legSiteId,
@@ -228,6 +214,19 @@ function formatscheintriprow(properties) {
         btnloadDoor: Load_btn_door(properties)
     });
 }
+let scheintrips_Table = $('table[id=ctsintoptable]');
+let scheintrips_Table_Body = scheintrips_Table.find('tbody');
+let scheintrips_row_template = '<tr data-id="{routeid}" data-door="{door}">' +
+    '<td  data-toggle="tooltip" title="{route} - {trip}" class="text-center" class="{inbackground}">{schd}</td>' +
+    '<td class="text-center" class="{inbackground}">{arrived}</td>' +
+    '<td>' +
+    '<button class="btn btn-outline-info btn-sm btn-block px-1 routetripdetails" data-routetrip="{routeid}" style="font-size:12px;">{route}-{trip}</button>' +
+    '</td> ' +
+    '<td class="text-center" class="{background}">{btnloadDoor}</td>' +
+    '<td class="text-center">{leg_Origin}</td>' +
+    '<td data-toggle="tooltip" title="{site_Name}">{site_Name}</td>' +
+    '</tr>';
+
 function Load_btn_door(properties) {
     if (properties.hasOwnProperty("doorNumber")) {
         if (checkValue(properties.doorNumber)) {
@@ -267,17 +266,26 @@ function formatSVTime(value_time) {
         console.log(e);
     }
 }
-function formatSVmonthdayTime(value_time) {
+function formatSVmonthdayTime(t) {
     try {
-        var time = moment(value_time);
-        if (time._isValid) {
-            if (time.year() === 1) {
+        if (checkValue(t)) {
+            var time = moment().set({ 'year': t.year, 'month': t.month + 1, 'date': t.dayOfMonth, 'hour': t.hourOfDay, 'minute': t.minute, 'second': t.second });
+            if (time._isValid) {
+                if (time.year() === 1) {
+                    return "";
+                }
+                return time.format("MM/DD/YYYY HH:mm");
+            }
+            else {
                 return "";
             }
-            return time.format("MM/DD HH:mm");
+        }
+        else {
+            return "";
         }
     } catch (e) {
         console.log(e);
+        return "";
     }
 }
 function LoadRouteTripDetails(id) {
@@ -312,12 +320,14 @@ function routedetailsform(properties) {
         finaldestination: properties.destSiteName + " (" + properties.destSiteId + ")",
         legorigin: properties.legSiteName + " (" + properties.legSiteId + ")",
         initorigin: properties.destSiteName + " (" + properties.destSiteId + ")",
-        schedarrtime: formatSVmonthdayTime(properties.LegScheduledDtm),
-        scheddeparttime: formatSVmonthdayTime(properties.ScheduledDtm),
+        schedtime: formatSVmonthdayTime(properties.scheduledDtm),
+        actualtime: formatSVmonthdayTime(properties.actualDtm),
         loadstarttime: formatSVmonthdayTime(properties.LoadUnldStartDtm),
         loadendtime: formatSVmonthdayTime(properties.LoadUnldEndDtm),
-        doordeparttime: formatSVmonthdayTime(properties.DoorDtm),
-        gpsdeparttime: formatSVmonthdayTime(properties.GpsSiteDtm),
+        unloadstarttime: formatSVmonthdayTime(properties.loadUnldStartDtm),
+        unloadendtime: formatSVmonthdayTime(properties.loadUnldEndDtm),
+        doortime: formatSVmonthdayTime(properties.doorDtm),
+        gpstime: formatSVmonthdayTime(properties.gpsSiteDtm),
         doornumber: checkValue(properties.doorNumber) ? properties.doorNumber : "",
         vannumber: checkValue(properties.vanNumber) ? properties.vanNumber :"",
         trailernumber: checkValue(properties.trailerBarcode) ? properties.trailerBarcode : "",
@@ -369,7 +379,7 @@ let routedetailsInform_template =
                                 '<label style="text-align: right;" class="checkBox">Leg:</label> {legnumber}' +
                                 '<br><label>Leg Origin:</label> {legorigin}' +
                                 '<br><label>Initial Origin:</label> {initorigin}' +
-                                '<br><label>Sched Arr Time:</label> {schedarrtime}' +
+                                '<br><label>Sched Arr Time:</label> {schedtime}' +
                                 '<br>' +
                                 '<label>Door:</label> {doornumber}' +
                                 '<br>                     ' +
@@ -414,10 +424,10 @@ let routedetailsInform_template =
         '<div class="card pb-0">' +
             '<div class="card-body pb-0">' +
                 '<form style="float:left" class="panelForms">' +
-                '<br><label>Door Arr Time:</label> {doordeparttime}' +
-                '<br><label>Manual Site Arr Time:</label> {schedarrtime}' +
-                '<br><label>GPS Site Arr Time:</label> {gpsdeparttime}' +
-                '<br><label>Actual Arr Time:</label> {schedarrtime}' +
+                '<br><label>Door Arr Time:</label> {doortime}' +
+                '<br><label>Manual Site Arr Time:</label> {actualtime}' +
+                '<br><label>GPS Site Arr Time:</label> {gpstime}' +
+                '<br><label>Actual Arr Time:</label> {actualtime}' +
                 '</form>' +
             '</div>' +
         '</div>' +
@@ -436,7 +446,7 @@ let routedetailsOutform_template =
                             '<label style="text-align: right;" class="checkBox">Leg:</label> {legnumber}' +
                             '<br><label>Leg Destination:</label> {legdestination}' +
                             '<br><label>Final Destination:</label> {finaldestination}' +
-                            '<br><label>Sched Dept Time:</label> {scheddeparttime}' +
+                            '<br><label>Sched Dept Time:</label> {schedtime}' +
                             '<br>' +
                             '<label>Door:</label> {doornumber}' +
                             '<br>                     ' +
@@ -472,10 +482,10 @@ let routedetailsOutform_template =
             '<div class="card pb-0">' +
                 '<div class="card-body">' +
                     '<form style="float:left" class="panelForms">' +
-                    '<br><label>Actual Dept Time:</label> {doordeparttime}' +
-                    '<br><label>Door Dep Time:</label> {schedarrtime}' +
-                    '<br><label>Manual Site Dep Time:</label> {gpsdeparttime}' +
-                    '<br><label>GPS Site Dep Time:</label> {schedarrtime}' +
+                    '<br><label>Actual Dept Time:</label> {actualtime}' +
+                    '<br><label>Door Dep Time:</label> {doortime}' +
+                    '<br><label>Manual Site Dep Time:</label> {actualtime}' +
+                    '<br><label>GPS Site Dep Time:</label> {gpstime}' +
                     '</form>' +
                 '</div>' +
             '</div>' +

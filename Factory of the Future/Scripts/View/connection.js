@@ -22,6 +22,15 @@ $('#API_Connection_Modal').on('hidden.bs.modal', function () {
 $('#API_Connection_Modal').on('shown.bs.modal', function () {
     $('span[id=error_apisubmitBtn]').text("");
     $('button[id=apisubmitBtn]').prop('disabled', true);
+
+    $('.hoursforwardvalue').html($('input[id=hoursforward_range]').val());
+    $('input[id=hoursforward_range]').on('input change', () => {
+        $('.hoursforwardvalue').html($('input[id=hoursforward_range]').val());
+    });
+    $('.hoursbackvalue').html($('input[id=hoursback_range]').val());
+    $('input[id=hoursback_range]').on('input change', () => {
+        $('.hoursbackvalue').html($('input[id=hoursback_range]').val());
+    });
     //Connection name Validation
     if (!checkValue($('input[type=text][name=connection_name]').val())) {
         $('input[type=text][name=connection_name]').css("border-color", "#FF0000").removeClass('is-valid').addClass('is-invalid');
@@ -225,6 +234,14 @@ $('#API_Connection_Modal').on('shown.bs.modal', function () {
         }
         enableConnectionSubmit();
     });
+    $('input[type=checkbox][name=hour_range]').change(() => {
+        if (!$('input[type=checkbox][name=hour_range]').is(':checked')) {
+            $('.hours_range_row').css("display", "none");
+        }
+        else {
+            $('.hours_range_row').css("display", "");
+        }
+    });
     if ($('input[type=checkbox][name=udp_connection]').is(':checked')) {
         $('input[type=text][name=url]').prop("disabled", true);
         $('input[type=text][name=url]').val('');
@@ -377,7 +394,7 @@ function formatQSMlayout(conn_status) {
     });
 }
 function Add_Connection() {
-    $('#modalHeader_ID').text('Add API Connection');
+    $('#modalHeader_ID').text('Add Connection');
 
     $('button[id=apisubmitBtn]').off().on('click', function () {
         $('button[id=apisubmitBtn]').prop('disabled', true);
@@ -396,7 +413,14 @@ function Add_Connection() {
         checkValue($('input[type=text][name=message_type]').val()) ? jsonObject.MESSAGE_TYPE = $('input[type=text][name=message_type]').val() : '';
         checkValue($('select[name=data_retrieve] option:selected').val()) ? jsonObject.DATA_RETRIEVE = $('select[name=data_retrieve] option:selected').val() : '';
         checkValue($('input[type=text][name=admin_email_recepient]').val()) ? jsonObject.ADMIN_EMAIL_RECEPIENT = $('input[type=text][name=admin_email_recepient]').val() : '';
-
+        if ($('input[type=checkbox][name=hour_range]').is(':checked')) {
+            jsonObject.HOURS_FORWARD = parseInt($('input[id=hoursforward_range]').val());
+            jsonObject.HOURS_BACK = parseInt($('input[id=hoursback_range]').val());
+        }
+        else {
+            jsonObject.HOURS_FORWARD = "";
+            jsonObject.HOURS_BACK = "";
+        }
         if (!$.isEmptyObject(jsonObject)) {
             jsonObject.CREATED_BY_USERNAME = User.UserId;
             $.connection.FOTFManager.server.addAPI(JSON.stringify(jsonObject)).done(function (Data) {
@@ -419,7 +443,7 @@ function Add_Connection() {
     $('#API_Connection_Modal').modal();
 }
 function Edit_Connection(id) {
-    $('#modalHeader_ID').text('Edit API Connection');
+    $('#modalHeader_ID').text('Edit Connection');
     sidebar.close('connections');
     $('button[id=apisubmitBtn]').prop('disabled', true);
     try {
@@ -455,8 +479,24 @@ function Edit_Connection(id) {
                 $('input[type=text][name=url]').val(Data.URL);
                 $('input[type=text][name=outgoingapikey]').val(Data.OUTGOING_APIKEY);
                 $('input[type=text][name=message_type]').val(Data.MESSAGE_TYPE);
+                if ($.isNumeric(Data.HOURS_BACK)) {
+                    $('.hoursbackvalue').html($.isNumeric(Data.HOURS_BACK) ? parseInt(Data.HOURS_BACK) : 0);
+                    $('input[id=hoursback_range]').val($.isNumeric(Data.HOURS_BACK) ? parseInt(Data.HOURS_BACK) : 0);
+                    $('.hours_range_row').css("display", "");
+                    $('input[type=checkbox][name=active_connection]').prop('checked', true).change();
+                }
+                if ($.isNumeric(Data.HOURS_FORWARD)) {
+                    $('.hoursforwardvalue').html($.isNumeric(Data.HOURS_FORWARD) ? parseInt(Data.HOURS_FORWARD) : 0);
+                    $('input[id=hoursforward_range]').val($.isNumeric(Data.HOURS_FORWARD) ? parseInt(Data.HOURS_FORWARD) : 0);
+                    $('.hours_range_row').css("display", "");
+                    if (!$('input[type=checkbox][name=hour_range]').is(':checked')) {
+                        $('input[type=checkbox][name=hour_range]').prop('checked', true).change();
+                    }
+                }
+                
                 $('select[name=data_retrieve]').val(Data.DATA_RETRIEVE);
                 $('input[type=text][name=admin_email_recepient]').val(Data.ADMIN_EMAIL_RECEPIENT);
+            
                 //API connection
                 if (Data.ACTIVE_CONNECTION) {
                     if (!$('input[type=checkbox][name=active_connection]').is(':checked')) {
@@ -500,6 +540,14 @@ function Edit_Connection(id) {
                                 jsonObject.UDP_CONNECTION = false;
                             }
                         }
+                        if ($('input[type=checkbox][name=hour_range]').is(':checked')) {
+                            jsonObject.HOURS_FORWARD = parseInt($('input[id=hoursforward_range]').val());
+                            jsonObject.HOURS_BACK = parseInt($('input[id=hoursback_range]').val());
+                        }
+                        else {
+                            jsonObject.HOURS_FORWARD = "";
+                            jsonObject.HOURS_BACK = "";
+                        }
                         parseInt($('select[name=data_retrieve] option:selected').val()) !== parseInt(Data.DATA_RETRIEVE) ? jsonObject.DATA_RETRIEVE = $('select[name=data_retrieve] option:selected').val() : "";
                         $('input[type=text][name=connection_name]').val() !== Data.CONNECTION_NAME ? jsonObject.CONNECTION_NAME = $('input[type=text][name=connection_name]').val() : "";
                         $('input[type=text][name=ip_address]').val() !== Data.IP_ADDRESS ? jsonObject.IP_ADDRESS = $('input[type=text][name=ip_address]').val() : "";
@@ -514,14 +562,14 @@ function Edit_Connection(id) {
                             if (checkValue(User.Facility_NASS_Code)) {
                                 checkValue($('input[type=text][name=url]').val()) ? jsonObject.URL = $('input[type=text][name=url]').val().supplant(formatURL(User.Facility_NASS_Code)) : '';
                             }
-                            $.connection.FOTFManager.server.editAPI(JSON.stringify(jsonObject)).done(function (Data) {
-                                if (Data.length === 1) {
-                                    if (Data[0].hasOwnProperty("ID")) {
-                                        $('span[id=error_apisubmitBtn]').text(Data[0].CONNECTION_NAME + " " + Data[0].MESSAGE_TYPE + " Connection has been Updated.");
+                            $.connection.FOTFManager.server.editAPI(JSON.stringify(jsonObject)).done(function (rData) {
+                                if (rData.length === 1) {
+                                    if (rData[0].hasOwnProperty("ID")) {
+                                        $('span[id=error_apisubmitBtn]').text(rData[0].CONNECTION_NAME + " " + rData[0].MESSAGE_TYPE + " Connection has been Updated.");
                                         setTimeout(function () { $("#API_Connection_Modal").modal('hide'); }, 1500);
                                     }
                                     else {
-                                        $('span[id=error_apisubmitBtn]').text(Data[0].CONNECTION_NAME + " " + Data[0].MESSAGE_TYPE + "Connection error been Added");
+                                        $('span[id=error_apisubmitBtn]').text(rData[0].CONNECTION_NAME + " " + rData[0].MESSAGE_TYPE + "Connection error been Added");
                                         setTimeout(function () { $("#API_Connection_Modal").modal('hide'); }, 1500);
                                     }
                                 }

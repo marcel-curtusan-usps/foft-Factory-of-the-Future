@@ -34,12 +34,12 @@
                     </div>
                     <div class="modal-body1">
                         <div class="row mb-3">
-                            <div class="col-6">
+                            <div class="col">
                                 <label class="control-label">Connection Name</label>
                                 <input id="connection_name" type="text" class="form-control" name="connection_name">
                                 <span id="error_connection_name" class="text-danger"></span>
                             </div>
-                            <div class="col-6">
+                            <div class="col">
                                 <label class="control-label">Connection Options</label>
                                 <div class="custom-control custom-switch">
                                     <div class="custom-control custom-switch">
@@ -51,6 +51,14 @@
                                     <div class="custom-control custom-switch">
                                         <input id="udp_connection" type="checkbox" class="custom-control-input" name="udp_connection">
                                         <label class="custom-control-label" for="udp_connection">UDP Connection</label>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col mt-3">
+                                <div class="custom-control custom-switch">
+                                    <div class="custom-control custom-switch">
+                                        <input id="hour_range" type="checkbox" class="custom-control-input" name="hour_range">
+                                        <label class="custom-control-label" for="hour_range">Hour Range</label>
                                     </div>
                                 </div>
                             </div>
@@ -72,6 +80,25 @@
                             </div>
                             <div class="form-group col-6">
                                 <label class="control-label">API Key</label><input id="outgoingapikey" type="text" class="form-control" name="outgoingapikey"><span id="error_outgoingapikey" class="text-danger"></span>
+                            </div>
+                        </div>
+                        <div class="row hours_range_row" style="display:none">
+                            <div class="col-6">
+                                <div class="d-flex justify-content-center my-2">
+                                    <div class="w-100">
+                                        <label class="control-label">Hours Backwards: <span class="font-weight-bold text-primary ml-2 hoursbackvalue"></span></label>
+                                        <input type="range" class="custom-range" id="hoursback_range" min="0" max="60" value="0">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-6">
+                                <div class="d-flex justify-content-center my-2">
+                                    <div class="w-100">
+                                        <label class="control-label">Hours Forward: <span class="font-weight-bold text-primary ml-2 hoursforwardvalue"></span></label>
+                                        <input type="range" class="custom-range" id="hoursforward_range" min="0" max="60" value="0">
+                                    </div>
+                                </div>
                             </div>
                         </div>
                         <div class="row mb-3">
@@ -768,8 +795,8 @@
                                                                 <th class="row-cts-leg">Leg</th>
                                                                 <th class="row-cts-dest">Dest</th>
                                                                 <!--<th class="row-cts-close">Close</th>
-                                                                <th class="row-cts-load">Load</th>
-                                                                <th>Load%</th>-->
+                                                            <th class="row-cts-load">Load</th>
+                                                            <th>Load%</th>-->
                                                             </tr>
                                                         </thead>
                                                         <tbody></tbody>
@@ -794,8 +821,8 @@
                                                                 <th class="row-cts-leg">Leg</th>
                                                                 <th class="row-cts-dest">Dest</th>
                                                                 <!--<th class="row-cts-close">Close</th>
-                                                                <th class="row-cts-load">Load</th>
-                                                                <th>Load%</th>-->
+                                                            <th class="row-cts-load">Load</th>
+                                                            <th>Load%</th>-->
                                                             </tr>
                                                         </thead>
                                                         <tbody></tbody>
@@ -956,8 +983,7 @@
                                                 <tr>
                                                     <th class="row-cts-schd">Schd</th>
                                                     <th>Duration</th>
-                                                    <th>Direction</th>
-                                                    <th class="row-cts-door">Door</th>
+                                                    <th class="row-cts-leg">Direction</th>
                                                     <th class="row-cts-rt">Route-Trip</th>
                                                     <th class="row-cts-dest">Site Name</th>
                                                 </tr>
@@ -1079,8 +1105,8 @@
                                 <div class="input-group flex-fill px-0 mt-2 mx-3">
                                     <input type="text" id="inputsearchbtn" class="form-control input-border-light" placeholder="Enter badge or equipment ID" aria-label="Tag / Equipment Name" aria-describedby="searchbtn" style="font-size: 14px; ">
                                     <!--<div class="input-group-append">
-                                        <button class="btn btn-outline-secondary" type="button" id="searchbtn">Search</button>
-                                    </div>-->
+                                    <button class="btn btn-outline-secondary" type="button" id="searchbtn">Search</button>
+                                </div>-->
                                 </div>
                                 <p class="smaller text-secondary mb-0 mt-1 ml-2">Start search by entering any letter or number of a badge or vehicle ID</p>
                             </div>
@@ -1300,7 +1326,8 @@
     <script src="Scripts/QRCode/qrcode.min.js"></script>
     <!--camera js-->
     <script src="Scripts/View/camera_video.js"></script>
-
+    <!--tag search js-->
+    <script src="Scripts/View/tag_search.js"></script>
     <!--24 Hour Clock js-->
     <script src="Scripts/View/twenty_four_hour_clock.js"></script>
 </body>

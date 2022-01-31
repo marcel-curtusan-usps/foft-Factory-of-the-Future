@@ -185,51 +185,52 @@ async function updateNotification(updatenotification) {
                     })
                 }
                 let Table = {};
+                if (/routetrip/i.test(updatenotification.TYPE)) {
+                    var triptabvisible = sidebar._getTab("tripsnotificationinfo");
+                    if (triptabvisible) {
+                        if (triptabvisible.classList.length) {
+                            if (triptabvisible.classList.contains('active')) {
+                                Table = $('table[id=tripsnotificationtable]');
+                                if (Table.length > 0) {
+                                    let Table_Body = Table.find('tbody');
+                                    let findtrdataid = Table_Body.find('tr[data-id=' + updatenotification.NOTIFICATIONGID + ']');
+                                    if (findtrdataid.length > 0) {
+                                        if (updatenotification.hasOwnProperty("DELETE")) {
+                                            Table_Body.find('tr[data-id=' + updatenotification.NOTIFICATIONGID + ']').remove();
+                                        }
+                                        else {
 
-                var triptabvisible = sidebar._getTab("tripsnotificationinfo");
-                if (triptabvisible) {
-                    if (triptabvisible.classList.length) {
-                        if (triptabvisible.classList.contains('active')) {
-                            Table = $('table[id=tripsnotificationtable]');
-                            if (Table.length > 0) {
-                                let Table_Body = Table.find('tbody');
-                                let findtrdataid = Table_Body.find('tr[data-id=' + updatenotification.NOTIFICATIONGID + ']');
-                                if (findtrdataid.length > 0) {
-                                    if (updatenotification.hasOwnProperty("DELETE")) {
-                                        Table_Body.find('tr[data-id=' + updatenotification.NOTIFICATIONGID + ']').remove();
+                                            Table_Body.find('tr[data-id=' + updatenotification.NOTIFICATIONGID + ']').replaceWith(routetriprow_template.supplant(formatroutetripnotifirow(updatenotification)));
+                                        }
                                     }
                                     else {
-
-                                        Table_Body.find('tr[data-id=' + updatenotification.NOTIFICATIONGID + ']').replaceWith(routetriprow_template.supplant(formatroutetripnotifirow(updatenotification)));
+                                        Table_Body.append(routetriprow_template.supplant(formatroutetripnotifirow(updatenotification)));
                                     }
-                                }
-                                else {
-                                    Table_Body.append(routetriprow_template.supplant(formatroutetripnotifirow(updatenotification)));
                                 }
                             }
                         }
                     }
                 }
-
-
-                var agvtabvisible = sidebar._getTab("agvnotificationinfo");
-                if (agvtabvisible) {
-                    if (agvtabvisible.classList.length) {
-                        if (agvtabvisible.classList.contains('active')) {
-                            Table = $('table[id=agvnotificationtable]');
-                            if (Table.length > 0) {
-                                let Table_Body = Table.find('tbody');
-                                let findagvtrdataid = Table_Body.find('tr[data-id=' + updatenotification.NOTIFICATIONGID + ']');
-                                if (findagvtrdataid.length > 0) {
-                                    if (updatenotification.hasOwnProperty("DELETE")) {
-                                        Table_Body.find('tr[data-id=' + updatenotification.NOTIFICATIONGID + ']').remove();
+                if (/vehicle/i.test(updatenotification.TYPE)) {
+                    var agvtabvisible = sidebar._getTab("agvnotificationinfo");
+                    if (agvtabvisible) {
+                        if (agvtabvisible.classList.length) {
+                            if (agvtabvisible.classList.contains('active')) {
+                                Table = $('table[id=agvnotificationtable]');
+                                if (Table.length > 0) {
+                                    let Table_Body = Table.find('tbody');
+                                    let findagvtrdataid = Table_Body.find('tr[data-id=' + updatenotification.NOTIFICATIONGID + ']');
+                                    if (findagvtrdataid.length > 0) {
+                                        if (updatenotification.hasOwnProperty("DELETE")) {
+                                            Table_Body.find('tr[data-id=' + updatenotification.NOTIFICATIONGID + ']').remove();
+                                        }
+                                        else {
+                                            Table_Body.find('tr[data-id=' + updatenotification.NOTIFICATIONGID + ']').replaceWith(row_template.supplant(formatnotifirow(updatenotification)));
+                                        }
                                     }
                                     else {
-                                        Table_Body.find('tr[data-id=' + updatenotification.NOTIFICATIONGID + ']').replaceWith(row_template.supplant(formatnotifirow(updatenotification)));
+                                        Table_Body.append(row_template.supplant(formatnotifirow(updatenotification)));
                                     }
-                                }
-                                else {
-                                    Table_Body.append(row_template.supplant(formatnotifirow(updatenotification)));
                                 }
                             }
                         }
@@ -240,7 +241,7 @@ async function updateNotification(updatenotification) {
 
             Vehiclecount = notification.filter(x => x.TYPE === "vehicle").map(x => x).length
             routetripcount = notification.filter(x => x.TYPE === "routetrip").map(x => x).length
-            machinecount = notification.filter(x => x.TYPE === "machine").map(x => x).length
+            //machinecount = notification.filter(x => x.TYPE === "machine").map(x => x).length
 
             //AGV Counts
             if (Vehiclecount > 0) {
@@ -262,12 +263,12 @@ async function updateNotification(updatenotification) {
                 $('#tripsnotificaion_number').text("");
             }
             //machine counts
-            if (machinecount > 0) {
-                $('#machinenotificaion_number').text(Vehiclecount);
-            }
-            else {
-                $('#machinenotificaion_number').text("");
-            }
+            //if (machinecount > 0) {
+            //    $('#machinenotificaion_number').text(Vehiclecount);
+            //}
+            //else {
+            //    $('#machinenotificaion_number').text("");
+            //}
         }
     }
     catch (e) {
@@ -322,9 +323,8 @@ let routetriprow_template =
     '<td class="text-center">{schd}</td>' +
     '<td class="text-center">{duration}</td>' +
     '<td class="text-center">{direction}</td>' +
-    '<td class="text-center">{door}</td>' +
     '<td>' +
-    '<button class="btn btn-outline-info btn-sm btn-block px-1 routetripdetails" data-routetrip="{routetrip}" style="font-size:12px;">{route}-{trip}</button>' +
+    '<button class="btn btn-outline-info btn-sm btn-block px-1 routetripdetails" data-routetrip="{routetripid}" style="font-size:12px;">{route}-{trip}</button>' +
     '</td> ' +
     '<td data-toggle="tooltip" title="{dest}">{dest}</td>' +
     '</tr>"';
@@ -333,7 +333,7 @@ function formatroutetripnotifirow(properties, indx) {
         id: properties.NOTIFICATIONGID,
         tagid: properties.TAGID,
         schd: objSVTime(properties.scheduledDtm),
-        routetrip: properties.route + properties.trip + properties.tripDirectionInd,
+        routetripid: properties.id,
         route: properties.route,
         trip: properties.trip,
         direction: properties.tripDirectionInd,
@@ -457,9 +457,9 @@ async function Notificationsetup(data,table) {
                     $('input[type=text][name=condition_name]').val(N_Data[0].NAME);
                     $('input[type=text][name=condition]').val(N_Data[0].CONDITIONS);
                     $('.warning_conditionpickvalue').html($.isNumeric(N_Data[0].WARNING) ? parseInt(N_Data[0].WARNING) : 0);
-                    $('input[id=warning_condition]').val($.isNumeric(N_Data[0].WARNING) ? parseInt(N_Data[0].WARNING) : 0)
+                    $('input[id=warning_condition]').val($.isNumeric(N_Data[0].WARNING) ? parseInt(N_Data[0].WARNING) : 0);
                     $('.critical_conditionpickvalue').html($.isNumeric(N_Data[0].CRITICAL) ? parseInt(N_Data[0].CRITICAL) : 0);
-                    $('input[id=critical_condition]').val($.isNumeric(N_Data[0].CRITICAL) ? parseInt(N_Data[0].CRITICAL) : 0)
+                    $('input[id=critical_condition]').val($.isNumeric(N_Data[0].CRITICAL) ? parseInt(N_Data[0].CRITICAL) : 0);
                     $('textarea[id=warning_action]').val(N_Data[0].WARNING_ACTION);
                     $('textarea[id=critical_action]').val(N_Data[0].CRITICAL_ACTION);
                 }
