@@ -197,11 +197,13 @@ async function updateNotification(updatenotification) {
                                     if (findtrdataid.length > 0) {
                                         if (updatenotification.hasOwnProperty("DELETE")) {
                                             Table_Body.find('tr[data-id=' + updatenotification.NOTIFICATIONGID + ']').remove();
+                                            Table_Body.find('tr[data-id=collapse_' + updatenotification.NOTIFICATIONGID + ']').remove();
                                         }
                                         else {
-
-                                            Table_Body.find('tr[data-id=' + updatenotification.NOTIFICATIONGID + ']').replaceWith(routetriprow_template.supplant(formatroutetripnotifirow(updatenotification)));
-                                        }
+                                            Table_Body.find('tr[data-id=' + updatenotification.NOTIFICATIONGID + ']').remove();
+                                            Table_Body.find('tr[data-id=collapse_' + updatenotification.NOTIFICATIONGID + ']').remove();
+                                            Table_Body.append(routetriprow_template.supplant(formatroutetripnotifirow(updatenotification)));
+                                       }
                                     }
                                     else {
                                         Table_Body.append(routetriprow_template.supplant(formatroutetripnotifirow(updatenotification)));
@@ -275,7 +277,17 @@ async function updateNotification(updatenotification) {
         console.log(e);
     }
 }
-
+function LoadNotification(value) {
+    try {
+        $.connection.FOTFManager.server.getNotification(value).done(function (Data) {
+            $.each(Data, function () {
+                updateNotification(this);
+            });
+        });
+    } catch (e) {
+        console.log(e);
+    }
+}
 function LoadNotificationsetup(Data, table) {
     $.connection.FOTFManager.server.getNotification_ConditionsList(0).done(function (NotificationData) {
         notificationTable_Body.empty();
@@ -319,15 +331,35 @@ function formatnotifirow(properties, indx) {
     });
 }
 let routetriprow_template =
-'<tr data-id={id} style=background-color:{conditioncolor} data-toggle=collapse  class=accordion-toggle>' +
+    '<tr data-id={id} class="accordion-toggle collapsed" id={id} data-toggle=collapse data-parent=#{id} href="#collapse_{id}">' +
+  
     '<td class="text-center">{schd}</td>' +
     '<td class="text-center">{duration}</td>' +
     '<td class="text-center">{direction}</td>' +
     '<td>' +
     '<button class="btn btn-outline-info btn-sm btn-block px-1 routetripdetails" data-routetrip="{routetripid}" style="font-size:12px;">{route}-{trip}</button>' +
-    '</td> ' +
-    '<td data-toggle="tooltip" title="{dest}">{dest}</td>' +
-    '</tr>"';
+    '</td>' +
+    '<td data-toggle="tooltip" title="{dest}" style="overflow: inherit;">{dest}</td> ' +
+    '<td class="expand-button">' +
+    '<a class="btn btn-link d-flex justify-content-end" data-toggle="collapse" href="#collapse_{id}" role="button" aria-expanded="false" aria-controls="collapseSection">' +
+    '<div class="iconXSmall">' +
+    ' <i class="pi-iconCaretDownFill" />' +
+    '</div>' +
+    '</a>' +
+    '</td>' +
+    '</tr>' +
+    '<tr data-id=collapse_{id} class="hide-table-padding">' +
+        '<td colspan="6">'+
+            '<div class="collapse" id="collapse_{id}">' +
+            '<div class="mt-1">' +
+            '<ol class="pl-4 mb-0">' +
+            '<li class="pb-1">{warning_action_text}</li> ' +
+            '</ol>' +
+            '</div>' +
+            '</div>' +
+        '</td>' +
+    '</tr>'
+    ;
 function formatroutetripnotifirow(properties, indx) {
     return $.extend(properties, {
         id: properties.NOTIFICATIONGID,

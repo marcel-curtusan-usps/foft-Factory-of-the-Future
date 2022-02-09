@@ -23,7 +23,7 @@ namespace Factory_of_the_Future
             try
             {
                 //add file data retention check here.
-                if (Global.Logdirpath.Exists)
+                if (Global.Logdirpath != null && Global.Logdirpath.Exists)
                 {
                     DirectoryInfo maindir = new DirectoryInfo(@"" + Global.Logdirpath.FullName + "\\" + "LOG" + "\\");
                     if (maindir.Exists)

@@ -147,8 +147,8 @@ $('#API_Connection_Modal').on('shown.bs.modal', function () {
                 $('input[type=text][name=port_number]').css({ "border-color": "#FF0000" }).removeClass('is-valid').addClass('is-invalid');
                 $('span[id=error_port_number]').text("Please Enter Port Number!");
             }
-            else if ($('input[type=text][name=port_number]').val().length < 0) {
-                $('input[type=text][name=port_number]').css({ "border-color": "#FF0000" }).removeClass('is-valid').addClass('is-invalid');
+            else if ($('input[type=text][name=port_number]').val().length === 0) {
+                $('input[type=text][name=port_number]').css({ "border-color": "#FF0000" }).addClass('is-valid').removeClass('is-invalid');
                 $('span[id=error_port_number]').text("Please Enter Port Number!");
             }
             else {
@@ -213,27 +213,27 @@ $('#API_Connection_Modal').on('shown.bs.modal', function () {
             enableudpSubmit();
         }
     });
-    //outapikey Validation
-    if (!checkValue($('input[type=text][name=outgoingapikey]').val())) {
-        $('input[type=text][name=outgoingapikey]').css("border-color", "#FF0000").removeClass('is-valid').addClass('is-invalid');
-        $('span[id=error_outgoingapikey]').text("Please Enter API Key");
-    }
-    else {
-        $('input[type=text][name=outgoingapikey]').css("border-color", "#2eb82e").removeClass('is-invalid').addClass('is-valid');
-        $('span[id=error_outgoingapikey]').text("");
-    }
-    //Admin Email Keyup
-    $('input[type=text][name=outgoingapikey]').keyup(function () {
-        if (!checkValue($('input[type=text][name=outgoingapikey]').val())) {
-            $('input[type=text][name=outgoingapikey]').css("border-color", "#FF0000").removeClass('is-valid').addClass('is-invalid');
-            $('span[id=error_outgoingapikey]').text("Please Enter API Key");
-        }
-        else {
-            $('input[type=text][name=outgoingapikey]').css("border-color", "#2eb82e").removeClass('is-invalid').addClass('is-valid');
-            $('span[id=error_outgoingapikey]').text("");
-        }
-        enableConnectionSubmit();
-    });
+    ////outapikey Validation
+    //if (!checkValue($('input[type=text][name=outgoingapikey]').val())) {
+    //    $('input[type=text][name=outgoingapikey]').css("border-color", "#FF0000").removeClass('is-valid').addClass('is-invalid');
+    //    $('span[id=error_outgoingapikey]').text("Please Enter API Key");
+    //}
+    //else {
+    //    $('input[type=text][name=outgoingapikey]').css("border-color", "#2eb82e").removeClass('is-invalid').addClass('is-valid');
+    //    $('span[id=error_outgoingapikey]').text("");
+    //}
+    ////Admin Email Keyup
+    //$('input[type=text][name=outgoingapikey]').keyup(function () {
+    //    if (!checkValue($('input[type=text][name=outgoingapikey]').val())) {
+    //        $('input[type=text][name=outgoingapikey]').css("border-color", "#FF0000").removeClass('is-valid').addClass('is-invalid');
+    //        $('span[id=error_outgoingapikey]').text("Please Enter API Key");
+    //    }
+    //    else {
+    //        $('input[type=text][name=outgoingapikey]').css("border-color", "#2eb82e").removeClass('is-invalid').addClass('is-valid');
+    //        $('span[id=error_outgoingapikey]').text("");
+    //    }
+    //    enableConnectionSubmit();
+    //});
     $('input[type=checkbox][name=hour_range]').change(() => {
         if (!$('input[type=checkbox][name=hour_range]').is(':checked')) {
             $('.hours_range_row').css("display", "none");
@@ -247,10 +247,10 @@ $('#API_Connection_Modal').on('shown.bs.modal', function () {
         $('input[type=text][name=url]').val('');
         $('input[type=text][name=url]').css("border-color", "#D3D3D3").removeClass('is-valid').removeClass('is-invalid');
         $('span[id=error_url]').text("");
-        $('input[type=text][name=outgoingapikey]').prop("disabled", true);
-        $('input[type=text][name=outgoingapikey]').val('');
-        $('input[type=text][name=outgoingapikey]').css("border-color", "#D3D3D3").removeClass('is-valid').removeClass('is-invalid');
-        $('span[id=error_outgoingapikey]').text("");
+        //$('input[type=text][name=outgoingapikey]').prop("disabled", true);
+        //$('input[type=text][name=outgoingapikey]').val('');
+        //$('input[type=text][name=outgoingapikey]').css("border-color", "#D3D3D3").removeClass('is-valid').removeClass('is-invalid');
+        //$('span[id=error_outgoingapikey]').text("");
         $('input[type=text][name=ip_address]').prop("disabled", true);
         $('input[type=text][name=ip_address]').val('');
         $('input[type=text][name=ip_address]').css("border-color", "#D3D3D3").removeClass('is-valid').removeClass('is-invalid');
@@ -274,15 +274,15 @@ $('#API_Connection_Modal').on('shown.bs.modal', function () {
                 $('input[type=text][name=url]').css("border-color", "#2eb82e").removeClass('is-invalid').addClass('is-valid');
                 $('span[id=error_url]').text("");
             }
-            $('input[type=text][name=outgoingapikey]').prop("disabled", false);
-            if (!checkValue($('input[type=text][name=outgoingapikey]').val())) {
-                $('input[type=text][name=outgoingapikey]').css("border-color", "#FF0000").removeClass('is-valid').addClass('is-invalid');
-                $('span[id=error_outgoingapikey]').text("Please Enter API Key");
-            }
-            else {
-                $('input[type=text][name=outgoingapikey]').css("border-color", "#2eb82e").removeClass('is-invalid').addClass('is-valid');
-                $('span[id=error_outgoingapikey]').text("");
-            }
+            //$('input[type=text][name=outgoingapikey]').prop("disabled", false);
+            //if (!checkValue($('input[type=text][name=outgoingapikey]').val())) {
+            //    $('input[type=text][name=outgoingapikey]').css("border-color", "#FF0000").removeClass('is-valid').addClass('is-invalid');
+            //    $('span[id=error_outgoingapikey]').text("Please Enter API Key");
+            //}
+            //else {
+            //    $('input[type=text][name=outgoingapikey]').css("border-color", "#2eb82e").removeClass('is-invalid').addClass('is-valid');
+            //    $('span[id=error_outgoingapikey]').text("");
+            //}
             $('input[type=text][name=hostanme]').prop("disabled", false);
             //
             $('select[name=data_retrieve]').prop("disabled", false);
@@ -309,10 +309,10 @@ $('#API_Connection_Modal').on('shown.bs.modal', function () {
             $('input[type=text][name=url]').val('');
             $('input[type=text][name=url]').css("border-color", "#D3D3D3").removeClass('is-valid').removeClass('is-invalid');
             $('span[id=error_url]').text("");
-            $('input[type=text][name=outgoingapikey]').prop("disabled", true);
-            $('input[type=text][name=outgoingapikey]').val('');
-            $('input[type=text][name=outgoingapikey]').css("border-color", "#D3D3D3").removeClass('is-valid').removeClass('is-invalid');
-            $('span[id=error_outgoingapikey]').text("");
+            //$('input[type=text][name=outgoingapikey]').prop("disabled", true);
+            //$('input[type=text][name=outgoingapikey]').val('');
+            //$('input[type=text][name=outgoingapikey]').css("border-color", "#D3D3D3").removeClass('is-valid').removeClass('is-invalid');
+            //$('span[id=error_outgoingapikey]').text("");
             $('input[type=text][name=ip_address]').prop("disabled", true);
             $('input[type=text][name=ip_address]').val('');
             $('input[type=text][name=ip_address]').css("border-color", "#D3D3D3").removeClass('is-valid').removeClass('is-invalid');
@@ -395,21 +395,21 @@ function formatQSMlayout(conn_status) {
 }
 function Add_Connection() {
     $('#modalHeader_ID').text('Add Connection');
-
     $('button[id=apisubmitBtn]').off().on('click', function () {
         $('button[id=apisubmitBtn]').prop('disabled', true);
+        $('input[type=checkbox][name=udp_connection]').prop('disabled', false);
         var jsonObject = {};
 
         //connection active
         jsonObject.ACTIVE_CONNECTION = $('input[type=checkbox][name=active_connection]').is(':checked');
         jsonObject.UDP_CONNECTION = $('input[type=checkbox][name=udp_connection]').is(':checked');
         // assign values to Json object if they are not empty
-        checkValue($('input[type=text][name=connection_name]').val()) ? jsonObject.CONNECTION_NAME = $('input[type=text][name=connection_name]').val() : '';
+        jsonObject.CONNECTION_NAME = $('input[type=text][name=connection_name]').val();
         checkValue($('input[type=text][name=hostname]').val()) ? jsonObject.HOSTNAME = $('input[type=text][name=hostname]').val() : '';
         checkValue($('input[type=text][name=ip_address]').val()) ? jsonObject.IP_ADDRESS = $('input[type=text][name=ip_address]').val() : '';
         checkValue($('input[type=text][name=port_number]').val()) ? jsonObject.PORT = $('input[type=text][name=port_number]').val() : '';
         checkValue($('input[type=text][name=url]').val()) ? jsonObject.URL = $('input[type=text][name=url]').val() : '';
-        checkValue($('input[type=text][name=outgoingapikey]').val()) ? jsonObject.OUTGOING_APIKEY = $('input[type=text][name=outgoingapikey]').val() : '';
+/*        checkValue($('input[type=text][name=outgoingapikey]').val()) ? jsonObject.OUTGOING_APIKEY = $('input[type=text][name=outgoingapikey]').val() : '';*/
         checkValue($('input[type=text][name=message_type]').val()) ? jsonObject.MESSAGE_TYPE = $('input[type=text][name=message_type]').val() : '';
         checkValue($('select[name=data_retrieve] option:selected').val()) ? jsonObject.DATA_RETRIEVE = $('select[name=data_retrieve] option:selected').val() : '';
         checkValue($('input[type=text][name=admin_email_recepient]').val()) ? jsonObject.ADMIN_EMAIL_RECEPIENT = $('input[type=text][name=admin_email_recepient]').val() : '';
@@ -477,7 +477,7 @@ function Edit_Connection(id) {
                 $('input[type=text][name=hostname]').val(Data.HOSTNAME);
                 $('input[type=text][name=port_number]').val(Data.PORT);
                 $('input[type=text][name=url]').val(Data.URL);
-                $('input[type=text][name=outgoingapikey]').val(Data.OUTGOING_APIKEY);
+/*                $('input[type=text][name=outgoingapikey]').val(Data.OUTGOING_APIKEY);*/
                 $('input[type=text][name=message_type]').val(Data.MESSAGE_TYPE);
                 if ($.isNumeric(Data.HOURS_BACK)) {
                     $('.hoursbackvalue').html($.isNumeric(Data.HOURS_BACK) ? parseInt(Data.HOURS_BACK) : 0);
@@ -554,7 +554,7 @@ function Edit_Connection(id) {
                         $('input[type=text][name=hostname]').text() !== Data.HOSTNAME ? jsonObject.HOSTNAME = $('input[type=text][name=hostname]').text() : "";
                         parseInt($('input[type=text][name=port_number]').val()) !== parseInt(Data.PORT) ? jsonObject.PORT = $('input[type=text][name=port_number]').val() : "";
                         $('input[type=text][name=url]').val() !== Data.URL ? jsonObject.URL = $('input[type=text][name=url]').val() : "";
-                        $('input[type=text][name=outgoingapikey]').val() !== Data.OUTGOING_APIKEY ? jsonObject.OUTGOING_APIKEY = $('input[type=text][name=outgoingapikey]').val() : "";
+                        //$('input[type=text][name=outgoingapikey]').val() !== Data.OUTGOING_APIKEY ? jsonObject.OUTGOING_APIKEY = $('input[type=text][name=outgoingapikey]').val() : "";
                         $('input[type=text][name=message_type]').val() !== Data.MESSAGE_TYPE ? jsonObject.MESSAGE_TYPE = $('input[type=text][name=message_type]').val() : "";
                         if (!$.isEmptyObject(jsonObject)) {
                             jsonObject.LASTUPDATE_BY_USERNAME = User.UserId;
@@ -646,7 +646,6 @@ function enableConnectionSubmit() {
     //AGV connections
     if ($('input[type=text][name=ip_address]').hasClass('is-valid') &&
         $('input[type=text][name=url]').hasClass('is-valid') &&
-        $('input[type=text][name=outgoingapikey]').hasClass('is-valid') &&
         $('input[type=text][name=message_type]').hasClass('is-valid') &&
         $('select[name=data_retrieve]').hasClass('is-valid') &&
         $('input[type=text][name=admin_email_recepient]').hasClass('is-valid') &&

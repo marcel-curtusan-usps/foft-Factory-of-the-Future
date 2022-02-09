@@ -29,11 +29,11 @@ namespace Factory_of_the_Future
         public static DirectoryInfo Logdirpath;
         public static string Application_Environment = string.Empty;
         public static DirectoryInfo CodeBase = null;
-        public static string ConfigurationFloder = "/Configuration";
-        public static string LogFloder = "/Log";
-        public static string ORAQuery = "/OracleQuery";
-        public static string DataSample = "/DataSample";
-        public static string Appsetting = "/AppSetting";
+        public static string ConfigurationFloder = @"\Configuration";
+        public static string LogFloder = @"\Log";
+        public static string ORAQuery = @"\OracleQuery";
+        public static string DataSample = @"\DataSample";
+        public static string Appsetting = @"\AppSetting";
         public static string VersionInfo = string.Empty;
         private static readonly string PasswordHash = "P@@Sw0rd";
         private static readonly string SaltKey = "S@LT&KEY";
@@ -50,28 +50,13 @@ namespace Factory_of_the_Future
 
         //Zone
         public static ConcurrentDictionary<string, JObject> Zones = new ConcurrentDictionary<string, JObject>();
+
         //Zone info
         public static ConcurrentDictionary<string, JObject> Zone_Info = new ConcurrentDictionary<string, JObject>();
+
         //Camera info
         public static ConcurrentDictionary<string, JObject> Camera_Info = new ConcurrentDictionary<string, JObject>();
 
-        ////Viewports
-        //public static ConcurrentDictionary<string, JObject> ViewPorts = new ConcurrentDictionary<string, JObject>();
-
-        ////Dock
-        //public static ConcurrentDictionary<string, JObject> DockDoorZones = new ConcurrentDictionary<string, JObject>();
-
-        ////MachineZone
-        //public static ConcurrentDictionary<string, JObject> MachineZones = new ConcurrentDictionary<string, JObject>();
-
-        ////MachineZone
-        //public static ConcurrentDictionary<string, JObject> MachineZonesPerf = new ConcurrentDictionary<string, JObject>();
-
-        ////AGV LoctionZone
-        //public static ConcurrentDictionary<string, JObject> AGVLocationZones = new ConcurrentDictionary<string, JObject>();
-
-        //Trips
-        //public static ConcurrentDictionary<string, Trips> Trips = new ConcurrentDictionary<string, Trips>();
         //Trips
         public static ConcurrentDictionary<string, JObject> RouteTrips = new ConcurrentDictionary<string, JObject>();
         ////CTS DockDeparted
@@ -119,6 +104,7 @@ namespace Factory_of_the_Future
         public static ConcurrentDictionary<string, JObject> Notification = new ConcurrentDictionary<string, JObject>();
 
         public static readonly ConcurrentDictionary<string, JObject> _users = new ConcurrentDictionary<string, JObject>();
+
         public static Dictionary<string, string> TimeZoneConvert = new Dictionary<string, string>()
     {
     
@@ -368,17 +354,41 @@ namespace Factory_of_the_Future
                     {
                         API_List = new ConcurrentDictionary<string, JObject>();
                     }
-                    //clear Zone
+                    //clear Zone_Info
                     if (Zone_Info.Count != 0)
                     {
                         Zone_Info = new ConcurrentDictionary<string, JObject>();
+                    }
+                    //clear Zone
+                    if (Zones.Count != 0)
+                    {
+                        Zones = new ConcurrentDictionary<string, JObject>();
+                    }
+                    //clear TAG
+                    if (Tag.Count != 0)
+                    {
+                        Tag = new ConcurrentDictionary<string, JObject>();
+                    }
+                    //clear RouteTrips
+                    if (RouteTrips.Count != 0)
+                    {
+                        RouteTrips = new ConcurrentDictionary<string, JObject>();
+                    }
+                    //clear RouteTrips
+                    if (Containers.Count != 0)
+                    {
+                        Containers = new ConcurrentDictionary<string, Container>();
                     }
                     //clear cameras
                     if (Camera_Info.Count != 0)
                     {
                         Camera_Info = new ConcurrentDictionary<string, JObject>();
                     }
-
+                    //clear Notification Conditions
+                    if (Notification.Count != 0)
+                    {
+                        Notification = new ConcurrentDictionary<string, JObject>();
+                    }
                     //clear Notification Conditions
                     if (Notification_Conditions.Count != 0)
                     {
@@ -394,34 +404,6 @@ namespace Factory_of_the_Future
                     {
                         Sortplans = new ConcurrentDictionary<string, JObject>();
                     }
-                    //if (Logdirpath != null)
-                    //{
-                    //    //if not null then check if the drive is available
-                    //    if (new Directory_Check().DirPath(Logdirpath))
-                    //    {
-                    //        if (!Logdirpath.Exists)
-                    //        {
-                    //            Directory.CreateDirectory(Logdirpath.FullName);
-                    //        }
-                    //    }
-                    //}
-                    ////check if Log directory is null
-                    //if (Logdirpath == null)
-                    //{
-                    //    if (AppSettings.ContainsKey("LOG_LOCATION"))
-                    //    {
-                    //        if (!string.IsNullOrEmpty(AppSettings.Property("LOG_LOCATION").Value.ToString()))
-                    //        {
-                    //            // set the Log dir path to web configure value.
-                    //            Logdirpath = new DirectoryInfo(AppSettings.Property("LOG_LOCATION").Value.ToString());
-                    //            //if directory does not exists then create
-                    //            if (!Logdirpath.Exists)
-                    //            {
-                    //                Directory.CreateDirectory(Logdirpath.FullName);
-                    //            }
-                    //        }
-                    //    }
-                    //}
                 }
             }
             catch (Exception ex)
@@ -746,13 +728,13 @@ namespace Factory_of_the_Future
 
         public static void LoglocationSetup()
         {
-            if (!string.IsNullOrEmpty(AppSettings.Property("LOG_LOCATION").Value.ToString()) && !string.IsNullOrEmpty(AppSettings.Property("FACILITY_NASS_CODE").Value.ToString()))
+            if (!string.IsNullOrEmpty(AppSettings.Property("LOG_LOCATION").Value.ToString()) && !string.IsNullOrEmpty(AppSettings.Property("APPLICATION_NAME").Value.ToString()))
             {
                 string logloc = string.Concat(AppSettings.Property("LOG_LOCATION").Value.ToString(), @"\", AppSettings.Property("APPLICATION_NAME").Value.ToString(), @"\", AppSettings.Property("FACILITY_NASS_CODE").Value.ToString());
                 // set the Log dir path to web configure value.
                 if (new Directory_Check().DirPath(new DirectoryInfo(logloc)))
                 {
-                   string file_content = new FileIO().Read(string.Concat(AppSettings.Property("LOG_LOCATION").Value.ToString(), ConfigurationFloder), "AppSettings.json");
+                   string file_content = new FileIO().Read(string.Concat(Logdirpath, ConfigurationFloder), "AppSettings.json");
 
                     if (!string.IsNullOrEmpty(file_content))
                     {
@@ -773,24 +755,28 @@ namespace Factory_of_the_Future
                     }
                     else
                     {
-                        DirectoryInfo configLogdirpath = new DirectoryInfo(string.Concat(AppSettings.Property("LOG_LOCATION").Value.ToString(), ConfigurationFloder));
+                        DirectoryInfo configLogdirpath = new DirectoryInfo(string.Concat(Logdirpath, ConfigurationFloder));
                         if (!configLogdirpath.Exists)
                         {
-                            FileInfo file = new FileInfo(string.Concat(AppSettings.Property("LOG_LOCATION").Value.ToString(), ConfigurationFloder, "\\", "AppSettings.json"));
+                            FileInfo file = new FileInfo(string.Concat(Logdirpath, ConfigurationFloder, @"\", "AppSettings.json"));
                             if (!file.Exists)
                             {
-                                new FileIO().Write(string.Concat(AppSettings.Property("LOG_LOCATION").Value.ToString(), ConfigurationFloder, "\\"), "AppSettings.json", JsonConvert.SerializeObject(AppSettings, Newtonsoft.Json.Formatting.Indented));
+                                new FileIO().Write(string.Concat(Logdirpath, ConfigurationFloder, @"\"), "AppSettings.json", JsonConvert.SerializeObject(AppSettings, Newtonsoft.Json.Formatting.Indented));
                             }
                         }
                         else
                         {
-                            FileInfo file = new FileInfo(string.Concat(AppSettings.Property("LOG_LOCATION").Value.ToString(), ConfigurationFloder, "\\", "AppSettings.json"));
+                            FileInfo file = new FileInfo(string.Concat(Logdirpath, ConfigurationFloder, @"\", "AppSettings.json"));
                             if (!file.Exists)
                             {
-                                new FileIO().Write(string.Concat(AppSettings.Property("LOG_LOCATION").Value.ToString(), ConfigurationFloder), "AppSettings.json", JsonConvert.SerializeObject(AppSettings, Newtonsoft.Json.Formatting.Indented));
+                                new FileIO().Write(string.Concat(Logdirpath, ConfigurationFloder, @"\"), "AppSettings.json", JsonConvert.SerializeObject(AppSettings, Newtonsoft.Json.Formatting.Indented));
                             }
                         }
                     }
+
+                    //rest all the configuration
+
+
                 }
             }
         }

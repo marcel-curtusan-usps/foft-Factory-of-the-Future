@@ -52,7 +52,6 @@ namespace Factory_of_the_Future
         //private readonly Timer CTSInbound_timer;
         //private readonly Timer CTSOutbound_timer;
         private readonly Timer Notification_timer;
-
         //status
         private volatile bool _updateClockStatus = false;
 
@@ -278,29 +277,28 @@ namespace Factory_of_the_Future
                 if (!_updateNotificationstatus)
                 {
                     _updateNotificationstatus = true;
-                    foreach (JObject notification in Global.Notification.Select(x => x.Value))
+                    Global.Notification.Where(r => (bool)r.Value["UPDATE"]).Select(x => x.Value).ToList().ForEach(notification =>
                     {
-                        if (TryUpdateNotificationStatus(notification, out JObject outnotification))
+                        if (TryUpdateNotificationStatus(notification))
                         {
-                            BroadcastNotificationStatus(outnotification);
+                            BroadcastNotificationStatus(notification);
                         }
-                    }
+                    });
                     _updateNotificationstatus = false;
                 }
             }
         }
 
-        private bool TryUpdateNotificationStatus(JObject notification, out JObject outnotification)
+        private bool TryUpdateNotificationStatus(JObject notification)
         {
             try
             {
-                outnotification = notification;
-
+                notification["UPDATE"] = false;
                 if ((bool)notification.Property("ACTIVE_CONDITION").Value)
                 {
-                    if (outnotification.ContainsKey("DELETE"))
+                    if (notification.ContainsKey("DELETE"))
                     {
-                        if (Global.Notification.TryRemove((string)outnotification.Property("NOTIFICATIONGID").Value, out outnotification))
+                        if (Global.Notification.TryRemove((string)notification.Property("NOTIFICATIONGID").Value, out JObject outnotification))
                         {
                             return true;
                         }
@@ -316,11 +314,11 @@ namespace Factory_of_the_Future
                 }
                 else
                 {
-                    if (Global.Notification.TryRemove((string)outnotification.Property("NOTIFICATIONGID").Value, out outnotification))
+                    if (Global.Notification.TryRemove((string)notification.Property("NOTIFICATIONGID").Value, out JObject outnotification))
                     {
-                        if (!outnotification.ContainsKey("DELETE"))
+                        if (!notification.ContainsKey("DELETE"))
                         {
-                            outnotification.Add(new JProperty("DELETE", true));
+                            notification.Add(new JProperty("DELETE", true));
                         }
 
                         return true;
@@ -335,7 +333,6 @@ namespace Factory_of_the_Future
             catch (Exception e)
             {
                 new ErrorLogger().ExceptionLog(e);
-                outnotification = notification;
                 return true;
             }
         }
@@ -449,36 +446,21 @@ namespace Factory_of_the_Future
                             if (Global.Notification_Conditions.TryGetValue((int)updatenotification.Property("ID").Value, out JObject notification))
                             {
                                 bool updateFile = false;
-                                notification.Property("LASTUPDATE_DATE").Value = DateTime.Now;
-                                foreach (dynamic kv in updatenotification.Children())
-                                {
-                                    if (notification.ContainsKey(kv.Name))
-                                    {
-                                        if (notification.Property(kv.Name).Value != kv.Value)
-                                        {
-                                            notification.Property(kv.Name).Value = updatenotification.Property(kv.Name).Value;
-                                            updateFile = true;
-                                        }
-                                    }
-                                }
-                                foreach (var item in Global.Notification.Where(r => (int)r.Value.Property("ID").Value == (int)updatenotification.Property("ID").Value).Select(y => y.Value).ToList())
-                                {
-                                    item.Property("WARNING").Value = notification.Property("WARNING").Value;
-                                    item.Property("CRITICAL").Value = notification.Property("CRITICAL").Value;
-                                    if (notification.Property("ACTIVE_CONDITION").Value != item.Property("ACTIVE_CONDITION").Value)
-                                    {
-                                        item.Property("ACTIVE_CONDITION").Value = notification.Property("ACTIVE_CONDITION").Value;
+                                updatenotification["LASTUPDATE_DATE"] = DateTime.Now;
+                                notification.Merge(updatenotification, new JsonMergeSettings { MergeArrayHandling = MergeArrayHandling.Union });
+                                updateFile = true;
+                                //update notification
+                                Global.Notification.Where(r => (int)r.Value["ID"] == (int)updatenotification["ID"])
+                                   .Select(y => y.Value).ToList().ForEach(item =>
+                                      {
+                                           item.Merge(updatenotification, new JsonMergeSettings { MergeArrayHandling = MergeArrayHandling.Union });
 
-                                        if (!item.ContainsKey("DELETE"))
-                                        {
-                                            item.Add(new JProperty("DELETE", true));
-                                        }
-                                        else
-                                        {
-                                            item.Property("DELETE").Value = true;
-                                        }
-                                    }
-                                }
+                                          if ((bool)updatenotification["ACTIVE_CONDITION"] != (bool)item["ACTIVE_CONDITION"])
+                                          {
+                                              item["DELETE"] = true;
+                                              item["UPDATE"] = true;
+                                          }
+                                       });
                                 //write to file for backup
                                 if (updateFile)
                                 {
@@ -529,6 +511,14 @@ namespace Factory_of_the_Future
                         if (Global.Notification_Conditions.TryRemove((int)Notification.Property("ID").Value, out JObject outtemp))
                         {
                             new FileIO().Write(string.Concat(Global.Logdirpath, Global.ConfigurationFloder), "Notification.json", JsonConvert.SerializeObject(Global.Notification_Conditions.Select(x => x.Value), Formatting.Indented));
+
+                            Global.Notification.Where(r => (int)r.Value["ID"] == (int)Notification["ID"])
+                                  .Select(y => y.Value).ToList().ForEach(item =>
+                                  {
+                                      item["DELETE"] = true;
+                                      item["UPDATE"] = true;
+
+                                  });
                             return Global.Notification_Conditions.Select(e => e.Value).ToList();
                         }
                         else
@@ -778,8 +768,10 @@ namespace Factory_of_the_Future
                     state = "REMOVE";
                     update = true;
                 }
-                CheckNotification(trip["state"].ToString(), state, "routetrip", trip);
-
+                if (update)
+                {
+                    trip["notificationId"] = CheckNotification(trip["state"].ToString(), state, "routetrip", trip, trip["notificationId"].ToString());
+                }
                 if (string.IsNullOrEmpty(trip["state"].ToString()))
                 {
                     trip["state"] = trip.ContainsKey("status") ? trip["status"].ToString() : trip.ContainsKey("legStatus") ? trip["legStatus"].ToString() : state;
@@ -794,7 +786,7 @@ namespace Factory_of_the_Future
                     if (Global.RouteTrips.TryRemove(routetripid, out JObject r))
                     {
                         trip["state"] = state;
-                        CheckNotification(trip["state"].ToString(), state, "routetrip", trip);
+                        trip["notificationId"] = CheckNotification(trip["state"].ToString(), state, "routetrip", trip, trip["notificationId"].ToString());
                         update = true;
                     }
                   
@@ -812,59 +804,106 @@ namespace Factory_of_the_Future
             }
         }
 
-        private void CheckNotification(string currentState, string NewState, string type, JObject trip)
+        private string CheckNotification(string currentState, string NewState, string type, JObject trip, string noteifi_id)
         {
+            string noteification_id = noteifi_id;
             try
             {
                 if (currentState != NewState)
                 {
-                    //current condition
-                    Global.Notification_Conditions.Where(r => Regex.IsMatch(currentState, r.Value["CONDITIONS"].ToString(), RegexOptions.IgnoreCase)
-                    && r.Value["TYPE"].ToString().ToLower() == type.ToLower()
-                     && (bool)r.Value["ACTIVE_CONDITION"]).Select(x => x.Value).ToList().ForEach(currentCondition =>
-                     {
-                         if (Global.Notification.ContainsKey((string)currentCondition["ID"] + (string)trip["id"]))
-                         {
-                             if (Global.Notification.TryGetValue((string)currentCondition["ID"] + (string)trip["id"], out JObject ojbMerge))
-                             {
-                                 if (!ojbMerge.ContainsKey("DELETE"))
-                                 {
-                                     ojbMerge.Add(new JProperty("DELETE", true));
-                                 }
-                             }
-                         }
-                     });
+                    if (!string.IsNullOrEmpty(noteification_id) && Global.Notification.ContainsKey(noteification_id))
+                    {
+                        if (Global.Notification.TryGetValue(noteification_id, out JObject ojbMerge))
+                        {
+                            if (!ojbMerge.ContainsKey("DELETE"))
+                            {
+                                ojbMerge["DELETE"] = true;
+                                ojbMerge["UPDATE"] = true;
+                                noteification_id = "";
+                            }
+                        }
+                    }
                     //new condition
                     Global.Notification_Conditions.Where(r => Regex.IsMatch(NewState, r.Value["CONDITIONS"].ToString(), RegexOptions.IgnoreCase)
                 && r.Value["TYPE"].ToString().ToLower() == type.ToLower()
                  && (bool)r.Value["ACTIVE_CONDITION"]).Select(x => x.Value).ToList().ForEach(newCondition =>
                  {
-                     if (!Global.Notification.ContainsKey((string)newCondition["ID"] + (string)trip["id"]))
+                     noteification_id = (string)newCondition["ID"] + (string)trip["id"];
+                     if (!Global.Notification.ContainsKey(noteification_id))
                      {
                          JObject ojbMerge = (JObject)newCondition.DeepClone();
-                         ojbMerge.Merge(trip, new JsonMergeSettings
-                         {
-                             // union array values together to avoid duplicates
-                             MergeArrayHandling = MergeArrayHandling.Union
-                         });
-
-                         ojbMerge.Add(new JProperty("SHOWTOAST", true));
-                         ojbMerge.Add(new JProperty("TAGID", (string)trip["id"]));
-                         ojbMerge.Add(new JProperty("NOTIFICATIONGID", (string)newCondition["ID"] + (string)trip["id"]));
-                         ojbMerge.Add(new JProperty("UPDATE", true));
+                         ojbMerge.Merge(trip, new JsonMergeSettings {MergeArrayHandling = MergeArrayHandling.Union});
+                         ojbMerge["SHOWTOAST"] = true;
+                         ojbMerge["TAGID"] =(string)trip["id"];
+                         ojbMerge["NOTIFICATIONGID"] = (string)newCondition["ID"] + (string)trip["id"];
+                         ojbMerge["UPDATE"] = true;
                          Global.Notification.TryAdd((string)newCondition["ID"] + (string)trip["id"], ojbMerge);
                      }
                  });
 
                 }
+                return noteification_id;
             }
             catch (Exception e)
             {
                 new ErrorLogger().ExceptionLog(e);
+                return noteification_id;
             }
         }
 
-     
+        //private void CheckNotification(string currentState, string NewState, string type, JObject trip)
+        //{
+        //    try
+        //    {
+        //        if (currentState != NewState)
+        //        {
+        //            //current condition
+        //            Global.Notification_Conditions.Where(r => Regex.IsMatch(currentState, r.Value["CONDITIONS"].ToString(), RegexOptions.IgnoreCase)
+        //            && r.Value["TYPE"].ToString().ToLower() == type.ToLower()
+        //             && (bool)r.Value["ACTIVE_CONDITION"]).Select(x => x.Value).ToList().ForEach(currentCondition =>
+        //             {
+        //                 if (Global.Notification.ContainsKey((string)currentCondition["ID"] + (string)trip["id"]))
+        //                 {
+        //                     if (Global.Notification.TryGetValue((string)currentCondition["ID"] + (string)trip["id"], out JObject ojbMerge))
+        //                     {
+        //                         if (!ojbMerge.ContainsKey("DELETE"))
+        //                         {
+        //                             ojbMerge.Add(new JProperty("DELETE", true));
+        //                         }
+        //                     }
+        //                 }
+        //             });
+        //            //new condition
+        //            Global.Notification_Conditions.Where(r => Regex.IsMatch(NewState, r.Value["CONDITIONS"].ToString(), RegexOptions.IgnoreCase)
+        //        && r.Value["TYPE"].ToString().ToLower() == type.ToLower()
+        //         && (bool)r.Value["ACTIVE_CONDITION"]).Select(x => x.Value).ToList().ForEach(newCondition =>
+        //         {
+        //             if (!Global.Notification.ContainsKey((string)newCondition["ID"] + (string)trip["id"]))
+        //             {
+        //                 JObject ojbMerge = (JObject)newCondition.DeepClone();
+        //                 ojbMerge.Merge(trip, new JsonMergeSettings
+        //                 {
+        //                     // union array values together to avoid duplicates
+        //                     MergeArrayHandling = MergeArrayHandling.Union
+        //                 });
+
+        //                 ojbMerge.Add(new JProperty("SHOWTOAST", true));
+        //                 ojbMerge.Add(new JProperty("TAGID", (string)trip["id"]));
+        //                 ojbMerge.Add(new JProperty("NOTIFICATIONGID", (string)newCondition["ID"] + (string)trip["id"]));
+        //                 ojbMerge.Add(new JProperty("UPDATE", true));
+        //                 Global.Notification.TryAdd((string)newCondition["ID"] + (string)trip["id"], ojbMerge);
+        //             }
+        //         });
+
+        //        }
+        //    }
+        //    catch (Exception e)
+        //    {
+        //        new ErrorLogger().ExceptionLog(e);
+        //    }
+        //}
+
+
 
         private double GetTripMin(DateTime scheduledDtm)
         {

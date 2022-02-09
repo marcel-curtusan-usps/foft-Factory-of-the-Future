@@ -16,15 +16,20 @@ namespace Factory_of_the_Future
         {
             try
             {
-                string Message_type = data.ContainsKey("message") ? (string)data.Property("message").Value : "";
+                string Message_type = "";
+                if (string.IsNullOrEmpty(Message_type))
+                {
+                    Message_type = API.ContainsKey("MESSAGE_TYPE") ? (string)API.Property("MESSAGE_TYPE").Value : "";
+                }
                 if (string.IsNullOrEmpty(Message_type))
                 {
                     Message_type = data.ContainsKey("MESSAGE") ? (string)data.Property("MESSAGE").Value : "";
                 }
                 if (string.IsNullOrEmpty(Message_type))
                 {
-                    Message_type = API.ContainsKey("MESSAGE_TYPE") ? (string)API.Property("MESSAGE_TYPE").Value : "";
+                    Message_type = data.ContainsKey("message") ? (string)data.Property("message").Value : "";
                 }
+
                 if (!string.IsNullOrEmpty(Message_type))
                 {
                     switch (Message_type)
@@ -34,10 +39,10 @@ namespace Factory_of_the_Future
                             CameraData(data, Message_type);
                             break;
                         /*Quuppa Data Start*/
-                        case "TagPosition":
+                        case "getTagPosition":
                             TagPosition(data);
                             break;
-                        case "ProjectData":
+                        case "getProjectInfo":
                             ProjectData(data);
                             break;
                         /*Quuppa Data End*/
@@ -510,6 +515,7 @@ namespace Factory_of_the_Future
                                 else
                                 {
                                     rt["id"] = routetripid;
+                                    rt["notificationId"] = "";
                                     rt["state"] = "";
                                     rt["destSite"] = "";
                                     rt["tripMin"] = 0;

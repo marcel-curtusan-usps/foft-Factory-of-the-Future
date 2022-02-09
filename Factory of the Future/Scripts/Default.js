@@ -141,14 +141,14 @@ $(function () {
             case 'userprofile':
                 GetUserProfile();
                 break;
-            //case 'agvnotificationinfo':
-            //    GetAGVnotificationinfoInfo("agvnotificationtable", "vehicle");
-            //    break;
-            //case 'ctsnotificationinfo':
-            //    GetCTSnotificationinfoInfo("ctsnotificationtable", "cts");
-            //    break;
+            case 'agvnotificationinfo':
+                LoadNotification("vehicle","agvnotificationtable");
+                break;
             case 'notificationsetup':
                 LoadNotificationsetup({}, "notificationsetuptable");
+                break;
+            case 'tripsnotificationinfo':
+                LoadNotification("routetrip", "tripsnotificationtable");
                 break;
             default:
                 sidebar.options.autopan = false;
@@ -582,6 +582,8 @@ $(function () {
             .then(init_zones())
             .then(function () { init_arrive_depart_trips(); })
             .then(init_locators())
+            .then(LoadNotification("routetrip"))
+            .then(LoadNotification("vehicle"))
 
             .catch(
             function (err) {

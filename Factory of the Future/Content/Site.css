@@ -1742,3 +1742,9 @@ div.leaflet-control-layers {
   top: 31%;
   left: 51.25%;
   /*opacity: 0.5;*/ }
+
+tr.hide-table-padding td {
+  padding: 0; }
+
+.expand-button {
+  position: relative; }

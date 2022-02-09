@@ -82,7 +82,7 @@ namespace Factory_of_the_Future
         {
             return _managerHub.DeleteNotification_Conditions(data);
         }
-
+    
         public IEnumerable<JToken> EditTagInfo(string data)
         {
             return _managerHub.EditTagInfo(data);

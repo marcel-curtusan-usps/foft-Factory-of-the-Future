@@ -1,7 +1,6 @@
 ﻿using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -9,9 +8,7 @@ using System.Net.Security;
 using System.Net.Sockets;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
-using System.Text.RegularExpressions;
 using System.Threading;
-using System.Web;
 
 namespace Factory_of_the_Future
 {
@@ -126,7 +123,7 @@ namespace Factory_of_the_Future
                                     new JProperty("command", "UDP_Client"),
                                     new JProperty("outputFormatId", "DefFormat002"),
                                     new JProperty("outputFormatName", "Location JSON"),
-                                    new JProperty("message", "TagPosition"),
+                                    new JProperty("message", "getTagPosition"),
                                     new JProperty("responseTS", DateTimeOffset.Now.ToUnixTimeMilliseconds()),
                                     new JProperty("status", "0"),
                                     new JProperty("tags", new JArray(incomingDataJobject))
@@ -205,11 +202,9 @@ namespace Factory_of_the_Future
         public DateTime LastDownload;
         public UdpClient client;
         public UdpServer server;
-
         // public DateTime DateAdded;
 
         //UDP
-
         public void DownloadLoop()
         {
             do
@@ -248,7 +243,6 @@ namespace Factory_of_the_Future
             } while (this.Status == 0 || this.Status == 1);
 
         }
-
         public void _ThreadRefresh()
         {
             /*
@@ -274,7 +268,6 @@ namespace Factory_of_the_Future
             ListenerThread.IsBackground = true;
             ListenerThread.Start();
         }
-
         public void _StopUDPListener()
         {
             Thread StopListenerThread = new Thread(new ThreadStart(UDPStop));
@@ -303,7 +296,6 @@ namespace Factory_of_the_Future
             this.Status = 1;
            
         }
-
         private void UDPStop()
         {
             //stop UDP server
@@ -311,7 +303,6 @@ namespace Factory_of_the_Future
             this.Stopping = true;
             this.Status = 2;
         }
-
         private void UDPInit()
         {
             // start UDP Server
@@ -458,8 +449,9 @@ namespace Factory_of_the_Future
             {
                 if (!string.IsNullOrEmpty(lkey))
                 {
+                    string data_source = this.API_Info.MESSAGE_TYPE;
                     requestBody = new JObject(new JProperty("lkey", lkey));
-                    formatUrl = string.Format(this.API_Info.URL, lkey);
+                    formatUrl = string.Format(this.API_Info.URL, data_source);
                 }
             }
             else if (this.API_Info.CONNECTION_NAME.ToUpper().StartsWith("SELS".ToUpper()))
@@ -494,6 +486,11 @@ namespace Factory_of_the_Future
                         }
                     }
                 }
+            }
+            if (!string.IsNullOrEmpty(formatUrl))
+            {
+                Uri tempURL = new Uri(formatUrl);
+   
             }
 
             if (!string.IsNullOrEmpty(formatUrl) && requestBody == null)
@@ -797,7 +794,6 @@ namespace Factory_of_the_Future
        
 
         }
-
         private bool AcceptAllCertifications(object sender, X509Certificate certificate, X509Chain chain, SslPolicyErrors sslPolicyErrors)
         {
             if (sslPolicyErrors == SslPolicyErrors.None)
@@ -807,7 +803,6 @@ namespace Factory_of_the_Future
 
             return false;
         }
-
         private string GetDataFromStream(WebResponse response)
         {
             var result = string.Empty;
@@ -830,7 +825,6 @@ namespace Factory_of_the_Future
             
             
         }
-
         private void _ThreadStop()
         {
             this.Stopping = true;
