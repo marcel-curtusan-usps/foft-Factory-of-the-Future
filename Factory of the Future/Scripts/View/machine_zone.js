@@ -258,6 +258,14 @@ async function LoadMachineTables(dataproperties, table) {
                 var p2pdata = dataproperties.hasOwnProperty("P2PData") ? dataproperties.P2PData : "";
                 var MachineCurrentStaff = [];
                 GetPeopleInZone(dataproperties.id, p2pdata, MachineCurrentStaff);
+                if (dataproperties.MPEWatchData.hasOwnProperty("hourly_data")) {
+                    GetMachinePerfGraph(dataproperties);
+                }
+                else {
+                    var mpgtrStyle = document.getElementById('machineChart_tr').style;
+                    mpgtrStyle.display = 'none';
+                }
+                
             }
             if (/dpstable/i.test(table)) {
                 if (dataproperties.hasOwnProperty("DPSData")) {
@@ -271,6 +279,7 @@ async function LoadMachineTables(dataproperties, table) {
                     }
                 }
             }
+
         }
     } catch (e) {
         console.log(e);
@@ -307,7 +316,8 @@ let machinetop_row_template = '<tr data-id="{zoneId}"><td>{zoneType}</td><td>{zo
     '<tr><td>Throughput</td><td colspan="2">{throughput}</td></tr>' +
     '<tr><td>RPG Vol</td><td colspan="2">{rpgVol}</td></tr>' +
     '<tr><td>Expected Throughput</td><td colspan="2">{expThroughput}</td></tr>' +
-    '<tr id="fullbin_tr" style="display: none;"><td>Full Bins</td><td colspan="2" style="white-space: normal; word-wrap:break-word;">{fullBins}</td></tr>'
+    '<tr id="fullbin_tr" style="display: none;"><td>Full Bins</td><td colspan="2" style="white-space: normal; word-wrap:break-word;">{fullBins}</td></tr>' + 
+    '<tr id="machineChart_tr"><td colspan="3"><canvas id="machinechart"></canvas></td></tr>'
     ;
 function formatdpstoprow(properties) {
     return $.extend(properties, {
@@ -565,3 +575,74 @@ function GetMacineBackground(starttime, throughput, expectedthr) {
     }
     return '#3573b1'; //'#cce5ff'
 }
+function GetMachinePerfGraph(dataproperties)
+{
+    var xValues = [];
+    var yValues = [];
+    for (var i = 0; i < dataproperties.MPEWatchData.hourly_data.length; i++) {
+        xValues.unshift(dataproperties.MPEWatchData.hourly_data[i].count);
+        yValues.unshift(dataproperties.MPEWatchData.hourly_data[i].hour);
+    }
+
+    new Chart("machinechart", {
+        type: "line",
+        data: {
+            labels: yValues,
+            datasets: [{
+                fill: false,
+                lineTension: 0,
+                backgroundColor: "rgba(0,0,255,1.0)",
+                borderColor: "rgba(0,0,255,0.1)",
+                data: xValues
+            }]
+        },
+        options: {
+            legend: { display: false },
+            title: {
+                display: true,
+                text: "Performance 24 Hours"
+            },
+            tooltips: {
+                callbacks: {
+                    title: function (tooltipItem, data) {
+                        var hour = ("0" + new Date(tooltipItem[0].xLabel).getHours().toString()).slice(-2);
+                        return tooltipItem[0].xLabel.toString() + "-" + hour + ":59";
+                    },
+
+                    label: function (tooltipItem, data) {
+                        return tooltipItem.yLabel.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+                    },
+                },
+            },
+            scales: {
+                xAxes: [{
+                    gridLines: {
+                        display: true
+                    },
+                    ticks: {
+                        autoSkip: true,
+                        maxTicksLimit: 12,
+                        callback: function (value, index, values) {
+                            var hour = ("0" + new Date(value).getHours().toString()).slice(-2);
+                            return hour + ":00-" + hour + ":59";
+
+                        }
+                    }
+                }],
+                yAxes: [{
+                    ticks: {
+                        beginAtZero: true,
+                        callback: function (value, index, values) {
+                            if (parseInt(value) >= 1000) {
+                                return value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+                            } else {
+                                return value;
+                            }
+                        }
+                    }
+                }]
+            }
+        }
+    });
+}
+
