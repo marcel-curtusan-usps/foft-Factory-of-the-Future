@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
+using System.Threading.Tasks;
 using System.Web.Http;
 using System.Web.Http.Description;
 
@@ -43,9 +44,8 @@ namespace Factory_of_the_Future.Controllers
                     //create new Connection Object
                     JObject conn = new JObject(new JProperty("MESSAGE_TYPE", "container"));
                     //Send data to be processed.
-                    Global.ProcessRecvdMsg_callback.StartProcess(temp1, conn);
-                    temp1 = null;
-                    conn = null;
+                    Task.Run(() => Global.ProcessRecvdMsg_callback.StartProcess(temp1, conn));
+            
                 }
             }
             else

@@ -1748,3 +1748,7 @@ tr.hide-table-padding td {
 
 .expand-button {
   position: relative; }
+
+.notificationP {
+  overflow-x: auto;
+  white-space: pre-wrap; }

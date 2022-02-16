@@ -1,5 +1,6 @@
 ﻿using Newtonsoft.Json.Linq;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using System.Web.Http;
 
 namespace Factory_of_the_Future.Controllers
@@ -34,7 +35,7 @@ namespace Factory_of_the_Future.Controllers
                     //create new Connection Object
                     JObject conn = new JObject(new JProperty("IP_ADDRESS", ""));
                     //Send data to be processed.
-                   Global.ProcessRecvdMsg_callback.StartProcess(request_data, conn);
+                    Task.Run(() => Global.ProcessRecvdMsg_callback.StartProcess(request_data, conn));
                 }
             }
             else

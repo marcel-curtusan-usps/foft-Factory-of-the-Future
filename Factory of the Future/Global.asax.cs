@@ -15,6 +15,7 @@ using System.Security.Principal;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
+using System.Threading.Tasks;
 using System.Web;
 using System.Web.Http;
 using System.Web.Security;
@@ -554,8 +555,8 @@ namespace Factory_of_the_Future
                         {
                             if (data.HasValues)
                             {
-                                data.Add(new JProperty("message", "P2PBySite"));
-                                new ProcessRecvdMsg().StartProcess(data, new JObject());
+                                data["message"] = "P2PBySite";
+                                Task.Run(() => new ProcessRecvdMsg().StartProcess(data, new JObject()));
                             }
                         }
                     }
@@ -585,7 +586,8 @@ namespace Factory_of_the_Future
                                 {
                                     if (list.HasValues)
                                     {
-                                        new ProcessRecvdMsg().StartProcess(list, new JObject());
+                                        list["message"] = "getProjectInfo";
+                                        Task.Run(() => new ProcessRecvdMsg().StartProcess(list, new JObject()));
                                     }
                                 }
                             }

@@ -12,7 +12,7 @@ namespace Factory_of_the_Future
     {
         public static string Message_type = string.Empty;
 
-        public void StartProcess(dynamic data, JObject API)
+        public void StartProcess(JObject data, JObject API)
         {
             try
             {
@@ -105,17 +105,17 @@ namespace Factory_of_the_Future
                         case "SUCCESSFULPICKUP":
                             SUCCESSFULPICKUP(data);
                             break;
-
                         case "SUCCESSFULDROP":
                             SUCCESSFULDROP(data);
                             break;
-
                         case "ERRORWITHOUTWORK":
                             ERRORWITHOUTWORK(data);
                             break;
-
                         case "ERRORWITHWORK":
                             ERRORWITHWORK(data);
+                            break;
+                        case "MOVEREQUEST":
+                            MOVEREQUEST(data);
                             break;
                         /*AGVM Data End*/
                         /*MPEWatch Data Start*/
@@ -1495,7 +1495,7 @@ namespace Factory_of_the_Future
                 string total_volume = "";
                 string sortplan = "";
                 string estCompletionTime = "";
-                if (data.HasValues)
+                if (data != null && data.HasValues)
                 {
                     JToken machineInfo = data.SelectToken("data");
                     if (machineInfo != null)
@@ -2130,7 +2130,18 @@ namespace Factory_of_the_Future
                 new ErrorLogger().ExceptionLog(e);
             }
         }
+        
+        private static void MOVEREQUEST(JObject data)
+        {
+            try
+            {
 
+            }
+            catch (Exception e)
+            {
+                new ErrorLogger().ExceptionLog(e);
+            }
+        }
         private static void FLEET_STATUS(JObject data)
         {
             try

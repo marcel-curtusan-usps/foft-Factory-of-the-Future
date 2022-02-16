@@ -353,7 +353,7 @@ let routetriprow_template =
             '<div class="collapse" id="collapse_{id}">' +
             '<div class="mt-1">' +
             '<ol class="pl-4 mb-0">' +
-            '<li class="pb-1">{warning_action_text}</li> ' +
+            '<p> class="pb-1">{warning_action_text}</p> ' +
             '</ol>' +
             '</div>' +
             '</div>' +
