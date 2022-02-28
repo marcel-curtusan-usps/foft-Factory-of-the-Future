@@ -58,7 +58,7 @@ namespace Factory_of_the_Future
                             }
                             m.Property("UPDATE_STATUS").Value = true;
                             m.Property("LASTTIME_API_CONNECTED").Value = DateTime.Now;
-                            Task.Run(() => Global.ProcessRecvdMsg_callback.StartProcess(temp1, m));
+                            Task.Run(() => new ProcessRecvdMsg().StartProcess(temp1,temp1["message"].ToString()));
 
                         }
                         else
@@ -122,7 +122,8 @@ namespace Factory_of_the_Future
         public bool ConstantRefresh = true;
         public bool Stopping = false;
         public Connection API_Info = new Connection();
-        public DateTime LastDownload;
+        public DateTime DownloadDatetime;
+        public bool Connected;
         public UdpClient client;
         public UdpServer server;
         // public DateTime DateAdded;
@@ -174,7 +175,7 @@ namespace Factory_of_the_Future
              * automatically redownload upon reaching
              * the timer interval.
              */
-            this.LastDownload = DateTime.Now;
+            this.DownloadDatetime = DateTime.Now;
             Thread RefreshLoopThread = new Thread(new ThreadStart(DownloadLoop));
             RefreshLoopThread.IsBackground = true;
             RefreshLoopThread.Start();
@@ -264,6 +265,7 @@ namespace Factory_of_the_Future
              * the last runtime on this thread
              */
             this.Status = 1;
+            dynamic result = null;
             string NASS_CODE = Global.AppSettings.Property("FACILITY_NASS_CODE").Value.ToString();
 
             JObject requestBody = null;
@@ -410,277 +412,55 @@ namespace Factory_of_the_Future
                     }
                 }
             }
+
             if (!string.IsNullOrEmpty(formatUrl))
             {
-                Uri tempURL = new Uri(formatUrl);
-   
-            }
-
-            if (!string.IsNullOrEmpty(formatUrl) && requestBody == null)
-            {
-
-                /*
-                 * Webrequest allows setting of proxy settings and Useragents
-                 */
-                try
-                {
-                   ServicePointManager.SecurityProtocol |= SecurityProtocolType.Tls11 | SecurityProtocolType.Tls12;
-                   ServicePointManager.ServerCertificateValidationCallback = new RemoteCertificateValidationCallback(AcceptAllCertifications);
-
-                    HttpWebRequest request = (HttpWebRequest)HttpWebRequest.Create(formatUrl);
-                    using (HttpWebResponse Response = (HttpWebResponse)request.GetResponse())
-                    {
-                        if (Response.StatusCode == HttpStatusCode.OK)
-                        {
-                            using (StreamReader reader = new System.IO.StreamReader(Response.GetResponseStream(), ASCIIEncoding.ASCII))
-                            {
-                                try
-                                {
-                                    string result = reader.ReadToEnd();
-                                    // process date
-                                    if (!string.IsNullOrEmpty(result))
-                                    {
-                                        if (formatUrl.Contains("api_page.get_id"))
-                                        {
-                                            JObject temp1 = JObject.Parse(result);
-                                            temp1["message"] = "mpe_watch_id";
-                                            Task.Run(() => Global.ProcessRecvdMsg_callback.StartProcess(temp1, new JObject()));
-                                        }
-                                        else
-                                        {
-                                            Global.API_List.Where(x => (string)x.Value.Property("ID").Value == this.ID).Select(y => y.Value).ToList().ForEach(m =>
-                                            {
-                                                if (Global.IsValidJson(result))
-                                                {
-                                                    if (result.StartsWith("{"))
-                                                    {
-                                                        JObject temp1 = JObject.Parse(result);
-                                                        if (temp1.HasValues)
-                                                        {
-                                                            Task.Run(() => Global.ProcessRecvdMsg_callback.StartProcess(temp1, m));
-                                                            m.Property("API_CONNECTED").Value = true;
-                                                        }
-                                                        else
-                                                        {
-                                                            m.Property("API_CONNECTED").Value = false;
-                                                        }
-                                                    }
-                                                    else if (result.StartsWith("["))
-                                                    {
-                                                        JArray tempdata = JArray.Parse(result);
-                                                        if (tempdata.HasValues)
-                                                        {
-                                                            JObject temp1 = new JObject(new JProperty((string)m.Property("MESSAGE_TYPE").Value, tempdata));
-                                                            Task.Run(() => Global.ProcessRecvdMsg_callback.StartProcess(temp1, m));
-                                                            m.Property("API_CONNECTED").Value = true;
-
-                                                        }
-                                                        else
-                                                        {
-                                                            m.Property("API_CONNECTED").Value = false;
-                                                        }
-                                                    }
-                                                    m.Property("UPDATE_STATUS").Value = true;
-                                                    m.Property("LASTTIME_API_CONNECTED").Value = DateTime.Now;
-                                                }
-                                                else
-                                                {
-                                                    if ((bool)m.Property("API_CONNECTED").Value)
-                                                    {
-                                                        m.Property("API_CONNECTED").Value = false;
-                                                    }
-                                                    m.Property("LASTTIME_API_CONNECTED").Value = DateTime.Now;
-                                                    m.Property("UPDATE_STATUS").Value = true;
-                                                }
-
-                                            });
-                                        }
-                                    }
-                                    else
-                                    {
-                                        Global.API_List.Where(x => (string)x.Value.Property("ID").Value == this.ID).Select(y => y.Value).ToList().ForEach(m =>
-                                        {
-                                            if ((bool)m.Property("API_CONNECTED").Value)
-                                            {
-                                                m.Property("API_CONNECTED").Value = false;
-                                            }
-                                            m.Property("LASTTIME_API_CONNECTED").Value = DateTime.Now;
-                                            m.Property("UPDATE_STATUS").Value = true;
-                                        });
-                                    }
-                                }
-                                catch (Exception e)
-                                {
-                                    new ErrorLogger().ExceptionLog(e);
-                                    this.Status = 3;
-                                }
-                            }
-                        }
-                    }
-                    /*
-                     * LINQ To get rid of all scripts
-                     * this speeds the opening of the HTM
-                     * by ~500%
-                     */
-
-
-                }
-                catch (WebException ex)
-                {
-
-                    Global.API_List.Where(x => (string)x.Value.Property("ID").Value == this.ID).Select(y => y.Value).ToList().ForEach(m =>
-                    {
-                        if ((bool)m.Property("API_CONNECTED").Value)
-                        {
-                            m.Property("API_CONNECTED").Value = false;
-                        }
-                        m.Property("LASTTIME_API_CONNECTED").Value = DateTime.Now;
-                        m.Property("UPDATE_STATUS").Value = true;
-                    });
-                    new ErrorLogger().ExceptionLog(ex);
-                    // Check if Board is 404
-                    if (ex.Status == WebExceptionStatus.ProtocolError & ex.Response != null)
-                    {
-                        // Page not found, thread has 404'd
-                        HttpWebResponse Resp = (HttpWebResponse)ex.Response;
-                        if (Resp.StatusCode == HttpStatusCode.NotFound)
-                        {
-                            this.Status = 3;
-                            this.ConstantRefresh = false;
-
-                            return;
-                        }
-                    }
-                }
-                // Thread is complete. Return to idle
-                this.LastDownload = DateTime.Now;
-                this.Status = 0;
-            }
-            if (!string.IsNullOrEmpty(formatUrl) && requestBody != null)
-            {
-
-                /*
-                 * Webrequest allows setting of proxy settings and Useragents
-                 */
                 try
                 {
                     ServicePointManager.SecurityProtocol |= SecurityProtocolType.Tls11 | SecurityProtocolType.Tls12;
                     ServicePointManager.ServerCertificateValidationCallback = new RemoteCertificateValidationCallback(AcceptAllCertifications);
 
                     HttpWebRequest request = (HttpWebRequest)HttpWebRequest.Create(formatUrl);
-                    request.ContentType = "application/json";
-                    request.Method = "POST";
-                    using (var streamWriter = new StreamWriter(request.GetRequestStream()))
+                    if (requestBody != null)
                     {
-                        streamWriter.Write(JsonConvert.SerializeObject(requestBody, Formatting.Indented));
+                        request.ContentType = "application/json";
+                        request.Method = "POST";
+                        using (var streamWriter = new StreamWriter(request.GetRequestStream()))
+                        {
+                            streamWriter.Write(JsonConvert.SerializeObject(requestBody, Formatting.Indented));
+                        }
                     }
-
                     using (HttpWebResponse Response = (HttpWebResponse)request.GetResponse())
                     {
                         if (Response.StatusCode == HttpStatusCode.OK)
                         {
                             using (StreamReader reader = new System.IO.StreamReader(Response.GetResponseStream(), ASCIIEncoding.ASCII))
                             {
-                                string result = reader.ReadToEnd();
+                                // Thread is complete. Return to idle
+                                this.DownloadDatetime = dtNow;
+                                this.Connected = true;
+
+                                result = JToken.Parse(reader.ReadToEnd());
                                 // process date
-                                if (!string.IsNullOrEmpty(result))
+                                if (result is JArray || result is JObject)
                                 {
-                                    Global.API_List.Where(x => (string)x.Value.Property("ID").Value == this.ID).Select(y => y.Value).ToList().ForEach(m =>
+                                    if (formatUrl.Contains("api_page.get_id"))
                                     {
-                                        if (Global.IsValidJson(result))
-                                        {                                                       
-                                            if (result.StartsWith("{"))
-                                            {
-                                                ////replace "dayOfMonth" to month and "hourOfDay" to day 
-                                                //if (this.API_Info.CONNECTION_NAME.ToUpper().StartsWith("SV".ToUpper()))
-                                                //{
-                                                //    Regex.Replace(result, @"dayOfMonth", "month", RegexOptions.IgnorePatternWhitespace);
-                                                //    Regex.Replace(result, @"hourOfDay", "hour", RegexOptions.IgnorePatternWhitespace);
-                                                //}
-                                                JObject temp1 = JObject.Parse(result);
-                                                if (formatUrl.Contains("api_page.get_id"))
-                                                {
-                                                    temp1.Add(new JProperty("message", "mpe_watch_id"));
-                                                }
-
-                                                if (temp1.HasValues)
-                                                {
-                                                    Task.Run(() => Global.ProcessRecvdMsg_callback.StartProcess(temp1, m));
-                                                    m.Property("API_CONNECTED").Value = true;
-                                                }
-                                                else
-                                                {
-                                                    m.Property("API_CONNECTED").Value = false;
-                                                } 
-
-                                            }
-                                            else if (result.StartsWith("["))
-                                            {
-                                                JArray tempdata = JArray.Parse(result);
-                                                if (tempdata.HasValues)
-                                                {
-                                                    JObject temp1 = new JObject(new JProperty((string)m.Property("MESSAGE_TYPE").Value, tempdata));
-                                                    Task.Run(() => Global.ProcessRecvdMsg_callback.StartProcess(temp1, m));
-                                                    m.Property("API_CONNECTED").Value = true;
-
-                                                }
-                                                else
-                                                {
-                                                    m.Property("API_CONNECTED").Value = false;
-                                                }
-                                            }
-                                            m.Property("UPDATE_STATUS").Value = true;
-                                            m.Property("LASTTIME_API_CONNECTED").Value = DateTime.Now;
-                                        }
-                                        else
-                                        {
-                                            if ((bool)m.Property("API_CONNECTED").Value)
-                                            {
-                                                m.Property("API_CONNECTED").Value = false;
-                                            }
-                                            m.Property("LASTTIME_API_CONNECTED").Value = DateTime.Now;
-                                            m.Property("UPDATE_STATUS").Value = true;
-                                        }
-
-                                    });
-                                }
-                                else
-                                {
-                                    Global.API_List.Where(x => (string)x.Value.Property("ID").Value == this.ID).Select(y => y.Value).ToList().ForEach(m =>
+                                        new ProcessRecvdMsg().StartProcess(result, "mpe_watch_id");
+                                    }
+                                    else
                                     {
-                                        if ((bool)m.Property("API_CONNECTED").Value)
-                                        {
-                                            m.Property("API_CONNECTED").Value = false;
-                                        }
-                                        m.Property("LASTTIME_API_CONNECTED").Value = DateTime.Now;
-                                        m.Property("UPDATE_STATUS").Value = true;
-                                    });
+                                        new ProcessRecvdMsg().StartProcess(result, this.API_Info.MESSAGE_TYPE);
+                                    }
                                 }
-
+                                Thread.Sleep(100);
+                                Task.Run(() => updateConnection(this));
                             }
                         }
                     }
-                    this.Status = 0;
-                    /*
-                     * LINQ To get rid of all scripts
-                     * this speeds the opening of the HTM
-                     * by ~500%
-                     */
-
-
                 }
                 catch (WebException ex)
                 {
-
-                    Global.API_List.Where(x => (string)x.Value.Property("ID").Value == this.ID).Select(y => y.Value).ToList().ForEach(m =>
-                    {
-                        if ((bool)m.Property("API_CONNECTED").Value)
-                        {
-                            m.Property("API_CONNECTED").Value = false;
-                        }
-                        m.Property("LASTTIME_API_CONNECTED").Value = DateTime.Now;
-                        m.Property("UPDATE_STATUS").Value = true;
-                    });
                     new ErrorLogger().ExceptionLog(ex);
                     // Check if Board is 404
                     if (ex.Status == WebExceptionStatus.ProtocolError & ex.Response != null)
@@ -690,25 +470,44 @@ namespace Factory_of_the_Future
                         if (Resp.StatusCode == HttpStatusCode.NotFound)
                         {
                             this.Status = 3;
+                            result = null;
                             this.ConstantRefresh = false;
-
+                            this.Connected = false;
+                            Task.Run(() => updateConnection(this));
                             return;
                         }
                     }
                 }
-                // Thread is complete. Return to idle
-                this.LastDownload = DateTime.Now;
-                this.Status = 0;
+                catch (Exception e)
+                {
+                    new ErrorLogger().ExceptionLog(e);
+                    result = null;
+                    this.Connected = false;
+                    Task.Run(() => updateConnection(this));
+                }
             }
-            if (string.IsNullOrEmpty(formatUrl) && requestBody == null)
-            {
-                // Thread is complete. Return to idle
-                this.LastDownload = DateTime.Now;
-                this.Status = 0;
-            }
-       
 
+            result = null;
+            this.Status = 0;
         }
+
+        private void updateConnection(Api_Connection api_Connection)
+        {
+            try
+            {
+                Global.API_List.Where(x => (string)x.Value.Property("ID").Value == api_Connection.ID).Select(y => y.Value).ToList().ForEach(m =>
+                {
+                    m.Property("API_CONNECTED").Value = api_Connection.Connected;
+                    m.Property("LASTTIME_API_CONNECTED").Value = api_Connection.DownloadDatetime;
+                    m.Property("UPDATE_STATUS").Value = true;
+                });
+            }
+            catch (Exception e)
+            {
+                new ErrorLogger().ExceptionLog(e);
+            }
+        }
+
         private bool AcceptAllCertifications(object sender, X509Certificate certificate, X509Chain chain, SslPolicyErrors sslPolicyErrors)
         {
             if (sslPolicyErrors == SslPolicyErrors.None)

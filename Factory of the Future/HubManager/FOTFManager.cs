@@ -1353,16 +1353,13 @@ namespace Factory_of_the_Future
                 if (!_updatingQSMStatus)
                 {
                     _updatingQSMStatus = true;
-                    if (Global.API_List.Count > 0)
+                    Global.API_List.Where(r => (bool)r.Value["UPDATE_STATUS"]).Select(x => x.Value).ToList().ForEach(QSMitem =>
                     {
-                        foreach (JObject QSMitem in Global.API_List.Where(r => (bool)r.Value["UPDATE_STATUS"]).Select(x => x.Value).ToList())
+                        if (TryUpdateQSMStaus(QSMitem))
                         {
-                            if (TryUpdateQSMStaus(QSMitem))
-                            {
-                                BroadcastQSMUpdate(QSMitem);
-                            }
+                            BroadcastQSMUpdate(QSMitem);
                         }
-                    }
+                    });
                     _updatingQSMStatus = false;
                 }
             }
@@ -2214,7 +2211,7 @@ namespace Factory_of_the_Future
                 }
                 else
                 {
-                    return Global.API_List.Where(r => (string)r.Value.Property("ID").Value == id).Select(x => x.Value);
+                    return Global.API_List.Where(r => (string)r.Value["ID"] == id).Select(x => x.Value);
                 }
             }
             catch (Exception e)
@@ -2482,12 +2479,12 @@ namespace Factory_of_the_Future
         {
             try
             {
-                JObject tempsetting = (JObject)Global.AppSettings.DeepClone();
-                foreach (var item in Global.AppSettings)
+                JToken tempsetting = (JToken)Global.AppSettings.DeepClone();
+                foreach (dynamic item in Global.AppSettings)
                 {
-                    if (item.Key.StartsWith("ORACONN"))
+                    if (item.Name.StartsWith("ORACONN"))
                     {
-                        tempsetting.Property(item.Key).Value = Global.Decrypt(item.Value.ToString());
+                        tempsetting[item.Name] = Global.Decrypt(item.Value.ToString());
                     }
                 }
                 return tempsetting;
@@ -2506,43 +2503,41 @@ namespace Factory_of_the_Future
                 bool fileUpdate = false;
                 if (!string.IsNullOrEmpty(data))
                 {
-                    if (Global.IsValidJson(data))
-                    {
-                        JObject objdict = JObject.Parse(data);
+                        dynamic objdict = JToken.Parse(data);
                         foreach (dynamic item in Global.AppSettings)
                         {
                             foreach (var kv in objdict)
                             {
-                                if (kv.Key == item.Key)
+                                if (kv.Name == item.Name)
                                 {
                                     if (kv.Value != item.Value)
                                     {
                                         fileUpdate = true;
 
-                                        if (kv.Key.StartsWith("ORACONN"))
+                                        if (kv.Name.StartsWith("ORACONN"))
                                         {
-                                            Global.AppSettings.Property(item.Key).Value = Global.Encrypt(kv.Value.ToString());
+                                            Global.AppSettings[item.Name] = Global.Encrypt(kv.Value.ToString());
                                         }
-                                        if (kv.Key == "FACILITY_NASS_CODE")
+                                        if (kv.Name == "FACILITY_NASS_CODE")
                                         {
                                             if (GetData.Get_Site_Info((string)kv.Value, out JObject SiteInfo))
                                             {
                                                 if (SiteInfo.HasValues)
                                                 {
-                                                    Global.AppSettings.Property(item.Key).Value = kv.Value.ToString();
-                                                    Global.AppSettings.Property("FACILITY_NAME").Value = SiteInfo.ContainsKey("displayName") ? SiteInfo.Property("displayName").Value : "";
-                                                    Global.AppSettings.Property("FACILITY_ID").Value = SiteInfo.ContainsKey("fdbId") ? SiteInfo.Property("fdbId").Value : "";
-                                                    Global.AppSettings.Property("FACILITY_ZIP").Value = SiteInfo.ContainsKey("zipCode") ? SiteInfo.Property("zipCode").Value : "";
-                                                    Global.AppSettings.Property("FACILITY_LKEY").Value = SiteInfo.ContainsKey("localeKey") ? SiteInfo.Property("localeKey").Value : "";
+                                                    Global.AppSettings.Property(item.Name).Value = kv.Value.ToString();
+                                                    Global.AppSettings["FACILITY_NAME"] = SiteInfo.ContainsKey("displayName") ? SiteInfo["displayName"]: "";
+                                                    Global.AppSettings["FACILITY_ID"] = SiteInfo.ContainsKey("fdbId") ? SiteInfo["fdbId"] : "";
+                                                    Global.AppSettings["FACILITY_ZIP"] = SiteInfo.ContainsKey("zipCode") ? SiteInfo["zipCode"] : "";
+                                                    Global.AppSettings["FACILITY_LKEY"] = SiteInfo.ContainsKey("localeKey") ? SiteInfo["localeKey"] : "";
                                                     Global.LoglocationSetup();
                                                 }
                                             }
                                         }
-                                        else if (kv.Key == "LOG_LOCATION")
+                                        else if (kv.Name == "LOG_LOCATION")
                                         {
                                             if (!string.IsNullOrEmpty(kv.Value.ToString()))
                                             {
-                                                Global.AppSettings.Property(item.Key).Value = kv.Value.ToString();
+                                                Global.AppSettings[item.Name] = kv.Value.ToString();
                                                 Global.LoglocationSetup();
                                                 //Global.Logdirpath = new DirectoryInfo(kv.Value.ToString());
                                                 //new Directory_Check().DirPath(Global.Logdirpath);
@@ -2550,13 +2545,13 @@ namespace Factory_of_the_Future
                                         }
                                         else
                                         {
-                                            Global.AppSettings.Property(item.Key).Value = kv.Value.ToString();
+                                            Global.AppSettings[item.Name] = kv.Value.ToString();
                                         }
                                     }
                                 }
                             }
                         }
-                    }
+                    
                 }
 
                 if (fileUpdate)

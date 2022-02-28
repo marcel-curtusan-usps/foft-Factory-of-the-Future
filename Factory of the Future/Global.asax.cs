@@ -24,8 +24,7 @@ namespace Factory_of_the_Future
 {
     public class Global : System.Web.HttpApplication
     {
-        public static readonly ProcessRecvdMsg ProcessRecvdMsg_callback = new ProcessRecvdMsg();
-        public static JObject AppSettings = new JObject();
+        public static dynamic AppSettings = new JObject();
         public static bool SERVER_ACTIVE;
         public static DirectoryInfo Logdirpath;
         public static string Application_Environment = string.Empty;
@@ -97,10 +96,10 @@ namespace Factory_of_the_Future
 
         // Vehicle History
         public static ConcurrentDictionary<DateTime, JObject> Vehicle_State_History = new ConcurrentDictionary<DateTime, JObject>();
-
+        // Vehicle History
+        public static ConcurrentDictionary<string, JObject> Mission = new ConcurrentDictionary<string, JObject>();
         // Notification Conditions
         public static ConcurrentDictionary<int, JObject> Notification_Conditions = new ConcurrentDictionary<int, JObject>();
-
         // Notification list
         public static ConcurrentDictionary<string, JObject> Notification = new ConcurrentDictionary<string, JObject>();
 
@@ -143,11 +142,6 @@ namespace Factory_of_the_Future
         { "Pacific/Guam", "West Pacific Standard Time" },
         { "Pacific/Honolulu", "Hawaiian Standard Time" }
     };
-
-        public static bool Connected { get; set; }
-        public static bool Disconnected { get; set; }
-        public static bool Errors { get; set; }
-
        
         public static BackgroundWorker worker = new BackgroundWorker();
 
@@ -256,7 +250,7 @@ namespace Factory_of_the_Future
                 worker.DoWork += new DoWorkEventHandler(DoWork);
                 worker.WorkerReportsProgress = true;
                 worker.WorkerSupportsCancellation = true;
-                worker.RunWorkerCompleted += new RunWorkerCompletedEventHandler(WorkerCompleted);       
+                worker.RunWorkerCompleted += new RunWorkerCompletedEventHandler(WorkerCompleted);
                 //DataRetentionWorker
                 DataRetentionWorker.DoWork += new DoWorkEventHandler(DataRetentionDoWork);
                 DataRetentionWorker.WorkerReportsProgress = true;
@@ -311,7 +305,7 @@ namespace Factory_of_the_Future
                 //this is used to check if this is the active server.
                 if (SERVER_ACTIVE)
                 {
-                    
+
                     //Load server Configuration
                     if (API_List.Count == 0)
                     {
@@ -353,57 +347,57 @@ namespace Factory_of_the_Future
                     //clear Server connection
                     if (API_List.Count != 0)
                     {
-                        API_List = new ConcurrentDictionary<string, JObject>();
+                        API_List = null;
                     }
                     //clear Zone_Info
                     if (Zone_Info.Count != 0)
                     {
-                        Zone_Info = new ConcurrentDictionary<string, JObject>();
+                        Zone_Info = null;
                     }
                     //clear Zone
                     if (Zones.Count != 0)
                     {
-                        Zones = new ConcurrentDictionary<string, JObject>();
+                        Zones = null;
                     }
                     //clear TAG
                     if (Tag.Count != 0)
                     {
-                        Tag = new ConcurrentDictionary<string, JObject>();
+                        Tag = null;
                     }
                     //clear RouteTrips
                     if (RouteTrips.Count != 0)
                     {
-                        RouteTrips = new ConcurrentDictionary<string, JObject>();
+                        RouteTrips = null;
                     }
                     //clear RouteTrips
                     if (Containers.Count != 0)
                     {
-                        Containers = new ConcurrentDictionary<string, Container>();
+                        Containers = null;
                     }
                     //clear cameras
                     if (Camera_Info.Count != 0)
                     {
-                        Camera_Info = new ConcurrentDictionary<string, JObject>();
+                        Camera_Info = null;
                     }
                     //clear Notification Conditions
                     if (Notification.Count != 0)
                     {
-                        Notification = new ConcurrentDictionary<string, JObject>();
+                        Notification = null;
                     }
                     //clear Notification Conditions
                     if (Notification_Conditions.Count != 0)
                     {
-                        Notification_Conditions = new ConcurrentDictionary<int, JObject>();
+                        Notification_Conditions = null;
                     }
                     //clear floor plan Configuration
                     if (Map.Count != 0)
                     {
-                        Map = new ConcurrentDictionary<string, JObject>();
+                        Map = null;
                     }
                     //clear P2P Data
                     if (Sortplans.Count != 0)
                     {
-                        Sortplans = new ConcurrentDictionary<string, JObject>();
+                        Sortplans = null;
                     }
                 }
             }
@@ -502,36 +496,30 @@ namespace Factory_of_the_Future
             try
             {
                 string notificationlist = new FileIO().Read(string.Concat(Logdirpath, ConfigurationFloder), "Notification.json");
+                if (string.IsNullOrEmpty(notificationlist))
+                {
+                    notificationlist = new FileIO().Read(string.Concat(CodeBase.Parent.FullName.ToString(), Appsetting), "Notification.json");
+                }
                 if (!string.IsNullOrEmpty(notificationlist))
                 {
                     if (IsValidJson(notificationlist))
                     {
                         JArray list = JArray.Parse(notificationlist);
-                        if (list != null)
-                        {
-                            if (list.HasValues)
-                            {
-                                foreach (JObject item in list.Children())
-                                {
-                                    JObject notification = new JObject_List().Notification_Conditions;
-                                    foreach (dynamic kv in item.Children())
-                                    {
-                                        if (notification.ContainsKey(kv.Name))
-                                        {
-                                            if (kv.Value != notification.Property(kv.Name).Value)
-                                            {
-                                                notification.Property(kv.Name).Value = kv.Value;
-                                            }
-                                        }
-                                    }
 
-                                    if (!Notification_Conditions.ContainsKey((int)notification.Property("ID").Value))
-                                    {
-                                        Notification_Conditions.TryAdd((int)notification.Property("ID").Value, notification);
-                                    }
+                        if (list.HasValues)
+                        {
+                            foreach (JObject item in list.Children())
+                            {
+                                JObject notification = new JObject_List().Notification_Conditions;
+
+                                notification.Merge(item, new JsonMergeSettings { MergeArrayHandling = MergeArrayHandling.Union });
+                                if (!Notification_Conditions.ContainsKey((int)item.Property("ID").Value))
+                                {
+                                    Notification_Conditions.TryAdd((int)notification.Property("ID").Value, notification);
                                 }
                             }
                         }
+                        
                     }
                 }
             }
@@ -556,7 +544,7 @@ namespace Factory_of_the_Future
                             if (data.HasValues)
                             {
                                 data["message"] = "P2PBySite";
-                                Task.Run(() => new ProcessRecvdMsg().StartProcess(data, new JObject()));
+                                Task.Run(() => new ProcessRecvdMsg().StartProcess(data, "P2PBySite"));
                             }
                         }
                     }
@@ -579,17 +567,9 @@ namespace Factory_of_the_Future
                         string ProjectData = new FileIO().Read(string.Concat(Logdirpath, ConfigurationFloder), "ProjectData.json");
                         if (!string.IsNullOrEmpty(ProjectData))
                         {
-                            if (IsValidJson(ProjectData))
+                            if (!string.IsNullOrEmpty(ProjectData))
                             {
-                                JObject list = JObject.Parse(ProjectData);
-                                if (list != null)
-                                {
-                                    if (list.HasValues)
-                                    {
-                                        list["message"] = "getProjectInfo";
-                                        Task.Run(() => new ProcessRecvdMsg().StartProcess(list, new JObject()));
-                                    }
-                                }
+                                Task.Run(() => new ProcessRecvdMsg().StartProcess(JToken.Parse(ProjectData), "getProjectInfo"));
                             }
                         }
                     }
@@ -608,25 +588,15 @@ namespace Factory_of_the_Future
                 string api_config = new FileIO().Read(string.Concat(Logdirpath, ConfigurationFloder), "API_Connection.json");
                 if (!string.IsNullOrEmpty(api_config))
                 {
-                    if (IsValidJson(api_config))
+                    dynamic list = JToken.Parse(api_config);
+
+                    if (list.HasValues)
                     {
-                        JArray list = JArray.Parse(api_config);
-                        if (list != null)
+                        foreach (JObject item in list)
                         {
-                            if (list.HasValues)
+                            if (!API_List.ContainsKey((string)item["ID"]))
                             {
-                                foreach (JObject item in list.Children())
-                                {
-                                    //JObject api = new JObject_List().API;
-                                    //item["API_CONNECTED"] = false;
-                                    //api["ID"] = item["ID"];
-                                    //item["LASTTIME_API_CONNECTED"] = DateTime.Now.AddDays(-30);
-                                    //api.Merge(item, new JsonMergeSettings { MergeArrayHandling = MergeArrayHandling.Union });
-                                    if (!API_List.ContainsKey((string)item.Property("ID").Value))
-                                    {
-                                        API_List.TryAdd((string)item["ID"], item);                                      
-                                    }
-                                }
+                                API_List.TryAdd((string)item["ID"], item);
                             }
                         }
                     }
@@ -654,71 +624,17 @@ namespace Factory_of_the_Future
                 {
                     if (IsValidJson(file_content))
                     {
-                        JObject filejsonrray = JObject.Parse(file_content);
-                        if (filejsonrray.HasValues)
-                        {
-                            AppSettings = filejsonrray;
-                        }
+                        AppSettings = JObject.Parse(file_content);
                     }
-                }
-                else
-                {
-                    if (!AppSettings.HasValues)
-                    {
-                        if (!AppSettings.ContainsKey("APPLICATION_NAME")) { AppSettings.Add(new JProperty("APPLICATION_NAME", "FOTF")); }
-                        if (!AppSettings.ContainsKey("FACILITY_NAME")) { AppSettings.Add(new JProperty("FACILITY_NAME", "")); }
-                        if (!AppSettings.ContainsKey("FACILITY_ZIP")) { AppSettings.Add(new JProperty("FACILITY_ZIP", "")); }
-                        if (!AppSettings.ContainsKey("FACILITY_ID")) { AppSettings.Add(new JProperty("FACILITY_ID", "")); }
-                        if (!AppSettings.ContainsKey("FACILITY_NASS_CODE")) { AppSettings.Add(new JProperty("FACILITY_NASS_CODE", "")); }
-                        if (!AppSettings.ContainsKey("FACILITY_LKEY")) { AppSettings.Add(new JProperty("FACILITY_LKEY", "")); }
-                        if (!AppSettings.ContainsKey("FACILITY_TIMEZONE")) { AppSettings.Add(new JProperty("FACILITY_TIMEZONE", "")); };
-                        if (!AppSettings.ContainsKey("RETENTION_TIMER_SECONDS")) { AppSettings.Add(new JProperty("RETENTION_TIMER_SECONDS", "0")); }
-                        if (!AppSettings.ContainsKey("RETENTION_TIMER_MINUTES")) { AppSettings.Add(new JProperty("RETENTION_TIMER_MINUTES", "10")); }
-                        if (!AppSettings.ContainsKey("RETENTION_TIMER_HOURS")) { AppSettings.Add(new JProperty("RETENTION_TIMER_HOURS", "0")); }
-                        if (!AppSettings.ContainsKey("RETENTION_DAYS")) { AppSettings.Add(new JProperty("RETENTION_DAYS", "60")); }
-                        if (!AppSettings.ContainsKey("RETENTION_MAX_FILE_SIZE")) { AppSettings.Add(new JProperty("RETENTION_MAX_FILE_SIZE", "1073741824")); }
-                        if (!AppSettings.ContainsKey("SERVER_ACTIVE")) { AppSettings.Add(new JProperty("SERVER_ACTIVE", "true")); }
-                        if (!AppSettings.ContainsKey("SERVER_ACTIVE_HOSTNAME")) { AppSettings.Add(new JProperty("SERVER_ACTIVE_HOSTNAME", "")); }
-                        if (!AppSettings.ContainsKey("Domain")) { AppSettings.Add(new JProperty("Domain", "USA.DCE.USPS.GOV")); }
-                        if (!AppSettings.ContainsKey("ADUSAContainer")) { AppSettings.Add(new JProperty("ADUSAContainer", "DC=usa,DC=dce,DC=usps,DC=gov")); }
-                        if (!AppSettings.ContainsKey("LOG_LOCATION")) { AppSettings.Add(new JProperty("LOG_LOCATION", "")); }
-                        if (!AppSettings.ContainsKey("REMOTEDB")) { AppSettings.Add(new JProperty("REMOTEDB", true)); }
-                        if (!AppSettings.ContainsKey("ROLES_ADMIN")) { AppSettings.Add(new JProperty("ROLES_ADMIN", "TC Admins")); }
-                        if (!AppSettings.ContainsKey("ROLES_OPERATOR")) { AppSettings.Add(new JProperty("ROLES_OPERATOR", "TC Operator")); }
-                        if (!AppSettings.ContainsKey("ROLES_MAINTENANCE")) { AppSettings.Add(new JProperty("ROLES_MAINTENANCE", "TC Maintenance")); }
-                        if (!AppSettings.ContainsKey("ROLES_OIE")) { AppSettings.Add(new JProperty("ROLES_OIE", "Operations Industrial Engineers")); }
-                    }
-                }
-                //this will check the attributes if any default are mission it will add it.
-                if (AppSettings.HasValues)
-                {
-                    if (!AppSettings.ContainsKey("APPLICATION_NAME")) { AppSettings.Add(new JProperty("APPLICATION_NAME", "FOTF")); }
-                    if (!AppSettings.ContainsKey("FACILITY_NAME")) { AppSettings.Add(new JProperty("FACILITY_NAME", "")); }
-                    if (!AppSettings.ContainsKey("FACILITY_ZIP")) { AppSettings.Add(new JProperty("FACILITY_ZIP", "")); }
-                    if (!AppSettings.ContainsKey("FACILITY_ID")) { AppSettings.Add(new JProperty("FACILITY_ID", "")); }
-                    if (!AppSettings.ContainsKey("FACILITY_NASS_CODE")) { AppSettings.Add(new JProperty("FACILITY_NASS_CODE", "")); }
-                    if (!AppSettings.ContainsKey("FACILITY_LKEY")) { AppSettings.Add(new JProperty("FACILITY_LKEY", "")); }
-                    if (!AppSettings.ContainsKey("FACILITY_TIMEZONE")) { AppSettings.Add(new JProperty("FACILITY_TIMEZONE", "")); };
-                    if (!AppSettings.ContainsKey("RETENTION_TIMER_SECONDS")) { AppSettings.Add(new JProperty("RETENTION_TIMER_SECONDS", "0")); }
-                    if (!AppSettings.ContainsKey("RETENTION_TIMER_MINUTES")) { AppSettings.Add(new JProperty("RETENTION_TIMER_MINUTES", "10")); }
-                    if (!AppSettings.ContainsKey("RETENTION_TIMER_HOURS")) { AppSettings.Add(new JProperty("RETENTION_TIMER_HOURS", "0")); }
-                    if (!AppSettings.ContainsKey("RETENTION_DAYS")) { AppSettings.Add(new JProperty("RETENTION_DAYS", "60")); }
-                    if (!AppSettings.ContainsKey("RETENTION_MAX_FILE_SIZE")) { AppSettings.Add(new JProperty("RETENTION_MAX_FILE_SIZE", "1073741824")); }
-                    if (!AppSettings.ContainsKey("SERVER_ACTIVE")) { AppSettings.Add(new JProperty("SERVER_ACTIVE", "true")); }
-                    if (!AppSettings.ContainsKey("SERVER_ACTIVE_HOSTNAME")) { AppSettings.Add(new JProperty("SERVER_ACTIVE_HOSTNAME", "")); }
-                    if (!AppSettings.ContainsKey("Domain")) { AppSettings.Add(new JProperty("Domain", "USA.DCE.USPS.GOV")); }
-                    if (!AppSettings.ContainsKey("ADUSAContainer")) { AppSettings.Add(new JProperty("ADUSAContainer", "DC=usa,DC=dce,DC=usps,DC=gov")); }
-                    if (!AppSettings.ContainsKey("LOG_LOCATION")) { AppSettings.Add(new JProperty("LOG_LOCATION", "")); }
-                    if (!AppSettings.ContainsKey("REMOTEDB")) { AppSettings.Add(new JProperty("REMOTEDB", true)); }
-                    if (!AppSettings.ContainsKey("ROLES_ADMIN")) { AppSettings.Add(new JProperty("ROLES_ADMIN", "TC Admins")); }
-                    if (!AppSettings.ContainsKey("ROLES_OPERATOR")) { AppSettings.Add(new JProperty("ROLES_OPERATOR", "TC Operator")); }
-                    if (!AppSettings.ContainsKey("ROLES_MAINTENANCE")) { AppSettings.Add(new JProperty("ROLES_MAINTENANCE", "TC Maintenance")); }
-                    if (!AppSettings.ContainsKey("ROLES_OIE")) { AppSettings.Add(new JProperty("ROLES_OIE", "Operations Industrial Engineers")); }
 
-                    //check if system has log drive
-                    if (AppSettings.ContainsKey("LOG_LOCATION"))
+                    //this will check the attributes if any default are mission it will add it.
+                    if (AppSettings != null)
                     {
-                        LoglocationSetup();
+                        //check if system has log drive
+                        if (AppSettings.ContainsKey("LOG_LOCATION"))
+                        {
+                            LoglocationSetup();
+                        }
                     }
                 }
             }

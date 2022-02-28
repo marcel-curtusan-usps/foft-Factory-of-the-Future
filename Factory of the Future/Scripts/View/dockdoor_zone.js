@@ -6,25 +6,28 @@ $.extend(fotfmanager.client, {
 });
 async function updateDockDoorZone(dockdoorzoneupdate) {
     try {
-            if (dockDoors.hasOwnProperty("_layers")) {
-                var layerindex = -0;
-                $.map(dockDoors._layers, function (layer, i) {
-                    if (layer.hasOwnProperty("feature")) {
-                        if (layer.feature.properties.id === dockdoorzoneupdate.properties.id) {
-                            layer.feature.properties = dockdoorzoneupdate.properties;
-                            layerindex = layer._leaflet_id;
-                            return false;
-                        }
+        let layerindex = -0;
+        if (dockDoors.hasOwnProperty("_layers")) {
+
+            $.map(dockDoors._layers, function (layer, i) {
+                if (layer.hasOwnProperty("feature")) {
+                    if (layer.feature.properties.id === dockdoorzoneupdate.properties.id) {
+                        layer.feature.properties = dockdoorzoneupdate.properties;
+                        layerindex = layer._leaflet_id;
+                        return false;
                     }
-                });
-                if (layerindex !== -0) {
+                }
+            });
+            if (layerindex !== -0) {
+                if ($('div[id=dockdoor_div]').is(':visible') && $('div[id=dockdoor_div]').attr("data-id") === dockdoorzoneupdate.properties.id) {
                     updatedockdoor(layerindex);
                 }
-                else {
-                    dockDoors.addData(dockdoorzoneupdate);
-                }
             }
-        
+            else {
+                dockDoors.addData(dockdoorzoneupdate);
+            }
+        }
+
     } catch (e) {
         console.log(e);
     }
@@ -117,199 +120,200 @@ var dockDoors = new L.GeoJSON(null, {
 });
 async function LoadDockDoorTable(dataproperties) {
     try {
-        if (!$.isEmptyObject(dataproperties)) {
-            let loadtriphisory = false;
-            let tempdata = [];
-            $('div[id=dockdoor_div]').css('display', 'block');
-            $('div[id=trailer_div]').css('display', 'block');
-            $('div[id=machine_div]').css('display', 'none');
-            $('div[id=agvlocation_div]').css('display', 'none');
-            $('div[id=ctstabs_div]').css('display', 'none');
-            $('div[id=vehicle_div]').css('display', 'none');
-            $('div[id=staff_div]').css('display', 'none');
-            $('div[id=area_div]').css('display', 'none');
-            $('div[id=dps_div]').css('display', 'none');
-            $zoneSelect[0].selectize.setValue(-1, true);
-            dockdoortop_Table_Body.empty();
+        let loadtriphisory = false;
+        let tempdata = [];
+        $('div[id=dockdoor_div]').attr("data-id", dataproperties.id);
+        $('div[id=machine_div]').css('display', 'none');
+        $('div[id=agvlocation_div]').css('display', 'none');
+        $('div[id=ctstabs_div]').css('display', 'none');
+        $('div[id=vehicle_div]').css('display', 'none');
+        $('div[id=staff_div]').css('display', 'none');
+        $('div[id=area_div]').css('display', 'none');
+        $('div[id=dps_div]').css('display', 'none');
+        $('div[id=dockdoor_div]').css('display', 'block');
+        $('div[id=trailer_div]').css('display', 'block');
+
+        $zoneSelect[0].selectize.setValue(-1, true);
+        dockdoortop_Table_Body.empty();
+        $('button[name=container_counts]').text(0 + "/" + 0);
+        container_Table_Body.empty();
+        if (dataproperties.hasOwnProperty("dockDoorData") && dataproperties.dockDoorData.hasOwnProperty("trailerBarcode")) {
+
+            if (dataproperties.dockDoorData.hasOwnProperty("doorNumber")) {
+
+                $('span[name=doornumberid]').text(dataproperties.dockDoorData.doorNumber);
+            }
+            if (dataproperties.dockDoorData.hasOwnProperty("legSiteName")) {
+                tempdata.push({
+                    name: "Site Name",
+                    value: "(" + dataproperties.dockDoorData.legSiteId + ") " + dataproperties.dockDoorData.legSiteName
+                })
+            }
+            if (dataproperties.dockDoorData.hasOwnProperty("route")) {
+                tempdata.push({
+                    name: "Route-Trip",
+                    value: dataproperties.dockDoorData.route + "-" + dataproperties.dockDoorData.trip
+                })
+            }
+            if (dataproperties.dockDoorData.hasOwnProperty("trailerBarcode")) {
+                tempdata.push({
+                    name: "Trailer Barcode",
+                    value: dataproperties.dockDoorData.trailerBarcode
+                })
+            }
+            if (dataproperties.dockDoorData.hasOwnProperty("status")) {
+                if (checkValue(dataproperties.dockDoorData.status)) {
+                    $('span[name=doorstatus]').text(capitalize_Words(dataproperties.dockDoorData.status));
+                }
+            }
+            else {
+                $('span[name=doorstatus]').text("Occupied");
+            }
+            //if (dataproperties.dockDoorData.hasOwnProperty("driverBarcode")) {
+            //    tempdata.push({
+            //        name: "Driver Barcode",
+            //        value: dataproperties.dockDoorData.driverBarcode
+            //    })
+            //}
+            //if (dataproperties.dockDoorData.hasOwnProperty("driverFirstName")) {
+            //    var lastname = "";
+            //    if (dataproperties.dockDoorData.hasOwnProperty("driverLastName")) {
+            //        lastname = dataproperties.dockDoorData.driverLastName;
+            //    }
+            //    tempdata.push({
+            //        name: "Driver Name",
+            //        value: dataproperties.dockDoorData.driverFirstName + " " + lastname
+            //    })
+            //}
+            //if (dataproperties.dockDoorData.hasOwnProperty("driverPhoneNumber")) {
+            //    tempdata.push({
+            //        name: "Driver Phone Number",
+            //        value: dataproperties.dockDoorData.driverPhoneNumber
+            //    })
+            //}
+            if (dataproperties.dockDoorData.hasOwnProperty("loadPercent")) {
+                tempdata.push({
+                    name: "Load Percent",
+                    value: checkValue(dataproperties.dockDoorData.loadPercent) ? dataproperties.dockDoorData.loadPercent : 0
+                })
+            }
+            if (dataproperties.dockDoorData.hasOwnProperty("mailerName")) {
+                tempdata.push({
+                    name: "Mailer",
+                    value: checkValue(dataproperties.dockDoorData.mailerName) ? dataproperties.dockDoorData.mailerName : 0
+                })
+            }
+            if (dataproperties.dockDoorData.hasOwnProperty("tripDirectionInd")) {
+                tempdata.push({
+                    name: "Direction",
+                    value: dataproperties.dockDoorData.tripDirectionInd === "O" ? "Out-bound" : "In-bound"
+                })
+            }
+
+            if (dataproperties.dockDoorData.hasOwnProperty("scheduledDtm")) {
+                tempdata.push({
+                    name: dataproperties.dockDoorData.tripDirectionInd === "O" ? "Scheduled To Depart" : "Scheduled Arrive Time",
+                    value: (dataproperties.dockDoorData.scheduledDtm.month + 1) + "-" + dataproperties.dockDoorData.scheduledDtm.dayOfMonth + "-" + dataproperties.dockDoorData.scheduledDtm.year + " " +
+                        pad(dataproperties.dockDoorData.scheduledDtm.hourOfDay, 2) + ":" + pad(dataproperties.dockDoorData.scheduledDtm.minute, 2) + ":" + pad(dataproperties.dockDoorData.scheduledDtm.second, 2)
+                })
+            }
+
+            if (dataproperties.dockDoorData.tripDirectionInd === "I") {
+                if (dataproperties.dockDoorData.hasOwnProperty("actualDtm")) {
+                    tempdata.push({
+                        name: "Actual Arrive Time",
+                        value: (dataproperties.dockDoorData.actualDtm.month + 1) + "-" + dataproperties.dockDoorData.actualDtm.dayOfMonth + "-" + dataproperties.dockDoorData.actualDtm.year + " " +
+                            pad(dataproperties.dockDoorData.actualDtm.hourOfDay, 2) + ":" + pad(dataproperties.dockDoorData.actualDtm.minute, 2) + ":" + pad(dataproperties.dockDoorData.actualDtm.second, 2)
+                    })
+                }
+            }
+            $.each(tempdata, function () {
+                dockdoortop_Table_Body.append(dockdoortop_row_template.supplant(formatdockdoortoprow(this, dataproperties.id)));
+            });
+
             $('button[name=container_counts]').text(0 + "/" + 0);
-            container_Table_Body.empty();
-            if (dataproperties.hasOwnProperty("dockDoorData") && dataproperties.dockDoorData.hasOwnProperty("trailerBarcode")) {
-                
-                if (dataproperties.dockDoorData.hasOwnProperty("doorNumber")) {
-                   
-                    $('span[name=doornumberid]').text(dataproperties.dockDoorData.doorNumber);
-                }
-                if (dataproperties.dockDoorData.hasOwnProperty("legSiteName")) {
-                    tempdata.push({
-                        name: "Site Name",
-                        value: "(" + dataproperties.dockDoorData.legSiteId + ") " + dataproperties.dockDoorData.legSiteName
-                    })
-                }
-                if (dataproperties.dockDoorData.hasOwnProperty("route")) {
-                    tempdata.push({
-                        name: "Route-Trip",
-                        value: dataproperties.dockDoorData.route + "-" + dataproperties.dockDoorData.trip
-                    })
-                }
-                if (dataproperties.dockDoorData.hasOwnProperty("trailerBarcode")) {
-                    tempdata.push({
-                        name: "Trailer Barcode",
-                        value: dataproperties.dockDoorData.trailerBarcode
-                    })
-                }
-                if (dataproperties.dockDoorData.hasOwnProperty("status")) {
-                    if (checkValue(dataproperties.dockDoorData.status)) {
-                        $('span[name=doorstatus]').text(capitalize_Words(dataproperties.dockDoorData.status));
-                    }
-                }
-                else {
-                    $('span[name=doorstatus]').text("Occupied");
-                }
-                //if (dataproperties.dockDoorData.hasOwnProperty("driverBarcode")) {
-                //    tempdata.push({
-                //        name: "Driver Barcode",
-                //        value: dataproperties.dockDoorData.driverBarcode
-                //    })
-                //}
-                //if (dataproperties.dockDoorData.hasOwnProperty("driverFirstName")) {
-                //    var lastname = "";
-                //    if (dataproperties.dockDoorData.hasOwnProperty("driverLastName")) {
-                //        lastname = dataproperties.dockDoorData.driverLastName;
-                //    }
-                //    tempdata.push({
-                //        name: "Driver Name",
-                //        value: dataproperties.dockDoorData.driverFirstName + " " + lastname
-                //    })
-                //}
-                //if (dataproperties.dockDoorData.hasOwnProperty("driverPhoneNumber")) {
-                //    tempdata.push({
-                //        name: "Driver Phone Number",
-                //        value: dataproperties.dockDoorData.driverPhoneNumber
-                //    })
-                //}
-                if (dataproperties.dockDoorData.hasOwnProperty("loadPercent")) {
-                    tempdata.push({
-                        name: "Load Percent",
-                        value: checkValue(dataproperties.dockDoorData.loadPercent) ? dataproperties.dockDoorData.loadPercent : 0 
-                    })
-                }
-                if (dataproperties.dockDoorData.hasOwnProperty("mailerName")) {
-                    tempdata.push({
-                        name: "Mailer",
-                        value: checkValue(dataproperties.dockDoorData.mailerName) ? dataproperties.dockDoorData.mailerName : 0
-                    })
-                }
-                if (dataproperties.dockDoorData.hasOwnProperty("tripDirectionInd")) {
-                    tempdata.push({
-                        name: "Direction",
-                        value: dataproperties.dockDoorData.tripDirectionInd === "O" ? "Out-bound" : "In-bound"
-                    })
-                }
-
-                    if (dataproperties.dockDoorData.hasOwnProperty("scheduledDtm")) {
-                        tempdata.push({
-                            name: dataproperties.dockDoorData.tripDirectionInd === "O" ? "Scheduled To Depart" : "Scheduled Arrive Time",
-                            value: (dataproperties.dockDoorData.scheduledDtm.month + 1) + "-" + dataproperties.dockDoorData.scheduledDtm.dayOfMonth + "-" + dataproperties.dockDoorData.scheduledDtm.year + " " +
-                                pad(dataproperties.dockDoorData.scheduledDtm.hourOfDay, 2) + ":" + pad(dataproperties.dockDoorData.scheduledDtm.minute, 2) + ":" + pad(dataproperties.dockDoorData.scheduledDtm.second, 2)
-                        })
-                    }
-                
-                if (dataproperties.dockDoorData.tripDirectionInd === "I") {
-                    if (dataproperties.dockDoorData.hasOwnProperty("actualDtm")) {
-                        tempdata.push({
-                            name: "Actual Arrive Time",
-                            value: (dataproperties.dockDoorData.actualDtm.month + 1) + "-" + dataproperties.dockDoorData.actualDtm.dayOfMonth + "-" + dataproperties.dockDoorData.actualDtm.year + " " +
-                                pad(dataproperties.dockDoorData.actualDtm.hourOfDay, 2) + ":" + pad(dataproperties.dockDoorData.actualDtm.minute, 2) + ":" + pad(dataproperties.dockDoorData.actualDtm.second, 2)
-                        })
-                    }
-                }
-                $.each(tempdata, function () {
-                    dockdoortop_Table_Body.append(dockdoortop_row_template.supplant(formatdockdoortoprow(this, dataproperties.id)));
-                });
-  
-                $('button[name=container_counts]').text(0 + "/" + 0);
-          
 
 
-                if (dataproperties.dockDoorData.hasOwnProperty("tripDirectionInd")) {
-                    //var legSite = dataproperties.dockDoorData.tripDirectionInd === "I" ? User.NASS_Code : dataproperties.dockDoorData.legSiteId;
-                    //$.connection.FOTFManager.server.getContainer(legSite, dataproperties.dockDoorData.tripDirectionInd, dataproperties.dockDoorData.route, dataproperties.dockDoorData.trip).done(function (Data) {
 
-                    if (dataproperties.dockDoorData.containers.length > 0) {
-                        var loadedcount = 0;
-                        var unloadedcount = 0;
-                        var loaddata = [];
-                        container_Table_Body.empty();
-                        $.each(dataproperties.dockDoorData.containers, function (index, d) {
-                            if (!d.containerTerminate) {
-                                if (dataproperties.dockDoorData.tripDirectionInd === "O") {
-                                    if (d.containerAtDest === false) {
-                                        if (d.hasLoadScans === true && d.Otrailer === dataproperties.dockDoorData.trailerBarcode) {
-                                            loadedcount++
-                                            d.constainerStatus = "Loaded";
-                                            d.sortind = 2;
-                                            loaddata.push(d);
-                                        }
-                                        if (d.hasLoadScans === false && d.hasAssignScans === true && d.hasCloseScans === true) {
-                                            unloadedcount++;
-                                            d.constainerStatus = "Close";
-                                            d.sortind = 0;
-                                            loaddata.push(d);
-                                        }
+            if (dataproperties.dockDoorData.hasOwnProperty("tripDirectionInd")) {
+                //var legSite = dataproperties.dockDoorData.tripDirectionInd === "I" ? User.NASS_Code : dataproperties.dockDoorData.legSiteId;
+                //$.connection.FOTFManager.server.getContainer(legSite, dataproperties.dockDoorData.tripDirectionInd, dataproperties.dockDoorData.route, dataproperties.dockDoorData.trip).done(function (Data) {
 
+                if (dataproperties.dockDoorData.containers.length > 0) {
+                    var loadedcount = 0;
+                    var unloadedcount = 0;
+                    var loaddata = [];
+                    container_Table_Body.empty();
+                    $.each(dataproperties.dockDoorData.containers, function (index, d) {
+                        if (!d.containerTerminate) {
+                            if (dataproperties.dockDoorData.tripDirectionInd === "O") {
+                                if (d.containerAtDest === false) {
+                                    if (d.hasLoadScans === true && d.Otrailer === dataproperties.dockDoorData.trailerBarcode) {
+                                        loadedcount++
+                                        d.constainerStatus = "Loaded";
+                                        d.sortind = 2;
+                                        loaddata.push(d);
                                     }
-                                }
-                                if (dataproperties.dockDoorData.tripDirectionInd === "I") {
-                                    if (d.hasUnloadScans === true && d.Itrailer === dataproperties.dockDoorData.trailerBarcode) {
-                                        unloadedcount++
-                                        d.constainerStatus = "Unloaded";
-                                        d.sortind = 1;
-                                        loaddata.push(this);
+                                    if (d.hasLoadScans === false && d.hasAssignScans === true && d.hasCloseScans === true) {
+                                        unloadedcount++;
+                                        d.constainerStatus = "Close";
+                                        d.sortind = 0;
+                                        loaddata.push(d);
                                     }
+
                                 }
                             }
-                        });
-                        loaddata.sort(SortByind);
-                        $.each(loaddata, function () {
-                            container_Table_Body.append(container_row_template.supplant(formatctscontainerrow(this, dataproperties.id)));
-                        });
+                            if (dataproperties.dockDoorData.tripDirectionInd === "I") {
+                                if (d.hasUnloadScans === true && d.Itrailer === dataproperties.dockDoorData.trailerBarcode) {
+                                    unloadedcount++
+                                    d.constainerStatus = "Unloaded";
+                                    d.sortind = 1;
+                                    loaddata.push(this);
+                                }
+                            }
+                        }
+                    });
+                    loaddata.sort(SortByind);
+                    $.each(loaddata, function () {
+                        container_Table_Body.append(container_row_template.supplant(formatctscontainerrow(this, dataproperties.id)));
+                    });
 
-                        $('button[name=container_counts]').text(loadedcount + "/" + unloadedcount);
-                    }
-                    else {
-                        $('button[name=container_counts]').text(0 + "/" + 0);
-                        container_Table_Body.empty();
-                    }
-                    //});
+                    $('button[name=container_counts]').text(loadedcount + "/" + unloadedcount);
                 }
                 else {
                     $('button[name=container_counts]').text(0 + "/" + 0);
                     container_Table_Body.empty();
                 }
-
-                if (loadtriphisory) {
-                    $('div[id=trailer_div]').css('display', 'none');
-                }
+                //});
             }
             else {
+                $('button[name=container_counts]').text(0 + "/" + 0);
+                container_Table_Body.empty();
+            }
+
+            if (loadtriphisory) {
                 $('div[id=trailer_div]').css('display', 'none');
-                if (dataproperties.dockDoorData.hasOwnProperty("doorNumber")) {
-                    $('span[name=doornumberid]').text(dataproperties.dockDoorData.doorNumber);
-                }
-                else {
-                    $('span[name=doornumberid]').text(parseInt(dataproperties.doorNumber));
-                }
-                if (dataproperties.dockDoorData.hasOwnProperty("status")) {
-                    $('span[name=doorstatus]').text(capitalize_Words(dataproperties.dockDoorData.status));
-                }
-                else {
-                    $('span[name=doorstatus]').text("Unknown");
-                }
-                $.each(tempdata, function () {
-                    dockdoortop_Table_Body.append(dockdoortop_row_template.supplant(formatdockdoortoprow(this, dataproperties.id)));
-                });
             }
         }
+        else {
+            $('div[id=trailer_div]').css('display', 'none');
+            if (dataproperties.dockDoorData.hasOwnProperty("doorNumber")) {
+                $('span[name=doornumberid]').text(dataproperties.dockDoorData.doorNumber);
+            }
+            else {
+                $('span[name=doornumberid]').text(parseInt(dataproperties.doorNumber));
+            }
+            if (dataproperties.dockDoorData.hasOwnProperty("status")) {
+                $('span[name=doorstatus]').text(capitalize_Words(dataproperties.dockDoorData.status));
+            }
+            else {
+                $('span[name=doorstatus]').text("Unknown");
+            }
+            $.each(tempdata, function () {
+                dockdoortop_Table_Body.append(dockdoortop_row_template.supplant(formatdockdoortoprow(this, dataproperties.id)));
+            });
+        }
+
 
     } catch (e) {
         console.log(e);

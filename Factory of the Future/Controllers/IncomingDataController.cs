@@ -32,10 +32,8 @@ namespace Factory_of_the_Future.Controllers
                 //start data process
                 if (request_data.HasValues)
                 {
-                    //create new Connection Object
-                    JObject conn = new JObject(new JProperty("IP_ADDRESS", ""));
                     //Send data to be processed.
-                    Task.Run(() => Global.ProcessRecvdMsg_callback.StartProcess(request_data, conn));
+                    Task.Run(() => new ProcessRecvdMsg().StartProcess(request_data,request_data["MESSAGE"].ToString()));
                 }
             }
             else

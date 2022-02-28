@@ -92,62 +92,28 @@ $.extend(fotfmanager.client, {
 
 async function updateMachineZone(machineupdate) {
     try {
-        if (machineupdate) {
-            if (polygonMachine.hasOwnProperty("_layers")) {
-                var layerindex = -0;
-                $.map(polygonMachine._layers, function (layer, i) {
-                    if (layer.hasOwnProperty("feature")) {
-                        if (layer.feature.properties.id === machineupdate.properties.id) {
-                            if (layer.feature.properties.name != machineupdate.properties.name) {
-                                layer.setTooltipContent(machineupdate.properties.name + "<br/>" + "Staffing: " + machineupdate.properties.CurrentStaff);
-                            }
-                            layer.feature.properties = machineupdate.properties;
-                            layerindex = layer._leaflet_id;
-                            return false;
+        if (polygonMachine.hasOwnProperty("_layers")) {
+            var layerindex = -0;
+            $.map(polygonMachine._layers, function (layer, i) {
+                if (layer.hasOwnProperty("feature")) {
+                    if (layer.feature.properties.id === machineupdate.properties.id) {
+                        if (layer.feature.properties.name != machineupdate.properties.name) {
+                            layer.setTooltipContent(machineupdate.properties.name + "<br/>" + "Staffing: " + machineupdate.properties.CurrentStaff);
                         }
-                    }
-                });
-                if (layerindex !== -0) {
-                    if (machineupdate.properties.hasOwnProperty("MPEWatchData")) {
-                        if (polygonMachine._layers[layerindex].feature.properties.id === machineupdate.properties.id) {
-                            //Have to update polygonMachine._layers[layerindex].feature.properties with update or when you navigate away from a machine and then back it loads old information.
-                            polygonMachine._layers[layerindex].feature.properties.MPEWatchData = machineupdate.properties.MPEWatchData;
-                            polygonMachine._layers[layerindex].feature.properties.DPSData = machineupdate.properties.DPSData;
-                            polygonMachine._layers[layerindex].feature.properties.CurrentStaff = machineupdate.properties.CurrentStaff;
-                            if ($('select[id=zoneselect] option:selected').val() === machineupdate.properties.id) {
-                                LoadMachineTables(machineupdate.properties, 'machinetable');
-                            }
-                        }
-                        var sortplan =  machineupdate.properties.MPEWatchData.hasOwnProperty("cur_sortplan") ? machineupdate.properties.MPEWatchData.cur_sortplan : "";
-                        var endofrun =  machineupdate.properties.MPEWatchData.hasOwnProperty("current_run_end") ? machineupdate.properties.MPEWatchData.current_run_end : "";
-                        var startofrun = machineupdate.properties.MPEWatchData.hasOwnProperty("current_run_start") ? machineupdate.properties.MPEWatchData.current_run_start : "" ;
-                        var expectedTP = machineupdate.properties.MPEWatchData.hasOwnProperty("expected_throughput") ? machineupdate.properties.MPEWatchData.expected_throughput : "" ;
-                        var throughput = machineupdate.properties.MPEWatchData.hasOwnProperty("cur_thruput_ophr") ? machineupdate.properties.MPEWatchData.cur_thruput_ophr : "" ;
-
-                        if (checkValue(sortplan) && !checkValue(endofrun)) {
-                            var fillColor = GetMacineBackground(startofrun, throughput, expectedTP);
-                            polygonMachine._layers[layerindex].setStyle({
-                                weight: 1,
-                                opacity: 1,
-                                fillOpacity: 0.5,
-                                fillColor: fillColor
-                            });
-                        }
-                        else {
-                            if (polygonMachine._layers[layerindex].options.fillColor !== '#989ea4') { //'gray'
-                                polygonMachine._layers[layerindex].setStyle({
-                                    weight: 1,
-                                    opacity: 1,
-                                    fillOpacity: 0.2,
-                                    fillColor: '#989ea4'//'gray'
-                                });
-                            }
-                        }
+                        layer.feature.properties = machineupdate.properties;
+                        layerindex = layer._leaflet_id;
+                        return false;
                     }
                 }
-                else {
-                    polygonMachine.addData(machineupdate);
+            });
+            if (layerindex !== -0) {
+                if ($('div[id=machine_div]').is(':visible') && $('div[id=machine_div]').attr("data-id") === machineupdate.properties.id) {
+                    updateMPEZone(machineupdate.properties, layerindex);
+                    LoadMachineTables(machineupdate.properties, 'machinetable');
                 }
+            }
+            else {
+                polygonMachine.addData(machineupdate);
             }
         }
     } catch (e) {
@@ -199,7 +165,6 @@ var polygonMachine = new L.GeoJSON(null, {
         }
     },
     onEachFeature: function (feature, layer) {
-        //$('<option>', { text: feature.properties.name, value: feature.properties.id }).appendTo('select[id=zoneselect]');
         $zoneSelect[0].selectize.addOption({ value: feature.properties.id, text: feature.properties.name });
         $zoneSelect[0].selectize.addItem(feature.properties.id);
         $zoneSelect[0].selectize.setValue(-1, true);
@@ -225,9 +190,37 @@ var polygonMachine = new L.GeoJSON(null, {
         }
     }
 });
+async function updateMPEZone(properties, index) {
+    var sortplan = properties.MPEWatchData.hasOwnProperty("cur_sortplan") ? properties.MPEWatchData.cur_sortplan : "";
+    var endofrun = properties.MPEWatchData.hasOwnProperty("current_run_end") ? properties.MPEWatchData.current_run_end : "";
+    var startofrun = properties.MPEWatchData.hasOwnProperty("current_run_start") ? properties.MPEWatchData.current_run_start : "";
+    var expectedTP = properties.MPEWatchData.hasOwnProperty("expected_throughput") ? properties.MPEWatchData.expected_throughput : "";
+    var throughput = properties.MPEWatchData.hasOwnProperty("cur_thruput_ophr") ? properties.MPEWatchData.cur_thruput_ophr : "";
+
+    if (checkValue(sortplan) && !checkValue(endofrun)) {
+        var fillColor = GetMacineBackground(startofrun, throughput, expectedTP);
+        polygonMachine._layers[index].setStyle({
+            weight: 1,
+            opacity: 1,
+            fillOpacity: 0.5,
+            fillColor: fillColor
+        });
+    }
+    else {
+        if (polygonMachine._layers[index].options.fillColor !== '#989ea4') { //'gray'
+            polygonMachine._layers[index].setStyle({
+                weight: 1,
+                opacity: 1,
+                fillOpacity: 0.2,
+                fillColor: '#989ea4'//'gray'
+            });
+        }
+    }
+}
 async function LoadMachineTables(dataproperties, table) {
     try {
         if (!$.isEmptyObject(dataproperties)) {
+            $('div[id=machine_div]').attr("data-id", dataproperties.id);
             $('div[id=dockdoor_div]').css('display', 'none');
             $('div[id=trailer_div]').css('display', 'none');
             $('div[id=area_div]').css('display', 'none');
