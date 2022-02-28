@@ -600,7 +600,7 @@ function GetMachinePerfGraph(dataproperties)
             legend: { display: false },
             title: {
                 display: true,
-                text: "Performance 24 Hours"
+                text: "Pieces Fed 24 Hours"
             },
             tooltips: {
                 callbacks: {
@@ -610,7 +610,7 @@ function GetMachinePerfGraph(dataproperties)
                     },
 
                     label: function (tooltipItem, data) {
-                        return tooltipItem.yLabel.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+                        return tooltipItem.yLabel.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",") + " pieces";
                     },
                 },
             },
