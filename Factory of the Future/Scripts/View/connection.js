@@ -1,5 +1,6 @@
 ﻿/**/
-
+let connection_Table;
+let connection_Table_Body;
 $.extend(fotfmanager.client, {
     updateQSMStatus: async (Connectionupdate) => { updateConnection(Connectionupdate) }
 });
@@ -355,8 +356,11 @@ async function updateConnection(Connectionupdate) {
         console.log(e);
     }
 }
+
 async function init_connection() {
     try {
+        connection_Table = $('table[id=connectiontable]');
+        connection_Table_Body = connection_Table.find('tbody');
         fotfmanager.server.getAPIList("").done(function (connectiondata) {
             if (connectiondata.length > 0) {
                 connectiondata.sort(SortByConnectionName);
@@ -370,8 +374,7 @@ async function init_connection() {
         console.log(e);
     }
 }
-let connection_Table = $('table[id=connectiontable]');
-let connection_Table_Body = connection_Table.find('tbody');
+
 
 let connection_row_template = '<tr data-id="{id}" class="{button_color}" id="api_{id}">' +
     '<td class="align-middle">{name}</td>' +
