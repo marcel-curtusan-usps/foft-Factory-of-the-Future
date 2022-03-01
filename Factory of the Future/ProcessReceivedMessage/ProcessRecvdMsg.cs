@@ -101,10 +101,10 @@ namespace Factory_of_the_Future
                             MOVEREQUEST(data);
                             break;
                         case "MISSIONCANCELED":
-                            MISSIONCANCELED(data);
+                            ERRORWITHWORK(data);
                             break;
                         case "MISSIONFAILED":
-                            MISSIONFAILED(data);
+                            ERRORWITHWORK(data);
                             break;
                         /*AGVM Data End*/
                         /*MPEWatch Data Start*/
@@ -1674,7 +1674,7 @@ namespace Factory_of_the_Future
         //            if (data.ContainsKey("Data"))
         //            {
         //                JToken cts_data = data.SelectToken("Data");
-                       
+
         //                if (cts_data.Children().Count() > 0)
         //                {
         //                    foreach (JObject Dataitem in cts_data.Children())
@@ -1777,38 +1777,39 @@ namespace Factory_of_the_Future
                         ["Request_Id"] = (string)data["requestId".ToUpper()],
                         ["Vehicle"] = (string)data["vehicle".ToUpper()],
                         ["Vehicle_Number"] = (string)data["vehicle_Number".ToUpper()],
-                        ["State"] = "Active",
+                        ["State"] = "Error",
                         ["MissionType"] = (string)data["message".ToUpper()],
                         ["MissionErrorTime"] = (DateTime)data["time".ToUpper()]
                     };
-                    //merge changes 
-                    Global.Mission.Where(r => (int)r.Value["Request_Id"] == (int)mission["Request_Id"]).Select(y => y.Value).FirstOrDefault().Merge(mission, new JsonMergeSettings { MergeArrayHandling = MergeArrayHandling.Union });
-
-                    if (Global.Mission.TryGetValue(mission["Request_Id"].ToString(), out JObject CurrentMission))
+                    Global.Tag.Where(f => f.Value["properties"]["name"].ToString() == (string)mission["Vehicle"]).Select(y => y.Value).ToList().ForEach(existingVa =>
                     {
-                        Global.Tag.Where(f => f.Value["properties"]["name"].ToString() == (string)mission["Vehicle"]).Select(y => y.Value).ToList().ForEach(existingVa =>
-                        {
-                            existingVa["properties"]["inMission"] = false;
+                        existingVa["properties"]["inMission"] = false;
                         // get list of request for the pickup location.
                         existingVa["properties"]["Mission"] = JToken.Parse(JsonConvert.SerializeObject(new JObject(), Formatting.Indented));
-                            existingVa["properties"]["Tag_Update"] = true;
-                        });
+                        existingVa["properties"]["Tag_Update"] = true;
+                    }); //merge changes 
+                    Global.Mission.Where(r => (int)r.Value["Request_Id"] == (int)mission["Request_Id"]).Select(y => y.Value).ToList().ForEach(request =>
+                    {
+                        request.Merge(mission, new JsonMergeSettings { MergeArrayHandling = MergeArrayHandling.Union });
+
                         //update AGV zone location
-                        Global.Zones.Where(f => f.Value["properties"]["Zone_Type"].ToString() == "AGVLocation" && f.Value["properties"]["name"].ToString() == CurrentMission["Pickup_Location"].ToString()).Select(y => y.Value).ToList().ForEach(existingVa =>
+                        Global.Zones.Where(f => f.Value["properties"]["Zone_Type"].ToString() == "AGVLocation" && f.Value["properties"]["name"].ToString() == request["Pickup_Location"].ToString()).Select(y => y.Value).ToList().ForEach(existingVa =>
                         {
-                            existingVa["properties"]["MissionList"] = JToken.Parse(JsonConvert.SerializeObject(Global.Mission.Where(r => r.Value["Pickup_Location"].ToString() == CurrentMission["Pickup_Location"].ToString()
-                            && r.Value["Request_Id"].ToString() != CurrentMission["Request_Id"].ToString()).Select(y => y.Value).ToList(), Formatting.Indented));
+                            existingVa["properties"]["MissionList"] = JToken.Parse(JsonConvert.SerializeObject(Global.Mission.Where(r => r.Value["Pickup_Location"].ToString() == request["Pickup_Location"].ToString()
+                            && r.Value["State"].ToString() == "Active"
+                            && (int)r.Value["Request_Id"] != (int)request["Request_Id"]).Select(y => y.Value).ToList(), Formatting.Indented));
                             existingVa["properties"]["Zone_Update"] = true;
 
                         });
-                        Global.Zones.Where(f => f.Value["properties"]["Zone_Type"].ToString() == "AGVLocation" && f.Value["properties"]["name"].ToString() == CurrentMission["Dropoff_Location"].ToString()).Select(y => y.Value).ToList().ForEach(existingVa =>
+                        Global.Zones.Where(f => f.Value["properties"]["Zone_Type"].ToString() == "AGVLocation" && f.Value["properties"]["name"].ToString() == request["Dropoff_Location"].ToString()).Select(y => y.Value).ToList().ForEach(existingVa =>
                         {
-                            existingVa["properties"]["MissionList"] = JToken.Parse(JsonConvert.SerializeObject(Global.Mission.Where(r => r.Value["Dropoff_Location"].ToString() == CurrentMission["Dropoff_Location"].ToString()
-                             && r.Value["Request_Id"].ToString() != CurrentMission["Request_Id"].ToString()).Select(y => y.Value).ToList(), Formatting.Indented));
+                            existingVa["properties"]["MissionList"] = JToken.Parse(JsonConvert.SerializeObject(Global.Mission.Where(r => r.Value["Dropoff_Location"].ToString() == request["Dropoff_Location"].ToString()
+                            && r.Value["State"].ToString() == "Active"
+                            && (int)r.Value["Request_Id"] != (int)request["Request_Id"]).Select(y => y.Value).ToList(), Formatting.Indented));
                             existingVa["properties"]["Zone_Update"] = true;
                         });
-                    }
 
+                    });
                     //remove request id
                     if (!Global.Mission.TryRemove(mission["Request_Id"].ToString(), out JObject value))
                     {
@@ -1876,8 +1877,6 @@ namespace Factory_of_the_Future
                         ["MissionDropOffTime"] = (DateTime)data["time".ToUpper()]
                     };
 
-                    //merge changes 
-                    Global.Mission.Where(r => (int)r.Value["Request_Id"] == (int)mission["Request_Id"]).Select(y => y.Value).FirstOrDefault().Merge(mission, new JsonMergeSettings { MergeArrayHandling = MergeArrayHandling.Union });
 
                     Global.Tag.Where(f => f.Value["properties"]["name"].ToString() == (string)mission["Vehicle"]).Select(y => y.Value).ToList().ForEach(existingVa =>
                     {
@@ -1887,29 +1886,35 @@ namespace Factory_of_the_Future
                         existingVa["properties"]["Tag_Update"] = true;
                     });
 
-                    if (Global.Mission.TryGetValue(mission["Request_Id"].ToString(), out JObject CurrentMission))
+                    //merge changes 
+                    Global.Mission.Where(r => (int)r.Value["Request_Id"] == (int)mission["Request_Id"]).Select(y => y.Value).ToList().ForEach(request =>
                     {
-                       
+                        request.Merge(mission, new JsonMergeSettings { MergeArrayHandling = MergeArrayHandling.Union });
+
                         //update AGV zone location
-                        Global.Zones.Where(f => f.Value["properties"]["Zone_Type"].ToString() == "AGVLocation" && f.Value["properties"]["name"].ToString() == CurrentMission["Pickup_Location"].ToString()).Select(y => y.Value).ToList().ForEach(existingVa =>
+                        Global.Zones.Where(f => f.Value["properties"]["Zone_Type"].ToString() == "AGVLocation" && f.Value["properties"]["name"].ToString() == request["Pickup_Location"].ToString()).Select(y => y.Value).ToList().ForEach(existingVa =>
                             {
-                                existingVa["properties"]["MissionList"] = JToken.Parse(JsonConvert.SerializeObject(Global.Mission.Where(r => r.Value["Pickup_Location"].ToString() == CurrentMission["Pickup_Location"].ToString()
-                                && r.Value["Request_Id"].ToString() != CurrentMission["Request_Id"].ToString()).Select(y => y.Value).ToList(), Formatting.Indented));
+                                existingVa["properties"]["MissionList"] = JToken.Parse(JsonConvert.SerializeObject(Global.Mission.Where(r => r.Value["Pickup_Location"].ToString() == request["Pickup_Location"].ToString()
+                                && r.Value["State"].ToString() == "Active"
+                                && (int)r.Value["Request_Id"] != (int)request["Request_Id"]).Select(y => y.Value).ToList(), Formatting.Indented));
                                 existingVa["properties"]["Zone_Update"] = true;
 
                             });
-                        Global.Zones.Where(f => f.Value["properties"]["Zone_Type"].ToString() == "AGVLocation" && f.Value["properties"]["name"].ToString() == CurrentMission["Dropoff_Location"].ToString()).Select(y => y.Value).ToList().ForEach(existingVa =>
+                        Global.Zones.Where(f => f.Value["properties"]["Zone_Type"].ToString() == "AGVLocation" && f.Value["properties"]["name"].ToString() == request["Dropoff_Location"].ToString()).Select(y => y.Value).ToList().ForEach(existingVa =>
                         {
-                            existingVa["properties"]["MissionList"] = JToken.Parse(JsonConvert.SerializeObject(Global.Mission.Where(r => r.Value["Dropoff_Location"].ToString() == CurrentMission["Dropoff_Location"].ToString()
-                             && r.Value["Request_Id"].ToString() != CurrentMission["Request_Id"].ToString()).Select(y => y.Value).ToList(), Formatting.Indented));
+                            existingVa["properties"]["MissionList"] = JToken.Parse(JsonConvert.SerializeObject(Global.Mission.Where(r => r.Value["Dropoff_Location"].ToString() == request["Dropoff_Location"].ToString()
+                             && r.Value["State"].ToString() == "Active"
+                            && (int)r.Value["Request_Id"] != (int)request["Request_Id"]).Select(y => y.Value).ToList(), Formatting.Indented));
+
                             existingVa["properties"]["Zone_Update"] = true;
                         });
-                    }
+                    });
                     //remove request id
                     if (!Global.Mission.TryRemove(mission["Request_Id"].ToString(), out JObject value))
                     {
                         new ErrorLogger().CustomLog("unable to remove Mission " + mission["Request_Id"].ToString() + " to list", string.Concat((string)Global.AppSettings["APPLICATION_NAME"], "Appslogs"));
                     }
+
                     mission = null;
                 }
             }
@@ -1941,34 +1946,35 @@ namespace Factory_of_the_Future
 
 
                     //merge changes 
-                    Global.Mission.Where(r => (int)r.Value["Request_Id"] == (int)mission["Request_Id"]).Select(y => y.Value).FirstOrDefault().Merge(mission, new JsonMergeSettings { MergeArrayHandling = MergeArrayHandling.Union });
-
-                    if (Global.Mission.TryGetValue(mission["Request_Id"].ToString(), out JObject CurrentMission))
+                    Global.Mission.Where(r => (int)r.Value["Request_Id"] == (int)mission["Request_Id"]).Select(y => y.Value).ToList().ForEach(request =>
                     {
-                        Global.Tag.Where(f => f.Value["properties"]["name"].ToString() == (string)CurrentMission["Vehicle"]).Select(y => y.Value).ToList().ForEach(existingVa =>
-                           {
-                               existingVa["properties"]["inMission"] = true;
-                               // get list of request for the pickup location.
-                               existingVa["properties"]["Mission"] = JToken.Parse(JsonConvert.SerializeObject(Global.Mission.Where(r => r.Value["Vehicle"] == CurrentMission["Vehicle"]).Select(y => y.Value).ToList(), Formatting.Indented));
-                               existingVa["properties"]["Tag_Update"] = true;
-                           });
+                        request.Merge(mission, new JsonMergeSettings { MergeArrayHandling = MergeArrayHandling.Union });
+                        Global.Tag.Where(f => f.Value["properties"]["name"].ToString() == mission["Vehicle"].ToString()).Select(y => y.Value).ToList().ForEach(existingVa =>
+                        {
+                            existingVa["properties"]["inMission"] = true;
+                            existingVa["properties"]["Mission"] = JToken.Parse(JsonConvert.SerializeObject(Global.Mission.Where(r => r.Value["Vehicle"].ToString() == mission["Vehicle"].ToString()
+                             && r.Value["State"].ToString() == mission["State"].ToString()
+                             && (int)r.Value["Request_Id"] == (int)mission["Request_Id"]).Select(y => y.Value).ToList(), Formatting.Indented));
+                            existingVa["properties"]["Tag_Update"] = true;
+                        });
 
                         //update AGV Pickup zone location
-                        Global.Zones.Where(f => f.Value["properties"]["Zone_Type"].ToString() == "AGVLocation" && f.Value["properties"]["name"].ToString() == CurrentMission["Pickup_Location"].ToString()).Select(y => y.Value).ToList().ForEach(existingVa =>
+                        Global.Zones.Where(f => f.Value["properties"]["Zone_Type"].ToString() == "AGVLocation" && f.Value["properties"]["name"].ToString() == request["Pickup_Location"].ToString()).Select(y => y.Value).ToList().ForEach(existingVa =>
                             {
-                                existingVa["properties"]["MissionList"] = JToken.Parse(JsonConvert.SerializeObject(Global.Mission.Where(r => r.Value["Pickup_Location"].ToString() == CurrentMission["Pickup_Location"].ToString()
-                                && r.Value["Request_Id"].ToString() != CurrentMission["Request_Id"].ToString()).Select(y => y.Value).ToList(), Formatting.Indented));
+                                existingVa["properties"]["MissionList"] = JToken.Parse(JsonConvert.SerializeObject(Global.Mission.Where(r => r.Value["Pickup_Location"].ToString() == request["Pickup_Location"].ToString()
+                                && (int)r.Value["Request_Id"] != (int)request["Request_Id"]).Select(y => y.Value).ToList(), Formatting.Indented));
                                 existingVa["properties"]["Zone_Update"] = true;
 
                             });
 
                         //update AGV Dropoff zone location
-                        Global.Zones.Where(f => f.Value["properties"]["Zone_Type"].ToString() == "AGVLocation" && f.Value["properties"]["name"].ToString() == CurrentMission["Dropoff_Location"].ToString()).Select(y => y.Value).ToList().ForEach(existingVa =>
+                        Global.Zones.Where(f => f.Value["properties"]["Zone_Type"].ToString() == "AGVLocation" && f.Value["properties"]["name"].ToString() == request["Dropoff_Location"].ToString()).Select(y => y.Value).ToList().ForEach(existingVa =>
                         {
-                            existingVa["properties"]["MissionList"] = JToken.Parse(JsonConvert.SerializeObject(Global.Mission.Where(r => r.Value["Dropoff_Location"].ToString() == CurrentMission["Dropoff_Location"].ToString()).Select(y => y.Value).ToList(), Formatting.Indented));
+                            existingVa["properties"]["MissionList"] = JToken.Parse(JsonConvert.SerializeObject(Global.Mission.Where(r => r.Value["Dropoff_Location"].ToString() == request["Dropoff_Location"].ToString()).Select(y => y.Value).ToList(), Formatting.Indented));
                             existingVa["properties"]["Zone_Update"] = true;
                         });
-                    }
+
+                    });
                     mission = null;
                 }
             }
@@ -2017,26 +2023,26 @@ namespace Factory_of_the_Future
                         Global.Mission.Where(r => (int)r.Value["Request_Id"] == (int)mission["Request_Id"]).Select(y => y.Value).FirstOrDefault().Merge(mission, new JsonMergeSettings { MergeArrayHandling = MergeArrayHandling.Union });
                     }
 
-                    if (Global.Mission.TryGetValue(mission["Request_Id"].ToString(), out JObject CurrentMission))
+                    Global.Tag.Where(f => f.Value["properties"]["name"].ToString() == mission["Vehicle"].ToString()).Select(y => y.Value).ToList().ForEach(existingVa =>
                     {
-                        Global.Tag.Where(f => f.Value["properties"]["name"].ToString() == CurrentMission["Vehicle"].ToString()).Select(y => y.Value).ToList().ForEach(existingVa =>
-                        {
-                            existingVa["properties"]["inMission"] = true;
-                            // get list of request for the pickup location.
-                            existingVa["properties"]["Mission"] = JToken.Parse(JsonConvert.SerializeObject(Global.Mission.Where(r => r.Value["Vehicle"].ToString() == CurrentMission["Vehicle"].ToString()
-                            && (int)r.Value["Vehicle"] == (int)CurrentMission["Request_Id"]).Select(y => y.Value).ToList(), Formatting.Indented));
-                            existingVa["properties"]["Tag_Update"] = true;
-                        });
-                        //update AGV zone location
-                        Global.Zones.Where(f => f.Value["properties"]["Zone_Type"].ToString() == "AGVLocation" &&
-                        f.Value["properties"]["name"].ToString() == CurrentMission["Pickup_Location"].ToString()).Select(y => y.Value).ToList().ForEach(existingVa =>
-                        {
-                            existingVa["properties"]["inMission"] = true;
-                            // get list of request for the pickup location.
-                            existingVa["properties"]["MissionList"] = JToken.Parse(JsonConvert.SerializeObject(Global.Mission.Where(r => r.Value["Pickup_Location"].ToString() == CurrentMission["Pickup_Location"].ToString()).Select(y => y.Value).ToList(), Formatting.Indented));
-                            existingVa["properties"]["Zone_Update"] = true;
-                        });
-                    }
+                        existingVa["properties"]["inMission"] = true;
+                        // get list of request for the pickup location.
+                        existingVa["properties"]["Mission"] = JToken.Parse(JsonConvert.SerializeObject(Global.Mission.Where(r => r.Value["Vehicle"].ToString() == mission["Vehicle"].ToString()
+                        && r.Value["State"].ToString() == mission["State"].ToString()
+                        && (int)r.Value["Request_Id"] == (int)mission["Request_Id"]).Select(y => y.Value).ToList(), Formatting.Indented));
+                        existingVa["properties"]["Tag_Update"] = true;
+                    });
+
+                    //update AGV zone location
+                    Global.Zones.Where(f => f.Value["properties"]["Zone_Type"].ToString() == "AGVLocation" &&
+                    f.Value["properties"]["name"].ToString() == mission["Pickup_Location"].ToString()).Select(y => y.Value).ToList().ForEach(existingVa =>
+                    {
+                        existingVa["properties"]["inMission"] = true;
+                        existingVa["properties"]["MissionList"] = JToken.Parse(JsonConvert.SerializeObject(Global.Mission.Where(r => r.Value["Pickup_Location"].ToString() == mission["Pickup_Location"].ToString()
+                        && r.Value["State"].ToString() == mission["State"].ToString()).Select(y => y.Value).ToList(), Formatting.Indented));
+                        existingVa["properties"]["Zone_Update"] = true;
+                    });
+
                     mission = null;
                 }
             }
@@ -2096,133 +2102,7 @@ namespace Factory_of_the_Future
                 new ErrorLogger().ExceptionLog(e);
             }
         }
-        private void MISSIONFAILED(dynamic data)
-        {
-            try
-            {
-                if (data.ContainsKey("NASS_CODE") && (string)data["NASS_CODE"] == Global.AppSettings["FACILITY_NASS_CODE"].ToString())
-                {
-                    JObject mission = new JObject
-                    {
-                        ["Request_Id"] = (string)data["requestId".ToUpper()],
-                        ["Vehicle"] = (string)data["vehicle".ToUpper()],
-                        ["Vehicle_Number"] = (string)data["vehicle_Number".ToUpper()],
-                        ["State"] = "Failed",
-                        ["MissionType"] = (string)data["message".ToUpper()],
-                        ["MissionFailedTime"] = (DateTime)data["time".ToUpper()]
-                    };
-                    //merge changes 
-                    Global.Mission.Where(r => (int)r.Value["Request_Id"] == (int)mission["Request_Id"]).Select(y => y.Value).FirstOrDefault().Merge(mission, new JsonMergeSettings { MergeArrayHandling = MergeArrayHandling.Union });
-
-                    if (Global.Mission.TryGetValue(mission["Request_Id"].ToString(), out JObject CurrentMission))
-                    {
-                        if (!string.IsNullOrEmpty(mission["Vehicle"].ToString()))
-                        {
-                            Global.Tag.Where(f => f.Value["properties"]["name"].ToString() == (string)mission["Vehicle"]).Select(y => y.Value).ToList().ForEach(existingVa =>
-                            {
-                                existingVa["properties"]["inMission"] = false;
-                            // get list of request for the pickup location.
-                            existingVa["properties"]["Mission"] = JToken.Parse(JsonConvert.SerializeObject(new JObject(), Formatting.Indented));
-                                existingVa["properties"]["Tag_Update"] = true;
-                            });
-                        }
-                        //update AGV zone location
-                        Global.Zones.Where(f => f.Value["properties"]["Zone_Type"].ToString() == "AGVLocation" && f.Value["properties"]["name"].ToString() == CurrentMission["Pickup_Location"].ToString()).Select(y => y.Value).ToList().ForEach(existingVa =>
-                        {
-                            existingVa["properties"]["MissionList"] = JToken.Parse(JsonConvert.SerializeObject(Global.Mission.Where(r => r.Value["Pickup_Location"].ToString() == CurrentMission["Pickup_Location"].ToString()
-                            && r.Value["Request_Id"].ToString() != CurrentMission["Request_Id"].ToString()).Select(y => y.Value).ToList(), Formatting.Indented));
-                            existingVa["properties"]["Zone_Update"] = true;
-
-                        });
-                        Global.Zones.Where(f => f.Value["properties"]["Zone_Type"].ToString() == "AGVLocation" && f.Value["properties"]["name"].ToString() == CurrentMission["Dropoff_Location"].ToString()).Select(y => y.Value).ToList().ForEach(existingVa =>
-                        {
-                            existingVa["properties"]["MissionList"] = JToken.Parse(JsonConvert.SerializeObject(Global.Mission.Where(r => r.Value["Dropoff_Location"].ToString() == CurrentMission["Dropoff_Location"].ToString()
-                             && r.Value["Request_Id"].ToString() != CurrentMission["Request_Id"].ToString()).Select(y => y.Value).ToList(), Formatting.Indented));
-                            existingVa["properties"]["Zone_Update"] = true;
-                        });
-                    }
-
-                    //remove request id
-                    if (!Global.Mission.TryRemove(mission["Request_Id"].ToString(), out JObject value))
-                    {
-                        new ErrorLogger().CustomLog("unable to remove Mission " + mission["Request_Id"].ToString() + " to list", string.Concat((string)Global.AppSettings["APPLICATION_NAME"], "Appslogs"));
-                    }
-                    mission = null;
-                }
-            }
-            catch (Exception e)
-            {
-                new ErrorLogger().ExceptionLog(e);
-            }
-            finally
-            {
-                data = null;
-            }
-        }
-
-        private void MISSIONCANCELED(dynamic data)
-        {
-            try
-            {
-                if (data.ContainsKey("NASS_CODE") && (string)data["NASS_CODE"] == Global.AppSettings["FACILITY_NASS_CODE"].ToString())
-                {
-                    JObject mission = new JObject
-                    {
-                        ["Request_Id"] = (string)data["requestId".ToUpper()],
-                        ["Vehicle"] = (string)data["vehicle".ToUpper()],
-                        ["Vehicle_Number"] = (string)data["vehicle_Number".ToUpper()],
-                        ["State"] = "Canceled",
-                        ["MissionType"] = (string)data["message".ToUpper()],
-                        ["MissionFailedTime"] = (DateTime)data["time".ToUpper()]
-                    };
-                    //merge changes 
-                    Global.Mission.Where(r => (int)r.Value["Request_Id"] == (int)mission["Request_Id"]).Select(y => y.Value).FirstOrDefault().Merge(mission, new JsonMergeSettings { MergeArrayHandling = MergeArrayHandling.Union });
-
-                    if (Global.Mission.TryGetValue(mission["Request_Id"].ToString(), out JObject CurrentMission))
-                    {
-                        if (!string.IsNullOrEmpty(mission["Vehicle"].ToString()))
-                        {
-                            Global.Tag.Where(f => f.Value["properties"]["name"].ToString() == (string)mission["Vehicle"]).Select(y => y.Value).ToList().ForEach(existingVa =>
-                            {
-                                existingVa["properties"]["inMission"] = false;
-                                // get list of request for the pickup location.
-                                existingVa["properties"]["Mission"] = JToken.Parse(JsonConvert.SerializeObject(new JObject(), Formatting.Indented));
-                                existingVa["properties"]["Tag_Update"] = true;
-                            });
-                        }
-                        //update AGV zone location
-                        Global.Zones.Where(f => f.Value["properties"]["Zone_Type"].ToString() == "AGVLocation" && f.Value["properties"]["name"].ToString() == CurrentMission["Pickup_Location"].ToString()).Select(y => y.Value).ToList().ForEach(existingVa =>
-                        {
-                            existingVa["properties"]["MissionList"] = JToken.Parse(JsonConvert.SerializeObject(Global.Mission.Where(r => r.Value["Pickup_Location"].ToString() == CurrentMission["Pickup_Location"].ToString()
-                            && r.Value["Request_Id"].ToString() != CurrentMission["Request_Id"].ToString()).Select(y => y.Value).ToList(), Formatting.Indented));
-                            existingVa["properties"]["Zone_Update"] = true;
-
-                        });
-                        Global.Zones.Where(f => f.Value["properties"]["Zone_Type"].ToString() == "AGVLocation" && f.Value["properties"]["name"].ToString() == CurrentMission["Dropoff_Location"].ToString()).Select(y => y.Value).ToList().ForEach(existingVa =>
-                        {
-                            existingVa["properties"]["MissionList"] = JToken.Parse(JsonConvert.SerializeObject(Global.Mission.Where(r => r.Value["Dropoff_Location"].ToString() == CurrentMission["Dropoff_Location"].ToString()
-                             && r.Value["Request_Id"].ToString() != CurrentMission["Request_Id"].ToString()).Select(y => y.Value).ToList(), Formatting.Indented));
-                            existingVa["properties"]["Zone_Update"] = true;
-                        });
-                    }
-
-                    //remove request id
-                    if (!Global.Mission.TryRemove(mission["Request_Id"].ToString(), out JObject value))
-                    {
-                        new ErrorLogger().CustomLog("unable to remove Mission " + mission["Request_Id"].ToString() + " to list", string.Concat((string)Global.AppSettings["APPLICATION_NAME"], "Appslogs"));
-                    }
-                    mission = null;
-                }
-            }
-            catch (Exception e)
-            {
-                new ErrorLogger().ExceptionLog(e);
-            }
-            finally
-            {
-                data = null;
-            }
-        }
+  
         private static void FLEET_STATUS(JObject data)
         {
             try
