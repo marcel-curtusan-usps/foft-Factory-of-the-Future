@@ -6,73 +6,31 @@ $.extend(fotfmanager.client, {
 });
 async function updatePersonTag(tagpositionupdate) {
     try {
-        map.whenReady(() => {
-            if (tagpositionupdate) {
-                if (circleMarker.hasOwnProperty("_layers")) {
-                    var layerindex = -0;
-                    $.map(circleMarker._layers, function (layer) {
-                        if (layer.hasOwnProperty("feature")) {
-                            if (layer.feature.properties.id === tagpositionupdate.properties.id) {
-                                layer.feature.properties = tagpositionupdate.properties;
-                                layerindex = layer._leaflet_id;
-                                if (layer.feature.properties.tagVisibleMils > 80000) {
-                                    if (layer.hasOwnProperty("_tooltip")) {
-                                        if (layer._tooltip.hasOwnProperty("_container")) {
-                                            if (!layer._tooltip._container.classList.contains('tooltip-hidden')) {
-                                                layer._tooltip._container.classList.add('tooltip-hidden');
-                                            }
-                                        }
-                                    }
-                                    //if (layer.options.opacity !== 0) {
-                                    //    layer.setStyle({
-                                    //        opacity: 0,
-                                    //        fillOpacity: 0,
-                                    //        fillColor: ''
-                                    //    });
-                                    //}
-                                }
-                                if (layer.feature.properties.tagVisibleMils < 80000) {
-                                    //if the distance from the current location is more then 10000 meters the do not so the slide to
-                                    var newLatLng = new L.latLng(tagpositionupdate.geometry.coordinates[1], tagpositionupdate.geometry.coordinates[0]);
-                                    var ty = (newLatLng.distanceTo(layer.getLatLng()).toFixed(0) / 1000);
-                                    var tu = Math.round(ty);
-                                    if (tu > 4000) {
-                                        layer.setLatLng(newLatLng);
-                                    }
-                                    else {
-                                        layer.slideTo(newLatLng, { duration: 2000 });
-                                    }
-                                    if (layer.hasOwnProperty("_tooltip")) {
-                                        if (layer._tooltip.hasOwnProperty("_container")) {
-                                            if (layer._tooltip._container.classList.contains('tooltip-hidden')) {
-                                                layer._tooltip._container.classList.remove('tooltip-hidden');
-                                            }
-                                        }
-                                    }
-                                    //if (layer.options.opacity !== 1) {
-                                    //    layer.setStyle({
-                                    //        opacity: 1,
-                                    //        fillOpacity: 1
-                                    //    });
-                                    //}
-                                }
-                                layer.feature.geometry = tagpositionupdate.geometry.coordinates;
-                                return false;
-                            }
-                        }
-                    });
-                    if (layerindex === -0) {
-                        circleMarker.addData(tagpositionupdate);
+        if (tagsMarkersGroup.hasOwnProperty("_layers")) {
+            var layerindex = -0;
+            $.map(tagsMarkersGroup._layers, function (layer) {
+                if (layer.hasOwnProperty("feature")) {
+                    if (layer.feature.properties.id === tagpositionupdate.properties.id) {
+                        layer.feature.properties = tagpositionupdate.properties;
+                        layer.feature.geometry = tagpositionupdate.geometry.coordinates;
+                        layerindex = layer._leaflet_id;
+                         Promise.all([updateTagLocation(layerindex)]);
+
+                        
+                        return false;
                     }
                 }
+            });
+            if (layerindex === -0) {
+                tagsMarkersGroup.addData(tagpositionupdate);
             }
-            ////this is to find EMPID that not complaint.
-        });
+        }
+
     } catch (e) {
         console.log(e);
     }
 }
-var circleMarker = new L.GeoJSON(null, {
+var tagsMarkersGroup = new L.GeoJSON(null, {
     pointToLayer: function (feature, latlng) {
         return new L.circleMarker(latlng, {
             radius: 8,
@@ -91,3 +49,32 @@ var circleMarker = new L.GeoJSON(null, {
         }).openTooltip();
     }
 })
+async function updateTagLocation(layerindex)
+{
+    try {
+                //circleMarker._layers[layerindex].feature
+        if (tagsMarkersGroup._layers[layerindex].feature.properties.tagVisibleMils > 80000) {
+            if (tagsMarkersGroup._layers[layerindex].hasOwnProperty("_tooltip") && tagsMarkersGroup._layers[layerindex]._tooltip.hasOwnProperty("_container") &&
+                !tagsMarkersGroup._layers[layerindex]._tooltip._container.classList.contains('tooltip-hidden')) {
+
+                tagsMarkersGroup._layers[layerindex]._tooltip._container.classList.add('tooltip-hidden');
+
+            }
+        }
+        if (tagsMarkersGroup._layers[layerindex].feature.properties.tagVisibleMils < 80000) {
+            //if the distance from the current location is more then 10000 meters the do not so the slide to
+            var newLatLng = new L.latLng(tagsMarkersGroup._layers[layerindex].feature.geometry[1], tagsMarkersGroup._layers[layerindex].feature.geometry[0]);
+       
+            tagsMarkersGroup._layers[layerindex].slideTo(newLatLng, { duration: 2000 });
+            
+            if (tagsMarkersGroup._layers[layerindex].hasOwnProperty("_tooltip") && tagsMarkersGroup._layers[layerindex]._tooltip.hasOwnProperty("_container") &&
+                tagsMarkersGroup._layers[layerindex]._tooltip._container.classList.contains('tooltip-hidden')) {
+                tagsMarkersGroup._layers[layerindex]._tooltip._container.classList.remove('tooltip-hidden');
+
+            }
+        }
+    } catch (e) {
+        console.log(e);
+    }
+    return null;
+}

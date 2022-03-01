@@ -9,154 +9,32 @@ $.extend(fotfmanager.client, {
 async function updateVehicleTag(vehicleupdate) {
     try {
         map.whenReady(() => {
-            if (vehicleupdate) {
-                if (vehicles.hasOwnProperty("_layers")) {
-                    var layerindex = -0;
-                    $.map(vehicles._layers, function (layer, i) {
-                        if (layer.hasOwnProperty("feature")) {
-                            if (layer.feature.properties.id === vehicleupdate.properties.id) {
-                                if (layerindex === -0) {
-                                    layerindex = layer._leaflet_id;
-                                    layer.feature.properties = vehicleupdate.properties;
-                                    if (vehicleupdate.geometry.coordinates.length > 0) {
-                                        layer.feature.geometry = vehicleupdate.geometry.coordinates;
-                                        var newLatLng = new L.latLng(vehicleupdate.geometry.coordinates[1], vehicleupdate.geometry.coordinates[0]);
-                                        var distanceTo = (newLatLng.distanceTo(layer.getLatLng()).toFixed(0) / 1000);
-                                        if (Math.round(distanceTo) > 4000) {
-                                            vehicles._layers[layer._leaflet_id].setLatLng(newLatLng);
-                                        }
-                                        else {
-                                            vehicles._layers[layer._leaflet_id].slideTo(newLatLng, { duration: 3000 });
-                                        }
-                                    }
-                                    return false;
-                                }
+            if (vehicles.hasOwnProperty("_layers")) {
+                var layerindex = -0;
+                $.map(vehicles._layers, function (layer, i) {
+                    if (layer.hasOwnProperty("feature")) {
+                        if (layer.feature.properties.id === vehicleupdate.properties.id) {
+                            if (layerindex === -0) {
+                                layerindex = layer._leaflet_id;
+                                layer.feature.geometry = vehicleupdate.geometry.coordinates;
+                                layer.feature.properties = vehicleupdate.properties;
+                                Promise.all([updateVehicleLocation(layerindex)]);
                             }
-                        }
-                    });
-                    if (layerindex !== -0) {
-                        if (vehicles._layers[layerindex].feature.properties.id === vehicleupdate.properties.id) {
-                            if (/^AGV/i.test(vehicleupdate.properties.name)) {
-                                try {
-                                    var data_Id = $('#vehicletagid').attr("data-id");
-                                    if (data_Id === vehicleupdate.properties.id) {
-                                        if ($('input[type=checkbox][name=followvehicle]')[0].checked) {
-                                            map.setView(new L.LatLng(vehicleupdate.geometry.coordinates[1], vehicleupdate.geometry.coordinates[0]), 4);
-                                        }
-                                    }
-                                    if (vehicleupdate.properties.hasOwnProperty("state")) {
-                                        var new_state = Get_Vehicle_Status(vehicleupdate.properties.state.replace(/VState/ig, ""));
-                                        if (/Obstructed/i.test(new_state)) {
-                                            if (vehicles._layers[layerindex].hasOwnProperty("_icon")) {
-                                                if (vehicles._layers[layerindex].hasOwnProperty("_tooltip")) {
-                                                    if (vehicles._layers[layerindex]._tooltip.hasOwnProperty("_container")) {
-                                                        if (!vehicles._layers[layerindex]._tooltip._container.classList.contains('obstructedflash')) {
-                                                            vehicles._layers[layerindex]._tooltip._container.classList.add('obstructedflash');
-                                                        }
-                                                    }
-                                                }
-                                            }
-                                        } else {
-                                            if (vehicles._layers[layerindex].hasOwnProperty("_tooltip")) {
-                                                if (vehicles._layers[layerindex]._tooltip.hasOwnProperty("_container")) {
-                                                    if (vehicles._layers[layerindex]._tooltip._container.classList.contains('obstructedflash')) {
-                                                        vehicles._layers[layerindex]._tooltip._container.classList.remove('obstructedflash');
-                                                    }
-                                                }
-                                            }
-                                        }
-                                        var vehicle_div = $('div[id=div_vehicle]').find('button[id=' + vehicleupdate.properties.name + '][name=vehicle]');
-                                        //$("button[id=" + vehicleupdate.properties.name + "][name=vehicle]");
-                                        //$('div[id=div_vehicle]').find('button[id=' + vehicleupdate.properties.name + '][name=vehicle]');
-                                        if (vehicle_div.length > 0) {
-                                            var current_state = $("button[id=" + vehicleupdate.properties.name + "][name=vehicle]").text();
-                                            if (new_state !== current_state) {
-                                                $("button[id=" + vehicleupdate.properties.name + "][name=vehicle]").text(new_state);
-                                            }
-                                            var new_btn_category = Get_Vehicle_Catagory(vehicleupdate.properties.vehicleCategory);
-                                            var current_btn_category = Get_Current_Class($("button[id=" + vehicleupdate.properties.name + "][name=vehicle]").attr("class"));
-                                            if (new_btn_category !== current_btn_category) {
-                                                $("button[id=" + vehicleupdate.properties.name + "][name=vehicle]").addClass(new_btn_category).removeClass(current_btn_category);
-                                            }
-                                            var batint = parseInt($("span[name=" + vehicleupdate.properties.name + "_batter_level" + "]").attr("data-batter_lvl"));
-                                            if (!vehicleupdate.properties.hasOwnProperty("vehicleBatteryPercent")) {
-                                                vehicleupdate.properties.vehicleBatteryPercent = 0;
-                                            }
-                                            if (vehicleupdate.properties.vehicleBatteryPercent !== batint) {
-                                                $("span[name=" + vehicleupdate.properties.name + "_batter_level" + "]").text(vehicleupdate.properties.vehicleBatteryPercent + " % Charged").attr("data-batter_lvl", vehicleupdate.properties.vehicleBatteryPercent);
-                                                $("div[name=" + vehicleupdate.properties.name + "_progressbar" + "]").attr("aria-valuenow", vehicleupdate.properties.name).css("width", vehicleupdate.properties.vehicleBatteryPercent + "%");
-                                                new_btn_category = Get_Vehicle_Progress(vehicleupdate.properties.vehicleBatteryPercent);
-                                                current_btn_category = Get_Current_Class($("div[name=" + vehicleupdate.properties.name + "_progressbar" + "]").attr("class"));
-                                                if (new_btn_category !== current_btn_category) {
-                                                    $("div[name=" + vehicleupdate.properties.name + "_progressbar" + "]").addClass(new_btn_category).removeClass(current_btn_category);
-                                                }
-                                            }
-                                        }
-                                        if (vehicleupdate.properties.hasOwnProperty("inMission")) {
-                                            let tagid = $('#vehicletagid').attr("data-id");
-                                            if (tagid === vehicleupdate.properties.id) {
-                                                if (vehicleupdate.properties.inMission) {
-                                                    //this is when vhicle is in a mission
-                                                    $tagtop_Table = $('table[id=vehiclemissiontable]');
-                                                    $tagtop_Table_Body = $tagtop_Table.find('tbody');
-                                                    $tagtop_Table_Body.empty();
-                                                    $tagtop_Table_Body.append(agvmissionrow_template.supplant(formatvehiclemissionrow(vehicleupdate.properties)));
-
-                                                }
-                                                else {
-                                                    var vehicle_div = $("tr[id=inmission]")
-                                                    //$('div[id=div_vehicle]').find('button[id=' + vehicleupdate.properties.name + '][name=vehicle]');
-                                                    if (vehicle_div.length > 0) {
-                                                        $(vehicle_div).remove();
-                                                    }
-                                                }
-                                            }
-                                        }
-                                        //if (/^Charg/i.test(vehicleupdate.properties.state)) {
-                                        //    var ChargeIcon = L.Icon.extend({
-                                        //        options: {
-                                        //            iconUrl: '<i class="bi-ligthning">',
-                                        //            iconSize: [32, 32],
-                                        //            iconAnchor: [10, 0],
-                                        //            popupAnchor: [5, 5],
-                                        //        }
-                                        //    })
-                                        //    vehicles._layers[layerindex].setIcon(new ChargeIcon);
-                                        //}
-                                        //else {
-                                        //    if (/lightning/i.test(vehicles._layers[layerindex].options.icon.options.iconUrl)) {
-                                        //        var ChargeIcon = L.Icon.extend({
-                                        //            options: {
-                                        //                iconSize: [32, 32],
-                                        //                iconAnchor: [10, 0],
-                                        //                popupAnchor: [5, 5],
-                                        //                iconUrl: 'Content/icons/' + get_icon(vehicles._layers[layerindex].feature.properties.name, vehicles._layers[layerindex].feature.properties.Tag_Type)
-                                        //            }
-                                        //        })
-                                        //        vehicles._layers[layerindex].setIcon(new ChargeIcon);
-                                        //    }
-                                        //}
-                                    }
-                                }
-                                catch (e) {
-                                    console.log(e);
-                                }
-                            }
-                            else if (!/^AGV/i.test(vehicleupdate.properties.name)) {
-                                var dataId = $('#vehicletagid').attr("data-id");
-                                if (dataId === vehicleupdate.properties.id) {
-                                    if ($('input[type=checkbox][name=followvehicle]')[0].checked) {
-                                        map.setView(new L.LatLng(vehicleupdate.geometry.coordinates[1], vehicleupdate.geometry.coordinates[0]), 4);
-                                    }
-                                }
-                            }
+                            return false;
                         }
                     }
-                    else {
-                        vehicles.addData(vehicleupdate);
+
+                });
+                if (layerindex !== -0) {
+                    if ($('div[id=vehicle_div]').is(':visible') && $('div[id=vehicle_div]').attr("data-id") === vehicleupdate.properties.id) {
+                        updateVehicleInfo(layerindex);
                     }
                 }
+                else {
+                    vehicles.addData(vehicleupdate);
+                }
             }
+
         });
     } catch (e) {
         console.log(e);
@@ -194,11 +72,11 @@ var vehicles = new L.GeoJSON(null, {
             $('input[type=checkbox][name=followvehicle]').prop('checked', false).change();
             map.setView(e.latlng, 4);
             sidebar.open('home');
-            LoadVehicleTable(feature.properties, 'vehicletable');
+            LoadVehicleTable(feature.properties);
         })
         if (feature.properties.hasOwnProperty('state')) {
             var new_state = Get_Vehicle_Status(feature.properties.state.replace(/VState/ig, ""));
-            if (/Obstructed/i.test(new_state)) {
+            if (/Obstructed|(Error)$/i.test(new_state)) {
                 obstructedState = 'obstructedflash';
             }
         }
@@ -210,52 +88,168 @@ var vehicles = new L.GeoJSON(null, {
         }).openTooltip();
     }
 });
-async function LoadVehicleTable(dataproperties, table) {
-    try {
-        if (!$.isEmptyObject(dataproperties)) {
-            if (/vehicletable/i.test(table)) {
-                let vehicletop_Table = $('table[id=' + table + ']');
-                let vehicletop_Table_Body = vehicletop_Table.find('tbody');
-                vehicletop_Table_Body.empty();
-                let vehiclemission_Table = $('table[id=vehiclemissiontable]');
-                let vehiclemission_Table_Body = vehiclemission_Table.find('tbody');
-                vehiclemission_Table_Body.empty();
-                $('div[id=agvlocation_div]').css('display', 'none');
-                $('div[id=dockdoor_div]').css('display', 'none');
-                $('div[id=trailer_div]').css('display', 'none');
-                $('div[id=machine_div]').css('display', 'none');
-                $('div[id=staff_div]').css('display', 'none');
-                $('div[id=ctstabs_div]').css('display', 'none');
-                $('div[id=area_div]').css('display', 'none')
-                $('div[id=vehicle_div]').css('display', 'block');
-                $('div[id=dps_div]').css('display', 'none');
-                $zoneSelect[0].selectize.setValue(-1, true);
-                if (!/AGV/i.test(dataproperties.name)) {
-                    vehicletop_Table_Body.append(pivrow_template.supplant(formatvehicleinforow(dataproperties)));
+function updateVehicleLocation(layerindex) {
+    if (vehicles._layers[layerindex].feature.geometry.length > 0) {
+        var newLatLng = new L.latLng(vehicles._layers[layerindex].feature.geometry[1], vehicles._layers[layerindex].feature.geometry[0]);
+        var distanceTo = (newLatLng.distanceTo(vehicles._layers[layerindex].getLatLng()).toFixed(0) / 1000);
+        if (Math.round(distanceTo) > 4000) {
+            vehicles._layers[layerindex].setLatLng(newLatLng);
+        }
+        else {
+            vehicles._layers[layerindex].slideTo(newLatLng, { duration: 3000 });
+        }
+    }
+    if (vehicles._layers[layerindex].feature.properties.hasOwnProperty("state")) {
+        var new_state = Get_Vehicle_Status(vehicles._layers[layerindex].feature.properties.state.replace(/VState/ig, ""));
+        if (/Obstructed|(Error)$/i.test(new_state)) {
+            if (vehicles._layers[layerindex].hasOwnProperty("_icon")
+                && vehicles._layers[layerindex].hasOwnProperty("_tooltip")
+                && vehicles._layers[layerindex]._tooltip.hasOwnProperty("_container")) {
+                if (!vehicles._layers[layerindex]._tooltip._container.classList.contains('obstructedflash')) {
+                    vehicles._layers[layerindex]._tooltip._container.classList.add('obstructedflash');
                 }
 
-                if (/^AGV/i.test(dataproperties.name)) {
-                    vehicletop_Table_Body.append(agvrow_template.supplant(formatvehicleinforow(dataproperties)));
-                    if (dataproperties.hasOwnProperty("inMission")) {
-                        if (dataproperties.inMission) {
-                            vehiclemission_Table_Body.empty();
-                            vehiclemission_Table_Body.append(agvmissionrow_template.supplant(formatvehiclemissionrow(dataproperties)));
-                        }
-                        else {
-                            vehiclemission_Table_Body.empty();
-                        }
-                    } else {
-                        vehiclemission_Table_Body.empty();
+            }
+        } else {
+            if (vehicles._layers[layerindex].hasOwnProperty("_tooltip") && vehicles._layers[layerindex]._tooltip.hasOwnProperty("_container")) {
+                if (vehicles._layers[layerindex]._tooltip._container.classList.contains('obstructedflash')) {
+                    vehicles._layers[layerindex]._tooltip._container.classList.remove('obstructedflash');
+                }
+            }
+        }
+    }
+    return null;
+
+}
+function updateVehicleInfo(layerindex) {
+    try {
+        if ($('input[type=checkbox][name=followvehicle]')[0].checked) {
+            map.panTo(new L.LatLng(vehicles._layers[layerindex].feature.geometry[1], vehicles._layers[layerindex].feature.geometry[0]), 4);
+        }
+
+        if (/^AGV/i.test(vehicles._layers[layerindex].feature.properties.name)) {
+            AGVStausUpdate(layerindex);
+        }
+
+    } catch (e) {
+        console.log(e);
+    }
+}
+async function AGVStausUpdate(layerindex)
+{
+    try {
+        if (vehicles._layers[layerindex].feature.properties.hasOwnProperty("state")) {
+            var new_state = Get_Vehicle_Status(vehicles._layers[layerindex].feature.properties.state.replace(/VState/ig, ""));
+            var vehicle_div = $('div[id=div_vehicle]').find('button[id=' + vehicles._layers[layerindex].feature.properties.name + '][name=vehicle]');
+
+            if (vehicle_div.length > 0) {
+                var current_state = $("button[id=" + vehicles._layers[layerindex].feature.properties.name + "][name=vehicle]").text();
+                if (new_state !== current_state) {
+                    $("button[id=" + vehicles._layers[layerindex].feature.properties.name + "][name=vehicle]").text(new_state);
+                }
+                var new_btn_category = Get_Vehicle_Catagory(vehicles._layers[layerindex].feature.properties.vehicleCategory);
+                var current_btn_category = Get_Current_Class($("button[id=" + vehicles._layers[layerindex].feature.properties.name + "][name=vehicle]").attr("class"));
+                if (new_btn_category !== current_btn_category) {
+                    $("button[id=" + vehicles._layers[layerindex].feature.properties.name + "][name=vehicle]").addClass(new_btn_category).removeClass(current_btn_category);
+                }
+                var batint = parseInt($("span[name=" + vehicles._layers[layerindex].feature.properties.name + "_batter_level" + "]").attr("data-batter_lvl"));
+                if (!vehicles._layers[layerindex].feature.properties.hasOwnProperty("vehicleBatteryPercent")) {
+                    vehicles._layers[layerindex].feature.properties.vehicleBatteryPercent = 0;
+                }
+                if (parseInt(vehicles._layers[layerindex].feature.properties.vehicleBatteryPercent) !== batint) {
+                    $("span[name=" + vehicles._layers[layerindex].feature.properties.name + "_batter_level" + "]").text(vehicles._layers[layerindex].feature.properties.vehicleBatteryPercent + " % Charged").attr("data-batter_lvl", vehicles._layers[layerindex].feature.properties.vehicleBatteryPercent);
+                    $("div[name=" + vehicles._layers[layerindex].feature.properties.name + "_progressbar" + "]").attr("aria-valuenow", vehicles._layers[layerindex].feature.properties.name).css("width", vehicles._layers[layerindex].feature.properties.vehicleBatteryPercent + "%");
+                    new_btn_category = Get_Vehicle_Progress(vehicles._layers[layerindex].feature.properties.vehicleBatteryPercent);
+                    current_btn_category = Get_Current_Class($("div[name=" + vehicles._layers[layerindex].feature.properties.name + "_progressbar" + "]").attr("class"));
+                    if (new_btn_category !== current_btn_category) {
+                        $("div[name=" + vehicles._layers[layerindex].feature.properties.name + "_progressbar" + "]").addClass(new_btn_category).removeClass(current_btn_category);
                     }
                 }
             }
+            if (vehicles._layers[layerindex].feature.properties.hasOwnProperty("Mission") && vehicles._layers[layerindex].feature.properties.Mission.length > 0) {
+                if ($('#vehicletagid').attr("data-id") === vehicles._layers[layerindex].feature.properties.id) {
+                    vehiclemission_Table_Body.empty();
+                    if (!$.isEmptyObject(vehicles._layers[layerindex].feature.properties.Mission)) {
+                        $.each(vehicles._layers[layerindex].feature.properties.Mission, function () {
+                            vehiclemission_Table_Body.append(agvmissionrow_template.supplant(formatvehiclemissionrow(this)));
+                        });
+                    }
+                }
+            }
+            //if (/^Charg/i.test(vehicleupdate.properties.state)) {
+            //    var ChargeIcon = L.Icon.extend({
+            //        options: {
+            //            iconUrl: '<i class="bi-ligthning">',
+            //            iconSize: [32, 32],
+            //            iconAnchor: [10, 0],
+            //            popupAnchor: [5, 5],
+            //        }
+            //    })
+            //    vehicles._layers[layerindex].setIcon(new ChargeIcon);
+            //}
+            //else {
+            //    if (/lightning/i.test(vehicles._layers[layerindex].options.icon.options.iconUrl)) {
+            //        var ChargeIcon = L.Icon.extend({
+            //            options: {
+            //                iconSize: [32, 32],
+            //                iconAnchor: [10, 0],
+            //                popupAnchor: [5, 5],
+            //                iconUrl: 'Content/icons/' + get_icon(vehicles._layers[layerindex].feature.properties.name, vehicles._layers[layerindex].feature.properties.Tag_Type)
+            //            }
+            //        })
+            //        vehicles._layers[layerindex].setIcon(new ChargeIcon);
+            //    }
+            //}
         }
     } catch (e) {
         console.log(e);
     }
 }
-let pivrow_template = '<tr data-id="{TagId}" id="vehicletagid"><td>Vehicle Name:</td><td class="text-left">{name}</td><td>Tag ID:</td><td>{TagId}</td></tr>' +
-    '</td></tr>"';
+async function LoadVehicleTable(dataproperties) {
+    try {
+            $zoneSelect[0].selectize.setValue(-1, true);
+            vehicletop_Table_Body.empty();
+            vehiclemission_Table_Body.empty();
+            $('div[id=vehicle_div]').attr("data-id", dataproperties.id);
+            $('div[id=agvlocation_div]').css('display', 'none');
+            $('div[id=dockdoor_div]').css('display', 'none');
+            $('div[id=trailer_div]').css('display', 'none');
+            $('div[id=machine_div]').css('display', 'none');
+            $('div[id=staff_div]').css('display', 'none');
+            $('div[id=ctstabs_div]').css('display', 'none');
+            $('div[id=area_div]').css('display', 'none');
+            $('div[id=dps_div]').css('display', 'none');
+            $('div[id=vehicle_div]').css('display', 'block');
+
+      
+            if (!/AGV/i.test(dataproperties.name)) {
+                vehicletop_Table_Body.append(pivrow_template.supplant(formatvehicleinforow(dataproperties)));
+            }
+
+            if (/^AGV/i.test(dataproperties.name)) {
+                vehicletop_Table_Body.append(agvrow_template.supplant(formatvehicleinforow(dataproperties)));
+                vehiclemission_Table_Body.empty();
+                if (!$.isEmptyObject(dataproperties.Mission)) {
+                    $.each(dataproperties.Mission, function () {
+                        vehiclemission_Table_Body.append(agvmissionrow_template.supplant(formatvehiclemissionrow(this)));
+                    });
+                }
+            }
+    } catch (e) {
+        console.log(e);
+    }
+}
+let pivrow_template = '<tr data-id="{TagId}" id="vehicletagid">' +
+    '<td>Vehicle Name:</td>' +
+    '<td class="text-left">{name}</td>' +
+    '<td>Tag ID:</td>' +
+    '<td>{TagId}</td>' +
+    '</tr>' +
+    '</td>' +
+    '</tr>"';
+let vehicletop_Table = $('table[id=vehicletable]');
+let vehicletop_Table_Body = vehicletop_Table.find('tbody');
+
 let agvrow_template = '<tr data-id="{TagId}" id="vehicletagid"><td>Vehicle Name:</td><td class="text-left">{name}</td><td>Tag ID:</td><td>{TagId}</td></tr>' +
     '<tr><td>State:</td><td colspan="3"><button id="{name}" name="vehicle" class="btn btn-block btn-sm {vehiclestateCategory} vehiclehistory" style="margin-bottom: 2px;" value="{vehiclestate}">{vehiclestate}</button></td></tr>"' +
     '<tr><td>Battery:</td><td colspan="3">' +
@@ -264,13 +258,26 @@ let agvrow_template = '<tr data-id="{TagId}" id="vehicletagid"><td>Vehicle Name:
     '<span name="{name}_batter_level" style="color: black; position: absolute;" data-batter_lvl="{batterylevelnum}">{batterylevelnum} % Charged</span>' +
     '</div>' +
     '</div>' + '</td></tr>"';
-let agvmissionrow_template = '<tr class="text-center" id=inmission><td class="font-weight-bold" colspan="2" >In Mission Status</td>' +
-    '<tr id=pickupLocation_{TagId}><td>Pickup Location:</td><td>{pickuplocation}</td></tr>' +
-    '<tr id=pickupLocationEta_{TagId}><td>ETA to Pickup:</td><td>{pickuplocationEta}</td></tr>' +
-    '<tr id=dropoffLocation_{TagId}><td>Drop-Off Location:</td><td>{dropofflocation}</td></tr>' +
-    '<tr id=endLocation_{TagId}><td>End Location:</td><td>{endlocation}</td></tr>' +
-    '<tr><td>Placard:</td><td>{mtelplacard}</td></tr>' +
+
+let agvmissionrow_template = '<tr class="text-center" id=inmission>' +
+    '<td class="font-weight-bold" colspan="2">' +
+        '<h6 class="control-label sectionHeader ml-1 mb-1 d-flex justify-content-between">' +
+        'Mission Status' +
+        '<span class="d-flex justify-content-between">' +
+        'Request ID:' +
+        '<span class="btn btn-secondary border-0 badge-dark badge">{RequestId}</span>  ' +
+        '</span>' +
+        '</h6 >' +
+    '</td>' +
+    '<tr id=pickupLocation_{TagId}><td>Pickup Location:</td><td>{PickupLocation}</td></tr>' +
+    '<tr id=pickupLocationEta_{TagId}><td>ETA to Pickup:</td><td>{PickupLocationEta}</td></tr>' +
+    '<tr id=dropoffLocation_{TagId}><td>Drop-Off Location:</td><td>{DropoffLocation}</td></tr>' +
+    '<tr id=endLocation_{TagId}><td>End Location:</td><td>{EndLocation}</td></tr>' +
+    '<tr id=Door_{TagId}><td>Door:</td><td>{Door}</td></tr>' +
+    '<tr><td>Placard:</td><td>{Placard}</td></tr>' +
     '</tr>';
+let vehiclemission_Table = $('table[id=vehiclemissiontable]');
+let vehiclemission_Table_Body = vehiclemission_Table.find('tbody');
 function formatvehicleinforow(properties) {
     return $.extend(properties, {
         TagId: properties.id,
@@ -285,14 +292,12 @@ function formatvehicleinforow(properties) {
 }
 function formatvehiclemissionrow(properties) {
     return $.extend(properties, {
-        TagId: properties.id,
-        name: properties.name,
-        inMission: properties.hasOwnProperty("inMission") ? properties.inMission === true ? "Yes" : "No" : "No",
-        pickuplocation: properties.hasOwnProperty("pickupLocation") ? Get_location_Code(properties.pickupLocation) : "N/A",
-        dropofflocation: properties.hasOwnProperty("dropoffLocation") ? Get_location_Code(properties.dropoffLocation) : "N/A",
-        endlocation: properties.hasOwnProperty("endLocation") ? Get_location_Code(properties.endLocation) : "N/A",
-        pickuplocationEta: properties.hasOwnProperty("etaToPickup") ? properties.etaToPickup : "N/A",
-        mtelplacard: properties.hasOwnProperty("placard") ? properties.placard : "N/A"
+        RequestId: properties.Request_Id,
+        PickupLocation: properties.hasOwnProperty("Pickup_Location") ? Get_location_Code(properties.Pickup_Location) : "N/A",
+        DropoffLocation: properties.hasOwnProperty("Dropoff_Location") ? Get_location_Code(properties.Dropoff_Location) : "N/A",
+        EndLocation: properties.hasOwnProperty("End_Location") ? Get_location_Code(properties.End_Location) : "N/A",
+        PickupLocationEta: properties.hasOwnProperty("ETA") ? properties.ETA : "N/A",
+        Placard: properties.hasOwnProperty("Placard") ? properties.Placard : "N/A"
     });
 }
 function Get_Vehicle_Catagory(category) {

@@ -1,0 +1,53 @@
+﻿[
+  {
+    "ID": 1,
+    "ACTIVE_CONDITION": true,
+    "CREATED_DATE": "2022-01-27T22:46:44.8280398-05:00",
+    "CREATED_BY_USERNAME": "FSVCD0",
+    "LASTUPDATE_BY_USERNAME": "FSVCD0",
+    "LASTUPDATE_DATE": "2022-01-27T22:47:12.1024032-05:00",
+    "NAME": "Late Route Trips",
+    "TYPE": "routetrip",
+    "CONDITIONS": "LATE",
+    "WARNING": "5",
+    "WARNING_ACTION": "1. Notify Dock SDO or expeditors of missing scan.  \n2. Scan truck arrived.\n3. Retrain employee on scanning requirements.",
+    "WARNING_COLOR": "",
+    "CRITICAL": "12",
+    "CRITICAL_ACTION": "1. Notify Dock SDO or expeditors of missing scan.  \n2. Scan truck arrived.\n3. Retrain employee on scanning requirements.",
+    "CRITICAL_COLOR": ""
+  },
+  {
+    "ID": 2,
+    "ACTIVE_CONDITION": true,
+    "CREATED_DATE": "2022-01-10T09:08:16.0933563-08:00",
+    "CREATED_BY_USERNAME": "FSVCD0",
+    "LASTUPDATE_BY_USERNAME": "",
+    "LASTUPDATE_DATE": "",
+    "NAME": "AGV Blocked",
+    "TYPE": "vehicle",
+    "CONDITIONS": "(blocked|obstructed)$",
+    "WARNING": "0",
+    "WARNING_ACTION": "Cleared when blockage is removed \n1.  CLEAR PATH FOR AGV \n2. MANUALLY RESET AGV",
+    "WARNING_COLOR": "",
+    "CRITICAL": "2",
+    "CRITICAL_ACTION": "Cleared when blockage is removed \n1.  CLEAR PATH FOR AGV \n2. MANUALLY RESET AGV",
+    "CRITICAL_COLOR": ""
+  },
+  {
+    "ID": 3,
+    "ACTIVE_CONDITION": true,
+    "CREATED_DATE": "2022-01-10T09:08:16.0933563-08:00",
+    "CREATED_BY_USERNAME": "FSVCD0",
+    "LASTUPDATE_BY_USERNAME": "",
+    "LASTUPDATE_DATE": "",
+    "NAME": "AGV Error",
+    "TYPE": "vehicle",
+    "CONDITIONS": "(error)$",
+    "WARNING": "0",
+    "WARNING_ACTION": "Cleared when blockage is removed \n1.  CLEAR PATH FOR AGV \n2. MANUALLY RESET AGV",
+    "WARNING_COLOR": "",
+    "CRITICAL": "2",
+    "CRITICAL_ACTION": "Cleared when blockage is removed \n1.  CLEAR PATH FOR AGV \n2. MANUALLY RESET AGV",
+    "CRITICAL_COLOR": ""
+  }
+]

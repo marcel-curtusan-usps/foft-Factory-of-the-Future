@@ -94,21 +94,21 @@ $(function () {
         zoomControl: false,
         measureControl: true,
         tap: false,
-        layers: [polygonMachine, vehicles, agvLocations, container, stagingAreas, circleMarker, dockDoors, locatorMarker]
+        layers: [polygonMachine, vehicles, agvLocations, container, stagingAreas, tagsMarkersGroup, dockDoors]
     });
     var overlayMaps = {
         "Vehicles Tag": vehicles,
-        "SELS Tag": circleMarker,
-        "Locators": locatorMarker,
+        "SELS Tag": tagsMarkersGroup,
         "AGV Locations": agvLocations,
         "MPE Work Areas": polygonMachine,
         "Dock Doors": dockDoors,
         "Staging Areas": stagingAreas,
-        "Viewports": viewPortsAreas,
+        "View-ports": viewPortsAreas,
         "EBR Areas": ebrAreas,
         "Exit Areas": exitAreas,
         "Work Area": walkwayAreas,
-        "Polygon Holes": polyholesAreas
+        "Polygon Holes": polyholesAreas,
+        "Locator's": locatorMarker
     };
     var timedisplay = L.Control.extend({
         options: {
@@ -424,11 +424,7 @@ $(function () {
             
             }
 
-            $('button[name=addnotificationsetup]').off().on('click', function () {
-                /* close the sidebar */
-                sidebar.close();
-                Notificationsetup({},"notificationsetuptable");
-            });
+         
             if (/^Admin/i.test(User.Role)) {
                 sidebar.addPanel({
                     id: 'setting',
@@ -539,9 +535,9 @@ $(function () {
                         //set new image
                         var img = new Image();
                         //load Base64 image
-                        img.src = MapData.Base64Img;
+                        img.src = MapData.base64;
                         //create he bound of the image.
-                        bounds = [[MapData.YMeter, MapData.XMeter], [MapData.HeightMeter + MapData.YMeter, MapData.WidthMeter + MapData.XMeter]];
+                        bounds = [[MapData.yMeter, MapData.xMeter], [MapData.heightMeter + MapData.yMeter, MapData.widthMeter + MapData.xMeter]];
                         var trackingarea = L.polygon(bounds, {});
                         //add the image to the map
                         L.imageOverlay(img.src, trackingarea.getBounds()).addTo(map);
@@ -707,8 +703,8 @@ $(function () {
     async function zonecurrentStaff() {
         try {
             //clear Old tags 
-            if (circleMarker.hasOwnProperty("_layers")) {
-                $.map(circleMarker._layers, (layer) => {
+            if (tagsMarkersGroup.hasOwnProperty("_layers")) {
+                $.map(tagsMarkersGroup._layers, (layer) => {
                     if (layer.hasOwnProperty("feature")) {
                         if (layer.feature.properties.hasOwnProperty("Tag_Type")) {
                             if (/person/i.test(layer.feature.properties.Tag_Type)) {
@@ -743,8 +739,8 @@ $(function () {
             if (polygonMachine.hasOwnProperty("_layers")) {
                 $.map(polygonMachine._layers, function (Machinelayer, i) {
                     var MachineCurrentStaff = [];
-                    if (circleMarker.hasOwnProperty("_layers")) {
-                        $.map(circleMarker._layers, function (layer, i) {
+                    if (tagsMarkersGroup.hasOwnProperty("_layers")) {
+                        $.map(tagsMarkersGroup._layers, function (layer, i) {
                             if (layer.hasOwnProperty("feature")) {
                                 if (/person/i.test(layer.feature.properties.Tag_Type)) {
                                     if (layer.feature.properties.hasOwnProperty("zones")) {
@@ -785,8 +781,8 @@ $(function () {
             if (stagingAreas.hasOwnProperty("_layers")) {
                 $.map(stagingAreas._layers, function (stagelayer, i) {
                     var CurrentStaff = [];
-                    if (circleMarker.hasOwnProperty("_layers")) {
-                        $.map(circleMarker._layers, function (layer, i) {
+                    if (tagsMarkersGroup.hasOwnProperty("_layers")) {
+                        $.map(tagsMarkersGroup._layers, function (layer, i) {
                             if (layer.hasOwnProperty("feature")) {
                                 if (/person/i.test(layer.feature.properties.Tag_Type)) {
                                     if (layer.feature.properties.hasOwnProperty("zones")) {
@@ -849,7 +845,7 @@ $(function () {
                         if (layer.feature.properties.id === tagid) {
                             map.setView(layer.getLatLng(), 3);
                             sidebar.open('home');
-                            LoadVehicleTable(layer.feature.properties, 'vehicletable');
+                            LoadVehicleTable(layer.feature.properties);
                             return false;
                         }
                     }
@@ -1252,8 +1248,8 @@ function GetPeopleInZone(zone, P2Pdata, staffarray) {
     var sumstaffCounts = {};
     try {
         if (staffarray.length === 0) {
-            if (circleMarker.hasOwnProperty("_layers")) {
-                $.map(circleMarker._layers, function (layer, i) {
+            if (tagsMarkersGroup.hasOwnProperty("_layers")) {
+                $.map(tagsMarkersGroup._layers, function (layer, i) {
                     if (layer.hasOwnProperty("feature")) {
                         if (/person/i.test(layer.feature.properties.Tag_Type)) {
                             if (layer.feature.properties.hasOwnProperty("zones")) {

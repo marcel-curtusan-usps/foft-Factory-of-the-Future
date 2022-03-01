@@ -27,7 +27,7 @@ namespace Factory_of_the_Future
         WaitAll = 2,
         Parallel = 3
     }
-
+  
     public class JObject_List
     {
         public JObject _notification_conditions = new JObject();
@@ -216,34 +216,6 @@ namespace Factory_of_the_Future
             }
             set { return; }
         }
-        public JObject map = new JObject();
-
-        public JObject Map
-        {
-            get
-            {
-                map["Id"] = "";
-                map["Site_Id"] = "";
-                map["OrigoY"] = "";
-                map["OrigoX"] = "";
-                map["MetersPerPixelY"] = "";
-                map["MetersPerPixelX"] = ""; 
-                map["WidthMeter"] = "";
-                map["HeightMeter"] = "";
-                map["YMeter"] = "";
-                map["XMeter"] = "";
-                map["Base64Img"] = "";
-                map["Facility_Name"] = "";
-                map["Facility_TimeZone"] = "";
-                map["Environment"] = "";
-                map["Software_Version"] = "";
-                map["TrackingArea"] = "";
-                map["Map_Update"] = false;
-                return map;
-            }
-            set { return; }
-        }
-
         public JObject aduser = new JObject();
 
         public JObject ADuser
@@ -286,7 +258,6 @@ namespace Factory_of_the_Future
             }
             set { return; }
         }
-    
     }
     public class EventDtm
     {

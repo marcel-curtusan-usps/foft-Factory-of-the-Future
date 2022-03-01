@@ -13,19 +13,8 @@ var locatorMarker = new L.GeoJSON(null, {
     pointToLayer: function (feature, latlng) {
         var locaterIcon = L.divIcon({
             id: feature.properties.id,
-            className: 'pi-iconRepairZone ml--16 iconXSmall',
-            html: '<i>' +
-                '<span class="path1"></span>' +
-                '<span class="path2"></span>' +
-                '<span class="path3"></span>' +
-                '<span class="path4"></span>' +
-                '<span class="path5"></span>' +
-                '<span class="path6"></span>' +
-                '<span class="path7"></span>' +
-                '<span class="path8"></span>' +
-                '<span class="path9"></span>' +
-                '<span class="path10"></span>' +
-                '</i>'
+            className: 'bi-broadcast',
+            
         });
         return L.marker(latlng, {
             icon: locaterIcon,
@@ -34,6 +23,12 @@ var locatorMarker = new L.GeoJSON(null, {
             bubblingMouseEvents: true,
             popupOpen: true
         })
+    },
+    onEachFeature: function (feature, layer) {
+        layer.bindTooltip(feature.properties.name, {
+            permanent: false,
+            direction: 'top',
+            opacity: 0.9
+        }).openTooltip();
     }
-    
 })

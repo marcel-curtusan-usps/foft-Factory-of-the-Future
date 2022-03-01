@@ -145,7 +145,7 @@ $('#Notification_Setup_Modal').on('shown.bs.modal', function () {
     $('select[name=condition_type]').change(function () {
         if (!checkValue($('select[name=condition_type]').val())) {
             $('select[name=condition_type]').removeClass('is-valid').addClass('is-invalid');
-            $('span[id=error_servercontenttype]').text("Please Select Condition Type");
+            $('span[id=error_condition_type]').text("Please Select Condition Type");
         }
         else {
             $('select[name=condition_type]').removeClass('is-invalid').addClass('is-valid');
@@ -153,132 +153,142 @@ $('#Notification_Setup_Modal').on('shown.bs.modal', function () {
         }
         enableNotificationSubmit();
     });
+    if ($('select[name=condition_type]').val() === "") {
+        $('select[name=condition_type]').removeClass('is-valid').addClass('is-invalid');
+        $('span[id=error_condition_type]').text("Please Select Condition Type");
+    }
 });
-var notification = [];
+$('button[name=addnotificationsetup]').off().on('click', function () {
+    /* close the sidebar */
+    sidebar.close();
+    Notificationsetup({}, "notificationsetuptable");
+});
+let notification = [];
 async function updateNotification(updatenotification) {
     try {
-        if (updatenotification) {
-            var notificationindex = notification.filter(x => x.NOTIFICATIONGID === updatenotification.NOTIFICATIONGID).map(x => x).length;
-            let indexobj = -0;
-            var Vehiclecount = -0;
-            var routetripcount = -0;
-            var machinecount = -0;
-
-            if (notificationindex === 0) {
-                notification.push(updatenotification);
-            }
-            if (notificationindex > 0) {
-                if (updatenotification.hasOwnProperty("DELETE")) {
-                    if (updatenotification.DELETE) {
-                        notification.forEach(function (obj) {
-                            if (obj.NOTIFICATIONGID === updatenotification.NOTIFICATIONGID) {
-                                notification.splice(notification.indexOf(obj), 1);
-                            }
-                        })
-                    }
-                }
-                else {
-                    notification.forEach(function (obj) {
-                        if (obj.NOTIFICATIONGID === updatenotification.NOTIFICATIONGID) {
-                            indexobj = notification.indexOf(obj);
-                        }
-                    })
-                }
-                let Table = {};
-                if (/routetrip/i.test(updatenotification.TYPE)) {
-                    var triptabvisible = sidebar._getTab("tripsnotificationinfo");
-                    if (triptabvisible) {
-                        if (triptabvisible.classList.length) {
-                            if (triptabvisible.classList.contains('active')) {
-                                Table = $('table[id=tripsnotificationtable]');
-                                if (Table.length > 0) {
-                                    let Table_Body = Table.find('tbody');
-                                    let findtrdataid = Table_Body.find('tr[data-id=' + updatenotification.NOTIFICATIONGID + ']');
-                                    if (findtrdataid.length > 0) {
-                                        if (updatenotification.hasOwnProperty("DELETE")) {
-                                            Table_Body.find('tr[data-id=' + updatenotification.NOTIFICATIONGID + ']').remove();
-                                            Table_Body.find('tr[data-id=collapse_' + updatenotification.NOTIFICATIONGID + ']').remove();
-                                        }
-                                        else {
-                                            Table_Body.find('tr[data-id=' + updatenotification.NOTIFICATIONGID + ']').remove();
-                                            Table_Body.find('tr[data-id=collapse_' + updatenotification.NOTIFICATIONGID + ']').remove();
-                                            Table_Body.append(routetriprow_template.supplant(formatroutetripnotifirow(updatenotification)));
-                                       }
-                                    }
-                                    else {
-                                        Table_Body.append(routetriprow_template.supplant(formatroutetripnotifirow(updatenotification)));
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-                if (/vehicle/i.test(updatenotification.TYPE)) {
-                    var agvtabvisible = sidebar._getTab("agvnotificationinfo");
-                    if (agvtabvisible) {
-                        if (agvtabvisible.classList.length) {
-                            if (agvtabvisible.classList.contains('active')) {
-                                Table = $('table[id=agvnotificationtable]');
-                                if (Table.length > 0) {
-                                    let Table_Body = Table.find('tbody');
-                                    let findagvtrdataid = Table_Body.find('tr[data-id=' + updatenotification.NOTIFICATIONGID + ']');
-                                    if (findagvtrdataid.length > 0) {
-                                        if (updatenotification.hasOwnProperty("DELETE")) {
-                                            Table_Body.find('tr[data-id=' + updatenotification.NOTIFICATIONGID + ']').remove();
-                                        }
-                                        else {
-                                            Table_Body.find('tr[data-id=' + updatenotification.NOTIFICATIONGID + ']').replaceWith(row_template.supplant(formatnotifirow(updatenotification)));
-                                        }
-                                    }
-                                    else {
-                                        Table_Body.append(row_template.supplant(formatnotifirow(updatenotification)));
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-
-
-            Vehiclecount = notification.filter(x => x.TYPE === "vehicle").map(x => x).length
-            routetripcount = notification.filter(x => x.TYPE === "routetrip").map(x => x).length
-            //machinecount = notification.filter(x => x.TYPE === "machine").map(x => x).length
-
-            //AGV Counts
-            if (Vehiclecount > 0) {
-                if (parseInt($('#agvnotificaion_number').text()) !== Vehiclecount) {
-                    $('#agvnotificaion_number').text(Vehiclecount);
+        let notificationindex = notification.filter(x => x.NOTIFICATIONGID === updatenotification.NOTIFICATIONGID).map(x => x).length;
+        //add notification
+        if (notificationindex === 0) {
+            notification.push(updatenotification);
+        }
+        if (notificationindex > 0) {
+            if (updatenotification.hasOwnProperty("DELETE")) {
+                if (updatenotification.DELETE) {
+                    //delete notification 
+                    Promise.all([delete_notification(updatenotification.NOTIFICATIONGID)]);
                 }
             }
             else {
-                $('#agvnotificaion_number').text("");
+                //update notification
+                Promise.all([update_notification(updatenotification.NOTIFICATIONGID)]);
             }
-            // routetrip Counts
-            if (routetripcount > 0) {
-                if (parseInt($('#tripsnotificaion_number').text()) !== routetripcount) {
-                    $('#tripsnotificaion_number').text(routetripcount);
-                }
-                $('#ctsnotificaion_number').text(routetripcount);
-            }
-            else {
-                $('#tripsnotificaion_number').text("");
-            }
-            //machine counts
-            //if (machinecount > 0) {
-            //    $('#machinenotificaion_number').text(Vehiclecount);
-            //}
-            //else {
-            //    $('#machinenotificaion_number').text("");
-            //}
+        }
+       
+        if (/vehicle/i.test(updatenotification.TYPE)) {
+            Promise.all([updateagvTable(updatenotification)]);
+        }
+        if (/routetrip/i.test(updatenotification.TYPE)) {
+            Promise.all([updatetripTable(updatenotification)]);
         }
     }
     catch (e) {
         console.log(e);
     }
 }
+async function updateagvTable(updatenotification) {
+    try {
+        let Vehiclecount = notification.filter(x => x.TYPE === "vehicle").map(x => x).length;
+        //AGV Counts
+        if (Vehiclecount > 0) {
+            if (parseInt($('#agvnotificaion_number').text()) !== Vehiclecount) {
+                $('#agvnotificaion_number').text(Vehiclecount);
+            }
+        }
+        else {
+            $('#agvnotificaion_number').text("");
+        }
+        let findagvtrdataid = agvnotificationtable_Body.find('tr[data-id=' + updatenotification.NOTIFICATIONGID + ']');
+        if (findagvtrdataid.length > 0) {
+            if (updatenotification.hasOwnProperty("DELETE")) {
+                agvnotificationtable_Body.find('tr[data-id=' + updatenotification.NOTIFICATIONGID + ']').remove();
+            }
+            else {
+                agvnotificationtable_Body.find('tr[data-id=' + updatenotification.NOTIFICATIONGID + ']').replaceWith(agv_row_template.supplant(formatagvnotifirow(updatenotification)));
+            }
+        }
+        else {
+            agvnotificationtable_Body.append(agv_row_template.supplant(formatagvnotifirow(updatenotification)));
+        }
+    } catch (e) {
+        console.log(e);
+    }
+    return null;
+}
+async function updatetripTable(updatenotification) {
+    try {
+        let routetripcount = notification.filter(x => x.TYPE === "routetrip").map(x => x).length;
+        // routetrip Counts
+        if (routetripcount > 0) {
+            if (parseInt($('#tripsnotificaion_number').text()) !== routetripcount) {
+                $('#tripsnotificaion_number').text(routetripcount);
+            }
+            $('#ctsnotificaion_number').text(routetripcount);
+        }
+        else {
+            $('#tripsnotificaion_number').text("");
+        }
+        let findtrdataid = tripsnotificationtable_Body.find('tr[data-id=' + updatenotification.NOTIFICATIONGID + ']');
+        if (findtrdataid.length > 0) {
+            if (updatenotification.hasOwnProperty("DELETE")) {
+                tripsnotificationtable_Body.find('tr[data-id=' + updatenotification.NOTIFICATIONGID + ']').remove();
+                tripsnotificationtable_Body.find('tr[data-id=collapse_' + updatenotification.NOTIFICATIONGID + ']').remove();
+            }
+            else {
+                tripsnotificationtable_Body.find('tr[data-id=' + updatenotification.NOTIFICATIONGID + ']').remove();
+                tripsnotificationtable_Body.find('tr[data-id=collapse_' + updatenotification.NOTIFICATIONGID + ']').remove();
+                tripsnotificationtable_Body.append(trip_row_template.supplant(formattripnotifirow(updatenotification)));
+            }
+        }
+        else {
+            tripsnotificationtable_Body.append(trip_row_template.supplant(formattripnotifirow(updatenotification)));
+        }
+    } catch (e) {
+        console.log(e);
+    }
+    return null;
+}
+async function delete_notification(id)
+{
+    try {
+        notification.forEach(function (obj) {
+            if (obj.NOTIFICATIONGID === id) {
+                notification.splice(notification.indexOf(obj), 1);
+            }
+        });
+        return null;
+    } catch (e) {
+        console.log(e);
+    }
+  
+}
+async function update_notification(id) {
+    try {
+        notification.forEach(function (obj) {
+            if (obj.NOTIFICATIONGID === id) {
+                let indexobj = notification.indexOf(obj);
+            }
+        });
+        return null;
+    } catch (e) {
+        console.log(e);
+    }
+
+}
+let agvnotificationtable = $('table[id=agvnotificationtable]');
+let agvnotificationtable_Body = agvnotificationtable.find('tbody');
 function LoadNotification(value) {
     try {
+     
         $.connection.FOTFManager.server.getNotification(value).done(function (Data) {
             $.each(Data, function () {
                 updateNotification(this);
@@ -308,29 +318,29 @@ function LoadNotificationsetup(Data, table) {
         });
     });
 }
-let row_template =
+let agv_row_template =
     '<tr data-id={id} style=background-color:{conditioncolor} data-toggle=collapse data-target=#{action_text} class=accordion-toggle>' +
     '<td>{name}</td>' +
     '<td><button class="btn btn-outline-info btn-sm btn-block tagdetails" data-tag="{tagid}" >{type}</button></td>' +
     '<td>{duration}</td>' +
     '</tr>'
     ;
-function formatnotifirow(properties, indx) {
+function formatagvnotifirow(properties, indx) {
     return $.extend(properties, {
         id: properties.NOTIFICATIONGID,
         tagid: properties.TAGID,
         name: properties.NAME,
-        type: properties.VEHICLENAME,
+        type: properties.name,
         condition: properties.CONDITIONS,
-        duration: calculateDuration(properties.VEHICLETIME),
-        conditioncolor: conditioncolor(properties.VEHICLETIME, parseInt(properties.WARNING), parseInt(properties.CRITICAL)),
+        duration: calculatevehicleDuration(properties.vehicleTime),
+        conditioncolor: conditioncolor(properties.TIME, parseInt(properties.WARNING), parseInt(properties.CRITICAL)),
         warning_action_text: properties.WARNING_ACTION,
         critical_action_text: properties.CRITICAL_ACTION,
-        action_text: conditionaction_text(properties.VEHICLETIME, parseInt(properties.WARNING), parseInt(properties.CRITICAL)) + "_" + properties.NOTIFICATIONGID,
+        action_text: conditionaction_text(properties.vehicleTime, parseInt(properties.WARNING), parseInt(properties.CRITICAL)) + "_" + properties.NOTIFICATIONGID,
         indexobj: indx
     });
 }
-let routetriprow_template =
+let trip_row_template =
     '<tr data-id={id} class="accordion-toggle collapsed" id={id} data-toggle=collapse data-parent=#{id} href="#collapse_{id}">' +
   
     '<td class="text-center">{schd}</td>' +
@@ -353,14 +363,16 @@ let routetriprow_template =
             '<div class="collapse" id="collapse_{id}">' +
             '<div class="mt-1">' +
             '<ol class="pl-4 mb-0">' +
-            '<li class="pb-1">{warning_action_text}</li> ' +
+            '<p class="pb-1">{warning_action_text}</p> ' +
             '</ol>' +
             '</div>' +
             '</div>' +
         '</td>' +
     '</tr>'
     ;
-function formatroutetripnotifirow(properties, indx) {
+let tripsnotificationtable = $('table[id=tripsnotificationtable]');
+let tripsnotificationtable_Body = tripsnotificationtable.find('tbody');
+function formattripnotifirow(properties, indx) {
     return $.extend(properties, {
         id: properties.NOTIFICATIONGID,
         tagid: properties.TAGID,
@@ -641,5 +653,33 @@ function calculateDuration(t) {
         else {
             return "";
         }
+    }
+}
+function calculatevehicleDuration(t) {
+    if (checkValue(t)) {
+        var conditiontime = moment(t).tz(timezone.Facility_TimeZone);//moment(time);  // 5am PDT
+        var curenttime = moment();
+        if (conditiontime._isValid) {
+            var d = moment.duration(curenttime.diff(conditiontime));
+            return moment.duration(d._milliseconds, "milliseconds").format("d [days], h [hrs], m [min]", {
+                useSignificantDigits: true,
+                trunc: true,
+                precision: 3
+            });
+        }
+        else {
+            return "";
+        }
+    }
+}
+function enableNotificationSubmit() {
+    if ($('input[type=text][name=condition_name]').hasClass('is-valid') &&
+        $('input[type=text][name=condition]').hasClass('is-valid') &&
+        $('select[name=condition_type]').hasClass('is-valid')
+    ) {
+        $('button[id=notificationsubmitBtn]').prop('disabled', false);
+    }
+    else {
+        $('button[id=notificationsubmitBtn]').prop('disabled', true);
     }
 }

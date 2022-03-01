@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
+using System.Threading.Tasks;
 using System.Web.Http;
 using System.Web.Http.Description;
 
@@ -18,7 +19,7 @@ namespace Factory_of_the_Future.Controllers
         {
             if (trailer.HasValues)
             {
-                return Global.Containers.Where(r => r.Value.Otrailer == (string)trailer.Property("trailerBarcode").Value
+                return Global.Containers.Where(r => r.Value.Otrailer == (string)trailer["trailerBarcode"]
                                                              
                                                                ).Select(y => y.Value).ToList();
             }
@@ -40,12 +41,9 @@ namespace Factory_of_the_Future.Controllers
                 {
            
                     JObject temp1 = new JObject(new JProperty("container", request_data));
-                    //create new Connection Object
-                    JObject conn = new JObject(new JProperty("MESSAGE_TYPE", "container"));
                     //Send data to be processed.
-                    Global.ProcessRecvdMsg_callback.StartProcess(temp1, conn);
-                    temp1 = null;
-                    conn = null;
+                    Task.Run(() => new ProcessRecvdMsg().StartProcess(request_data, "container"));
+            
                 }
             }
             else
