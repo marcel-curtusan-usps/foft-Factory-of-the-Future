@@ -32,7 +32,7 @@ namespace Factory_of_the_Future
             //SendAsync(endpoint, buffer, 0, size);
 
             string incomingData = Encoding.UTF8.GetString(buffer, (int)offset, (int)size);
-            Global.API_List.Where(x => (string)x.Value.Property("ID").Value == this.conid).Select(y => y.Value).ToList().ForEach(m =>
+            foreach (JObject m in Global.API_List.Where(x => (string)x.Value.Property("ID").Value == this.conid).Select(y => y.Value))
             {
                 try
                 {
@@ -88,7 +88,7 @@ namespace Factory_of_the_Future
                     m.Property("LASTTIME_API_CONNECTED").Value = DateTime.Now;
                     m.Property("UPDATE_STATUS").Value = true;
                 }
-            });
+            };
             ReceiveAsync();
 
         }
@@ -495,12 +495,12 @@ namespace Factory_of_the_Future
         {
             try
             {
-                Global.API_List.Where(x => (string)x.Value.Property("ID").Value == api_Connection.ID).Select(y => y.Value).ToList().ForEach(m =>
+                foreach (JObject m in Global.API_List.Where(x => (string)x.Value.Property("ID").Value == api_Connection.ID).Select(y => y.Value))
                 {
                     m.Property("API_CONNECTED").Value = api_Connection.Connected;
                     m.Property("LASTTIME_API_CONNECTED").Value = api_Connection.DownloadDatetime;
                     m.Property("UPDATE_STATUS").Value = true;
-                });
+                };
             }
             catch (Exception e)
             {

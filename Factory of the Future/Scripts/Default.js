@@ -680,7 +680,7 @@ $(function () {
             if (connectattp > 10) {
                 clearTimeout(connecttimer);
             }
-            connectattp =+ 1;
+            connectattp += 1;
             conntoggle.state('conn-off');
             $.connection.hub.start().done(function () {
                 console.log("Connected time" + new Date($.now()));

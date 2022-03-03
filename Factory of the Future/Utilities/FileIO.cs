@@ -102,9 +102,9 @@ namespace Factory_of_the_Future
                         {
                             if (FileName.ToUpper() == _file.Name.ToUpper())
                             {
-                                if (maindir.FullName.Contains("Configuration") || maindir.FullName.Contains("AppSetting"))
+                                if (Path.GetFileName(_file.Name).Contains("txt"))
                                 {
-                                    FileStream file = new FileStream(maindir.FullName.ToString() + "\\" + FileName, FileMode.Create, FileAccess.ReadWrite, FileShare.ReadWrite);
+                                    FileStream file = new FileStream(_file.FullName.ToString(), FileMode.Append, FileAccess.Write, FileShare.ReadWrite);
                                     using (StreamWriter sr = new StreamWriter(file, Encoding.UTF8))
                                     {
                                         file = null;
@@ -113,7 +113,7 @@ namespace Factory_of_the_Future
                                 }
                                 else
                                 {
-                                    FileStream file = new FileStream(_file.FullName.ToString(), FileMode.Append, FileAccess.Write, FileShare.ReadWrite);
+                                    FileStream file = new FileStream(maindir.FullName.ToString() + "\\" + FileName, FileMode.Create, FileAccess.ReadWrite, FileShare.ReadWrite);
                                     using (StreamWriter sr = new StreamWriter(file, Encoding.UTF8))
                                     {
                                         file = null;

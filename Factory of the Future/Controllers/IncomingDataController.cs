@@ -8,6 +8,7 @@ namespace Factory_of_the_Future.Controllers
     public class IncomingDataController : ApiController
     {
         // GET: api/IncomingData
+        [AcceptVerbs("GET", "HEAD")]
         public IEnumerable<string> Get()
         {
             return new string[] { "value1", "value2" };

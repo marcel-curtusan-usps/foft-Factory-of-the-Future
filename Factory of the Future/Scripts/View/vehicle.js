@@ -176,6 +176,12 @@ async function AGVStausUpdate(layerindex)
                     }
                 }
             }
+            else {
+                if (vehiclemission_Table_Body.find("tr[id=inmission]").length > 0) {
+                    vehiclemission_Table_Body.empty();
+                }
+               
+            }
             //if (/^Charg/i.test(vehicleupdate.properties.state)) {
             //    var ChargeIcon = L.Icon.extend({
             //        options: {

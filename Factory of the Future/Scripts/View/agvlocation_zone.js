@@ -49,12 +49,15 @@ async function updateAGVLocationZone(locationupdate) {
                     if (layer.feature.properties.id === locationupdate.properties.id) {
                         layer.feature.properties = locationupdate.properties;
                         layerindex = layer._leaflet_id;
-                        updatelocation(layerindex);
+                    
                         return false;
                     }
                 }
             });
             if (layerindex !== -0) {
+                if (agvLocations._layers[layerindex].feature.properties.hasOwnProperty("MissionList")) {
+                    updatelocation(layerindex);
+                }
                 if ($('div[id=agvlocation_div]').is(':visible') && $('div[id=agvlocation_div]').attr("data-id") === locationupdate.properties.id) {
                     LoadAGVLocationTables(locationupdate.properties);
                 }

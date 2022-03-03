@@ -467,11 +467,11 @@ namespace Factory_of_the_Future
 
                 if (Global.Containers.Count > 0)
                 {
-                    Global.Containers.Where(r => DateTime.Now.Subtract(r.Value.EventDtm).TotalDays > 2).Select(y => y.Key).ToList().ForEach(m =>
+                    foreach (string m in Global.Containers.Where(r => DateTime.Now.Subtract(r.Value.EventDtm).TotalDays >= 3).Select(y => y.Key))
                     {
                         Global.Containers.TryRemove(m, out Container outc);
 
-                    });
+                    }
                 }
             }
             catch (Exception e)
@@ -523,10 +523,14 @@ namespace Factory_of_the_Future
 
                     }
                 }
-
-                Global.RouteTrips.Where(r => (int)r.Value["tripMin"] < -1440).Select(y => y.Key).ToList().ForEach(m => {
-                    Global.RouteTrips.TryRemove(m,out JObject value);
-                });  
+                if (Global.RouteTrips.Count > 0)
+                {
+                    foreach(string m in Global.RouteTrips.Where(r => (int)r.Value["tripMin"] < -1440).Select(y => y.Key))
+                    {
+                        Global.RouteTrips.TryRemove(m, out JObject value);
+                    }
+                }
+                 
 
             }
             catch (Exception e)
@@ -584,107 +588,107 @@ namespace Factory_of_the_Future
                 if (jsonObject.HasValues)
                 {
                     string siteId = (string)Global.AppSettings["FACILITY_NASS_CODE"];
-                    
+
                     foreach (JObject item in jsonObject)
                     {
                         update_info = false;
-                        Global.Zones.Where(x => x.Value["properties"]["Zone_Type"].ToString() == "DockDoor"
-                        && (int)x.Value["properties"]["doorNumber"] == (int)item["doorNumber"]).Select(l => l.Value).ToList().ForEach(m =>
-                       {
-                           if (m["properties"]["Raw_Data"].ToString() != item.ToString())
-                           {
-                               if (item.ContainsKey("routeTripId") && item.ContainsKey("routeTripLegId"))
-                               {
-                                   string routetripid = string.Concat(item["routeTripId"].ToString(), item["routeTripLegId"].ToString());
-                                   if (Global.RouteTrips.ContainsKey(routetripid))
-                                   {
-                                       if (Global.RouteTrips.TryGetValue(routetripid, out JObject trip))
-                                       {
-                                           trip.Merge(item, new JsonMergeSettings { MergeArrayHandling = MergeArrayHandling.Union });
+                        foreach (JObject m in Global.Zones.Where(x => x.Value["properties"]["Zone_Type"].ToString() == "DockDoor"
+                         && (int)x.Value["properties"]["doorNumber"] == (int)item["doorNumber"]).Select(l => l.Value))
+                        {
+                            if (m["properties"]["Raw_Data"].ToString() != item.ToString())
+                            {
+                                if (item.ContainsKey("routeTripId") && item.ContainsKey("routeTripLegId"))
+                                {
+                                    string routetripid = string.Concat(item["routeTripId"].ToString(), item["routeTripLegId"].ToString());
+                                    if (Global.RouteTrips.ContainsKey(routetripid))
+                                    {
+                                        if (Global.RouteTrips.TryGetValue(routetripid, out JObject trip))
+                                        {
+                                            trip.Merge(item, new JsonMergeSettings { MergeArrayHandling = MergeArrayHandling.Union });
 
-                                           if (!string.IsNullOrEmpty(trip["destSite"].ToString()) && item.ContainsKey("trailerBarcode") && !string.IsNullOrEmpty(trip["trailerBarcode"].ToString()))
-                                           {
-                                               if (trip["tripDirectionInd"].ToString() == "O")
-                                               {
-                                                   IEnumerable<Container> alltrailercontent = null;
-                                                   IEnumerable<Container> unloadedtrailerContent = Global.Containers.Where(r => !string.IsNullOrEmpty(r.Value.Dest) 
-                                                   && Regex.IsMatch(r.Value.Dest, trip["destSite"].ToString(), RegexOptions.IgnoreCase)
-                                                   && r.Value.hasLoadScans == false
-                                                   && r.Value.containerTerminate == false
-                                                   && r.Value.containerAtDest == false
-                                                   && r.Value.hasCloseScans == true).Select(y => y.Value).ToList();
+                                            if (!string.IsNullOrEmpty(trip["destSite"].ToString()) && item.ContainsKey("trailerBarcode") && !string.IsNullOrEmpty(trip["trailerBarcode"].ToString()))
+                                            {
+                                                if (trip["tripDirectionInd"].ToString() == "O")
+                                                {
+                                                    IEnumerable<Container> alltrailercontent = null;
+                                                    IEnumerable<Container> unloadedtrailerContent = Global.Containers.Where(r => !string.IsNullOrEmpty(r.Value.Dest)
+                                                    && Regex.IsMatch(r.Value.Dest, trip["destSite"].ToString(), RegexOptions.IgnoreCase)
+                                                    && r.Value.hasLoadScans == false
+                                                    && r.Value.containerTerminate == false
+                                                    && r.Value.containerAtDest == false
+                                                    && r.Value.hasCloseScans == true).Select(y => y.Value).ToList();
 
-                                                   if ((int)trip["unloadedContainers"] != unloadedtrailerContent.Count())
-                                                   {
-                                                       trip["unloadedContainers"] = unloadedtrailerContent.Count();
-                                                   }
-                                                   alltrailercontent = unloadedtrailerContent;
-                                                   if (!string.IsNullOrEmpty(item["trailerBarcode"].ToString()))
-                                                   {
-                                                       IEnumerable<Container> loadedtrailerContent = null;
-                                                       //for the loaded int the trailer
-                                                       loadedtrailerContent = Global.Containers.Where(r => !string.IsNullOrEmpty(r.Value.Otrailer)
-                                                            && Regex.IsMatch(r.Value.Otrailer, item["trailerBarcode"].ToString(), RegexOptions.IgnoreCase)
-                                                            && r.Value.hasLoadScans == true
-                                                            ).Select(y => y.Value).ToList();
-                                                       alltrailercontent = unloadedtrailerContent.Concat(loadedtrailerContent);
-                                                       loadedtrailerContent = null;
-                                                   }
-                                                   trip["containers"] = JArray.Parse(JsonConvert.SerializeObject(alltrailercontent, Formatting.Indented));
-                                                   unloadedtrailerContent = null;
-                                                   alltrailercontent = null;
-                                               }
-                                               if (trip["tripDirectionInd"].ToString() == "I")
-                                               {
-                                                   if (!string.IsNullOrEmpty(item["trailerBarcode"].ToString()))
-                                                   {
-                                                       IEnumerable<Container> unloadedtrailerContent = Global.Containers.Where(r => !string.IsNullOrEmpty(r.Value.Itrailer)
-                                                       && Regex.IsMatch(r.Value.Itrailer, item["trailerBarcode"].ToString(), RegexOptions.IgnoreCase)
+                                                    if ((int)trip["unloadedContainers"] != unloadedtrailerContent.Count())
+                                                    {
+                                                        trip["unloadedContainers"] = unloadedtrailerContent.Count();
+                                                    }
+                                                    alltrailercontent = unloadedtrailerContent;
+                                                    if (!string.IsNullOrEmpty(item["trailerBarcode"].ToString()))
+                                                    {
+                                                        IEnumerable<Container> loadedtrailerContent = null;
+                                                        //for the loaded int the trailer
+                                                        loadedtrailerContent = Global.Containers.Where(r => !string.IsNullOrEmpty(r.Value.Otrailer)
+                                                             && Regex.IsMatch(r.Value.Otrailer, item["trailerBarcode"].ToString(), RegexOptions.IgnoreCase)
+                                                             && r.Value.hasLoadScans == true
+                                                             ).Select(y => y.Value).ToList();
+                                                        alltrailercontent = unloadedtrailerContent.Concat(loadedtrailerContent);
+                                                        loadedtrailerContent = null;
+                                                    }
+                                                    trip["containers"] = JArray.Parse(JsonConvert.SerializeObject(alltrailercontent, Formatting.Indented));
+                                                    unloadedtrailerContent = null;
+                                                    alltrailercontent = null;
+                                                }
+                                                if (trip["tripDirectionInd"].ToString() == "I")
+                                                {
+                                                    if (!string.IsNullOrEmpty(item["trailerBarcode"].ToString()))
+                                                    {
+                                                        IEnumerable<Container> unloadedtrailerContent = Global.Containers.Where(r => !string.IsNullOrEmpty(r.Value.Itrailer)
+                                                        && Regex.IsMatch(r.Value.Itrailer, item["trailerBarcode"].ToString(), RegexOptions.IgnoreCase)
 
-                                                        ).Select(y => y.Value).ToList();
-                                                       trip["containers"] = JArray.Parse(JsonConvert.SerializeObject(unloadedtrailerContent, Formatting.Indented));
-                                                       unloadedtrailerContent = null;
+                                                         ).Select(y => y.Value).ToList();
+                                                        trip["containers"] = JArray.Parse(JsonConvert.SerializeObject(unloadedtrailerContent, Formatting.Indented));
+                                                        unloadedtrailerContent = null;
 
-                                                   }
-                                               }
-                                           }
-                                           m["properties"]["dockDoorData"] = trip;
-                                           m["properties"]["Raw_Data"] = trip;
+                                                    }
+                                                }
+                                            }
+                                            m["properties"]["dockDoorData"] = trip;
+                                            m["properties"]["Raw_Data"] = trip;
 
-                                       }
-                                   }
-                                   else
-                                   {
-                                       item["id"] = routetripid;
-                                       item["state"] = "";
-                                       item["destSite"] = "";
-                                       item["tripMin"] = 0;
-                                       item["containers"] = "";
-                                       item["unloadedContainers"] = 0;
-                                       if (item.ContainsKey("scheduledDtm"))
-                                       {
-                                           item["tripMin"] = Global.Get_TripMin((JObject)item["scheduledDtm"]);
-                                       }
+                                        }
+                                    }
+                                    else
+                                    {
+                                        item["id"] = routetripid;
+                                        item["state"] = "";
+                                        item["destSite"] = "";
+                                        item["tripMin"] = 0;
+                                        item["containers"] = "";
+                                        item["unloadedContainers"] = 0;
+                                        if (item.ContainsKey("scheduledDtm"))
+                                        {
+                                            item["tripMin"] = Global.Get_TripMin((JObject)item["scheduledDtm"]);
+                                        }
 
-                                       m["properties"]["dockDoorData"] = item;
-                                       m["properties"]["Raw_Data"] = item;
-                                   }
-                               }
-                               else
-                               {
-                                   m["properties"]["dockDoorData"] = item;
-                                   m["properties"]["Raw_Data"] = item;
-                               }
+                                        m["properties"]["dockDoorData"] = item;
+                                        m["properties"]["Raw_Data"] = item;
+                                    }
+                                }
+                                else
+                                {
+                                    m["properties"]["dockDoorData"] = item;
+                                    m["properties"]["Raw_Data"] = item;
+                                }
 
-                               update_info = true;
-                           }
+                                update_info = true;
+                            }
 
-                           if (update_info)
-                           {
-                               m["properties"]["Zone_Update"] = true;
-                           }
+                            if (update_info)
+                            {
+                                m["properties"]["Zone_Update"] = true;
+                            }
 
-                       });
+                        }
                     }
                     jsonObject = null;
 
@@ -757,7 +761,7 @@ namespace Factory_of_the_Future
                     {
                         if (Global.Tag.ContainsKey((string)item["tagId"]))
                         {
-                            Global.Tag.Where(r => r.Key == (string)item["tagId"]).Select(y => y.Value).ToList().ForEach(m =>
+                           foreach(JObject m in Global.Tag.Where(r => r.Key == (string)item["tagId"]).Select(y => y.Value))
                             {
                                 //tag.Merge(item, new JsonMergeSettings { MergeArrayHandling = MergeArrayHandling.Replace });
                                 //tag["properties"]["Tag_Update"] = true;
@@ -782,7 +786,7 @@ namespace Factory_of_the_Future
                                     m["properties"]["isLdcAlert"] = item["isLdcAlert"];
 
                                 }
-                            });
+                            }
                         }
                         else
                         {
@@ -811,18 +815,16 @@ namespace Factory_of_the_Future
 
                     if (Global.Tag.Count() > 0)
                     {
-                        Global.Tag.Where(u => u.Value["properties"]["Tag_Type"].ToString().EndsWith("Person")).Select(x => x.Value).ToList().ForEach(m =>
+                        foreach(JObject m in Global.Tag.Where(u => u.Value["properties"]["Tag_Type"].ToString().EndsWith("Person")).Select(x => x.Value))
                         {
-                            var exsiting = data.SelectTokens("[?(@.tagId)]").Where(i => (string)i["tagId"] == (string)m["properties"]["id"]).ToList();
-
-                            if (exsiting.Count == 0)
+                            if (data.SelectTokens("[?(@.tagId)]").Where(i => (string)i["tagId"] == (string)m["properties"]["id"]).ToList().Count == 0)
                             {
                                 if (((JObject)m["properties"]).ContainsKey("isLdcAlert") && (bool)m["properties"]["isLdcAlert"])
                                 {
                                     m["properties"]["isLdcAlert"] = false;
                                 }
                             }
-                        });
+                        }
                     }
                 }
             }
@@ -869,7 +871,7 @@ namespace Factory_of_the_Future
                             {
                                 if (Global.Tag.ContainsKey((string)item["tagId"]))
                                 {
-                                    Global.Tag.Where(r => r.Key == (string)item["tagId"]).Select(y => y.Value).ToList().ForEach(m =>
+                                    foreach(JObject m in Global.Tag.Where(r => r.Key == (string)item["tagId"]).Select(y => y.Value))
                                     {
                                       
                                         if ((bool)m["properties"]["isWearingTag"] == true)
@@ -885,7 +887,7 @@ namespace Factory_of_the_Future
                                             m["properties"]["tacs"] = item["tacs"];
                                         }
                                        
-                                    });
+                                    }
                                 }
                                 else
                                 {
@@ -910,11 +912,9 @@ namespace Factory_of_the_Future
                             }
                             if (Global.Tag.Count() > 0)
                             {
-                                Global.Tag.Where(u => u.Value["properties"]["Tag_Type"].ToString().EndsWith("Person")).Select(x => x.Value).ToList().ForEach(m =>
+                               foreach(JObject m in  Global.Tag.Where(u => u.Value["properties"]["Tag_Type"].ToString().EndsWith("Person")).Select(x => x.Value))
                                 {
-                                    var exsiting = missedSels.SelectTokens("[?(@.tagId)]").Where(i => (string)i["tagId"] == (string)m["properties"]["id"]).ToList();
-
-                                    if (exsiting.Count == 0)
+                                    if (missedSels.SelectTokens("[?(@.tagId)]").Where(i => (string)i["tagId"] == (string)m["properties"]["id"]).ToList().Count == 0)
                                     {
                                         if (!(bool)m["properties"]["isWearingTag"])
                                         {
@@ -922,7 +922,7 @@ namespace Factory_of_the_Future
                                            
                                         }
                                     }
-                                });
+                                }
                             }
                         }
                     }
@@ -1609,7 +1609,7 @@ namespace Factory_of_the_Future
                                     if (!string.IsNullOrEmpty(strSortPlanItem))
                                     {
                                       
-                                        Global.Zones.Where(u => u.Value["properties"]["Zone_Type"].ToString() == "Machine").Select(x => x.Value).ToList().ForEach(machineZone =>
+                                        foreach(JObject machineZone in Global.Zones.Where(u => u.Value["properties"]["Zone_Type"].ToString() == "Machine").Select(x => x.Value))
                                         {
                                             if (machineZone["properties"]["MPEWatchData"].HasValues)
                                             {
@@ -1627,7 +1627,7 @@ namespace Factory_of_the_Future
                                                     }
                                                 }
                                             }
-                                        });
+                                        }
                                     }
                                 }
                             }
@@ -1647,125 +1647,6 @@ namespace Factory_of_the_Future
             }
         }
 
-        //private static void CTS_DockDeparted(JObject data)
-        //{
-        //    //"Scheduled": "5/6/2021 1:45 PM",
-        //    //"Departed": "",
-        //    //"Door": null,
-        //    //"Leg": "974",
-        //    //"Route": "975L0",
-        //    //"Trip": "116",
-        //    //"Destination": "EUGENE P & D F",
-        //    //"Assigned": 31,
-        //    //"Closed": 47,
-        //    //"Staged": 22,
-        //    //"XDock": 19,
-        //    //"MLD": 0,
-        //    //"PLD": 0,
-        //    //"MTLD": 0,
-        //    //"Load": 0,
-        //    //"LoadPercent": 0,
-        //    //"Total": 88
-        //    //}
-        //    try
-        //    {
-        //        if (data.HasValues)
-        //        {
-        //            if (data.ContainsKey("Data"))
-        //            {
-        //                JToken cts_data = data.SelectToken("Data");
-
-        //                if (cts_data.Children().Count() > 0)
-        //                {
-        //                    foreach (JObject Dataitem in cts_data.Children())
-        //                    {
-        //                        bool update = false;
-        //                        string trip = Dataitem.ContainsKey("Trip") ? (string)Dataitem["Trip"] : "";
-        //                        string route = Dataitem.ContainsKey("Route") ? (string)Dataitem["Route"] : "";
-        //                        if (!string.IsNullOrEmpty(route) || !string.IsNullOrEmpty(trip))
-        //                        {
-        //                            //if (cts_site.HasValues)
-        //                            //{
-        //                            //    if (cts_site.ContainsKey("TimeZone"))
-        //                            //    {
-        //                            //        DateTime scheduledTime = DateTime.Parse((string)Dataitem["Scheduled"]);
-        //                            //        Dataitem["Scheduled"] = TimeZoneInfo.ConvertTime(scheduledTime, TimeZoneInfo.FindSystemTimeZoneById((string)cts_site["TimeZone"]));
-
-        //                            //        if (!string.IsNullOrEmpty((string)Dataitem["Departed"]))
-        //                            //        {
-        //                            //            DateTime departedTime = DateTime.Parse((string)Dataitem["Departed"]);
-        //                            //            Dataitem["Departed"] = TimeZoneInfo.ConvertTime(departedTime, TimeZoneInfo.FindSystemTimeZoneById((string)cts_site["TimeZone"]));
-        //                            //        }
-        //                            //    }
-
-        //                            //}
-        //                            if (!Global.CTS_DockDeparted.ContainsKey(route + trip))
-        //                            {
-        //                                Dataitem.Add(new JProperty("CTS_Update", true));
-        //                                Dataitem.Add(new JProperty("CTS_Remove", false));
-        //                                Global.CTS_DockDeparted.TryAdd(route + trip, Dataitem);
-        //                            }
-        //                            else
-        //                            {
-        //                                if (Global.CTS_DockDeparted.TryGetValue(route + trip, out JObject cts_item))
-        //                                {
-        //                                    foreach (dynamic kv in Dataitem.Children())
-        //                                    {
-        //                                        if (cts_item.ContainsKey(kv.Name))
-        //                                        {
-        //                                            if (cts_item[kv.Name].ToString() != kv.Value.ToString())
-        //                                            {
-        //                                                cts_item[kv.Name] = Dataitem[kv.Name].ToString();
-        //                                                update = true;
-        //                                            }
-        //                                        }
-        //                                    }
-        //                                    if (update)
-        //                                    {
-        //                                        cts_item["CTS_Update"] = true;
-        //                                    }
-        //                                }
-        //                            }
-        //                        }
-        //                    }
-        //                }
-
-        //                //check if the data have been removed.
-        //                if (Global.CTS_DockDeparted.Count() > 0)
-        //                {
-        //                    foreach (JObject item in Global.CTS_DockDeparted.Select(x => x.Value))
-        //                    {
-        //                        string trip = item.ContainsKey("Trip") ? (string)item["Trip"] : "";
-        //                        string route = item.ContainsKey("Route") ? (string)item["Route"] : "";
-        //                        var exsiting = cts_data.SelectTokens("[?(@.Route)]").Where(i => (string)i["Route"] == (string)item["Route"] && (string)i["Trip"] == (string)item["Trip"]).ToList();
-
-        //                        if (exsiting.Count == 0)
-        //                        {
-        //                            if (Global.CTS_DockDeparted.TryGetValue(route + trip, out JObject cts_item))
-        //                            {
-        //                                if (cts_item.ContainsKey("CTS_Remove"))
-        //                                {
-        //                                    cts_item["CTS_Remove"] = true;
-        //                                    cts_item["CTS_Update"] = true;
-        //                                }
-        //                                else
-        //                                {
-        //                                    cts_item.Add(new JProperty("CTS_Remove", true));
-        //                                    cts_item["CTS_Update"] = true;
-        //                                }
-        //                            }
-        //                        }
-        //                    }
-        //                }
-        //            }
-        //        }
-        //    }
-        //    catch (Exception e)
-        //    {
-        //        new ErrorLogger().ExceptionLog(e);
-        //    }
-        //}
-
         private static void ERRORWITHWORK(JObject data)
         {
             try
@@ -1777,39 +1658,46 @@ namespace Factory_of_the_Future
                         ["Request_Id"] = (string)data["requestId".ToUpper()],
                         ["Vehicle"] = (string)data["vehicle".ToUpper()],
                         ["Vehicle_Number"] = (string)data["vehicle_Number".ToUpper()],
+                        ["Error_Discription"] = (string)data["Error_Discription".ToUpper()],
+                        ["Pickup_Location"] = data["pickup_location".ToUpper()].ToString().ToUpper(),
+                        ["Dropoff_Location"] = data["dropoff_location".ToUpper()].ToString().ToUpper(),
+                        ["End_Location"] = data["end_location".ToUpper()].ToString().ToUpper(),
                         ["State"] = "Error",
                         ["MissionType"] = (string)data["message".ToUpper()],
                         ["MissionErrorTime"] = (DateTime)data["time".ToUpper()]
                     };
-                    Global.Tag.Where(f => f.Value["properties"]["name"].ToString() == (string)mission["Vehicle"]).Select(y => y.Value).ToList().ForEach(existingVa =>
+                    foreach (JObject existingVa in Global.Tag.Where(f => f.Value["properties"]["name"].ToString() == (string)mission["Vehicle"]).Select(y => y.Value))
                     {
                         existingVa["properties"]["inMission"] = false;
                         // get list of request for the pickup location.
                         existingVa["properties"]["Mission"] = JToken.Parse(JsonConvert.SerializeObject(new JObject(), Formatting.Indented));
                         existingVa["properties"]["Tag_Update"] = true;
-                    }); //merge changes 
-                    Global.Mission.Where(r => (int)r.Value["Request_Id"] == (int)mission["Request_Id"]).Select(y => y.Value).ToList().ForEach(request =>
+                    }
+                    //merge changes 
+                    foreach (JObject request in Global.Mission.Where(r => (int)r.Value["Request_Id"] == (int)mission["Request_Id"]).Select(y => y.Value))
                     {
                         request.Merge(mission, new JsonMergeSettings { MergeArrayHandling = MergeArrayHandling.Union });
+                    }
+                    //update AGV zone location
+                    foreach (JObject existingVa in Global.Zones.Where(f => f.Value["properties"]["Zone_Type"].ToString() == "AGVLocation"
+                     && f.Value["properties"]["name"].ToString() == mission["Pickup_Location"].ToString()).Select(y => y.Value))
+                    {
+                        existingVa["properties"]["MissionList"] = JToken.Parse(JsonConvert.SerializeObject(Global.Mission.Where(r => r.Value["Pickup_Location"].ToString() == mission["Pickup_Location"].ToString()
+                        && r.Value["State"].ToString() == "Active"
+                        && (int)r.Value["Request_Id"] != (int)mission["Request_Id"]).Select(y => y.Value).ToList(), Formatting.Indented));
+                        existingVa["properties"]["Zone_Update"] = true;
 
-                        //update AGV zone location
-                        Global.Zones.Where(f => f.Value["properties"]["Zone_Type"].ToString() == "AGVLocation" && f.Value["properties"]["name"].ToString() == request["Pickup_Location"].ToString()).Select(y => y.Value).ToList().ForEach(existingVa =>
-                        {
-                            existingVa["properties"]["MissionList"] = JToken.Parse(JsonConvert.SerializeObject(Global.Mission.Where(r => r.Value["Pickup_Location"].ToString() == request["Pickup_Location"].ToString()
-                            && r.Value["State"].ToString() == "Active"
-                            && (int)r.Value["Request_Id"] != (int)request["Request_Id"]).Select(y => y.Value).ToList(), Formatting.Indented));
-                            existingVa["properties"]["Zone_Update"] = true;
+                    }
+                    foreach (JObject existingVa in Global.Zones.Where(f => f.Value["properties"]["Zone_Type"].ToString() == "AGVLocation"
+                     && f.Value["properties"]["name"].ToString() == mission["Dropoff_Location"].ToString()).Select(y => y.Value))
+                    {
+                        existingVa["properties"]["MissionList"] = JToken.Parse(JsonConvert.SerializeObject(Global.Mission.Where(r => r.Value["Dropoff_Location"].ToString() == mission["Dropoff_Location"].ToString()
+                        && r.Value["State"].ToString() == "Active"
+                        && (int)r.Value["Request_Id"] != (int)mission["Request_Id"]).Select(y => y.Value).ToList(), Formatting.Indented));
+                        existingVa["properties"]["Zone_Update"] = true;
+                    }
 
-                        });
-                        Global.Zones.Where(f => f.Value["properties"]["Zone_Type"].ToString() == "AGVLocation" && f.Value["properties"]["name"].ToString() == request["Dropoff_Location"].ToString()).Select(y => y.Value).ToList().ForEach(existingVa =>
-                        {
-                            existingVa["properties"]["MissionList"] = JToken.Parse(JsonConvert.SerializeObject(Global.Mission.Where(r => r.Value["Dropoff_Location"].ToString() == request["Dropoff_Location"].ToString()
-                            && r.Value["State"].ToString() == "Active"
-                            && (int)r.Value["Request_Id"] != (int)request["Request_Id"]).Select(y => y.Value).ToList(), Formatting.Indented));
-                            existingVa["properties"]["Zone_Update"] = true;
-                        });
 
-                    });
                     //remove request id
                     if (!Global.Mission.TryRemove(mission["Request_Id"].ToString(), out JObject value))
                     {
@@ -1836,18 +1724,18 @@ namespace Factory_of_the_Future
                 {
                     if (data.ContainsKey("VEHICLE"))
                     {
-                        Global.Tag.Where(f => f.Value["properties"]["name"].ToString() == (string)data["VEHICLE"]).Select(y => y.Value).ToList().ForEach(existingVa =>
-                             {
-                                 if ((string)existingVa["properties"]["state"] != "Error")
-                                 {
-                                     existingVa["properties"]["notificationId"] = CheckNotification(existingVa["properties"]["state"].ToString(), "Error", "vehicle", (JObject)existingVa["properties"], existingVa["properties"]["notificationId"].ToString());
-                                     existingVa["properties"]["state"] = "Error";
-                                     existingVa["properties"]["errorCode"] = (string)data["errorCode".ToUpper()];
-                                     existingVa["properties"]["errorDiscription"] = (string)data["error_Discription".ToUpper()];
-                                     existingVa["properties"]["errorTime"] = (DateTime)data["time".ToUpper()];
-                                     existingVa["properties"]["Tag_Update"] = true;
-                                 }
-                             });
+                        foreach (JObject existingVa in Global.Tag.Where(f => f.Value["properties"]["name"].ToString() == (string)data["VEHICLE"]).Select(y => y.Value))
+                        {
+                            if ((string)existingVa["properties"]["state"] != "Error")
+                            {
+                                existingVa["properties"]["notificationId"] = CheckNotification(existingVa["properties"]["state"].ToString(), "Error", "vehicle", (JObject)existingVa["properties"], existingVa["properties"]["notificationId"].ToString());
+                                existingVa["properties"]["state"] = "Error";
+                                existingVa["properties"]["errorCode"] = (string)data["errorCode".ToUpper()];
+                                existingVa["properties"]["errorDiscription"] = (string)data["error_Discription".ToUpper()];
+                                existingVa["properties"]["errorTime"] = (DateTime)data["time".ToUpper()];
+                                existingVa["properties"]["Tag_Update"] = true;
+                            }
+                        }
                     }
                 }
             }
@@ -1872,43 +1760,49 @@ namespace Factory_of_the_Future
                         ["Request_Id"] = (string)data["requestId".ToUpper()],
                         ["Vehicle"] = (string)data["vehicle".ToUpper()],
                         ["Vehicle_Number"] = (string)data["vehicle_Number".ToUpper()],
+                        ["Pickup_Location"] = data["pickup_location".ToUpper()].ToString().ToUpper(),
+                        ["Dropoff_Location"] = data["dropoff_location".ToUpper()].ToString().ToUpper(),
+                        ["End_Location"] = data["end_location".ToUpper()].ToString().ToUpper(),
+                        ["Placard"] = (string)data["mtel".ToUpper()],
                         ["State"] = "Complete",
                         ["MissionType"] = (string)data["message".ToUpper()],
                         ["MissionDropOffTime"] = (DateTime)data["time".ToUpper()]
                     };
 
 
-                    Global.Tag.Where(f => f.Value["properties"]["name"].ToString() == (string)mission["Vehicle"]).Select(y => y.Value).ToList().ForEach(existingVa =>
+                    foreach (JObject existingVa in Global.Tag.Where(f => f.Value["properties"]["name"].ToString() == (string)mission["Vehicle"]).Select(y => y.Value))
                     {
                         existingVa["properties"]["inMission"] = false;
                         // get list of request for the pickup location.
                         existingVa["properties"]["Mission"] = JToken.Parse(JsonConvert.SerializeObject(new JObject(), Formatting.Indented));
                         existingVa["properties"]["Tag_Update"] = true;
-                    });
+                    }
 
                     //merge changes 
-                    Global.Mission.Where(r => (int)r.Value["Request_Id"] == (int)mission["Request_Id"]).Select(y => y.Value).ToList().ForEach(request =>
+                    foreach (JObject request in Global.Mission.Where(r => (int)r.Value["Request_Id"] == (int)mission["Request_Id"]).Select(y => y.Value))
                     {
                         request.Merge(mission, new JsonMergeSettings { MergeArrayHandling = MergeArrayHandling.Union });
+                    }
+                    //update AGV zone location
+                    foreach (JObject existingVa in Global.Zones.Where(f => f.Value["properties"]["Zone_Type"].ToString() == "AGVLocation"
+                    && f.Value["properties"]["name"].ToString() == mission["Pickup_Location"].ToString()).Select(y => y.Value))
+                    {
+                        existingVa["properties"]["MissionList"] = JToken.Parse(JsonConvert.SerializeObject(Global.Mission.Where(r => r.Value["Pickup_Location"].ToString() == mission["Pickup_Location"].ToString()
+                        && r.Value["State"].ToString() == "Active"
+                        && (int)r.Value["Request_Id"] != (int)mission["Request_Id"]).Select(y => y.Value).ToList(), Formatting.Indented));
+                        existingVa["properties"]["Zone_Update"] = true;
 
-                        //update AGV zone location
-                        Global.Zones.Where(f => f.Value["properties"]["Zone_Type"].ToString() == "AGVLocation" && f.Value["properties"]["name"].ToString() == request["Pickup_Location"].ToString()).Select(y => y.Value).ToList().ForEach(existingVa =>
-                            {
-                                existingVa["properties"]["MissionList"] = JToken.Parse(JsonConvert.SerializeObject(Global.Mission.Where(r => r.Value["Pickup_Location"].ToString() == request["Pickup_Location"].ToString()
-                                && r.Value["State"].ToString() == "Active"
-                                && (int)r.Value["Request_Id"] != (int)request["Request_Id"]).Select(y => y.Value).ToList(), Formatting.Indented));
-                                existingVa["properties"]["Zone_Update"] = true;
+                    }
+                    foreach (JObject existingVa in Global.Zones.Where(f => f.Value["properties"]["Zone_Type"].ToString() == "AGVLocation"
+                    && f.Value["properties"]["name"].ToString() == mission["Dropoff_Location"].ToString()).Select(y => y.Value))
+                    {
+                        existingVa["properties"]["MissionList"] = JToken.Parse(JsonConvert.SerializeObject(Global.Mission.Where(r => r.Value["Dropoff_Location"].ToString() == mission["Dropoff_Location"].ToString()
+                         && r.Value["State"].ToString() == "Active"
+                        && (int)r.Value["Request_Id"] != (int)mission["Request_Id"]).Select(y => y.Value).ToList(), Formatting.Indented));
 
-                            });
-                        Global.Zones.Where(f => f.Value["properties"]["Zone_Type"].ToString() == "AGVLocation" && f.Value["properties"]["name"].ToString() == request["Dropoff_Location"].ToString()).Select(y => y.Value).ToList().ForEach(existingVa =>
-                        {
-                            existingVa["properties"]["MissionList"] = JToken.Parse(JsonConvert.SerializeObject(Global.Mission.Where(r => r.Value["Dropoff_Location"].ToString() == request["Dropoff_Location"].ToString()
-                             && r.Value["State"].ToString() == "Active"
-                            && (int)r.Value["Request_Id"] != (int)request["Request_Id"]).Select(y => y.Value).ToList(), Formatting.Indented));
+                        existingVa["properties"]["Zone_Update"] = true;
+                    }
 
-                            existingVa["properties"]["Zone_Update"] = true;
-                        });
-                    });
                     //remove request id
                     if (!Global.Mission.TryRemove(mission["Request_Id"].ToString(), out JObject value))
                     {
@@ -1939,42 +1833,48 @@ namespace Factory_of_the_Future
                         ["Request_Id"] = (string)data["requestId".ToUpper()],
                         ["Vehicle"] = data["vehicle".ToUpper()].ToString().ToUpper(),
                         ["Vehicle_Number"] = (string)data["vehicle_Number".ToUpper()],
+                        ["Pickup_Location"] = data["pickup_location".ToUpper()].ToString().ToUpper(),
+                        ["Dropoff_Location"] = data["dropoff_location".ToUpper()].ToString().ToUpper(),
+                        ["End_Location"] = data["end_location".ToUpper()].ToString().ToUpper(),
+                        ["Door"] = (string)data["door".ToUpper()],
+                        ["Placard"] = (string)data["mtel".ToUpper()],
                         ["State"] = "Active",
                         ["MissionType"] = (string)data["message".ToUpper()],
                         ["MissionPickupTime"] = (DateTime)data["time".ToUpper()]
                     };
 
-
+                    foreach (JObject existingVa in Global.Tag.Where(f => f.Value["properties"]["name"].ToString() == mission["Vehicle"].ToString()).Select(y => y.Value))
+                    {
+                        existingVa["properties"]["inMission"] = true;
+                        existingVa["properties"]["Mission"] = JToken.Parse(JsonConvert.SerializeObject(Global.Mission.Where(r => r.Value["Vehicle"].ToString() == mission["Vehicle"].ToString()
+                         && r.Value["State"].ToString() == mission["State"].ToString()
+                         && (int)r.Value["Request_Id"] == (int)mission["Request_Id"]).Select(y => y.Value).ToList(), Formatting.Indented));
+                        existingVa["properties"]["Tag_Update"] = true;
+                    }
                     //merge changes 
-                    Global.Mission.Where(r => (int)r.Value["Request_Id"] == (int)mission["Request_Id"]).Select(y => y.Value).ToList().ForEach(request =>
+                    foreach (JObject request in Global.Mission.Where(r => (int)r.Value["Request_Id"] == (int)mission["Request_Id"]).Select(y => y.Value))
                     {
                         request.Merge(mission, new JsonMergeSettings { MergeArrayHandling = MergeArrayHandling.Union });
-                        Global.Tag.Where(f => f.Value["properties"]["name"].ToString() == mission["Vehicle"].ToString()).Select(y => y.Value).ToList().ForEach(existingVa =>
-                        {
-                            existingVa["properties"]["inMission"] = true;
-                            existingVa["properties"]["Mission"] = JToken.Parse(JsonConvert.SerializeObject(Global.Mission.Where(r => r.Value["Vehicle"].ToString() == mission["Vehicle"].ToString()
-                             && r.Value["State"].ToString() == mission["State"].ToString()
-                             && (int)r.Value["Request_Id"] == (int)mission["Request_Id"]).Select(y => y.Value).ToList(), Formatting.Indented));
-                            existingVa["properties"]["Tag_Update"] = true;
-                        });
+                    }
+                    //update AGV Pickup zone location
+                    foreach (JObject existingVa in Global.Zones.Where(f => f.Value["properties"]["Zone_Type"].ToString() == "AGVLocation"
+                     && f.Value["properties"]["name"].ToString() == mission["Pickup_Location"].ToString()).Select(y => y.Value))
+                    {
+                        existingVa["properties"]["MissionList"] = JToken.Parse(JsonConvert.SerializeObject(Global.Mission.Where(r => r.Value["Pickup_Location"].ToString() == mission["Pickup_Location"].ToString()
+                        && (int)r.Value["Request_Id"] != (int)mission["Request_Id"]).Select(y => y.Value).ToList(), Formatting.Indented));
+                        existingVa["properties"]["Zone_Update"] = true;
+                    }
 
-                        //update AGV Pickup zone location
-                        Global.Zones.Where(f => f.Value["properties"]["Zone_Type"].ToString() == "AGVLocation" && f.Value["properties"]["name"].ToString() == request["Pickup_Location"].ToString()).Select(y => y.Value).ToList().ForEach(existingVa =>
-                            {
-                                existingVa["properties"]["MissionList"] = JToken.Parse(JsonConvert.SerializeObject(Global.Mission.Where(r => r.Value["Pickup_Location"].ToString() == request["Pickup_Location"].ToString()
-                                && (int)r.Value["Request_Id"] != (int)request["Request_Id"]).Select(y => y.Value).ToList(), Formatting.Indented));
-                                existingVa["properties"]["Zone_Update"] = true;
+                    //update AGV Dropoff zone location
+                    foreach (JObject existingVa in Global.Zones.Where(f => f.Value["properties"]["Zone_Type"].ToString() == "AGVLocation"
+                    && f.Value["properties"]["name"].ToString() == mission["Dropoff_Location"].ToString()).Select(y => y.Value))
+                    {
+                        existingVa["properties"]["MissionList"] = JToken.Parse(JsonConvert.SerializeObject(Global.Mission.Where(r => r.Value["Dropoff_Location"].ToString() == mission["Dropoff_Location"].ToString()
+                        && r.Value["State"].ToString() == "Active").Select(y => y.Value).ToList(), Formatting.Indented));
+                        existingVa["properties"]["Zone_Update"] = true;
+                    }
 
-                            });
 
-                        //update AGV Dropoff zone location
-                        Global.Zones.Where(f => f.Value["properties"]["Zone_Type"].ToString() == "AGVLocation" && f.Value["properties"]["name"].ToString() == request["Dropoff_Location"].ToString()).Select(y => y.Value).ToList().ForEach(existingVa =>
-                        {
-                            existingVa["properties"]["MissionList"] = JToken.Parse(JsonConvert.SerializeObject(Global.Mission.Where(r => r.Value["Dropoff_Location"].ToString() == request["Dropoff_Location"].ToString()).Select(y => y.Value).ToList(), Formatting.Indented));
-                            existingVa["properties"]["Zone_Update"] = true;
-                        });
-
-                    });
                     mission = null;
                 }
             }
@@ -2004,7 +1904,6 @@ namespace Factory_of_the_Future
                         ["End_Location"] = data["end_location".ToUpper()].ToString().ToUpper(),
                         ["ETA"] = (string)data["eta".ToUpper()],
                         ["Door"] = (string)data["door".ToUpper()],
-                        ["NASS_Code"] = (string)data["nass_code".ToUpper()],
                         ["Placard"] = (string)data["mtel".ToUpper()],
                         ["State"] = "Active",
                         ["MissionType"] = (string)data["message".ToUpper()],
@@ -2023,26 +1922,31 @@ namespace Factory_of_the_Future
                         Global.Mission.Where(r => (int)r.Value["Request_Id"] == (int)mission["Request_Id"]).Select(y => y.Value).FirstOrDefault().Merge(mission, new JsonMergeSettings { MergeArrayHandling = MergeArrayHandling.Union });
                     }
 
-                    Global.Tag.Where(f => f.Value["properties"]["name"].ToString() == mission["Vehicle"].ToString()).Select(y => y.Value).ToList().ForEach(existingVa =>
+                   foreach( JObject existingVa in Global.Tag.Where(f => f.Value["properties"]["name"].ToString() == mission["Vehicle"].ToString()).Select(y => y.Value))
                     {
                         existingVa["properties"]["inMission"] = true;
                         // get list of request for the pickup location.
                         existingVa["properties"]["Mission"] = JToken.Parse(JsonConvert.SerializeObject(Global.Mission.Where(r => r.Value["Vehicle"].ToString() == mission["Vehicle"].ToString()
-                        && r.Value["State"].ToString() == mission["State"].ToString()
+                        && r.Value["State"].ToString() == "Active"
                         && (int)r.Value["Request_Id"] == (int)mission["Request_Id"]).Select(y => y.Value).ToList(), Formatting.Indented));
                         existingVa["properties"]["Tag_Update"] = true;
-                    });
+                    }
 
                     //update AGV zone location
-                    Global.Zones.Where(f => f.Value["properties"]["Zone_Type"].ToString() == "AGVLocation" &&
-                    f.Value["properties"]["name"].ToString() == mission["Pickup_Location"].ToString()).Select(y => y.Value).ToList().ForEach(existingVa =>
+                    foreach (JObject existingVa in Global.Zones.Where(f => f.Value["properties"]["Zone_Type"].ToString() == "AGVLocation" &&
+                    f.Value["properties"]["name"].ToString() == mission["Pickup_Location"].ToString()).Select(y => y.Value))
                     {
-                        existingVa["properties"]["inMission"] = true;
                         existingVa["properties"]["MissionList"] = JToken.Parse(JsonConvert.SerializeObject(Global.Mission.Where(r => r.Value["Pickup_Location"].ToString() == mission["Pickup_Location"].ToString()
-                        && r.Value["State"].ToString() == mission["State"].ToString()).Select(y => y.Value).ToList(), Formatting.Indented));
+                        && r.Value["State"].ToString() == "Active").Select(y => y.Value).ToList(), Formatting.Indented));
                         existingVa["properties"]["Zone_Update"] = true;
-                    });
-
+                    }
+                    foreach (JObject existingVa in Global.Zones.Where(f => f.Value["properties"]["Zone_Type"].ToString() == "AGVLocation" &&
+                    f.Value["properties"]["name"].ToString() == mission["Dropoff_Location"].ToString()).Select(y => y.Value))
+                    {
+                        existingVa["properties"]["MissionList"] = JToken.Parse(JsonConvert.SerializeObject(Global.Mission.Where(r => r.Value["Dropoff_Location"].ToString() == mission["Dropoff_Location"].ToString()
+                        && r.Value["State"].ToString() == "Active").Select(y => y.Value).ToList(), Formatting.Indented));
+                        existingVa["properties"]["Zone_Update"] = true;
+                    }
                     mission = null;
                 }
             }
@@ -2069,8 +1973,9 @@ namespace Factory_of_the_Future
                             ["Dropoff_Location"] = data["dropoff_location".ToUpper()].ToString().ToUpper(),
                             ["End_Location"] = data["end_location".ToUpper()].ToString().ToUpper(),
                             ["Door"] = (string)data["door".ToUpper()],
-                            ["NASS_Code"] = (string)data["nass_code".ToUpper()],
+                            ["ETA"] = "",
                             ["Placard"] = (string)data["mtel".ToUpper()],
+                            ["QueuePosition"] = (string)data["QueuePosition".ToUpper()],
                             ["State"] = "Active",
                             ["MissionType"] = (string)data["message".ToUpper()],
                             ["MissionRequestTime"] = (DateTime)data["time".ToUpper()]
@@ -2093,6 +1998,21 @@ namespace Factory_of_the_Future
                                 }
                             }
                         }
+                        //update AGV zone location
+                        foreach (JObject existingVa in Global.Zones.Where(f => f.Value["properties"]["Zone_Type"].ToString() == "AGVLocation" &&
+                        f.Value["properties"]["name"].ToString() == mission["Pickup_Location"].ToString()).Select(y => y.Value))
+                        {
+                            existingVa["properties"]["MissionList"] = JToken.Parse(JsonConvert.SerializeObject(Global.Mission.Where(r => r.Value["Pickup_Location"].ToString() == mission["Pickup_Location"].ToString()
+                            && r.Value["State"].ToString() == mission["State"].ToString()).Select(y => y.Value).ToList(), Formatting.Indented));
+                            existingVa["properties"]["Zone_Update"] = true;
+                        }
+                        foreach (JObject existingVa in Global.Zones.Where(f => f.Value["properties"]["Zone_Type"].ToString() == "AGVLocation" &&
+                        f.Value["properties"]["name"].ToString() == mission["Dropoff_Location"].ToString()).Select(y => y.Value))
+                        {
+                            existingVa["properties"]["MissionList"] = JToken.Parse(JsonConvert.SerializeObject(Global.Mission.Where(r => r.Value["Dropoff_Location"].ToString() == mission["Dropoff_Location"].ToString()
+                            && r.Value["State"].ToString() == mission["State"].ToString()).Select(y => y.Value).ToList(), Formatting.Indented));
+                            existingVa["properties"]["Zone_Update"] = true;
+                        }
                         mission = null;
                     }
                 }
@@ -2112,8 +2032,8 @@ namespace Factory_of_the_Future
                     bool Update = false;
                     if (data.ContainsKey("VEHICLE"))
                     {
-                        Global.Tag.Where(u => u.Value["properties"]["Tag_Type"].ToString().ToLower() == "Autonomous Vehicle".ToLower() &&
-                        u.Value["properties"]["name"].ToString() == (string)data["VEHICLE"]).Select(x => x.Value).ToList().ForEach(existingVa =>
+                        foreach(JObject existingVa in Global.Tag.Where(u => u.Value["properties"]["Tag_Type"].ToString().ToLower() == "Autonomous Vehicle".ToLower() &&
+                        u.Value["properties"]["name"].ToString() == (string)data["VEHICLE"]).Select(x => x.Value))
                         {
                             if (((JObject)existingVa["properties"]).ContainsKey("vehicleBatteryPercent"))
                             {
@@ -2236,8 +2156,7 @@ namespace Factory_of_the_Future
                             {
                                 existingVa["properties"]["Tag_Update"] = true;
                             }
-                        });
-
+                        }
                     }
                 }
             }
@@ -2787,23 +2706,22 @@ namespace Factory_of_the_Future
                         }
                     }
                     //new condition
-                    Global.Notification_Conditions.Where(r => Regex.IsMatch(NewState, r.Value["CONDITIONS"].ToString(), RegexOptions.IgnoreCase)
-                && r.Value["TYPE"].ToString().ToLower() == type.ToLower()
-                 && (bool)r.Value["ACTIVE_CONDITION"]).Select(x => x.Value).ToList().ForEach(newCondition =>
-                 {
-                     noteification_id = (string)newCondition["ID"] + (string)data["id"];
-                     if (!Global.Notification.ContainsKey(noteification_id))
-                     {
-                         JObject ojbMerge = (JObject)newCondition.DeepClone();
-                         ojbMerge.Merge(data, new JsonMergeSettings { MergeArrayHandling = MergeArrayHandling.Union });
-                         ojbMerge["SHOWTOAST"] = true;
-                         ojbMerge["TAGID"] = (string)data["id"];
-                         ojbMerge["NOTIFICATIONGID"] = (string)newCondition["ID"] + (string)data["id"];
-                         ojbMerge["UPDATE"] = true;
-                         Global.Notification.TryAdd((string)newCondition["ID"] + (string)data["id"], ojbMerge);
-                     }
-                 });
-
+                    foreach (JObject newCondition in Global.Notification_Conditions.Where(r => Regex.IsMatch(NewState, r.Value["CONDITIONS"].ToString(), RegexOptions.IgnoreCase)
+                        && r.Value["TYPE"].ToString().ToLower() == type.ToLower()
+                        && (bool)r.Value["ACTIVE_CONDITION"]).Select(x => x.Value))
+                    {
+                        noteification_id = (string)newCondition["ID"] + (string)data["id"];
+                        if (!Global.Notification.ContainsKey(noteification_id))
+                        {
+                            JObject ojbMerge = (JObject)newCondition.DeepClone();
+                            ojbMerge.Merge(data, new JsonMergeSettings { MergeArrayHandling = MergeArrayHandling.Union });
+                            ojbMerge["SHOWTOAST"] = true;
+                            ojbMerge["TAGID"] = (string)data["id"];
+                            ojbMerge["NOTIFICATIONGID"] = (string)newCondition["ID"] + (string)data["id"];
+                            ojbMerge["UPDATE"] = true;
+                            Global.Notification.TryAdd((string)newCondition["ID"] + (string)data["id"], ojbMerge);
+                        }
+                    }
                 }
                 return noteification_id;
             }

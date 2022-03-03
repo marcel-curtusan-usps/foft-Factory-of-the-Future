@@ -277,13 +277,13 @@ namespace Factory_of_the_Future
                 if (!_updateNotificationstatus)
                 {
                     _updateNotificationstatus = true;
-                    Global.Notification.Where(r => (bool)r.Value["UPDATE"]).Select(x => x.Value).ToList().ForEach(notification =>
+                    foreach (JObject notification in Global.Notification.Where(r => (bool)r.Value["UPDATE"]).Select(x => x.Value))
                     {
                         if (TryUpdateNotificationStatus(notification))
                         {
                             BroadcastNotificationStatus(notification);
                         }
-                    });
+                    };
                     _updateNotificationstatus = false;
                 }
             }
@@ -450,8 +450,7 @@ namespace Factory_of_the_Future
                                 notification.Merge(updatenotification, new JsonMergeSettings { MergeArrayHandling = MergeArrayHandling.Union });
                                 updateFile = true;
                                 //update notification
-                                Global.Notification.Where(r => (int)r.Value["ID"] == (int)updatenotification["ID"])
-                                   .Select(y => y.Value).ToList().ForEach(item =>
+                                foreach(JObject item in Global.Notification.Where(r => (int)r.Value["ID"] == (int)updatenotification["ID"]).Select(y => y.Value))
                                       {
                                            item.Merge(updatenotification, new JsonMergeSettings { MergeArrayHandling = MergeArrayHandling.Union });
 
@@ -460,7 +459,7 @@ namespace Factory_of_the_Future
                                               item["DELETE"] = true;
                                               item["UPDATE"] = true;
                                           }
-                                       });
+                                       };
                                 //write to file for backup
                                 if (updateFile)
                                 {
@@ -512,13 +511,13 @@ namespace Factory_of_the_Future
                         {
                             new FileIO().Write(string.Concat(Global.Logdirpath, Global.ConfigurationFloder), "Notification.json", JsonConvert.SerializeObject(Global.Notification_Conditions.Select(x => x.Value), Formatting.Indented));
 
-                            Global.Notification.Where(r => (int)r.Value["ID"] == (int)Notification["ID"])
-                                  .Select(y => y.Value).ToList().ForEach(item =>
+                            foreach(JObject item in Global.Notification.Where(r => (int)r.Value["ID"] == (int)Notification["ID"])
+                                  .Select(y => y.Value))
                                   {
                                       item["DELETE"] = true;
                                       item["UPDATE"] = true;
 
-                                  });
+                                  };
                             return Global.Notification_Conditions.Select(e => e.Value).ToList();
                         }
                         else
@@ -623,14 +622,15 @@ namespace Factory_of_the_Future
                 if (!_updateZoneStatus)
                 {
                     _updateZoneStatus = true;
-                    Global.Zones.Where(u => (bool)u.Value["properties"]["Zone_Update"] && u.Value["properties"]["Zone_Type"].ToString() == "Area").Select(x => x.Value).ToList().ForEach(zoneitem =>
+                    foreach(JObject zoneitem in Global.Zones.Where(u => (bool)u.Value["properties"]["Zone_Update"] 
+                    && u.Value["properties"]["Zone_Type"].ToString() == "Area").Select(x => x.Value))
                     {
 
                         if (TryUpdateZoneStatus(zoneitem))
                         {
                             BroadcastZoneStatus(zoneitem);
                         }
-                    });
+                    };
 
                     _updateZoneStatus = false;
                 }
@@ -663,13 +663,13 @@ namespace Factory_of_the_Future
                 {
                     _updateSVTripsStatus = true;
 
-                    Global.RouteTrips.Select(x => x.Value).ToList().ForEach(trip =>
+                    foreach( JObject trip in Global.RouteTrips.Select(x => x.Value))
                     {
                         if (TrySVTripStatus(trip))
                         {
                             BroadcastSVTripsStatus(trip);
                         }
-                    });
+                    };
 
                     _updateSVTripsStatus = false;
                 }
@@ -824,9 +824,9 @@ namespace Factory_of_the_Future
                         }
                     }
                     //new condition
-                    Global.Notification_Conditions.Where(r => Regex.IsMatch(NewState, r.Value["CONDITIONS"].ToString(), RegexOptions.IgnoreCase)
+                   foreach(JObject newCondition in  Global.Notification_Conditions.Where(r => Regex.IsMatch(NewState, r.Value["CONDITIONS"].ToString(), RegexOptions.IgnoreCase)
                 && r.Value["TYPE"].ToString().ToLower() == type.ToLower()
-                 && (bool)r.Value["ACTIVE_CONDITION"]).Select(x => x.Value).ToList().ForEach(newCondition =>
+                 && (bool)r.Value["ACTIVE_CONDITION"]).Select(x => x.Value))
                  {
                      noteification_id = (string)newCondition["ID"] + (string)trip["id"];
                      if (!Global.Notification.ContainsKey(noteification_id))
@@ -839,7 +839,7 @@ namespace Factory_of_the_Future
                          ojbMerge["UPDATE"] = true;
                          Global.Notification.TryAdd((string)newCondition["ID"] + (string)trip["id"], ojbMerge);
                      }
-                 });
+                 };
 
                 }
                 return noteification_id;
@@ -850,60 +850,6 @@ namespace Factory_of_the_Future
                 return noteification_id;
             }
         }
-
-        //private void CheckNotification(string currentState, string NewState, string type, JObject trip)
-        //{
-        //    try
-        //    {
-        //        if (currentState != NewState)
-        //        {
-        //            //current condition
-        //            Global.Notification_Conditions.Where(r => Regex.IsMatch(currentState, r.Value["CONDITIONS"].ToString(), RegexOptions.IgnoreCase)
-        //            && r.Value["TYPE"].ToString().ToLower() == type.ToLower()
-        //             && (bool)r.Value["ACTIVE_CONDITION"]).Select(x => x.Value).ToList().ForEach(currentCondition =>
-        //             {
-        //                 if (Global.Notification.ContainsKey((string)currentCondition["ID"] + (string)trip["id"]))
-        //                 {
-        //                     if (Global.Notification.TryGetValue((string)currentCondition["ID"] + (string)trip["id"], out JObject ojbMerge))
-        //                     {
-        //                         if (!ojbMerge.ContainsKey("DELETE"))
-        //                         {
-        //                             ojbMerge.Add(new JProperty("DELETE", true));
-        //                         }
-        //                     }
-        //                 }
-        //             });
-        //            //new condition
-        //            Global.Notification_Conditions.Where(r => Regex.IsMatch(NewState, r.Value["CONDITIONS"].ToString(), RegexOptions.IgnoreCase)
-        //        && r.Value["TYPE"].ToString().ToLower() == type.ToLower()
-        //         && (bool)r.Value["ACTIVE_CONDITION"]).Select(x => x.Value).ToList().ForEach(newCondition =>
-        //         {
-        //             if (!Global.Notification.ContainsKey((string)newCondition["ID"] + (string)trip["id"]))
-        //             {
-        //                 JObject ojbMerge = (JObject)newCondition.DeepClone();
-        //                 ojbMerge.Merge(trip, new JsonMergeSettings
-        //                 {
-        //                     // union array values together to avoid duplicates
-        //                     MergeArrayHandling = MergeArrayHandling.Union
-        //                 });
-
-        //                 ojbMerge.Add(new JProperty("SHOWTOAST", true));
-        //                 ojbMerge.Add(new JProperty("TAGID", (string)trip["id"]));
-        //                 ojbMerge.Add(new JProperty("NOTIFICATIONGID", (string)newCondition["ID"] + (string)trip["id"]));
-        //                 ojbMerge.Add(new JProperty("UPDATE", true));
-        //                 Global.Notification.TryAdd((string)newCondition["ID"] + (string)trip["id"], ojbMerge);
-        //             }
-        //         });
-
-        //        }
-        //    }
-        //    catch (Exception e)
-        //    {
-        //        new ErrorLogger().ExceptionLog(e);
-        //    }
-        //}
-
-
 
         private double GetTripMin(DateTime scheduledDtm)
         {
@@ -1353,13 +1299,13 @@ namespace Factory_of_the_Future
                 if (!_updatingQSMStatus)
                 {
                     _updatingQSMStatus = true;
-                    Global.API_List.Where(r => (bool)r.Value["UPDATE_STATUS"]).Select(x => x.Value).ToList().ForEach(QSMitem =>
+                    foreach (JObject QSMitem in Global.API_List.Where(r => (bool)r.Value["UPDATE_STATUS"]).Select(x => x.Value))
                     {
                         if (TryUpdateQSMStaus(QSMitem))
                         {
                             BroadcastQSMUpdate(QSMitem);
                         }
-                    });
+                    };
                     _updatingQSMStatus = false;
                 }
             }
@@ -1540,13 +1486,14 @@ namespace Factory_of_the_Future
                 if (!_updateMachineStatus)
                 {
                     _updateMachineStatus = true;
-                    Global.Zones.Where(u => (bool)u.Value["properties"]["Zone_Update"] == true && u.Value["properties"]["Zone_Type"].ToString() == "Machine").Select(x => x.Value).ToList().ForEach(Machine =>
+                    foreach (JObject Machine in Global.Zones.Where(u => (bool)u.Value["properties"]["Zone_Update"]
+                    && u.Value["properties"]["Zone_Type"].ToString() == "Machine").Select(x => x.Value))
                     {
                         if (TryUpdateMachineStatus(Machine))
                         {
                             BroadcastMachineStatus(Machine);
                         }
-                    });
+                    };
                         
                     _updateMachineStatus = false;
                 }
@@ -1936,13 +1883,14 @@ namespace Factory_of_the_Future
                 {
                     _updateDockDoorStatus = true;
 
-                    Global.Zones.Where(u => u.Value["properties"]["Zone_Type"].ToString() == "DockDoor" && (bool)u.Value["properties"]["Zone_Update"]).Select(x => x.Value).ToList().ForEach(DockDoor =>
+                    foreach (JObject DockDoor in Global.Zones.Where(u => (bool)u.Value["properties"]["Zone_Update"] 
+                    && u.Value["properties"]["Zone_Type"].ToString() == "DockDoor").Select(x => x.Value))
                     {
                         if (TryUpdateDockDoorStatus(DockDoor))
                         {
                             BroadcastDockDoorStatus(DockDoor);
                         }
-                    });
+                    };
 
                     _updateDockDoorStatus = false;
                 }
@@ -2026,13 +1974,14 @@ namespace Factory_of_the_Future
                     // watch.Start();
                     double tagVisibleRange = Global.AppSettings.ContainsKey("POSITION_MAX_AGE") ? !string.IsNullOrEmpty((string)Global.AppSettings.Property("POSITION_MAX_AGE").Value) ? (long)Global.AppSettings.Property("POSITION_MAX_AGE").Value : 10000 : 10000;
 
-                    Global.Tag.Where(u => (bool)u.Value["properties"]["Tag_Update"] == true && u.Value["properties"]["Tag_Type"].ToString().EndsWith("Person")).Select(x => x.Value).ToList().ForEach(Tag =>
+                    foreach (JObject Tag in Global.Tag.Where(u => (bool)u.Value["properties"]["Tag_Update"]
+                     && u.Value["properties"]["Tag_Type"].ToString().EndsWith("Person")).Select(x => x.Value))
                     {
                         if (TryUpdatePersonTagStatus(Tag, tagVisibleRange))
                         {
                             BroadcastPersonTagStatus(Tag);
                         }
-                    });
+                    }
                     // watch.Stop();
                     // new ErrorLogger().CustomLog(string.Concat("Total Execution for all tags ", "Time: ", watch.ElapsedMilliseconds, " ms"), string.Concat((string)Global.AppSettings.Property("APPLICATION_NAME").Value, "TagProcesslogs"));
                     _updatePersonTagStatus = false;
@@ -2429,7 +2378,6 @@ namespace Factory_of_the_Future
                                 {
                                     if (Global.Zone_Info.TryGetValue(id, out JObject zoneinfodata))
                                     {
-                                      
                                         (zoneinfodata).Merge(objectdata, new JsonMergeSettings { MergeArrayHandling = MergeArrayHandling.Union });
                                         zoneinfodata["name"] = zoneinfodata["MPE_Type"] + "-" + zoneinfodata["MPE_Number"].ToString().PadLeft(3, '0');
                                         updateZone = true;
@@ -2503,55 +2451,54 @@ namespace Factory_of_the_Future
                 bool fileUpdate = false;
                 if (!string.IsNullOrEmpty(data))
                 {
-                        dynamic objdict = JToken.Parse(data);
-                        foreach (dynamic item in Global.AppSettings)
+                    dynamic objdict = JToken.Parse(data);
+                    foreach (dynamic item in Global.AppSettings)
+                    {
+                        foreach (var kv in objdict)
                         {
-                            foreach (var kv in objdict)
+                            if (kv.Name == item.Name)
                             {
-                                if (kv.Name == item.Name)
+                                if (kv.Value != item.Value)
                                 {
-                                    if (kv.Value != item.Value)
-                                    {
-                                        fileUpdate = true;
+                                    fileUpdate = true;
 
-                                        if (kv.Name.StartsWith("ORACONN"))
+                                    if (kv.Name.StartsWith("ORACONN"))
+                                    {
+                                        Global.AppSettings[item.Name] = Global.Encrypt(kv.Value.ToString());
+                                    }
+                                    if (kv.Name == "FACILITY_NASS_CODE")
+                                    {
+                                        if (GetData.Get_Site_Info((string)kv.Value, out JObject SiteInfo))
                                         {
-                                            Global.AppSettings[item.Name] = Global.Encrypt(kv.Value.ToString());
-                                        }
-                                        if (kv.Name == "FACILITY_NASS_CODE")
-                                        {
-                                            if (GetData.Get_Site_Info((string)kv.Value, out JObject SiteInfo))
+                                            if (SiteInfo.HasValues)
                                             {
-                                                if (SiteInfo.HasValues)
-                                                {
-                                                    Global.AppSettings.Property(item.Name).Value = kv.Value.ToString();
-                                                    Global.AppSettings["FACILITY_NAME"] = SiteInfo.ContainsKey("displayName") ? SiteInfo["displayName"]: "";
-                                                    Global.AppSettings["FACILITY_ID"] = SiteInfo.ContainsKey("fdbId") ? SiteInfo["fdbId"] : "";
-                                                    Global.AppSettings["FACILITY_ZIP"] = SiteInfo.ContainsKey("zipCode") ? SiteInfo["zipCode"] : "";
-                                                    Global.AppSettings["FACILITY_LKEY"] = SiteInfo.ContainsKey("localeKey") ? SiteInfo["localeKey"] : "";
-                                                    Global.LoglocationSetup();
-                                                }
-                                            }
-                                        }
-                                        else if (kv.Name == "LOG_LOCATION")
-                                        {
-                                            if (!string.IsNullOrEmpty(kv.Value.ToString()))
-                                            {
-                                                Global.AppSettings[item.Name] = kv.Value.ToString();
+                                                Global.AppSettings.Property(item.Name).Value = kv.Value.ToString();
+                                                Global.AppSettings["FACILITY_NAME"] = SiteInfo.ContainsKey("displayName") ? SiteInfo["displayName"] : "";
+                                                Global.AppSettings["FACILITY_ID"] = SiteInfo.ContainsKey("fdbId") ? SiteInfo["fdbId"] : "";
+                                                Global.AppSettings["FACILITY_ZIP"] = SiteInfo.ContainsKey("zipCode") ? SiteInfo["zipCode"] : "";
+                                                Global.AppSettings["FACILITY_LKEY"] = SiteInfo.ContainsKey("localeKey") ? SiteInfo["localeKey"] : "";
                                                 Global.LoglocationSetup();
-                                                //Global.Logdirpath = new DirectoryInfo(kv.Value.ToString());
-                                                //new Directory_Check().DirPath(Global.Logdirpath);
                                             }
                                         }
-                                        else
+                                    }
+                                    else if (kv.Name == "LOG_LOCATION")
+                                    {
+                                        if (!string.IsNullOrEmpty(kv.Value.ToString()))
                                         {
                                             Global.AppSettings[item.Name] = kv.Value.ToString();
+                                            Global.LoglocationSetup();
+                                            //Global.Logdirpath = new DirectoryInfo(kv.Value.ToString());
+                                            //new Directory_Check().DirPath(Global.Logdirpath);
                                         }
+                                    }
+                                    else
+                                    {
+                                        Global.AppSettings[item.Name] = kv.Value.ToString();
                                     }
                                 }
                             }
                         }
-                    
+                    }
                 }
 
                 if (fileUpdate)
@@ -2574,20 +2521,19 @@ namespace Factory_of_the_Future
             {
                 _connections.Remove(connectionId, connectionId);
 
-                Global._users.Where(r => r.Value["ConnectionId"].ToString() == connectionId).Select(z => z.Value).ToList().ForEach(user =>
+                foreach(JObject user in Global._users.Where(r => r.Value["ConnectionId"].ToString() == connectionId).Select(z => z.Value))
                 {
                     string data = string.Concat("Client closed the connection. User ID:" + user["UserId"].ToString()," | Connection ID: : " + connectionId);
                     new ErrorLogger().CustomLog(data, string.Concat((string)Global.AppSettings.Property("APPLICATION_NAME").Value, "_Applogs"));
                     new User_Log().LogoutUser(Global.CodeBase.Parent.FullName.ToString(), user);
                    
-                });
+                }
 
                 //remove users 
-                Global._users.Where(r => ((DateTime)r.Value["Login_Date"]).Subtract(DateTime.Now).TotalDays > 2).Select(z => z.Value).ToList().ForEach(user =>
+                foreach (JObject user in Global._users.Where(r => ((DateTime)r.Value["Login_Date"]).Subtract(DateTime.Now).TotalDays > 2).Select(z => z.Value))
                 {
-                        user.Remove();
-                });
-
+                    user.Remove();
+                }
             }
             catch (Exception e)
             {

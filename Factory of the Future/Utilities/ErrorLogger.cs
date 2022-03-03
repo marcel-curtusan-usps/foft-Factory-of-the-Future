@@ -20,7 +20,7 @@ namespace Factory_of_the_Future
                     errorBuilder.Append("Exception:TargetSite = " + e.TargetSite);
                     errorBuilder.Append("Exception:Source = " + e.Source);
 
-                    new FileIO().Write(string.Concat(Global.Logdirpath, Global.LogFloder, "\\"), (string)Global.AppSettings.Property("APPLICATION_NAME").Value + "_Applogs_" + DateTime.Now.ToString("yyyy-MM-dd") + ".text", errorBuilder.ToString());
+                    new FileIO().Write(string.Concat(Global.Logdirpath, Global.LogFloder, "\\"), (string)Global.AppSettings.Property("APPLICATION_NAME").Value + "_Applogs_" + DateTime.Now.ToString("yyyy-MM-dd") + ".txt", errorBuilder.ToString());
                 }
             }
         }
@@ -35,7 +35,7 @@ namespace Factory_of_the_Future
                     StringBuilder errorBuilder = new StringBuilder(Global.AppSettings.Property("APPLICATION_NAME").Value.ToString() + " " + type + " Info ");
                     errorBuilder.Append("DateTime = " + DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fff"));
                     errorBuilder.Append(" Data = " + Data);
-                    new FileIO().Write(string.Concat(Global.Logdirpath, Global.LogFloder, "\\"), type + "_" + DateTime.Now.ToString("yyyy-MM-dd") + ".text", errorBuilder.ToString());
+                    new FileIO().Write(string.Concat(Global.Logdirpath, Global.LogFloder, "\\"), type + "_" + DateTime.Now.ToString("yyyy-MM-dd") + ".txt", errorBuilder.ToString());
                 }
             }
             
