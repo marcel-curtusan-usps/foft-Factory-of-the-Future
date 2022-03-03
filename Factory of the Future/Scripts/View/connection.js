@@ -557,6 +557,7 @@ function Edit_Connection(id) {
                         $('input[type=text][name=url]').val() !== Data.URL ? jsonObject.URL = $('input[type=text][name=url]').val() : "";
                         //$('input[type=text][name=outgoingapikey]').val() !== Data.OUTGOING_APIKEY ? jsonObject.OUTGOING_APIKEY = $('input[type=text][name=outgoingapikey]').val() : "";
                         $('input[type=text][name=message_type]').val() !== Data.MESSAGE_TYPE ? jsonObject.MESSAGE_TYPE = $('input[type=text][name=message_type]').val() : "";
+                        $('input[type=text][name=admin_email_recepient]').val() !== Data.ADMIN_EMAIL_RECEPIENT ? jsonObject.ADMIN_EMAIL_RECEPIENT = $('input[type=text][name=admin_email_recepient').val() : "";
                         if (!$.isEmptyObject(jsonObject)) {
                             jsonObject.LASTUPDATE_BY_USERNAME = User.UserId;
                             jsonObject.ID = Data.ID;
