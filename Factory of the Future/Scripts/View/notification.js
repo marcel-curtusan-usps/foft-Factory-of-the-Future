@@ -166,7 +166,7 @@ $('button[name=addnotificationsetup]').off().on('click', function () {
 let notification = [];
 async function updateNotification(updatenotification) {
     try {
-        let notificationindex = notification.filter(x => x.NOTIFICATIONGID === updatenotification.NOTIFICATIONGID).map(x => x).length;
+        let notificationindex = notification.filter(x => x.notificationId === updatenotification.notificationId).map(x => x).length;
         //add notification
         if (notificationindex === 0) {
             notification.push(updatenotification);
@@ -175,12 +175,12 @@ async function updateNotification(updatenotification) {
             if (updatenotification.hasOwnProperty("DELETE")) {
                 if (updatenotification.DELETE) {
                     //delete notification 
-                    Promise.all([delete_notification(updatenotification.NOTIFICATIONGID)]);
+                    Promise.all([delete_notification(updatenotification.notificationId)]);
                 }
             }
             else {
                 //update notification
-                Promise.all([update_notification(updatenotification.NOTIFICATIONGID)]);
+                Promise.all([update_notification(updatenotification.notificationId)]);
             }
         }
        
@@ -207,13 +207,13 @@ async function updateagvTable(updatenotification) {
         else {
             $('#agvnotificaion_number').text("");
         }
-        let findagvtrdataid = agvnotificationtable_Body.find('tr[data-id=' + updatenotification.NOTIFICATIONGID + ']');
+        let findagvtrdataid = agvnotificationtable_Body.find('tr[data-id=' + updatenotification.notificationId + ']');
         if (findagvtrdataid.length > 0) {
             if (updatenotification.hasOwnProperty("DELETE")) {
-                agvnotificationtable_Body.find('tr[data-id=' + updatenotification.NOTIFICATIONGID + ']').remove();
+                agvnotificationtable_Body.find('tr[data-id=' + updatenotification.notificationId + ']').remove();
             }
             else {
-                agvnotificationtable_Body.find('tr[data-id=' + updatenotification.NOTIFICATIONGID + ']').replaceWith(agv_row_template.supplant(formatagvnotifirow(updatenotification)));
+                agvnotificationtable_Body.find('tr[data-id=' + updatenotification.notificationId + ']').replaceWith(agv_row_template.supplant(formatagvnotifirow(updatenotification)));
             }
         }
         else {
@@ -237,15 +237,15 @@ async function updatetripTable(updatenotification) {
         else {
             $('#tripsnotificaion_number').text("");
         }
-        let findtrdataid = tripsnotificationtable_Body.find('tr[data-id=' + updatenotification.NOTIFICATIONGID + ']');
+        let findtrdataid = tripsnotificationtable_Body.find('tr[data-id=' + updatenotification.notificationId + ']');
         if (findtrdataid.length > 0) {
             if (updatenotification.hasOwnProperty("DELETE")) {
-                tripsnotificationtable_Body.find('tr[data-id=' + updatenotification.NOTIFICATIONGID + ']').remove();
-                tripsnotificationtable_Body.find('tr[data-id=collapse_' + updatenotification.NOTIFICATIONGID + ']').remove();
+                tripsnotificationtable_Body.find('tr[data-id=' + updatenotification.notificationId + ']').remove();
+                tripsnotificationtable_Body.find('tr[data-id=collapse_' + updatenotification.notificationId + ']').remove();
             }
             else {
-                tripsnotificationtable_Body.find('tr[data-id=' + updatenotification.NOTIFICATIONGID + ']').remove();
-                tripsnotificationtable_Body.find('tr[data-id=collapse_' + updatenotification.NOTIFICATIONGID + ']').remove();
+                tripsnotificationtable_Body.find('tr[data-id=' + updatenotification.notificationId + ']').remove();
+                tripsnotificationtable_Body.find('tr[data-id=collapse_' + updatenotification.notificationId + ']').remove();
                 tripsnotificationtable_Body.append(trip_row_template.supplant(formattripnotifirow(updatenotification)));
             }
         }
@@ -261,7 +261,7 @@ async function delete_notification(id)
 {
     try {
         notification.forEach(function (obj) {
-            if (obj.NOTIFICATIONGID === id) {
+            if (obj.notificationId === id) {
                 notification.splice(notification.indexOf(obj), 1);
             }
         });
@@ -274,7 +274,7 @@ async function delete_notification(id)
 async function update_notification(id) {
     try {
         notification.forEach(function (obj) {
-            if (obj.NOTIFICATIONGID === id) {
+            if (obj.notificationId === id) {
                 let indexobj = notification.indexOf(obj);
             }
         });
@@ -299,7 +299,7 @@ function LoadNotification(value) {
     }
 }
 function LoadNotificationsetup(Data, table) {
-    $.connection.FOTFManager.server.getNotification_ConditionsList(0).done(function (NotificationData) {
+    $.connection.FOTFManager.server.getNotification_ConditionsList("").done(function (NotificationData) {
         notificationTable_Body.empty();
         $.each(NotificationData, function () {
             notificationTable_Body.append(notificationTable_row_template.supplant(formatnotificationrow(this)));
@@ -327,7 +327,7 @@ let agv_row_template =
     ;
 function formatagvnotifirow(properties, indx) {
     return $.extend(properties, {
-        id: properties.NOTIFICATIONGID,
+        id: properties.notificationId,
         tagid: properties.TAGID,
         name: properties.NAME,
         type: properties.name,
@@ -336,7 +336,7 @@ function formatagvnotifirow(properties, indx) {
         conditioncolor: conditioncolor(properties.TIME, parseInt(properties.WARNING), parseInt(properties.CRITICAL)),
         warning_action_text: properties.WARNING_ACTION,
         critical_action_text: properties.CRITICAL_ACTION,
-        action_text: conditionaction_text(properties.vehicleTime, parseInt(properties.WARNING), parseInt(properties.CRITICAL)) + "_" + properties.NOTIFICATIONGID,
+        action_text: conditionaction_text(properties.vehicleTime, parseInt(properties.WARNING), parseInt(properties.CRITICAL)) + "_" + properties.notificationId,
         indexobj: indx
     });
 }
@@ -374,7 +374,7 @@ let tripsnotificationtable = $('table[id=tripsnotificationtable]');
 let tripsnotificationtable_Body = tripsnotificationtable.find('tbody');
 function formattripnotifirow(properties, indx) {
     return $.extend(properties, {
-        id: properties.NOTIFICATIONGID,
+        id: properties.notificationId,
         tagid: properties.TAGID,
         schd: objSVTime(properties.scheduledDtm),
         routetripid: properties.id,
@@ -447,10 +447,12 @@ async function Notificationsetup(data,table) {
         $('button[id=notificationsubmitBtn]').prop('disabled', false);
         $('button[id=notificationsubmitBtn]').off().on('click', function () {
             $('button[id=notificationsubmitBtn]').prop('disabled', true);
-            var jsonObject = {};
+            var jsonObject = {
+                CREATED_BY_USERNAME: User.UserId,
+                ACTIVE_CONDITION: $('input[type=checkbox][name=condition_active]')[0].checked
+            };
 
             //condition active
-            jsonObject.ACTIVE_CONDITION = $('input[type=checkbox][name=condition_active]')[0].checked;
             checkValue($('input[type=text][name=condition_name]').val()) ? jsonObject.NAME = $('input[type=text][name=condition_name]').val() : '';
             checkValue($('select[name=condition_type] option:selected').val()) ? jsonObject.TYPE = $('select[name=condition_type] option:selected').val() : '';
             checkValue($('input[type=text][name=condition]').val()) ? jsonObject.CONDITIONS = $('input[type=text][name=condition]').val() : '';
@@ -459,7 +461,6 @@ async function Notificationsetup(data,table) {
             checkValue($('textarea[id=warning_action]').val()) ? jsonObject.WARNING_ACTION = $('textarea[id=warning_action]').val() : '';
             checkValue($('textarea[id=critical_action]').val()) ? jsonObject.CRITICAL_ACTION = $('textarea[id=critical_action]').val() : '';
             if (!$.isEmptyObject(jsonObject)) {
-                jsonObject.CREATED_BY_USERNAME = User.UserId;
                 $.connection.FOTFManager.server.addNotification_Conditions(JSON.stringify(jsonObject)).done(function (Data) {
                     if (Data.length > 0) {
                         if (Data[0].hasOwnProperty("ERROR_MESSAGE")) {
@@ -476,15 +477,14 @@ async function Notificationsetup(data,table) {
                         $('span[id=error_notificationsubmitBtn]').text("Error with the Data");
                     }
                 });
-            };
+            }
         });
     }
     else {
-        if ($.isNumeric(data)) {
-            var id = parseInt(data);
-            $('#notificationsubmitBtn').css("display", "none");
-            $('#editnotificationsubmitBtn').css("display", "block");
-            $.connection.FOTFManager.server.getNotification_ConditionsList(id).done(function (N_Data) {
+        $('#notificationsubmitBtn').css("display", "none");
+        $('#editnotificationsubmitBtn').css("display", "block");
+        try {
+            $.connection.FOTFManager.server.getNotification_ConditionsList(data).done(function (N_Data) {
                 if (N_Data.length > 0) {
                     $('#notification_SetupHeader').text('Edit Notification');
                     if (N_Data[0].ACTIVE_CONDITION) {
@@ -510,11 +510,11 @@ async function Notificationsetup(data,table) {
                 $('button[id=editnotificationsubmitBtn]').prop('disabled', false);
                 $('button[id=editnotificationsubmitBtn]').off().on('click', function () {
                     $('button[id=editnotificationsubmitBtn]').prop('disabled', true);
-                    var jsonObject = {};
-
-                    //condition active
-                    jsonObject.ACTIVE_CONDITION = $('input[type=checkbox][name=condition_active]')[0].checked;
-                    jsonObject.ID = id;
+                    var jsonObject = {
+                        ACTIVE_CONDITION: $('input[type=checkbox][name=condition_active]')[0].checked,
+                        id: data,
+                        LASTUPDATE_BY_USERNAME: User.UserId
+                    };
                     $('input[type=text][name=condition_name]').val() !== jsonObject.NAME ? jsonObject.NAME = $('input[type=text][name=condition_name]').val() : '';
                     $('select[name=condition_type] option:selected').val() !== jsonObject.TYPE ? jsonObject.TYPE = $('select[name=condition_type] option:selected').val() : '';
                     $('input[type=text][name=condition]').val() !== jsonObject.CONDITIONS ? jsonObject.CONDITIONS = $('input[type=text][name=condition]').val() : '';
@@ -523,7 +523,6 @@ async function Notificationsetup(data,table) {
                     $('textarea[id=warning_action]').val() !== jsonObject.WARNING_ACTION ? jsonObject.WARNING_ACTION = $('textarea[id=warning_action]').val() : '';
                     $('textarea[id=critical_action]').val() !== jsonObject.CRITICAL_ACTION ? jsonObject.CRITICAL_ACTION = $('textarea[id=critical_action]').val() : '';
                     if (!$.isEmptyObject(jsonObject)) {
-                        jsonObject.LASTUPDATE_BY_USERNAME = User.UserId;
                         $.connection.FOTFManager.server.editNotification_Conditions(JSON.stringify(jsonObject)).done(function (Data) {
                             if (Data.length === 0) {
                                 $('span[id=error_notificationsubmitBtn]').text("Unable to loaded Condition");
@@ -541,6 +540,8 @@ async function Notificationsetup(data,table) {
                 sidebar.close('notificationsetup');
                 $('#Notification_Setup_Modal').modal();
             });
+        } catch (e) {
+            console.log(e);
         }
     }
 }
@@ -561,37 +562,6 @@ async function NotificationRemove(data, table) {
             })
         });
     }
-}
-async function GetAGVnotificationinfoInfo(table, type) {
-    // sort the data
-    notification.sort(SortByVehicleName);
-    $Table = $('table[id=' + table + ']');
-    $Table_Body = $Table.find('tbody');
-    $Table_Body.empty();
-    $row_template =
-        '<tr data-id={id} style=background-color:{conditioncolor} data-toggle=collapse data-target=#{action_text} class=accordion-toggle>' +
-        '<td>{name}</td>' +
-        '<td><button class="btn btn-outline-info btn-sm btn-block tagdetails" data-tag="{tagid}">{type}</button></td>' +
-        '<td>{duration}</td>' +
-        '</tr>'
-        ;
-    function formatnotifirow(properties) {
-        return $.extend(properties, {
-            id: properties.NOTIFICATIONGID,
-            tagid: properties.TAGID,
-            name: properties.NAME,
-            type: properties.VEHICLENAME,
-            condition: properties.CONDITIONS,
-            duration: calculateDuration(properties.VEHICLETIME),
-            conditioncolor: conditioncolor(properties.VEHICLETIME, parseInt(properties.WARNING), parseInt(properties.CRITICAL)),
-            warning_action_text: properties.WARNING_ACTION,
-            critical_action_text: properties.CRITICAL_ACTION,
-            action_text: conditionaction_text(properties.VEHICLETIME, parseInt(properties.WARNING), parseInt(properties.CRITICAL)) + properties.NOTIFICATIONGID,
-        });
-    }
-    $.each(notification, function () {
-        $Table_Body.append($row_template.supplant(formatnotifirow(this)));
-    });
 }
 function conditioncolor(time, war_min, crit_min) {
     if (checkValue(time)) {

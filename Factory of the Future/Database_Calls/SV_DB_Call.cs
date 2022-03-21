@@ -17,17 +17,17 @@ namespace Factory_of_the_Future
             JObject result = new JObject();
             try
             {
-                if (!string.IsNullOrEmpty((string)Global.AppSettings.Property("ORACONNSVSTRING").Value))
+                if (!string.IsNullOrEmpty((string)AppParameters.AppSettings.Property("ORACONNSVSTRING").Value))
                 {
-                    DirectoryInfo maindir = new DirectoryInfo(Global.CodeBase.Parent.FullName.ToString());
+                    DirectoryInfo maindir = new DirectoryInfo(AppParameters.CodeBase.Parent.FullName.ToString());
                     if (maindir.Exists)
                     {
                         if (request_data.ContainsKey("QueryName") && string.IsNullOrEmpty(request_data["QueryName"].ToString()))
                         {
-                            string query = new FileIO().Read(string.Concat(maindir, Global.ORAQuery), request_data["QueryName"].ToString());
+                            string query = new FileIO().Read(string.Concat(maindir, AppParameters.ORAQuery), request_data["QueryName"].ToString());
                             if (!string.IsNullOrEmpty(query))
                             {
-                                using (OracleConnection connection = new OracleConnection(Global.Decrypt((string)Global.AppSettings.Property("ORACONNSVSTRING").Value)))
+                                using (OracleConnection connection = new OracleConnection(AppParameters.Decrypt((string)AppParameters.AppSettings.Property("ORACONNSVSTRING").Value)))
                                 {
                                     using (OracleCommand command = new OracleCommand(query, connection))
                                     {

@@ -36,12 +36,12 @@ namespace Factory_of_the_Future
         {
             get
             {
-                _notification_conditions["ID"] = 0;
+                _notification_conditions["id"] = Guid.NewGuid();
                 _notification_conditions["ACTIVE_CONDITION"] = false;
                 _notification_conditions["CREATED_DATE"] = DateTime.Now;
                 _notification_conditions["CREATED_BY_USERNAME"] = "";
                 _notification_conditions["LASTUPDATE_BY_USERNAME"] ="";
-                _notification_conditions["LASTUPDATE_DATE"] = DateTime.Now;
+                _notification_conditions["LASTUPDATE_DATE"] = new DateTime(1, 1, 1, 0, 0, 0);
                 _notification_conditions["NAME"] ="";
                 _notification_conditions["TYPE"] ="";
                 _notification_conditions["CONDITIONS"] = "";
@@ -76,7 +76,7 @@ namespace Factory_of_the_Future
         {
             get
             {
-                api["ID"] = Guid.NewGuid();
+                api["id"] = Guid.NewGuid();
                 api["CONNECTION_NAME"] = "";
                 api["CREATED_DATE"] =  DateTime.Now;
                 api["CREATED_BY_USERNAME"] = "";
@@ -88,7 +88,7 @@ namespace Factory_of_the_Future
                 api["DEACTIVATED_DATE"] = "";
                 api["API_CONNECTED"] = false;
                 api["UPDATE_STATUS"] = true;
-                api["LASTTIME_API_CONNECTED"] = DateTime.Now.AddDays(-24);
+                api["LASTTIME_API_CONNECTED"] = new DateTime(1, 1, 1, 0, 0, 0);
                 api["DATA_RETRIEVE"] = 60000;
                 api["HTTPS"] = false;
                 api["ADMIN_EMAIL_RECEPIENT"] = "";
@@ -402,7 +402,7 @@ namespace Factory_of_the_Future
     }
     public class Connection
     {
-        [JsonProperty("ID")]
+        [JsonProperty("id")]
         public string ID;
 
         [JsonProperty("CONNECTION_NAME")]
@@ -662,7 +662,7 @@ namespace Factory_of_the_Future
 
                 if (_scheduledDtm != null)
                 {
-                    return Global.SVdatetimeformat(JObject.Parse(JsonConvert.SerializeObject(_scheduledDtm)));
+                    return AppParameters.SVdatetimeformat(JObject.Parse(JsonConvert.SerializeObject(_scheduledDtm)));
                 }
                 return new DateTime(1, 1, 1);
 
@@ -697,7 +697,7 @@ namespace Factory_of_the_Future
 
                 if (_legScheduledDtm != null)
                 {
-                    return Global.SVdatetimeformat(JObject.Parse(JsonConvert.SerializeObject(_legScheduledDtm)));
+                    return AppParameters.SVdatetimeformat(JObject.Parse(JsonConvert.SerializeObject(_legScheduledDtm)));
                 }
                 return new DateTime(1, 1, 1);
 
@@ -732,7 +732,7 @@ namespace Factory_of_the_Future
 
                 if (_cancelDtm != null)
                 {
-                    return Global.SVdatetimeformat(JObject.Parse(JsonConvert.SerializeObject(_cancelDtm)));
+                    return AppParameters.SVdatetimeformat(JObject.Parse(JsonConvert.SerializeObject(_cancelDtm)));
                 }
                 return new DateTime(1, 1, 1);
 
@@ -818,7 +818,7 @@ namespace Factory_of_the_Future
 
                 if (_operDate != null)
                 {
-                    return Global.SVdatetimeformat(JObject.Parse(JsonConvert.SerializeObject(_operDate)));
+                    return AppParameters.SVdatetimeformat(JObject.Parse(JsonConvert.SerializeObject(_operDate)));
                 }
 
                 return new DateTime(1, 1, 1);
@@ -880,7 +880,7 @@ namespace Factory_of_the_Future
             {
                 if (_actualDtm != null)
                 {
-                    return Global.SVdatetimeformat(JObject.Parse(JsonConvert.SerializeObject(_actualDtm)));
+                    return AppParameters.SVdatetimeformat(JObject.Parse(JsonConvert.SerializeObject(_actualDtm)));
                 }
 
                 return new DateTime(1, 1, 1);
@@ -898,7 +898,7 @@ namespace Factory_of_the_Future
 
                 if (_legActualDtm != null)
                 {
-                    return Global.SVdatetimeformat(JObject.Parse(JsonConvert.SerializeObject(_legActualDtm)));
+                    return AppParameters.SVdatetimeformat(JObject.Parse(JsonConvert.SerializeObject(_legActualDtm)));
                 }
 
                 return new DateTime(1, 1, 1);
@@ -942,7 +942,7 @@ namespace Factory_of_the_Future
 
                 if (_doorDtm != null)
                 {
-                    return Global.SVdatetimeformat(JObject.Parse(JsonConvert.SerializeObject(_doorDtm)));
+                    return AppParameters.SVdatetimeformat(JObject.Parse(JsonConvert.SerializeObject(_doorDtm)));
                 }
 
                 return new DateTime(1, 1, 1);
@@ -960,7 +960,7 @@ namespace Factory_of_the_Future
 
                 if (_legDoorDtm != null)
                 {
-                    return Global.SVdatetimeformat(JObject.Parse(JsonConvert.SerializeObject(_legDoorDtm)));
+                    return AppParameters.SVdatetimeformat(JObject.Parse(JsonConvert.SerializeObject(_legDoorDtm)));
                 }
 
                 return new DateTime(1, 1, 1);
@@ -987,7 +987,7 @@ namespace Factory_of_the_Future
 
                 if (_gpsSiteDtm != null)
                 {
-                    return Global.SVdatetimeformat(JObject.Parse(JsonConvert.SerializeObject(_gpsSiteDtm)));
+                    return AppParameters.SVdatetimeformat(JObject.Parse(JsonConvert.SerializeObject(_gpsSiteDtm)));
                 }
 
                 return new DateTime(1, 1, 1);
@@ -1007,7 +1007,7 @@ namespace Factory_of_the_Future
 
                 if (_loadUnldStartDtm != null)
                 {
-                    return Global.SVdatetimeformat(JObject.Parse(JsonConvert.SerializeObject(_loadUnldStartDtm)));
+                    return AppParameters.SVdatetimeformat(JObject.Parse(JsonConvert.SerializeObject(_loadUnldStartDtm)));
                 }
                
                     return new DateTime(1, 1, 1);
@@ -1025,7 +1025,7 @@ namespace Factory_of_the_Future
 
                 if (_loadUnldEndDtm != null)
                 {
-                    return Global.SVdatetimeformat(JObject.Parse(JsonConvert.SerializeObject(_loadUnldEndDtm)));
+                    return AppParameters.SVdatetimeformat(JObject.Parse(JsonConvert.SerializeObject(_loadUnldEndDtm)));
                 }
 
                 return new DateTime(1, 1, 1);
@@ -1067,7 +1067,7 @@ namespace Factory_of_the_Future
 
                 if (_legGateDtm != null)
                 {
-                    return Global.SVdatetimeformat(JObject.Parse(JsonConvert.SerializeObject(_legGateDtm)));
+                    return AppParameters.SVdatetimeformat(JObject.Parse(JsonConvert.SerializeObject(_legGateDtm)));
                 }
 
                 return new DateTime(1, 1, 1); ;
@@ -1118,7 +1118,7 @@ namespace Factory_of_the_Future
 
                 if (_scheduledArrDTM != null)
                 {
-                    return Global.SVdatetimeformat(JObject.Parse(JsonConvert.SerializeObject(_scheduledArrDTM)));
+                    return AppParameters.SVdatetimeformat(JObject.Parse(JsonConvert.SerializeObject(_scheduledArrDTM)));
                 }
 
                 return new DateTime(1, 1, 1);
@@ -1135,7 +1135,7 @@ namespace Factory_of_the_Future
             {
                 if (_scheduledDepDTM != null)
                 {
-                    return Global.SVdatetimeformat(JObject.Parse(JsonConvert.SerializeObject(_scheduledDepDTM)));
+                    return AppParameters.SVdatetimeformat(JObject.Parse(JsonConvert.SerializeObject(_scheduledDepDTM)));
                 }
 
                 return new DateTime(1, 1, 1);
@@ -1151,7 +1151,7 @@ namespace Factory_of_the_Future
             {
                 if (_actDepartureDtm != null)
                 {
-                    return Global.SVdatetimeformat(JObject.Parse(JsonConvert.SerializeObject(_actDepartureDtm)));
+                    return AppParameters.SVdatetimeformat(JObject.Parse(JsonConvert.SerializeObject(_actDepartureDtm)));
                 }
 
                 return new DateTime(1, 1, 1);
@@ -1168,7 +1168,7 @@ namespace Factory_of_the_Future
             {
                 if (_actArrivalDtm != null)
                 {
-                    return Global.SVdatetimeformat(JObject.Parse(JsonConvert.SerializeObject(_actArrivalDtm)));
+                    return AppParameters.SVdatetimeformat(JObject.Parse(JsonConvert.SerializeObject(_actArrivalDtm)));
                 }
                 return new DateTime(1, 1, 1);
             }
@@ -1183,7 +1183,7 @@ namespace Factory_of_the_Future
             {
                 if (_createdDtm != null)
                 {
-                    return Global.SVdatetimeformat(JObject.Parse(JsonConvert.SerializeObject(_createdDtm)));
+                    return AppParameters.SVdatetimeformat(JObject.Parse(JsonConvert.SerializeObject(_createdDtm)));
                 }
                return new DateTime(1, 1, 1);
                 
@@ -1199,7 +1199,7 @@ namespace Factory_of_the_Future
             {
                 if (_lastUpdtDtm != null)
                 {
-                    return Global.SVdatetimeformat(JObject.Parse(JsonConvert.SerializeObject(_lastUpdtDtm)));
+                    return AppParameters.SVdatetimeformat(JObject.Parse(JsonConvert.SerializeObject(_lastUpdtDtm)));
                 }
                 else
                 {

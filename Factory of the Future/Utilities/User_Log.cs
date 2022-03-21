@@ -15,11 +15,11 @@ namespace Factory_of_the_Future
                 DirectoryInfo maindir = new DirectoryInfo(DirectoryPath);
                 if (maindir.Exists)
                 {
-                    if (!string.IsNullOrEmpty(Global.AppSettings.ContainsKey("ORACONNASSTRING") ? (string)Global.AppSettings.Property("ORACONNASSTRING").Value : ""))
+                    if (!string.IsNullOrEmpty(AppParameters.AppSettings.ContainsKey("ORACONNASSTRING") ? (string)AppParameters.AppSettings.Property("ORACONNASSTRING").Value : ""))
                     {
-                        using (OracleConnection connection = new OracleConnection(Global.Decrypt((string)Global.AppSettings.Property("ORACONNASSTRING").Value)))
+                        using (OracleConnection connection = new OracleConnection(AppParameters.Decrypt((string)AppParameters.AppSettings.Property("ORACONNASSTRING").Value)))
                         {
-                            string item2 = new FileIO().Read(string.Concat(maindir, Global.ORAQuery), "UserSessionIN_Query.txt");
+                            string item2 = new FileIO().Read(string.Concat(maindir, AppParameters.ORAQuery), "UserSessionIN_Query.txt");
                             if (!string.IsNullOrEmpty(item2))
                             {
                                 using (OracleCommand command = new OracleCommand(item2, connection))
@@ -78,9 +78,9 @@ namespace Factory_of_the_Future
                                     {
                                         command.Parameters.Add(":ACE_ID", OracleDbType.Varchar2, (string)adUser.Property("UserId").Value, ParameterDirection.Input);
                                     }
-                                    if (!string.IsNullOrEmpty(Global.Application_Environment))
+                                    if (!string.IsNullOrEmpty(AppParameters.ApplicationEnvironment))
                                     {
-                                        command.Parameters.Add(":APPPLIACTION_ENVIRONMENT", OracleDbType.Varchar2, Global.Application_Environment, ParameterDirection.Input);
+                                        command.Parameters.Add(":APPPLIACTION_ENVIRONMENT", OracleDbType.Varchar2, AppParameters.ApplicationEnvironment, ParameterDirection.Input);
                                     }
                                     if (adUser.ContainsKey("Role"))
                                     {
@@ -118,11 +118,11 @@ namespace Factory_of_the_Future
                 DirectoryInfo maindir = new DirectoryInfo(DirectoryPath);
                 if (maindir.Exists)
                 {
-                    if (!string.IsNullOrEmpty(Global.AppSettings.ContainsKey("ORACONNASSTRING") ? (string)Global.AppSettings.Property("ORACONNASSTRING").Value : ""))
+                    if (!string.IsNullOrEmpty(AppParameters.AppSettings.ContainsKey("ORACONNASSTRING") ? (string)AppParameters.AppSettings.Property("ORACONNASSTRING").Value : ""))
                     {
-                        using (OracleConnection connection = new OracleConnection(Global.Decrypt((string)Global.AppSettings.Property("ORACONNASSTRING").Value)))
+                        using (OracleConnection connection = new OracleConnection(AppParameters.Decrypt((string)AppParameters.AppSettings.Property("ORACONNASSTRING").Value)))
                         {
-                            string item2 = new FileIO().Read(string.Concat(maindir, Global.ORAQuery), "UserSessionUpdate_Query.txt");
+                            string item2 = new FileIO().Read(string.Concat(maindir, AppParameters.ORAQuery), "UserSessionUpdate_Query.txt");
                             if (!string.IsNullOrEmpty(item2))
                             {
                                 using (OracleCommand command = new OracleCommand(item2, connection))
@@ -173,11 +173,11 @@ namespace Factory_of_the_Future
                 DirectoryInfo maindir = new DirectoryInfo(DirectoryPath);
                 if (maindir.Exists)
                 {
-                    if (!string.IsNullOrEmpty(Global.AppSettings.ContainsKey("ORACONNASSTRING") ? (string)Global.AppSettings.Property("ORACONNASSTRING").Value : ""))
+                    if (!string.IsNullOrEmpty(AppParameters.AppSettings.ContainsKey("ORACONNASSTRING") ? (string)AppParameters.AppSettings.Property("ORACONNASSTRING").Value : ""))
                     {
-                        using (OracleConnection connection = new OracleConnection(Global.Decrypt((string)Global.AppSettings.Property("ORACONNASSTRING").Value)))
+                        using (OracleConnection connection = new OracleConnection(AppParameters.Decrypt((string)AppParameters.AppSettings.Property("ORACONNASSTRING").Value)))
                         {
-                            string item2 = new FileIO().Read(string.Concat(maindir, Global.ORAQuery), "UserSessionOUT_Query.txt");
+                            string item2 = new FileIO().Read(string.Concat(maindir, AppParameters.ORAQuery), "UserSessionOUT_Query.txt");
                             if (!string.IsNullOrEmpty(item2))
                             {
                                 using (OracleCommand command = new OracleCommand(item2, connection))

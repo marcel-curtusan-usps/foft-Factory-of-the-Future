@@ -25,7 +25,7 @@ namespace Factory_of_the_Future
             user = ACEUser;
             try
             {
-                using (PrincipalContext domainContext = new PrincipalContext(ContextType.Domain, Global.AppSettings.Property("Domain").Value.ToString().Trim(), Global.AppSettings.Property("ADUSAContainer").Value.ToString().Trim()))
+                using (PrincipalContext domainContext = new PrincipalContext(ContextType.Domain, AppParameters.AppSettings.Property("Domain").Value.ToString().Trim(), AppParameters.AppSettings.Property("ADUSAContainer").Value.ToString().Trim()))
                 {
                     using (var foundUser = UserPrincipal.FindByIdentity(domainContext, IdentityType.SamAccountName, (string)ACEUser.Property("UserId").Value))
                     {

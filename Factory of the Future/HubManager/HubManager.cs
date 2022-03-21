@@ -63,7 +63,7 @@ namespace Factory_of_the_Future
         ///  Notification Conditions section
         /// </summary>
         /// <returns></returns>
-        public IEnumerable<JToken> GetNotification_ConditionsList(int data)
+        public IEnumerable<JToken> GetNotification_ConditionsList(string data)
         {
             return _managerHub.GetNotification_ConditionsList(data);
         }
@@ -278,6 +278,12 @@ namespace Factory_of_the_Future
             }
             return _managerHub.GetADUserProfile(user_id);
         }
+
+
+        /// <summary>
+        /// this is to handle connection after the App has started.
+        /// </summary>
+        /// <returns></returns>
         public override Task OnConnected()
         {
             _managerHub.Adduser(Context);

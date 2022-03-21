@@ -11,15 +11,15 @@ namespace Factory_of_the_Future
     {
         public List<Api_Connection> Connection = new List<Api_Connection>();
        
-        public void Add(Connection con) 
+        public void Add(JObject con) 
         {
             Api_Connection NewConnection = new Api_Connection();
-            NewConnection.ID = con.ID;
-            NewConnection.API_Info = con;
+            NewConnection.ID = con["id"].ToString();
+            NewConnection.API_Info.Merge(con, new JsonMergeSettings { MergeArrayHandling = MergeArrayHandling.Union });
             this.Connection.Add(NewConnection);
-            if (con.ACTIVE_CONNECTION)
+            if ((bool)con["ACTIVE_CONNECTION"])
             {
-                if (con.UDP_CONNECTION)
+                if ((bool)con["UDP_CONNECTION"])
                 {
                     NewConnection._UDPThreadListener();
                 }
@@ -27,7 +27,7 @@ namespace Factory_of_the_Future
                 {
                     NewConnection._ThreadDownload();
 
-                    if (!con.UDP_CONNECTION)
+                    if (!(bool)con["UDP_CONNECTION"])
                     {
                         NewConnection._ThreadRefresh();
                         NewConnection.ConstantRefresh = true;

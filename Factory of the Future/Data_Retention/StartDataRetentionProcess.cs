@@ -23,17 +23,17 @@ namespace Factory_of_the_Future
             try
             {
                 //add file data retention check here.
-                if (Global.Logdirpath != null && Global.Logdirpath.Exists)
+                if (AppParameters.Logdirpath != null && AppParameters.Logdirpath.Exists)
                 {
-                    DirectoryInfo maindir = new DirectoryInfo(@"" + Global.Logdirpath.FullName + "\\" + "LOG" + "\\");
+                    DirectoryInfo maindir = new DirectoryInfo(@"" + AppParameters.Logdirpath.FullName + "\\" + "LOG" + "\\");
                     if (maindir.Exists)
                     {
                         List<FileInfo> files = maindir.GetFiles("*", SearchOption.TopDirectoryOnly).OrderBy(d => d.LastWriteTime.Year).ThenBy(d => d.LastWriteTime.Month).ThenBy(d => d.LastWriteTime.Day).Select(x => x).ToList();
                         int days = 60;
                         long target_size = 1073741824;
-                        if (Global.AppSettings.ContainsKey("FILE_RETENTION"))
+                        if (AppParameters.AppSettings.ContainsKey("FILE_RETENTION"))
                         {
-                            string tempint = (string)Global.AppSettings.Property("FILE_RETENTION").Value.ToString();
+                            string tempint = (string)AppParameters.AppSettings.Property("FILE_RETENTION").Value.ToString();
                             int.TryParse(tempint, out int tempdays);
 
                             if (tempdays != days)
@@ -44,9 +44,9 @@ namespace Factory_of_the_Future
                                 }
                             }
                         }
-                        if (Global.AppSettings.ContainsKey("MAX_FILE_SIZE"))
+                        if (AppParameters.AppSettings.ContainsKey("MAX_FILE_SIZE"))
                         {
-                            string tempint = (string)Global.AppSettings.Property("MAX_FILE_SIZE").Value.ToString();
+                            string tempint = (string)AppParameters.AppSettings.Property("MAX_FILE_SIZE").Value.ToString();
                             int.TryParse(tempint, out int temptarget_size);
 
                             if (temptarget_size != target_size)
@@ -77,7 +77,7 @@ namespace Factory_of_the_Future
                                                 , " | Number Of Day Old : ", Math.Round(NumberofDay)
                                                 , " | Delete Date/Time : ", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fff")
                                                 , " | File was deleted because file was older then ", Math.Round(NumberofDay) + " days old\n");
-                                            new ErrorLogger().CustomLog(data, string.Concat((string)Global.AppSettings.Property("APPLICATION_NAME").Value, "Deletelogs"));
+                                            new ErrorLogger().CustomLog(data, string.Concat((string)AppParameters.AppSettings.Property("APPLICATION_NAME").Value, "Deletelogs"));
                                         }
                                         catch (Exception ex)
                                         {
@@ -104,7 +104,7 @@ namespace Factory_of_the_Future
                                                 , " | FileSize : " + FormatBytes(file.Length)
                                                 , " | Delete Date/Time : ", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fff")
                                                 , " | File was deleted because file exceed file size ", FormatBytes(target_size));
-                                            new ErrorLogger().CustomLog(data, string.Concat((string)Global.AppSettings.Property("APPLICATION_NAME").Value, "Deletelogs"));
+                                            new ErrorLogger().CustomLog(data, string.Concat((string)AppParameters.AppSettings.Property("APPLICATION_NAME").Value, "Deletelogs"));
                                         }
                                         catch (Exception ex)
                                         {

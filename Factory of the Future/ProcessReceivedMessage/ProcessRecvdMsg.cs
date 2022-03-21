@@ -196,7 +196,7 @@ namespace Factory_of_the_Future
                                 }
                                 string mch_sortplan_id = mach_type + "-" + machine_no + "-" + sortplan;
 
-                                Global.Sortplans.AddOrUpdate(mch_sortplan_id, Dataitem,
+                                AppParameters.SortplansList.AddOrUpdate(mch_sortplan_id, Dataitem,
                                      (key, existingVal) =>
                                      {
 
@@ -214,7 +214,7 @@ namespace Factory_of_the_Future
                     }
                     if (updatefile)
                     {
-                        new FileIO().Write(string.Concat(Global.Logdirpath, Global.ConfigurationFloder), "Staffing.json", JsonConvert.SerializeObject(Global.Sortplans.Select(x => x.Value).ToList(), Formatting.Indented));
+                        new FileIO().Write(string.Concat(AppParameters.Logdirpath, AppParameters.ConfigurationFloder), "Staffing.json", JsonConvert.SerializeObject(AppParameters.SortplansList.Select(x => x.Value).ToList(), Formatting.Indented));
                     }
 
                 }
@@ -234,9 +234,9 @@ namespace Factory_of_the_Future
                     
                     foreach (JObject camera_item in data)
                     {
-                        if (Global.Camera_Info.ContainsKey(camera_item["CAMERA_NAME"].ToString()))
+                        if (AppParameters.CameraInfoList.ContainsKey(camera_item["CAMERA_NAME"].ToString()))
                         {
-                            Global.Camera_Info.AddOrUpdate(camera_item["CAMERA_NAME"].ToString(), camera_item,
+                            AppParameters.CameraInfoList.AddOrUpdate(camera_item["CAMERA_NAME"].ToString(), camera_item,
                                 (key, existingVal) =>
                             {
                                 if (camera_item != existingVal)
@@ -248,9 +248,9 @@ namespace Factory_of_the_Future
                         }
                         else
                         {
-                            if (!Global.Camera_Info.TryAdd(camera_item["CAMERA_NAME"].ToString(), camera_item))
+                            if (!AppParameters.CameraInfoList.TryAdd(camera_item["CAMERA_NAME"].ToString(), camera_item))
                             {
-                                new ErrorLogger().CustomLog("unable to add camera to array", string.Concat((string)Global.AppSettings["APPLICATION_NAME"], "Appslogs"));
+                                new ErrorLogger().CustomLog("unable to add camera to array", string.Concat((string)AppParameters.AppSettings["APPLICATION_NAME"], "Appslogs"));
                             }
                         }
                     }
@@ -286,9 +286,9 @@ namespace Factory_of_the_Future
                 {
                     //Container = jsonObject.SelectToken(message_type);
 
-                    //new FileIO().Write(string.Concat(Global.Logdirpath, Global.ConfigurationFloder), "ContainerHistory.json", JsonConvert.SerializeObject(Container, Formatting.Indented));
+                    //new FileIO().Write(string.Concat(AppParameters.Logdirpath, AppParameters.ConfigurationFloder), "ContainerHistory.json", JsonConvert.SerializeObject(Container, Formatting.Indented));
                     List<Container> Containers = jsonObject.ToObject<List<Container>>(); //JsonConvert.DeserializeObject<List<Container>>(JsonConvert.SerializeObject(jsonObject));
-                    string siteId = (string)Global.AppSettings["FACILITY_NASS_CODE"];
+                    string siteId = (string)AppParameters.AppSettings["FACILITY_NASS_CODE"];
                     foreach (Container d in Containers)
                     {
                         if (d.PlacardBarcode.StartsWith("99M"))
@@ -300,7 +300,7 @@ namespace Factory_of_the_Future
                             d.Dest = "";
                             d.DestinationName = "";
                         }
-                        if (!Global.Containers.ContainsKey(d.PlacardBarcode))
+                        if (!AppParameters.Containers.ContainsKey(d.PlacardBarcode))
                         {
                             int sortindex = 0;
                             foreach (ContainerHistory scan in d.ContainerHistory.OrderBy(s => s.EventDtmfmt))
@@ -376,11 +376,11 @@ namespace Factory_of_the_Future
                                     }
                                 }
                             }
-                            Global.Containers.TryAdd(d.PlacardBarcode, d);
+                            AppParameters.Containers.TryAdd(d.PlacardBarcode, d);
                         }
                         else
                         {
-                            if (Global.Containers.TryGetValue(d.PlacardBarcode, out Container dc))
+                            if (AppParameters.Containers.TryGetValue(d.PlacardBarcode, out Container dc))
                             {
                                 if (dc.ContainerHistory.Count() > d.ContainerHistory.Count)
                                 {
@@ -465,11 +465,11 @@ namespace Factory_of_the_Future
                    Containers = null;
                 }
 
-                if (Global.Containers.Count > 0)
+                if (AppParameters.Containers.Count > 0)
                 {
-                    foreach (string m in Global.Containers.Where(r => DateTime.Now.Subtract(r.Value.EventDtm).TotalDays >= 3).Select(y => y.Key))
+                    foreach (string m in AppParameters.Containers.Where(r => DateTime.Now.Subtract(r.Value.EventDtm).TotalDays >= 3).Select(y => y.Key))
                     {
-                        Global.Containers.TryRemove(m, out Container outc);
+                        AppParameters.Containers.TryRemove(m, out Container outc);
 
                     }
                 }
@@ -497,12 +497,16 @@ namespace Factory_of_the_Future
                         if (rt.ContainsKey("routeTripId") && rt.ContainsKey("routeTripLegId"))
                         {
                             string routetripid = string.Concat(rt["routeTripId"].ToString(), rt["routeTripLegId"].ToString());
-                            if (Global.RouteTrips.ContainsKey(routetripid))
+                            if (AppParameters.RouteTripsList.ContainsKey(routetripid))
                             {
-                                if (Global.RouteTrips.TryGetValue(routetripid, out JObject existingVal))
+                                if (AppParameters.RouteTripsList.TryGetValue(routetripid, out JObject existingVal))
                                 {
-                                    existingVal.Merge(rt, new JsonMergeSettings { MergeArrayHandling = MergeArrayHandling.Union });
-                                    Task.Run(() => new ItineraryTrip_Update(GetItinerary(rt["route"].ToString(), rt["trip"].ToString(), Global.AppSettings["FACILITY_NASS_CODE"].ToString(), GetSvDate((JObject)rt["operDate"])), rt["tripDirectionInd"].ToString(), routetripid));
+                                    if (rt.ToString() != existingVal["rawData"].ToString())
+                                    {
+                                        existingVal["Trip_Update"] = true;
+                                        existingVal.Merge(rt, new JsonMergeSettings { MergeArrayHandling = MergeArrayHandling.Union });
+                                        Task.Run(() => new ItineraryTrip_Update(GetItinerary(rt["route"].ToString(), rt["trip"].ToString(), AppParameters.AppSettings["FACILITY_NASS_CODE"].ToString(), GetSvDate((JObject)rt["operDate"])), rt["tripDirectionInd"].ToString(), routetripid));
+                                    }
                                 }
                             }
                             else
@@ -513,21 +517,23 @@ namespace Factory_of_the_Future
                                 rt["destSite"] = "";
                                 rt["tripMin"] = 0;
                                 rt["containers"] = "";
+                                rt["Trip_Update"] = false;
                                 rt["unloadedContainers"] = 0;
-                                if (Global.RouteTrips.TryAdd(routetripid, rt))
+                                rt["rawData"] = rt;
+                                if (AppParameters.RouteTripsList.TryAdd(routetripid, rt))
                                 {
-                                    Task.Run(() => new ItineraryTrip_Update(GetItinerary(rt["route"].ToString(), rt["trip"].ToString(), Global.AppSettings["FACILITY_NASS_CODE"].ToString(), GetSvDate((JObject)rt["operDate"])), rt["tripDirectionInd"].ToString(), routetripid));
+                                    Task.Run(() => new ItineraryTrip_Update(GetItinerary(rt["route"].ToString(), rt["trip"].ToString(), AppParameters.AppSettings["FACILITY_NASS_CODE"].ToString(), GetSvDate((JObject)rt["operDate"])), rt["tripDirectionInd"].ToString(), routetripid));
                                 }
                             }
                         }
 
                     }
                 }
-                if (Global.RouteTrips.Count > 0)
+                if (AppParameters.RouteTripsList.Count > 0)
                 {
-                    foreach(string m in Global.RouteTrips.Where(r => (int)r.Value["tripMin"] < -1440).Select(y => y.Key))
+                    foreach(string m in AppParameters.RouteTripsList.Where(r => (int)r.Value["tripMin"] < -1440).Select(y => y.Key))
                     {
-                        Global.RouteTrips.TryRemove(m, out JObject value);
+                        AppParameters.RouteTripsList.TryRemove(m, out JObject value);
                     }
                 }
                  
@@ -557,11 +563,11 @@ namespace Factory_of_the_Future
             {
                 //string start_time = string.Concat(DateTime.Now.ToString("yyyy-MM-dd'T'"), "00:00:00");
 
-                Uri parURL = new Uri(string.Format((string)Global.AppSettings["SV_ITINERARY"], route, trip, string.Concat(start_time.ToString("yyyy-MM-dd'T'"), "00:00:00")));
+                Uri parURL = new Uri(string.Format((string)AppParameters.AppSettings["SV_ITINERARY"], route, trip, string.Concat(start_time.ToString("yyyy-MM-dd'T'"), "00:00:00")));
                 string SV_Response = SendMessage.SV_Get(parURL.AbsoluteUri);
                 if (!string.IsNullOrEmpty(SV_Response))
                 {
-                    if (Global.IsValidJson(SV_Response))
+                    if (AppParameters.IsValidJson(SV_Response))
                     {
                         JArray itinerary = JArray.Parse(SV_Response);
                         if (itinerary.HasValues)
@@ -587,12 +593,12 @@ namespace Factory_of_the_Future
                 bool update_info = false;
                 if (jsonObject.HasValues)
                 {
-                    string siteId = (string)Global.AppSettings["FACILITY_NASS_CODE"];
+                    string siteId = (string)AppParameters.AppSettings["FACILITY_NASS_CODE"];
 
                     foreach (JObject item in jsonObject)
                     {
                         update_info = false;
-                        foreach (JObject m in Global.Zones.Where(x => x.Value["properties"]["Zone_Type"].ToString() == "DockDoor"
+                        foreach (JObject m in AppParameters.ZonesList.Where(x => x.Value["properties"]["Zone_Type"].ToString() == "DockDoor"
                          && (int)x.Value["properties"]["doorNumber"] == (int)item["doorNumber"]).Select(l => l.Value))
                         {
                             if (m["properties"]["Raw_Data"].ToString() != item.ToString())
@@ -600,9 +606,9 @@ namespace Factory_of_the_Future
                                 if (item.ContainsKey("routeTripId") && item.ContainsKey("routeTripLegId"))
                                 {
                                     string routetripid = string.Concat(item["routeTripId"].ToString(), item["routeTripLegId"].ToString());
-                                    if (Global.RouteTrips.ContainsKey(routetripid))
+                                    if (AppParameters.RouteTripsList.ContainsKey(routetripid))
                                     {
-                                        if (Global.RouteTrips.TryGetValue(routetripid, out JObject trip))
+                                        if (AppParameters.RouteTripsList.TryGetValue(routetripid, out JObject trip))
                                         {
                                             trip.Merge(item, new JsonMergeSettings { MergeArrayHandling = MergeArrayHandling.Union });
 
@@ -611,7 +617,7 @@ namespace Factory_of_the_Future
                                                 if (trip["tripDirectionInd"].ToString() == "O")
                                                 {
                                                     IEnumerable<Container> alltrailercontent = null;
-                                                    IEnumerable<Container> unloadedtrailerContent = Global.Containers.Where(r => !string.IsNullOrEmpty(r.Value.Dest)
+                                                    IEnumerable<Container> unloadedtrailerContent = AppParameters.Containers.Where(r => !string.IsNullOrEmpty(r.Value.Dest)
                                                     && Regex.IsMatch(r.Value.Dest, trip["destSite"].ToString(), RegexOptions.IgnoreCase)
                                                     && r.Value.hasLoadScans == false
                                                     && r.Value.containerTerminate == false
@@ -627,7 +633,7 @@ namespace Factory_of_the_Future
                                                     {
                                                         IEnumerable<Container> loadedtrailerContent = null;
                                                         //for the loaded int the trailer
-                                                        loadedtrailerContent = Global.Containers.Where(r => !string.IsNullOrEmpty(r.Value.Otrailer)
+                                                        loadedtrailerContent = AppParameters.Containers.Where(r => !string.IsNullOrEmpty(r.Value.Otrailer)
                                                              && Regex.IsMatch(r.Value.Otrailer, item["trailerBarcode"].ToString(), RegexOptions.IgnoreCase)
                                                              && r.Value.hasLoadScans == true
                                                              ).Select(y => y.Value).ToList();
@@ -642,7 +648,7 @@ namespace Factory_of_the_Future
                                                 {
                                                     if (!string.IsNullOrEmpty(item["trailerBarcode"].ToString()))
                                                     {
-                                                        IEnumerable<Container> unloadedtrailerContent = Global.Containers.Where(r => !string.IsNullOrEmpty(r.Value.Itrailer)
+                                                        IEnumerable<Container> unloadedtrailerContent = AppParameters.Containers.Where(r => !string.IsNullOrEmpty(r.Value.Itrailer)
                                                         && Regex.IsMatch(r.Value.Itrailer, item["trailerBarcode"].ToString(), RegexOptions.IgnoreCase)
 
                                                          ).Select(y => y.Value).ToList();
@@ -667,7 +673,7 @@ namespace Factory_of_the_Future
                                         item["unloadedContainers"] = 0;
                                         if (item.ContainsKey("scheduledDtm"))
                                         {
-                                            item["tripMin"] = Global.Get_TripMin((JObject)item["scheduledDtm"]);
+                                            item["tripMin"] = AppParameters.Get_TripMin((JObject)item["scheduledDtm"]);
                                         }
 
                                         m["properties"]["dockDoorData"] = item;
@@ -759,9 +765,9 @@ namespace Factory_of_the_Future
 
                     foreach (JObject item in data)
                     {
-                        if (Global.Tag.ContainsKey((string)item["tagId"]))
+                        if (AppParameters.Tag.ContainsKey((string)item["tagId"]))
                         {
-                           foreach(JObject m in Global.Tag.Where(r => r.Key == (string)item["tagId"]).Select(y => y.Value))
+                           foreach(JObject m in AppParameters.Tag.Where(r => r.Key == (string)item["tagId"]).Select(y => y.Value))
                             {
                                 //tag.Merge(item, new JsonMergeSettings { MergeArrayHandling = MergeArrayHandling.Replace });
                                 //tag["properties"]["Tag_Update"] = true;
@@ -806,16 +812,16 @@ namespace Factory_of_the_Future
                             GeoJsonType["properties"]["sels"] = item["sels"];
                             GeoJsonType["properties"]["positionTS"] = DateTime.Now.AddDays(-10).ToUniversalTime();
                             //add to the tags
-                            if (!Global.Tag.ContainsKey((string)item["tagId"]))
+                            if (!AppParameters.Tag.ContainsKey((string)item["tagId"]))
                             {
-                                Global.Tag.TryAdd((string)item["tagId"], GeoJsonType);
+                                AppParameters.Tag.TryAdd((string)item["tagId"], GeoJsonType);
                             }
                         }
                     }
 
-                    if (Global.Tag.Count() > 0)
+                    if (AppParameters.Tag.Count() > 0)
                     {
-                        foreach(JObject m in Global.Tag.Where(u => u.Value["properties"]["Tag_Type"].ToString().EndsWith("Person")).Select(x => x.Value))
+                        foreach(JObject m in AppParameters.Tag.Where(u => u.Value["properties"]["Tag_Type"].ToString().EndsWith("Person")).Select(x => x.Value))
                         {
                             if (data.SelectTokens("[?(@.tagId)]").Where(i => (string)i["tagId"] == (string)m["properties"]["id"]).ToList().Count == 0)
                             {
@@ -869,9 +875,9 @@ namespace Factory_of_the_Future
                         {
                             foreach (JObject item in missedSels.Children())
                             {
-                                if (Global.Tag.ContainsKey((string)item["tagId"]))
+                                if (AppParameters.Tag.ContainsKey((string)item["tagId"]))
                                 {
-                                    foreach(JObject m in Global.Tag.Where(r => r.Key == (string)item["tagId"]).Select(y => y.Value))
+                                    foreach(JObject m in AppParameters.Tag.Where(r => r.Key == (string)item["tagId"]).Select(y => y.Value))
                                     {
                                       
                                         if ((bool)m["properties"]["isWearingTag"] == true)
@@ -904,15 +910,15 @@ namespace Factory_of_the_Future
                                     GeoJsonType["properties"]["positionTS"] = DateTime.Now.AddDays(-10).ToUniversalTime();
                                 
                                     //add to the tags
-                                    if (!Global.Tag.ContainsKey((string)item["tagId"]))
+                                    if (!AppParameters.Tag.ContainsKey((string)item["tagId"]))
                                     {
-                                        Global.Tag.TryAdd((string)item["tagId"], GeoJsonType);
+                                        AppParameters.Tag.TryAdd((string)item["tagId"], GeoJsonType);
                                     }
                                 }
                             }
-                            if (Global.Tag.Count() > 0)
+                            if (AppParameters.Tag.Count() > 0)
                             {
-                               foreach(JObject m in  Global.Tag.Where(u => u.Value["properties"]["Tag_Type"].ToString().EndsWith("Person")).Select(x => x.Value))
+                               foreach(JObject m in  AppParameters.Tag.Where(u => u.Value["properties"]["Tag_Type"].ToString().EndsWith("Person")).Select(x => x.Value))
                                 {
                                     if (missedSels.SelectTokens("[?(@.tagId)]").Where(i => (string)i["tagId"] == (string)m["properties"]["id"]).ToList().Count == 0)
                                     {
@@ -991,15 +997,15 @@ namespace Factory_of_the_Future
         //                            //    }
 
         //                            //}
-        //                            if (!Global.CTS_LocalDockDeparted.ContainsKey(route + trip))
+        //                            if (!AppParameters.CTS_LocalDockDeparted.ContainsKey(route + trip))
         //                            {
         //                                Dataitem.Add(new JProperty("CTS_Update", true));
         //                                Dataitem.Add(new JProperty("CTS_Remove", false));
-        //                                Global.CTS_LocalDockDeparted.TryAdd(route + trip, Dataitem);
+        //                                AppParameters.CTS_LocalDockDeparted.TryAdd(route + trip, Dataitem);
         //                            }
         //                            else
         //                            {
-        //                                if (Global.CTS_LocalDockDeparted.TryGetValue(route + trip, out JObject cts_item))
+        //                                if (AppParameters.CTS_LocalDockDeparted.TryGetValue(route + trip, out JObject cts_item))
         //                                {
         //                                    foreach (dynamic kv in Dataitem.Children())
         //                                    {
@@ -1023,9 +1029,9 @@ namespace Factory_of_the_Future
         //                }
 
         //                //check if the data have been removed.
-        //                if (Global.CTS_LocalDockDeparted.Count() > 0)
+        //                if (AppParameters.CTS_LocalDockDeparted.Count() > 0)
         //                {
-        //                    foreach (JObject item in Global.CTS_LocalDockDeparted.Select(x => x.Value))
+        //                    foreach (JObject item in AppParameters.CTS_LocalDockDeparted.Select(x => x.Value))
         //                    {
         //                        string trip = item.ContainsKey("Trip") ? (string)item["Trip"] : "";
         //                        string route = item.ContainsKey("Route") ? (string)item["Route"] : "";
@@ -1033,7 +1039,7 @@ namespace Factory_of_the_Future
 
         //                        if (exsiting.Count == 0)
         //                        {
-        //                            if (Global.CTS_LocalDockDeparted.TryGetValue(route + trip, out JObject cts_item))
+        //                            if (AppParameters.CTS_LocalDockDeparted.TryGetValue(route + trip, out JObject cts_item))
         //                            {
         //                                if (cts_item.ContainsKey("CTS_Remove"))
         //                                {
@@ -1102,16 +1108,16 @@ namespace Factory_of_the_Future
         //                            //    }
 
         //                            //}
-        //                            if (!Global.CTS_Outbound_Schedualed.ContainsKey(route + trip))
+        //                            if (!AppParameters.CTS_Outbound_Schedualed.ContainsKey(route + trip))
         //                            {
         //                                Dataitem.Add(new JProperty("CTS_Update", true));
         //                                Dataitem.Add(new JProperty("CTS_Remove", false));
         //                                Dataitem.Add(new JProperty("doorNumber", ""));
-        //                                Global.CTS_Outbound_Schedualed.TryAdd(route + trip, Dataitem);
+        //                                AppParameters.CTS_Outbound_Schedualed.TryAdd(route + trip, Dataitem);
         //                            }
         //                            else
         //                            {
-        //                                if (Global.CTS_Outbound_Schedualed.TryGetValue(route + trip, out JObject cts_item))
+        //                                if (AppParameters.CTS_Outbound_Schedualed.TryGetValue(route + trip, out JObject cts_item))
         //                                {
         //                                    foreach (dynamic kv in Dataitem.Children())
         //                                    {
@@ -1135,9 +1141,9 @@ namespace Factory_of_the_Future
         //                }
 
         //                // check if the data have been removed.
-        //                if (Global.CTS_Outbound_Schedualed.Count() > 0)
+        //                if (AppParameters.CTS_Outbound_Schedualed.Count() > 0)
         //                {
-        //                    foreach (JObject item in Global.CTS_Outbound_Schedualed.Select(x => x.Value))
+        //                    foreach (JObject item in AppParameters.CTS_Outbound_Schedualed.Select(x => x.Value))
         //                    {
         //                        string trip = item.ContainsKey("TripID") ? (string)item["TripID"] : "";
         //                        string route = item.ContainsKey("RouteID") ? (string)item["RouteID"] : "";
@@ -1145,7 +1151,7 @@ namespace Factory_of_the_Future
 
         //                        if (exsiting.Count == 0)
         //                        {
-        //                            if (Global.CTS_Outbound_Schedualed.TryGetValue(route + trip, out JObject cts_item))
+        //                            if (AppParameters.CTS_Outbound_Schedualed.TryGetValue(route + trip, out JObject cts_item))
         //                            {
         //                                if (cts_item.ContainsKey("CTS_Remove"))
         //                                {
@@ -1212,16 +1218,16 @@ namespace Factory_of_the_Future
         //                            //    }
 
         //                            //}
-        //                            if (!Global.CTS_Inbound_Schedualed.ContainsKey(route + trip))
+        //                            if (!AppParameters.CTS_Inbound_Schedualed.ContainsKey(route + trip))
         //                            {
         //                                Dataitem.Add(new JProperty("CTS_Update", true));
         //                                Dataitem.Add(new JProperty("CTS_Remove", false));
         //                                Dataitem.Add(new JProperty("doorNumber", ""));
-        //                                Global.CTS_Inbound_Schedualed.TryAdd(route + trip, Dataitem);
+        //                                AppParameters.CTS_Inbound_Schedualed.TryAdd(route + trip, Dataitem);
         //                            }
         //                            else
         //                            {
-        //                                if (Global.CTS_Inbound_Schedualed.TryGetValue(route + trip, out JObject cts_item))
+        //                                if (AppParameters.CTS_Inbound_Schedualed.TryGetValue(route + trip, out JObject cts_item))
         //                                {
         //                                    foreach (dynamic kv in Dataitem.Children())
         //                                    {
@@ -1245,9 +1251,9 @@ namespace Factory_of_the_Future
         //                }
 
         //                // check if the data have been removed.
-        //                if (Global.CTS_Inbound_Schedualed.Count() > 0)
+        //                if (AppParameters.CTS_Inbound_Schedualed.Count() > 0)
         //                {
-        //                    foreach (JObject item in Global.CTS_Inbound_Schedualed.Select(x => x.Value))
+        //                    foreach (JObject item in AppParameters.CTS_Inbound_Schedualed.Select(x => x.Value))
         //                    {
         //                        string trip = item.ContainsKey("TripID") ? (string)item["TripID"] : "";
         //                        string route = item.ContainsKey("RouteID") ? (string)item["RouteID"] : "";
@@ -1255,7 +1261,7 @@ namespace Factory_of_the_Future
 
         //                        if (exsiting.Count == 0)
         //                        {
-        //                            if (Global.CTS_Inbound_Schedualed.TryGetValue(route + trip, out JObject cts_item))
+        //                            if (AppParameters.CTS_Inbound_Schedualed.TryGetValue(route + trip, out JObject cts_item))
         //                            {
         //                                if (cts_item.ContainsKey("CTS_Remove"))
         //                                {
@@ -1289,7 +1295,7 @@ namespace Factory_of_the_Future
                     if (!data.ContainsKey("localdata"))
                     {
                         data.Add(new JProperty("localdata", true));
-                        new FileIO().Write(string.Concat(Global.Logdirpath, Global.ConfigurationFloder), "P2PData.json", JsonConvert.SerializeObject(data, Formatting.Indented));
+                        new FileIO().Write(string.Concat(AppParameters.Logdirpath, AppParameters.ConfigurationFloder), "P2PData.json", JsonConvert.SerializeObject(data, Formatting.Indented));
                     }
                     JToken sortplanlist = null;
                     if (data.ContainsKey(message_type))
@@ -1317,9 +1323,9 @@ namespace Factory_of_the_Future
                                             sortplan_name = sortplan.Substring(0, dotindex).Trim();
                                         }
 
-                                        if (Global.Sortplans.ContainsKey(mach_type + "-" + machine_no + "-" + sortplan_name))
+                                        if (AppParameters.SortplansList.ContainsKey(mach_type + "-" + machine_no + "-" + sortplan_name))
                                         {
-                                            if (Global.Sortplans.TryGetValue(mach_type + "-" + machine_no + "-" + sortplan_name, out JObject existingVa))
+                                            if (AppParameters.SortplansList.TryGetValue(mach_type + "-" + machine_no + "-" + sortplan_name, out JObject existingVa))
                                             {
                                                 foreach (dynamic kv in Dataitem.Children())
                                                 {
@@ -1339,7 +1345,7 @@ namespace Factory_of_the_Future
                                         }
                                         else
                                         {
-                                            if (Global.Sortplans.TryAdd(mach_type + "-" + machine_no + "-" + sortplan_name, Dataitem))
+                                            if (AppParameters.SortplansList.TryAdd(mach_type + "-" + machine_no + "-" + sortplan_name, Dataitem))
                                             {
                                             }
                                         }
@@ -1349,10 +1355,10 @@ namespace Factory_of_the_Future
                         }
                     }
                 }
-                //    if (Global.MachineZones.Count > 0)
+                //    if (AppParameters.MachineZones.Count > 0)
                 //{
                 //    JToken machineInfo = data.SelectToken("Doors");
-                //    foreach (var MachineZonesitem in Global.MachineZones)
+                //    foreach (var MachineZonesitem in AppParameters.MachineZones)
                 //    {
                 //        if ((string)MachineZonesitem.Value["properties"]["Zone_Type"] == "Machine")
                 //        {
@@ -1435,9 +1441,9 @@ namespace Factory_of_the_Future
                             if (rpg_volume > 0 && throughput > 0)
                             {
                                 DateTime dtNow = DateTime.Now;
-                                if (!string.IsNullOrEmpty((string)Global.AppSettings["FACILITY_TIMEZONE"]))
+                                if (!string.IsNullOrEmpty((string)AppParameters.AppSettings["FACILITY_TIMEZONE"]))
                                 {
-                                    if (Global.TimeZoneConvert.TryGetValue((string)Global.AppSettings["FACILITY_TIMEZONE"], out string windowsTimeZoneId))
+                                    if (AppParameters.TimeZoneConvert.TryGetValue((string)AppParameters.AppSettings["FACILITY_TIMEZONE"], out string windowsTimeZoneId))
                                     {
                                         dtNow = TimeZoneInfo.ConvertTime(dtNow, TimeZoneInfo.FindSystemTimeZoneById(windowsTimeZoneId));
                                     }
@@ -1465,7 +1471,7 @@ namespace Factory_of_the_Future
                                 item.Add("rpg_start_dtm", "");
                                 item.Add("rpg_end_dtm", "");
                             }
-                            Global.Zones.Where(x => x.Value["properties"]["Zone_Type"].ToString() == "Machine" &&
+                            AppParameters.ZonesList.Where(x => x.Value["properties"]["Zone_Type"].ToString() == "Machine" &&
                             x.Value["properties"]["MPE_Type"].ToString() == item["mpe_type"].ToString() && x.Value["properties"]["MPE_Number"].ToString() == item["mpe_number"].ToString())
                                .Select(l => l.Value).ToList()
                                .ForEach(existingVa =>
@@ -1522,9 +1528,9 @@ namespace Factory_of_the_Future
                     sortplan = sortplan_name;
                 }
                 string id = machine_type + "-" + Convert.ToInt32(machine_number) + "-" + sortplan;
-                if (Global.Sortplans.ContainsKey(id))
+                if (AppParameters.SortplansList.ContainsKey(id))
                 {
-                    if (Global.Sortplans.TryGetValue(id, out JObject sp))
+                    if (AppParameters.SortplansList.TryGetValue(id, out JObject sp))
                     {
                         return sp;
                     }
@@ -1573,15 +1579,15 @@ namespace Factory_of_the_Future
                 string time_to_comp_optimal_DateTime = "";
                 string time_to_comp_actual_DateTime = "";
                 DateTime dtNow = DateTime.Now;
-                if (!string.IsNullOrEmpty((string)Global.AppSettings["FACILITY_TIMEZONE"]))
+                if (!string.IsNullOrEmpty((string)AppParameters.AppSettings["FACILITY_TIMEZONE"]))
                 {
-                    if (Global.TimeZoneConvert.TryGetValue((string)Global.AppSettings["FACILITY_TIMEZONE"], out string windowsTimeZoneId))
+                    if (AppParameters.TimeZoneConvert.TryGetValue((string)AppParameters.AppSettings["FACILITY_TIMEZONE"], out string windowsTimeZoneId))
                     {
                         dtNow = TimeZoneInfo.ConvertTime(dtNow, TimeZoneInfo.FindSystemTimeZoneById(windowsTimeZoneId));
                     }
                 }
 
-                if (data.HasValues && Global.Zones.Count > 0)
+                if (data.HasValues && AppParameters.ZonesList.Count > 0)
                 {
                     JToken dpsInfo = data.SelectToken("data");
                     if (dpsInfo != null)
@@ -1609,7 +1615,7 @@ namespace Factory_of_the_Future
                                     if (!string.IsNullOrEmpty(strSortPlanItem))
                                     {
                                       
-                                        foreach(JObject machineZone in Global.Zones.Where(u => u.Value["properties"]["Zone_Type"].ToString() == "Machine").Select(x => x.Value))
+                                        foreach(JObject machineZone in AppParameters.ZonesList.Where(u => u.Value["properties"]["Zone_Type"].ToString() == "Machine").Select(x => x.Value))
                                         {
                                             if (machineZone["properties"]["MPEWatchData"].HasValues)
                                             {
@@ -1651,7 +1657,7 @@ namespace Factory_of_the_Future
         {
             try
             {
-                if (data.ContainsKey("NASS_CODE") && (string)data["NASS_CODE"] == Global.AppSettings["FACILITY_NASS_CODE"].ToString())
+                if (data.ContainsKey("NASS_CODE") && (string)data["NASS_CODE"] == AppParameters.AppSettings["FACILITY_NASS_CODE"].ToString())
                 {
                     JObject mission = new JObject
                     {
@@ -1666,7 +1672,7 @@ namespace Factory_of_the_Future
                         ["MissionType"] = (string)data["message".ToUpper()],
                         ["MissionErrorTime"] = (DateTime)data["time".ToUpper()]
                     };
-                    foreach (JObject existingVa in Global.Tag.Where(f => f.Value["properties"]["name"].ToString() == (string)mission["Vehicle"]).Select(y => y.Value))
+                    foreach (JObject existingVa in AppParameters.Tag.Where(f => f.Value["properties"]["name"].ToString() == (string)mission["Vehicle"]).Select(y => y.Value))
                     {
                         existingVa["properties"]["inMission"] = false;
                         // get list of request for the pickup location.
@@ -1674,24 +1680,24 @@ namespace Factory_of_the_Future
                         existingVa["properties"]["Tag_Update"] = true;
                     }
                     //merge changes 
-                    foreach (JObject request in Global.Mission.Where(r => (int)r.Value["Request_Id"] == (int)mission["Request_Id"]).Select(y => y.Value))
+                    foreach (JObject request in AppParameters.MissionList.Where(r => (int)r.Value["Request_Id"] == (int)mission["Request_Id"]).Select(y => y.Value))
                     {
                         request.Merge(mission, new JsonMergeSettings { MergeArrayHandling = MergeArrayHandling.Union });
                     }
                     //update AGV zone location
-                    foreach (JObject existingVa in Global.Zones.Where(f => f.Value["properties"]["Zone_Type"].ToString() == "AGVLocation"
+                    foreach (JObject existingVa in AppParameters.ZonesList.Where(f => f.Value["properties"]["Zone_Type"].ToString() == "AGVLocation"
                      && f.Value["properties"]["name"].ToString() == mission["Pickup_Location"].ToString()).Select(y => y.Value))
                     {
-                        existingVa["properties"]["MissionList"] = JToken.Parse(JsonConvert.SerializeObject(Global.Mission.Where(r => r.Value["Pickup_Location"].ToString() == mission["Pickup_Location"].ToString()
+                        existingVa["properties"]["MissionList"] = JToken.Parse(JsonConvert.SerializeObject(AppParameters.MissionList.Where(r => r.Value["Pickup_Location"].ToString() == mission["Pickup_Location"].ToString()
                         && r.Value["State"].ToString() == "Active"
                         && (int)r.Value["Request_Id"] != (int)mission["Request_Id"]).Select(y => y.Value).ToList(), Formatting.Indented));
                         existingVa["properties"]["Zone_Update"] = true;
 
                     }
-                    foreach (JObject existingVa in Global.Zones.Where(f => f.Value["properties"]["Zone_Type"].ToString() == "AGVLocation"
+                    foreach (JObject existingVa in AppParameters.ZonesList.Where(f => f.Value["properties"]["Zone_Type"].ToString() == "AGVLocation"
                      && f.Value["properties"]["name"].ToString() == mission["Dropoff_Location"].ToString()).Select(y => y.Value))
                     {
-                        existingVa["properties"]["MissionList"] = JToken.Parse(JsonConvert.SerializeObject(Global.Mission.Where(r => r.Value["Dropoff_Location"].ToString() == mission["Dropoff_Location"].ToString()
+                        existingVa["properties"]["MissionList"] = JToken.Parse(JsonConvert.SerializeObject(AppParameters.MissionList.Where(r => r.Value["Dropoff_Location"].ToString() == mission["Dropoff_Location"].ToString()
                         && r.Value["State"].ToString() == "Active"
                         && (int)r.Value["Request_Id"] != (int)mission["Request_Id"]).Select(y => y.Value).ToList(), Formatting.Indented));
                         existingVa["properties"]["Zone_Update"] = true;
@@ -1699,9 +1705,9 @@ namespace Factory_of_the_Future
 
 
                     //remove request id
-                    if (!Global.Mission.TryRemove(mission["Request_Id"].ToString(), out JObject value))
+                    if (!AppParameters.MissionList.TryRemove(mission["Request_Id"].ToString(), out JObject value))
                     {
-                        new ErrorLogger().CustomLog("unable to remove Mission " + mission["Request_Id"].ToString() + " to list", string.Concat((string)Global.AppSettings["APPLICATION_NAME"], "Appslogs"));
+                        new ErrorLogger().CustomLog("unable to remove Mission " + mission["Request_Id"].ToString() + " to list", string.Concat((string)AppParameters.AppSettings["APPLICATION_NAME"], "Appslogs"));
                     }
                     mission = null;
                 }
@@ -1720,11 +1726,11 @@ namespace Factory_of_the_Future
         {
             try
             {
-                if (data.ContainsKey("NASS_CODE") && (string)data["NASS_CODE"] == Global.AppSettings["FACILITY_NASS_CODE"].ToString())
+                if (data.ContainsKey("NASS_CODE") && (string)data["NASS_CODE"] == AppParameters.AppSettings["FACILITY_NASS_CODE"].ToString())
                 {
                     if (data.ContainsKey("VEHICLE"))
                     {
-                        foreach (JObject existingVa in Global.Tag.Where(f => f.Value["properties"]["name"].ToString() == (string)data["VEHICLE"]).Select(y => y.Value))
+                        foreach (JObject existingVa in AppParameters.Tag.Where(f => f.Value["properties"]["name"].ToString() == (string)data["VEHICLE"]).Select(y => y.Value))
                         {
                             if ((string)existingVa["properties"]["state"] != "Error")
                             {
@@ -1753,7 +1759,7 @@ namespace Factory_of_the_Future
         {
             try
             {
-                if (data.ContainsKey("NASS_CODE") && (string)data["NASS_CODE"] == Global.AppSettings["FACILITY_NASS_CODE"].ToString())
+                if (data.ContainsKey("NASS_CODE") && (string)data["NASS_CODE"] == AppParameters.AppSettings["FACILITY_NASS_CODE"].ToString())
                 {
                     JObject mission = new JObject
                     {
@@ -1770,7 +1776,7 @@ namespace Factory_of_the_Future
                     };
 
 
-                    foreach (JObject existingVa in Global.Tag.Where(f => f.Value["properties"]["name"].ToString() == (string)mission["Vehicle"]).Select(y => y.Value))
+                    foreach (JObject existingVa in AppParameters.Tag.Where(f => f.Value["properties"]["name"].ToString() == (string)mission["Vehicle"]).Select(y => y.Value))
                     {
                         existingVa["properties"]["inMission"] = false;
                         // get list of request for the pickup location.
@@ -1779,24 +1785,24 @@ namespace Factory_of_the_Future
                     }
 
                     //merge changes 
-                    foreach (JObject request in Global.Mission.Where(r => (int)r.Value["Request_Id"] == (int)mission["Request_Id"]).Select(y => y.Value))
+                    foreach (JObject request in AppParameters.MissionList.Where(r => (int)r.Value["Request_Id"] == (int)mission["Request_Id"]).Select(y => y.Value))
                     {
                         request.Merge(mission, new JsonMergeSettings { MergeArrayHandling = MergeArrayHandling.Union });
                     }
                     //update AGV zone location
-                    foreach (JObject existingVa in Global.Zones.Where(f => f.Value["properties"]["Zone_Type"].ToString() == "AGVLocation"
+                    foreach (JObject existingVa in AppParameters.ZonesList.Where(f => f.Value["properties"]["Zone_Type"].ToString() == "AGVLocation"
                     && f.Value["properties"]["name"].ToString() == mission["Pickup_Location"].ToString()).Select(y => y.Value))
                     {
-                        existingVa["properties"]["MissionList"] = JToken.Parse(JsonConvert.SerializeObject(Global.Mission.Where(r => r.Value["Pickup_Location"].ToString() == mission["Pickup_Location"].ToString()
+                        existingVa["properties"]["MissionList"] = JToken.Parse(JsonConvert.SerializeObject(AppParameters.MissionList.Where(r => r.Value["Pickup_Location"].ToString() == mission["Pickup_Location"].ToString()
                         && r.Value["State"].ToString() == "Active"
                         && (int)r.Value["Request_Id"] != (int)mission["Request_Id"]).Select(y => y.Value).ToList(), Formatting.Indented));
                         existingVa["properties"]["Zone_Update"] = true;
 
                     }
-                    foreach (JObject existingVa in Global.Zones.Where(f => f.Value["properties"]["Zone_Type"].ToString() == "AGVLocation"
+                    foreach (JObject existingVa in AppParameters.ZonesList.Where(f => f.Value["properties"]["Zone_Type"].ToString() == "AGVLocation"
                     && f.Value["properties"]["name"].ToString() == mission["Dropoff_Location"].ToString()).Select(y => y.Value))
                     {
-                        existingVa["properties"]["MissionList"] = JToken.Parse(JsonConvert.SerializeObject(Global.Mission.Where(r => r.Value["Dropoff_Location"].ToString() == mission["Dropoff_Location"].ToString()
+                        existingVa["properties"]["MissionList"] = JToken.Parse(JsonConvert.SerializeObject(AppParameters.MissionList.Where(r => r.Value["Dropoff_Location"].ToString() == mission["Dropoff_Location"].ToString()
                          && r.Value["State"].ToString() == "Active"
                         && (int)r.Value["Request_Id"] != (int)mission["Request_Id"]).Select(y => y.Value).ToList(), Formatting.Indented));
 
@@ -1804,9 +1810,9 @@ namespace Factory_of_the_Future
                     }
 
                     //remove request id
-                    if (!Global.Mission.TryRemove(mission["Request_Id"].ToString(), out JObject value))
+                    if (!AppParameters.MissionList.TryRemove(mission["Request_Id"].ToString(), out JObject value))
                     {
-                        new ErrorLogger().CustomLog("unable to remove Mission " + mission["Request_Id"].ToString() + " to list", string.Concat((string)Global.AppSettings["APPLICATION_NAME"], "Appslogs"));
+                        new ErrorLogger().CustomLog("unable to remove Mission " + mission["Request_Id"].ToString() + " to list", string.Concat((string)AppParameters.AppSettings["APPLICATION_NAME"], "Appslogs"));
                     }
 
                     mission = null;
@@ -1826,7 +1832,7 @@ namespace Factory_of_the_Future
         {
             try
             {
-                if (data.ContainsKey("NASS_CODE") && (string)data["NASS_CODE"] == Global.AppSettings["FACILITY_NASS_CODE"].ToString())
+                if (data.ContainsKey("NASS_CODE") && (string)data["NASS_CODE"] == AppParameters.AppSettings["FACILITY_NASS_CODE"].ToString())
                 {
                     JObject mission = new JObject
                     {
@@ -1843,33 +1849,33 @@ namespace Factory_of_the_Future
                         ["MissionPickupTime"] = (DateTime)data["time".ToUpper()]
                     };
 
-                    foreach (JObject existingVa in Global.Tag.Where(f => f.Value["properties"]["name"].ToString() == mission["Vehicle"].ToString()).Select(y => y.Value))
+                    foreach (JObject existingVa in AppParameters.Tag.Where(f => f.Value["properties"]["name"].ToString() == mission["Vehicle"].ToString()).Select(y => y.Value))
                     {
                         existingVa["properties"]["inMission"] = true;
-                        existingVa["properties"]["Mission"] = JToken.Parse(JsonConvert.SerializeObject(Global.Mission.Where(r => r.Value["Vehicle"].ToString() == mission["Vehicle"].ToString()
+                        existingVa["properties"]["Mission"] = JToken.Parse(JsonConvert.SerializeObject(AppParameters.MissionList.Where(r => r.Value["Vehicle"].ToString() == mission["Vehicle"].ToString()
                          && r.Value["State"].ToString() == mission["State"].ToString()
                          && (int)r.Value["Request_Id"] == (int)mission["Request_Id"]).Select(y => y.Value).ToList(), Formatting.Indented));
                         existingVa["properties"]["Tag_Update"] = true;
                     }
                     //merge changes 
-                    foreach (JObject request in Global.Mission.Where(r => (int)r.Value["Request_Id"] == (int)mission["Request_Id"]).Select(y => y.Value))
+                    foreach (JObject request in AppParameters.MissionList.Where(r => (int)r.Value["Request_Id"] == (int)mission["Request_Id"]).Select(y => y.Value))
                     {
                         request.Merge(mission, new JsonMergeSettings { MergeArrayHandling = MergeArrayHandling.Union });
                     }
                     //update AGV Pickup zone location
-                    foreach (JObject existingVa in Global.Zones.Where(f => f.Value["properties"]["Zone_Type"].ToString() == "AGVLocation"
+                    foreach (JObject existingVa in AppParameters.ZonesList.Where(f => f.Value["properties"]["Zone_Type"].ToString() == "AGVLocation"
                      && f.Value["properties"]["name"].ToString() == mission["Pickup_Location"].ToString()).Select(y => y.Value))
                     {
-                        existingVa["properties"]["MissionList"] = JToken.Parse(JsonConvert.SerializeObject(Global.Mission.Where(r => r.Value["Pickup_Location"].ToString() == mission["Pickup_Location"].ToString()
+                        existingVa["properties"]["MissionList"] = JToken.Parse(JsonConvert.SerializeObject(AppParameters.MissionList.Where(r => r.Value["Pickup_Location"].ToString() == mission["Pickup_Location"].ToString()
                         && (int)r.Value["Request_Id"] != (int)mission["Request_Id"]).Select(y => y.Value).ToList(), Formatting.Indented));
                         existingVa["properties"]["Zone_Update"] = true;
                     }
 
                     //update AGV Dropoff zone location
-                    foreach (JObject existingVa in Global.Zones.Where(f => f.Value["properties"]["Zone_Type"].ToString() == "AGVLocation"
+                    foreach (JObject existingVa in AppParameters.ZonesList.Where(f => f.Value["properties"]["Zone_Type"].ToString() == "AGVLocation"
                     && f.Value["properties"]["name"].ToString() == mission["Dropoff_Location"].ToString()).Select(y => y.Value))
                     {
-                        existingVa["properties"]["MissionList"] = JToken.Parse(JsonConvert.SerializeObject(Global.Mission.Where(r => r.Value["Dropoff_Location"].ToString() == mission["Dropoff_Location"].ToString()
+                        existingVa["properties"]["MissionList"] = JToken.Parse(JsonConvert.SerializeObject(AppParameters.MissionList.Where(r => r.Value["Dropoff_Location"].ToString() == mission["Dropoff_Location"].ToString()
                         && r.Value["State"].ToString() == "Active").Select(y => y.Value).ToList(), Formatting.Indented));
                         existingVa["properties"]["Zone_Update"] = true;
                     }
@@ -1892,7 +1898,7 @@ namespace Factory_of_the_Future
         {
             try
             {
-                if (data.ContainsKey("NASS_CODE") && (string)data["NASS_CODE"] == Global.AppSettings["FACILITY_NASS_CODE"].ToString())
+                if (data.ContainsKey("NASS_CODE") && (string)data["NASS_CODE"] == AppParameters.AppSettings["FACILITY_NASS_CODE"].ToString())
                 {
                     JObject mission = new JObject
                     {
@@ -1909,41 +1915,41 @@ namespace Factory_of_the_Future
                         ["MissionType"] = (string)data["message".ToUpper()],
                         ["MissionAssignedTime"] = (DateTime)data["time".ToUpper()]
                     };
-                    if (!Global.Mission.ContainsKey(mission["Request_Id"].ToString()))
+                    if (!AppParameters.MissionList.ContainsKey(mission["Request_Id"].ToString()))
                     {
-                        if (!Global.Mission.TryAdd(mission["Request_Id"].ToString(), mission))
+                        if (!AppParameters.MissionList.TryAdd(mission["Request_Id"].ToString(), mission))
                         {
-                            new ErrorLogger().CustomLog("unable to add Mission " + mission["Request_Id"].ToString() + " to list", string.Concat((string)Global.AppSettings["APPLICATION_NAME"], "Appslogs"));
+                            new ErrorLogger().CustomLog("unable to add Mission " + mission["Request_Id"].ToString() + " to list", string.Concat((string)AppParameters.AppSettings["APPLICATION_NAME"], "Appslogs"));
                         }
                     }
                     else
                     {
                         //merge changes 
-                        Global.Mission.Where(r => (int)r.Value["Request_Id"] == (int)mission["Request_Id"]).Select(y => y.Value).FirstOrDefault().Merge(mission, new JsonMergeSettings { MergeArrayHandling = MergeArrayHandling.Union });
+                        AppParameters.MissionList.Where(r => (int)r.Value["Request_Id"] == (int)mission["Request_Id"]).Select(y => y.Value).FirstOrDefault().Merge(mission, new JsonMergeSettings { MergeArrayHandling = MergeArrayHandling.Union });
                     }
 
-                   foreach( JObject existingVa in Global.Tag.Where(f => f.Value["properties"]["name"].ToString() == mission["Vehicle"].ToString()).Select(y => y.Value))
+                   foreach( JObject existingVa in AppParameters.Tag.Where(f => f.Value["properties"]["name"].ToString() == mission["Vehicle"].ToString()).Select(y => y.Value))
                     {
                         existingVa["properties"]["inMission"] = true;
                         // get list of request for the pickup location.
-                        existingVa["properties"]["Mission"] = JToken.Parse(JsonConvert.SerializeObject(Global.Mission.Where(r => r.Value["Vehicle"].ToString() == mission["Vehicle"].ToString()
+                        existingVa["properties"]["Mission"] = JToken.Parse(JsonConvert.SerializeObject(AppParameters.MissionList.Where(r => r.Value["Vehicle"].ToString() == mission["Vehicle"].ToString()
                         && r.Value["State"].ToString() == "Active"
                         && (int)r.Value["Request_Id"] == (int)mission["Request_Id"]).Select(y => y.Value).ToList(), Formatting.Indented));
                         existingVa["properties"]["Tag_Update"] = true;
                     }
 
                     //update AGV zone location
-                    foreach (JObject existingVa in Global.Zones.Where(f => f.Value["properties"]["Zone_Type"].ToString() == "AGVLocation" &&
+                    foreach (JObject existingVa in AppParameters.ZonesList.Where(f => f.Value["properties"]["Zone_Type"].ToString() == "AGVLocation" &&
                     f.Value["properties"]["name"].ToString() == mission["Pickup_Location"].ToString()).Select(y => y.Value))
                     {
-                        existingVa["properties"]["MissionList"] = JToken.Parse(JsonConvert.SerializeObject(Global.Mission.Where(r => r.Value["Pickup_Location"].ToString() == mission["Pickup_Location"].ToString()
+                        existingVa["properties"]["MissionList"] = JToken.Parse(JsonConvert.SerializeObject(AppParameters.MissionList.Where(r => r.Value["Pickup_Location"].ToString() == mission["Pickup_Location"].ToString()
                         && r.Value["State"].ToString() == "Active").Select(y => y.Value).ToList(), Formatting.Indented));
                         existingVa["properties"]["Zone_Update"] = true;
                     }
-                    foreach (JObject existingVa in Global.Zones.Where(f => f.Value["properties"]["Zone_Type"].ToString() == "AGVLocation" &&
+                    foreach (JObject existingVa in AppParameters.ZonesList.Where(f => f.Value["properties"]["Zone_Type"].ToString() == "AGVLocation" &&
                     f.Value["properties"]["name"].ToString() == mission["Dropoff_Location"].ToString()).Select(y => y.Value))
                     {
-                        existingVa["properties"]["MissionList"] = JToken.Parse(JsonConvert.SerializeObject(Global.Mission.Where(r => r.Value["Dropoff_Location"].ToString() == mission["Dropoff_Location"].ToString()
+                        existingVa["properties"]["MissionList"] = JToken.Parse(JsonConvert.SerializeObject(AppParameters.MissionList.Where(r => r.Value["Dropoff_Location"].ToString() == mission["Dropoff_Location"].ToString()
                         && r.Value["State"].ToString() == "Active").Select(y => y.Value).ToList(), Formatting.Indented));
                         existingVa["properties"]["Zone_Update"] = true;
                     }
@@ -1960,7 +1966,7 @@ namespace Factory_of_the_Future
         {
             try
             {
-                if (data.ContainsKey("NASS_CODE") && (string)data["NASS_CODE"] == Global.AppSettings["FACILITY_NASS_CODE"].ToString())
+                if (data.ContainsKey("NASS_CODE") && (string)data["NASS_CODE"] == AppParameters.AppSettings["FACILITY_NASS_CODE"].ToString())
                 {
                     if (data.HasValues && data.ContainsKey("requestId".ToUpper()))
                     {
@@ -1981,35 +1987,35 @@ namespace Factory_of_the_Future
                             ["MissionRequestTime"] = (DateTime)data["time".ToUpper()]
                         };
 
-                        if (!Global.Mission.ContainsKey(mission["Request_Id"].ToString()))
+                        if (!AppParameters.MissionList.ContainsKey(mission["Request_Id"].ToString()))
                         {
-                            if (!Global.Mission.TryAdd(mission["Request_Id"].ToString(), mission))
+                            if (!AppParameters.MissionList.TryAdd(mission["Request_Id"].ToString(), mission))
                             {
-                                new ErrorLogger().CustomLog("unable to add Mission " + mission["Request_Id"].ToString() + " to list", string.Concat((string)Global.AppSettings["APPLICATION_NAME"], "Appslogs"));
+                                new ErrorLogger().CustomLog("unable to add Mission " + mission["Request_Id"].ToString() + " to list", string.Concat((string)AppParameters.AppSettings["APPLICATION_NAME"], "Appslogs"));
                             }
                         }
                         else
                         {
-                            if (Global.Mission.TryRemove(mission["Request_Id"].ToString(), out JObject valueOut))
+                            if (AppParameters.MissionList.TryRemove(mission["Request_Id"].ToString(), out JObject valueOut))
                             {
-                                if (!Global.Mission.TryAdd(mission["Request_Id"].ToString(), mission))
+                                if (!AppParameters.MissionList.TryAdd(mission["Request_Id"].ToString(), mission))
                                 {
-                                    new ErrorLogger().CustomLog("unable to add Mission " + mission["Request_Id"].ToString() + " to list", string.Concat((string)Global.AppSettings["APPLICATION_NAME"], "Appslogs"));
+                                    new ErrorLogger().CustomLog("unable to add Mission " + mission["Request_Id"].ToString() + " to list", string.Concat((string)AppParameters.AppSettings["APPLICATION_NAME"], "Appslogs"));
                                 }
                             }
                         }
                         //update AGV zone location
-                        foreach (JObject existingVa in Global.Zones.Where(f => f.Value["properties"]["Zone_Type"].ToString() == "AGVLocation" &&
+                        foreach (JObject existingVa in AppParameters.ZonesList.Where(f => f.Value["properties"]["Zone_Type"].ToString() == "AGVLocation" &&
                         f.Value["properties"]["name"].ToString() == mission["Pickup_Location"].ToString()).Select(y => y.Value))
                         {
-                            existingVa["properties"]["MissionList"] = JToken.Parse(JsonConvert.SerializeObject(Global.Mission.Where(r => r.Value["Pickup_Location"].ToString() == mission["Pickup_Location"].ToString()
+                            existingVa["properties"]["MissionList"] = JToken.Parse(JsonConvert.SerializeObject(AppParameters.MissionList.Where(r => r.Value["Pickup_Location"].ToString() == mission["Pickup_Location"].ToString()
                             && r.Value["State"].ToString() == mission["State"].ToString()).Select(y => y.Value).ToList(), Formatting.Indented));
                             existingVa["properties"]["Zone_Update"] = true;
                         }
-                        foreach (JObject existingVa in Global.Zones.Where(f => f.Value["properties"]["Zone_Type"].ToString() == "AGVLocation" &&
+                        foreach (JObject existingVa in AppParameters.ZonesList.Where(f => f.Value["properties"]["Zone_Type"].ToString() == "AGVLocation" &&
                         f.Value["properties"]["name"].ToString() == mission["Dropoff_Location"].ToString()).Select(y => y.Value))
                         {
-                            existingVa["properties"]["MissionList"] = JToken.Parse(JsonConvert.SerializeObject(Global.Mission.Where(r => r.Value["Dropoff_Location"].ToString() == mission["Dropoff_Location"].ToString()
+                            existingVa["properties"]["MissionList"] = JToken.Parse(JsonConvert.SerializeObject(AppParameters.MissionList.Where(r => r.Value["Dropoff_Location"].ToString() == mission["Dropoff_Location"].ToString()
                             && r.Value["State"].ToString() == mission["State"].ToString()).Select(y => y.Value).ToList(), Formatting.Indented));
                             existingVa["properties"]["Zone_Update"] = true;
                         }
@@ -2027,12 +2033,12 @@ namespace Factory_of_the_Future
         {
             try
             {
-                if (data.ContainsKey("NASS_CODE") && (string)data["NASS_CODE"] == Global.AppSettings["FACILITY_NASS_CODE"].ToString())
+                if (data.ContainsKey("NASS_CODE") && (string)data["NASS_CODE"] == AppParameters.AppSettings["FACILITY_NASS_CODE"].ToString())
                 {
                     bool Update = false;
                     if (data.ContainsKey("VEHICLE"))
                     {
-                        foreach(JObject existingVa in Global.Tag.Where(u => u.Value["properties"]["Tag_Type"].ToString().ToLower() == "Autonomous Vehicle".ToLower() &&
+                        foreach(JObject existingVa in AppParameters.Tag.Where(u => u.Value["properties"]["Tag_Type"].ToString().ToLower() == "Autonomous Vehicle".ToLower() &&
                         u.Value["properties"]["name"].ToString() == (string)data["VEHICLE"]).Select(x => x.Value))
                         {
                             if (((JObject)existingVa["properties"]).ContainsKey("vehicleBatteryPercent"))
@@ -2181,21 +2187,21 @@ namespace Factory_of_the_Future
                         foreach (JObject imageitem in backgroundImages)
                         {
                             temp_map_id = imageitem["id"].ToString();
-                            if (!Global.Map.ContainsKey(temp_map_id))
+                            if (!AppParameters.IndoorMap.ContainsKey(temp_map_id))
                             {
 
-                                imageitem["Facility_Name"] = Global.AppSettings.ContainsKey("FACILITY_NAME") ? Global.AppSettings["FACILITY_NAME"] : "";
-                                imageitem["Facility_TimeZone"] = Global.AppSettings.ContainsKey("FACILITY_TIMEZONE") ? Global.AppSettings["FACILITY_TIMEZONE"] : "";
-                                imageitem["Environment"] = !string.IsNullOrEmpty(Global.Application_Environment) ? Global.Application_Environment : "";
-                                imageitem["Software_Version"] = !string.IsNullOrEmpty(Global.VersionInfo) ? Global.VersionInfo : "";
-                                imageitem["NASS_Code"] = Global.AppSettings.ContainsKey("FACILITY_NASS_CODE") ? Global.AppSettings["FACILITY_NASS_CODE"] : "";
+                                imageitem["Facility_Name"] = AppParameters.AppSettings.ContainsKey("FACILITY_NAME") ? AppParameters.AppSettings["FACILITY_NAME"] : "";
+                                imageitem["Facility_TimeZone"] = AppParameters.AppSettings.ContainsKey("FACILITY_TIMEZONE") ? AppParameters.AppSettings["FACILITY_TIMEZONE"] : "";
+                                imageitem["Environment"] = !string.IsNullOrEmpty(AppParameters.ApplicationEnvironment) ? AppParameters.ApplicationEnvironment : "";
+                                imageitem["Software_Version"] = !string.IsNullOrEmpty(AppParameters.VersionInfo) ? AppParameters.VersionInfo : "";
+                                imageitem["NASS_Code"] = AppParameters.AppSettings.ContainsKey("FACILITY_NASS_CODE") ? AppParameters.AppSettings["FACILITY_NASS_CODE"] : "";
                                 imageitem["Map_Update"] = true;
-                                Global.Map.TryAdd(imageitem["id"].ToString(), imageitem);
+                                AppParameters.IndoorMap.TryAdd(imageitem["id"].ToString(), imageitem);
 
                             }
                             else
                             {
-                                if (Global.Map.TryGetValue(temp_map_id, out JObject existingVal))
+                                if (AppParameters.IndoorMap.TryGetValue(temp_map_id, out JObject existingVal))
                                 {
                                     existingVal.Merge(imageitem, new JsonMergeSettings { MergeArrayHandling = MergeArrayHandling.Union });
                                     existingVal["Map_Update"] = true;
@@ -2225,9 +2231,9 @@ namespace Factory_of_the_Future
                                             }
                                         }
                                     }
-                                    if (Global.Tag.ContainsKey(locatorsitem["id"].ToString()))
+                                    if (AppParameters.Tag.ContainsKey(locatorsitem["id"].ToString()))
                                     {
-                                        if (Global.Zones.TryGetValue(locatorsitem["id"].ToString(), out JObject existingVa))
+                                        if (AppParameters.ZonesList.TryGetValue(locatorsitem["id"].ToString(), out JObject existingVa))
                                         {
                                             if (existingVa["geometry"]["coordinates"].ToString() != temp.ToString())
                                             {
@@ -2263,9 +2269,9 @@ namespace Factory_of_the_Future
 
                                         GeoJsonType["properties"]["Tag_Type"] = "Locater";
                                         GeoJsonType["properties"]["Tag_Update"] = true;
-                                        if (!Global.Tag.ContainsKey(locatorsitem["id"].ToString()))
+                                        if (!AppParameters.Tag.ContainsKey(locatorsitem["id"].ToString()))
                                         {
-                                            Global.Tag.TryAdd(locatorsitem["id"].ToString(), GeoJsonType);
+                                            AppParameters.Tag.TryAdd(locatorsitem["id"].ToString(), GeoJsonType);
                                         }
                                         GeoJsonType = null;
                                     }
@@ -2306,9 +2312,9 @@ namespace Factory_of_the_Future
                                             }
                                         
                                     }
-                                    if (Global.Zones.ContainsKey(zoneitem["id"].ToString()))
+                                    if (AppParameters.ZonesList.ContainsKey(zoneitem["id"].ToString()))
                                     {
-                                        if (Global.Zones.TryGetValue(zoneitem["id"].ToString(), out JObject existingVa))
+                                        if (AppParameters.ZonesList.TryGetValue(zoneitem["id"].ToString(), out JObject existingVa))
                                         {
                                             if (existingVa["geometry"]["coordinates"].ToString() != temp.ToString())
                                             {
@@ -2327,7 +2333,7 @@ namespace Factory_of_the_Future
                                             }
                                             if (existingVa["properties"]["Zone_Type"].ToString().StartsWith("Machine"))
                                             {
-                                                if (Global.Zone_Info.TryGetValue(existingVa["properties"]["id"].ToString(), out JObject zoneinfodata))
+                                                if (AppParameters.ZoneInfo.TryGetValue(existingVa["properties"]["id"].ToString(), out JObject zoneinfodata))
                                                 {
                                                     if (existingVa["properties"]["name"].ToString() != zoneinfodata["name"].ToString())
                                                     {
@@ -2373,7 +2379,7 @@ namespace Factory_of_the_Future
                                         }
                                         if (GeoJsonType["properties"]["Zone_Type"].ToString().StartsWith("Machine"))
                                         {
-                                            if (Global.Zone_Info.TryGetValue(GeoJsonType["properties"]["id"].ToString(), out JObject zoneinfodata))
+                                            if (AppParameters.ZoneInfo.TryGetValue(GeoJsonType["properties"]["id"].ToString(), out JObject zoneinfodata))
                                             {
                                                 ((JObject)GeoJsonType["properties"]).Merge(zoneinfodata, new JsonMergeSettings { MergeArrayHandling = MergeArrayHandling.Union });
                                             }
@@ -2394,9 +2400,9 @@ namespace Factory_of_the_Future
                                         
                                             GeoJsonType["properties"]["Zone_Update"] = true;
                                         
-                                        if (!Global.Zones.ContainsKey(zoneitem["id"].ToString()))
+                                        if (!AppParameters.ZonesList.ContainsKey(zoneitem["id"].ToString()))
                                         {
-                                            Global.Zones.TryAdd(zoneitem["id"].ToString(), GeoJsonType);
+                                            AppParameters.ZonesList.TryAdd(zoneitem["id"].ToString(), GeoJsonType);
                                         }
 
                                     }
@@ -2433,7 +2439,7 @@ namespace Factory_of_the_Future
                                         
                                     }
 
-                                    if (Global.Map.TryGetValue(temp_map_id, out JObject mapvalue))
+                                    if (AppParameters.IndoorMap.TryGetValue(temp_map_id, out JObject mapvalue))
                                     {
                                         if (mapvalue.ContainsKey("TrackingArea"))
                                         {
@@ -2454,7 +2460,7 @@ namespace Factory_of_the_Future
                     if (!jsonObject.ContainsKey("localdata"))
                     {
                         jsonObject["localdata"] = true;
-                        new FileIO().Write(string.Concat(Global.Logdirpath, Global.ConfigurationFloder), "ProjectData.json", JsonConvert.SerializeObject(jsonObject, Formatting.Indented));
+                        new FileIO().Write(string.Concat(AppParameters.Logdirpath, AppParameters.ConfigurationFloder), "ProjectData.json", JsonConvert.SerializeObject(jsonObject, Formatting.Indented));
                     }
                 }
             }
@@ -2474,19 +2480,19 @@ namespace Factory_of_the_Future
             {
                 if (!string.IsNullOrEmpty(value))
                 {
-                    if (Regex.IsMatch(value, (string)Global.AppSettings["AGV_ZONE"], RegexOptions.IgnoreCase))
+                    if (Regex.IsMatch(value, (string)AppParameters.AppSettings["AGV_ZONE"], RegexOptions.IgnoreCase))
                     {
                         return "AGVLocation";
                     }
-                    else if (Regex.IsMatch(value, (string)Global.AppSettings["DOCKDOOR_ZONE"], RegexOptions.IgnoreCase))
+                    else if (Regex.IsMatch(value, (string)AppParameters.AppSettings["DOCKDOOR_ZONE"], RegexOptions.IgnoreCase))
                     {
                         return "DockDoor";
                     }
-                    else if (Regex.IsMatch(value, (string)Global.AppSettings["MANUAL_ZONE"], RegexOptions.IgnoreCase))
+                    else if (Regex.IsMatch(value, (string)AppParameters.AppSettings["MANUAL_ZONE"], RegexOptions.IgnoreCase))
                     {
                         return "Area";
                     }
-                    else if (Regex.IsMatch(value, (string)Global.AppSettings["VIEWPORTS"], RegexOptions.IgnoreCase))
+                    else if (Regex.IsMatch(value, (string)AppParameters.AppSettings["VIEWPORTS"], RegexOptions.IgnoreCase))
                     {
                         return "ViewPorts";
                     }
@@ -2515,7 +2521,7 @@ namespace Factory_of_the_Future
                 {
                     if (item.ContainsKey("tags"))
                     {
-                        double tagtimeout = Global.AppSettings.ContainsKey("TAG_TIMEOUTMILS") ? !string.IsNullOrEmpty((string)Global.AppSettings["TAG_TIMEOUTMILS"]) ? (long)Global.AppSettings["TAG_TIMEOUTMILS"] : 300000 : 300000;
+                        double tagtimeout = AppParameters.AppSettings.ContainsKey("TAG_TIMEOUTMILS") ? !string.IsNullOrEmpty((string)AppParameters.AppSettings["TAG_TIMEOUTMILS"]) ? (long)AppParameters.AppSettings["TAG_TIMEOUTMILS"] : 300000 : 300000;
                         JArray temp_zone = new JArray();
                         foreach (JObject tagitem in ((JArray)item["tags"]).Children())
                         {
@@ -2524,8 +2530,8 @@ namespace Factory_of_the_Future
                             try
                             {
                                 temp_zone = new JArray(new JObject(new JProperty("name", "NOTINZONE"), new JProperty("id", "NOTINZONE")));
-                                DateTime positionTS = Global.UnixTimeStampToDateTime((long)tagitem["positionTS"]);
-                                DateTime responseTS = Global.UnixTimeStampToDateTime((long)item["responseTS"]);
+                                DateTime positionTS = AppParameters.UnixTimeStampToDateTime((long)tagitem["positionTS"]);
+                                DateTime responseTS = AppParameters.UnixTimeStampToDateTime((long)item["responseTS"]);
                                 System.TimeSpan tagdiffResult = responseTS.ToUniversalTime().Subtract(positionTS.ToUniversalTime());
                                 JArray tempcoordinates = new JArray();
                                 bool update_info = false;
@@ -2540,9 +2546,9 @@ namespace Factory_of_the_Future
                                         }
                                     }
                                 }
-                                if (Global.Tag.ContainsKey(tagitem["id"].ToString()))
+                                if (AppParameters.Tag.ContainsKey(tagitem["id"].ToString()))
                                 {
-                                    if (Global.Tag.TryGetValue(tagitem["id"].ToString(), out JObject existingVa))
+                                    if (AppParameters.Tag.TryGetValue(tagitem["id"].ToString(), out JObject existingVa))
                                     {
                                        
                                         if (existingVa["geometry"]["coordinates"].ToString() != tempcoordinates.ToString())
@@ -2624,9 +2630,9 @@ namespace Factory_of_the_Future
                                     GeoJsonType["properties"]["Tag_Type"] = GetTagType(tagitem["name"].ToString());
                                     GeoJsonType["properties"]["Raw_Data"] = tagitem;
                                     GeoJsonType["properties"]["Tag_Update"] = true;
-                                    if (!Global.Tag.ContainsKey(tagitem["id"].ToString()))
+                                    if (!AppParameters.Tag.ContainsKey(tagitem["id"].ToString()))
                                     {
-                                        Global.Tag.TryAdd(tagitem["id"].ToString(), GeoJsonType);
+                                        AppParameters.Tag.TryAdd(tagitem["id"].ToString(), GeoJsonType);
                                     }
                                 }
                             }
@@ -2655,17 +2661,17 @@ namespace Factory_of_the_Future
             {
                 if (!string.IsNullOrEmpty(value))
                 {
-                    if (Regex.IsMatch(value, (string)Global.AppSettings["TAG_AGV"], RegexOptions.IgnoreCase))
+                    if (Regex.IsMatch(value, (string)AppParameters.AppSettings["TAG_AGV"], RegexOptions.IgnoreCase))
                     //if (value.ToLower().StartsWith("agv"))
                     {
                         return "Autonomous Vehicle";
                     }
-                    else if (Regex.IsMatch(value, (string)Global.AppSettings["TAG_PIV"], RegexOptions.IgnoreCase))
+                    else if (Regex.IsMatch(value, (string)AppParameters.AppSettings["TAG_PIV"], RegexOptions.IgnoreCase))
                     //if (value.ToLower().StartsWith("walkingrider") || value.ToLower().StartsWith("mule") || value.ToLower().StartsWith("forklift"))
                     {
                         return "Vehicle";
                     }
-                    else if (Regex.IsMatch(value, (string)Global.AppSettings["TAG_PERSON"], RegexOptions.IgnoreCase))
+                    else if (Regex.IsMatch(value, (string)AppParameters.AppSettings["TAG_PERSON"], RegexOptions.IgnoreCase))
                     // else if (value.ToLower().StartsWith("mail") || value.ToLower().StartsWith("clerk") || value.ToLower().StartsWith("mha") || value.ToLower().StartsWith("maint") || value.ToLower().StartsWith("supervisor"))
                     {
                         return "Person";
@@ -2693,9 +2699,9 @@ namespace Factory_of_the_Future
             {
                 if (currentState != NewState)
                 {
-                    if (!string.IsNullOrEmpty(noteification_id) && Global.Notification.ContainsKey(noteification_id))
+                    if (!string.IsNullOrEmpty(noteification_id) && AppParameters.NotificationList.ContainsKey(noteification_id))
                     {
-                        if (Global.Notification.TryGetValue(noteification_id, out JObject ojbMerge))
+                        if (AppParameters.NotificationList.TryGetValue(noteification_id, out JObject ojbMerge))
                         {
                             if (!ojbMerge.ContainsKey("DELETE"))
                             {
@@ -2706,20 +2712,20 @@ namespace Factory_of_the_Future
                         }
                     }
                     //new condition
-                    foreach (JObject newCondition in Global.Notification_Conditions.Where(r => Regex.IsMatch(NewState, r.Value["CONDITIONS"].ToString(), RegexOptions.IgnoreCase)
+                    foreach (JObject newCondition in AppParameters.NotificationConditionsList.Where(r => Regex.IsMatch(NewState, r.Value["CONDITIONS"].ToString(), RegexOptions.IgnoreCase)
                         && r.Value["TYPE"].ToString().ToLower() == type.ToLower()
                         && (bool)r.Value["ACTIVE_CONDITION"]).Select(x => x.Value))
                     {
                         noteification_id = (string)newCondition["ID"] + (string)data["id"];
-                        if (!Global.Notification.ContainsKey(noteification_id))
+                        if (!AppParameters.NotificationList.ContainsKey(noteification_id))
                         {
                             JObject ojbMerge = (JObject)newCondition.DeepClone();
                             ojbMerge.Merge(data, new JsonMergeSettings { MergeArrayHandling = MergeArrayHandling.Union });
                             ojbMerge["SHOWTOAST"] = true;
                             ojbMerge["TAGID"] = (string)data["id"];
-                            ojbMerge["NOTIFICATIONGID"] = (string)newCondition["ID"] + (string)data["id"];
+                            ojbMerge["notificationId"] = (string)newCondition["ID"] + (string)data["id"];
                             ojbMerge["UPDATE"] = true;
-                            Global.Notification.TryAdd((string)newCondition["ID"] + (string)data["id"], ojbMerge);
+                            AppParameters.NotificationList.TryAdd((string)newCondition["ID"] + (string)data["id"], ojbMerge);
                         }
                     }
                 }

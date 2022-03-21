@@ -333,17 +333,17 @@ async function updateConnection(Connectionupdate) {
     try {
         if (/^Admin/i.test(User.Role)) {
             if (!$.isEmptyObject(Connectionupdate)) {
-                var api_tr = $("#api_" + Connectionupdate.ID);
+                var api_tr = $("#api_" + Connectionupdate.id);
                 if (api_tr.length > 0) {
                     var new_status = GetConnectionStatus(Connectionupdate);
-                    var currentstatus = $("#apistatus_" + Connectionupdate.ID).text();
+                    var currentstatus = $("#apistatus_" + Connectionupdate.id).text();
                     if (new_status !== currentstatus) {
-                        $("#apistatus_" + Connectionupdate.ID).text(new_status);
+                        $("#apistatus_" + Connectionupdate.id).text(new_status);
                     }
                     var new_btn_category = Get_Color(Connectionupdate);
-                    var current_btn_category = $("#api_" + Connectionupdate.ID).attr("class");
+                    var current_btn_category = $("#api_" + Connectionupdate.id).attr("class");
                     if (new_btn_category !== current_btn_category) {
-                        $("#api_" + Connectionupdate.ID).addClass(new_btn_category).removeClass(current_btn_category);
+                        $("#api_" + Connectionupdate.id).addClass(new_btn_category).removeClass(current_btn_category);
                     }
                 }
                 else {
@@ -387,7 +387,7 @@ let connection_row_template = '<tr data-id="{id}" class="{button_color}" id="api
     '</tr>';
 function formatQSMlayout(conn_status) {
     return $.extend(conn_status, {
-        id: conn_status.ID,
+        id: conn_status.id,
         name: conn_status.CONNECTION_NAME,
         messagetype: conn_status.MESSAGE_TYPE,
         connected: GetConnectionStatus(conn_status),
@@ -560,7 +560,7 @@ function Edit_Connection(id) {
                         $('input[type=text][name=admin_email_recepient]').val() !== Data.ADMIN_EMAIL_RECEPIENT ? jsonObject.ADMIN_EMAIL_RECEPIENT = $('input[type=text][name=admin_email_recepient').val() : "";
                         if (!$.isEmptyObject(jsonObject)) {
                             jsonObject.LASTUPDATE_BY_USERNAME = User.UserId;
-                            jsonObject.ID = Data.ID;
+                            jsonObject.id = Data.id;
                             if (checkValue(User.Facility_NASS_Code)) {
                                 checkValue($('input[type=text][name=url]').val()) ? jsonObject.URL = $('input[type=text][name=url]').val().supplant(formatURL(User.Facility_NASS_Code)) : '';
                             }

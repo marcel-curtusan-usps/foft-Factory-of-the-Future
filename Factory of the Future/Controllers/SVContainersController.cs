@@ -19,7 +19,7 @@ namespace Factory_of_the_Future.Controllers
         {
             if (trailer.HasValues)
             {
-                return Global.Containers.Where(r => r.Value.Otrailer == (string)trailer["trailerBarcode"]
+                return AppParameters.Containers.Where(r => r.Value.Otrailer == (string)trailer["trailerBarcode"]
                                                              
                                                                ).Select(y => y.Value).ToList();
             }

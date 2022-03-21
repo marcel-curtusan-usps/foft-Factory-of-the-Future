@@ -15,6 +15,10 @@
     <link href="Content/leaflet-geoman.css" rel="stylesheet" />
     <link href="Content/Site.css" rel="stylesheet" />
     <link href="Content/Filter.css" rel="stylesheet" />
+    <script type="text/javascript">
+        let timezone = {};
+        let User = {};
+    </script>
 </head>
 <body>
     <div class="body-content">
@@ -802,8 +806,8 @@
                                                                 <th class="row-cts-leg">Leg</th>
                                                                 <th class="row-cts-dest">Dest</th>
                                                                 <!--<th class="row-cts-close">Close</th>
-                                                            <th class="row-cts-load">Load</th>
-                                                            <th>Load%</th>-->
+                                                                <th class="row-cts-load">Load</th>
+                                                                <th>Load%</th>-->
                                                             </tr>
                                                         </thead>
                                                         <tbody></tbody>
@@ -828,8 +832,8 @@
                                                                 <th class="row-cts-leg">Leg</th>
                                                                 <th class="row-cts-dest">Dest</th>
                                                                 <!--<th class="row-cts-close">Close</th>
-                                                            <th class="row-cts-load">Load</th>
-                                                            <th>Load%</th>-->
+                                                                <th class="row-cts-load">Load</th>
+                                                                <th>Load%</th>-->
                                                             </tr>
                                                         </thead>
                                                         <tbody></tbody>
@@ -1112,8 +1116,8 @@
                                 <div class="input-group flex-fill px-0 mt-2 mx-3">
                                     <input type="text" id="inputsearchbtn" class="form-control input-border-light" placeholder="Enter badge or equipment ID" aria-label="Tag / Equipment Name" aria-describedby="searchbtn" style="font-size: 14px; ">
                                     <!--<div class="input-group-append">
-                                    <button class="btn btn-outline-secondary" type="button" id="searchbtn">Search</button>
-                                </div>-->
+                                        <button class="btn btn-outline-secondary" type="button" id="searchbtn">Search</button>
+                                    </div>-->
                                 </div>
                                 <p class="smaller text-secondary mb-0 mt-1 ml-2">Start search by entering any letter or number of a badge or vehicle ID</p>
                             </div>
@@ -1304,6 +1308,7 @@
     <script src="Scripts/Chart.min.js"></script>
     <!--Load default settings for the site-->
     <script src="Scripts/Default.js"></script>
+
     <!--Load application settings for the site-->
     <script src="Scripts/View/application_setting.js"></script>
     <!--Notification-->
@@ -1338,5 +1343,7 @@
     <script src="Scripts/View/tag_search.js"></script>
     <!--24 Hour Clock js-->
     <script src="Scripts/View/twenty_four_hour_clock.js"></script>
+    <!--Load Indoor Map settings for the site-->
+    <script src="Scripts/View/indoorMap.js"></script>
 </body>
 </html>

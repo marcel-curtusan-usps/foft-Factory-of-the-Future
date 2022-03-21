@@ -16,18 +16,18 @@ namespace Factory_of_the_Future
                     if (logdirpath != null && logdirpath.Root.Exists)
                     {
                      
-                        if (logdirpath.FullName == Global.CodeBase.Parent.FullName)
+                        if (logdirpath.FullName == AppParameters.CodeBase.Parent.FullName)
                         {
-                            Global.SERVER_ACTIVE = false;
-                            Global.AppSettings.Property("SERVER_ACTIVE").Value = false;
-                            Global.Logdirpath = null;
+                            AppParameters.ActiveServer = false;
+                            AppParameters.AppSettings.Property("SERVER_ACTIVE").Value = false;
+                            AppParameters.Logdirpath = null;
                             return false;
                         }
                         else
                         {
-                            Global.SERVER_ACTIVE = true;
-                            Global.AppSettings.Property("SERVER_ACTIVE").Value = true;
-                            Global.Logdirpath = logdirpath;
+                            AppParameters.ActiveServer = true;
+                            AppParameters.AppSettings.Property("SERVER_ACTIVE").Value = true;
+                            AppParameters.Logdirpath = logdirpath;
                             return true;
                         }
                       
@@ -35,8 +35,8 @@ namespace Factory_of_the_Future
                     }
                     else
                     {
-                        Global.SERVER_ACTIVE = false;
-                        Global.AppSettings.Property("SERVER_ACTIVE").Value = false;
+                        AppParameters.ActiveServer = false;
+                        AppParameters.AppSettings.Property("SERVER_ACTIVE").Value = false;
                         return false;
                     }
                 }

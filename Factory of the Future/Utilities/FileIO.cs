@@ -9,9 +9,6 @@ namespace Factory_of_the_Future
 {
     public class FileIO
     {
-        private int tryattp = 0;
-        private TimeSpan interval = new TimeSpan(0, 0, 10);
-
         internal string Read(string DirectoryPath, string FileName)
         {
             string filecontect = string.Empty;
@@ -32,39 +29,17 @@ namespace Factory_of_the_Future
                         {
                             if (FileName.ToUpper() == _file.Name.ToUpper())
                             {
-                                if (tryattp < 10)
+                                try
                                 {
-                                    if (!IsFileLocked(_file))
+                                    using (FileStream fileStream = new FileStream(_file.FullName.ToString(), FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
+                                    using (StreamReader msr = new StreamReader(fileStream))
                                     {
-                                        tryattp = 0;
-                                        FileStream fileStream = null;
-                                        try
-                                        {
-                                            MemoryStream ms = new MemoryStream();
-                                            using (fileStream = new FileStream(_file.FullName.ToString(), FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
-                                                fileStream.CopyTo(ms);
-                                            ms.Position = 0;
-                                            StreamReader msr = new StreamReader(ms);
-                                            filecontect = msr.ReadToEnd().ToString();
-                                            msr.Close();
-                                            break;
-                                        }
-                                        catch (Exception e)
-                                        {
-                                            new ErrorLogger().ExceptionLog(e);
-                                        }
-                                        finally
-                                        {
-                                            fileStream?.Dispose();
-                                        }
-                                    }
-                                    else
-                                    {
-                                        tryattp++;
-                                        //sleep of 10 seconds and try again
-                                        Thread.Sleep(interval);
-                                        Read(DirectoryPath, FileName);
-                                    }
+                                        filecontect = msr.ReadToEnd().ToString();
+                                    }                                     
+                                }
+                                catch (Exception e)
+                                {
+                                    new ErrorLogger().ExceptionLog(e);
                                 }
                             }
                         }

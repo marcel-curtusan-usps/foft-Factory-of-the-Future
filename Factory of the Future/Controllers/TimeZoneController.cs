@@ -13,7 +13,7 @@ namespace Factory_of_the_Future.Controllers
         // GET: api/TimeZone
         public IEnumerable<string> Get()
         {
-            return Global.TimeZoneConvert.Keys.ToList();
+            return AppParameters.TimeZoneConvert.Keys.ToList();
         }
     }
 }

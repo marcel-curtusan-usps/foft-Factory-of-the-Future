@@ -17,7 +17,7 @@ namespace Factory_of_the_Future
                     JToken legs = item.SelectToken("legs");
                     if (legs.Count() > 0)
                     {
-                        if (Global.RouteTrips.TryGetValue(routtripid, out JObject existingVal))
+                        if (AppParameters.RouteTripsList.TryGetValue(routtripid, out JObject existingVal))
                         {
                             string destsites = "";
                             existingVal["Legs"] = legs;
@@ -50,7 +50,7 @@ namespace Factory_of_the_Future
                     //List<Leg> Legs = JsonConvert.DeserializeObject<List<Leg>>(JsonConvert.SerializeObject(legs));
                     //if (Legs.Count > 0)
                     //{
-                    //    if (Global.Trips.TryGetValue(string.Concat(item["route"], item["trip"], tripDirectionInd), out Trips existingVal))
+                    //    if (AppParameters.Trips.TryGetValue(string.Concat(item["route"], item["trip"], tripDirectionInd), out Trips existingVal))
                     //    {
                     //        string destsites = "";
                     //        existingVal.Legs = Legs;
@@ -102,19 +102,19 @@ namespace Factory_of_the_Future
                     //        //        {
                     //        //            if (legitem.ContainsKey("scheduledArrDTM"))
                     //        //            {
-                    //        //                existingVal.ScheduledArrDTM = Global.SVdatetimeformat((JObject)legitem["scheduledArrDTM"]);
+                    //        //                existingVal.ScheduledArrDTM = AppParameters.SVdatetimeformat((JObject)legitem["scheduledArrDTM"]);
                     //        //            }
                     //        //            if (legitem.ContainsKey("scheduledDepDTM"))
                     //        //            {
-                    //        //                existingVal.ScheduledDepDTM = Global.SVdatetimeformat((JObject)legitem["scheduledDepDTM"]);
+                    //        //                existingVal.ScheduledDepDTM = AppParameters.SVdatetimeformat((JObject)legitem["scheduledDepDTM"]);
                     //        //            }
                     //        //            if (legitem.ContainsKey("actDepartureDtm"))
                     //        //            {
-                    //        //                existingVal.ActDepartureDtm = Global.SVdatetimeformat((JObject)legitem["actDepartureDtm"]);
+                    //        //                existingVal.ActDepartureDtm = AppParameters.SVdatetimeformat((JObject)legitem["actDepartureDtm"]);
                     //        //            }
                     //        //            if (legitem.ContainsKey("actArrivalDtm"))
                     //        //            {
-                    //        //                existingVal.ActArrivalDtm = Global.SVdatetimeformat((JObject)legitem["actArrivalDtm"]);
+                    //        //                existingVal.ActArrivalDtm = AppParameters.SVdatetimeformat((JObject)legitem["actArrivalDtm"]);
                     //        //            }
                     //        //        }
 

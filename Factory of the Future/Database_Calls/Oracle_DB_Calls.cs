@@ -14,7 +14,7 @@ namespace Factory_of_the_Future
         {
             try
             {
-                if (!string.IsNullOrEmpty((string)Global.AppSettings.Property("ORACONNSTRING").Value))
+                if (!string.IsNullOrEmpty((string)AppParameters.AppSettings.Property("ORACONNSTRING").Value))
                 {
                     if (jsonDataObject.HasValues)
                     {
@@ -51,7 +51,7 @@ namespace Factory_of_the_Future
                             }
                         }
                         cmdText = string.Concat(cmdText, ")");
-                        using (OracleConnection OraConn = new OracleConnection(Global.Decrypt((string)Global.AppSettings.Property("ORACONNSTRING").Value)))
+                        using (OracleConnection OraConn = new OracleConnection(AppParameters.Decrypt((string)AppParameters.AppSettings.Property("ORACONNSTRING").Value)))
                         {
                             using (OracleCommand OraComm = new OracleCommand(cmdText, OraConn))
                             {
@@ -95,7 +95,7 @@ namespace Factory_of_the_Future
         {
             try
             {
-                if (!string.IsNullOrEmpty((string)Global.AppSettings.Property("ORACONNSTRING").Value))
+                if (!string.IsNullOrEmpty((string)AppParameters.AppSettings.Property("ORACONNSTRING").Value))
                 {
                     if (tag.HasValues)
                     {
@@ -117,7 +117,7 @@ namespace Factory_of_the_Future
                             cmdText = string.Concat(cmdText, source[i], " = :", source[i]) ?? "";
                         }
                         cmdText = string.Concat(cmdText, " WHERE ", " COORDINATESYSTEMID = :coordinateSystemId", " and TAGID = :tagId", " and start_date_time = :start_date_time");
-                        using (OracleConnection OraConn = new OracleConnection(Global.Decrypt((string)Global.AppSettings.Property("ORACONNSTRING").Value)))
+                        using (OracleConnection OraConn = new OracleConnection(AppParameters.Decrypt((string)AppParameters.AppSettings.Property("ORACONNSTRING").Value)))
                         {
                             using (OracleCommand OraComm = new OracleCommand(cmdText, OraConn))
                             {
@@ -168,7 +168,7 @@ namespace Factory_of_the_Future
         {
             try
             {
-                if (!string.IsNullOrEmpty((string)Global.AppSettings.Property("ORACONNSTRING").Value))
+                if (!string.IsNullOrEmpty((string)AppParameters.AppSettings.Property("ORACONNSTRING").Value))
                 {
                     if (jsonDataObject.HasValues)
                     {
@@ -202,7 +202,7 @@ namespace Factory_of_the_Future
                             }
                         }
                         cmdText = string.Concat(cmdText, ")");
-                        using (OracleConnection OraConn = new OracleConnection(Global.Decrypt((string)Global.AppSettings.Property("ORACONNSTRING").Value)))
+                        using (OracleConnection OraConn = new OracleConnection(AppParameters.Decrypt((string)AppParameters.AppSettings.Property("ORACONNSTRING").Value)))
                         {
                             using (OracleCommand OraComm = new OracleCommand(cmdText, OraConn))
                             {
@@ -248,16 +248,16 @@ namespace Factory_of_the_Future
         {
             try
             {
-                if (!string.IsNullOrEmpty((string)Global.AppSettings.Property("ORACONNSTRING").Value))
+                if (!string.IsNullOrEmpty((string)AppParameters.AppSettings.Property("ORACONNSTRING").Value))
                 {
                     if (data.HasValues)
                     {
-                        string strNassCode = Global.AppSettings.Property("FACILITY_NASS_CODE").Value.ToString();
+                        string strNassCode = AppParameters.AppSettings.Property("FACILITY_NASS_CODE").Value.ToString();
                         DateTime dtLastUpdate = DateTime.Now;
 
-                        if (!string.IsNullOrEmpty((string)Global.AppSettings.Property("FACILITY_TIMEZONE").Value))
+                        if (!string.IsNullOrEmpty((string)AppParameters.AppSettings.Property("FACILITY_TIMEZONE").Value))
                         {
-                            if (Global.TimeZoneConvert.TryGetValue((string)Global.AppSettings.Property("FACILITY_TIMEZONE").Value, out string windowsTimeZoneId))
+                            if (AppParameters.TimeZoneConvert.TryGetValue((string)AppParameters.AppSettings.Property("FACILITY_TIMEZONE").Value, out string windowsTimeZoneId))
                             {
                                 dtLastUpdate = TimeZoneInfo.ConvertTime(dtLastUpdate, TimeZoneInfo.FindSystemTimeZoneById(windowsTimeZoneId));
                             }
@@ -294,7 +294,7 @@ namespace Factory_of_the_Future
                             }
                         }
                         cmdText = string.Concat(cmdText, ")");
-                        using (OracleConnection OraConn = new OracleConnection(Global.Decrypt((string)Global.AppSettings.Property("ORACONNSTRING").Value)))
+                        using (OracleConnection OraConn = new OracleConnection(AppParameters.Decrypt((string)AppParameters.AppSettings.Property("ORACONNSTRING").Value)))
                         {
                             using (OracleCommand OraComm = new OracleCommand(cmdText, OraConn))
 
@@ -354,11 +354,11 @@ namespace Factory_of_the_Future
         {
             try
             {
-                if (!string.IsNullOrEmpty((string)Global.AppSettings.Property("ORACONNSTRING").Value))
+                if (!string.IsNullOrEmpty((string)AppParameters.AppSettings.Property("ORACONNSTRING").Value))
                 {
                     if (dataList.HasValues)
                     {
-                        using (OracleConnection conn = new OracleConnection(Global.Decrypt((string)Global.AppSettings.Property("ORACONNSTRING").Value)))
+                        using (OracleConnection conn = new OracleConnection(AppParameters.Decrypt((string)AppParameters.AppSettings.Property("ORACONNSTRING").Value)))
                         {
                             using (OracleCommand cmd = new OracleCommand("TRUNCATE_RPG_PLAN_STAGE", conn))
                             {
@@ -378,12 +378,12 @@ namespace Factory_of_the_Future
                         List<RPGPlan> lstRPGPlanData = new List<RPGPlan>();
                         if (dataToken != null)
                         {
-                            string strNassCode = Global.AppSettings.Property("FACILITY_NASS_CODE").Value.ToString();
+                            string strNassCode = AppParameters.AppSettings.Property("FACILITY_NASS_CODE").Value.ToString();
                             DateTime dtLastUpdate = DateTime.Now;
 
-                            if (!string.IsNullOrEmpty((string)Global.AppSettings.Property("FACILITY_TIMEZONE").Value))
+                            if (!string.IsNullOrEmpty((string)AppParameters.AppSettings.Property("FACILITY_TIMEZONE").Value))
                             {
-                                if (Global.TimeZoneConvert.TryGetValue((string)Global.AppSettings.Property("FACILITY_TIMEZONE").Value, out string windowsTimeZoneId))
+                                if (AppParameters.TimeZoneConvert.TryGetValue((string)AppParameters.AppSettings.Property("FACILITY_TIMEZONE").Value, out string windowsTimeZoneId))
                                 {
                                     dtLastUpdate = TimeZoneInfo.ConvertTime(dtLastUpdate, TimeZoneInfo.FindSystemTimeZoneById(windowsTimeZoneId));
                                 }
@@ -442,7 +442,7 @@ namespace Factory_of_the_Future
                                     :nass_code
                                 )";
 
-                            using (OracleConnection OraConn = new OracleConnection(Global.Decrypt((string)Global.AppSettings.Property("ORACONNSTRING").Value)))
+                            using (OracleConnection OraConn = new OracleConnection(AppParameters.Decrypt((string)AppParameters.AppSettings.Property("ORACONNSTRING").Value)))
                             {
                                 using (OracleCommand OraComm = new OracleCommand(sql, OraConn))
                                 {
@@ -470,7 +470,7 @@ namespace Factory_of_the_Future
                             }
                         }
 
-                        using (OracleConnection conn = new OracleConnection(Global.Decrypt((string)Global.AppSettings.Property("ORACONNSTRING").Value)))
+                        using (OracleConnection conn = new OracleConnection(AppParameters.Decrypt((string)AppParameters.AppSettings.Property("ORACONNSTRING").Value)))
                         {
                             using (OracleCommand cmd = new OracleCommand("UPDATE_RPG_PLAN", conn))
                             {
@@ -502,9 +502,9 @@ namespace Factory_of_the_Future
             {
                 if (data.HasValues)
                 {
-                    if (!string.IsNullOrEmpty((string)Global.AppSettings.Property("ORACONNSTRING").Value))
+                    if (!string.IsNullOrEmpty((string)AppParameters.AppSettings.Property("ORACONNSTRING").Value))
                     {
-                        using (OracleConnection conn = new OracleConnection(Global.Decrypt((string)Global.AppSettings.Property("ORACONNSTRING").Value)))
+                        using (OracleConnection conn = new OracleConnection(AppParameters.Decrypt((string)AppParameters.AppSettings.Property("ORACONNSTRING").Value)))
                         {
                             using (OracleCommand cmd = new OracleCommand("Get_RPG_Plan_Info", conn))
                             {
@@ -512,7 +512,7 @@ namespace Factory_of_the_Future
                                 {
                                     cmd.CommandType = CommandType.StoredProcedure;
                                     cmd.Parameters.Add("CUR_RECORDSET", OracleDbType.RefCursor).Direction = ParameterDirection.Output;
-                                    cmd.Parameters.Add("nasscode", Global.AppSettings.Property("FACILITY_NASS_CODE").Value.ToString());
+                                    cmd.Parameters.Add("nasscode", AppParameters.AppSettings.Property("FACILITY_NASS_CODE").Value.ToString());
                                     cmd.Parameters.Add("mpeType", data.ContainsKey("mpe_type") ? data.Property("mpe_type").Value.ToString().Trim() : "");
                                     cmd.Parameters.Add("mpeNumber", data.ContainsKey("mpe_number") ? data.Property("mpe_number").Value.ToString().Trim() : "");
                                     cmd.Parameters.Add("sortplan", data.ContainsKey("cur_sortplan") ? data.Property("cur_sortplan").Value.ToString().Trim() : "");
@@ -553,7 +553,7 @@ namespace Factory_of_the_Future
         {
             try
             {
-                if (!string.IsNullOrEmpty((string)Global.AppSettings.Property("ORACONNSTRING").Value))
+                if (!string.IsNullOrEmpty((string)AppParameters.AppSettings.Property("ORACONNSTRING").Value))
                 {
                     if (jsonDataObject.HasValues)
                     {
@@ -574,8 +574,8 @@ namespace Factory_of_the_Future
                         {
                             cmdText = string.Concat(cmdText, source[i], " = :", source[i]) ?? "";
                         }
-                        cmdText = string.Concat(cmdText, " WHERE ", "MAC_ADDRESS", " = :MAC_ADDRESS", "  and NASS_CODE ='" + Global.AppSettings.Property("FACILITY_NASS_CODE").Value.ToString() + "' and VEHICLE_NUMBER = :VEHICLE_NUMBER", " and STATUS_CHANGE_START_DATE_TIME = :STATUS_CHANGE_START_DATE_TIME");
-                        using (OracleConnection OraConn = new OracleConnection((string)Global.AppSettings.Property("ORACONNSTRING").Value))
+                        cmdText = string.Concat(cmdText, " WHERE ", "MAC_ADDRESS", " = :MAC_ADDRESS", "  and NASS_CODE ='" + AppParameters.AppSettings.Property("FACILITY_NASS_CODE").Value.ToString() + "' and VEHICLE_NUMBER = :VEHICLE_NUMBER", " and STATUS_CHANGE_START_DATE_TIME = :STATUS_CHANGE_START_DATE_TIME");
+                        using (OracleConnection OraConn = new OracleConnection((string)AppParameters.AppSettings.Property("ORACONNSTRING").Value))
                         {
                             using (OracleCommand OraComm = new OracleCommand(cmdText, OraConn))
                             {
@@ -626,11 +626,11 @@ namespace Factory_of_the_Future
         {
             try
             {
-                if (!string.IsNullOrEmpty((string)Global.AppSettings.Property("ORACONNSTRING").Value))
+                if (!string.IsNullOrEmpty((string)AppParameters.AppSettings.Property("ORACONNSTRING").Value))
                 {
                     if (jsonDataObject.HasValues)
                     {
-                        jsonDataObject.Add("NASS_CODE", Global.AppSettings.ContainsKey("FACILITY_NASS_CODE") ? Global.AppSettings.Property("FACILITY_NASS_CODE").Value.ToString() : "NA");
+                        jsonDataObject.Add("NASS_CODE", AppParameters.AppSettings.ContainsKey("FACILITY_NASS_CODE") ? AppParameters.AppSettings.Property("FACILITY_NASS_CODE").Value.ToString() : "NA");
                         List<string> source = new List<string>();
                         string cmdText = string.Concat("INSERT INTO VEHICLE_STATE_HISTORY ( ");
                         foreach (KeyValuePair<string, JToken> property in jsonDataObject)
@@ -661,7 +661,7 @@ namespace Factory_of_the_Future
                             }
                         }
                         cmdText = string.Concat(cmdText, ")");
-                        using (OracleConnection OraConn = new OracleConnection((string)Global.AppSettings.Property("ORACONNSTRING").Value))
+                        using (OracleConnection OraConn = new OracleConnection((string)AppParameters.AppSettings.Property("ORACONNSTRING").Value))
                         {
                             using (OracleCommand OraComm = new OracleCommand(cmdText, OraConn))
                             {
@@ -705,14 +705,14 @@ namespace Factory_of_the_Future
             {
                 if (!string.IsNullOrEmpty(QueryName))
                 {
-                    DirectoryInfo maindir = new DirectoryInfo(Global.CodeBase.Parent.FullName.ToString());
+                    DirectoryInfo maindir = new DirectoryInfo(AppParameters.CodeBase.Parent.FullName.ToString());
                     if (maindir.Exists)
                     {
-                        if (!string.IsNullOrEmpty(Global.AppSettings.ContainsKey("ORACONNSTRING") ? (string)Global.AppSettings.Property("ORACONNSTRING").Value : ""))
+                        if (!string.IsNullOrEmpty(AppParameters.AppSettings.ContainsKey("ORACONNSTRING") ? (string)AppParameters.AppSettings.Property("ORACONNSTRING").Value : ""))
                         {
-                            using (OracleConnection connection = new OracleConnection(Global.Decrypt((string)Global.AppSettings.Property("ORACONNSTRING").Value)))
+                            using (OracleConnection connection = new OracleConnection(AppParameters.Decrypt((string)AppParameters.AppSettings.Property("ORACONNSTRING").Value)))
                             {
-                                string item2 = new FileIO().Read(string.Concat(maindir, Global.ORAQuery), QueryName);
+                                string item2 = new FileIO().Read(string.Concat(maindir, AppParameters.ORAQuery), QueryName);
                                 if (!string.IsNullOrEmpty(item2))
                                 {
                                     using (OracleCommand command = new OracleCommand(item2, connection))
