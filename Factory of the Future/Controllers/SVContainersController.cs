@@ -17,12 +17,12 @@ namespace Factory_of_the_Future.Controllers
         [ResponseType(typeof(Container))]
         public IEnumerable<Container> Get([FromBody] JObject trailer)
         {
-            if (trailer.HasValues)
-            {
-                return AppParameters.Containers.Where(r => r.Value.Otrailer == (string)trailer["trailerBarcode"]
+            //if (trailer.HasValues)
+            //{
+            //    return AppParameters.Containers.Where(r => r.Value.Otrailer == (string)trailer["trailerBarcode"]
                                                              
-                                                               ).Select(y => y.Value).ToList();
-            }
+            //                                                   ).Select(y => y.Value).ToList();
+            //}
             return null;
             
         }

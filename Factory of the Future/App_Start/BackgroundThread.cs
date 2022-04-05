@@ -21,32 +21,32 @@ namespace Factory_of_the_Future
                         {
                             if (AppParameters.ConnectionList.Keys.Count == 0)
                             {
-                                AppParameters.ConnectionList = AppParameters.LoadData("Connection.json");
+                               AppParameters.LoadData("Connection.json");
                             }
-                            if (AppParameters.ZoneInfo.Keys.Count == 0)
-                            {
-                                AppParameters.ZoneInfo = AppParameters.LoadData("Zones.json");
-                            }
-                            if (AppParameters.NotificationConditionsList.Keys.Count == 0)
-                            {
-                                AppParameters.NotificationConditionsList = AppParameters.LoadData("Notification.json");
-                            }
-                            if (AppParameters.IndoorMap.Keys.Count == 0)
+                            //if (AppParameters.ZoneInfo.Keys.Count == 0)
+                            //{
+                            //    AppParameters.ZoneInfo = AppParameters.LoadData("Zones.json");
+                            //}
+                            //if (AppParameters.NotificationConditionsList.Keys.Count == 0)
+                            //{
+                            //    AppParameters.NotificationConditionsList = AppParameters.LoadData("Notification.json");
+                            //}
+                            if (AppParameters.IndoorMap.Count == 0)
                             {
                                 AppParameters.LoadIndoorapData("ProjectData.json");
                             }
-                            if (AppParameters.RunningConnection.Connection.Count == 0)
-                            {
-                                Thread ConectionSetupThread = new Thread(new ThreadStart(ConectionSetup));
-                                ConectionSetupThread.IsBackground = true;
-                                ConectionSetupThread.Start();
-                            }
+                            //if (AppParameters.RunningConnection.Connection.Count == 0)
+                            //{
+                            //    Thread ConectionSetupThread = new Thread(new ThreadStart(ConectionSetup));
+                            //    ConectionSetupThread.IsBackground = true;
+                            //    ConectionSetupThread.Start();
+                            //}
                         }
                         else
                         {
-                            AppParameters.ConnectionList = new ConcurrentDictionary<string, JObject>();
-                            AppParameters.ZoneInfo = new ConcurrentDictionary<string, JObject>();
-                            AppParameters.IndoorMap = new ConcurrentDictionary<string, JObject>();
+                            //AppParameters.ConnectionList = new ConcurrentDictionary<string, JObject>();
+                            //AppParameters.ZoneInfo = new ConcurrentDictionary<string, JObject>();
+                            //AppParameters.IndoorMap = new ConcurrentDictionary<string, JObject>();
                         }
                     }
                     catch (Exception ex)
@@ -61,10 +61,10 @@ namespace Factory_of_the_Future
         {
             try
             {
-                foreach (JObject item in AppParameters.ConnectionList.Values)
-                {
-                    AppParameters.RunningConnection.Add(item);
-                }
+                //foreach (JObject item in AppParameters.ConnectionList.Values)
+                //{
+                //    AppParameters.RunningConnection.Add(item);
+                //}
             }
             catch (Exception e)
             {

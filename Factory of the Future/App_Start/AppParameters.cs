@@ -20,7 +20,7 @@ namespace Factory_of_the_Future
         public static string Appsetting { get; set; } = @"\AppSetting";
         public static string ConfigurationFloder { get; set; } = @"\Configuration";
         public static string LogFloder { get; set; } = @"\Log";
-        public static string ORAQuery { get; set; } = @"\ORAQuery";
+        public static string ORAQuery { get; set; } = @"\OracleQuery";
         public static JObject AppSettings { get; set; } = new JObject();
         public static string ApplicationEnvironment { get; set; } = string.Empty;
         public static string HWSerialNumber { get; set; } = string.Empty;
@@ -35,21 +35,24 @@ namespace Factory_of_the_Future
         private static readonly string VIKey = "@1B2c3D4e5F6g7H8";
 
         //Map
-        public static ConcurrentDictionary<string, JObject> IndoorMap { get; set; } = new ConcurrentDictionary<string, JObject>();
-        public static ConcurrentDictionary<string, JObject> CameraInfoList { get; set; } = new ConcurrentDictionary<string, JObject>();
-        public static ConcurrentDictionary<string, JObject> ConnectionList { get; set; } = new ConcurrentDictionary<string, JObject>();
-        public static ConcurrentDictionary<string, JObject> SortplansList { get; set; } = new ConcurrentDictionary<string, JObject>();
-        public static ConcurrentDictionary<string, JObject> ZonesList { get; set; } = new ConcurrentDictionary<string, JObject>();
+        public static ConcurrentDictionary<string, BackgroundImage> IndoorMap { get; set; } = new ConcurrentDictionary<string, BackgroundImage>();
+        public static ConcurrentDictionary<string, Cameras> CameraInfoList { get; set; } = new ConcurrentDictionary<string, Cameras>();
+        public static ConcurrentDictionary<string, Connection> ConnectionList { get; set; } = new ConcurrentDictionary<string, Connection>();
+        //public static ConcurrentDictionary<string, JObject> SortplansList { get; set; } = new ConcurrentDictionary<string, JObject>();
+        //public static ConcurrentDictionary<string, JObject> ZonesList { get; set; } = new ConcurrentDictionary<string, JObject>();
+        public static ConcurrentDictionary<string, GeoZone> ZoneList { get; set; } = new ConcurrentDictionary<string, GeoZone>();
         public static ConcurrentDictionary<string, JObject> ZoneInfo { get; set; } = new ConcurrentDictionary<string, JObject>();
-        public static ConcurrentDictionary<string, JObject> TagList { get; set; } = new ConcurrentDictionary<string, JObject>();
-        public static ConcurrentDictionary<string, JObject> RouteTripsList { get; set; } = new ConcurrentDictionary<string, JObject>();
-        public static ConcurrentDictionary<string, JObject> QSMList { get; set; } = new ConcurrentDictionary<string, JObject>();
+        public static ConcurrentDictionary<string, GeoMarker> TagsList { get; set; } = new ConcurrentDictionary<string, GeoMarker>();
+        //public static ConcurrentDictionary<string, JObject> RouteTripsList { get; set; } = new ConcurrentDictionary<string, JObject>();
+        //public static ConcurrentDictionary<string, JObject> QSMList { get; set; } = new ConcurrentDictionary<string, JObject>();
+
         public static ConcurrentDictionary<string, Container> Containers { get; set; } = new ConcurrentDictionary<string, Container>();
-        public static ConcurrentDictionary<string, JObject> MissionList { get; set; } = new ConcurrentDictionary<string, JObject>();
-        public static ConcurrentDictionary<string, JObject> NotificationList { get; set; } = new ConcurrentDictionary<string, JObject>();
-        public static ConcurrentDictionary<string, JObject> NotificationConditionsList { get; set; } = new ConcurrentDictionary<string, JObject>();
-        public static ConcurrentDictionary<string, JObject> Users { get; set; } = new ConcurrentDictionary<string, JObject>();
-        public static ConcurrentDictionary<string, JObject> Tag { get; set; } = new ConcurrentDictionary<string, JObject>();
+        //public static ConcurrentDictionary<string, JObject> MissionList { get; set; } = new ConcurrentDictionary<string, JObject>();
+        //public static ConcurrentDictionary<string, JObject> NotificationList { get; set; } = new ConcurrentDictionary<string, JObject>();
+        //public static ConcurrentDictionary<string, JObject> NotificationConditionsList { get; set; } = new ConcurrentDictionary<string, JObject>();
+        public static  ConcurrentDictionary<string, ADUser> Users { get; set; } = new ConcurrentDictionary<string, ADUser>();
+        public static readonly ConnectionMapping<string> _connections = new ConnectionMapping<string>();
+        //public static ConcurrentDictionary<string, JObject> Tag { get; set; } = new ConcurrentDictionary<string, JObject>();
         public static ConnectionContainer RunningConnection { get; set; } = new ConnectionContainer();
         public static Dictionary<string, string> TimeZoneConvert { get; set; } = new Dictionary<string, string>()
     {
@@ -154,29 +157,7 @@ namespace Factory_of_the_Future
                         ApplicationEnvironment = "PROD";
                     }
                 }
-                if (!QSMList.ContainsKey("SERVER"))
-                {
-                    JObject qsm = new JObject_List().QSM_Connection;
-                    qsm.Property("CONNECTION_NAME").Value = "SERVER";
-                    qsm.Property("NUMBER_OF_CONNECTION").Value = ServerHostname;
-                    qsm.Property("INDEX").Value = 1;
-                    if (!QSMList.TryAdd("SERVER", qsm))
-                    {
-                        new ErrorLogger().CustomLog(string.Concat("Error adding Server connection to QSM"), string.Concat((string)AppSettings.Property("APPLICATION_NAME").Value, "Applogs"));
-                    }
-                }
-
-                if (!string.IsNullOrEmpty(AppSettings.ContainsKey("ORACONNSTRING") ? (string)AppSettings.Property("ORACONNSTRING").Value : ""))
-                {
-                    JObject qsm = new JObject_List().QSM_Connection;
-                    qsm.Property("CONNECTION_NAME").Value = "DATABASE";
-                    qsm.Property("NUMBER_OF_CONNECTION").Value = ServerHostname;
-                    qsm.Property("INDEX").Value = 2;
-                    if (!QSMList.TryAdd("DATABASE", qsm))
-                    {
-                        new ErrorLogger().CustomLog(string.Concat("Error adding Database connection to QSM"), string.Concat((string)AppSettings.Property("APPLICATION_NAME").Value, "Applogs"));
-                    }
-                }
+           
             }
             catch (Exception ex)
             {
@@ -279,7 +260,7 @@ namespace Factory_of_the_Future
                     {
                         if (!string.IsNullOrEmpty(ProjectData))
                         {
-                            Task.Run(() => new ProcessRecvdMsg().StartProcess(JToken.Parse(ProjectData), "getProjectInfo"));
+                            Task.Run(() => new ProcessRecvdMsg().StartProcess(ProjectData, "getProjectInfo"));
                         }
                     }
                 }
@@ -289,38 +270,33 @@ namespace Factory_of_the_Future
                 new ErrorLogger().ExceptionLog(e);
             }
         }
-        internal static ConcurrentDictionary<string, JObject> LoadData(string FileName)
+        internal static void LoadData(string FileName)
         {
-            ConcurrentDictionary<string, JObject> List = new ConcurrentDictionary<string, JObject>();
             try
             {
-
                 if (Logdirpath != null)
                 {
                     string file_content = new FileIO().Read(string.Concat(Logdirpath, ConfigurationFloder), FileName);
 
                     if (!string.IsNullOrEmpty(file_content))
                     {
-                        dynamic temp = JToken.Parse(file_content);
-                        if (temp.HasValues)
+                        if (FileName.StartsWith("Connection.json"))
                         {
-                            foreach (JObject item in temp)
+                            List<Connection> tempcon = JsonConvert.DeserializeObject<List<Connection>>(file_content);
+                            for (int i = 0; i < tempcon.Count; i++)
                             {
-                                List.TryAdd(item["id"].ToString(), item);
+                                if (ConnectionList.TryAdd(tempcon[i].Id, tempcon[i]))
+                                {
+                                    RunningConnection.Add(tempcon[i]);
+                                }
                             }
                         }
                     }
                 }
-                return List;
             }
             catch (Exception e)
             {
                 new ErrorLogger().ExceptionLog(e);
-                return List;
-            }
-            finally
-            {
-                List = null;
             }
         }
         private static string GetLocalIpAddress()

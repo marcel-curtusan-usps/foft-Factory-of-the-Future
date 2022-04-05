@@ -13,7 +13,7 @@ namespace Factory_of_the_Future.Controllers
         // GET: api/SVTrips
         public IEnumerable<JObject> Get()
         {
-            return AppParameters.RouteTripsList.Select(x => x.Value).ToList();
+            return null; /*AppParameters.RouteTripsList.Select(x => x.Value).ToList();*/
         }
 
         // GET: api/SVTrips/5

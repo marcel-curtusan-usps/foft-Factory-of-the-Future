@@ -32,63 +32,63 @@ namespace Factory_of_the_Future
             //SendAsync(endpoint, buffer, 0, size);
 
             string incomingData = Encoding.UTF8.GetString(buffer, (int)offset, (int)size);
-            foreach (JObject m in AppParameters.ConnectionList.Where(x => (string)x.Value.Property("ID").Value == this.conid).Select(y => y.Value))
-            {
-                try
-                {
-                    if (!string.IsNullOrEmpty(incomingData))
-                    {
-                        if (AppParameters.IsValidJson(incomingData))
-                        {
-                            JObject incomingDataJobject = JObject.Parse(incomingData);
-                            JObject temp1 = new JObject(
-                                    new JProperty("code", "0"),
-                                    new JProperty("command", "UDP_Client"),
-                                    new JProperty("outputFormatId", "DefFormat002"),
-                                    new JProperty("outputFormatName", "Location JSON"),
-                                    new JProperty("message", "getTagPosition"),
-                                    new JProperty("responseTS", DateTimeOffset.Now.ToUnixTimeMilliseconds()),
-                                    new JProperty("status", "0"),
-                                    new JProperty("tags", new JArray(incomingDataJobject))
+            //foreach (JObject m in AppParameters.ConnectionList.Where(x => (string)x.Value.Property("ID").Value == this.conid).Select(y => y.Value))
+            //{
+            //    try
+            //    {
+            //        if (!string.IsNullOrEmpty(incomingData))
+            //        {
+            //            if (AppParameters.IsValidJson(incomingData))
+            //            {
+            //                JObject incomingDataJobject = JObject.Parse(incomingData);
+            //                JObject temp1 = new JObject(
+            //                        new JProperty("code", "0"),
+            //                        new JProperty("command", "UDP_Client"),
+            //                        new JProperty("outputFormatId", "DefFormat002"),
+            //                        new JProperty("outputFormatName", "Location JSON"),
+            //                        new JProperty("message", "getTagPosition"),
+            //                        new JProperty("responseTS", DateTimeOffset.Now.ToUnixTimeMilliseconds()),
+            //                        new JProperty("status", "0"),
+            //                        new JProperty("tags", new JArray(incomingDataJobject))
 
-                                    );
-                            if (!(bool)m.Property("API_CONNECTED").Value)
-                            {
-                                m.Property("API_CONNECTED").Value = true;
-                            }
-                            m.Property("UPDATE_STATUS").Value = true;
-                            m.Property("LASTTIME_API_CONNECTED").Value = DateTime.Now;
-                            Task.Run(() => new ProcessRecvdMsg().StartProcess(temp1,temp1["message"].ToString()));
+            //                        );
+            //                if (!(bool)m.Property("API_CONNECTED").Value)
+            //                {
+            //                    m.Property("API_CONNECTED").Value = true;
+            //                }
+            //                m.Property("UPDATE_STATUS").Value = true;
+            //                m.Property("LASTTIME_API_CONNECTED").Value = DateTime.Now;
+            //                Task.Run(() => new ProcessRecvdMsg().StartProcess(temp1,temp1["message"].ToString()));
 
-                        }
-                        else
-                        {
-                            new ErrorLogger().CustomLog(incomingData, string.Concat((string)AppParameters.AppSettings.Property("APPLICATION_NAME").Value, "UDP_InVaild_Message"));
-                        }
+            //            }
+            //            else
+            //            {
+            //                new ErrorLogger().CustomLog(incomingData, string.Concat((string)AppParameters.AppSettings.Property("APPLICATION_NAME").Value, "UDP_InVaild_Message"));
+            //            }
 
-                    }
-                    else
-                    {
-                        if ((bool)m.Property("API_CONNECTED").Value)
-                        {
-                            m.Property("API_CONNECTED").Value = false;
-                        }
-                        m.Property("LASTTIME_API_CONNECTED").Value = DateTime.Now;
-                        m.Property("UPDATE_STATUS").Value = true;
-                    }
-                }
-                catch (Exception e)
-                {
-                    new ErrorLogger().ExceptionLog(e);
-                    new ErrorLogger().CustomLog(incomingData, string.Concat((string)AppParameters.AppSettings.Property("APPLICATION_NAME").Value, "UDP_InVaild_Message"));
-                    if ((bool)m.Property("API_CONNECTED").Value)
-                    {
-                        m.Property("API_CONNECTED").Value = false;
-                    }
-                    m.Property("LASTTIME_API_CONNECTED").Value = DateTime.Now;
-                    m.Property("UPDATE_STATUS").Value = true;
-                }
-            };
+            //        }
+            //        else
+            //        {
+            //            if ((bool)m.Property("API_CONNECTED").Value)
+            //            {
+            //                m.Property("API_CONNECTED").Value = false;
+            //            }
+            //            m.Property("LASTTIME_API_CONNECTED").Value = DateTime.Now;
+            //            m.Property("UPDATE_STATUS").Value = true;
+            //        }
+            //    }
+            //    catch (Exception e)
+            //    {
+            //        new ErrorLogger().ExceptionLog(e);
+            //        new ErrorLogger().CustomLog(incomingData, string.Concat((string)AppParameters.AppSettings.Property("APPLICATION_NAME").Value, "UDP_InVaild_Message"));
+            //        if ((bool)m.Property("API_CONNECTED").Value)
+            //        {
+            //            m.Property("API_CONNECTED").Value = false;
+            //        }
+            //        m.Property("LASTTIME_API_CONNECTED").Value = DateTime.Now;
+            //        m.Property("UPDATE_STATUS").Value = true;
+            //    }
+            //};
             ReceiveAsync();
 
         }
@@ -101,31 +101,33 @@ namespace Factory_of_the_Future
 
         protected override void OnError(SocketError error)
         {
-            AppParameters.ConnectionList.Where(x => (string)x.Value.Property("ID").Value == this.conid).Select(y => y.Value).ToList().ForEach(m =>
-            {
-                if ((bool)m.Property("API_CONNECTED").Value)
-                {
-                    m.Property("API_CONNECTED").Value = false;
-                }
-                m.Property("LASTTIME_API_CONNECTED").Value = DateTime.Now;
-                m.Property("UPDATE_STATUS").Value = true;
-                new ErrorLogger().CustomLog(string.Concat("UDP server caught an error with code", error), string.Concat((string)AppParameters.AppSettings.Property("APPLICATION_NAME").Value, "UDP_InVaild_Message"));
-            });
+            //AppParameters.ConnectionList.Where(x => (string)x.Value.Property("ID").Value == this.conid).Select(y => y.Value).ToList().ForEach(m =>
+            //{
+            //    if ((bool)m.Property("API_CONNECTED").Value)
+            //    {
+            //        m.Property("API_CONNECTED").Value = false;
+            //    }
+            //    m.Property("LASTTIME_API_CONNECTED").Value = DateTime.Now;
+            //    m.Property("UPDATE_STATUS").Value = true;
+            //    new ErrorLogger().CustomLog(string.Concat("UDP server caught an error with code", error), string.Concat((string)AppParameters.AppSettings.Property("APPLICATION_NAME").Value, "UDP_InVaild_Message"));
+            //});
         }
     }
     public class Api_Connection
     {
         public string ID;
+        internal string MessageType = string.Empty;
         public int Thread_ID;
         public int Status; // 0 = Idle, 1 = Running, 2 = Stopped, 3 = Dead, 4 = Stopping(Paused)
        // public int DATA_RETRIEVE = 120000;
         public bool ConstantRefresh = true;
         public bool Stopping = false;
-        public JObject API_Info = new JObject();
         public DateTime DownloadDatetime;
         public bool Connected;
         public UdpClient client;
         public UdpServer server;
+        internal Connection ConnectionInfo;
+
         // public DateTime DateAdded;
 
         //UDP
@@ -141,7 +143,7 @@ namespace Factory_of_the_Future
                 {
                     SleptTime += 1000;
                     Thread.Sleep(1000);
-                    if (!(bool)this.API_Info["ACTIVE_CONNECTION"])
+                    if (!ConnectionInfo.ActiveConnection)
                     {
                         this.Status = 4;
                         break;
@@ -157,7 +159,7 @@ namespace Factory_of_the_Future
                         return;
                     }
 
-                } while (SleptTime < (int)this.API_Info["DATA_RETRIEVE"]);
+                } while (SleptTime < ConnectionInfo.DataRetrieve);
 
                 if (this.ConstantRefresh == true)
                 {
@@ -230,11 +232,14 @@ namespace Factory_of_the_Future
         private void UDPInit()
         {
             // start UDP Server
-            if (!string.IsNullOrEmpty(this.API_Info["PORT"].ToString()))
+            if (!string.IsNullOrEmpty(ConnectionInfo.Port.ToString()))
             {
-                this.server = new MulticastUdpServer(IPAddress.Any, (int)this.API_Info["PORT"], this.ID);
-                this.server.Start();
-                this.Status = 1;
+                if (ConnectionInfo.Port > 0)
+                {
+                    this.server = new MulticastUdpServer(IPAddress.Any, (int)ConnectionInfo.Port, ID);
+                    this.server.Start();
+                    this.Status = 1;
+                }
             }
             
         }
@@ -265,13 +270,13 @@ namespace Factory_of_the_Future
              * the last runtime on this thread
              */
             this.Status = 1;
-            dynamic result = null;
             string NASS_CODE = AppParameters.AppSettings.Property("FACILITY_NASS_CODE").Value.ToString();
 
             JObject requestBody = null;
             DateTime dtNow = DateTime.Now;
             string fdb = string.Empty;
             string lkey = string.Empty;
+            MessageType = ConnectionInfo.MessageType;
             if (!string.IsNullOrEmpty((string)AppParameters.AppSettings.Property("FACILITY_TIMEZONE").Value))
             {
                 if (AppParameters.TimeZoneConvert.TryGetValue((string)AppParameters.AppSettings.Property("FACILITY_TIMEZONE").Value, out string windowsTimeZoneId))
@@ -289,12 +294,12 @@ namespace Factory_of_the_Future
                 lkey = (string)AppParameters.AppSettings.Property("FACILITY_LKEY").Value;
             }
             string formatUrl = string.Empty;
-            if (this.API_Info["CONNECTION_NAME"].ToString().ToUpper().StartsWith("MPEWatch".ToUpper()))
+            if (ConnectionInfo.ConnectionName.ToUpper().StartsWith("MPEWatch".ToUpper()))
             {
                 if (!string.IsNullOrEmpty((string)AppParameters.AppSettings.Property("MPE_WATCH_ID").Value))
                 {
                     string MpeWatch_id = (string)AppParameters.AppSettings.Property("MPE_WATCH_ID").Value;
-                    string MpeWatch_data_source = this.API_Info["MESSAGE_TYPE"].ToString();
+                    string MpeWatch_data_source = ConnectionInfo.MessageType;
 
                     int currentHour = dtNow.Hour;
                     DateTime modsDate = dtNow;
@@ -308,13 +313,13 @@ namespace Factory_of_the_Future
                     }
                     string start_time = "";
                     string end_time = "";
-                    switch (this.API_Info["MESSAGE_TYPE"].ToString())
+                    switch (ConnectionInfo.MessageType)
                     {
                         case "RPG_PLAN":
                             DateTime dtEnd = modsDate.AddDays(5);
                             start_time = modsDate.ToString("MM/dd/yyyy_HH:mm:ss");
                             end_time = dtEnd.ToString("MM/dd/yyyy_HH:mm:ss");
-                            formatUrl = string.Format(this.API_Info["URL"].ToString(), MpeWatch_id, MpeWatch_data_source, start_time, end_time);
+                            formatUrl = string.Format(ConnectionInfo.Url, MpeWatch_id, MpeWatch_data_source, start_time, end_time);
                             break;
 
                         case "DPS_RUN_ESTM":
@@ -322,12 +327,12 @@ namespace Factory_of_the_Future
                             DateTime modEnd = dtNow.Date.AddHours(23).AddMinutes(59).AddSeconds(59);
                             start_time = modStart.ToString("MM/dd/yyyy HH:mm:ss");
                             end_time = modEnd.ToString("MM/dd/yyyy HH:mm:ss");
-                            formatUrl = string.Format(this.API_Info["URL"].ToString(), MpeWatch_id, MpeWatch_data_source, start_time, end_time);
+                            formatUrl = string.Format(ConnectionInfo.Url, MpeWatch_id, MpeWatch_data_source, start_time, end_time);
                             break;
 
                         case "RPG_RUN_PERF":
                         default:
-                            string strTimeDiff = "-" + this.API_Info["DATA_RETRIEVE"].ToString();
+                            string strTimeDiff = "-" + ConnectionInfo.DataRetrieve;
                             Double dblTimeDiff = 0;
                             if (Double.TryParse(strTimeDiff, out Double dblDiff)) { dblTimeDiff = dblDiff; }
                             else { dblTimeDiff = -300000; }
@@ -336,83 +341,63 @@ namespace Factory_of_the_Future
                             DateTime startDate = endDate.AddMilliseconds(dblTimeDiff);
                             start_time = startDate.ToString("MM/dd/yyyy_HH:mm:ss");
                             end_time = endDate.ToString("MM/dd/yyyy_HH:mm:ss");
-                            formatUrl = string.Format(this.API_Info["URL"].ToString(), MpeWatch_id, MpeWatch_data_source, start_time, end_time);
+                            formatUrl = string.Format(ConnectionInfo.Url, MpeWatch_id, MpeWatch_data_source, start_time, end_time);
                             break;
                     }
                 }
                 else
                 {
-                    int index = (this.API_Info["URL"].ToString()).IndexOf("ge.");
-                    formatUrl = string.Concat((this.API_Info["URL"].ToString()).Substring(0, (index + 3)), "get_id?group_name=client");
+                    MessageType = "mpe_watch_id";
+                    int index = ConnectionInfo.Url.IndexOf("ge.");
+                    formatUrl = string.Concat(ConnectionInfo.Url.Substring(0, (index + 3)), "get_id?group_name=client");
                 }
             }
-            else if (this.API_Info["CONNECTION_NAME"].ToString().ToUpper().StartsWith("SV".ToUpper()))
+            else if (ConnectionInfo.ConnectionName.ToUpper().StartsWith("SV".ToUpper()))
             {
-                int.TryParse(this.API_Info["HOURS_BACK"].ToString(), out int hours_back);
-                int.TryParse(this.API_Info["HOURS_FORWARD"].ToString(), out int hours_forward);
-                if (hours_back > 0 && hours_forward >= 0)
+
+                if (ConnectionInfo.HoursBack > 0 && ConnectionInfo.HoursForward >= 0)
                 {
-                    string start_time = string.Concat(DateTime.Now.AddHours(-hours_back).ToString("yyyy-MM-dd'T'HH:"), "00:00");
-                    string end_time = DateTime.Now.AddHours(+hours_forward).ToString("yyyy-MM-dd'T'HH:mm:ss");
-                    formatUrl = string.Format(this.API_Info["URL"].ToString(), NASS_CODE, start_time, end_time);
+                    string start_time = string.Concat(DateTime.Now.AddHours(-ConnectionInfo.HoursBack).ToString("yyyy-MM-dd'T'HH:"), "00:00");
+                    string end_time = DateTime.Now.AddHours(+ConnectionInfo.HoursForward).ToString("yyyy-MM-dd'T'HH:mm:ss");
+                    formatUrl = string.Format(ConnectionInfo.Url, NASS_CODE, start_time, end_time);
                 }
                 else
                 {
                     string start_time = string.Concat(DateTime.Now.AddHours(-10).ToString("yyyy-MM-dd'T'HH:"), "00:00");
                     string end_time = DateTime.Now.AddHours(+2).ToString("yyyy-MM-dd'T'HH:mm:ss");
-                    formatUrl = string.Format(this.API_Info["URL"].ToString(), NASS_CODE, start_time, end_time);
+                    formatUrl = string.Format(ConnectionInfo.Url, NASS_CODE, start_time, end_time);
                 }
             }
-            else if (this.API_Info["CONNECTION_NAME"].ToString().ToUpper().StartsWith("Web_Camera".ToUpper()))
+            else if (ConnectionInfo.ConnectionName.ToUpper().StartsWith("Web_Camera".ToUpper()))
             {
                 if (!string.IsNullOrEmpty(fdb))
                 {
-                    formatUrl = string.Format(this.API_Info["URL"].ToString(), fdb);
+                    formatUrl = string.Format(ConnectionInfo.Url, fdb);
                 }
             }
-            else if (this.API_Info["CONNECTION_NAME"].ToString().ToUpper().StartsWith("IV".ToUpper()))
+            else if (ConnectionInfo.ConnectionName.ToUpper().StartsWith("IV".ToUpper()))
             {
                 if (!string.IsNullOrEmpty(lkey))
                 {
-                    string data_source = this.API_Info["MESSAGE_TYPE"].ToString();
                     requestBody = new JObject(new JProperty("lkey", lkey));
-                    formatUrl = string.Format(this.API_Info["URL"].ToString(), data_source);
+                    formatUrl = string.Format(ConnectionInfo.Url, ConnectionInfo.MessageType);
                 }
             }
-            else if (this.API_Info["CONNECTION_NAME"].ToString().ToUpper().StartsWith("SELS".ToUpper()))
+            else if (ConnectionInfo.ConnectionName.ToUpper().StartsWith("SELS".ToUpper()))
             {
                 string selsRT_siteid = (string)AppParameters.AppSettings.Property("FACILITY_P2P_SITEID").Value;
                 if (!string.IsNullOrEmpty(selsRT_siteid))
                 {
-                    string data_source = this.API_Info["MESSAGE_TYPE"].ToString();
-                    if (!string.IsNullOrEmpty(data_source))
+                    if (!string.IsNullOrEmpty(ConnectionInfo.MessageType))
                     {
-                        formatUrl = string.Format(this.API_Info["URL"].ToString(), selsRT_siteid, data_source);
+                        formatUrl = string.Format(ConnectionInfo.Url, selsRT_siteid, ConnectionInfo.MessageType);
                     }
                 }
             }
-            else if (this.API_Info["CONNECTION_NAME"].ToString().ToUpper().StartsWith("Quuppa".ToUpper()))
+            else if (ConnectionInfo.ConnectionName.ToUpper().StartsWith("Quuppa".ToUpper()))
             {
-                string data_source = this.API_Info["MESSAGE_TYPE"].ToString();
-                if (!string.IsNullOrEmpty(data_source))
-                {
-                    formatUrl = string.Format(this.API_Info["URL"].ToString(), data_source);
-                }
+                formatUrl = string.Format(ConnectionInfo.Url, ConnectionInfo.MessageType);
             }
-            else if (this.API_Info["CONNECTION_NAME"].ToString().ToUpper().StartsWith("CTS".ToUpper()))
-            {
-                if (!string.IsNullOrEmpty(NASS_CODE))
-                {
-                    if (!string.IsNullOrEmpty(this.API_Info["OUTGOING_APIKEY"].ToString()))
-                    {
-                        if (!string.IsNullOrEmpty(this.API_Info["MESSAGE_TYPE"].ToString()))
-                        {
-                            formatUrl = string.Format(this.API_Info["URL"].ToString(), this.API_Info["MESSAGE_TYPE"].ToString(), this.API_Info["OUTGOING_APIKEY"].ToString(), NASS_CODE);
-                        }
-                    }
-                }
-            }
-
             if (!string.IsNullOrEmpty(formatUrl))
             {
                 try
@@ -437,22 +422,28 @@ namespace Factory_of_the_Future
                             using (StreamReader reader = new System.IO.StreamReader(Response.GetResponseStream(), ASCIIEncoding.ASCII))
                             {
                                 // Thread is complete. Return to idle
-                                this.DownloadDatetime = dtNow;
-                                this.Connected = true;
-
-                                result = JToken.Parse(reader.ReadToEnd());
-                                // process date
-                                if (result is JArray || result is JObject)
+                                DownloadDatetime = dtNow;
+                                Connected = true;
+                                string responseData = reader.ReadToEnd();
+                                if (!string.IsNullOrEmpty(responseData))
                                 {
-                                    if (formatUrl.Contains("api_page.get_id"))
-                                    {
-                                        new ProcessRecvdMsg().StartProcess(result, "mpe_watch_id");
-                                    }
-                                    else
-                                    {
-                                        new ProcessRecvdMsg().StartProcess(result, this.API_Info["MESSAGE_TYPE"].ToString());
-                                    }
+                                    Task.Run(() => new ProcessRecvdMsg().StartProcess(responseData, MessageType));
                                 }
+                                
+                               
+                                //result = JToken.Parse(reader.ReadToEnd());
+                                //// process date
+                                //if (result is JArray || result is JObject)
+                                //{
+                                //    if (formatUrl.Contains("api_page.get_id"))
+                                //    {
+                                //        new ProcessRecvdMsg().StartProcess(result, "mpe_watch_id");
+                                //    }
+                                //    else
+                                //    {
+                                //        new ProcessRecvdMsg().StartProcess(result, ConnectionInfo.MessageType);
+                                //    }
+                                //}
                                 Thread.Sleep(100);
                                 Task.Run(() => updateConnection(this));
                             }
@@ -470,7 +461,6 @@ namespace Factory_of_the_Future
                         if (Resp.StatusCode == HttpStatusCode.NotFound)
                         {
                             this.Status = 3;
-                            result = null;
                             this.ConstantRefresh = false;
                             this.Connected = false;
                             Task.Run(() => updateConnection(this));
@@ -481,13 +471,10 @@ namespace Factory_of_the_Future
                 catch (Exception e)
                 {
                     new ErrorLogger().ExceptionLog(e);
-                    result = null;
                     this.Connected = false;
                     Task.Run(() => updateConnection(this));
                 }
             }
-
-            result = null;
             this.Status = 0;
         }
 
@@ -495,11 +482,11 @@ namespace Factory_of_the_Future
         {
             try
             {
-                foreach (JObject m in AppParameters.ConnectionList.Where(x => (string)x.Value.Property("id").Value == api_Connection.ID).Select(y => y.Value))
+                foreach (Connection m in AppParameters.ConnectionList.Where(x => x.Value.Id == api_Connection.ID).Select(y => y.Value))
                 {
-                    m.Property("API_CONNECTED").Value = api_Connection.Connected;
-                    m.Property("LASTTIME_API_CONNECTED").Value = api_Connection.DownloadDatetime;
-                    m.Property("UPDATE_STATUS").Value = true;
+                    m.ApiConnected = api_Connection.Connected;
+                    m.LasttimeApiConnected= api_Connection.DownloadDatetime;
+                    m.UpdateStatus = true;
                 };
             }
             catch (Exception e)

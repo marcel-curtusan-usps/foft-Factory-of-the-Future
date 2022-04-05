@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json.Linq;
+﻿using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using Oracle.ManagedDataAccess.Client;
 using System;
 using System.Data;
@@ -8,18 +9,18 @@ namespace Factory_of_the_Future
 {
     public class User_Log
     {
-        public void LoginUser(string DirectoryPath, JObject adUser)
+        public void LoginUser(ADUser Ad_User)
         {
             try
             {
-                DirectoryInfo maindir = new DirectoryInfo(DirectoryPath);
-                if (maindir.Exists)
+                JObject adUser = JObject.Parse(JsonConvert.SerializeObject(Ad_User, Formatting.Indented, new JsonSerializerSettings() { ContractResolver = new NullToEmptyStringResolver() }));
+                if (AppParameters.CodeBase.Parent.Exists)
                 {
                     if (!string.IsNullOrEmpty(AppParameters.AppSettings.ContainsKey("ORACONNASSTRING") ? (string)AppParameters.AppSettings.Property("ORACONNASSTRING").Value : ""))
                     {
                         using (OracleConnection connection = new OracleConnection(AppParameters.Decrypt((string)AppParameters.AppSettings.Property("ORACONNASSTRING").Value)))
                         {
-                            string item2 = new FileIO().Read(string.Concat(maindir, AppParameters.ORAQuery), "UserSessionIN_Query.txt");
+                            string item2 = new FileIO().Read(string.Concat(AppParameters.CodeBase.Parent.FullName.ToString(), AppParameters.ORAQuery), "UserSessionIN_Query.txt");
                             if (!string.IsNullOrEmpty(item2))
                             {
                                 using (OracleCommand command = new OracleCommand(item2, connection))
@@ -30,9 +31,9 @@ namespace Factory_of_the_Future
                                     }
                                     command.Parameters.Clear();
                                     command.BindByName = true;
-                                    if (adUser.ContainsKey("Session_ID"))
+                                    if (adUser.ContainsKey("SessionID"))
                                     {
-                                        command.Parameters.Add(":SESSION_ID", OracleDbType.Varchar2, (string)adUser.Property("Session_ID").Value, ParameterDirection.Input);
+                                        command.Parameters.Add(":SESSION_ID", OracleDbType.Varchar2, (string)adUser.Property("SessionID").Value, ParameterDirection.Input);
                                     }
                                     if (adUser.ContainsKey("ConnectionId"))
                                     {
@@ -46,33 +47,33 @@ namespace Factory_of_the_Future
                                     {
                                         command.Parameters.Add(":DOMAIN", OracleDbType.Varchar2, (string)adUser.Property("Domain").Value, ParameterDirection.Input);
                                     }
-                                    if (adUser.ContainsKey("NASS_Code"))
+                                    if (adUser.ContainsKey("NASSCode"))
                                     {
-                                        command.Parameters.Add(":NASS_CODE", OracleDbType.Varchar2, (string)adUser.Property("NASS_Code").Value, ParameterDirection.Input);
+                                        command.Parameters.Add(":NASS_CODE", OracleDbType.Varchar2, (string)adUser.Property("NASSCode").Value, ParameterDirection.Input);
                                     }
-                                    if (adUser.ContainsKey("FDB_ID"))
+                                    if (adUser.ContainsKey("FDBID"))
                                     {
-                                        command.Parameters.Add(":FDB_ID", OracleDbType.Varchar2, (string)adUser.Property("FDB_ID").Value, ParameterDirection.Input);
+                                        command.Parameters.Add(":FDB_ID", OracleDbType.Varchar2, (string)adUser.Property("FDBID").Value, ParameterDirection.Input);
                                     }
-                                    if (adUser.ContainsKey("Browser_Type"))
+                                    if (adUser.ContainsKey("BrowserType"))
                                     {
-                                        command.Parameters.Add(":BROWSER_TYPE", OracleDbType.Varchar2, (string)adUser.Property("Browser_Type").Value, ParameterDirection.Input);
+                                        command.Parameters.Add(":BROWSER_TYPE", OracleDbType.Varchar2, (string)adUser.Property("BrowserType").Value, ParameterDirection.Input);
                                     }
-                                    if (adUser.ContainsKey("Browser_Name"))
+                                    if (adUser.ContainsKey("BrowserName"))
                                     {
-                                        command.Parameters.Add(":BROWSER_NAME", OracleDbType.Varchar2, (string)adUser.Property("Browser_Name").Value, ParameterDirection.Input);
+                                        command.Parameters.Add(":BROWSER_NAME", OracleDbType.Varchar2, (string)adUser.Property("BrowserName").Value, ParameterDirection.Input);
                                     }
-                                    if (adUser.ContainsKey("Browser_Version"))
+                                    if (adUser.ContainsKey("BrowserVersion"))
                                     {
-                                        command.Parameters.Add(":BROWSER_VERSION", OracleDbType.Varchar2, (string)adUser.Property("Browser_Version").Value, ParameterDirection.Input);
+                                        command.Parameters.Add(":BROWSER_VERSION", OracleDbType.Varchar2, (string)adUser.Property("BrowserVersion").Value, ParameterDirection.Input);
                                     }
-                                    if (adUser.ContainsKey("Software_Version"))
+                                    if (adUser.ContainsKey("SoftwareVersion"))
                                     {
-                                        command.Parameters.Add(":SOFTWARE_VERSION", OracleDbType.Varchar2, (string)adUser.Property("Software_Version").Value, ParameterDirection.Input);
+                                        command.Parameters.Add(":SOFTWARE_VERSION", OracleDbType.Varchar2, (string)adUser.Property("SoftwareVersion").Value, ParameterDirection.Input);
                                     }
-                                    if (adUser.ContainsKey("Server_IpAddress"))
+                                    if (adUser.ContainsKey("ServerIpAddress"))
                                     {
-                                        command.Parameters.Add(":SERVER_IP", OracleDbType.Varchar2, (string)adUser.Property("Server_IpAddress").Value, ParameterDirection.Input);
+                                        command.Parameters.Add(":SERVER_IP", OracleDbType.Varchar2, (string)adUser.Property("ServerIpAddress").Value, ParameterDirection.Input);
                                     }
                                     if (adUser.ContainsKey("UserId"))
                                     {
@@ -90,15 +91,16 @@ namespace Factory_of_the_Future
                                     {
                                         command.Parameters.Add(":FULL_NAME", OracleDbType.Varchar2, (string)adUser.Property("FirstName").Value + " " + adUser.Property("SurName").Value, ParameterDirection.Input);
                                     }
-                                    if (adUser.ContainsKey("Login_Date"))
+                                    if (adUser.ContainsKey("LoginDate"))
                                     {
-                                        command.Parameters.Add(":LOGIN_DATE", OracleDbType.TimeStamp, (DateTime)adUser.Property("Login_Date").Value, ParameterDirection.Input);
+                                        command.Parameters.Add(":LOGIN_DATE", OracleDbType.TimeStamp, (DateTime)adUser.Property("LoginDate").Value, ParameterDirection.Input);
                                     }
-                                    if (adUser.ContainsKey("App_Type"))
+                                    if (adUser.ContainsKey("AppType"))
                                     {
-                                        command.Parameters.Add(":APP_TYPE", OracleDbType.Varchar2, (string)adUser.Property("App_Type").Value, ParameterDirection.Input);
+                                        command.Parameters.Add(":APP_TYPE", OracleDbType.Varchar2, (string)adUser.Property("AppType").Value, ParameterDirection.Input);
                                     }
                                     command.ExecuteReader().Close();
+
                                 }
                             }
                         }
@@ -108,6 +110,13 @@ namespace Factory_of_the_Future
             catch (Exception e)
             {
                 new ErrorLogger().ExceptionLog(e);
+            }
+            finally
+            {
+
+                GC.Collect(GC.MaxGeneration, GCCollectionMode.Forced);
+                GC.WaitForPendingFinalizers();
+                GC.Collect(GC.MaxGeneration, GCCollectionMode.Forced);
             }
         }
 
@@ -166,18 +175,18 @@ namespace Factory_of_the_Future
             }
         }
 
-        public void LogoutUser(string DirectoryPath, JObject adUser)
+        public void LogoutUser(ADUser Ad_User)
         {
             try
             {
-                DirectoryInfo maindir = new DirectoryInfo(DirectoryPath);
-                if (maindir.Exists)
+                JObject adUser = JObject.Parse(JsonConvert.SerializeObject(Ad_User, Formatting.Indented, new JsonSerializerSettings() { ContractResolver = new NullToEmptyStringResolver() }));
+                if (AppParameters.CodeBase.Parent.Exists)
                 {
                     if (!string.IsNullOrEmpty(AppParameters.AppSettings.ContainsKey("ORACONNASSTRING") ? (string)AppParameters.AppSettings.Property("ORACONNASSTRING").Value : ""))
                     {
                         using (OracleConnection connection = new OracleConnection(AppParameters.Decrypt((string)AppParameters.AppSettings.Property("ORACONNASSTRING").Value)))
                         {
-                            string item2 = new FileIO().Read(string.Concat(maindir, AppParameters.ORAQuery), "UserSessionOUT_Query.txt");
+                            string item2 = new FileIO().Read(string.Concat(AppParameters.CodeBase.Parent.FullName.ToString(), AppParameters.ORAQuery), "UserSessionOUT_Query.txt");
                             if (!string.IsNullOrEmpty(item2))
                             {
                                 using (OracleCommand command = new OracleCommand(item2, connection))
@@ -188,7 +197,7 @@ namespace Factory_of_the_Future
                                     }
                                     command.Parameters.Clear();
                                     command.BindByName = true;
-                                    if (adUser.ContainsKey("UserId"))
+                                    if (adUser.ContainsKey("ConnectionId"))
                                     {
                                         command.Parameters.Add(":CONNECTIONID", OracleDbType.Varchar2, (string)adUser.Property("ConnectionId").Value, ParameterDirection.Input);
                                     }
@@ -203,6 +212,13 @@ namespace Factory_of_the_Future
             catch (Exception e)
             {
                 new ErrorLogger().ExceptionLog(e);
+            }
+            finally
+            {
+
+                GC.Collect(GC.MaxGeneration, GCCollectionMode.Forced);
+                GC.WaitForPendingFinalizers();
+                GC.Collect(GC.MaxGeneration, GCCollectionMode.Forced);
             }
         }
     }

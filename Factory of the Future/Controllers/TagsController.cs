@@ -13,7 +13,7 @@ namespace Factory_of_the_Future.Controllers
         [Route("")]
         public IEnumerable<JObject> GetTags()
         {
-            return AppParameters.Tag.Select(x => x.Value).ToList();
+            return null; // AppParameters.Tag.Select(x => x.Value).ToList();
         }
 
         //GET api/Tags/tag_id
@@ -21,7 +21,7 @@ namespace Factory_of_the_Future.Controllers
         [ResponseType(typeof(JObject))]
         public IEnumerable<JObject> GetTagbyID(string id)
         {
-            return AppParameters.Tag.Where(r => (string)r.Value["properties"]["id"] == id).Select(x => x.Value).ToList();
+            return null; //AppParameters.Tag.Where(r => (string)r.Value["properties"]["id"] == id).Select(x => x.Value).ToList();
         }
 
         //// GET api/<controller>

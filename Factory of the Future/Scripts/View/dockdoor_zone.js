@@ -109,7 +109,7 @@ var dockDoors = new L.GeoJSON(null, {
             sidebar.open('home');
             LoadDockDoorTable(feature.properties);
         })
-        layer.bindTooltip(feature.properties.doorNumber.replace(/^0+/, ''), {
+        layer.bindTooltip(feature.properties.name.replace(/\D+/g, "").replace(/^0+/, ''), {
             permanent: true,
             direction: 'center',
             opacity: 0.9,
@@ -441,7 +441,7 @@ async function LoadDoorDetails(door) {
     if (dockDoors.hasOwnProperty("_layers")) {
         $.map(dockDoors._layers, function (layer, i) {
             if (layer.hasOwnProperty("feature")) {
-                if (parseInt(layer.feature.properties.doorNumber) === parseInt(door)) {
+                if (parseInt(layer.feature.properties.name.replace(/\D+/g, "").replace(/^0+/, '')) === parseInt(door)) {
                     var Center = new L.latLng(
                         (layer._bounds._southWest.lat + layer._bounds._northEast.lat) / 2,
                         (layer._bounds._southWest.lng + layer._bounds._northEast.lng) / 2);

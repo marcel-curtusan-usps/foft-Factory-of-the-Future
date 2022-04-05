@@ -1,7 +1,10 @@
 ﻿using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using Newtonsoft.Json.Serialization;
 using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
 
 namespace Factory_of_the_Future
 {
@@ -27,7 +30,607 @@ namespace Factory_of_the_Future
         WaitAll = 2,
         Parallel = 3
     }
-  
+
+    public class ADUser
+    {
+        public string UserId { get; set; }
+        public string FacilityName { get; set; }
+        public string FacilityTimeZone { get; set; }
+        public string Environment { get; set; }
+        public string PageType { get; set; }
+        public string Role { get; set; }
+        public string ZipCode { get; set; }
+        public string BrowserType { get; set; }
+        public string BrowserName { get; set; }
+        public string BrowserVersion { get; set; }
+        public string FirstName { get; set; }
+        public string SurName { get; set; }
+        public string IpAddress { get; set; }
+        public string ServerIpAddress { get; set; }
+        public string MiddleName { get; set; }
+        public string Error { get; set; }
+        public string AppType { get; set; }
+        public string SoftwareVersion { get; set; }
+        public string Domain { get; set; }
+        public string NASSCode { get; set; }
+        public string FDBID { get; set; }
+        public DateTime LoginDate { get; set; }
+        public string SessionID { get; set; }
+        public bool IsAuthenticated { get; set; }
+        public string GroupNames { get; set; }
+        public string ConnectionId { get; set; }
+        public string VoiceTelephoneNumber { get; set; }
+        public string EmailAddress { get; set; }
+        public string Phone { get; set; }
+        public string EIN { get; set; }
+        public string TAGID { get; set; }
+    }
+    public class Locator
+    {
+        [JsonProperty("locationLocked")]
+        public bool LocationLocked { get; set; }
+
+        [JsonProperty("orientation")]
+        public List<double> Orientation { get; set; }
+
+        [JsonProperty("visible")]
+        public bool Visible { get; set; }
+
+        [JsonProperty("notes")]
+        public string Notes { get; set; }
+
+        [JsonProperty("focusingErrorDeg")]
+        public double FocusingErrorDeg { get; set; }
+
+        [JsonProperty("color")]
+        public string Color { get; set; }
+
+        [JsonProperty("isOrientationSetManually")]
+        public bool IsOrientationSetManually { get; set; }
+
+        [JsonProperty("associatedAreas")]
+        public List<string> AssociatedAreas { get; set; }
+
+        [JsonProperty("locationLockedX")]
+        public bool LocationLockedX { get; set; }
+
+        [JsonProperty("locatorChannel")]
+        public string LocatorChannel { get; set; }
+
+        [JsonProperty("locationLockedZ")]
+        public bool LocationLockedZ { get; set; }
+
+        [JsonProperty("locationLockedY")]
+        public bool LocationLockedY { get; set; }
+
+        [JsonProperty("locatorType")]
+        public string LocatorType { get; set; }
+
+        [JsonProperty("name")]
+        public string Name { get; set; }
+
+        [JsonProperty("location")]
+        public List<double> Location { get; set; }
+
+        [JsonProperty("id")]
+        public string Id { get; set; }
+        [JsonProperty("rawData")]
+        public string RawData { get; set; }
+        [JsonProperty("locatorUpdate")]
+        public bool LocatorUpdate { get; set; }
+    }
+
+    public class BackgroundImage
+    {
+        [JsonProperty("widthMeter")]
+        public double WidthMeter { get; set; }
+
+        [JsonProperty("xMeter")]
+        public double XMeter { get; set; }
+
+        [JsonProperty("visible")]
+        public bool Visible { get; set; }
+
+        [JsonProperty("otherCoordSys")]
+        public string OtherCoordSys { get; set; }
+
+        [JsonProperty("rotation")]
+        public int Rotation { get; set; }
+
+        [JsonProperty("base64")]
+        public string Base64 { get; set; }
+
+        [JsonProperty("origoY")]
+        public double OrigoY { get; set; }
+
+        [JsonProperty("origoX")]
+        public double OrigoX { get; set; }
+
+        [JsonProperty("heightMeter")]
+        public double HeightMeter { get; set; }
+
+        [JsonProperty("yMeter")]
+        public double YMeter { get; set; }
+
+        [JsonProperty("alpha")]
+        public int Alpha { get; set; }
+
+        [JsonProperty("id")]
+        public string Id { get; set; }
+
+        [JsonProperty("metersPerPixelY")]
+        public double MetersPerPixelY { get; set; }
+
+        [JsonProperty("metersPerPixelX")]
+        public double MetersPerPixelX { get; set; }
+        [JsonProperty("updateStatus")]
+        public bool UpdateStatus { get; set; } = false;
+        [JsonProperty("rawData")]
+        public string RawData { get; set; }
+    }
+
+    public class TrackingArea
+    {
+        [JsonProperty("notes")]
+        public string Notes { get; set; }
+
+        [JsonProperty("maxZ")]
+        public int MaxZ { get; set; }
+
+        [JsonProperty("name")]
+        public string Name { get; set; }
+
+        [JsonProperty("id")]
+        public string Id { get; set; }
+
+        [JsonProperty("minZ")]
+        public int MinZ { get; set; }
+
+        [JsonProperty("track3d")]
+        public bool Track3d { get; set; }
+
+        [JsonProperty("trackingAreaGroup")]
+        public string TrackingAreaGroup { get; set; }
+    }
+
+    public class PolygonHole
+    {
+        [JsonProperty("locationLocked")]
+        public bool LocationLocked { get; set; }
+
+        [JsonProperty("notes")]
+        public string Notes { get; set; }
+
+        [JsonProperty("visible")]
+        public bool Visible { get; set; }
+
+        [JsonProperty("name")]
+        public string Name { get; set; }
+
+        [JsonProperty("polygonData")]
+        public string PolygonData { get; set; }
+
+        [JsonProperty("id")]
+        public string Id { get; set; }
+    }
+
+    public class Polygon
+    {
+        [JsonProperty("locationLocked")]
+        public bool LocationLocked { get; set; }
+
+        [JsonProperty("notes")]
+        public string Notes { get; set; }
+
+        [JsonProperty("visible")]
+        public bool Visible { get; set; }
+
+        [JsonProperty("color")]
+        public string Color { get; set; }
+
+        [JsonProperty("name")]
+        public string Name { get; set; }
+
+        [JsonProperty("polygonData")]
+        public string PolygonData { get; set; }
+
+        [JsonProperty("trackingArea")]
+        public TrackingArea TrackingArea { get; set; }
+
+        [JsonProperty("id")]
+        public string Id { get; set; }
+
+        [JsonProperty("polygonHoles")]
+        public List<PolygonHole> PolygonHoles { get; set; }
+    }
+    public class Geometry
+    {
+        [JsonProperty("type")]
+        public string Type { get; set; }
+
+        [JsonProperty("coordinates")]
+        public List<List<List<double>>> Coordinates { get; set; }
+    }
+
+    public class MissionList
+    {
+        [JsonProperty("Request_Id")]
+        public string RequestId { get; set; }
+
+        [JsonProperty("Vehicle")]
+        public string Vehicle { get; set; }
+
+        [JsonProperty("Vehicle_Number")]
+        public string VehicleNumber { get; set; }
+
+        [JsonProperty("Pickup_Location")]
+        public string PickupLocation { get; set; }
+
+        [JsonProperty("Dropoff_Location")]
+        public string DropoffLocation { get; set; }
+
+        [JsonProperty("End_Location")]
+        public string EndLocation { get; set; }
+
+        [JsonProperty("Door")]
+        public string Door { get; set; }
+
+        [JsonProperty("ETA")]
+        public string ETA { get; set; }
+
+        [JsonProperty("Placard")]
+        public string Placard { get; set; }
+
+        [JsonProperty("QueuePosition")]
+        public string QueuePosition { get; set; }
+
+        [JsonProperty("State")]
+        public string State { get; set; }
+
+        [JsonProperty("MissionType")]
+        public string MissionType { get; set; }
+
+        [JsonProperty("MissionRequestTime")]
+        public DateTime MissionRequestTime { get; set; }
+
+        [JsonProperty("MissionAssignedTime")]
+        public DateTime? MissionAssignedTime { get; set; }
+
+        [JsonProperty("MissionPickupTime")]
+        public DateTime? MissionPickupTime { get; set; }
+    }
+
+    public class Properties
+    {
+        [JsonProperty("id")]
+        public string Id { get; set; }
+
+        [JsonProperty("visible")]
+        public bool Visible { get; set; }
+
+        [JsonProperty("color")]
+        public string Color { get; set; }
+
+        [JsonProperty("name")]
+        public string Name { get; set; }
+
+        [JsonProperty("Zone_TS")]
+        public DateTime ZoneTS { get; set; }
+
+        [JsonProperty("Zone_Update")]
+        public bool ZoneUpdate { get; set; }
+
+        [JsonProperty("Zone_Type")]
+        public string ZoneType { get; set; }
+
+        [JsonProperty("MPEWatchData")]
+        public string MPEWatchData { get; set; }
+
+        [JsonProperty("MPE_Type")]
+        public string MPEType { get; set; }
+
+        [JsonProperty("MPE_Number")]
+        public string MPENumber { get; set; }
+
+        [JsonProperty("DPSData")]
+        public string DPSData { get; set; }
+
+        [JsonProperty("CurrentStaff")]
+        public int CurrentStaff { get; set; }
+
+        [JsonProperty("rawData")]
+        public string RawData { get; set; }
+
+        [JsonProperty("MissionList")]
+        public List<MissionList> MissionList { get; set; } = new List<MissionList>();
+    }
+
+    public class GeoZone
+    {
+        [JsonProperty("type")]
+        public string Type { get; set; }
+
+        [JsonProperty("geometry")]
+        public Geometry Geometry { get; set; }
+
+        [JsonProperty("properties")]
+        public Properties Properties { get; set; }
+    }
+    public class GeoMarker
+    {
+        [JsonProperty("type")]
+        public string Type { get; set; }
+
+        [JsonProperty("geometry")]
+        public Geometry Geometry { get; set; }
+
+        [JsonProperty("properties")]
+        public Marker Properties { get; set; }
+    }
+    public class Marker
+    {
+        [JsonProperty("id")]
+        public string Id { get; set; }
+        [JsonProperty("rFId")]
+        public string RFid { get; set; }
+
+        [JsonProperty("visible")]
+        public bool Visible { get; set; }
+
+        [JsonProperty("zones")]
+        public List<Zone> Zones { get; set; }
+
+        [JsonProperty("color")]
+        public string Color { get; set; }
+
+        [JsonProperty("tagVisible")]
+        public bool TagVisible { get; set; }
+
+        [JsonProperty("tagVisibleMils")]
+        public int TagVisibleMils { get; set; }
+
+        [JsonProperty("isWearingTag")]
+        public bool IsWearingTag { get; set; }
+
+        [JsonProperty("name")]
+        public string Name { get; set; }
+
+        [JsonProperty("craftName")]
+        public string CraftName { get; set; }
+
+        [JsonProperty("positionTS")]
+        public DateTime PositionTS { get; set; }
+
+        [JsonProperty("Tag_TS")]
+        public DateTime TagTS { get; set; }
+
+        [JsonProperty("Tag_Type")]
+        public string TagType { get; set; }
+
+        [JsonProperty("Tag_Update")]
+        public bool TagUpdate { get; set; }
+
+        [JsonProperty("empId")]
+        public string EmpId { get; set; }
+
+        [JsonProperty("emptype")]
+        public string Emptype { get; set; }
+
+        [JsonProperty("empName")]
+        public string EmpName { get; set; }
+
+        [JsonProperty("isLdcAlert")]
+        public bool IsLdcAlert { get; set; }
+
+        [JsonProperty("currentLDCs")]
+        public string CurrentLDCs { get; set; }
+
+        [JsonProperty("tacs")]
+        public string Tacs { get; set; }
+
+        [JsonProperty("sels")]
+        public string Sels { get; set; }
+
+        [JsonProperty("Raw_Data")]
+        public string RawData { get; set; }
+    }
+
+
+    public class Zone
+    {
+        [JsonProperty("locationLocked")]
+        public bool LocationLocked { get; set; }
+
+        [JsonProperty("notes")]
+        public string Notes { get; set; }
+
+        [JsonProperty("visible")]
+        public bool Visible { get; set; }
+
+        [JsonProperty("color")]
+        public string Color { get; set; }
+
+        [JsonProperty("zoneGroupId")]
+        public string ZoneGroupId { get; set; }
+
+        [JsonProperty("name")]
+        public string Name { get; set; }
+
+        [JsonProperty("polygonData")]
+        public string PolygonData { get; set; }
+
+        [JsonProperty("id")]
+        public string Id { get; set; }
+
+        [JsonProperty("polygonHoles")]
+        public List<object> PolygonHoles { get; set; }
+        [JsonIgnore]
+        public bool UpdateStatus { get; set; } = false;
+    }
+
+    public class CoordinateSystem
+    {
+        [JsonProperty("locators")]
+        public List<Locator> Locators { get; set; }
+
+        [JsonProperty("backgroundImages")]
+        public List<BackgroundImage> BackgroundImages { get; set; }
+
+        [JsonProperty("relativeZ")]
+        public int RelativeZ { get; set; }
+
+        [JsonProperty("polygons")]
+        public List<Polygon> Polygons { get; set; }
+
+        [JsonProperty("name")]
+        public string Name { get; set; }
+
+        [JsonProperty("id")]
+        public string Id { get; set; }
+
+        [JsonProperty("zones")]
+        public List<Zone> Zones { get; set; }
+    }
+
+    public class ZoneGroup
+    {
+        [JsonProperty("notes")]
+        public string Notes { get; set; }
+
+        [JsonProperty("color")]
+        public string Color { get; set; }
+
+        [JsonProperty("smartZone")]
+        public bool SmartZone { get; set; }
+
+        [JsonProperty("hideLocation")]
+        public bool HideLocation { get; set; }
+
+        [JsonProperty("activationCommands")]
+        public List<object> ActivationCommands { get; set; }
+
+        [JsonProperty("name")]
+        public string Name { get; set; }
+
+        [JsonProperty("id")]
+        public string Id { get; set; }
+
+        [JsonProperty("rfBlocking")]
+        public bool RfBlocking { get; set; }
+    }
+
+    public class TrackTagGroups
+    {
+        [JsonProperty("tagGroups")]
+        public object TagGroups { get; set; }
+
+        [JsonProperty("allTags")]
+        public bool AllTags { get; set; }
+    }
+
+    public class TrackingAreaGroup
+    {
+        [JsonProperty("notes")]
+        public string Notes { get; set; }
+
+        [JsonProperty("color")]
+        public string Color { get; set; }
+
+        [JsonProperty("trackTagGroups")]
+        public TrackTagGroups TrackTagGroups { get; set; }
+
+        [JsonProperty("name")]
+        public string Name { get; set; }
+
+        [JsonProperty("radiusThreshold")]
+        public double RadiusThreshold { get; set; }
+
+        [JsonProperty("snapToPolygonDistanceZ")]
+        public int SnapToPolygonDistanceZ { get; set; }
+
+        [JsonProperty("id")]
+        public string Id { get; set; }
+
+        [JsonProperty("type")]
+        public string Type { get; set; }
+
+        [JsonProperty("snapToPolygonDistance")]
+        public double SnapToPolygonDistance { get; set; }
+
+        [JsonProperty("mode3d")]
+        public string Mode3d { get; set; }
+    }
+
+    public class TagGroup
+    {
+        [JsonProperty("trackHeight")]
+        public double TrackHeight { get; set; }
+
+        [JsonProperty("notes")]
+        public string Notes { get; set; }
+
+        [JsonProperty("color")]
+        public string Color { get; set; }
+
+        [JsonProperty("sensorOnly")]
+        public bool SensorOnly { get; set; }
+
+        [JsonProperty("name")]
+        public string Name { get; set; }
+
+        [JsonProperty("unknownTags")]
+        public bool UnknownTags { get; set; }
+
+        [JsonProperty("id")]
+        public string Id { get; set; }
+
+        [JsonProperty("track3d")]
+        public bool Track3d { get; set; }
+
+        [JsonProperty("track")]
+        public bool Track { get; set; }
+    }
+
+    public class ProjectInfo
+    {
+        [JsonProperty("coordinateSystems")]
+        public List<CoordinateSystem> CoordinateSystems { get; set; }
+
+        [JsonProperty("gatewayFilters")]
+        public List<object> GatewayFilters { get; set; }
+
+        [JsonProperty("code")]
+        public int Code { get; set; }
+
+        [JsonProperty("responseTS")]
+        public long ResponseTS { get; set; }
+
+        [JsonProperty("zoneGroups")]
+        public List<ZoneGroup> ZoneGroups { get; set; }
+
+        [JsonProperty("trackingAreaGroups")]
+        public List<TrackingAreaGroup> TrackingAreaGroups { get; set; }
+
+        [JsonProperty("tagGroups")]
+        public List<TagGroup> TagGroups { get; set; }
+
+        [JsonProperty("message")]
+        public string Message { get; set; }
+
+        [JsonProperty("version")]
+        public string Version { get; set; }
+
+        [JsonProperty("command")]
+        public string Command { get; set; }
+
+        [JsonProperty("status")]
+        public string Status { get; set; }
+
+        [JsonProperty("localdata")]
+        public bool Localdata { get; set; }
+    }
+
+
     public class JObject_List
     {
         public JObject _notification_conditions = new JObject();
@@ -70,8 +673,54 @@ namespace Factory_of_the_Future
             set { return; }
         }
 
-        public JObject api = new JObject();
+        
+        public JObject _container = new JObject();
+        public JObject Container
+        {
+            get
+            {
+                _container["placardBarcode"] = "";
+                _container["mailClassDisplay"] = "";
+                _container["mailClass"] = "";
+                _container["mailTypeDisplay"] = "";
+                _container["containerTypeDisplay"] = "";
+                _container["origin"] = "";
+                _container["originName"] = "";
+                _container["dest"] = "";
+                _container["destinationName"] = "";
+                _container["opArea"] = "";
+                _container["opAreaDesc"] = "";
+                _container["eventSite"] = "";
+                _container["eventSiteName"] = "";
+                _container["eventSiteType"] = "";
+                _container["eventDisplay"] = "";
+                _container["eventDtm"] = "";
+                _container["redirected"] = "";
+                _container["redirectInd"] = "";
+                _container["location"] = "";
+                _container["binDisplay"] = "";
+                _container["trailer"] = "";
+                _container["route"] = "";
+                _container["trip"] = "";
+                _container["source"] = "";
+                _container["userId"] = "";
+                _container["hasMissedAssign"] = 0;
+                _container["hasMissedClose"] = 0;
+                _container["hasMissedLoad"] = 0;
+                _container["hasMissedUnload"] = 0;
+                _container["hasAssignScans"] = 0;
+                _container["hasCloseScans"] = 0;
+                _container["hasLoadScans"] = 0;
+                _container["hasUnloadScans"] = 0;
+                _container["assignLocation"] = "";
+                _container["complianceDate"] = "";
+                _container["containerRedirectedDest"] = "";
 
+                return _container;
+            }
+            set { return; }
+        }
+        public JObject api = new JObject();
         public JObject API
         {
             get
@@ -402,79 +1051,100 @@ namespace Factory_of_the_Future
     }
     public class Connection
     {
-        [JsonProperty("id")]
-        public string ID;
+        [JsonProperty("ActiveConnection")]
+        public bool ActiveConnection { get; set; } = false;
+        [JsonProperty("AdminEmailRecepient")]
+        public string AdminEmailRecepient { get; set; }
+        [JsonProperty("ApiConnected")]
+        public bool ApiConnected { get; set; } = false;
+        [JsonProperty("ConnectionName")]
+        public string ConnectionName { get; set; } = "";
+        [JsonProperty("CreatedByUsername")]
+        public string CreatedByUsername { get; set; } = "";
+        [JsonProperty("CreatedDate")]
+        public DateTime CreatedDate { get; set; } = DateTime.Now;
+        [JsonProperty("DataRetrieve")]
+        public int DataRetrieve { get; set; } = 60000;
+        [JsonProperty("DeactivatedByUsername")]
+        public string DeactivatedByUsername { get; set; } = "";
+        [JsonProperty("DeactivatedDate")]
+        public DateTime DeactivatedDate { get; set; }
+        [JsonProperty("Hostname")]
+        public string Hostname { get; set; } = "";
+        [JsonProperty("HoursBack")]
+        public int HoursBack { get; set; } = 0;
+        [JsonProperty("HoursForward")]
+        public int HoursForward { get; set; } = 0;
+        [JsonProperty("Https")]
+        public bool Https { get; set; } = false;
+        [JsonProperty("Id")]
+        public string Id { get; set; } = Guid.NewGuid().ToString();
+        [JsonProperty("IpAddress")]
+        public string IpAddress { get; set; } = "";
+        [JsonProperty("LasttimeApiConnected")]
+        public DateTime LasttimeApiConnected { get; set; }
+        [JsonProperty("LastupDate")]
+        public DateTime LastupDate { get; set; }
+        [JsonProperty("LastupdateByUsername")]  
+        public string LastupdateByUsername { get; set; } = "";
+        [JsonProperty("MessageType")]
+        public string MessageType { get; set; } = "";
+        [JsonProperty("NassCode")]
+        public string NassCode { get; set; } = "";
+        [JsonProperty("OutgoingApikey")]
+        public string OutgoingApikey { get; set; } = "";
+        [JsonProperty("Port")]
+        public Int32 Port { get; set; } = 0;
+        [JsonProperty("UdpConnection")]
+        public bool UdpConnection { get; set; } = false;
+        [JsonIgnore]
+        public bool UpdateStatus { get; set; } = false;
+        [JsonProperty("Url")]
+        public string Url { get; set; } = "";
 
-        [JsonProperty("CONNECTION_NAME")]
-        public string CONNECTION_NAME;
-
-        [JsonProperty("CREATED_DATE")]
-        public DateTime CREATED_DATE;
-
-        [JsonProperty("CREATED_BY_USERNAME")]
-        public string CREATED_BY_USERNAME;
-
-        [JsonProperty("LASTUP_DATE")]
-        public string LASTUP_DATE;
-
-        [JsonProperty("LASTUPDATE_BY_USERNAME")]
-        public string LASTUPDATE_BY_USERNAME;
-
-        [JsonProperty("ACTIVE_CONNECTION")]
-        public bool ACTIVE_CONNECTION;
-
-        [JsonProperty("UDP_CONNECTION")]
-        public bool UDP_CONNECTION;
-
-        [JsonProperty("DEACTIVATED_BY_USERNAME")]
-        public string DEACTIVATED_BY_USERNAME;
-
-        [JsonProperty("DEACTIVATED_DATE")]
-        public string DEACTIVATE_DDATE;
-
-        [JsonProperty("CONECTION_CONNECTED")]
-        public bool CONECTION_CONNECTED;
-
-        [JsonProperty("UPDATE_STATUS")]
-        public bool UPDATE_STATUS;
-
-        [JsonProperty("LASTTIME_CONECTION_CONNECTED")]
-        public DateTime LASTTIME_CONECTION_CONNECTED;
-
-        [JsonProperty("DATA_RETRIEVE")]
-        public int DATA_RETRIEVE;
-
-        [JsonProperty("HTTPS")]
-        public bool HTTPS;
-
-        [JsonProperty("ADMIN_EMAIL_RECEPIENT")]
-        public string ADMIN_EMAIL_RECEPIENT;
-
-        [JsonProperty("HOSTNAME")]
-        public string HOSTNAME;
-
-        [JsonProperty("IP_ADDRESS")]
-        public string IP_ADDRESS;
-
-        [JsonProperty("PORT")]
-        public int PORT;
-
-        [JsonProperty("URL")]
-        public string URL;
-
-        [JsonProperty("OUTGOING_APIKEY")]
-        public string OUTGOING_APIKEY;
-
-        [JsonProperty("MESSAGE_TYPE")]
-        public string MESSAGE_TYPE;
-
-        [JsonProperty("HOURS_BACK")]
-        public string HOURS_BACK;
-
-        [JsonProperty("HOURS_FORWARD")]
-        public string HOURS_FORWARD;
     }
+    public class Cameras
+    {
+        [JsonProperty("LOCALE_KEY")]
+        public string LocaleKey { get; set; }
 
+        [JsonProperty("MODEL_NUM")]
+        public string ModelNum { get; set; }
+
+        [JsonProperty("FACILITY_PHYS_ADDR_TXT")]
+        public string FacilityPhysAddrTxt { get; set; }
+
+        [JsonProperty("GEO_PROC_REGION_NM")]
+        public string GeoProcRegionNm { get; set; }
+
+        [JsonProperty("FACILITY_SUBTYPE_DESC")]
+        public string FacilitySubtypeDesc { get; set; }
+
+        [JsonProperty("GEO_PROC_DIVISION_NM")]
+        public string GeoProcDivisionNm { get; set; }
+
+        [JsonProperty("AUTH_KEY")]
+        public string AuthKey { get; set; }
+
+        [JsonProperty("FACILITY_LATITUDE_NUM")]
+        public double FacilitiyLatitudeNum { get; set; }
+
+        [JsonProperty("FACILITY_LONGITUDE_NUM")]
+        public double FacilitiyLongitudeNum { get; set; }
+
+        [JsonProperty("CAMERA_NAME")]
+        public string CameraName { get; set; }
+
+        [JsonProperty("DESCRIPTION")]
+        public string Description { get; set; }
+
+        [JsonProperty("REACHABLE")]
+        public string Reachable { get; set; }
+
+        [JsonProperty("FACILITY_DISPLAY_NME")]
+        public string FacilityDisplayName { get; set; }
+
+    }
     public class Event
     {
         [JsonProperty("eventName")]
@@ -1227,5 +1897,43 @@ namespace Factory_of_the_Future
 
         [JsonProperty("legOriginMSPBarcode")]
         public string LegOriginMSPBarcode;
+    }
+    public class NullToEmptyStringResolver : Newtonsoft.Json.Serialization.DefaultContractResolver
+    {
+        protected override IList<JsonProperty> CreateProperties(Type type, MemberSerialization memberSerialization)
+        {
+            return type.GetProperties()
+                    .Select(p =>
+                    {
+                        var jp = base.CreateProperty(p, memberSerialization);
+                        jp.ValueProvider = new NullToEmptyStringValueProvider(p);
+                        return jp;
+                    }).ToList();
+        }
+    }
+    public class NullToEmptyStringValueProvider : IValueProvider
+    {
+        readonly PropertyInfo _MemberInfo;
+        public NullToEmptyStringValueProvider(PropertyInfo memberInfo)
+        {
+            _MemberInfo = memberInfo;
+        }
+
+        public object GetValue(object target)
+        {
+            object result = _MemberInfo.GetValue(target);
+            if (_MemberInfo.PropertyType == typeof(string) && result == null)
+            {
+                result = "";
+            }
+
+            return result;
+
+        }
+
+        public void SetValue(object target, object value)
+        {
+            _MemberInfo.SetValue(target, value);
+        }
     }
 }

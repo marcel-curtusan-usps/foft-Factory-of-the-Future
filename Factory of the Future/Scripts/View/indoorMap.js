@@ -193,54 +193,7 @@ async function init_Map() {
             if (MapData.length === 1) {
                 MapData = MapData[0];
                 if (!$.isEmptyObject(MapData)) {
-                    if (MapData.hasOwnProperty("Facility_TimeZone")) {
-                        if (checkValue(MapData.Facility_TimeZone)) {
-                            timezone = { Facility_TimeZone: MapData.Facility_TimeZone }
-                        }
-                    }
-                    if (MapData.hasOwnProperty("Software_Version")) {
-                        if (checkValue(MapData.Software_Version)) {
-                            map.attributionControl.setPrefix("USPS Factory of the Future (" + MapData.Software_Version + ")");
-                        }
-                    }
-                    if (MapData.hasOwnProperty("Facility_Name")) {
-                        if (checkValue(MapData.Facility_Name)) {
-                            $('#fotf-site-facility-name').append(MapData.Facility_Name);
-                            map.attributionControl.addAttribution(MapData.Facility_Name);
-                            $(document).prop('title', MapData.Facility_Name + ' FOTF');
-                        }
-                    }
-
-                    if (MapData.hasOwnProperty("Environment")) {
-                        //Environment Status Controls
-                        if (/(DEV|SIT|CAT)/i.test(MapData.Environment)) {
-                            var Environment = L.Control.extend({
-                                options: {
-                                    position: 'topright'
-                                },
-                                onAdd: function () {
-                                    var Domcntainer = L.DomUtil.create('input');
-                                    Domcntainer.type = "button";
-                                    Domcntainer.id = "environment";
-                                    Domcntainer.className = getEnv(MapData.Environment);
-                                    Domcntainer.value = MapData.Environment;
-                                    return Domcntainer;
-                                }
-                            });
-                            map.addControl(new Environment());
-                            function getEnv(env) {
-                                if (/CAT/i.test(env)) {
-                                    return "btn btn-outline-primary btn-sm";
-                                }
-                                else if (/SIT/i.test(env)) {
-                                    return "btn btn-outline-warning btn-sm";
-                                }
-                                else if (/DEV/i.test(env)) {
-                                    return "btn btn-outline-danger btn-sm";
-                                }
-                            }
-                        }
-                    }
+             
                     //set new image
                     var img = new Image();
                     //load Base64 image
@@ -252,7 +205,7 @@ async function init_Map() {
                     L.imageOverlay(img.src, trackingarea.getBounds()).addTo(map);
 
                     //center image
-                    map.setView(trackingarea.getBounds().getCenter(), 1.5);
+                    map.setView(trackingarea.getBounds().getCenter(), 1.7);
 
                 }
             }
@@ -500,11 +453,10 @@ async function GetUserInfo() {
     }
 }
 async function GetUserProfile() {
-    $.connection.FOTFManager.server.getADUserProfile().done(function (User) {
+    if (!$.isEmptyObject(User)) {
         $('#userfullname').text(User.FirstName + ' ' + User.SurName);
         $('#useremail').text(User.EmailAddress);
         $('#userphone').text(User.Phone);
         $('#usertitel').text(User.Role);
-
-    });
+    }
 }

@@ -333,21 +333,11 @@ async function updateConnection(Connectionupdate) {
     try {
         if (/^Admin/i.test(User.Role)) {
             if (!$.isEmptyObject(Connectionupdate)) {
-                var api_tr = $("#api_" + Connectionupdate.id);
-                if (api_tr.length > 0) {
-                    var new_status = GetConnectionStatus(Connectionupdate);
-                    var currentstatus = $("#apistatus_" + Connectionupdate.id).text();
-                    if (new_status !== currentstatus) {
-                        $("#apistatus_" + Connectionupdate.id).text(new_status);
-                    }
-                    var new_btn_category = Get_Color(Connectionupdate);
-                    var current_btn_category = $("#api_" + Connectionupdate.id).attr("class");
-                    if (new_btn_category !== current_btn_category) {
-                        $("#api_" + Connectionupdate.id).addClass(new_btn_category).removeClass(current_btn_category);
-                    }
+                var connectionNode = document.querySelector("[id=api_" + Connectionupdate.Id + "]");
+                if (connectionNode) {
+                    connection_Table_Body.find("tr[id=api_" + Connectionupdate.Id + "]").replaceWith(connection_row_template.supplant(formatQSMlayout(Connectionupdate)))
                 }
                 else {
-                 
                     connection_Table_Body.append(connection_row_template.supplant(formatQSMlayout(Connectionupdate)));
                 }
             }
@@ -356,7 +346,6 @@ async function updateConnection(Connectionupdate) {
         console.log(e);
     }
 }
-
 async function init_connection() {
     try {
         connection_Table = $('table[id=connectiontable]');
@@ -387,9 +376,9 @@ let connection_row_template = '<tr data-id="{id}" class="{button_color}" id="api
     '</tr>';
 function formatQSMlayout(conn_status) {
     return $.extend(conn_status, {
-        id: conn_status.id,
-        name: conn_status.CONNECTION_NAME,
-        messagetype: conn_status.MESSAGE_TYPE,
+        id: conn_status.Id,
+        name: conn_status.ConnectionName,
+        messagetype: conn_status.MessageType,
         connected: GetConnectionStatus(conn_status),
         button_color: Get_Color(conn_status)
     });
@@ -399,47 +388,33 @@ function Add_Connection() {
     $('button[id=apisubmitBtn]').off().on('click', function () {
         $('button[id=apisubmitBtn]').prop('disabled', true);
         $('input[type=checkbox][name=udp_connection]').prop('disabled', false);
-        var jsonObject = {};
-
-        //connection active
-        jsonObject.ACTIVE_CONNECTION = $('input[type=checkbox][name=active_connection]').is(':checked');
-        jsonObject.UDP_CONNECTION = $('input[type=checkbox][name=udp_connection]').is(':checked');
-        // assign values to Json object if they are not empty
-        jsonObject.CONNECTION_NAME = $('input[type=text][name=connection_name]').val();
-        checkValue($('input[type=text][name=hostname]').val()) ? jsonObject.HOSTNAME = $('input[type=text][name=hostname]').val() : '';
-        checkValue($('input[type=text][name=ip_address]').val()) ? jsonObject.IP_ADDRESS = $('input[type=text][name=ip_address]').val() : '';
-        checkValue($('input[type=text][name=port_number]').val()) ? jsonObject.PORT = $('input[type=text][name=port_number]').val() : '';
-        checkValue($('input[type=text][name=url]').val()) ? jsonObject.URL = $('input[type=text][name=url]').val() : '';
-/*        checkValue($('input[type=text][name=outgoingapikey]').val()) ? jsonObject.OUTGOING_APIKEY = $('input[type=text][name=outgoingapikey]').val() : '';*/
-        checkValue($('input[type=text][name=message_type]').val()) ? jsonObject.MESSAGE_TYPE = $('input[type=text][name=message_type]').val() : '';
-        checkValue($('select[name=data_retrieve] option:selected').val()) ? jsonObject.DATA_RETRIEVE = $('select[name=data_retrieve] option:selected').val() : '';
-        checkValue($('input[type=text][name=admin_email_recepient]').val()) ? jsonObject.ADMIN_EMAIL_RECEPIENT = $('input[type=text][name=admin_email_recepient]').val() : '';
-        if ($('input[type=checkbox][name=hour_range]').is(':checked')) {
-            jsonObject.HOURS_FORWARD = parseInt($('input[id=hoursforward_range]').val());
-            jsonObject.HOURS_BACK = parseInt($('input[id=hoursback_range]').val());
-        }
-        else {
-            jsonObject.HOURS_FORWARD = "";
-            jsonObject.HOURS_BACK = "";
-        }
+        var jsonObject = {
+            ActiveConnection: $('input[type=checkbox][name=active_connection]').is(':checked'),
+            UdpConnection: $('input[type=checkbox][name=udp_connection]').is(':checked'),
+            HoursBack: parseInt($('input[id=hoursforward_range]').val()),
+            HoursForward: parseInt($('input[id=hoursback_range]').val()),
+            DataRetrieve: $('select[name=data_retrieve] option:selected').val(),
+            ConnectionName: $('input[type=text][name=connection_name]').val(),
+            IpAddress: $('input[type=text][name=ip_address]').val(),
+            Port: $('input[type=text][name=port_number]').val(),
+            Url: $('input[type=text][name=url]').val(),
+            MessageType: $('input[type=text][name=message_type]').val(),
+            AdminEmailRecepient: $('input[type=text][name=admin_email_recepient').val(),
+            CreatedByUsername: User.UserId,
+            NassCode: User.Facility_NASS_Code,
+        };
         if (!$.isEmptyObject(jsonObject)) {
-            jsonObject.CREATED_BY_USERNAME = User.UserId;
             $.connection.FOTFManager.server.addAPI(JSON.stringify(jsonObject)).done(function (Data) {
                 if (Data.length === 1) {
-                    if (Data.hasOwnProperty("ID")) {
-                        $('span[id=error_apisubmitBtn]').text(Data[0].CONNECTION_NAME + " " + Data[0].MESSAGE_TYPE + " Connection has been Added");
-                        setTimeout(function () { $("#API_Connection_Modal").modal('hide'); sidebar.open('connections'); }, 1500);
-                    }
-                    else {
-                        $('span[id=error_apisubmitBtn]').text(Data[0].CONNECTION_NAME + " " + Data[0].MESSAGE_TYPE + " Connection has been Added");
-                        setTimeout(function () { $("#API_Connection_Modal").modal('hide'); sidebar.open('connections'); }, 1500);
-                    }
+                    updateConnection(Data[0]);
+                    $('span[id=error_apisubmitBtn]').text(Data[0].ConnectionName + " " + Data[0].MessageType + " Connection has been Added");
+                    setTimeout(function () { $("#API_Connection_Modal").modal('hide'); sidebar.open('connections'); }, 1500);
                 }
                 else {
                     $('span[id=error_apisubmitBtn]').text("Error Adding Connection");
                 }
             });
-        };
+        }
     });
     $('#API_Connection_Modal').modal();
 }
@@ -473,33 +448,33 @@ function Edit_Connection(id) {
             });
             $('input[type=checkbox][name=udp_connection]').prop('disabled', true);
             if (!$.isEmptyObject(Data)) {
-                $('input[type=text][name=connection_name]').val(Data.CONNECTION_NAME);
-                $('input[type=text][name=ip_address]').val(Data.IP_ADDRESS);
-                $('input[type=text][name=hostname]').val(Data.HOSTNAME);
-                $('input[type=text][name=port_number]').val(Data.PORT);
-                $('input[type=text][name=url]').val(Data.URL);
-/*                $('input[type=text][name=outgoingapikey]').val(Data.OUTGOING_APIKEY);*/
-                $('input[type=text][name=message_type]').val(Data.MESSAGE_TYPE);
-                if ($.isNumeric(Data.HOURS_BACK)) {
-                    $('.hoursbackvalue').html($.isNumeric(Data.HOURS_BACK) ? parseInt(Data.HOURS_BACK) : 0);
-                    $('input[id=hoursback_range]').val($.isNumeric(Data.HOURS_BACK) ? parseInt(Data.HOURS_BACK) : 0);
+                $('input[type=text][name=connection_name]').val(Data.ConnectionName);
+                $('input[type=text][name=ip_address]').val(Data.IpAddress);
+                $('input[type=text][name=hostname]').val(Data.Hostname);
+                $('input[type=text][name=port_number]').val(Data.Port);
+                $('input[type=text][name=url]').val(Data.Url);
+                /*                $('input[type=text][name=outgoingapikey]').val(Data.OUTGOING_APIKEY);*/
+                $('input[type=text][name=message_type]').val(Data.MessageType);
+                if ($.isNumeric(Data.HoursBack)) {
+                    $('.hoursbackvalue').html($.isNumeric(Data.HoursBack) ? parseInt(Data.HoursBack) : 0);
+                    $('input[id=hoursback_range]').val($.isNumeric(Data.HoursBack) ? parseInt(Data.HoursBack) : 0);
                     $('.hours_range_row').css("display", "");
                     $('input[type=checkbox][name=active_connection]').prop('checked', true).change();
                 }
-                if ($.isNumeric(Data.HOURS_FORWARD)) {
-                    $('.hoursforwardvalue').html($.isNumeric(Data.HOURS_FORWARD) ? parseInt(Data.HOURS_FORWARD) : 0);
-                    $('input[id=hoursforward_range]').val($.isNumeric(Data.HOURS_FORWARD) ? parseInt(Data.HOURS_FORWARD) : 0);
+                if ($.isNumeric(Data.HoursForward)) {
+                    $('.hoursforwardvalue').html($.isNumeric(Data.HoursForward) ? parseInt(Data.HoursForward) : 0);
+                    $('input[id=hoursforward_range]').val($.isNumeric(Data.HoursForward) ? parseInt(Data.HoursForward) : 0);
                     $('.hours_range_row').css("display", "");
                     if (!$('input[type=checkbox][name=hour_range]').is(':checked')) {
                         $('input[type=checkbox][name=hour_range]').prop('checked', true).change();
                     }
                 }
-                
-                $('select[name=data_retrieve]').val(Data.DATA_RETRIEVE);
-                $('input[type=text][name=admin_email_recepient]').val(Data.ADMIN_EMAIL_RECEPIENT);
-            
+
+                $('select[name=data_retrieve]').val(Data.DataRetrieve);
+                $('input[type=text][name=admin_email_recepient]').val(Data.AdminEmailRecepient);
+
                 //API connection
-                if (Data.ACTIVE_CONNECTION) {
+                if (Data.ActiveConnection) {
                     if (!$('input[type=checkbox][name=active_connection]').is(':checked')) {
                         $('input[type=checkbox][name=active_connection]').prop('checked', true).change();
                     }
@@ -509,7 +484,7 @@ function Edit_Connection(id) {
                         $('input[type=checkbox][name=active_connection]').prop('checked', false).change();
                     }
                 }
-                if (Data.UDP_CONNECTION) {
+                if (Data.UdpConnection) {
                     if (!$('input[type=checkbox][name=udp_connection]').is(':checked')) {
                         $('input[type=checkbox][name=udp_connection]').prop('checked', true).change();
                     }
@@ -523,63 +498,35 @@ function Edit_Connection(id) {
                 $('button[id=apisubmitBtn]').off().on('click', function () {
                     try {
                         $('button[id=apisubmitBtn]').prop('disabled', true);
-                        var jsonObject = {};
-                        //API connection active
-                        if (Data.ACTIVE_CONNECTION !== $('input[type=checkbox][name=active_connection]').is(':checked')) {
-                            if ($('input[type=checkbox][name=active_connection]').is(':checked')) {
-                                jsonObject.ACTIVE_CONNECTION = true;
-                            }
-                            else {
-                                jsonObject.ACTIVE_CONNECTION = false;
-                            }
+                        var jsonObject = {
+                            ActiveConnection: $('input[type=checkbox][name=active_connection]').is(':checked'),
+                            UdpConnection: $('input[type=checkbox][name=udp_connection]').is(':checked'),
+                            HoursBack: parseInt($('input[id=hoursforward_range]').val()),
+                            HoursForward: parseInt($('input[id=hoursback_range]').val()),
+                            DataRetrieve: $('select[name=data_retrieve] option:selected').val(),
+                            ConnectionName: $('input[type=text][name=connection_name]').val(),
+                            IpAddress: $('input[type=text][name=ip_address]').val(),
+                            Port: $('input[type=text][name=port_number]').val(),
+                            Url: $('input[type=text][name=url]').val(),
+                            MessageType: $('input[type=text][name=message_type]').val(),
+                            AdminEmailRecepient: $('input[type=text][name=admin_email_recepient').val(),
+                            LastupdateByUsername: User.UserId,
+                            NassCode: User.Facility_NASS_Code,
+                            Id: id
                         }
-                        if (Data.UDP_CONNECTION !== $('input[type=checkbox][name=udp_connection]').is(':checked')) {
-                            if ($('input[type=checkbox][name=udp_connection]').is(':checked')) {
-                                jsonObject.UDP_CONNECTION = true;
-                            }
-                            else {
-                                jsonObject.UDP_CONNECTION = false;
-                            }
-                        }
-                        if ($('input[type=checkbox][name=hour_range]').is(':checked')) {
-                            jsonObject.HOURS_FORWARD = parseInt($('input[id=hoursforward_range]').val());
-                            jsonObject.HOURS_BACK = parseInt($('input[id=hoursback_range]').val());
-                        }
-                        else {
-                            jsonObject.HOURS_FORWARD = "";
-                            jsonObject.HOURS_BACK = "";
-                        }
-                        parseInt($('select[name=data_retrieve] option:selected').val()) !== parseInt(Data.DATA_RETRIEVE) ? jsonObject.DATA_RETRIEVE = $('select[name=data_retrieve] option:selected').val() : "";
-                        $('input[type=text][name=connection_name]').val() !== Data.CONNECTION_NAME ? jsonObject.CONNECTION_NAME = $('input[type=text][name=connection_name]').val() : "";
-                        $('input[type=text][name=ip_address]').val() !== Data.IP_ADDRESS ? jsonObject.IP_ADDRESS = $('input[type=text][name=ip_address]').val() : "";
-                        $('input[type=text][name=hostname]').text() !== Data.HOSTNAME ? jsonObject.HOSTNAME = $('input[type=text][name=hostname]').text() : "";
-                        parseInt($('input[type=text][name=port_number]').val()) !== parseInt(Data.PORT) ? jsonObject.PORT = $('input[type=text][name=port_number]').val() : "";
-                        $('input[type=text][name=url]').val() !== Data.URL ? jsonObject.URL = $('input[type=text][name=url]').val() : "";
-                        //$('input[type=text][name=outgoingapikey]').val() !== Data.OUTGOING_APIKEY ? jsonObject.OUTGOING_APIKEY = $('input[type=text][name=outgoingapikey]').val() : "";
-                        $('input[type=text][name=message_type]').val() !== Data.MESSAGE_TYPE ? jsonObject.MESSAGE_TYPE = $('input[type=text][name=message_type]').val() : "";
-                        $('input[type=text][name=admin_email_recepient]').val() !== Data.ADMIN_EMAIL_RECEPIENT ? jsonObject.ADMIN_EMAIL_RECEPIENT = $('input[type=text][name=admin_email_recepient').val() : "";
                         if (!$.isEmptyObject(jsonObject)) {
-                            jsonObject.LASTUPDATE_BY_USERNAME = User.UserId;
-                            jsonObject.id = Data.id;
-                            if (checkValue(User.Facility_NASS_Code)) {
-                                checkValue($('input[type=text][name=url]').val()) ? jsonObject.URL = $('input[type=text][name=url]').val().supplant(formatURL(User.Facility_NASS_Code)) : '';
-                            }
                             $.connection.FOTFManager.server.editAPI(JSON.stringify(jsonObject)).done(function (rData) {
                                 if (rData.length === 1) {
-                                    if (rData[0].hasOwnProperty("ID")) {
-                                        $('span[id=error_apisubmitBtn]').text(rData[0].CONNECTION_NAME + " " + rData[0].MESSAGE_TYPE + " Connection has been Updated.");
-                                        setTimeout(function () { $("#API_Connection_Modal").modal('hide'); }, 1500);
-                                    }
-                                    else {
-                                        $('span[id=error_apisubmitBtn]').text(rData[0].CONNECTION_NAME + " " + rData[0].MESSAGE_TYPE + "Connection error been Added");
-                                        setTimeout(function () { $("#API_Connection_Modal").modal('hide'); }, 1500);
-                                    }
+                                    updateConnection(rData[0]);
+                                    $('span[id=error_apisubmitBtn]').text(rData[0].ConnectionName + " " + rData[0].MessageType + " Connection has been Updated.");
+                                    setTimeout(function () { $("#API_Connection_Modal").modal('hide'); sidebar.open('connections'); }, 1500);
                                 }
                                 else {
                                     $('span[id=error_apisubmitBtn]').text("Error editing Connection");
                                 }
                             });
-                        };
+                        }
+
                     } catch (e) {
                         $('span[id=error_apisubmitBtn]').text(e);
                     }
@@ -596,8 +543,8 @@ function Edit_Connection(id) {
     }
 }
 function GetConnectionStatus(data) {
-    if (data.ACTIVE_CONNECTION) {
-        if (data.API_CONNECTED) {
+    if (data.ActiveConnection) {
+        if (data.ApiConnected) {
             return "Online";
         }
         else {
@@ -609,8 +556,8 @@ function GetConnectionStatus(data) {
     }
 }
 function Get_Color(data) {
-    if (data.ACTIVE_CONNECTION) {
-        if (data.API_CONNECTED) {
+    if (data.ActiveConnection) {
+        if (data.ApiConnected) {
             return "table-success";
         }
         else {
@@ -628,7 +575,7 @@ function Remove_Connection(id) {
         $('#RemoveConfirmationModal').modal();
 
         $('button[id=remove_server_connection]').off().on('click', function () {
-            var jsonObject = { ID: id };
+            var jsonObject = { Id: id };
             $.connection.FOTFManager.server.removeAPI(JSON.stringify(jsonObject)).done(function (Data) {
                 $("#api_" + id).remove();
                 setTimeout(function () {

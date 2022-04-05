@@ -147,7 +147,54 @@ $(function () {
     async function init_Connection() {
         fotfmanager.server.getUserProfile().done(function (User_profile) {
             User = User_profile;
-    
+            if (User.hasOwnProperty("Facility_TimeZone")) {
+                if (checkValue(User.Facility_TimeZone)) {
+                    timezone = { Facility_TimeZone: User.Facility_TimeZone }
+                }
+            }
+            if (User.hasOwnProperty("Software_Version")) {
+                if (checkValue(User.Software_Version)) {
+                    map.attributionControl.setPrefix("USPS Factory of the Future (" + User.Software_Version + ")");
+                }
+            }
+            if (User.hasOwnProperty("Facility_Name")) {
+                if (checkValue(MapData.Facility_Name)) {
+                    $('#fotf-site-facility-name').append(User.Facility_Name);
+                    map.attributionControl.addAttribution(User.Facility_Name);
+                    $(document).prop('title', User.Facility_Name + ' FOTF');
+                }
+            }
+            if (User.hasOwnProperty("Environment")) {
+                //Environment Status Controls
+                if (/(DEV|SIT|CAT)/i.test(User.Environment)) {
+                    var Environment = L.Control.extend({
+                        options: {
+                            position: 'topright'
+                        },
+                        onAdd: function () {
+                            var Domcntainer = L.DomUtil.create('input');
+                            Domcntainer.type = "button";
+                            Domcntainer.id = "environment";
+                            Domcntainer.className = getEnv(User.Environment);
+                            Domcntainer.value = User.Environment;
+                            return Domcntainer;
+                        }
+                    });
+                    map.addControl(new Environment());
+                    function getEnv(env) {
+                        if (/CAT/i.test(env)) {
+                            return "btn btn-outline-primary btn-sm";
+                        }
+                        else if (/SIT/i.test(env)) {
+                            return "btn btn-outline-warning btn-sm";
+                        }
+                        else if (/DEV/i.test(env)) {
+                            return "btn btn-outline-danger btn-sm";
+                        }
+                    }
+                }
+            }
+
             if (/^Admin/i.test(User.Role)) {
                 sidebar.addPanel({
                     id: 'connections',
@@ -608,8 +655,8 @@ $(function () {
     });
     $(document).on('click', '.connectionedit', function () {
         var td = $(this);
-        var tr = $(td).closest('tr'),
-            id = tr.attr('data-id');
+        var tr = $(td).closest('tr');
+        var id = tr.attr('data-id');
         Edit_Connection(id);
     });
     $(document).on('click', '.connectiondelete', function () {

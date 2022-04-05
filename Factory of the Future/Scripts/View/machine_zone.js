@@ -128,40 +128,18 @@ $(function () {
         if (checkValue(id)) {
             Edit_Machine_Info(id);
         }
-
     });
-    
-
 });
 var polygonMachine = new L.GeoJSON(null, {
     style: function (feature) {
         if (feature.properties.visible) {
-            var style = {};
-            var sortplan = feature.properties.hasOwnProperty("MPEWatchData") ? feature.properties.MPEWatchData.hasOwnProperty("cur_sortplan") ? feature.properties.MPEWatchData.cur_sortplan : "" : "";
-            var endofrun = feature.properties.hasOwnProperty("MPEWatchData") ? feature.properties.MPEWatchData.hasOwnProperty("current_run_end") ? feature.properties.MPEWatchData.current_run_end : "" : "";
-            var startofrun = feature.properties.hasOwnProperty("MPEWatchData") ? feature.properties.MPEWatchData.hasOwnProperty("current_run_start") ? feature.properties.MPEWatchData.current_run_start : "" : "";
-            var expectedTP = feature.properties.hasOwnProperty("MPEWatchData") ? feature.properties.MPEWatchData.hasOwnProperty("expected_throughput") ? feature.properties.MPEWatchData.expected_throughput : "" : "";
-            var throughput = feature.properties.hasOwnProperty("MPEWatchData") ? feature.properties.MPEWatchData.hasOwnProperty("cur_thruput_ophr") ? feature.properties.MPEWatchData.cur_thruput_ophr : "" : "";
-            if (checkValue(sortplan) && !checkValue(endofrun)) {
-                var fillColor = GetMacineBackground(startofrun, throughput, expectedTP);
-                style = {
-                    weight: 1,
-                    opacity: 1,
-                    color: '#3573b1',
-                    fillOpacity: 0.5,
-                    fillColor: fillColor
-                };
-            }
-            else {
-                style = {
+            return  {
                     weight: 1,
                     opacity: 1,
                     color: '#3573b1',
                     fillOpacity: 0.2,
                     fillColor: '#989ea4'
                 };
-            }
-            return style;
         }
     },
     onEachFeature: function (feature, layer) {

@@ -17,34 +17,34 @@ namespace Factory_of_the_Future
                     JToken legs = item.SelectToken("legs");
                     if (legs.Count() > 0)
                     {
-                        if (AppParameters.RouteTripsList.TryGetValue(routtripid, out JObject existingVal))
-                        {
-                            string destsites = "";
-                            existingVal["Legs"] = legs;
-                            bool update = false;
-                            foreach (JObject legitem in legs.Children())
-                            {
-                                // get all dest do not include origin Site if site is the same
-                                if (legitem["legDestSiteID"].ToString() != existingVal["originSiteId"].ToString() && (int)legitem["legNumber"] >= (int)existingVal["legNumber"])
-                                {
-                                    destsites += ("(^" + (string)legitem["legDestSiteID"] + "$)|");
-                                }
-                            }
-                            if (destsites != existingVal["destSite"].ToString())
-                            {
-                                if (!string.IsNullOrEmpty(destsites))
-                                {
-                                    existingVal["destSite"] = destsites.Substring(0, destsites.Length - 1);
-                                    update = true;
-                                }
-                            }
+                        //if (AppParameters.RouteTripsList.TryGetValue(routtripid, out JObject existingVal))
+                        //{
+                        //    string destsites = "";
+                        //    existingVal["Legs"] = legs;
+                        //    bool update = false;
+                        //    foreach (JObject legitem in legs.Children())
+                        //    {
+                        //        // get all dest do not include origin Site if site is the same
+                        //        if (legitem["legDestSiteID"].ToString() != existingVal["originSiteId"].ToString() && (int)legitem["legNumber"] >= (int)existingVal["legNumber"])
+                        //        {
+                        //            destsites += ("(^" + (string)legitem["legDestSiteID"] + "$)|");
+                        //        }
+                        //    }
+                        //    if (destsites != existingVal["destSite"].ToString())
+                        //    {
+                        //        if (!string.IsNullOrEmpty(destsites))
+                        //        {
+                        //            existingVal["destSite"] = destsites.Substring(0, destsites.Length - 1);
+                        //            update = true;
+                        //        }
+                        //    }
 
 
-                            if (update)
-                            {
-                                existingVal["Trip_Update"] = true;
-                            }
-                        }
+                        //    if (update)
+                        //    {
+                        //        existingVal["Trip_Update"] = true;
+                        //    }
+                        //}
                     }
 
                     //List<Leg> Legs = JsonConvert.DeserializeObject<List<Leg>>(JsonConvert.SerializeObject(legs));

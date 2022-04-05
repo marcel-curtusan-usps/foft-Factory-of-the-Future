@@ -20,14 +20,14 @@ namespace Factory_of_the_Future
                         ADProperties.PostalCode
   };
 
-        internal bool User(JObject ACEUser, out JObject user)
+        internal bool User(ADUser ACEUser, out ADUser user)
         {
             user = ACEUser;
             try
             {
                 using (PrincipalContext domainContext = new PrincipalContext(ContextType.Domain, AppParameters.AppSettings.Property("Domain").Value.ToString().Trim(), AppParameters.AppSettings.Property("ADUSAContainer").Value.ToString().Trim()))
                 {
-                    using (var foundUser = UserPrincipal.FindByIdentity(domainContext, IdentityType.SamAccountName, (string)ACEUser.Property("UserId").Value))
+                    using (var foundUser = UserPrincipal.FindByIdentity(domainContext, IdentityType.SamAccountName, (string)ACEUser.UserId))
                     {
                         if (foundUser != null)
                         {
@@ -36,7 +36,7 @@ namespace Factory_of_the_Future
 
                             DirectorySearcher search = new DirectorySearcher(directoryEntry)
                             {
-                                Filter = string.Format("({0}={1})", "SAMAccountName", (string)ACEUser.Property("UserId").Value)
+                                Filter = string.Format("({0}={1})", "SAMAccountName", (string)ACEUser.UserId)
                             };
                             search.PropertiesToLoad.AddRange(_propertiesToLoad);
                             SearchResult result = search.FindOne();
@@ -46,13 +46,13 @@ namespace Factory_of_the_Future
                             }
                             string getPropertyValue(ResultPropertyValueCollection p, int i) => p.Count == 0 ? null : (string)p[i];
 
-                            user.Property("FirstName").Value = getPropertyValue(result.Properties[ADProperties.FirstName], 0);
-                            user.Property("MiddleName").Value = getPropertyValue(result.Properties[ADProperties.MiddleName], 0);
-                            user.Property("SurName").Value = getPropertyValue(result.Properties[ADProperties.SurName], 0);
-                            user.Property("ZipCode").Value = getPropertyValue(result.Properties[ADProperties.PostalCode], 0);
-                            user.Property("EmailAddress").Value = foundUser.EmailAddress;
-                            user.Property("Phone").Value = !string.IsNullOrEmpty(foundUser.VoiceTelephoneNumber) ? foundUser.VoiceTelephoneNumber : "";
-                            user.Property("EIN").Value = !string.IsNullOrEmpty(foundUser.EmployeeId) ? foundUser.EmployeeId : "";
+                            user.FirstName = getPropertyValue(result.Properties[ADProperties.FirstName], 0);
+                            user.MiddleName = getPropertyValue(result.Properties[ADProperties.MiddleName], 0);
+                            user.SurName = getPropertyValue(result.Properties[ADProperties.SurName], 0);
+                            user.ZipCode = getPropertyValue(result.Properties[ADProperties.PostalCode], 0);
+                            user.EmailAddress = foundUser.EmailAddress;
+                            user.Phone = !string.IsNullOrEmpty(foundUser.VoiceTelephoneNumber) ? foundUser.VoiceTelephoneNumber : "";
+                            user.EIN = !string.IsNullOrEmpty(foundUser.EmployeeId) ? foundUser.EmployeeId : "";
                             return true;
                         }
                         else
