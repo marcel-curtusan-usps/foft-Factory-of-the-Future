@@ -375,6 +375,7 @@
     <Content Include="Scripts\umd\popper.min.js" />
     <Content Include="Scripts\View\agvlocation_zone.js" />
     <Content Include="Scripts\View\application_setting.js" />
+    <Content Include="Scripts\View\custom_zone.js" />
     <Content Include="Scripts\View\indoorMap.js" />
     <Content Include="Scripts\View\tag_search.js" />
     <Content Include="Scripts\View\trips.js" />

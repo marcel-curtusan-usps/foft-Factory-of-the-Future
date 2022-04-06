@@ -2292,5 +2292,96 @@ namespace Factory_of_the_Future
         {
             throw new NotImplementedException();
         }
+
+        internal IEnumerable<JToken> AddCustomZone(string data)
+        {
+            if(!string.IsNullOrEmpty(data))
+            {
+                JObject item = new JObject();
+                item = JObject.Parse(data);
+                if(item != null)
+                {
+                    if(item.ContainsKey("properties"))
+                    {
+                        JObject itemProperties = item["properties"] as JObject;
+                        string zoneid = itemProperties.ContainsKey("id") ? itemProperties["id"].ToString() : "";
+                        string zoneType = itemProperties.ContainsKey("zone_type") ? itemProperties["zone_type"].ToString() : "";
+                        string zoneName = itemProperties.ContainsKey("name") ? itemProperties["name"].ToString() : "";
+                        string mpeName = itemProperties.ContainsKey("machine_name") ? itemProperties["machine_name"].ToString() : "";
+                        string mpeNumber = itemProperties.ContainsKey("machine_number") ? itemProperties["machine_number"].ToString() : "";
+                        string tempbins = itemProperties.ContainsKey("bins") ? itemProperties["bins"].ToString() : "";
+                        List<string> bins = tempbins.Split(',').Select(p => p.Trim()).ToList();
+                        string zonelocUpdate = itemProperties.ContainsKey("location_update") ? itemProperties["location_Update"].ToString() : "";
+                        string zoneVisible = itemProperties.ContainsKey("visible") ? itemProperties["visible"].ToString() : "";
+
+                        var geoType = item["geometry"]["type"].ToString();
+
+                        JObject zoneGeo = new JObject();
+                        JArray tempCords = item["geometry"]["coordinates"] as JArray;
+                        zoneGeo["Coordinates"] = tempCords;
+                        zoneGeo["type"] = geoType;
+                        Geometry newgeo = zoneGeo.ToObject<Geometry>();
+
+                        Properties newProperties = new Properties
+                        {
+                            Id = zoneid,
+                            Visible = true,
+                            Color = "#ff006699",
+                            Name = zoneName,
+                            ZoneUpdate = true,
+                            ZoneType = zoneType,
+                            MPEType = mpeName,
+                            MPENumber = mpeNumber,
+                            Bins = bins
+                        };
+
+                        GeoZone newGeoZone = new GeoZone
+                        {
+                            Type = "Feature",
+                            Geometry = newgeo,
+                            Properties = newProperties
+                        };
+                        if (!AppParameters.ZoneList.TryAdd(newGeoZone.Properties.Id, newGeoZone))
+                        {
+                            //new ErrorLogger().CustomLog("Unable to Update Zone" + newtempgZone.Properties.Id, string.Concat((string)AppParameters.AppSettings.Property("APPLICATION_NAME").Value, "_Applogs"));
+                        }
+                        var xx = AppParameters.ZoneList.Where(r => r.Value.Properties.ZoneType == "Bin").Select(x => x.Value).ToList();
+                    }
+                }
+            }
+
+            new FileIO().Write(string.Concat(AppParameters.Logdirpath, AppParameters.ConfigurationFloder), "CustomZones.json", JsonConvert.SerializeObject(GetAllCustomZonesList(), Formatting.Indented));
+            return null;
+        }
+
+        internal IEnumerable<GeoZone> GetCustomBinZonesList()
+        {
+            try
+            {
+
+                return AppParameters.ZoneList.Where(r => r.Value.Properties.ZoneType.ToString() == "Custom_Bin").Select(x => x.Value).ToList();
+
+            }
+            catch (Exception e)
+            {
+                new ErrorLogger().ExceptionLog(e);
+                return null;
+            }
+        }
+
+        internal IEnumerable<GeoZone> GetAllCustomZonesList()
+        {
+            try
+            {
+                var zones = AppParameters.ZoneList.Where(r => r.Value.Properties.ZoneType.ToString().StartsWith("Custom")).Select(x => x.Value).ToList();
+                return AppParameters.ZoneList.Where(r => r.Value.Properties.ZoneType.ToString().StartsWith("Custom")).Select(x => x.Value).ToList();
+
+            }
+            catch (Exception e)
+            {
+                new ErrorLogger().ExceptionLog(e);
+                return null;
+            }
+        }
     }
 }

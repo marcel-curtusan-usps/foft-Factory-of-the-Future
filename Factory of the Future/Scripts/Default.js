@@ -313,6 +313,11 @@ $(function () {
                     correctLevel: QRCode.CorrectLevel.H
                 });
             }
+
+            if (/^Admin/i.test(User.Role)) {
+                AddZoneDrawControls();
+            }
+            
         });
     }
     /******Connection status end******/

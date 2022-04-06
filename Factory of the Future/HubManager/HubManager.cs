@@ -41,6 +41,11 @@ namespace Factory_of_the_Future
         /// /API section
         /// </summary>
         /// <returns></returns>
+        public IEnumerable<JToken> AddCustomZone(string data)
+        {
+            return _managerHub.AddCustomZone(data);
+        }
+
         public IEnumerable<Connection> GetAPIList(string data)
         {
             return _managerHub.GetAPIList(data);
@@ -211,6 +216,11 @@ namespace Factory_of_the_Future
         public IEnumerable<GeoZone> GetMachineZonesList()
         {
             return _managerHub.GetMachineZonesList();
+        }
+
+        public IEnumerable<GeoZone> GetCustomBinZonesList()
+        {
+            return _managerHub.GetCustomBinZonesList();
         }
 
         /// <summary>

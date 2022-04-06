@@ -343,6 +343,9 @@ namespace Factory_of_the_Future
 
         [JsonProperty("MissionList")]
         public List<MissionList> MissionList { get; set; } = new List<MissionList>();
+
+        [JsonProperty("Bins")]
+        public List<string> Bins { get; set; } = new List<string>();
     }
 
     public class GeoZone

@@ -242,6 +242,7 @@ async function init_Map() {
         .then(init_locators())
         .then(LoadNotification("routetrip"))
         .then(LoadNotification("vehicle"))
+        .then(init_CustomBinZones())
         .catch(
             function (err) {
                 console.log(err.toString());
