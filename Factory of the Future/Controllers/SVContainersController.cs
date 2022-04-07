@@ -42,7 +42,7 @@ namespace Factory_of_the_Future.Controllers
            
                     JObject temp1 = new JObject(new JProperty("container", request_data));
                     //Send data to be processed.
-                    Task.Run(() => new ProcessRecvdMsg().StartProcess(request_data, "container"));
+                    Task.Run(() => new ProcessRecvdMsg().StartProcess(request_data, "container", ""));
             
                 }
             }

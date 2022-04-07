@@ -61,10 +61,10 @@ namespace Factory_of_the_Future
             return _managerHub.EditAPI(data);
         }
 
-        //public IEnumerable<Connection> RemoveAPI(string data)
-        //{
-        //    return _managerHub.RemoveAPI(data);
-        //}
+        public IEnumerable<Connection> RemoveAPI(string data)
+        {
+            return _managerHub.RemoveAPI(data);
+        }
 
         ///// <summary>
         /////  Notification Conditions section
@@ -196,10 +196,10 @@ namespace Factory_of_the_Future
             return _managerHub.GetZonesList();
         }
 
-        //public IEnumerable<JToken> EditZone(string data)
-        //{
-        //    return _managerHub.EditZone(data);
-        //}
+        public IEnumerable<ZoneInfo> EditZone(string data)
+        {
+            return _managerHub.EditZone(data);
+        }
         /// <summary>
         /// Get dock door Zones
         /// </summary>
@@ -296,21 +296,24 @@ namespace Factory_of_the_Future
         public override Task OnConnected()
         {
             _managerHub.Adduser(Context);
+            Groups.Add(Context.ConnectionId, "PeopleMarkers");
+            Groups.Add(Context.ConnectionId, "VehiclsMarkers");
             return base.OnConnected();
         }
+        public Task JoinGroup(string groupName)
+        {
+            return Groups.Add(Context.ConnectionId, groupName);
+        }
 
+        public Task LeaveGroup(string groupName)
+        {
+            return Groups.Remove(Context.ConnectionId, groupName);
+        }
         public override Task OnDisconnected(bool stopCalled)
         {
-
-            if (stopCalled)
-            {
-                _managerHub.Removeuser(Context.ConnectionId);
-            }
-            else
-            {
-                _managerHub.Removeuser(Context.ConnectionId);
-            }
-
+            _managerHub.Removeuser(Context.ConnectionId);
+            Groups.Remove(Context.ConnectionId, "PeopleMarkers");
+            Groups.Remove(Context.ConnectionId, "VehiclsMarkers");
             return base.OnDisconnected(stopCalled);
         }
 

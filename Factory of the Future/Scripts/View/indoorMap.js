@@ -18,6 +18,7 @@ map = L.map('map', {
     tap: false,
     layers: [polygonMachine, vehicles, agvLocations, container, stagingAreas, tagsMarkersGroup, dockDoors, binzonepoly]
 });
+
 var overlayMaps = {
     "Vehicles Tag": vehicles,
     "SELS Tag": tagsMarkersGroup,
@@ -249,7 +250,11 @@ async function init_Map() {
             function (err) {
                 console.log(err.toString());
             });
+    //map.on('layerremove', (e) => {
+    //    console.log(e);
+    //});
 }
+
 $('#fotf-sidebar-close').on('click', function () {
     // close the sidebar
     sidebar.close();

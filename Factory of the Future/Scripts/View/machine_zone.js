@@ -448,24 +448,12 @@ async function Edit_Machine_Info(id) {
                             if (!$.isEmptyObject(jsonObject)) {
                                 jsonObject.id = Data.id;
                                 fotfmanager.server.editZone(JSON.stringify(jsonObject)).done(function (updatedData) {
-                                    if (updatedData.length === 1) {
-                                        if (updatedData[0].hasOwnProperty("properties")) {
-                                            if (updatedData[0].properties.hasOwnProperty("id")) {
-                                                $('span[id=error_machinesubmitBtn]').text(updatedData[0].properties.MPE_Type + " Zone has been Updated.");
-                                                updateMachineZone(updatedData[0]);
-                                                setTimeout(function () { $("#Zone_Modal").modal('hide'); }, 1500);
-                                            }
-                                            else {
-                                                $('span[id=error_machinesubmitBtn]').text(updatedData[0].properties.MPE_Type + " Zone error Updating ");
-                                                setTimeout(function () { $("#Zone_Modal").modal('hide'); }, 1500);
-                                            }
-                                        }
-                                    }
-                                    else {
-                                        $('span[id=error_machinesubmitBtn]').text("Error editing Zone");
-                                    }
+
+                                    $('span[id=error_machinesubmitBtn]').text(updatedData[0].MPE_Type + " Zone has been Updated.");
+                                    setTimeout(function () { $("#Zone_Modal").modal('hide'); }, 1500);
+
                                 });
-                            };
+                            }
                         } catch (e) {
                             $('span[id=error_machinesubmitBtn]').text(e);
                         }
