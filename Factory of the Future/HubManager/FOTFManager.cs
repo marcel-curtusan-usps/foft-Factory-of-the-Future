@@ -83,13 +83,13 @@ namespace Factory_of_the_Future
         {
             Clients = clients;
             Clock_timer = new Timer(UpdateClockStatus, null, _1000milupdateInterval, _1000milupdateInterval);
-            //VehicleTag_timer = new Timer(UpdateVehicleTagStatus, null, _250milupdateInterval, _250milupdateInterval);
-            //PersonTag_timer = new Timer(UpdatePersonTagStatus, null, _250milupdateInterval, _250milupdateInterval);
+            VehicleTag_timer = new Timer(UpdateVehicleTagStatus, null, _250milupdateInterval, _250milupdateInterval);
+            PersonTag_timer = new Timer(UpdatePersonTagStatus, null, _250milupdateInterval, _250milupdateInterval);
             ////////Zone status.
             Zone_timer = new Timer(UpdateZoneStatus, null, _updateInterval, _updateInterval);
-            //DockDoor_timer = new Timer(UpdateDockDoorStatus, null, _250milupdateInterval, _250milupdateInterval);
-            //Machine_timer = new Timer(UpdateMachineStatus, null, _updateInterval, _updateInterval);
-            //AGVLocation_timer = new Timer(UpdateAGVLocationStatus, null, _250milupdateInterval, _250milupdateInterval);
+            DockDoor_timer = new Timer(UpdateDockDoorStatus, null, _250milupdateInterval, _250milupdateInterval);
+            Machine_timer = new Timer(UpdateMachineStatus, null, _updateInterval, _updateInterval);
+            AGVLocation_timer = new Timer(UpdateAGVLocationStatus, null, _250milupdateInterval, _250milupdateInterval);
             /////SV Trips Data
             //SVTrips_timer = new Timer(UpdateSVTripsStatus, null, _updateInterval, _updateInterval);
             /////CTS data timer
@@ -101,7 +101,8 @@ namespace Factory_of_the_Future
 
             ////   Notification data timer
             //Notification_timer = new Timer(UpdateNotificationtatus, null, _updateInterval, _updateInterval);
-            //////Connection status
+            ////
+            //Connection status
             QSM_timer = new Timer(UpdateQSM, null, _updateInterval, _updateInterval);
         }
         public static FOTFManager Instance
@@ -1119,85 +1120,80 @@ namespace Factory_of_the_Future
         ////    }
         ////}
 
-        //private void UpdateAGVLocationStatus(object state)
-        //{
-        //    lock (updateAGVLocationStatuslock)
-        //    {
-        //        if (!_updateAGVLocationStatus)
-        //        {
-        //            _updateAGVLocationStatus = true;
-        //            foreach (JObject AGV_Location in AppParameters.ZonesList.Where(u => u.Value["properties"]["Zone_Type"].ToString() == "AGVLocation" && (bool)u.Value["properties"]["Zone_Update"] == true).Select(x => x.Value))
-        //            {
-        //                if (TryUpdateAGVLocationStatus(AGV_Location))
-        //                {
-        //                    BroadcastAGVLocationStatus(AGV_Location);
-        //                }
-        //            }
-        //            _updateAGVLocationStatus = false;
-        //        }
-        //    }
-        //}
+        private void UpdateAGVLocationStatus(object state)
+        {
+            lock (updateAGVLocationStatuslock)
+            {
+                if (!_updateAGVLocationStatus)
+                {
+                    _updateAGVLocationStatus = true;
+                    foreach (var AGV_Location in AppParameters.ZoneList.Where(u => u.Value.Properties.ZoneUpdate && u.Value.Properties.ZoneType == "AGVLocation").Select(x => x.Value).Where(AGV_Location => TryUpdateAGVLocationStatus(AGV_Location)))
+                    {
+                        BroadcastAGVLocationStatus(AGV_Location);
+                    }
 
-        //private bool TryUpdateAGVLocationStatus(JObject AGV_Location)
-        //{
-        //    try
-        //    {
-        //        AGV_Location["properties"]["Zone_Update"] = false;
-        //        return true;
-        //    }
-        //    catch (Exception e)
-        //    {
-        //        new ErrorLogger().ExceptionLog(e);
-        //        return false;
-        //    }
-        //}
+                    _updateAGVLocationStatus = false;
+                }
+            }
+        }
 
-        //private void BroadcastAGVLocationStatus(JObject machine)
-        //{
-        //    Clients.All.updateAGVLocationStatus(machine);
-        //}
+        private bool TryUpdateAGVLocationStatus(GeoZone AGV_Location)
+        {
+            try
+            {
+                AGV_Location.Properties.ZoneUpdate = false;
+                return true;
+            }
+            catch (Exception e)
+            {
+                new ErrorLogger().ExceptionLog(e);
+                return false;
+            }
+        }
 
-        //private void UpdateMachineStatus(object state)
-        //{
-        //    lock (updateMachineStatuslock)
-        //    {
-        //        if (!_updateMachineStatus)
-        //        {
-        //            _updateMachineStatus = true;
-        //            foreach (JObject Machine in AppParameters.ZonesList.Where(u => (bool)u.Value["properties"]["Zone_Update"]
-        //            && u.Value["properties"]["Zone_Type"].ToString() == "Machine").Select(x => x.Value))
-        //            {
-        //                if (TryUpdateMachineStatus(Machine))
-        //                {
-        //                    BroadcastMachineStatus(Machine);
-        //                }
-        //            };
+        private void BroadcastAGVLocationStatus(GeoZone machine)
+        {
+            Clients.All.updateAGVLocationStatus(machine);
+        }
 
-        //            _updateMachineStatus = false;
-        //        }
-        //    }
-        //}
+        private void UpdateMachineStatus(object state)
+        {
+            lock (updateMachineStatuslock)
+            {
+                if (!_updateMachineStatus)
+                {
+                    _updateMachineStatus = true;
+                    foreach (var Machine in AppParameters.ZoneList.Where(u => u.Value.Properties.ZoneUpdate
+                                           && u.Value.Properties.ZoneType == "Machine").Select(x => x.Value).Where(Machine => TryUpdateMachineStatus(Machine)))
+                    {
+                        BroadcastMachineStatus(Machine);
+                    }
 
-        //private bool TryUpdateMachineStatus(JObject machine)
-        //{
-        //    try
-        //    {
+                    _updateMachineStatus = false;
+                }
+            }
+        }
 
-        //        machine["properties"]["Zone_Update"] = false;
-        //        return true;
+        private bool TryUpdateMachineStatus(GeoZone machine)
+        {
+            try
+            {
 
-        //    }
-        //    catch (Exception e)
-        //    {
-        //        new ErrorLogger().ExceptionLog(e);
-        //        return false;
-        //    }
-        //}
+                machine.Properties.ZoneUpdate = false;
+                return true;
 
-        //private void BroadcastMachineStatus(JObject machine)
-        //{
-        //    Clients.All.updateMachineStatus(machine);
-        //}
+            }
+            catch (Exception e)
+            {
+                new ErrorLogger().ExceptionLog(e);
+                return false;
+            }
+        }
+
+        private void BroadcastMachineStatus(GeoZone machine)
+        {
+            Clients.All.updateMachineStatus(machine);
+        }
 
         internal IEnumerable<BackgroundImage> GetIndoorMap()
         {
@@ -1351,289 +1347,275 @@ namespace Factory_of_the_Future
         //        return new JObject();
         //    }
         //}
+        private bool TryUpdateVehicleTagStatus(GeoMarker marker, double tagVisibleRange)
+        {
+            try
+            {
+                marker.Properties.TagUpdate = false;
+                return true;
+                //bool returnresult = false;
+                //System.TimeSpan tagdiffResult = ((DateTime)((JObject)tag["properties"]).Property("Tag_TS").Value).ToUniversalTime().Subtract(((DateTime)((JObject)tag["properties"]).Property("positionTS").Value).ToUniversalTime());
+                //tag["properties"]["tagVisibleMils"] = tagdiffResult.TotalMilliseconds;
+                //if ((bool)tag["properties"]["Tag_Update"] == true)
+                //{
+                //    ////vehicle notification
+                //    //if (((JObject)tag["properties"]).Property("Tag_Type").Value.ToString().ToLower() == "Autonomous Vehicle".ToLower())
+                //    //{
+                //    //  if (((JObject)tag["properties"]).ContainsKey("vehicleTime"))
+                //    //    {
+                //    //        if (!string.IsNullOrEmpty((string)((JObject)tag["properties"]).Property("vehicleTime").Value))
+                //    //        {
+                //    //            //time cal lostcomm
+                //    //            System.TimeSpan diffResult = DateTime.Now.ToUniversalTime().Subtract(((DateTime)((JObject)tag["properties"]).Property("vehicleTime").Value).ToUniversalTime());
 
-        //private void BroadcastVehicleTagStatus(JObject tag)
-        //{
-        //    Clients.All.updateVehicleTagStatus(tag);
-        //}
+                //    //            if (AppParameters.Notification_Conditions.Where(r => Regex.IsMatch(((JObject)tag["properties"]).Property("state").Value.ToString().ToLower(), r.Value.Property("CONDITIONS").Value.ToString(), RegexOptions.IgnoreCase)
+                //    //           && r.Value.Property("TYPE").Value.ToString().ToUpper() == "vehicle".ToUpper()
+                //    //            && (bool)r.Value.Property("ACTIVE_CONDITION").Value == true).Select(x => x.Value).ToList().Count() > 0)
+                //    //            {
+                //    //                foreach (var conditionitem in AppParameters.Notification_Conditions.Where(r => Regex.IsMatch(((JObject)tag["properties"]).Property("state").Value.ToString().ToLower(), r.Value.Property("CONDITIONS").Value.ToString(), RegexOptions.IgnoreCase)
+                //    //                    && r.Value.Property("TYPE").Value.ToString().ToLower().EndsWith("vehicle".ToLower())
+                //    //                     && (bool)r.Value.Property("ACTIVE_CONDITION").Value == true).Select(x => x.Value).ToList())
+                //    //                {
+                //    //                    double warningmil = TimeSpan.FromMinutes((int)conditionitem.Property("WARNING").Value).TotalMilliseconds;
+                //    //                    if (diffResult.TotalMilliseconds > warningmil)
+                //    //                    {
+                //    //                        if (!AppParameters.Notification.ContainsKey((string)conditionitem.Property("ID").Value + (string)((JObject)tag["properties"]).Property("id").Value))
+                //    //                        {
+                //    //                            JObject ojbMerge = (JObject)conditionitem.DeepClone();
+                //    //                            ojbMerge.Add(new JProperty("VEHICLETIME", ((DateTime)((JObject)tag["properties"]).Property("vehicleTime").Value).ToUniversalTime()));
+                //    //                            ojbMerge.Add(new JProperty("VEHICLENAME", (string)((JObject)tag["properties"]).Property("name").Value));
+                //    //                            ojbMerge.Add(new JProperty("TAGID", (string)((JObject)tag["properties"]).Property("id").Value));
+                //    //                            ojbMerge.Add(new JProperty("notificationId", (string)conditionitem.Property("ID").Value + (string)((JObject)tag["properties"]).Property("id").Value));
+                //    //                            ojbMerge.Add(new JProperty("UPDATE", true));
+                //    //                            if (AppParameters.Notification.TryAdd((string)conditionitem.Property("ID").Value + (string)((JObject)tag["properties"]).Property("id").Value, ojbMerge))
+                //    //                            {
+                //    //                            }
+                //    //                        }
+                //    //                    }
+                //    //                    else
+                //    //                    {
+                //    //                        if (AppParameters.Notification.ContainsKey((string)conditionitem.Property("ID").Value + (string)((JObject)tag["properties"]).Property("id").Value))
+                //    //                        {
+                //    //                            if (AppParameters.Notification.TryGetValue((string)conditionitem.Property("ID").Value + (string)((JObject)tag["properties"]).Property("id").Value, out JObject ojbMerge))
+                //    //                            {
+                //    //                                ojbMerge.Add(new JProperty("DELETE", true));
+                //    //                            }
 
-        //private bool TryUpdateVehicleTagStatus(JObject tag, double tagVisibleRange)
-        //{
-        //    try
-        //    {
-        //        bool returnresult = false;
-        //        System.TimeSpan tagdiffResult = ((DateTime)((JObject)tag["properties"]).Property("Tag_TS").Value).ToUniversalTime().Subtract(((DateTime)((JObject)tag["properties"]).Property("positionTS").Value).ToUniversalTime());
-        //        tag["properties"]["tagVisibleMils"] = tagdiffResult.TotalMilliseconds;
-        //        if ((bool)tag["properties"]["Tag_Update"] == true)
-        //        {
-        //            ////vehicle notification
-        //            //if (((JObject)tag["properties"]).Property("Tag_Type").Value.ToString().ToLower() == "Autonomous Vehicle".ToLower())
-        //            //{
-        //            //  if (((JObject)tag["properties"]).ContainsKey("vehicleTime"))
-        //            //    {
-        //            //        if (!string.IsNullOrEmpty((string)((JObject)tag["properties"]).Property("vehicleTime").Value))
-        //            //        {
-        //            //            //time cal lostcomm
-        //            //            System.TimeSpan diffResult = DateTime.Now.ToUniversalTime().Subtract(((DateTime)((JObject)tag["properties"]).Property("vehicleTime").Value).ToUniversalTime());
+                //    //                        }
+                //    //                    }
+                //    //                }
+                //    //            }
 
-        //            //            if (AppParameters.Notification_Conditions.Where(r => Regex.IsMatch(((JObject)tag["properties"]).Property("state").Value.ToString().ToLower(), r.Value.Property("CONDITIONS").Value.ToString(), RegexOptions.IgnoreCase)
-        //            //           && r.Value.Property("TYPE").Value.ToString().ToUpper() == "vehicle".ToUpper()
-        //            //            && (bool)r.Value.Property("ACTIVE_CONDITION").Value == true).Select(x => x.Value).ToList().Count() > 0)
-        //            //            {
-        //            //                foreach (var conditionitem in AppParameters.Notification_Conditions.Where(r => Regex.IsMatch(((JObject)tag["properties"]).Property("state").Value.ToString().ToLower(), r.Value.Property("CONDITIONS").Value.ToString(), RegexOptions.IgnoreCase)
-        //            //                    && r.Value.Property("TYPE").Value.ToString().ToLower().EndsWith("vehicle".ToLower())
-        //            //                     && (bool)r.Value.Property("ACTIVE_CONDITION").Value == true).Select(x => x.Value).ToList())
-        //            //                {
-        //            //                    double warningmil = TimeSpan.FromMinutes((int)conditionitem.Property("WARNING").Value).TotalMilliseconds;
-        //            //                    if (diffResult.TotalMilliseconds > warningmil)
-        //            //                    {
-        //            //                        if (!AppParameters.Notification.ContainsKey((string)conditionitem.Property("ID").Value + (string)((JObject)tag["properties"]).Property("id").Value))
-        //            //                        {
-        //            //                            JObject ojbMerge = (JObject)conditionitem.DeepClone();
-        //            //                            ojbMerge.Add(new JProperty("VEHICLETIME", ((DateTime)((JObject)tag["properties"]).Property("vehicleTime").Value).ToUniversalTime()));
-        //            //                            ojbMerge.Add(new JProperty("VEHICLENAME", (string)((JObject)tag["properties"]).Property("name").Value));
-        //            //                            ojbMerge.Add(new JProperty("TAGID", (string)((JObject)tag["properties"]).Property("id").Value));
-        //            //                            ojbMerge.Add(new JProperty("notificationId", (string)conditionitem.Property("ID").Value + (string)((JObject)tag["properties"]).Property("id").Value));
-        //            //                            ojbMerge.Add(new JProperty("UPDATE", true));
-        //            //                            if (AppParameters.Notification.TryAdd((string)conditionitem.Property("ID").Value + (string)((JObject)tag["properties"]).Property("id").Value, ojbMerge))
-        //            //                            {
-        //            //                            }
-        //            //                        }
-        //            //                    }
-        //            //                    else
-        //            //                    {
-        //            //                        if (AppParameters.Notification.ContainsKey((string)conditionitem.Property("ID").Value + (string)((JObject)tag["properties"]).Property("id").Value))
-        //            //                        {
-        //            //                            if (AppParameters.Notification.TryGetValue((string)conditionitem.Property("ID").Value + (string)((JObject)tag["properties"]).Property("id").Value, out JObject ojbMerge))
-        //            //                            {
-        //            //                                ojbMerge.Add(new JProperty("DELETE", true));
-        //            //                            }
+                //    //        }
+                //    //    }
+                //    //}
+                //    if (tagdiffResult.TotalMilliseconds > tagVisibleRange)
+                //    {
+                //        if ((bool)tag["properties"]["tagVisible"] != false)
+                //        {
+                //            tag["properties"]["tagVisible"] = false;
+                //        }
+                //    }
+                //    else if (tagdiffResult.TotalMilliseconds <= tagVisibleRange)
+                //    {
+                //        if ((bool)tag["properties"]["tagVisible"] != true)
+                //        {
+                //            tag["properties"]["tagVisible"] = true;
+                //        }
+                //    }
+                //    tag["properties"]["Tag_Update"] = false;
+                //    return true;
+                //}
+                //else
+                //{
+                //    ////vehicle notification
+                //    //if (((JObject)tag["properties"]).Property("Tag_Type").Value.ToString().ToLower() == "Autonomous Vehicle".ToLower())
+                //    //{
+                //    //  if (((JObject)tag["properties"]).ContainsKey("vehicleTime"))
+                //    //    {
+                //    //        if (!string.IsNullOrEmpty((string)((JObject)tag["properties"]).Property("vehicleTime").Value))
+                //    //        {
+                //    //            //time cal lostcomm
+                //    //            System.TimeSpan diffResult = DateTime.Now.ToUniversalTime().Subtract(((DateTime)((JObject)tag["properties"]).Property("vehicleTime").Value).ToUniversalTime());
 
-        //            //                        }
-        //            //                    }
-        //            //                }
-        //            //            }
+                //    //            if (AppParameters.Notification_Conditions.Where(r => Regex.IsMatch(((JObject)tag["properties"]).Property("state").Value.ToString().ToLower(), r.Value.Property("CONDITIONS").Value.ToString(), RegexOptions.IgnoreCase)
+                //    //           && r.Value.Property("TYPE").Value.ToString().ToUpper() == "vehicle".ToUpper()
+                //    //            && (bool)r.Value.Property("ACTIVE_CONDITION").Value == true).Select(x => x.Value).ToList().Count() > 0)
+                //    //            {
+                //    //                foreach (var conditionitem in AppParameters.Notification_Conditions.Where(r => Regex.IsMatch(((JObject)tag["properties"]).Property("state").Value.ToString().ToLower(), r.Value.Property("CONDITIONS").Value.ToString(), RegexOptions.IgnoreCase)
+                //    //                    && r.Value.Property("TYPE").Value.ToString().ToLower().EndsWith("vehicle".ToLower())
+                //    //                     && (bool)r.Value.Property("ACTIVE_CONDITION").Value == true).Select(x => x.Value).ToList())
+                //    //                {
+                //    //                    double warningmil = TimeSpan.FromMinutes((int)conditionitem.Property("WARNING").Value).TotalMilliseconds;
+                //    //                    if (diffResult.TotalMilliseconds > warningmil)
+                //    //                    {
+                //    //                        if (!AppParameters.Notification.ContainsKey((string)conditionitem.Property("ID").Value + (string)((JObject)tag["properties"]).Property("id").Value))
+                //    //                        {
+                //    //                            JObject ojbMerge = (JObject)conditionitem.DeepClone();
+                //    //                            ojbMerge.Add(new JProperty("VEHICLETIME", ((DateTime)((JObject)tag["properties"]).Property("vehicleTime").Value).ToUniversalTime()));
+                //    //                            ojbMerge.Add(new JProperty("VEHICLENAME", (string)((JObject)tag["properties"]).Property("name").Value));
+                //    //                            ojbMerge.Add(new JProperty("TAGID", (string)((JObject)tag["properties"]).Property("id").Value));
+                //    //                            ojbMerge.Add(new JProperty("notificationId", (string)conditionitem.Property("ID").Value + (string)((JObject)tag["properties"]).Property("id").Value));
+                //    //                            ojbMerge.Add(new JProperty("UPDATE", true));
+                //    //                            if (AppParameters.Notification.TryAdd((string)conditionitem.Property("ID").Value + (string)((JObject)tag["properties"]).Property("id").Value, ojbMerge))
+                //    //                            {
+                //    //                            }
+                //    //                        }
+                //    //                    }
+                //    //                    else
+                //    //                    {
+                //    //                        if (AppParameters.Notification.ContainsKey((string)conditionitem.Property("ID").Value + (string)((JObject)tag["properties"]).Property("id").Value))
+                //    //                        {
+                //    //                            if (AppParameters.Notification.TryGetValue((string)conditionitem.Property("ID").Value + (string)((JObject)tag["properties"]).Property("id").Value, out JObject ojbMerge))
+                //    //                            {
+                //    //                                ojbMerge.Add(new JProperty("DELETE", true));
+                //    //                            }
 
-        //            //        }
-        //            //    }
-        //            //}
-        //            if (tagdiffResult.TotalMilliseconds > tagVisibleRange)
-        //            {
-        //                if ((bool)tag["properties"]["tagVisible"] != false)
-        //                {
-        //                    tag["properties"]["tagVisible"] = false;
-        //                }
-        //            }
-        //            else if (tagdiffResult.TotalMilliseconds <= tagVisibleRange)
-        //            {
-        //                if ((bool)tag["properties"]["tagVisible"] != true)
-        //                {
-        //                    tag["properties"]["tagVisible"] = true;
-        //                }
-        //            }
-        //            tag["properties"]["Tag_Update"] = false;
-        //            return true;
-        //        }
-        //        else
-        //        {
-        //            ////vehicle notification
-        //            //if (((JObject)tag["properties"]).Property("Tag_Type").Value.ToString().ToLower() == "Autonomous Vehicle".ToLower())
-        //            //{
-        //            //  if (((JObject)tag["properties"]).ContainsKey("vehicleTime"))
-        //            //    {
-        //            //        if (!string.IsNullOrEmpty((string)((JObject)tag["properties"]).Property("vehicleTime").Value))
-        //            //        {
-        //            //            //time cal lostcomm
-        //            //            System.TimeSpan diffResult = DateTime.Now.ToUniversalTime().Subtract(((DateTime)((JObject)tag["properties"]).Property("vehicleTime").Value).ToUniversalTime());
+                //    //                        }
+                //    //                    }
+                //    //                }
+                //    //            }
 
-        //            //            if (AppParameters.Notification_Conditions.Where(r => Regex.IsMatch(((JObject)tag["properties"]).Property("state").Value.ToString().ToLower(), r.Value.Property("CONDITIONS").Value.ToString(), RegexOptions.IgnoreCase)
-        //            //           && r.Value.Property("TYPE").Value.ToString().ToUpper() == "vehicle".ToUpper()
-        //            //            && (bool)r.Value.Property("ACTIVE_CONDITION").Value == true).Select(x => x.Value).ToList().Count() > 0)
-        //            //            {
-        //            //                foreach (var conditionitem in AppParameters.Notification_Conditions.Where(r => Regex.IsMatch(((JObject)tag["properties"]).Property("state").Value.ToString().ToLower(), r.Value.Property("CONDITIONS").Value.ToString(), RegexOptions.IgnoreCase)
-        //            //                    && r.Value.Property("TYPE").Value.ToString().ToLower().EndsWith("vehicle".ToLower())
-        //            //                     && (bool)r.Value.Property("ACTIVE_CONDITION").Value == true).Select(x => x.Value).ToList())
-        //            //                {
-        //            //                    double warningmil = TimeSpan.FromMinutes((int)conditionitem.Property("WARNING").Value).TotalMilliseconds;
-        //            //                    if (diffResult.TotalMilliseconds > warningmil)
-        //            //                    {
-        //            //                        if (!AppParameters.Notification.ContainsKey((string)conditionitem.Property("ID").Value + (string)((JObject)tag["properties"]).Property("id").Value))
-        //            //                        {
-        //            //                            JObject ojbMerge = (JObject)conditionitem.DeepClone();
-        //            //                            ojbMerge.Add(new JProperty("VEHICLETIME", ((DateTime)((JObject)tag["properties"]).Property("vehicleTime").Value).ToUniversalTime()));
-        //            //                            ojbMerge.Add(new JProperty("VEHICLENAME", (string)((JObject)tag["properties"]).Property("name").Value));
-        //            //                            ojbMerge.Add(new JProperty("TAGID", (string)((JObject)tag["properties"]).Property("id").Value));
-        //            //                            ojbMerge.Add(new JProperty("notificationId", (string)conditionitem.Property("ID").Value + (string)((JObject)tag["properties"]).Property("id").Value));
-        //            //                            ojbMerge.Add(new JProperty("UPDATE", true));
-        //            //                            if (AppParameters.Notification.TryAdd((string)conditionitem.Property("ID").Value + (string)((JObject)tag["properties"]).Property("id").Value, ojbMerge))
-        //            //                            {
-        //            //                            }
-        //            //                        }
-        //            //                    }
-        //            //                    else
-        //            //                    {
-        //            //                        if (AppParameters.Notification.ContainsKey((string)conditionitem.Property("ID").Value + (string)((JObject)tag["properties"]).Property("id").Value))
-        //            //                        {
-        //            //                            if (AppParameters.Notification.TryGetValue((string)conditionitem.Property("ID").Value + (string)((JObject)tag["properties"]).Property("id").Value, out JObject ojbMerge))
-        //            //                            {
-        //            //                                ojbMerge.Add(new JProperty("DELETE", true));
-        //            //                            }
+                //    //        }
+                //    //    }
+                //    //}
 
-        //            //                        }
-        //            //                    }
-        //            //                }
-        //            //            }
+                //    if (tagdiffResult.TotalMilliseconds > tagVisibleRange)
+                //    {
+                //        if ((bool)tag["properties"]["tagVisible"] != false)
+                //        {
+                //            tag["properties"]["tagVisible"] = false;
+                //            returnresult = true;
+                //        }
+                //    }
+                //    else if (tagdiffResult.TotalMilliseconds <= tagVisibleRange)
+                //    {
+                //        if ((bool)tag["properties"]["tagVisible"] != true)
+                //        {
+                //            tag["properties"]["tagVisible"] = true;
+                //        }
+                //    }
+                //    tag["properties"]["Tag_Update"] = false;
+                //    return returnresult;
+                //}
+            }
+            catch (Exception e)
+            {
+                new ErrorLogger().ExceptionLog(e);
+                return false;
+            }
+        }
+        private void UpdateDockDoorStatus(object state)
+        {
+            lock (updateDockDoorStatuslock)
+            {
+                if (!_updateDockDoorStatus)
+                {
+                    _updateDockDoorStatus = true;
+                    foreach (var DockDoor in AppParameters.ZoneList.Where(u => u.Value.Properties.ZoneUpdate
+                                           && u.Value.Properties.ZoneType == "DockDoor").Select(x => x.Value).Where(DockDoor => TryUpdateDockDoorStatus(DockDoor)))
+                    {
+                        BroadcastDockDoorStatus(DockDoor);
+                    }
 
-        //            //        }
-        //            //    }
-        //            //}
+                    _updateDockDoorStatus = false;
+                }
+            }
+        }
 
-        //            if (tagdiffResult.TotalMilliseconds > tagVisibleRange)
-        //            {
-        //                if ((bool)tag["properties"]["tagVisible"] != false)
-        //                {
-        //                    tag["properties"]["tagVisible"] = false;
-        //                    returnresult = true;
-        //                }
-        //            }
-        //            else if (tagdiffResult.TotalMilliseconds <= tagVisibleRange)
-        //            {
-        //                if ((bool)tag["properties"]["tagVisible"] != true)
-        //                {
-        //                    tag["properties"]["tagVisible"] = true;
-        //                }
-        //            }
-        //            tag["properties"]["Tag_Update"] = false;
-        //            return returnresult;
-        //        }
-        //    }
-        //    catch (Exception e)
-        //    {
-        //        new ErrorLogger().ExceptionLog(e);
-        //        return false;
-        //    }
-        //}
+        private void BroadcastDockDoorStatus(GeoZone dockDoor)
+        {
+            Clients.All.updateDockDoorStatus(dockDoor);
+        }
 
+        private bool TryUpdateDockDoorStatus(GeoZone dockDoor)
+        {
+            try
+            {
+                dockDoor.Properties.ZoneUpdate = false;
+                return true;
+                
+            }
+            catch (Exception e)
+            {
+                new ErrorLogger().ExceptionLog(e);
+                return false;
+            }
+        }
 
+        private void UpdateVehicleTagStatus(object state)
+        {
+            lock (updateTagStatuslock)
+            {
+                if (!_updateTagStatus)
+                {
+                    _updateTagStatus = true;
+                    double tagVisibleRange = AppParameters.AppSettings.ContainsKey("POSITION_MAX_AGE") ? !string.IsNullOrEmpty((string)AppParameters.AppSettings.Property("POSITION_MAX_AGE").Value) ? (long)AppParameters.AppSettings.Property("POSITION_MAX_AGE").Value : 10000 : 10000;
 
-        //private void UpdateDockDoorStatus(object state)
-        //{
-        //    lock (updateDockDoorStatuslock)
-        //    {
-        //        if (!_updateDockDoorStatus)
-        //        {
-        //            _updateDockDoorStatus = true;
+                    foreach (GeoMarker Tag in AppParameters.TagsList.Where(u => u.Value.Properties.TagUpdate && u.Value.Properties.TagType.EndsWith("Vehicle")).Select(x => x.Value))
+                    {
+                        if (TryUpdateVehicleTagStatus(Tag, tagVisibleRange))
+                        {
+                            BroadcastVehicleTagStatus(Tag);
+                        }
+                    }
 
-        //            foreach (JObject DockDoor in AppParameters.ZonesList.Where(u => (bool)u.Value["properties"]["Zone_Update"] 
-        //            && u.Value["properties"]["Zone_Type"].ToString() == "DockDoor").Select(x => x.Value))
-        //            {
-        //                if (TryUpdateDockDoorStatus(DockDoor))
-        //                {
-        //                    BroadcastDockDoorStatus(DockDoor);
-        //                }
-        //            };
+                    _updateTagStatus = false;
+                }
+            }
+        }
+        private void BroadcastVehicleTagStatus(GeoMarker marker)
+        {
+            Clients.Group("VehiclsMarkers").updateVehicleTagStatus(marker);
+        }
 
-        //            _updateDockDoorStatus = false;
-        //        }
-        //    }
-        //}
+        private void UpdatePersonTagStatus(object state)
+        {
+            lock (updatePersonTagStatuslock)
+            {
+                if (!_updatePersonTagStatus)
+                {
+                    _updatePersonTagStatus = true;
+                    //  var watch = new System.Diagnostics.Stopwatch();
+                    // watch.Start();
+                    double tagVisibleRange = AppParameters.AppSettings.ContainsKey("POSITION_MAX_AGE") ? !string.IsNullOrEmpty((string)AppParameters.AppSettings.Property("POSITION_MAX_AGE").Value) ? (long)AppParameters.AppSettings.Property("POSITION_MAX_AGE").Value : 10000 : 10000;
 
-        //private void BroadcastDockDoorStatus(JObject dockDoor)
-        //{
-        //    Clients.All.updateDockDoorStatus(dockDoor);
-        //}
+                    foreach (GeoMarker Marker in AppParameters.TagsList.Where(u => u.Value.Properties.TagUpdate
+                     && u.Value.Properties.TagType.EndsWith("Person")).Select(x => x.Value))
+                    {
+                        if (TryUpdatePersonTagStatus(Marker, tagVisibleRange))
+                        {
+                            BroadcastPersonTagStatus(Marker);
+                        }
+                    }
+                    // watch.Stop();
+                    // new ErrorLogger().CustomLog(string.Concat("Total Execution for all tags ", "Time: ", watch.ElapsedMilliseconds, " ms"), string.Concat((string)AppParameters.AppSettings.Property("APPLICATION_NAME").Value, "TagProcesslogs"));
+                    _updatePersonTagStatus = false;
+                }
+            }
+        }
+        private bool TryUpdatePersonTagStatus(GeoMarker marker, double tagVisibleRange)
+        {
+            try
+            {
+                marker.Properties.TagUpdate = false;
+                if (marker.Properties.MovementStatus == "noData")
+                {
+                    marker.Properties.TagVisible = false;
+                }
+                return true;
+            }
+            catch (Exception e)
+            {
+                new ErrorLogger().ExceptionLog(e);
+                return false;
+            }
+        }
 
-        //private bool TryUpdateDockDoorStatus(JObject dockDoor)
-        //{
-        //    try
-        //    {
-
-        //            // Make call to update routetripData.alertState
-        //            //dockDoor["properties"]["alertState"] = GetDoorAlertState(dockDoor);
-        //            //if (dockDoor["properties"]["alertState"].ToString().ToUpper() != "OKAY")
-        //            //{
-        //            //    dockDoor["properties"]["alertMessage"] = dockDoor["properties"]["alertState"].ToString().ToUpper();
-        //            //}
-        //         dockDoor["properties"]["Zone_Update"] = false;
-        //        return true;
-        //        //string DockDoor_id = (string)dockDoor["properties"]["id"];
-
-        //        //if (AppParameters.DockDoorZones.ContainsKey(DockDoor_id))
-        //        //{
-        //        //    if (AppParameters.DockDoorZones.TryGetValue(DockDoor_id, out JObject dockDoorInfo))
-        //        //    {
-        //        //        dockDoorInfo["properties"]["Zone_Update"] = false;
-        //        //        return true;
-        //        //    }
-        //        //    else
-        //        //    {
-        //        //        return false;
-        //        //    }
-        //        //}
-        //        //else
-        //        //{
-        //        //    return false;
-        //        //}
-        //    }
-        //    catch (Exception e)
-        //    {
-        //        new ErrorLogger().ExceptionLog(e);
-        //        return false;
-        //    }
-        //}
-
-        //private void UpdateVehicleTagStatus(object state)
-        //{
-        //    lock (updateTagStatuslock)
-        //    {
-        //        if (!_updateTagStatus)
-        //        {
-        //            _updateTagStatus = true;
-        //            double tagVisibleRange = AppParameters.AppSettings.ContainsKey("POSITION_MAX_AGE") ? !string.IsNullOrEmpty((string)AppParameters.AppSettings.Property("POSITION_MAX_AGE").Value) ? (long)AppParameters.AppSettings.Property("POSITION_MAX_AGE").Value : 10000 : 10000;
-
-        //            foreach (JObject Tag in AppParameters.Tag.Where(u => (bool)u.Value["properties"]["Tag_Update"] == true && u.Value["properties"]["Tag_Type"].ToString().EndsWith("Vehicle")).Select(x => x.Value))
-        //            {
-        //                if (TryUpdateVehicleTagStatus(Tag, tagVisibleRange))
-        //                {
-        //                    BroadcastVehicleTagStatus(Tag);
-        //                }
-        //            }
-
-        //            _updateTagStatus = false;
-        //        }
-        //    }
-        //}
-
-        //private void UpdatePersonTagStatus(object state)
-        //{
-        //    lock (updatePersonTagStatuslock)
-        //    {
-        //        if (!_updatePersonTagStatus)
-        //        {
-        //            _updatePersonTagStatus = true;
-        //            //  var watch = new System.Diagnostics.Stopwatch();
-        //            // watch.Start();
-        //            double tagVisibleRange = AppParameters.AppSettings.ContainsKey("POSITION_MAX_AGE") ? !string.IsNullOrEmpty((string)AppParameters.AppSettings.Property("POSITION_MAX_AGE").Value) ? (long)AppParameters.AppSettings.Property("POSITION_MAX_AGE").Value : 10000 : 10000;
-
-        //            foreach (JObject Tag in AppParameters.Tag.Where(u => (bool)u.Value["properties"]["Tag_Update"]
-        //             && u.Value["properties"]["Tag_Type"].ToString().EndsWith("Person")).Select(x => x.Value))
-        //            {
-        //                if (TryUpdatePersonTagStatus(Tag, tagVisibleRange))
-        //                {
-        //                    BroadcastPersonTagStatus(Tag);
-        //                }
-        //            }
-        //            // watch.Stop();
-        //            // new ErrorLogger().CustomLog(string.Concat("Total Execution for all tags ", "Time: ", watch.ElapsedMilliseconds, " ms"), string.Concat((string)AppParameters.AppSettings.Property("APPLICATION_NAME").Value, "TagProcesslogs"));
-        //            _updatePersonTagStatus = false;
-        //        }
-        //    }
-        //}
-
-        //private void BroadcastPersonTagStatus(JObject tag)
-        //{
-        //    Clients.All.updatePersonTagStatus(tag);
-        //}
+        private void BroadcastPersonTagStatus(GeoMarker Marker)
+        {
+            Clients.Group("PeopleMarkers").updatePersonTagStatus(Marker);
+        }
 
         //private bool TryUpdatePersonTagStatus(JObject tag, double tagVisibleRange)
         //{
@@ -1951,74 +1933,93 @@ namespace Factory_of_the_Future
                 return null;
             }
         }
-        //internal IEnumerable<JToken> EditZone(string data)
-        //{
-        //    string id = string.Empty;
+        internal IEnumerable<ZoneInfo> EditZone(string data)
+        {
+            string id = string.Empty;
 
-        //    try
-        //    {
-        //        bool fileUpdate = false;
-        //        bool updateZone = false;
-        //        if (!string.IsNullOrEmpty(data))
-        //        {
-        //            if (AppParameters.IsValidJson(data))
-        //            {
-        //                JObject objectdata = JObject.Parse(data);
-        //                if (objectdata.HasValues)
-        //                {
-        //                    if (objectdata.ContainsKey("id"))
-        //                    {
-        //                        id = objectdata["id"].ToString();
-        //                        objectdata["Zone_Update"] = true;
-        //                        if (AppParameters.ZoneInfo.ContainsKey(id))
-        //                        {
-        //                            if (AppParameters.ZoneInfo.TryGetValue(id, out JObject zoneinfodata))
-        //                            {
-        //                                (zoneinfodata).Merge(objectdata, new JsonMergeSettings { MergeArrayHandling = MergeArrayHandling.Union });
-        //                                zoneinfodata["name"] = zoneinfodata["MPE_Type"] + "-" + zoneinfodata["MPE_Number"].ToString().PadLeft(3, '0');
-        //                                updateZone = true;
-        //                                fileUpdate = true;
-        //                            } 
-        //                        }
-        //                        else
-        //                        {
-        //                            objectdata["name"] = objectdata["MPE_Type"] + "-" + objectdata["MPE_Number"].ToString().PadLeft(3, '0');
-        //                            if (AppParameters.ZoneInfo.TryAdd(id, objectdata))
-        //                            {
-        //                                updateZone = true;
-        //                                fileUpdate = true;
-        //                            } 
-        //                        }
-        //                        if (updateZone)
-        //                        {
-        //                            if (AppParameters.ZoneInfo.TryGetValue(id, out JObject zoneinfodata))
-        //                            {
-        //                                if (AppParameters.ZonesList.ContainsKey(id))
-        //                                {
-        //                                    if (AppParameters.ZonesList.TryGetValue(id, out JObject oldobjectdata))
-        //                                    {
-        //                                        ((JObject)oldobjectdata["properties"]).Merge(zoneinfodata, new JsonMergeSettings { MergeArrayHandling = MergeArrayHandling.Union });
-        //                                    }
-        //                                }
-        //                            }
-        //                        }
-        //                    }
-        //                }
-        //            }
-        //        }
+            try
+            {
+                bool fileUpdate = false;
+                bool updateZone = false;
+                if (!string.IsNullOrEmpty(data))
+                {
+                    if (AppParameters.IsValidJson(data))
+                    {
+                        JObject objectdata = JObject.Parse(data);
+                        if (objectdata.HasValues)
+                        {
+                            if (objectdata.ContainsKey("id"))
+                            {
+                                id = objectdata["id"].ToString();
+                                if (AppParameters.ZoneInfo.ContainsKey(id))
+                                {
+                                    ZoneInfo newzinfo = new ZoneInfo();
+                                    if (AppParameters.ZoneInfo.TryGetValue(id, out ZoneInfo zoneinfodata))
+                                    {
+                                        JObject zinfo = (JObject)JsonConvert.DeserializeObject(JsonConvert.SerializeObject(zoneinfodata, Formatting.Indented));
 
-        //        if (fileUpdate)
-        //        {
-        //            new FileIO().Write(string.Concat(AppParameters.Logdirpath, AppParameters.ConfigurationFloder), "Zones.json", JsonConvert.SerializeObject(AppParameters.ZoneInfo.Select(x => x.Value).ToList(), Formatting.Indented));
-        //        }
-        //        return AppParameters.ZonesList.Where(w => w.Key == id).Select(s => s.Value).ToList();
-        //    }
-        //    catch (Exception e)
-        //    {
-        //        new ErrorLogger().ExceptionLog(e);
-        //        return AppParameters.ZonesList.Select(s => s.Value).ToList();
-        //    }
-        //}
+                                        zinfo.Merge(objectdata, new JsonMergeSettings { MergeArrayHandling = MergeArrayHandling.Union });
+                                        zinfo["name"] = zinfo["MPE_Type"] + "-" + zinfo["MPE_Number"].ToString().PadLeft(3, '0');
+                                        newzinfo = zinfo.ToObject<ZoneInfo>();
+                                        updateZone = true;
+                                    }
+                                    if (updateZone)
+                                    {
+                                        if (AppParameters.ZoneInfo.TryUpdate(id, newzinfo, zoneinfodata))
+                                        {
+                                            updateZone = true;
+                                            fileUpdate = true;
+                                        }
+                                    }
+                                }
+                                else
+                                {
+                                    ZoneInfo newzinfo = objectdata.ToObject<ZoneInfo>();
+                                    newzinfo.Name  = objectdata["MPE_Type"] + "-" + objectdata["MPE_Number"].ToString().PadLeft(3, '0');
+                                    if (AppParameters.ZoneInfo.TryAdd(id, newzinfo))
+                                    {
+                                        updateZone = true;
+                                        fileUpdate = true;
+                                    }
+                                }
+                                if (updateZone)
+                                {
+                                    updateZone = false;
+                                    GeoZone newzoneD = new GeoZone();
+                                    if (AppParameters.ZoneList.TryGetValue(id, out GeoZone curretzonedata))
+                                    {
+                                        JObject zoneD = (JObject)JsonConvert.DeserializeObject(JsonConvert.SerializeObject(curretzonedata, Formatting.Indented));
+                                        ((JObject)zoneD["properties"]).Merge(objectdata, new JsonMergeSettings { MergeArrayHandling = MergeArrayHandling.Union });
+                                        newzoneD = zoneD.ToObject<GeoZone>();
+                                        newzoneD.Properties.Name = objectdata["MPE_Type"] + "-" + objectdata["MPE_Number"].ToString().PadLeft(3, '0');
+                                        updateZone = true;
+                                    }
+                                    if (updateZone)
+                                    {
+                                        newzoneD.Properties.ZoneUpdate = true;
+                                        if (AppParameters.ZoneList.TryUpdate(id, newzoneD , curretzonedata))
+                                        {
+
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+
+                if (fileUpdate)
+                {
+                    new FileIO().Write(string.Concat(AppParameters.Logdirpath, AppParameters.ConfigurationFloder), "Zones.json", JsonConvert.SerializeObject(AppParameters.ZoneInfo.Select(x => x.Value).ToList(), Formatting.Indented));
+                }
+                return AppParameters.ZoneInfo.Where(w => w.Key == id).Select(s => s.Value).ToList();
+            }
+            catch (Exception e)
+            {
+                new ErrorLogger().ExceptionLog(e);
+                return null;
+            }
+        }
         //internal IEnumerable<JToken> GetAppSettingdata()
         //{
         //    try
@@ -2040,76 +2041,76 @@ namespace Factory_of_the_Future
         //    }
         //}
 
-        //internal IEnumerable<JToken> EditAppSettingdata(string data)
-        //{
-        //    try
-        //    {
-        //        bool fileUpdate = false;
-        //        if (!string.IsNullOrEmpty(data))
-        //        {
-        //            dynamic objdict = JToken.Parse(data);
-        //            foreach (dynamic item in AppParameters.AppSettings)
-        //            {
-        //                foreach (var kv in objdict)
-        //                {
-        //                    if (kv.Name == item.Key)
-        //                    {
-        //                        if (kv.Value != item.Value)
-        //                        {
-        //                            fileUpdate = true;
+        internal IEnumerable<JToken> EditAppSettingdata(string data)
+        {
+            try
+            {
+                bool fileUpdate = false;
+                if (!string.IsNullOrEmpty(data))
+                {
+                    dynamic objdict = JToken.Parse(data);
+                    foreach (dynamic item in AppParameters.AppSettings)
+                    {
+                        foreach (var kv in objdict)
+                        {
+                            if (kv.Name == item.Key)
+                            {
+                                if (kv.Value != item.Value)
+                                {
+                                    fileUpdate = true;
 
-        //                            if (kv.Name.StartsWith("ORACONN"))
-        //                            {
-        //                                AppParameters.AppSettings[item.Key] = AppParameters.Encrypt(kv.Value.ToString());
-        //                            }
-        //                            if (kv.Name == "FACILITY_NASS_CODE")
-        //                            {
-        //                                if (GetData.Get_Site_Info((string)kv.Value, out JObject SiteInfo))
-        //                                {
-        //                                    if (SiteInfo.HasValues)
-        //                                    {
-        //                                        AppParameters.AppSettings[kv.Name] = kv.Value.ToString();
-        //                                        AppParameters.AppSettings["FACILITY_NAME"] = SiteInfo.ContainsKey("displayName") ? SiteInfo["displayName"] : "";
-        //                                        AppParameters.AppSettings["FACILITY_ID"] = SiteInfo.ContainsKey("fdbId") ? SiteInfo["fdbId"] : "";
-        //                                        AppParameters.AppSettings["FACILITY_ZIP"] = SiteInfo.ContainsKey("zipCode") ? SiteInfo["zipCode"] : "";
-        //                                        AppParameters.AppSettings["FACILITY_LKEY"] = SiteInfo.ContainsKey("localeKey") ? SiteInfo["localeKey"] : "";
-        //                                        Task.Run(() => AppParameters.LoglocationSetup());
-        //                                    }
-        //                                }
-        //                            }
-        //                            else if (kv.Name == "LOG_LOCATION")
-        //                            {
-        //                                if (!string.IsNullOrEmpty(kv.Value.ToString()))
-        //                                {
-        //                                    AppParameters.AppSettings[item.Key] = kv.Value.ToString();
-        //                                    Task.Run(() => AppParameters.LoglocationSetup());
-        //                                    //AppParameters.Logdirpath = new DirectoryInfo(kv.Value.ToString());
-        //                                    //new Directory_Check().DirPath(AppParameters.Logdirpath);
-        //                                }
-        //                            }
-        //                            else
-        //                            {
-        //                                AppParameters.AppSettings[item.Key] = kv.Value.ToString();
-        //                            }
-        //                        }
-        //                    }
-        //                }
-        //            }
-        //        }
+                                    if (kv.Name.StartsWith("ORACONN"))
+                                    {
+                                        AppParameters.AppSettings[item.Key] = AppParameters.Encrypt(kv.Value.ToString());
+                                    }
+                                    if (kv.Name == "FACILITY_NASS_CODE")
+                                    {
+                                        if (GetData.Get_Site_Info((string)kv.Value, out JObject SiteInfo))
+                                        {
+                                            if (SiteInfo.HasValues)
+                                            {
+                                                AppParameters.AppSettings[kv.Name] = kv.Value.ToString();
+                                                AppParameters.AppSettings["FACILITY_NAME"] = SiteInfo.ContainsKey("displayName") ? SiteInfo["displayName"] : "";
+                                                AppParameters.AppSettings["FACILITY_ID"] = SiteInfo.ContainsKey("fdbId") ? SiteInfo["fdbId"] : "";
+                                                AppParameters.AppSettings["FACILITY_ZIP"] = SiteInfo.ContainsKey("zipCode") ? SiteInfo["zipCode"] : "";
+                                                AppParameters.AppSettings["FACILITY_LKEY"] = SiteInfo.ContainsKey("localeKey") ? SiteInfo["localeKey"] : "";
+                                                Task.Run(() => AppParameters.LoglocationSetup());
+                                            }
+                                        }
+                                    }
+                                    else if (kv.Name == "LOG_LOCATION")
+                                    {
+                                        if (!string.IsNullOrEmpty(kv.Value.ToString()))
+                                        {
+                                            AppParameters.AppSettings[item.Key] = kv.Value.ToString();
+                                            Task.Run(() => AppParameters.LoglocationSetup());
+                                            //AppParameters.Logdirpath = new DirectoryInfo(kv.Value.ToString());
+                                            //new Directory_Check().DirPath(AppParameters.Logdirpath);
+                                        }
+                                    }
+                                    else
+                                    {
+                                        AppParameters.AppSettings[item.Key] = kv.Value.ToString();
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
 
-        //        if (fileUpdate)
-        //        {
-        //            new FileIO().Write(string.Concat(AppParameters.CodeBase.Parent.FullName.ToString(), AppParameters.Appsetting), "AppSettings.json", JsonConvert.SerializeObject(AppParameters.AppSettings, Formatting.Indented));
-        //            new FileIO().Write(string.Concat(AppParameters.Logdirpath, AppParameters.ConfigurationFloder), "AppSettings.json", JsonConvert.SerializeObject(AppParameters.AppSettings, Formatting.Indented));
-        //        }
-        //        return AppParameters.AppSettings;
-        //    }
-        //    catch (Exception e)
-        //    {
-        //        new ErrorLogger().ExceptionLog(e);
-        //        return AppParameters.AppSettings;
-        //    }
-        //}
+                if (fileUpdate)
+                {
+                    new FileIO().Write(string.Concat(AppParameters.CodeBase.Parent.FullName.ToString(), AppParameters.Appsetting), "AppSettings.json", JsonConvert.SerializeObject(AppParameters.AppSettings, Formatting.Indented));
+                    new FileIO().Write(string.Concat(AppParameters.Logdirpath, AppParameters.ConfigurationFloder), "AppSettings.json", JsonConvert.SerializeObject(AppParameters.AppSettings, Formatting.Indented));
+                }
+                return AppParameters.AppSettings;
+            }
+            catch (Exception e)
+            {
+                new ErrorLogger().ExceptionLog(e);
+                return AppParameters.AppSettings;
+            }
+        }
 
         internal void Removeuser(string connectionId)
         {
@@ -2293,4 +2294,6 @@ namespace Factory_of_the_Future
             throw new NotImplementedException();
         }
     }
-}
+
+       
+    }

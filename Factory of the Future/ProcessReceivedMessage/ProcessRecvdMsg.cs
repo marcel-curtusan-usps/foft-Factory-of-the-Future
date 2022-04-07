@@ -11,7 +11,7 @@ namespace Factory_of_the_Future
 {
     public class ProcessRecvdMsg
     {
-        public void StartProcess(dynamic data, string Message_type)
+        public void StartProcess(dynamic data, string Message_type, string connID)
         {
             try
             {
@@ -24,11 +24,11 @@ namespace Factory_of_the_Future
                             CameraData(data);
                             break;
                         /*Quuppa Data Start*/
-                        //case "getTagPosition":
-                        //    TagPosition(data);
-                        //    break;
+                        case "getTagPosition":
+                            TagPosition(data,connID);
+                            break;
                         case "getProjectInfo":
-                            ProjectData(data);
+                            ProjectData(data, connID);
                             break;
                         ///*Quuppa Data End*/
                         ///*SVWeb Data Start*/
@@ -108,21 +108,21 @@ namespace Factory_of_the_Future
                         //    break;
                         ///*AGVM Data End*/
                         ///*MPEWatch Data Start*/
-                        //case "mpe_watch_id":
-                        //    MPE_Watch_Id(data);
-                        //    break;
+                        case "mpe_watch_id":
+                            MPE_Watch_Id(data);
+                            break;
 
-                        //case "rpg_run_perf":
-                        //    MPEWatch_RPGPerf(data);
-                        //    break;
+                        case "rpg_run_perf":
+                            MPEWatch_RPGPerf(data);
+                            break;
 
                         //case "rpg_plan":
                         //    MPEWatch_RPGPlan(data);
                         //    break;
 
-                        //case "dps_run_estm":
-                        //    MPEWatch_DPSEst(data);
-                        //    break;
+                        case "dps_run_estm":
+                            MPEWatch_DPSEst(data);
+                            break;
                         ///*MPEWatch Data End*/
                         default:
                             break;
@@ -137,93 +137,95 @@ namespace Factory_of_the_Future
 
 
 
-        //private void Staffing(JObject data, string message_type)
-        //{
-        //    try
-        //    {
-        //        bool updatefile = false;
-        //        if (data.HasValues)
-        //        {
-        //            IEnumerable<JToken> staff = data.SelectTokens("$..DATA[*]");
-        //            JArray sortplanlist = new JArray(); 
-        //            if (staff.Count() > 0)
-        //            {
-        //                foreach (JToken stafff_item in staff)
-        //                {
-        //                    sortplanlist.Add(new JObject(new JProperty("mach_type", (string)stafff_item[0]),
-        //                        new JProperty("machine_no", (int)stafff_item[1]),
-        //                        new JProperty("sortplan", (string)stafff_item[2]),
-        //                        new JProperty("clerk", stafff_item[3]),
-        //                        new JProperty("mh", stafff_item[4])));
-        //                }
-
-        //            }
-        //            if (sortplanlist.HasValues)
-        //            {
-        //                foreach (JObject Dataitem in sortplanlist.Children())
-        //                {
-        //                    if (!string.IsNullOrEmpty((string)Dataitem["sortplan"]))
-        //                    {
-        //                        string mach_type = Dataitem.ContainsKey("mach_type") ? (string)Dataitem["mach_type"] : "";
-        //                        string machine_no = Dataitem.ContainsKey("machine_no") ? (string)Dataitem["machine_no"] : "";
-        //                        string sortplan = Dataitem.ContainsKey("sortplan") ? (string)Dataitem["sortplan"] : "";
-        //                        string sortplan_name = "";
-        //                        if (mach_type == "APBS")
-        //                        {
-        //                            mach_type = "SPBSTS";
-        //                        }
-        //                        //int dotindex = sortplan.IndexOf(".", 1);
-        //                        //if ((dotindex == -1))
-        //                        //{
-        //                        //    sortplan_name = sortplan.Trim();
-        //                        //}
-        //                        //else
-        //                        //{
-        //                        //    sortplan_name = sortplan.Substring(0, dotindex).Trim();
-        //                        //}
-        //                        if (Regex.IsMatch(mach_type, "(DBCS|AFSM100|ATU|CIOSS)", RegexOptions.IgnoreCase))
-        //                        {
-        //                            int dotindex = sortplan.IndexOf(".", 1);
-        //                            if ((dotindex == -1))
-        //                            {
-        //                                sortplan_name = sortplan;
-        //                            }
-        //                            else
-        //                            {
-        //                                sortplan_name = sortplan.Substring(0, dotindex);
-        //                            }
-        //                            sortplan = sortplan_name;
-        //                        }
-        //                        string mch_sortplan_id = mach_type + "-" + machine_no + "-" + sortplan;
-
-        //                        AppParameters.SortplansList.AddOrUpdate(mch_sortplan_id, Dataitem,
-        //                             (key, existingVal) =>
-        //                             {
-
-        //                                 if (JsonConvert.SerializeObject(existingVal) == JsonConvert.SerializeObject(Dataitem))
-        //                                     return existingVal;
-        //                                 else
-        //                                     updatefile = true;
-        //                                 return Dataitem;
-        //                             });
 
 
+        private void Staffing(JObject data, string message_type)
+        {
+            try
+            {
+                bool updatefile = false;
+                if (data.HasValues)
+                {
+                    IEnumerable<JToken> staff = data.SelectTokens("$..DATA[*]");
+                    JArray sortplanlist = new JArray();
+                    if (staff.Count() > 0)
+                    {
+                        foreach (JToken stafff_item in staff)
+                        {
+                            sortplanlist.Add(new JObject(new JProperty("mach_type", (string)stafff_item[0]),
+                                new JProperty("machine_no", (int)stafff_item[1]),
+                                new JProperty("sortplan", (string)stafff_item[2]),
+                                new JProperty("clerk", stafff_item[3]),
+                                new JProperty("mh", stafff_item[4])));
+                        }
 
-        //                    }
-        //                }
-        //            }
-        //            if (updatefile)
-        //            {
-        //                new FileIO().Write(string.Concat(AppParameters.Logdirpath, AppParameters.ConfigurationFloder), "Staffing.json", JsonConvert.SerializeObject(AppParameters.SortplansList.Select(x => x.Value).ToList(), Formatting.Indented));
-        //            }
+                    }
+                    if (sortplanlist.HasValues)
+                    {
+                        foreach (JObject Dataitem in sortplanlist.Children())
+                        {
+                            if (!string.IsNullOrEmpty((string)Dataitem["sortplan"]))
+                            {
+                                string mach_type = Dataitem.ContainsKey("mach_type") ? (string)Dataitem["mach_type"] : "";
+                                string machine_no = Dataitem.ContainsKey("machine_no") ? (string)Dataitem["machine_no"] : "";
+                                string sortplan = Dataitem.ContainsKey("sortplan") ? (string)Dataitem["sortplan"] : "";
+                                string sortplan_name = "";
+                                if (mach_type == "APBS")
+                                {
+                                    mach_type = "SPBSTS";
+                                }
+                                //int dotindex = sortplan.IndexOf(".", 1);
+                                //if ((dotindex == -1))
+                                //{
+                                //    sortplan_name = sortplan.Trim();
+                                //}
+                                //else
+                                //{
+                                //    sortplan_name = sortplan.Substring(0, dotindex).Trim();
+                                //}
+                                if (Regex.IsMatch(mach_type, "(DBCS|AFSM100|ATU|CIOSS)", RegexOptions.IgnoreCase))
+                                {
+                                    int dotindex = sortplan.IndexOf(".", 1);
+                                    if ((dotindex == -1))
+                                    {
+                                        sortplan_name = sortplan;
+                                    }
+                                    else
+                                    {
+                                        sortplan_name = sortplan.Substring(0, dotindex);
+                                    }
+                                    sortplan = sortplan_name;
+                                }
+                                string mch_sortplan_id = mach_type + "-" + machine_no + "-" + sortplan;
 
-        //        }
-        //    }
-        //    catch (Exception e)
-        //    {
-        //        new ErrorLogger().ExceptionLog(e);
-        //    }
-        //}
+                                AppParameters.SortplansList.AddOrUpdate(mch_sortplan_id, Dataitem,
+                                     (key, existingVal) =>
+                                     {
+
+                                         if (JsonConvert.SerializeObject(existingVal) == JsonConvert.SerializeObject(Dataitem))
+                                             return existingVal;
+                                         else
+                                             updatefile = true;
+                                         return Dataitem;
+                                     });
+
+
+
+                            }
+                        }
+                    }
+                    if (updatefile)
+                    {
+                        new FileIO().Write(string.Concat(AppParameters.Logdirpath, AppParameters.ConfigurationFloder), "Staffing.json", JsonConvert.SerializeObject(AppParameters.SortplansList.Select(x => x.Value).ToList(), Formatting.Indented));
+                    }
+
+                }
+            }
+            catch (Exception e)
+            {
+                new ErrorLogger().ExceptionLog(e);
+            }
+        }
 
         private void CameraData(dynamic data)
         {
@@ -247,18 +249,18 @@ namespace Factory_of_the_Future
             }
         }
 
-        //private static void MPE_Watch_Id(JObject data)
-        //{
-        //    try
-        //    {
-        //        string MpewatchID = "{\"MPE_WATCH_ID\":\"" + data["id"] + "\"}";
-        //        FOTFManager.Instance.EditAppSettingdata(MpewatchID);
-        //    }
-        //    catch (Exception e)
-        //    {
-        //        new ErrorLogger().ExceptionLog(e);
-        //    }
-        //}
+        private static void MPE_Watch_Id(JObject data)
+        {
+            try
+            {
+                string MpewatchID = "{\"MPE_WATCH_ID\":\"" + data["id"] + "\"}";
+                FOTFManager.Instance.EditAppSettingdata(MpewatchID);
+            }
+            catch (Exception e)
+            {
+                new ErrorLogger().ExceptionLog(e);
+            }
+        }
 
         private static void Container(dynamic data)
         {
@@ -1377,149 +1379,186 @@ namespace Factory_of_the_Future
         //    }
         //}
 
-        //private static void MPEWatch_RPGPerf(JObject data)
-        //{
-        //    try
-        //    {
-        //        bool update_info = false;
-        //        string machine_type = "";
-        //        string machine_number = "";
-        //        string total_volume = "";
-        //        string sortplan = "";
-        //        string estCompletionTime = "";
-        //        if (data != null && data.HasValues)
-        //        {
-        //            JToken machineInfo = data.SelectToken("data");
-        //            if (machineInfo != null)
-        //            {
-        //                foreach (JObject item in machineInfo.Children())
-        //                {
-        //                    machine_type = item.ContainsKey("mpe_type") ? item["mpe_type"].ToString().Trim() : "";
-        //                    machine_number = item.ContainsKey("mpe_number") ? item["mpe_number"].ToString().PadLeft(3, '0') : "";
-        //                    sortplan = item.ContainsKey("cur_sortplan") ? item["cur_sortplan"].ToString() : "";
-        //                    //if (!string.IsNullOrEmpty(machine_type))
-        //                    //{
-        //                    //    if (machine_type.ToUpper().Trim() == "SPBSTS")
-        //                    //    {
-        //                    //        machine_type = "APBS";
-        //                    //    }
-        //                    //    if (machine_type.ToUpper().Trim() == "FSFSSC")
-        //                    //    {
-        //                    //        machine_type = "FSS";
-        //                    //    }
-        //                    //}
+        private static void MPEWatch_RPGPerf(dynamic data)
+        {
+            try
+            {
+                bool updateZone = false;
+                string machine_type = "";
+                string machine_number = "";
+                string total_volume = "";
+                string sortplan = "";
+                string estCompletionTime = "";
+                if (data != null )
+                {
+                    JToken tempData = JToken.Parse(data);
+                    JToken machineInfo = tempData.SelectToken("data");
+                    if (machineInfo != null)
+                    {
+                        foreach (JObject item in machineInfo.Children())
+                        {
+                            string MpeName = string.Concat(item["mpe_type"].ToString().Trim() ,"-", item["mpe_number"].ToString().PadLeft(3, '0'));
+                            foreach ( string key in AppParameters.ZoneList.Where( r => r.Value.Properties.ZoneType == "Machine" && r.Value.Properties.Name == MpeName).Select(y => y.Key).ToList())
+                            {
+                                GeoZone tempZone = new GeoZone();
+                                if (AppParameters.ZoneList.TryGetValue(key, out GeoZone machineZone))
+                                {
+                                    JObject tempmachineZone = (JObject)JsonConvert.DeserializeObject(JsonConvert.SerializeObject(machineZone, Formatting.Indented));
 
-        //                    total_volume = item.ContainsKey("tot_sortplan_vol") ? item["tot_sortplan_vol"].ToString().Trim() : "0";
-        //                    int.TryParse(item.ContainsKey("rpg_est_vol") ? item["rpg_est_vol"].ToString().Trim() : "0", out int rpg_volume);
-        //                    double.TryParse(item.ContainsKey("rpg_est_vol") ? item["cur_thruput_ophr"].ToString().Trim() : "0", out double throughput);
-        //                    int.TryParse(item.ContainsKey("rpg_est_vol") ? item["tot_sortplan_vol"].ToString().Trim() : "0", out int piecesfed);
+                                    total_volume = item.ContainsKey("tot_sortplan_vol") ? item["tot_sortplan_vol"].ToString().Trim() : "0";
+                                    int.TryParse(item.ContainsKey("rpg_est_vol") ? item["rpg_est_vol"].ToString().Trim() : "0", out int rpg_volume);
+                                    double.TryParse(item.ContainsKey("rpg_est_vol") ? item["cur_thruput_ophr"].ToString().Trim() : "0", out double throughput);
+                                    int.TryParse(item.ContainsKey("rpg_est_vol") ? item["tot_sortplan_vol"].ToString().Trim() : "0", out int piecesfed);
 
-        //                    if (rpg_volume > 0 && throughput > 0)
-        //                    {
-        //                        DateTime dtNow = DateTime.Now;
-        //                        if (!string.IsNullOrEmpty((string)AppParameters.AppSettings["FACILITY_TIMEZONE"]))
-        //                        {
-        //                            if (AppParameters.TimeZoneConvert.TryGetValue((string)AppParameters.AppSettings["FACILITY_TIMEZONE"], out string windowsTimeZoneId))
-        //                            {
-        //                                dtNow = TimeZoneInfo.ConvertTime(dtNow, TimeZoneInfo.FindSystemTimeZoneById(windowsTimeZoneId));
-        //                            }
-        //                        }
+                                    if (rpg_volume > 0 && throughput > 0)
+                                    {
+                                        DateTime dtNow = DateTime.Now;
+                                        if (!string.IsNullOrEmpty((string)AppParameters.AppSettings["FACILITY_TIMEZONE"]))
+                                        {
+                                            if (AppParameters.TimeZoneConvert.TryGetValue((string)AppParameters.AppSettings["FACILITY_TIMEZONE"], out string windowsTimeZoneId))
+                                            {
+                                                dtNow = TimeZoneInfo.ConvertTime(dtNow, TimeZoneInfo.FindSystemTimeZoneById(windowsTimeZoneId));
+                                            }
+                                        }
 
-        //                        double intMinuteToCompletion = (rpg_volume - piecesfed) / (throughput / 60);
-        //                        DateTime dtEstCompletion = dtNow.AddMinutes(intMinuteToCompletion);
-        //                        estCompletionTime = dtEstCompletion.ToString("yyyy-MM-dd HH:mm:ss");
-        //                        item.Add("rpg_est_comp_time", estCompletionTime);
-        //                    }
-        //                    else
-        //                    {
-        //                        item.Add("rpg_est_comp_time", "");
-        //                    }
+                                        double intMinuteToCompletion = (rpg_volume - piecesfed) / (throughput / 60);
+                                        DateTime dtEstCompletion = dtNow.AddMinutes(intMinuteToCompletion);
+                                        estCompletionTime = dtEstCompletion.ToString("yyyy-MM-dd HH:mm:ss");
+                                        item.Add("rpg_est_comp_time", estCompletionTime);
+                                    } 
+                                    else
+                                    {
+                                        item.Add("rpg_est_comp_time", "");
+                                    }
+                                    ((JObject)tempmachineZone["properties"]["MPEWatchData"]).Merge(item, new JsonMergeSettings { MergeArrayHandling = MergeArrayHandling.Union });
 
-        //                    if (item["current_run_end"].ToString() == "" && item["current_run_start"].ToString() != "")
-        //                    {
-        //                        JObject results = new Oracle_DB_Calls().Get_RPG_Plan_Info(item);
-        //                        item.Add("rpg_start_dtm", results.ContainsKey("rpg_start_dtm") ? results["rpg_start_dtm"].ToString().Trim() : "");
-        //                        item.Add("rpg_end_dtm", results.ContainsKey("rpg_end_dtm") ? results["rpg_end_dtm"].ToString().Trim() : "");
-        //                        item.Add("expected_throughput", results.ContainsKey("expected_throughput") ? results["expected_throughput"].ToString().Trim() : "");
-        //                    }
-        //                    else
-        //                    {
-        //                        item.Add("rpg_start_dtm", "");
-        //                        item.Add("rpg_end_dtm", "");
-        //                    }
-        //                    AppParameters.ZonesList.Where(x => x.Value["properties"]["Zone_Type"].ToString() == "Machine" &&
-        //                    x.Value["properties"]["MPE_Type"].ToString() == item["mpe_type"].ToString() && x.Value["properties"]["MPE_Number"].ToString() == item["mpe_number"].ToString())
-        //                       .Select(l => l.Value).ToList()
-        //                       .ForEach(existingVa =>
-        //                       {
-        //                           if (!string.IsNullOrEmpty(sortplan))
-        //                           {
-        //                               existingVa["properties"]["P2PData"] = GetP2PSortplan(machine_type, machine_number, sortplan);
-        //                           }
-        //                           if (existingVa["properties"]["MPEWatchData"].ToString() != item.ToString())
-        //                           {
-        //                               existingVa["properties"]["MPEWatchData"] = item;
-        //                               update_info = true;
-        //                           }
+                                    tempZone = tempmachineZone.ToObject<GeoZone>();
 
-        //                           if (update_info)
-        //                           {
-        //                               existingVa["properties"]["Zone_Update"] = true;
-        //                           }
+                                    machineZone.Properties.P2PData = GetP2PSortplan(machine_type, machine_number, sortplan).ToString();
+                                    machineZone.Properties.MPEWatchData = tempZone.Properties.MPEWatchData;
+                                    machineZone.Properties.ZoneUpdate = true;
+                                }
+                                tempZone = null;
+                            }
 
-        //                       });
-        //                }
-        //            }
-        //            machineInfo = null;
-        //            data = null;
-        //        }
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        new ErrorLogger().ExceptionLog(ex);
-        //    }
-        //    finally
-        //    {
-        //        data = null;
-        //    }
-        //}
 
-        //private static JToken GetP2PSortplan(string machine_type, string machine_number, string sortplan)
-        //{
-        //    try
-        //    {
-        //        JObject return_result = new JObject();
-        //        if (Regex.IsMatch(machine_type, "(DBCS|AFSM100|ATU|CIOSS)", RegexOptions.IgnoreCase))
-        //        {
-        //            string sortplan_name = "";
-        //            int dotindex = sortplan.IndexOf(".", 1);
-        //            if ((dotindex == -1))
-        //            {
-        //                sortplan_name = sortplan;
-        //            }
-        //            else
-        //            {
-        //                sortplan_name = sortplan.Substring(0, dotindex);
-        //            }
-        //            sortplan = sortplan_name;
-        //        }
-        //        string id = machine_type + "-" + Convert.ToInt32(machine_number) + "-" + sortplan;
-        //        if (AppParameters.SortplansList.ContainsKey(id))
-        //        {
-        //            if (AppParameters.SortplansList.TryGetValue(id, out JObject sp))
-        //            {
-        //                return sp;
-        //            }
-        //        }
 
-        //        return return_result;
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        new ErrorLogger().ExceptionLog(ex);
-        //        return new JObject();
-        //    }
-        //}
+                        //    machine_type = item.ContainsKey("mpe_type") ? item["mpe_type"].ToString().Trim() : "";
+                        //    machine_number = item.ContainsKey("mpe_number") ? item["mpe_number"].ToString().PadLeft(3, '0') : "";
+                        //    sortplan = item.ContainsKey("cur_sortplan") ? item["cur_sortplan"].ToString() : "";
+                        
+
+                        //    total_volume = item.ContainsKey("tot_sortplan_vol") ? item["tot_sortplan_vol"].ToString().Trim() : "0";
+                        //    int.TryParse(item.ContainsKey("rpg_est_vol") ? item["rpg_est_vol"].ToString().Trim() : "0", out int rpg_volume);
+                        //    double.TryParse(item.ContainsKey("rpg_est_vol") ? item["cur_thruput_ophr"].ToString().Trim() : "0", out double throughput);
+                        //    int.TryParse(item.ContainsKey("rpg_est_vol") ? item["tot_sortplan_vol"].ToString().Trim() : "0", out int piecesfed);
+
+                        //    if (rpg_volume > 0 && throughput > 0)
+                        //    {
+                        //        DateTime dtNow = DateTime.Now;
+                        //        if (!string.IsNullOrEmpty((string)AppParameters.AppSettings["FACILITY_TIMEZONE"]))
+                        //        {
+                        //            if (AppParameters.TimeZoneConvert.TryGetValue((string)AppParameters.AppSettings["FACILITY_TIMEZONE"], out string windowsTimeZoneId))
+                        //            {
+                        //                dtNow = TimeZoneInfo.ConvertTime(dtNow, TimeZoneInfo.FindSystemTimeZoneById(windowsTimeZoneId));
+                        //            }
+                        //        }
+
+                        //        double intMinuteToCompletion = (rpg_volume - piecesfed) / (throughput / 60);
+                        //        DateTime dtEstCompletion = dtNow.AddMinutes(intMinuteToCompletion);
+                        //        estCompletionTime = dtEstCompletion.ToString("yyyy-MM-dd HH:mm:ss");
+                        //        item.Add("rpg_est_comp_time", estCompletionTime);
+                        //    }
+                        //    else
+                        //    {
+                        //        item.Add("rpg_est_comp_time", "");
+                        //    }
+
+                        //    if (item["current_run_end"].ToString() == "" && item["current_run_start"].ToString() != "")
+                        //    {
+                        //        JObject results = new Oracle_DB_Calls().Get_RPG_Plan_Info(item);
+                        //        item.Add("rpg_start_dtm", results.ContainsKey("rpg_start_dtm") ? results["rpg_start_dtm"].ToString().Trim() : "");
+                        //        item.Add("rpg_end_dtm", results.ContainsKey("rpg_end_dtm") ? results["rpg_end_dtm"].ToString().Trim() : "");
+                        //        item.Add("expected_throughput", results.ContainsKey("expected_throughput") ? results["expected_throughput"].ToString().Trim() : "");
+                        //    }
+                        //    else
+                        //    {
+                        //        item.Add("rpg_start_dtm", "");
+                        //        item.Add("rpg_end_dtm", "");
+                        //    }
+                        //    AppParameters.ZonesList.Where(x => x.Value["properties"]["Zone_Type"].ToString() == "Machine" &&
+                        //    x.Value["properties"]["MPE_Type"].ToString() == item["mpe_type"].ToString() && x.Value["properties"]["MPE_Number"].ToString() == item["mpe_number"].ToString())
+                        //       .Select(l => l.Value).ToList()
+                        //       .ForEach(existingVa =>
+                        //       {
+                        //           if (!string.IsNullOrEmpty(sortplan))
+                        //           {
+                        //               existingVa["properties"]["P2PData"] = GetP2PSortplan(machine_type, machine_number, sortplan);
+                        //           }
+                        //           if (existingVa["properties"]["MPEWatchData"].ToString() != item.ToString())
+                        //           {
+                        //               existingVa["properties"]["MPEWatchData"] = item;
+                        //               update_info = true;
+                        //           }
+
+                        //           if (update_info)
+                        //           {
+                        //               existingVa["properties"]["Zone_Update"] = true;
+                        //           }
+
+                        //       });
+                        }
+                    }
+                    machineInfo = null;
+                    data = null;
+                }
+            }
+            catch (Exception ex)
+            {
+                new ErrorLogger().ExceptionLog(ex);
+            }
+          
+        }
+
+        private static JToken GetP2PSortplan(string machine_type, string machine_number, string sortplan)
+        {
+            try
+            {
+                JObject return_result = new JObject();
+                if (!string.IsNullOrEmpty(machine_type))
+                {
+                    if (Regex.IsMatch(machine_type, "(DBCS|AFSM100|ATU|CIOSS)", RegexOptions.IgnoreCase))
+                    {
+                        string sortplan_name = "";
+                        int dotindex = sortplan.IndexOf(".", 1);
+                        if ((dotindex == -1))
+                        {
+                            sortplan_name = sortplan;
+                        }
+                        else
+                        {
+                            sortplan_name = sortplan.Substring(0, dotindex);
+                        }
+                        sortplan = sortplan_name;
+                    }
+                    int.TryParse(machine_number, out int number);
+                    string id = machine_type + "-" + number + "-" + sortplan;
+                    if (AppParameters.SortplansList.ContainsKey(id))
+                    {
+                        if (AppParameters.SortplansList.TryGetValue(id, out JObject sp))
+                        {
+                            return sp;
+                        }
+                    }
+                }
+                return return_result;
+            }
+            catch (Exception ex)
+            {
+                new ErrorLogger().ExceptionLog(ex);
+                return new JObject();
+            }
+        }
 
         //private static void MPEWatch_RPGPlan(JObject data)
         //{
@@ -1546,88 +1585,121 @@ namespace Factory_of_the_Future
         //    }
         //}
 
-        //private static void MPEWatch_DPSEst(JObject data)
-        //{
-        //    try
-        //    {
-        //        int time_to_comp_optimal = 0;
-        //        int time_to_comp_actual = 0;
-        //        string time_to_comp_optimal_DateTime = "";
-        //        string time_to_comp_actual_DateTime = "";
-        //        DateTime dtNow = DateTime.Now;
-        //        if (!string.IsNullOrEmpty((string)AppParameters.AppSettings["FACILITY_TIMEZONE"]))
-        //        {
-        //            if (AppParameters.TimeZoneConvert.TryGetValue((string)AppParameters.AppSettings["FACILITY_TIMEZONE"], out string windowsTimeZoneId))
-        //            {
-        //                dtNow = TimeZoneInfo.ConvertTime(dtNow, TimeZoneInfo.FindSystemTimeZoneById(windowsTimeZoneId));
-        //            }
-        //        }
+        private static void MPEWatch_DPSEst(dynamic data)
+        {
+            try
+            {
+                if (data != null)
+                {
+                    JToken tempData = JToken.Parse(data);
+                    JToken dpsInfo = tempData.SelectToken("data");
+                    if (dpsInfo.HasValues)
+                    {
+                        bool updateZone = false;
+                        int time_to_comp_optimal = 0;
+                        int time_to_comp_actual = 0;
+                        string time_to_comp_optimal_DateTime = "";
+                        string time_to_comp_actual_DateTime = "";
+                        DateTime dtNow = DateTime.Now;
+                        if (!string.IsNullOrEmpty((string)AppParameters.AppSettings["FACILITY_TIMEZONE"]))
+                        {
+                            if (AppParameters.TimeZoneConvert.TryGetValue((string)AppParameters.AppSettings["FACILITY_TIMEZONE"], out string windowsTimeZoneId))
+                            {
+                                dtNow = TimeZoneInfo.ConvertTime(dtNow, TimeZoneInfo.FindSystemTimeZoneById(windowsTimeZoneId));
+                            }
+                        }
+                        foreach (JObject item in dpsInfo.Children())
+                        {
+                            string strSortPlan = item.ContainsKey("sortplan_name_perf") ? item["sortplan_name_perf"].ToString().Trim() : "";
+                            string[] strSortPlanList = strSortPlan.Split(',').Select(x => x.Trim()).ToArray();
+                            string SortPlanList = "";
+                            for (int i = 0; i < strSortPlanList.Length; i++)
+                            {
+                                SortPlanList += ("^(" + strSortPlanList[i].Substring(0, 7) + ")|");
+                               
+                            }
+                            if (!string.IsNullOrEmpty(SortPlanList))
+                            {
+                                SortPlanList = SortPlanList.Substring(0, SortPlanList.Length - 1);
+                                AppParameters.ZoneList.Where(r => r.Value.Properties.ZoneType == "Machine"
 
-        //        if (data.HasValues && AppParameters.ZonesList.Count > 0)
-        //        {
-        //            JToken dpsInfo = data.SelectToken("data");
-        //            if (dpsInfo != null)
-        //            {
-        //                if (dpsInfo.HasValues)
-        //                {
-        //                    foreach (JObject item in dpsInfo.Children())
-        //                    {
-        //                        int.TryParse(item.ContainsKey("time_to_comp_optimal") ? item["time_to_comp_optimal"].ToString().Trim() : "0", out time_to_comp_optimal);
-        //                        DateTime dtCompOptimal = dtNow.AddSeconds(time_to_comp_optimal);
-        //                        time_to_comp_optimal_DateTime = dtCompOptimal.ToString("yyyy-MM-dd HH:mm:ss");
-        //                        item.Add("time_to_comp_optimal_DateTime", time_to_comp_optimal_DateTime);
+                                && Regex.IsMatch(SortPlanList, r.Value.Properties.MPEWatchData.CurSortplan, RegexOptions.IgnoreCase)).Select(y => y.Key).ToList().ForEach(Key => 
+                                {
+                                
+                                    GeoZone tempZone = new GeoZone();
+                                    if (AppParameters.ZoneList.TryGetValue(Key, out GeoZone machineZone))
+                                    {
+                                        JObject tempmachineZone = (JObject)JsonConvert.DeserializeObject(JsonConvert.SerializeObject(machineZone, Formatting.Indented));
 
-        //                        int.TryParse(item.ContainsKey("time_to_comp_actual") ? item["time_to_comp_actual"].ToString().Trim() : "0", out time_to_comp_actual);
-        //                        DateTime dtCompActual = dtNow.AddSeconds(time_to_comp_actual);
-        //                        time_to_comp_actual_DateTime = dtCompActual.ToString("MM/dd/yyyy HH:mm:ss");
-        //                        item.Add("time_to_comp_actual_DateTime", time_to_comp_actual_DateTime);
+                                        int.TryParse(item.ContainsKey("time_to_comp_optimal") ? item["time_to_comp_optimal"].ToString().Trim() : "0", out time_to_comp_optimal);
+                                        DateTime dtCompOptimal = dtNow.AddSeconds(time_to_comp_optimal);
+                                        time_to_comp_optimal_DateTime = dtCompOptimal.ToString("yyyy-MM-dd HH:mm:ss");
+                                        item["time_to_comp_optimal_DateTime"] = time_to_comp_optimal_DateTime;
 
-        //                        string strSortPlan = item.ContainsKey("sortplan_name_perf") ? item["sortplan_name_perf"].ToString().Trim() : "";
-        //                        string[] strSortPlanList = strSortPlan.Split(',').Select(x => x.Trim()).ToArray();
-        //                        foreach (string strSP in strSortPlanList)
-        //                        {
-        //                            string strSortPlanItem = strSP;
+                                        int.TryParse(item.ContainsKey("time_to_comp_actual") ? item["time_to_comp_actual"].ToString().Trim() : "0", out time_to_comp_actual);
+                                        DateTime dtCompActual = dtNow.AddSeconds(time_to_comp_actual);
+                                        time_to_comp_actual_DateTime = dtCompActual.ToString("MM/dd/yyyy HH:mm:ss");
+                                        item["time_to_comp_actual_DateTime"] = time_to_comp_actual_DateTime;
+                                        ((JObject)tempmachineZone["properties"]["DPSData"]).Merge(item, new JsonMergeSettings { MergeArrayHandling = MergeArrayHandling.Union });
+                                        tempZone = tempmachineZone.ToObject<GeoZone>();
+                                        machineZone.Properties.DPSData = tempZone.Properties.DPSData;
+                                        machineZone.Properties.ZoneUpdate = true;
+                                    }
+                                    tempZone = null;
+                                });
+                            }
 
-        //                            if (!string.IsNullOrEmpty(strSortPlanItem))
-        //                            {
+                            //int.TryParse(item.ContainsKey("time_to_comp_optimal") ? item["time_to_comp_optimal"].ToString().Trim() : "0", out time_to_comp_optimal);
+                            //DateTime dtCompOptimal = dtNow.AddSeconds(time_to_comp_optimal);
+                            //time_to_comp_optimal_DateTime = dtCompOptimal.ToString("yyyy-MM-dd HH:mm:ss");
+                            //item.Add("time_to_comp_optimal_DateTime", time_to_comp_optimal_DateTime);
 
-        //                                foreach(JObject machineZone in AppParameters.ZonesList.Where(u => u.Value["properties"]["Zone_Type"].ToString() == "Machine").Select(x => x.Value))
-        //                                {
-        //                                    if (machineZone["properties"]["MPEWatchData"].HasValues)
-        //                                    {
+                            //int.TryParse(item.ContainsKey("time_to_comp_actual") ? item["time_to_comp_actual"].ToString().Trim() : "0", out time_to_comp_actual);
+                            //DateTime dtCompActual = dtNow.AddSeconds(time_to_comp_actual);
+                            //time_to_comp_actual_DateTime = dtCompActual.ToString("MM/dd/yyyy HH:mm:ss");
+                            //item.Add("time_to_comp_actual_DateTime", time_to_comp_actual_DateTime);
 
-        //                                        string currSortPlan = machineZone["properties"]["MPEWatchData"]["cur_sortplan"].ToString();
-        //                                        if (!string.IsNullOrEmpty(currSortPlan))
-        //                                        {
-        //                                            if (currSortPlan.Length > 7) { currSortPlan = currSortPlan.Substring(0, 7); }
-        //                                            if (strSortPlanItem.Length > 7) { strSortPlanItem = strSortPlanItem.Substring(0, 7); }
+                            //string strSortPlan = item.ContainsKey("sortplan_name_perf") ? item["sortplan_name_perf"].ToString().Trim() : "";
+                            //string[] strSortPlanList = strSortPlan.Split(',').Select(x => x.Trim()).ToArray();
+                            //foreach (string strSP in strSortPlanList)
+                            //{
+                            //    string strSortPlanItem = strSP;
 
-        //                                            if (currSortPlan == strSortPlanItem)
-        //                                            {
-        //                                                machineZone["properties"]["DPSData"] = item;
-        //                                                machineZone["properties"]["Zone_Update"] = true;
-        //                                            }
-        //                                        }
-        //                                    }
-        //                                }
-        //                            }
-        //                        }
-        //                    }
-        //                }
-        //            }
-        //            dpsInfo = null;
-        //            data = null;
-        //        }
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        new ErrorLogger().ExceptionLog(ex);
-        //    }
-        //    finally
-        //    {
-        //        data = null;
-        //    }
-        //}
+                            //    if (!string.IsNullOrEmpty(strSortPlanItem))
+                            //    {
+
+                            //        foreach (JObject machineZone in AppParameters.ZonesList.Where(u => u.Value["properties"]["Zone_Type"].ToString() == "Machine").Select(x => x.Value))
+                            //        {
+                            //            if (machineZone["properties"]["MPEWatchData"].HasValues)
+                            //            {
+
+                            //                string currSortPlan = machineZone["properties"]["MPEWatchData"]["cur_sortplan"].ToString();
+                            //                if (!string.IsNullOrEmpty(currSortPlan))
+                            //                {
+                            //                    if (currSortPlan.Length > 7) { currSortPlan = currSortPlan.Substring(0, 7); }
+                            //                    if (strSortPlanItem.Length > 7) { strSortPlanItem = strSortPlanItem.Substring(0, 7); }
+
+                            //                    if (currSortPlan == strSortPlanItem)
+                            //                    {
+                            //                        machineZone["properties"]["DPSData"] = item;
+                            //                        machineZone["properties"]["Zone_Update"] = true;
+                            //                    }
+                            //                }
+                            //            }
+                            //        }
+                            //    }
+                            //}
+                        }
+                    }
+                    dpsInfo = null;
+                    data = null;
+                }
+            }
+            catch (Exception ex)
+            {
+                new ErrorLogger().ExceptionLog(ex);
+            }
+        }
 
         //private static void ERRORWITHWORK(JObject data)
         //{
@@ -2148,7 +2220,7 @@ namespace Factory_of_the_Future
         //    }
         //}
 
-        private static void ProjectData(dynamic jsonObject)
+        private static void ProjectData(dynamic jsonObject, string connID)
         {
             try
             {
@@ -2198,18 +2270,22 @@ namespace Factory_of_the_Future
                         {
                             foreach (JObject zoneitem in zones.Children())
                             {
+                                if (AppParameters.ZoneInfo.TryGetValue(zoneitem["id"].ToString(), out ZoneInfo zoneinfodata))
+                                {
+                                    JObject zinfo = (JObject)JsonConvert.DeserializeObject(JsonConvert.SerializeObject(zoneinfodata, Formatting.Indented));
+                                    zoneitem.Merge(zinfo, new JsonMergeSettings { MergeArrayHandling = MergeArrayHandling.Union });
+                                }
                                 //this for new zones
                                 zoneitem["rawData"] = JsonConvert.SerializeObject(zoneitem, Formatting.None);
                                 if (AppParameters.ZoneList.TryGetValue(zoneitem["id"].ToString(), out GeoZone gZone))
                                 {
                                     if (gZone.Properties.RawData != zoneitem["rawData"].ToString())
                                     {
-                                        Geometry newGeomery = GetQuuppaZoneGeometry(zoneitem, "Polygon"); 
                                         JObject tempgZone = (JObject)JsonConvert.DeserializeObject(JsonConvert.SerializeObject(gZone, Formatting.Indented));
-                                        tempgZone["Zone_Update"] = true;
                                         ((JObject)tempgZone["properties"]).Merge(zoneitem, new JsonMergeSettings { MergeArrayHandling = MergeArrayHandling.Union });
                                         GeoZone newtempgZone = tempgZone.ToObject<GeoZone>();
-                                        newtempgZone.Geometry = newGeomery;
+                                        newtempgZone.Geometry = GetQuuppaZoneGeometry(zoneitem["polygonData"]);
+                                        newtempgZone.Properties.ZoneUpdate = true;
                                         if (!AppParameters.ZoneList.TryUpdate(newtempgZone.Properties.Id, newtempgZone, gZone))
                                         {
                                             new ErrorLogger().CustomLog("Unable to Update Zone" + newtempgZone.Properties.Id, string.Concat((string)AppParameters.AppSettings.Property("APPLICATION_NAME").Value, "_Applogs"));
@@ -2219,21 +2295,43 @@ namespace Factory_of_the_Future
                                 else
                                 {
                                     GeoZone newGZone = new GeoZone();
-                                    newGZone.Type = "Feature";
                                     JObject tempgZone = (JObject)JsonConvert.DeserializeObject(JsonConvert.SerializeObject(newGZone, Formatting.Indented));
 
                                     tempgZone["properties"] = zoneitem;
+
                                     GeoZone newtempgZone = tempgZone.ToObject<GeoZone>();
                                     newtempgZone.Properties.ZoneType = GetZoneType(newtempgZone.Properties.Name);
+
+                                    if (newtempgZone.Properties.ZoneType.StartsWith("DockDoor"))
+                                    {
+                                        //get the DockDoor Number
+                                        if (int.TryParse(string.Join(string.Empty, Regex.Matches(newtempgZone.Properties.Name, @"\d+").OfType<Match>().Select(m => m.Value)).ToString(), out int n))
+                                        {
+                                            newtempgZone.Properties.DoorNumber = n;
+                                        }
+                                    }
+
+                                    if (newtempgZone.Properties.ZoneType == "Machine")
+                                    {
+                                        //get the MPE Number
+                                        if (int.TryParse(string.Join(string.Empty, Regex.Matches(newtempgZone.Properties.Name, @"\d+").OfType<Match>().Select(m => m.Value)).ToString(), out int n))
+                                        {
+                                            newtempgZone.Properties.MPENumber = n;
+                                        }
+                                        //get the MPE Name
+                                        newtempgZone.Properties.MPEType = string.Join(string.Empty, Regex.Matches((string)zoneitem["name"], @"\p{L}+").OfType<Match>().Select(m => m.Value));
+                                    }
+
+                                    newtempgZone.Geometry = GetQuuppaZoneGeometry(zoneitem["polygonData"]);
                                     newtempgZone.Properties.ZoneUpdate = true;
-                                    newtempgZone.Geometry = GetQuuppaZoneGeometry(zoneitem, "Polygon");
                                     if (!AppParameters.ZoneList.TryAdd(newtempgZone.Properties.Id, newtempgZone))
                                     {
-                                        new ErrorLogger().CustomLog("Unable to Update Zone" + newtempgZone.Properties.Id, string.Concat((string)AppParameters.AppSettings.Property("APPLICATION_NAME").Value, "_Applogs"));
+                                        new ErrorLogger().CustomLog("Unable to Add Zone" + newtempgZone.Properties.Id, string.Concat((string)AppParameters.AppSettings.Property("APPLICATION_NAME").Value, "_Applogs"));
                                     }
                                 }
                             }
                         }
+
                         //this is for Zones
                         JToken locators = tempData.SelectToken("coordinateSystems[0].locators");
                         if (locators.Count() > 0)
@@ -2241,11 +2339,20 @@ namespace Factory_of_the_Future
                             foreach (JObject locatorsitem in locators.Children())
                             {
                                 locatorsitem["rawData"] = JsonConvert.SerializeObject(locatorsitem, Formatting.None);
-                                if (AppParameters.TagsList.TryGetValue(locatorsitem["id"].ToString(), out GeoMarker geoLmarker)) 
+                                if (AppParameters.TagsList.TryGetValue(locatorsitem["id"].ToString(), out GeoMarker geoLmarker))
                                 {
-                                    if (geoLmarker.Properties.RawData != locatorsitem["rawData"].ToString() )
+                                    if (geoLmarker.Properties.RawData != locatorsitem["rawData"].ToString())
                                     {
-
+                                        geoLmarker.Geometry = GetQuuppaTagGeometry(locatorsitem["location"]);
+                                        JObject tempgeoLmarker = (JObject)JsonConvert.DeserializeObject(JsonConvert.SerializeObject(geoLmarker, Formatting.Indented));
+                                        ((JObject)tempgeoLmarker["properties"]).Merge(locatorsitem, new JsonMergeSettings { MergeArrayHandling = MergeArrayHandling.Union });
+                                        GeoMarker newtempgeoLmarker = tempgeoLmarker.ToObject<GeoMarker>();
+                                        newtempgeoLmarker.Properties.TagType = GetTagType(newtempgeoLmarker.Properties.Name);
+                                        newtempgeoLmarker.Properties.TagUpdate = true;
+                                        if (!AppParameters.TagsList.TryUpdate(newtempgeoLmarker.Properties.Id, newtempgeoLmarker, geoLmarker))
+                                        {
+                                            new ErrorLogger().CustomLog("Unable to Update Locator" + newtempgeoLmarker.Properties.Id, string.Concat((string)AppParameters.AppSettings.Property("APPLICATION_NAME").Value, "_Applogs"));
+                                        }
                                     }
                                 }
                                 else
@@ -2258,326 +2365,21 @@ namespace Factory_of_the_Future
                                     GeoMarker newtempLmarker = tempLmarker.ToObject<GeoMarker>();
                                     newtempLmarker.Properties.TagType = GetTagType(newtempLmarker.Properties.Name);
                                     newtempLmarker.Properties.TagUpdate = true;
-                                    newtempLmarker.Geometry = GetQuuppaTagGeometry(locatorsitem["location"], "Point", "location");
+                                    newtempLmarker.Geometry = GetQuuppaTagGeometry(locatorsitem["location"]);
                                     if (!AppParameters.TagsList.TryAdd(newtempLmarker.Properties.Id, newtempLmarker))
                                     {
-                                        new ErrorLogger().CustomLog("Unable to Update Zone" + newtempLmarker.Properties.Id, string.Concat((string)AppParameters.AppSettings.Property("APPLICATION_NAME").Value, "_Applogs"));
+                                        new ErrorLogger().CustomLog("Unable to Add Locator" + newtempLmarker.Properties.Id, string.Concat((string)AppParameters.AppSettings.Property("APPLICATION_NAME").Value, "_Applogs"));
                                     }
                                 }
                             }
                         }
                     }
-
-
-
-                    //    ProjectInfo projectData = JsonConvert.DeserializeObject<ProjectInfo>(jsonObject);
-                    //foreach (CoordinateSystem CoordinateSystemitem in projectData.CoordinateSystems)
-                    //{
-                    //    AppParameters.IndoorMap.AddOrUpdate(CoordinateSystemitem.Id, CoordinateSystemitem.BackgroundImages[0], (key, oldData) =>
-                    //    {
-                    //        CoordinateSystemitem.BackgroundImages[0].UpdateStatus = true;
-                    //        return CoordinateSystemitem.BackgroundImages[0];
-                    //    });
-
-                    //}
-                    //    foreach (Zone zoneitem in projectData.CoordinateSystems[0].Zones)
-                    //    {
-
-                    //        GeoZone tempGeoZone = new GeoZone();
-
-                    //        tempGeoZone.Geometry = "";
-                    //        tempGeoZone.Type = "Feature";
-                    //        tempGeoZone.Properties = 
-                    //        AppParameters.ZoneList.AddOrUpdate(tempGeoZone.Properties.Id, tempGeoZone, (key, oldZoneItem) =>
-                    //        {
-                    //            tempGeoZone.Properties.ZoneUpdate = true;
-                    //            return null;
-                    //        });
-                    //    }
-
-                    //if (jsonObject.ContainsKey("coordinateSystems"))
-                    //{
-                    //    string temp_map_id = "";
-                    //    JToken backgroundImages = jsonObject.SelectToken("coordinateSystems[0].backgroundImages");
-
-                    //    foreach (JObject imageitem in backgroundImages)
-                    //    {
-                    //        temp_map_id = imageitem["id"].ToString();
-                    //        if (!AppParameters.IndoorMap.ContainsKey(temp_map_id))
-                    //        {
-
-                    //            imageitem["Facility_Name"] = AppParameters.AppSettings.ContainsKey("FACILITY_NAME") ? AppParameters.AppSettings["FACILITY_NAME"] : "";
-                    //            imageitem["Facility_TimeZone"] = AppParameters.AppSettings.ContainsKey("FACILITY_TIMEZONE") ? AppParameters.AppSettings["FACILITY_TIMEZONE"] : "";
-                    //            imageitem["Environment"] = !string.IsNullOrEmpty(AppParameters.ApplicationEnvironment) ? AppParameters.ApplicationEnvironment : "";
-                    //            imageitem["Software_Version"] = !string.IsNullOrEmpty(AppParameters.VersionInfo) ? AppParameters.VersionInfo : "";
-                    //            imageitem["NASS_Code"] = AppParameters.AppSettings.ContainsKey("FACILITY_NASS_CODE") ? AppParameters.AppSettings["FACILITY_NASS_CODE"] : "";
-                    //            imageitem["Map_Update"] = true;
-                    //            AppParameters.IndoorMap.TryAdd(imageitem["id"].ToString(), imageitem);
-
-                    //        }
-                    //        else
-                    //        {
-                    //            if (AppParameters.IndoorMap.TryGetValue(temp_map_id, out JObject existingVal))
-                    //            {
-                    //                existingVal.Merge(imageitem, new JsonMergeSettings { MergeArrayHandling = MergeArrayHandling.Union });
-                    //                existingVal["Map_Update"] = true;
-                    //            }
-
-                    //        }
-
-                    //    }
-
-                    //    JToken locators = jsonObject.SelectToken("coordinateSystems[0].locators");
-                    //    if (locators.Count() > 0)
-                    //    {
-                    //        foreach (JObject locatorsitem in locators.Children())
-                    //        {
-                    //            JArray temp = new JArray();
-                    //            bool update_info = false;
-                    //            try
-                    //            {
-                    //                if (locatorsitem.ContainsKey("location"))
-                    //                {
-                    //                    if (locatorsitem["location"].HasValues)
-                    //                    {
-                    //                        JArray tagitemsplit = (JArray)locatorsitem["location"];
-                    //                        if (tagitemsplit.HasValues)
-                    //                        {
-                    //                            temp = new JArray(tagitemsplit[0], tagitemsplit[1]);
-                    //                        }
-                    //                    }
-                    //                }
-                    //                if (AppParameters.Tag.ContainsKey(locatorsitem["id"].ToString()))
-                    //                {
-                    //                    if (AppParameters.ZonesList.TryGetValue(locatorsitem["id"].ToString(), out JObject existingVa))
-                    //                    {
-                    //                        if (existingVa["geometry"]["coordinates"].ToString() != temp.ToString())
-                    //                        {
-                    //                            existingVa["geometry"]["coordinates"] = temp;
-                    //                            update_info = true;
-                    //                        }
-                    //                         ((JObject)existingVa["properties"]).Merge(locatorsitem, new JsonMergeSettings { MergeArrayHandling = MergeArrayHandling.Union });
-
-                    //                        if (existingVa["properties"]["visible"].ToString() != locatorsitem["visible"].ToString())
-                    //                        {
-                    //                            update_info = true;
-                    //                        }
-                    //                        if (existingVa["properties"]["name"].ToString() != locatorsitem["name"].ToString())
-                    //                        {
-                    //                            update_info = true;
-                    //                        }
-                    //                        if (update_info)
-                    //                        {
-                    //                            existingVa["properties"]["Tag_Update"] = true;
-                    //                        }
-                    //                    }
-                    //                }
-                    //                else
-                    //                {
-                    //                    JObject GeoJsonType = new JObject_List().GeoJSON_Locators;
-                    //                    GeoJsonType["geometry"]["type"] = "Point";
-
-                    //                    if (temp.HasValues)
-                    //                    {
-                    //                        GeoJsonType["geometry"]["coordinates"] = temp;
-                    //                    }
-                    //                    ((JObject)GeoJsonType["properties"]).Merge(locatorsitem, new JsonMergeSettings { MergeArrayHandling = MergeArrayHandling.Union });
-
-                    //                    GeoJsonType["properties"]["Tag_Type"] = "Locater";
-                    //                    GeoJsonType["properties"]["Tag_Update"] = true;
-                    //                    if (!AppParameters.Tag.ContainsKey(locatorsitem["id"].ToString()))
-                    //                    {
-                    //                        AppParameters.Tag.TryAdd(locatorsitem["id"].ToString(), GeoJsonType);
-                    //                    }
-                    //                    GeoJsonType = null;
-                    //                }
-                    //            }
-                    //            catch (Exception e)
-                    //            {
-                    //                new ErrorLogger().ExceptionLog(e);
-                    //            }
-                    //        }
-                    //    }
-                    //    JToken zones = jsonObject.SelectToken("coordinateSystems[0].zones");
-                    //    if (zones.Count() > 0)
-                    //    {
-
-                    //        foreach (JObject zoneitem in zones.Children())
-                    //        {
-                    //            JArray temp = new JArray();
-                    //            bool update_info = false;
-                    //            try
-                    //            {
-                    //                if (zoneitem.ContainsKey("polygonData") && zoneitem.Property("polygonData").HasValues)
-                    //                {
-
-                    //                    string[] polygonDatasplit = zoneitem["polygonData"].ToString().Split('|');
-                    //                    if (polygonDatasplit.Length > 0)
-                    //                    {
-                    //                        JArray xyar = new JArray();
-                    //                        foreach (var polygonitem in polygonDatasplit)
-                    //                        {
-                    //                            string[] polygonitemsplit = polygonitem.Split(',');
-                    //                            xyar.Add(new JArray(Convert.ToDouble(polygonitemsplit[0]), Convert.ToDouble(polygonitemsplit[1])));
-                    //                        }
-                    //                        if (xyar != null)
-                    //                        {
-                    //                            temp.Add(new JArray(xyar));
-                    //                        }
-
-                    //                    }
-
-                    //                }
-                    //                if (AppParameters.ZonesList.ContainsKey(zoneitem["id"].ToString()))
-                    //                {
-                    //                    if (AppParameters.ZonesList.TryGetValue(zoneitem["id"].ToString(), out JObject existingVa))
-                    //                    {
-                    //                        if (existingVa["geometry"]["coordinates"].ToString() != temp.ToString())
-                    //                        {
-                    //                            existingVa["geometry"]["coordinates"] = temp;
-                    //                            update_info = true;
-                    //                        }
-                    //                        if (existingVa["properties"]["visible"].ToString() != zoneitem["visible"].ToString())
-                    //                        {
-                    //                            existingVa["properties"]["visible"] = zoneitem["visible"];
-                    //                            update_info = true;
-                    //                        }
-                    //                        if (existingVa["properties"]["color"].ToString() != zoneitem["color"].ToString())
-                    //                        {
-                    //                            existingVa["properties"]["color"] = zoneitem["color"];
-                    //                            update_info = true;
-                    //                        }
-                    //                        if (existingVa["properties"]["Zone_Type"].ToString().StartsWith("Machine"))
-                    //                        {
-                    //                            if (AppParameters.ZoneInfo.TryGetValue(existingVa["properties"]["id"].ToString(), out JObject zoneinfodata))
-                    //                            {
-                    //                                if (existingVa["properties"]["name"].ToString() != zoneinfodata["name"].ToString())
-                    //                                {
-                    //                                    ((JObject)existingVa["properties"]).Merge(zoneinfodata, new JsonMergeSettings { MergeArrayHandling = MergeArrayHandling.Union });
-                    //                                }
-
-                    //                            }
-                    //                        }
-                    //                        if (update_info)
-                    //                        {
-                    //                            existingVa["properties"]["Zone_Update"] = true;
-                    //                        }
-                    //                    }
-                    //                }
-                    //                else
-                    //                {
-                    //                    JObject GeoJsonType = new JObject_List().GeoJSON_Zone;
-                    //                    GeoJsonType["geometry"]["type"] = "Polygon";
-
-                    //                    if (temp.HasValues)
-                    //                    {
-                    //                        GeoJsonType["geometry"]["coordinates"] = temp;
-                    //                    }
-                    //                    GeoJsonType["properties"]["id"] = zoneitem.ContainsKey("id") ? zoneitem["id"] : "";
-                    //                    GeoJsonType["properties"]["visible"] = zoneitem.ContainsKey("visible") ? zoneitem["visible"] : false;
-                    //                    GeoJsonType["properties"]["color"] = zoneitem.ContainsKey("color") ? zoneitem["color"] : "";
-                    //                    GeoJsonType["properties"]["name"] = zoneitem.ContainsKey("name") ? zoneitem["name"] : "";
-                    //                    GeoJsonType["properties"]["Zone_Type"] = GetZoneType(zoneitem["name"].ToString());
-
-                    //                    if (GeoJsonType["properties"]["Zone_Type"].ToString().StartsWith("DockDoor"))
-                    //                    {
-                    //                        string tempdoor = zoneitem.ContainsKey("name") ? string.Join(string.Empty, Regex.Matches((string)zoneitem["name"], @"\d+").OfType<Match>().Select(m => m.Value)) : "";
-                    //                        if (!string.IsNullOrEmpty(tempdoor))
-                    //                        {
-                    //                            GeoJsonType["properties"]["doorNumber"] = tempdoor;
-                    //                        }
-                    //                        else
-                    //                        {
-                    //                            GeoJsonType["properties"]["doorNumber"] = tempdoor;
-                    //                        }
-
-                    //                        GeoJsonType["properties"]["routetripData"] = "";
-                    //                    }
-                    //                    if (GeoJsonType["properties"]["Zone_Type"].ToString().StartsWith("Machine"))
-                    //                    {
-                    //                        if (AppParameters.ZoneInfo.TryGetValue(GeoJsonType["properties"]["id"].ToString(), out JObject zoneinfodata))
-                    //                        {
-                    //                            ((JObject)GeoJsonType["properties"]).Merge(zoneinfodata, new JsonMergeSettings { MergeArrayHandling = MergeArrayHandling.Union });
-                    //                        }
-                    //                        else
-                    //                        {
-                    //                            if (string.IsNullOrEmpty(GeoJsonType["properties"]["MPE_Number"].ToString()))
-                    //                            {
-                    //                                string tempnumber = zoneitem.ContainsKey("name") ? string.Join(string.Empty, Regex.Matches((string)zoneitem["name"], @"\d+").OfType<Match>().Select(m => m.Value)) : "";
-                    //                                GeoJsonType["properties"]["MPE_Number"] = int.TryParse(tempnumber, out int n) ? n.ToString() : "0";
-                    //                            }
-                    //                            if (string.IsNullOrEmpty(GeoJsonType["properties"]["MPE_Type"].ToString()))
-                    //                            {
-                    //                                string tempname = zoneitem.ContainsKey("name") ? string.Join(string.Empty, Regex.Matches((string)zoneitem["name"], @"\p{L}+").OfType<Match>().Select(m => m.Value)) : "";
-                    //                                GeoJsonType["properties"]["MPE_Type"] = !string.IsNullOrEmpty(tempname) ? tempname : "";
-                    //                            }
-                    //                        }
-                    //                    }
-
-                    //                    GeoJsonType["properties"]["Zone_Update"] = true;
-
-                    //                    if (!AppParameters.ZonesList.ContainsKey(zoneitem["id"].ToString()))
-                    //                    {
-                    //                        AppParameters.ZonesList.TryAdd(zoneitem["id"].ToString(), GeoJsonType);
-                    //                    }
-
-                    //                }
-                    //            }
-                    //            catch (Exception e)
-                    //            {
-                    //                new ErrorLogger().ExceptionLog(e);
-                    //            }
-                    //        }
-                    //    }
-                    //    JToken polygons = jsonObject.SelectToken("coordinateSystems[0].polygons");
-                    //    if (polygons.HasValues)
-                    //    {
-                    //        foreach (JObject zoneitem in polygons.Children())
-                    //        {
-                    //            try
-                    //            {
-                    //                JArray temp = new JArray();
-
-                    //                if (zoneitem.ContainsKey("polygonData") && (zoneitem.Property("polygonData").HasValues))
-                    //                {
-
-                    //                    string[] polygonDatasplit = zoneitem["polygonData"].ToString().Split('|');
-                    //                    if (polygonDatasplit.Length > 0)
-                    //                    {
-                    //                        JArray xyar = new JArray();
-                    //                        foreach (var polygonitem in polygonDatasplit)
-                    //                        {
-                    //                            string[] polygonitemsplit = polygonitem.Split(',');
-                    //                            xyar.Add(new JArray(Convert.ToDouble(polygonitemsplit[0]), Convert.ToDouble(polygonitemsplit[1])));
-                    //                        }
-                    //                        temp.Add(new JArray(xyar));
-                    //                    }
-
-                    //                }
-
-                    //                if (AppParameters.IndoorMap.TryGetValue(temp_map_id, out JObject mapvalue))
-                    //                {
-                    //                    if (mapvalue.ContainsKey("TrackingArea"))
-                    //                    {
-                    //                        mapvalue["TrackingArea"] = temp;
-                    //                    }
-                    //                }
-
-                    //            }
-                    //            catch (Exception e)
-                    //            {
-                    //                new ErrorLogger().ExceptionLog(e);
-                    //            }
-                    //        }
-                    //    }
-
-
-                    //}
-                    //if (!jsonObject.ContainsKey("localdata"))
-                    //{
-                    //    jsonObject["localdata"] = true;
-                    //    new FileIO().Write(string.Concat(AppParameters.Logdirpath, AppParameters.ConfigurationFloder), "ProjectData.json", JsonConvert.SerializeObject(jsonObject, Formatting.Indented));
-                    //}
+                    //log Project Data to locale drive.
+                    if (!((JObject)tempData).ContainsKey("localdata"))
+                    {
+                        tempData["localdata"] = true;
+                        new FileIO().Write(string.Concat(AppParameters.Logdirpath, AppParameters.ConfigurationFloder), "ProjectData.json", JsonConvert.SerializeObject(tempData, Formatting.Indented));
+                    }
                 }
             }
             catch (Exception e)
@@ -2586,21 +2388,185 @@ namespace Factory_of_the_Future
             }
             
         }
+        private void TagPosition(dynamic data, string conID)
+        {
+            try
+            {
+                if (data != null)
+                {
+                    JToken tempData = JToken.Parse(data);
+                    if (((JObject)tempData).ContainsKey("tags"))
+                    {
+                        //this is for tags
+                        JToken tags = tempData.SelectToken("tags");
+                        if (tags.Count() > 0)
+                        {
+                        
+                            DateTime responseTS = AppParameters.UnixTimeStampToDateTime((long)tempData["responseTS"]);
+                        
+                            foreach (JObject tagitem in tags.Children())
+                            {
+                           
+                                tagitem["rawData"] = JsonConvert.SerializeObject(tagitem, Formatting.None);
+                                string tagid = tagitem.ContainsKey("id") ? tagitem["id"].ToString() : tagitem["tagId"].ToString();
+                                if (AppParameters.TagsList.TryGetValue(tagid, out GeoMarker geoLmarker))
+                                {
+                                    if (geoLmarker.Properties.RawData != tagitem["rawData"].ToString())
+                                    {
+                                        JObject newobj = new JObject { 
+                                            ["id"] = tagid,
+                                            ["name"] = tagitem.ContainsKey("name") ? tagitem["name"].ToString() : tagitem["tagName"].ToString(),
+                                            ["color"] = tagitem["color"].ToString(),
+                                            ["rawData"] = tagitem["rawData"]
+                                        };
+                                        JObject tempgeoLmarker = (JObject)JsonConvert.DeserializeObject(JsonConvert.SerializeObject(geoLmarker, Formatting.Indented));
+                                        ((JObject)tempgeoLmarker["properties"]).Merge(newobj, new JsonMergeSettings { MergeArrayHandling = MergeArrayHandling.Union });
+                                        GeoMarker newtempgeoLmarker = tempgeoLmarker.ToObject<GeoMarker>();
+                                        newtempgeoLmarker.Properties.TagType = GetTagType(newtempgeoLmarker.Properties.Name);
+                                        JToken positionTs = tagitem.ContainsKey("positionTS") ? tagitem["positionTS"] : tagitem["locationTS"];
+                                        newtempgeoLmarker.Properties.PositionTS = AppParameters.UnixTimeStampToDateTime((long)positionTs);
+                                        JToken position = tagitem.ContainsKey("smoothedPosition") ? tagitem["smoothedPosition"] : tagitem["location"];
+                                        if (newtempgeoLmarker.Properties.TagType == "Person")
+                                        {
+                                            newtempgeoLmarker.Properties.CraftName = GetCraftName(newtempgeoLmarker.Properties.Name);
+                                            newtempgeoLmarker.Properties.BadgeId = GetBadgeId(newtempgeoLmarker.Properties.Name);
+                                        }
+                                        newtempgeoLmarker.Properties.TagTS = responseTS;
+                                        if (position.HasValues)
+                                        {
+                                            newtempgeoLmarker.Geometry = GetQuuppaTagGeometry(position);
+                                            newtempgeoLmarker.Properties.TagUpdate = true;
+                                        }
+                                     
+                                        if (!AppParameters.TagsList.TryUpdate(tagid, newtempgeoLmarker, geoLmarker))
+                                        {
+                                            new ErrorLogger().CustomLog("Unable to Update Marker" + tagid, string.Concat((string)AppParameters.AppSettings.Property("APPLICATION_NAME").Value, "_Applogs"));
+                                        }
+                                    }
+                                }
+                                else
+                                {
 
-        private static Geometry GetQuuppaTagGeometry(JToken location, string type, string dataType)
+                                    GeoMarker Lmarker = new GeoMarker();
+                                    Lmarker.Properties.Id = tagid;
+                                    Lmarker.Properties.Name = tagitem.ContainsKey("name") ? tagitem["name"].ToString() : tagitem["tagName"].ToString();
+                                    Lmarker.Properties.Color = tagitem["color"].ToString();
+                                    Lmarker.Properties.TagType = GetTagType(Lmarker.Properties.Name);
+                                    if (Lmarker.Properties.TagType == "Person")
+                                    {
+                                        Lmarker.Properties.CraftName = GetCraftName(Lmarker.Properties.Name);
+                                        Lmarker.Properties.BadgeId = GetBadgeId(Lmarker.Properties.Name);
+                                    }
+                                  
+                                    Lmarker.Properties.TagTS = responseTS;
+                                    JToken positionTs = tagitem.ContainsKey("positionTS") ? tagitem["positionTS"] : tagitem["locationTS"];
+                                    Lmarker.Properties.PositionTS = AppParameters.UnixTimeStampToDateTime((long)positionTs);
+                                    JToken position = tagitem.ContainsKey("smoothedPosition") ? tagitem["smoothedPosition"] : tagitem["location"];
+                                    Lmarker.Geometry = GetQuuppaTagGeometry(position);
+                                    Lmarker.Properties.RawData = tagitem["rawData"].ToString();
+                                    Lmarker.Properties.TagVisible = tagitem.ContainsKey("locationMovementStatus") ? tagitem["locationMovementStatus"].ToString() == "noData" ? false : true  : false;
+                                    Lmarker.Properties.TagUpdate = true;
+                                    if (!AppParameters.TagsList.TryAdd(tagid, Lmarker))
+                                    {
+                                        new ErrorLogger().CustomLog("Unable to Add Marker" + tagid, string.Concat((string)AppParameters.AppSettings.Property("APPLICATION_NAME").Value, "_Applogs"));
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    if (!((JObject)tempData).ContainsKey("tags") && ((JObject)tempData).ContainsKey("status"))
+                    {
+                        if (tempData["status"].ToString() == "GeneralFailure")
+                        {
+                            Task.Run(() => updateConnection(conID, "error"));
+                        } 
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+
+                new ErrorLogger().ExceptionLog(e);
+            }
+        }
+
+        private void updateConnection(string conId,string type)
+        {
+            try
+            {
+                foreach (Connection m in AppParameters.ConnectionList.Where(x => x.Value.Id == conId).Select(y => y.Value))
+                {
+                    m.ApiConnected = type == "error" ? false :true;
+                    m.LasttimeApiConnected = DateTime.Now;
+                    m.UpdateStatus = true;
+                }
+            }
+            catch (Exception e)
+            {
+                new ErrorLogger().ExceptionLog(e);
+            }
+        }
+
+        private string GetBadgeId(string name)
+        {
+            try
+            {
+                int equalsIndex = name.IndexOf("_", 1);
+                if ((equalsIndex > -1))
+                {
+                    string[] namesplit = name.Split('_');
+                    if (namesplit.Length > 1)
+                    {
+                        return namesplit[1];
+                    }
+                }
+                return "";
+            }
+            catch (Exception e)
+            {
+                new ErrorLogger().ExceptionLog(e);
+                return "";
+            }
+        }
+
+        private string GetCraftName(string name)
+        {
+            try
+            {
+                int equalsIndex = name.IndexOf("_", 1);
+                if ((equalsIndex > -1))
+                {
+                    string[] namesplit = name.Split('_');
+                    if (namesplit.Length > 1)
+                    {
+                       return namesplit[0];  
+                    }
+                }
+                return "";
+            }
+            catch (Exception e)
+            {
+                new ErrorLogger().ExceptionLog(e);
+                return "";
+            }
+        }
+
+        private static MarkerGeometry GetQuuppaTagGeometry(JToken tagitemsplit)
         {
             try
             {
                 JObject geometry = new JObject();
-                geometry["type"] = type;
                 JArray temp = new JArray();
-                JArray tagitemsplit = (JArray)location[dataType];
                 if (tagitemsplit.HasValues)
                 {
-                    temp = new JArray(tagitemsplit[0], tagitemsplit[1]);
+                  temp = new JArray(tagitemsplit[0], tagitemsplit[1]);
+                }
+                else
+                {
+                    temp = new JArray(0.0, 0.0);
                 }
                 geometry["coordinates"] = temp;
-                Geometry result = geometry.ToObject<Geometry>();
+                MarkerGeometry result = geometry.ToObject<MarkerGeometry>();
                 return result;
             }
             catch (Exception e)
@@ -2610,32 +2576,28 @@ namespace Factory_of_the_Future
             }
         }
 
-        private static Geometry GetQuuppaZoneGeometry(JObject zoneitem,string type)
+        private static ZoneGeometry GetQuuppaZoneGeometry(JToken zoneitem)
         {
             try
             {
                 JObject geometry = new JObject();
-                geometry["type"] = type;
                 JArray temp = new JArray();
-                
-              
-                if (zoneitem.ContainsKey("polygonData") && zoneitem.Property("polygonData").HasValues)
+
+                string[] polygonDatasplit = zoneitem.ToString().Split('|');
+                if (polygonDatasplit.Length > 0)
                 {
-                    string[] polygonDatasplit = zoneitem["polygonData"].ToString().Split('|');
-                    if (polygonDatasplit.Length > 0)
+                    JArray xyar = new JArray();
+                    foreach (var polygonitem in polygonDatasplit)
                     {
-                        JArray xyar = new JArray();
-                        foreach (var polygonitem in polygonDatasplit)
-                        {
-                            string[] polygonitemsplit = polygonitem.Split(',');
-                            xyar.Add(new JArray(Convert.ToDouble(polygonitemsplit[0]), Convert.ToDouble(polygonitemsplit[1])));
-                        }
-                        temp.Add(xyar);
+                        string[] polygonitemsplit = polygonitem.Split(',');
+                        xyar.Add(new JArray(Convert.ToDouble(polygonitemsplit[0]), Convert.ToDouble(polygonitemsplit[1])));
                     }
+                    temp.Add(xyar);
                 }
+
                 geometry["coordinates"] = temp;
 
-                Geometry result = geometry.ToObject<Geometry>();
+                ZoneGeometry result = geometry.ToObject<ZoneGeometry>();
 
                 return result;
             }

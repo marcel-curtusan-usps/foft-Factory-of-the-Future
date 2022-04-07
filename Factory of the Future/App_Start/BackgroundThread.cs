@@ -23,10 +23,10 @@ namespace Factory_of_the_Future
                             {
                                AppParameters.LoadData("Connection.json");
                             }
-                            //if (AppParameters.ZoneInfo.Keys.Count == 0)
-                            //{
-                            //    AppParameters.ZoneInfo = AppParameters.LoadData("Zones.json");
-                            //}
+                            if (AppParameters.ZoneInfo.Keys.Count == 0)
+                            {
+                               AppParameters.LoadData("Zones.json");
+                            }
                             //if (AppParameters.NotificationConditionsList.Keys.Count == 0)
                             //{
                             //    AppParameters.NotificationConditionsList = AppParameters.LoadData("Notification.json");
@@ -44,9 +44,10 @@ namespace Factory_of_the_Future
                         }
                         else
                         {
-                            //AppParameters.ConnectionList = new ConcurrentDictionary<string, JObject>();
-                            //AppParameters.ZoneInfo = new ConcurrentDictionary<string, JObject>();
-                            //AppParameters.IndoorMap = new ConcurrentDictionary<string, JObject>();
+                            AppParameters.ConnectionList = new ConcurrentDictionary<string, Connection>();
+                            AppParameters.ZoneInfo = new ConcurrentDictionary<string, ZoneInfo>();
+                            AppParameters.IndoorMap = new ConcurrentDictionary<string, BackgroundImage>();
+                            AppParameters.RunningConnection = new ConnectionContainer();
                         }
                     }
                     catch (Exception ex)

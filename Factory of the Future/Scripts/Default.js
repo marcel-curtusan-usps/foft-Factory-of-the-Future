@@ -289,8 +289,11 @@ $(function () {
                 });
                
             }
-            if (/(^PMCCUser$)/i.test(User.UserId)) {
-                map.removeLayer(tagsMarkersGroup);
+            if (/(^PMCCUser$)|(fsvcd0)/i.test(User.UserId)) {
+                map.removeLayer(tagsMarkersGroup)
+                //remove connection from receiving data for people markers. 
+                fotfmanager.server.leaveGroup("PeopleMarkers");
+                
                 //add QRCode
                 var QRCodedisplay = L.Control.extend({
                     options: {

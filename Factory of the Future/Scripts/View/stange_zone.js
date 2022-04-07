@@ -142,6 +142,7 @@ var stagingAreas = new L.GeoJSON(null, {
             LoadstageTables(feature.properties);
         
         });
+
         layer.bindTooltip(feature.properties.name.replace(/^Staging_/i, ''), {
             permanent: true,
             direction: 'center',

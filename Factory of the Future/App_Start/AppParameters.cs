@@ -38,10 +38,9 @@ namespace Factory_of_the_Future
         public static ConcurrentDictionary<string, BackgroundImage> IndoorMap { get; set; } = new ConcurrentDictionary<string, BackgroundImage>();
         public static ConcurrentDictionary<string, Cameras> CameraInfoList { get; set; } = new ConcurrentDictionary<string, Cameras>();
         public static ConcurrentDictionary<string, Connection> ConnectionList { get; set; } = new ConcurrentDictionary<string, Connection>();
-        //public static ConcurrentDictionary<string, JObject> SortplansList { get; set; } = new ConcurrentDictionary<string, JObject>();
-        //public static ConcurrentDictionary<string, JObject> ZonesList { get; set; } = new ConcurrentDictionary<string, JObject>();
+        public static ConcurrentDictionary<string, JObject> SortplansList { get; set; } = new ConcurrentDictionary<string, JObject>();
         public static ConcurrentDictionary<string, GeoZone> ZoneList { get; set; } = new ConcurrentDictionary<string, GeoZone>();
-        public static ConcurrentDictionary<string, JObject> ZoneInfo { get; set; } = new ConcurrentDictionary<string, JObject>();
+        public static ConcurrentDictionary<string, ZoneInfo> ZoneInfo { get; set; } = new ConcurrentDictionary<string, ZoneInfo>();
         public static ConcurrentDictionary<string, GeoMarker> TagsList { get; set; } = new ConcurrentDictionary<string, GeoMarker>();
         //public static ConcurrentDictionary<string, JObject> RouteTripsList { get; set; } = new ConcurrentDictionary<string, JObject>();
         //public static ConcurrentDictionary<string, JObject> QSMList { get; set; } = new ConcurrentDictionary<string, JObject>();
@@ -260,7 +259,7 @@ namespace Factory_of_the_Future
                     {
                         if (!string.IsNullOrEmpty(ProjectData))
                         {
-                            Task.Run(() => new ProcessRecvdMsg().StartProcess(ProjectData, "getProjectInfo"));
+                            Task.Run(() => new ProcessRecvdMsg().StartProcess(ProjectData, "getProjectInfo",""));
                         }
                     }
                 }
@@ -288,6 +287,20 @@ namespace Factory_of_the_Future
                                 if (ConnectionList.TryAdd(tempcon[i].Id, tempcon[i]))
                                 {
                                     RunningConnection.Add(tempcon[i]);
+                                }
+                            }
+                        }
+                        if (FileName.StartsWith("Zones.json"))
+                        {
+                            List<ZoneInfo> tempzone = JsonConvert.DeserializeObject<List<ZoneInfo>>(file_content);
+                            for (int i = 0; i < tempzone.Count; i++)
+                            {
+                                if (!ZoneInfo.ContainsKey(tempzone[i].Id))
+                                {
+                                    if (ZoneInfo.TryAdd(tempzone[i].Id, tempzone[i]))
+                                    {
+
+                                    }
                                 }
                             }
                         }

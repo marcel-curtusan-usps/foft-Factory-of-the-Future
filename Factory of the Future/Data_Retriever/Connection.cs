@@ -32,63 +32,54 @@ namespace Factory_of_the_Future
             //SendAsync(endpoint, buffer, 0, size);
 
             string incomingData = Encoding.UTF8.GetString(buffer, (int)offset, (int)size);
-            //foreach (JObject m in AppParameters.ConnectionList.Where(x => (string)x.Value.Property("ID").Value == this.conid).Select(y => y.Value))
-            //{
-            //    try
-            //    {
-            //        if (!string.IsNullOrEmpty(incomingData))
-            //        {
-            //            if (AppParameters.IsValidJson(incomingData))
-            //            {
-            //                JObject incomingDataJobject = JObject.Parse(incomingData);
-            //                JObject temp1 = new JObject(
-            //                        new JProperty("code", "0"),
-            //                        new JProperty("command", "UDP_Client"),
-            //                        new JProperty("outputFormatId", "DefFormat002"),
-            //                        new JProperty("outputFormatName", "Location JSON"),
-            //                        new JProperty("message", "getTagPosition"),
-            //                        new JProperty("responseTS", DateTimeOffset.Now.ToUnixTimeMilliseconds()),
-            //                        new JProperty("status", "0"),
-            //                        new JProperty("tags", new JArray(incomingDataJobject))
+            foreach (Connection m in AppParameters.ConnectionList.Where(x => x.Value.Id == this.conid).Select(y => y.Value))
+            {
+                try
+                {
+                    if (!string.IsNullOrEmpty(incomingData))
+                    {
+                        if (AppParameters.IsValidJson(incomingData))
+                        {
+                            JObject incomingDataJobject = JObject.Parse(incomingData);
+                            JObject temp1 = new JObject(
+                                    new JProperty("code", "0"),
+                                    new JProperty("command", "UDP_Client"),
+                                    new JProperty("outputFormatId", "DefFormat002"),
+                                    new JProperty("outputFormatName", "Location JSON"),
+                                    new JProperty("message", "getTagPosition"),
+                                    new JProperty("responseTS", DateTimeOffset.Now.ToUnixTimeMilliseconds()),
+                                    new JProperty("status", "0"),
+                                    new JProperty("tags", new JArray(incomingDataJobject))
 
-            //                        );
-            //                if (!(bool)m.Property("API_CONNECTED").Value)
-            //                {
-            //                    m.Property("API_CONNECTED").Value = true;
-            //                }
-            //                m.Property("UPDATE_STATUS").Value = true;
-            //                m.Property("LASTTIME_API_CONNECTED").Value = DateTime.Now;
-            //                Task.Run(() => new ProcessRecvdMsg().StartProcess(temp1,temp1["message"].ToString()));
+                                    );
+                            m.ApiConnected = true;
+                            m.LasttimeApiConnected = DateTime.Now;
+                            m.UpdateStatus = true;
+                            Task.Run(() => new ProcessRecvdMsg().StartProcess(temp1, temp1["message"].ToString(),this.conid));
 
-            //            }
-            //            else
-            //            {
-            //                new ErrorLogger().CustomLog(incomingData, string.Concat((string)AppParameters.AppSettings.Property("APPLICATION_NAME").Value, "UDP_InVaild_Message"));
-            //            }
+                        }
+                        else
+                        {
+                            new ErrorLogger().CustomLog(incomingData, string.Concat((string)AppParameters.AppSettings.Property("APPLICATION_NAME").Value, "UDP_InVaild_Message"));
+                        }
 
-            //        }
-            //        else
-            //        {
-            //            if ((bool)m.Property("API_CONNECTED").Value)
-            //            {
-            //                m.Property("API_CONNECTED").Value = false;
-            //            }
-            //            m.Property("LASTTIME_API_CONNECTED").Value = DateTime.Now;
-            //            m.Property("UPDATE_STATUS").Value = true;
-            //        }
-            //    }
-            //    catch (Exception e)
-            //    {
-            //        new ErrorLogger().ExceptionLog(e);
-            //        new ErrorLogger().CustomLog(incomingData, string.Concat((string)AppParameters.AppSettings.Property("APPLICATION_NAME").Value, "UDP_InVaild_Message"));
-            //        if ((bool)m.Property("API_CONNECTED").Value)
-            //        {
-            //            m.Property("API_CONNECTED").Value = false;
-            //        }
-            //        m.Property("LASTTIME_API_CONNECTED").Value = DateTime.Now;
-            //        m.Property("UPDATE_STATUS").Value = true;
-            //    }
-            //};
+                    }
+                    else
+                    {
+                        m.ApiConnected = false;
+                        m.LasttimeApiConnected = DateTime.Now;
+                        m.UpdateStatus = true;
+                    }
+                }
+                catch (Exception e)
+                {
+                    new ErrorLogger().ExceptionLog(e);
+                    new ErrorLogger().CustomLog(incomingData, string.Concat((string)AppParameters.AppSettings.Property("APPLICATION_NAME").Value, "UDP_InVaild_Message"));
+                    m.ApiConnected = false;
+                    m.LasttimeApiConnected = DateTime.Now;
+                    m.UpdateStatus = true;
+                }
+            };
             ReceiveAsync();
 
         }
@@ -101,16 +92,14 @@ namespace Factory_of_the_Future
 
         protected override void OnError(SocketError error)
         {
-            //AppParameters.ConnectionList.Where(x => (string)x.Value.Property("ID").Value == this.conid).Select(y => y.Value).ToList().ForEach(m =>
-            //{
-            //    if ((bool)m.Property("API_CONNECTED").Value)
-            //    {
-            //        m.Property("API_CONNECTED").Value = false;
-            //    }
-            //    m.Property("LASTTIME_API_CONNECTED").Value = DateTime.Now;
-            //    m.Property("UPDATE_STATUS").Value = true;
-            //    new ErrorLogger().CustomLog(string.Concat("UDP server caught an error with code", error), string.Concat((string)AppParameters.AppSettings.Property("APPLICATION_NAME").Value, "UDP_InVaild_Message"));
-            //});
+            foreach (Connection m in AppParameters.ConnectionList.Where(x => x.Value.Id == this.conid).Select(y => y.Value))
+            {
+                m.ApiConnected = false;
+                m.LasttimeApiConnected = DateTime.Now;
+                m.UpdateStatus = true;
+                new ErrorLogger().CustomLog(string.Concat("UDP server caught an error with code", error), string.Concat((string)AppParameters.AppSettings.Property("APPLICATION_NAME").Value, "UDP_InVaild_Message"));
+
+            }
         }
     }
     public class Api_Connection
@@ -313,7 +302,7 @@ namespace Factory_of_the_Future
                     }
                     string start_time = "";
                     string end_time = "";
-                    switch (ConnectionInfo.MessageType)
+                    switch (ConnectionInfo.MessageType.ToUpper())
                     {
                         case "RPG_PLAN":
                             DateTime dtEnd = modsDate.AddDays(5);
@@ -321,7 +310,6 @@ namespace Factory_of_the_Future
                             end_time = dtEnd.ToString("MM/dd/yyyy_HH:mm:ss");
                             formatUrl = string.Format(ConnectionInfo.Url, MpeWatch_id, MpeWatch_data_source, start_time, end_time);
                             break;
-
                         case "DPS_RUN_ESTM":
                             DateTime modStart = dtNow.Date.AddHours(00).AddMinutes(00).AddSeconds(00);
                             DateTime modEnd = dtNow.Date.AddHours(23).AddMinutes(59).AddSeconds(59);
@@ -329,9 +317,7 @@ namespace Factory_of_the_Future
                             end_time = modEnd.ToString("MM/dd/yyyy HH:mm:ss");
                             formatUrl = string.Format(ConnectionInfo.Url, MpeWatch_id, MpeWatch_data_source, start_time, end_time);
                             break;
-
                         case "RPG_RUN_PERF":
-                        default:
                             string strTimeDiff = "-" + ConnectionInfo.DataRetrieve;
                             Double dblTimeDiff = 0;
                             if (Double.TryParse(strTimeDiff, out Double dblDiff)) { dblTimeDiff = dblDiff; }
@@ -342,6 +328,8 @@ namespace Factory_of_the_Future
                             start_time = startDate.ToString("MM/dd/yyyy_HH:mm:ss");
                             end_time = endDate.ToString("MM/dd/yyyy_HH:mm:ss");
                             formatUrl = string.Format(ConnectionInfo.Url, MpeWatch_id, MpeWatch_data_source, start_time, end_time);
+                            break;
+                        default:
                             break;
                     }
                 }
@@ -427,7 +415,7 @@ namespace Factory_of_the_Future
                                 string responseData = reader.ReadToEnd();
                                 if (!string.IsNullOrEmpty(responseData))
                                 {
-                                    Task.Run(() => new ProcessRecvdMsg().StartProcess(responseData, MessageType));
+                                    Task.Run(() => new ProcessRecvdMsg().StartProcess(responseData, MessageType, ConnectionInfo.Id));
                                 }
                                 
                                
@@ -487,7 +475,7 @@ namespace Factory_of_the_Future
                     m.ApiConnected = api_Connection.Connected;
                     m.LasttimeApiConnected= api_Connection.DownloadDatetime;
                     m.UpdateStatus = true;
-                };
+                }
             }
             catch (Exception e)
             {
