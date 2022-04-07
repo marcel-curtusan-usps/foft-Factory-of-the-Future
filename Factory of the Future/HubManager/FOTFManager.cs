@@ -2293,7 +2293,7 @@ namespace Factory_of_the_Future
             throw new NotImplementedException();
         }
 
-        internal IEnumerable<JToken> AddCustomZone(string data)
+        internal List<GeoZone> AddCustomZone(string data)
         {
             if(!string.IsNullOrEmpty(data))
             {
@@ -2326,13 +2326,14 @@ namespace Factory_of_the_Future
                         {
                             Id = zoneid,
                             Visible = true,
-                            Color = "#ff006699",
+                            Color = "",
                             Name = zoneName,
                             ZoneUpdate = true,
                             ZoneType = zoneType,
                             MPEType = mpeName,
                             MPENumber = mpeNumber,
-                            Bins = bins
+                            Bins = bins,
+                            RawData = data
                         };
 
                         GeoZone newGeoZone = new GeoZone
@@ -2343,14 +2344,14 @@ namespace Factory_of_the_Future
                         };
                         if (!AppParameters.ZoneList.TryAdd(newGeoZone.Properties.Id, newGeoZone))
                         {
-                            //new ErrorLogger().CustomLog("Unable to Update Zone" + newtempgZone.Properties.Id, string.Concat((string)AppParameters.AppSettings.Property("APPLICATION_NAME").Value, "_Applogs"));
+                            new ErrorLogger().CustomLog("Unable to Update Custom Zone" + zoneid, string.Concat((string)AppParameters.AppSettings.Property("APPLICATION_NAME").Value, "_Applogs"));
+                            return null;
                         }
-                        var xx = AppParameters.ZoneList.Where(r => r.Value.Properties.ZoneType == "Bin").Select(x => x.Value).ToList();
+                        new FileIO().Write(string.Concat(AppParameters.Logdirpath, AppParameters.ConfigurationFloder), "CustomZones.json", JsonConvert.SerializeObject(GetAllCustomZonesList(), Formatting.Indented));
+                        return AppParameters.ZoneList.Where(w => w.Key == newGeoZone.Properties.Id).Select(s => s.Value).ToList();
                     }
                 }
             }
-
-            new FileIO().Write(string.Concat(AppParameters.Logdirpath, AppParameters.ConfigurationFloder), "CustomZones.json", JsonConvert.SerializeObject(GetAllCustomZonesList(), Formatting.Indented));
             return null;
         }
 
@@ -2373,8 +2374,8 @@ namespace Factory_of_the_Future
         {
             try
             {
-                var zones = AppParameters.ZoneList.Where(r => r.Value.Properties.ZoneType.ToString().StartsWith("Custom")).Select(x => x.Value).ToList();
-                return AppParameters.ZoneList.Where(r => r.Value.Properties.ZoneType.ToString().StartsWith("Custom")).Select(x => x.Value).ToList();
+                return AppParameters.ZoneList.Select(x => x.Value).ToList();
+                //return AppParameters.ZoneList.Where(r => r.Value.Properties.ZoneType.ToString().StartsWith("Custom")).Select(x => x.Value).ToList();
 
             }
             catch (Exception e)

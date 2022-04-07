@@ -16,7 +16,7 @@ map = L.map('map', {
     zoomControl: false,
     measureControl: true,
     tap: false,
-    layers: [polygonMachine, vehicles, agvLocations, container, stagingAreas, tagsMarkersGroup, dockDoors]
+    layers: [polygonMachine, vehicles, agvLocations, container, stagingAreas, tagsMarkersGroup, dockDoors, binzonepoly]
 });
 var overlayMaps = {
     "Vehicles Tag": vehicles,
@@ -30,7 +30,8 @@ var overlayMaps = {
     "Exit Areas": exitAreas,
     "Work Area": walkwayAreas,
     "Polygon Holes": polyholesAreas,
-    "Locator's": locatorMarker
+    "Locator's": locatorMarker,
+    "Bin Zones" : binzonepoly
 };
 var timedisplay = L.Control.extend({
     options: {
@@ -187,6 +188,7 @@ async function init_Map() {
             }]
         });
         fullscreentoggle.addTo(map);
+
     }
     $.connection.FOTFManager.server.getMap().done(function (MapData) {
         try {
@@ -461,3 +463,7 @@ async function GetUserProfile() {
         $('#usertitel').text(User.Role);
     }
 }
+
+
+
+

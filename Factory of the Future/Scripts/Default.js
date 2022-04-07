@@ -929,3 +929,4 @@ function objSVTime(t) {
 async function updateTime(t) {
     $('#localTime').val(moment(t).format('H:mm'));
 }
+

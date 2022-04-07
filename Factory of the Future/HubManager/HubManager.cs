@@ -41,7 +41,7 @@ namespace Factory_of_the_Future
         /// /API section
         /// </summary>
         /// <returns></returns>
-        public IEnumerable<JToken> AddCustomZone(string data)
+        public List<GeoZone> AddCustomZone(string data)
         {
             return _managerHub.AddCustomZone(data);
         }
