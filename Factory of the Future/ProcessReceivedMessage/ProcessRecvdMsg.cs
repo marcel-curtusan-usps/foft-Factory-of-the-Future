@@ -1621,9 +1621,8 @@ namespace Factory_of_the_Future
                             if (!string.IsNullOrEmpty(SortPlanList))
                             {
                                 SortPlanList = SortPlanList.Substring(0, SortPlanList.Length - 1);
-                                AppParameters.ZoneList.Where(r => r.Value.Properties.ZoneType == "Machine"
-
-                                && Regex.IsMatch(SortPlanList, r.Value.Properties.MPEWatchData.CurSortplan, RegexOptions.IgnoreCase)).Select(y => y.Key).ToList().ForEach(Key => 
+                                AppParameters.ZoneList.Where(r => r.Value.Properties.ZoneType == "Machine" 
+                                && Regex.IsMatch(r.Value.Properties.MPEWatchData.CurSortplan, SortPlanList, RegexOptions.IgnoreCase)).Select(y => y.Key).ToList().ForEach(Key => 
                                 {
                                 
                                     GeoZone tempZone = new GeoZone();
@@ -2372,6 +2371,35 @@ namespace Factory_of_the_Future
                                     }
                                 }
                             }
+                        }
+
+                        //Load Custom Zones
+                        try
+                        {
+                            if (AppParameters.Logdirpath != null)
+                            {
+                                string file_content = new FileIO().Read(string.Concat(AppParameters.Logdirpath, AppParameters.ConfigurationFloder), "CustomZones.json");
+
+                                if (!string.IsNullOrEmpty(file_content))
+                                {
+
+                                    List<GeoZone> tempzone = JsonConvert.DeserializeObject<List<GeoZone>>(file_content);
+                                    for (int i = 0; i < tempzone.Count; i++)
+                                    {
+                                        if (!AppParameters.ZoneList.ContainsKey(tempzone[i].Properties.Id))
+                                        {
+                                            if (AppParameters.ZoneList.TryAdd(tempzone[i].Properties.Id, tempzone[i]))
+                                            {
+
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                        catch (Exception e)
+                        {
+                            new ErrorLogger().ExceptionLog(e);
                         }
                     }
                     //log Project Data to locale drive.
