@@ -1397,6 +1397,8 @@ namespace Factory_of_the_Future
                     {
                         foreach (JObject item in machineInfo.Children())
                         {
+                            MPEWatch_FullBins(item);
+
                             string MpeName = string.Concat(item["mpe_type"].ToString().Trim() ,"-", item["mpe_number"].ToString().PadLeft(3, '0'));
                             foreach ( string key in AppParameters.ZoneList.Where( r => r.Value.Properties.ZoneType == "Machine" && r.Value.Properties.Name == MpeName).Select(y => y.Key).ToList())
                             {
@@ -1424,11 +1426,25 @@ namespace Factory_of_the_Future
                                         double intMinuteToCompletion = (rpg_volume - piecesfed) / (throughput / 60);
                                         DateTime dtEstCompletion = dtNow.AddMinutes(intMinuteToCompletion);
                                         estCompletionTime = dtEstCompletion.ToString("yyyy-MM-dd HH:mm:ss");
-                                        item.Add("rpg_est_comp_time", estCompletionTime);
+                                        if(!item.ContainsKey("rpg_est_comp_time"))
+                                        {
+                                            item.Add("rpg_est_comp_time", estCompletionTime);
+                                        }
+                                        else
+                                        {
+                                            item["rpg_est_comp_time"] = estCompletionTime;
+                                        }
                                     } 
                                     else
                                     {
-                                        item.Add("rpg_est_comp_time", "");
+                                        if (!item.ContainsKey("rpg_est_comp_time"))
+                                        {
+                                            item.Add("rpg_est_comp_time", "");
+                                        }
+                                        else
+                                        {
+                                            item["rpg_est_comp_time"] = "";
+                                        }
                                     }
                                     ((JObject)tempmachineZone["properties"]["MPEWatchData"]).Merge(item, new JsonMergeSettings { MergeArrayHandling = MergeArrayHandling.Union });
 
@@ -1518,6 +1534,42 @@ namespace Factory_of_the_Future
                 new ErrorLogger().ExceptionLog(ex);
             }
           
+        }
+
+        private static void MPEWatch_FullBins(JObject data)
+        {
+            string MpeType = data["mpe_type"].ToString().Trim();
+            string MpeNumber = data["mpe_number"].ToString().PadLeft(3, '0');
+            List<string> FullBins = !string.IsNullOrEmpty(data["bin_full_bins"].ToString()) ? data["bin_full_bins"].ToString().Split(',').Select(p => p.Trim().TrimStart('0')).ToList() : new List<string>();
+            foreach (string key in AppParameters.ZoneList.Where(r => r.Value.Properties.ZoneType == "Bin" && r.Value.Properties.MPEType.Trim() == MpeType && r.Value.Properties.MPENumber.ToString().PadLeft(3, '0') == MpeNumber).Select(y => y.Key).ToList())
+            {
+                List<string> FullBinList = new List<string>();
+                if (AppParameters.ZoneList.TryGetValue(key, out GeoZone binZone))
+                {
+                    JObject tempBinZone = (JObject)JsonConvert.DeserializeObject(JsonConvert.SerializeObject(binZone, Formatting.Indented));
+                    if (FullBins.Any())
+                    {
+                        for (int i = 0; i < FullBins.Count; i++)
+                        {
+                            string bin = FullBins[i];
+                            if (tempBinZone["properties"]["Bins"].ToList().Contains(bin))
+                            {
+                                FullBinList.Add(bin);
+                            }
+                        }
+                        binZone.Properties.FullBins = FullBinList;
+                        binZone.Properties.ZoneUpdate = true;
+                    }
+                    else
+                    {
+                        if(tempBinZone["properties"]["Bins"].ToList().Any())
+                        {
+                            binZone.Properties.FullBins = FullBinList;
+                            binZone.Properties.ZoneUpdate = true;
+                        }
+                    }
+                }
+            }
         }
 
         private static JToken GetP2PSortplan(string machine_type, string machine_number, string sortplan)
@@ -2388,9 +2440,9 @@ namespace Factory_of_the_Future
                                     {
                                         if (!AppParameters.ZoneList.ContainsKey(tempzone[i].Properties.Id))
                                         {
-                                            if (AppParameters.ZoneList.TryAdd(tempzone[i].Properties.Id, tempzone[i]))
+                                            if (!AppParameters.ZoneList.TryAdd(tempzone[i].Properties.Id, tempzone[i]))
                                             {
-
+                                                new ErrorLogger().CustomLog("Unable to Add Custom Zone" + tempzone[i].Properties.Id, string.Concat((string)AppParameters.AppSettings.Property("APPLICATION_NAME").Value, "_Applogs"));
                                             }
                                         }
                                     }

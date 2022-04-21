@@ -52,7 +52,7 @@ map.on('pm:create', function (e) {
                         visible: ""
                     }
                     togeo.properties = geoProp;
-                    togeo.properties.zone_type = "Custom_" + ztsel;
+                    togeo.properties.zone_type = ztsel;
                     togeo.properties.name = $('input[id="zone_name"]').val();
                     togeo.properties.machine_name = $('input[id="bin_machine_name"]').val();
                     togeo.properties.machine_number = $('input[id="bin_machine_number"]').val();

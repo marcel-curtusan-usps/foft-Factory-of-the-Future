@@ -361,6 +361,9 @@ namespace Factory_of_the_Future
 
         [JsonProperty("Bins")]
         public List<string> Bins { get; set; } = new List<string>();
+
+        [JsonProperty("FullBinList")]
+        public List<string> FullBins { get; set; } = new List<string>();
     }
 
     public class GeoZone

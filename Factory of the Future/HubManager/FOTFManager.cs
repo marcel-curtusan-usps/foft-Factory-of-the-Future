@@ -36,6 +36,7 @@ namespace Factory_of_the_Future
         //private readonly object updateCTSInboundStatuslock = new object();
         //private readonly object updateCTSOutboundStatuslock = new object();
         private readonly object updateNotificationStatuslock = new object();
+        private readonly object updateCustomBinZoneStatuslock = new object();
 
         //timers
         private readonly Timer Clock_timer;
@@ -53,6 +54,7 @@ namespace Factory_of_the_Future
         //private readonly Timer CTSInbound_timer;
         //private readonly Timer CTSOutbound_timer;
         private readonly Timer Notification_timer;
+        private readonly Timer CustomBinZone_timer;
         //status
         private volatile bool _updateClockStatus = false;
 
@@ -69,6 +71,7 @@ namespace Factory_of_the_Future
         //private volatile bool _updateCTSInboundStatus = false;
         //private volatile bool _updateCTSOutboundStatus = false;
         private volatile bool _updateNotificationstatus = false;
+        private volatile bool _updateCustomBinZoneStatus = false;
 
         //private readonly Random _updateOrNotRandom = new Random();
         private readonly TimeSpan _updateInterval = TimeSpan.FromMilliseconds(2000);
@@ -104,6 +107,7 @@ namespace Factory_of_the_Future
             ////
             //Connection status
             QSM_timer = new Timer(UpdateQSM, null, _updateInterval, _updateInterval);
+            CustomBinZone_timer = new Timer(UpdateCustomBinZoneStatus, null, _updateInterval, _updateInterval);
         }
         public static FOTFManager Instance
         {
@@ -2294,6 +2298,46 @@ namespace Factory_of_the_Future
             throw new NotImplementedException();
         }
 
+        private void UpdateCustomBinZoneStatus(object state)
+        {
+            lock (updateCustomBinZoneStatuslock)
+            {
+                if (!_updateCustomBinZoneStatus)
+                {
+                    _updateCustomBinZoneStatus = true;
+                    foreach (var zoneitem in from GeoZone zoneitem in AppParameters.ZoneList.Where(r => r.Value.Properties.ZoneUpdate && r.Value.Properties.ZoneType == "Bin").Select(y => y.Value)
+                                             where TryUpdateCustomBinZoneStatus(zoneitem)
+                                             select zoneitem)
+                    {
+                        BroadcastCustomBinZoneStatus(zoneitem);
+                    }
+
+                    _updateCustomBinZoneStatus = false;
+                }
+            }
+        }
+
+        private bool TryUpdateCustomBinZoneStatus(GeoZone binZone)
+        {
+            try
+            {
+
+                binZone.Properties.ZoneUpdate = false;
+                return true;
+
+            }
+            catch (Exception e)
+            {
+                new ErrorLogger().ExceptionLog(e);
+                return false;
+            }
+        }
+
+        private void BroadcastCustomBinZoneStatus(GeoZone binZone)
+        {
+            Clients.All.updateCustomBinZoneStatus(binZone);
+        }
+
         internal List<GeoZone> AddCustomZone(string data)
         {
             if(!string.IsNullOrEmpty(data))
@@ -2366,7 +2410,7 @@ namespace Factory_of_the_Future
             try
             {
 
-                return AppParameters.ZoneList.Where(r => r.Value.Properties.ZoneType.ToString() == "Custom_Bin").Select(x => x.Value).ToList();
+                return AppParameters.ZoneList.Where(r => r.Value.Properties.ZoneType.ToString() == "Bin").Select(x => x.Value).ToList();
 
             }
             catch (Exception e)
@@ -2378,9 +2422,10 @@ namespace Factory_of_the_Future
 
         internal IEnumerable<GeoZone> GetAllCustomZonesList()
         {
+            //Will need to add each type from custom zones unless we change the naming convention.
             try
             {
-                return AppParameters.ZoneList.Where(r => r.Value.Properties.ZoneType.ToString().StartsWith("Custom")).Select(x => x.Value).ToList();
+                return AppParameters.ZoneList.Where(r => r.Value.Properties.ZoneType.ToString().StartsWith("Bin")).Select(x => x.Value).ToList();
             }
             catch (Exception e)
             {
