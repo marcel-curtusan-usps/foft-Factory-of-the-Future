@@ -43,7 +43,7 @@ namespace Factory_of_the_Future
         private readonly Timer Machine_timer;
         private readonly Timer AGVLocation_timer;
         private readonly Timer SVTrips_timer;
-        //private readonly Timer Notification_timer;
+        private readonly Timer Notification_timer;
         private readonly Timer BinZone_timer;
         //status
         private volatile bool _updatePersonTagStatus = false;
@@ -81,7 +81,7 @@ namespace Factory_of_the_Future
             /////SV Trips Data
             SVTrips_timer = new Timer(UpdateSVTripsStatus, null, _30000updateInterval, _30000updateInterval);
             ////   Notification data timer
-            Notification_timer = new Timer(UpdateNotificationtatus, null, _updateInterval, _updateInterval);
+            Notification_timer = new Timer(UpdateNotificationtatus, null, _1000updateInterval, _1000updateInterval);
             ////
             //Connection status
             QSM_timer = new Timer(UpdateQSM, null, _250updateInterval, _250updateInterval);
@@ -415,7 +415,7 @@ namespace Factory_of_the_Future
                 if (!_updateNotificationstatus)
                 {
                     _updateNotificationstatus = true;
-                    foreach (var notification in from notification in AppParameters.NotificationList.Where(r => r.Value.Notification_Update).Select(y => y.Value)
+                    foreach (var notification in from notification in AppParameters.NotificationList.Select(y => y.Value)
                                                  where TryUpdateNotificationStatus(notification)
                                                  select notification)
                     {
@@ -432,6 +432,7 @@ namespace Factory_of_the_Future
             try
             {
                 notification.Notification_Update = false;
+             
                 if (notification.Delete)
                 {
                     if (AppParameters.NotificationList.TryRemove(notification.Notification_ID, out Notification notifi))
@@ -439,7 +440,13 @@ namespace Factory_of_the_Future
                         return true;
                     }
                 }
-                return true;
+                int duration = AppParameters.Get_NotificationTTL(notification.Type_Time, DateTime.Now);
+                if (duration > notification.Type_Duration)
+                {
+                    notification.Type_Duration = duration;
+                    return true;
+                }
+                return false;
                 //if ((bool)notification.Property("ACTIVE_CONDITION").Value)
                 //{
                 //    if (notification.ContainsKey("DELETE"))
@@ -940,12 +947,12 @@ namespace Factory_of_the_Future
 
         private string CheckNotification(string currentState, string NewState, string type, RouteTrips trip, string noteifi_id)
         {
-            string noteification_id = noteifi_id;
+            string noteification_id = "";
             try
             {
                 if (currentState != NewState)
                 {
-                    if (!string.IsNullOrEmpty(noteification_id) && AppParameters.NotificationList.ContainsKey(noteification_id))
+                    if (!string.IsNullOrEmpty(noteifi_id) && AppParameters.NotificationList.ContainsKey(noteifi_id))
                     {
                         if (AppParameters.NotificationList.TryGetValue(noteification_id, out Notification notification))
                         {
@@ -966,11 +973,12 @@ namespace Factory_of_the_Future
 
                        Notification newNotifi = JsonConvert.DeserializeObject<Notification>(JsonConvert.SerializeObject(conditions, Formatting.None));
                        newNotifi.Type_ID = trip.RouteTripId + trip.RouteTripLegId + trip.TripDirectionInd;
-                       newNotifi.Type_Name = trip.Route + "-" + trip.Trip;
+                       newNotifi.Type_Name = trip.Route + "-" + trip.Trip + "|" + trip.LegSiteName + "|" + trip.DoorNumber;
                        newNotifi.Type_Duration = trip.TripMin;
                        newNotifi.Type_Status = trip.State;
                        newNotifi.Notification_ID = noteification_id;
                        newNotifi.Notification_Update = true;
+                       newNotifi.Type_Time = AppParameters.GetSvDate(trip.ScheduledDtm);
                        AppParameters.NotificationList.TryAdd(noteification_id, newNotifi);
 
                    });

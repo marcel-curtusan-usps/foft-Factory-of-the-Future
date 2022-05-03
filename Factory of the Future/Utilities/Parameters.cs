@@ -1487,6 +1487,8 @@ namespace Factory_of_the_Future
         [JsonProperty("NotificationUpdate")]
         public bool Notification_Update { get; set; }
 
+        [JsonProperty("TypeTime")]
+        public DateTime Type_Time { get; set; }
 
     }
 

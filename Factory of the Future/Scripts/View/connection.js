@@ -391,8 +391,8 @@ function Add_Connection() {
         var jsonObject = {
             ActiveConnection: $('input[type=checkbox][name=active_connection]').is(':checked'),
             UdpConnection: $('input[type=checkbox][name=udp_connection]').is(':checked'),
-            HoursBack: parseInt($('input[id=hoursforward_range]').val()),
-            HoursForward: parseInt($('input[id=hoursback_range]').val()),
+            HoursBack: parseInt($('input[id=hoursback_range]').val()),
+            HoursForward: parseInt($('input[id=hoursforward_range]').val()),
             DataRetrieve: $('select[name=data_retrieve] option:selected').val(),
             ConnectionName: $('input[type=text][name=connection_name]').val(),
             IpAddress: $('input[type=text][name=ip_address]').val(),
@@ -500,8 +500,8 @@ function Edit_Connection(id) {
                         var jsonObject = {
                             ActiveConnection: $('input[type=checkbox][name=active_connection]').is(':checked'),
                             UdpConnection: $('input[type=checkbox][name=udp_connection]').is(':checked'),
-                            HoursBack: parseInt($('input[id=hoursforward_range]').val()),
-                            HoursForward: parseInt($('input[id=hoursback_range]').val()),
+                            HoursBack: parseInt($('input[id=hoursback_range]').val()),
+                            HoursForward: parseInt($('input[id=hoursforward_range]').val()),
                             DataRetrieve: $('select[name=data_retrieve] option:selected').val(),
                             ConnectionName: $('input[type=text][name=connection_name]').val(),
                             IpAddress: $('input[type=text][name=ip_address]').val(),

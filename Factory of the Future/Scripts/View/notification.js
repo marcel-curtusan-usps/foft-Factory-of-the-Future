@@ -166,29 +166,30 @@ $('button[name=addnotificationsetup]').off().on('click', function () {
 let notification = [];
 async function updateNotification(updatenotification) {
     try {
-        let notificationindex = notification.filter(x => x.notificationId === updatenotification.notificationId).map(x => x).length;
+        let notificationindex = notification.filter(x => x.NotificationID === updatenotification.NotificationID).map(x => x).length;
         //add notification
         if (notificationindex === 0) {
             notification.push(updatenotification);
         }
         if (notificationindex > 0) {
-            if (updatenotification.hasOwnProperty("DELETE")) {
-                if (updatenotification.DELETE) {
+            if (updatenotification.Delete) {
                     //delete notification 
-                    Promise.all([delete_notification(updatenotification.notificationId)]);
-                }
+                Promise.all([delete_notification(updatenotification.NotificationID)]);
             }
             else {
                 //update notification
-                Promise.all([update_notification(updatenotification.notificationId)]);
+                Promise.all([update_notification(updatenotification.NotificationID)]);
             }
         }
        
-        if (/vehicle/i.test(updatenotification.TYPE)) {
+        if (/vehicle/i.test(updatenotification.Type)) {
             Promise.all([updateagvTable(updatenotification)]);
         }
-        if (/routetrip/i.test(updatenotification.TYPE)) {
+        if (/routetrip/i.test(updatenotification.Type)) {
             Promise.all([updatetripTable(updatenotification)]);
+        }
+        if (/mpe/i.test(updatenotification.Type)) {
+            Promise.all([updateMPETable(updatenotification)]);
         }
     }
     catch (e) {
@@ -197,7 +198,7 @@ async function updateNotification(updatenotification) {
 }
 async function updateagvTable(updatenotification) {
     try {
-        let Vehiclecount = notification.filter(x => x.TYPE === "vehicle").map(x => x).length;
+        let Vehiclecount = notification.filter(x => x.Type === "vehicle").map(x => x).length;
         //AGV Counts
         if (Vehiclecount > 0) {
             if (parseInt($('#agvnotificaion_number').text()) !== Vehiclecount) {
@@ -207,13 +208,13 @@ async function updateagvTable(updatenotification) {
         else {
             $('#agvnotificaion_number').text("");
         }
-        let findagvtrdataid = agvnotificationtable_Body.find('tr[data-id=' + updatenotification.notificationId + ']');
+        let findagvtrdataid = agvnotificationtable_Body.find('tr[data-id=' + updatenotification.NotificationID + ']');
         if (findagvtrdataid.length > 0) {
             if (updatenotification.hasOwnProperty("DELETE")) {
-                agvnotificationtable_Body.find('tr[data-id=' + updatenotification.notificationId + ']').remove();
+                agvnotificationtable_Body.find('tr[data-id=' + updatenotification.NotificationID + ']').remove();
             }
             else {
-                agvnotificationtable_Body.find('tr[data-id=' + updatenotification.notificationId + ']').replaceWith(agv_row_template.supplant(formatagvnotifirow(updatenotification)));
+                agvnotificationtable_Body.find('tr[data-id=' + updatenotification.NotificationID + ']').replaceWith(agv_row_template.supplant(formatagvnotifirow(updatenotification)));
             }
         }
         else {
@@ -226,7 +227,7 @@ async function updateagvTable(updatenotification) {
 }
 async function updatetripTable(updatenotification) {
     try {
-        let routetripcount = notification.filter(x => x.TYPE === "routetrip").map(x => x).length;
+        let routetripcount = notification.filter(x => x.Type === "routetrip").map(x => x).length;
         // routetrip Counts
         if (routetripcount > 0) {
             if (parseInt($('#tripsnotificaion_number').text()) !== routetripcount) {
@@ -237,15 +238,15 @@ async function updatetripTable(updatenotification) {
         else {
             $('#tripsnotificaion_number').text("");
         }
-        let findtrdataid = tripsnotificationtable_Body.find('tr[data-id=' + updatenotification.notificationId + ']');
+        let findtrdataid = tripsnotificationtable_Body.find('tr[data-id=' + updatenotification.NotificationID + ']');
         if (findtrdataid.length > 0) {
             if (updatenotification.hasOwnProperty("DELETE")) {
-                tripsnotificationtable_Body.find('tr[data-id=' + updatenotification.notificationId + ']').remove();
-                tripsnotificationtable_Body.find('tr[data-id=collapse_' + updatenotification.notificationId + ']').remove();
+                tripsnotificationtable_Body.find('tr[data-id=' + updatenotification.NotificationID + ']').remove();
+                tripsnotificationtable_Body.find('tr[data-id=collapse_' + updatenotification.NotificationID + ']').remove();
             }
             else {
-                tripsnotificationtable_Body.find('tr[data-id=' + updatenotification.notificationId + ']').remove();
-                tripsnotificationtable_Body.find('tr[data-id=collapse_' + updatenotification.notificationId + ']').remove();
+                tripsnotificationtable_Body.find('tr[data-id=' + updatenotification.NotificationID + ']').remove();
+                tripsnotificationtable_Body.find('tr[data-id=collapse_' + updatenotification.NotificationID + ']').remove();
                 tripsnotificationtable_Body.append(trip_row_template.supplant(formattripnotifirow(updatenotification)));
             }
         }
@@ -261,7 +262,7 @@ async function delete_notification(id)
 {
     try {
         notification.forEach(function (obj) {
-            if (obj.notificationId === id) {
+            if (obj.NotificationID === id) {
                 notification.splice(notification.indexOf(obj), 1);
             }
         });
@@ -274,7 +275,7 @@ async function delete_notification(id)
 async function update_notification(id) {
     try {
         notification.forEach(function (obj) {
-            if (obj.notificationId === id) {
+            if (obj.NotificationID === id) {
                 let indexobj = notification.indexOf(obj);
             }
         });
@@ -327,7 +328,7 @@ let agv_row_template =
     ;
 function formatagvnotifirow(properties, indx) {
     return $.extend(properties, {
-        id: properties.notificationId,
+        id: properties.NotificationID,
         tagid: properties.TAGID,
         name: properties.Name,
         type: properties.Type,
@@ -347,7 +348,7 @@ let trip_row_template =
     '<td class="text-center">{duration}</td>' +
     '<td class="text-center">{direction}</td>' +
     '<td>' +
-    '<button class="btn btn-outline-info btn-sm btn-block px-1 routetripdetails" data-routetrip="{routetripid}" style="font-size:12px;">{route}-{trip}</button>' +
+    '<button class="btn btn-outline-info btn-sm btn-block px-1 routetripdetails" data-routetrip="{routetripid}" style="font-size:12px;">{routedispaly}</button>' +
     '</td>' +
     '<td data-toggle="tooltip" title="{dest}" style="overflow: inherit;">{dest}</td> ' +
     '<td class="expand-button">' +
@@ -374,18 +375,17 @@ let tripsnotificationtable = $('table[id=tripsnotificationtable]');
 let tripsnotificationtable_Body = tripsnotificationtable.find('tbody');
 function formattripnotifirow(properties, indx) {
     return $.extend(properties, {
-        id: properties.notificationId,
-        tagid: properties.TAGID,
-        schd: objSVTime(properties.scheduledDtm),
-        routetripid: properties.id,
-        route: properties.route,
+        id: properties.NotificationID,
+        tagid: properties.TypeID,
+        schd: moment(properties.TypeTime).format("HH:mm"),
+        routetripid: properties.TypeID,
+        routedispaly: spitName(properties.TypeName, 0),
         trip: properties.trip,
-        direction: properties.tripDirectionInd,
+        direction: properties.TypeID.substr(properties.TypeID.length - 1),
         leg: properties.legSiteId,
-        dest: properties.legSiteName,
+        dest: spitName(properties.TypeName, 1),
         condition: properties.Conditions,
-        door: properties.tripDirectionInd === "I" ? "" : properties.hasOwnProperty("doorNumber") ? properties.doorNumber.replace(/^0+/, '') :"",
-        duration: calculateDuration(properties.scheduledDtm),
+        duration: calculatevehicleDuration(properties.TypeTime),
         conditioncolor: conditioncolor(properties.VEHICLETIME, parseInt(properties.Warning), parseInt(properties.Critical)),
         warning_action_text: properties.WarningAction,
         critical_action_text: properties.CriticalAction,
@@ -654,5 +654,13 @@ function Get_notificationColor(data) {
     }
     else {
         return "table-warning";
+    }
+}
+function spitName(name, index) {
+    try {
+        var tempName = name.split("|");
+        return tempName[index];
+    } catch (e) {
+        console.log(e);
     }
 }

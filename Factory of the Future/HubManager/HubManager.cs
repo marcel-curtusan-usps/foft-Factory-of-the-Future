@@ -94,7 +94,7 @@ namespace Factory_of_the_Future
         //    return _managerHub.EditTagInfo(data);
         //}
 
-        public IEnumerable<JToken> GetNotification(string data)
+        public IEnumerable<Notification> GetNotification(string data)
         {
             return _managerHub.GetNotification(data);
         }
