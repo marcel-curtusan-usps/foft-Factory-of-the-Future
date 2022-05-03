@@ -81,7 +81,7 @@ namespace Factory_of_the_Future
             /////SV Trips Data
             SVTrips_timer = new Timer(UpdateSVTripsStatus, null, _30000updateInterval, _30000updateInterval);
             ////   Notification data timer
-            //Notification_timer = new Timer(UpdateNotificationtatus, null, _updateInterval, _updateInterval);
+            Notification_timer = new Timer(UpdateNotificationtatus, null, _updateInterval, _updateInterval);
             ////
             //Connection status
             QSM_timer = new Timer(UpdateQSM, null, _250updateInterval, _250updateInterval);
@@ -432,6 +432,13 @@ namespace Factory_of_the_Future
             try
             {
                 notification.Notification_Update = false;
+                if (notification.Delete)
+                {
+                    if (AppParameters.NotificationList.TryRemove(notification.Notification_ID, out Notification notifi))
+                    {
+                        return true;
+                    }
+                }
                 return true;
                 //if ((bool)notification.Property("ACTIVE_CONDITION").Value)
                 //{
