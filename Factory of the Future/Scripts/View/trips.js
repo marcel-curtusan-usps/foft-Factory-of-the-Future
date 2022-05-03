@@ -12,7 +12,13 @@ async function init_arrive_depart_trips() {
         fotfmanager.server.getTripsList().done(function (trips) {
             if (trips.length > 0) {
                 trips.sort(function (left, right) {
-                    return moment(left.scheduledDate).diff(moment(right.scheduledDate))
+                    if (!$.isEmptyObject(left.scheduledDtm)) {
+                        var leftt = moment().set({ 'year': left.scheduledDtm.year, 'month': left.scheduledDtm.month + 1, 'date': left.scheduledDtm.dayOfMonth, 'hour': left.scheduledDtm.hourOfDay, 'minute': left.scheduledDtm.minute, 'second': left.scheduledDtm.second });
+                        var rightt = moment().set({ 'year': right.scheduledDtm.year, 'month': right.scheduledDtm.month + 1, 'date': right.scheduledDtm.dayOfMonth, 'hour': right.scheduledDtm.hourOfDay, 'minute': right.scheduledDtm.minute, 'second': right.scheduledDtm.second });
+
+                        return leftt.diff(rightt);
+                    }
+                   
                 });
                 $.each(trips, function () {
                     process_trips(this);
@@ -31,7 +37,7 @@ async function updateTrips(trip) {
         for (let tr_name of trname) {
             let tablename = $(tr_name).closest('table').attr('id');
             if (checkValue(tablename)) {
-                if (trip.hasOwnProperty("state") && /remove/i.test(trip.state)) {
+                if (/remove/i.test(trip.state)) {
                         $('#' + tablename).find('tbody tr[data-id=' + routetrip + ']').remove();
                 }
                 else {
@@ -56,7 +62,10 @@ async function updateTrips(trip) {
        
     }
     else {
-        process_trips(trip);
+        if (!/remove/i.test(trip.state)) {
+            process_trips(trip);
+        }
+        
     }
 }
 async function process_trips(trip)
@@ -84,6 +93,7 @@ async function process_trips(trip)
                 break;
             default:
         }
+       
     } catch (e) {
         console.log(e);
     }
@@ -94,7 +104,7 @@ Outbound network trips
 function formatobtriprow(properties) {
     return $.extend(properties, {
         schd: objSVTime(properties.scheduledDtm), //properties.hasOwnProperty("ScheduledDtm") ? formatSVTime(properties.ScheduledDtm) : "" ,
-        departed: properties.hasOwnProperty("actualDtm") ? objSVTime(properties.actualDtm) : "",
+        departed: !$.isEmptyObject(properties.actualDtm) ? objSVTime(properties.actualDtm) : "",
         door: checkValue(properties.doorNumber) ? properties.doorNumber : "0",
         routetrip: properties.route + properties.trip + properties.tripDirectionInd,
         route: properties.route,
@@ -132,7 +142,7 @@ let ob_trips_row_template = '<tr data-id={routeid} data-route={route} data-trip=
 function formatoblocaltriprow(properties) {
     return $.extend(properties, {
         schd: objSVTime(properties.scheduledDtm),//properties.hasOwnProperty("ScheduledDtm") ? formatSVTime(properties.ScheduledDtm) : "",
-        departed: properties.hasOwnProperty("actualDtm") ? objSVTime(properties.actualDtm) : "",
+        departed: !$.isEmptyObject(properties.actualDtm) ? objSVTime(properties.actualDtm) : "",
         door: checkValue(properties.doorNumber) ? properties.doorNumber : "0",
         routetrip: properties.route + properties.trip + properties.tripDirectionInd,
         route: properties.route,
@@ -172,7 +182,7 @@ Scheduled outbound trips
 function formatscheouttriprow(properties) {
     return $.extend(properties, {
         schd: objSVTime(properties.scheduledDtm),//properties.hasOwnProperty("ScheduledDtm") ? formatSVTime(properties.ScheduledDtm) : "",
-        departed: properties.hasOwnProperty("actualDtm") ? objSVTime(properties.actualDtm) : "",
+        departed: !$.isEmptyObject(properties.actualDtm) ? objSVTime(properties.actualDtm) : "",
         routetrip: properties.route + properties.trip + properties.tripDirectionInd,
         door: checkValue(properties.doorNumber) ? properties.doorNumber : "0",
         route: properties.route,
@@ -202,7 +212,7 @@ Scheduled inbound trips
 function formatscheintriprow(properties) {
     return $.extend(properties, {
         schd: objSVTime(properties.scheduledDtm),//properties.hasOwnProperty("LegScheduledDtm") ? formatSVTime(properties.LegScheduledDtm) : "",
-        arrived: properties.hasOwnProperty("legActualDtm") ? objSVTime(properties.legActualDtm) : "",
+        arrived: !$.isEmptyObject(properties.legActualDtm) ? objSVTime(properties.legActualDtm) : "",
         routetrip: properties.route + properties.trip + properties.tripDirectionInd,
         door: checkValue(properties.doorNumber) ? properties.doorNumber : "0",
         route: properties.route,
@@ -266,28 +276,7 @@ function formatSVTime(value_time) {
         console.log(e);
     }
 }
-function formatSVmonthdayTime(t) {
-    try {
-        if (checkValue(t)) {
-            var time = moment().set({ 'year': t.year, 'month': t.month + 1, 'date': t.dayOfMonth, 'hour': t.hourOfDay, 'minute': t.minute, 'second': t.second });
-            if (time._isValid) {
-                if (time.year() === 1) {
-                    return "";
-                }
-                return time.format("MM/DD/YYYY HH:mm");
-            }
-            else {
-                return "";
-            }
-        }
-        else {
-            return "";
-        }
-    } catch (e) {
-        console.log(e);
-        return "";
-    }
-}
+
 function LoadRouteTripDetails(id) {
     try {
 

@@ -9,29 +9,45 @@ if (!String.prototype.supplant) {
         );
     };
 }
+var map = null;
+var bounds = [];
+var container = new L.FeatureGroup();
 var connectattp = 0;
 var connecttimer;
 let fotfmanager = $.connection.FOTFManager;
+var timezone = {};
+var User = {};
+var condition = false;
+
 $(function () {
     $("form").submit(function () { return false; });
   
-    setHeight();
+    //setHeight();
     $(window).resize(function () {
         setHeight();
+    });
+    
+    // Search Tag Name
+    $('input[id=inputsearchbtn').keyup(function () {
+        startSearch(this.value)
+    }).keydown(function (event) {
+        if (event.which == 13) {
+            event.preventDefault();
+        }
     });
 
     //on close clear all IDS inputs
 
-    $('#CTS_Details_Modal').on('hidden.bs.modal', () => {
-        $CTSDetails_Table = $('table[id=ctsdetailstable]');
-        $CTSDetails_Table_Header = $CTSDetails_Table.find('thead');
-        $CTSDetails_Table_Header.empty();
-        $CTSDetails_Table_Body = $CTSDetails_Table.find('tbody')
-        $CTSDetails_Table_Body.empty();
-    });
-    $('#CTS_Details_Modal').on('shown.bs.modal', () => {
-        $("#modal-preloader").show();
-    });
+    //$('#CTS_Details_Modal').on('hidden.bs.modal', () => {
+    //    $CTSDetails_Table = $('table[id=ctsdetailstable]');
+    //    $CTSDetails_Table_Header = $CTSDetails_Table.find('thead');
+    //    $CTSDetails_Table_Header.empty();
+    //    $CTSDetails_Table_Body = $CTSDetails_Table.find('tbody')
+    //    $CTSDetails_Table_Body.empty();
+    //});
+    //$('#CTS_Details_Modal').on('shown.bs.modal', () => {
+    //    $("#modal-preloader").show();
+    //});
     $('#UserTag_Modal').on('hidden.bs.modal', function () {
         $(this)
             .find("input[type=text],textarea,select")
@@ -51,34 +67,173 @@ $(function () {
         }
     });
 
-
     $.extend(fotfmanager.client, {
-        updateClock: async (timer) => {
-            updateTime(timer);
-            $('#twentyfourmessage').text(GetTwentyFourMessage(timer));
-            if ($("#tfhcContent").length > 0) {
-                SetClockHands(timer);
+        userInfo: async (User_profile) => {
+            User = User_profile;
+            if (User.hasOwnProperty("FacilityTimeZone")) {
+                if (checkValue(User.FacilityTimeZone)) {
+                    timezone = { Facility_TimeZone: User.FacilityTimeZone }
+                    cBlock();
+                }
             }
-            ///badgecomplaint();
-            zonecurrentStaff();
-            var visible = sidebar._getTab("reports");
-            if (visible) {
-                if (visible.classList.length) {
-                    if (visible.classList.contains('active')) {
-                        GetUserInfo();
+            if (User.hasOwnProperty("Environment")) {
+                //Environment Status Controls
+                if (/(DEV|SIT|CAT)/i.test(User.Environment)) {
+                    var Environment = L.Control.extend({
+                        options: {
+                            position: 'topright'
+                        },
+                        onAdd: function () {
+                            var Domcntainer = L.DomUtil.create('input');
+                            Domcntainer.type = "button";
+                            Domcntainer.id = "environment";
+                            Domcntainer.className = getEnv(User.Environment);
+                            Domcntainer.value = User.Environment;
+                            return Domcntainer;
+                        }
+                    });
+                    map.addControl(new Environment());
+                    function getEnv(env) {
+                        if (/CAT/i.test(env)) {
+                            return "btn btn-outline-primary btn-sm";
+                        }
+                        else if (/SIT/i.test(env)) {
+                            return "btn btn-outline-warning btn-sm";
+                        }
+                        else if (/DEV/i.test(env)) {
+                            return "btn btn-outline-danger btn-sm";
+                        }
                     }
                 }
             }
+            if (/^Admin/i.test(User.Role)) {
+                sidebar.addPanel({
+                    id: 'connections',
+                    tab: '<i class="pi-iconDiagramOutline"></i>',
+                    position: 'top',
+                    pane: '<div class="btn-toolbar" role="toolbar" id="connection_div">' +
+                        '<div id="div_agvnotification" class="container-fluid">' +
+                        '<h4>API Settings</h4>' +
+                        '<button type="button" class="btn btn-primary float-left mb-2" name="addconnection">Add</button>' +
+                        '<div class="card w-100 bg-white mt-2 pb-1">' +
+                        '<div class="card-body">' +
+                        '<div class="table-responsive">' +
+                        '<table class="table table-sm table-hover table-condensed mb-1" id="connectiontable" style="border-collapse:collapse;">' +
+                        '<thead class="thead-dark">' +
+                        '<tr>' +
+                        '<th class="row-connection-name">Name</th><th class="row-connection-type">Message Type</th><th class="row-connection-status">Status</th><th class="row-connection-action">Action</th>' +
+                        '</tr>' +
+                        '</thead>' +
+                        '<tbody></tbody>' +
+                        '</table>' +
+                        '</div>' +
+                        '</div>' +
+                        '</div >' +
+                        '</div></div>'
+                });
+                init_connection();
+                //if (!/^https/i.test(window.location.protocol)) {
+                //    sidebar.addPanel({
+                //        id: 'camera_video',
+                //        tab: '<i class="bi-camera-fill"></i>',
+                //        position: 'top',
+                //        pane: '<div class="btn-toolbar" role="toolbar" id="camera_display">' +
+                //            '<div id="div_camera" class="container-fluid">' +
+                //            '<h4>Web Cameras</h4>' +
+                //            '<button type="button" class="btn btn-primary float-left mb-2" name="addcamera">Add</button>' +
+                //            '<div class="card w-100 bg-white mt-2 pb-1">' +
+                //            '<div class="card-body">' +
+                //            '<div class="table-responsive">' +
+                //            '<table class="table table-sm table-hover table-condensed mb-1" id="cameratable" style="border-collapse:collapse;">' +
+                //            '<thead class="thead-dark">' +
+                //            '<tr>' +
+                //            '<th class="row-connection-name">Name</th><th class="row-connection-type">Description</th><th class="row-connection-action">View Camera</th>' +
+                //            '</tr>' +
+                //            '</thead>' +
+                //            '<tbody></tbody>' +
+                //            '</table>' +
+                //            '</div>' +
+                //            '</div>' +
+                //            '</div >' +
+                //            '</div></div>'
+                //    });
 
-        }
-        
+                //    $('button[name=addcamera]').off().on('click', function () {
+                //        /* close the sidebar */
+                //        sidebar.close();
+                //        Add_Camera();
+                //    });
+                //}
+                init_geometry_editing();
+                $('button[name=addconnection]').off().on('click', function () {
+                    /* close the sidebar */
+                    sidebar.close();
+                    Add_Connection();
+                });
+                $('button[name=machineinfoedit]').css('display', 'block');
+
+            }
+            if (/^Admin/i.test(User.Role)) {
+                sidebar.addPanel({
+                    id: 'setting',
+                    tab: '<i class="pi-iconGearFill"></i>',
+                    position: 'bottom',
+                    pane: '<div class="btn-toolbar" role="toolbar" id="app_setting">' +
+                        '<div id="div_app_settingtable" class="container-fluid">' +
+                        '<div class="card w-100">' +
+                        '<div class="card-body">' +
+                        '<div class="table-responsive fixedHeader" style="max-height: calc(100vh - 100px); ">' +
+                        '<table class="table table-sm table-hover table-condensed" id="app_settingtable" style="border-collapse:collapse;">' +
+                        '<thead class="thead-dark">' +
+                        '<tr>' +
+                        '<th class="row-name">Name</th><th class="row-value">Value</th><th class="row-action">Action</th>' +
+                        '</tr>' +
+                        '</thead>' +
+                        '<tbody></tbody>' +
+                        '</table>' +
+                        '</div>' +
+                        '</div>' +
+                        '</div >' +
+                        '</div></div>'
+                });
+
+            }
+            if (!/^Admin/i.test(User.Role)) {
+                fotfmanager.server.leaveGroup("PeopleMarkers");
+            }
+            if (/(^PMCCUser$)/i.test(User.UserId)) {
+                map.removeLayer(tagsMarkersGroup)
+                //remove connection from receiving data for people markers. 
+                fotfmanager.server.leaveGroup("PeopleMarkers");
+
+                //add QRCode
+                var QRCodedisplay = L.Control.extend({
+                    options: {
+                        position: 'topright'
+                    },
+                    onAdd: function () {
+                        var Domcntainer = L.DomUtil.create('div');
+                        Domcntainer.id = "qrcodeUrl";
+                        return Domcntainer;
+                    }
+                });
+                map.addControl(new QRCodedisplay());
+
+                var qrcode = new QRCode("qrcodeUrl", {
+                    text: window.location.href,
+                    width: 128,
+                    height: 128,
+                    colorDark: "#000000",
+                    colorLight: "#ffffff",
+                    correctLevel: QRCode.CorrectLevel.H
+                });
+            }
+            //init_Map();
+        },
+        floorImage: async (MapData) => {init_mapSetup(MapData);}
     });
 
     Initiate24HourClock();
-
-    
-
-
     //add connection status
     var conntoggle = L.easyButton({
         position: 'topright',
@@ -144,180 +299,176 @@ $(function () {
   
 
     /******Connection status start******/
-    async function init_Connection() {
-        fotfmanager.server.getUserProfile().done(function (User_profile) {
-            User = User_profile;
-            if (User.hasOwnProperty("Facility_TimeZone")) {
-                if (checkValue(User.Facility_TimeZone)) {
-                    timezone = { Facility_TimeZone: User.Facility_TimeZone }
-                }
-            }
-            if (User.hasOwnProperty("Software_Version")) {
-                if (checkValue(User.Software_Version)) {
-                    map.attributionControl.setPrefix("USPS Factory of the Future (" + User.Software_Version + ")");
-                }
-            }
-            if (User.hasOwnProperty("Facility_Name")) {
-                if (checkValue(MapData.Facility_Name)) {
-                    $('#fotf-site-facility-name').append(User.Facility_Name);
-                    map.attributionControl.addAttribution(User.Facility_Name);
-                    $(document).prop('title', User.Facility_Name + ' FOTF');
-                }
-            }
-            if (User.hasOwnProperty("Environment")) {
-                //Environment Status Controls
-                if (/(DEV|SIT|CAT)/i.test(User.Environment)) {
-                    var Environment = L.Control.extend({
-                        options: {
-                            position: 'topright'
-                        },
-                        onAdd: function () {
-                            var Domcntainer = L.DomUtil.create('input');
-                            Domcntainer.type = "button";
-                            Domcntainer.id = "environment";
-                            Domcntainer.className = getEnv(User.Environment);
-                            Domcntainer.value = User.Environment;
-                            return Domcntainer;
-                        }
-                    });
-                    map.addControl(new Environment());
-                    function getEnv(env) {
-                        if (/CAT/i.test(env)) {
-                            return "btn btn-outline-primary btn-sm";
-                        }
-                        else if (/SIT/i.test(env)) {
-                            return "btn btn-outline-warning btn-sm";
-                        }
-                        else if (/DEV/i.test(env)) {
-                            return "btn btn-outline-danger btn-sm";
-                        }
-                    }
-                }
-            }
+    //function init_Connection() {
+    //    fotfmanager.server.getUserProfile().done(function (User_profile) {
+    //        User = User_profile;
+         
+    //        if (User.hasOwnProperty("FacilityTimeZone")) {
+    //            if (checkValue(User.FacilityTimeZone)) {
+    //                timezone = { Facility_TimeZone: User.FacilityTimeZone }
+    //                cBlock();
+    //            }
+    //        }
+           
+           
 
-            if (/^Admin/i.test(User.Role)) {
-                sidebar.addPanel({
-                    id: 'connections',
-                    tab: '<i class="pi-iconDiagramOutline"></i>',
-                    position: 'top',
-                    pane: '<div class="btn-toolbar" role="toolbar" id="connection_div">' +
-                        '<div id="div_agvnotification" class="container-fluid">' +
-                        '<h4>API Settings</h4>' +
-                        '<button type="button" class="btn btn-primary float-left mb-2" name="addconnection">Add</button>' +
-                        '<div class="card w-100 bg-white mt-2 pb-1">' +
-                        '<div class="card-body">' +
-                        '<div class="table-responsive">' +
-                        '<table class="table table-sm table-hover table-condensed mb-1" id="connectiontable" style="border-collapse:collapse;">' +
-                        '<thead class="thead-dark">' +
-                        '<tr>' +
-                        '<th class="row-connection-name">Name</th><th class="row-connection-type">Message Type</th><th class="row-connection-status">Status</th><th class="row-connection-action">Action</th>' +
-                        '</tr>' +
-                        '</thead>' +
-                        '<tbody></tbody>' +
-                        '</table>' +
-                        '</div>' +
-                        '</div>' +
-                        '</div >' +
-                        '</div></div>'
-                });
-                init_connection();
-                if (!/^https/i.test(window.location.protocol)) {
-                    sidebar.addPanel({
-                        id: 'camera_video',
-                        tab: '<i class="bi-camera-video"></i>',
-                        position: 'top',
-                        pane: '<div class="btn-toolbar" role="toolbar" id="camera_display">' +
-                            '<div id="div_camera" class="container-fluid">' +
-                            '<h4>Web Cameras</h4>' +
-                            '<button type="button" class="btn btn-primary float-left mb-2" name="addcamera">Add</button>' +
-                            '<div class="card w-100 bg-white mt-2 pb-1">' +
-                            '<div class="card-body">' +
-                            '<div class="table-responsive">' +
-                            '<table class="table table-sm table-hover table-condensed mb-1" id="cameratable" style="border-collapse:collapse;">' +
-                            '<thead class="thead-dark">' +
-                            '<tr>' +
-                            '<th class="row-connection-name">Name</th><th class="row-connection-type">Description</th><th class="row-connection-action">View Camera</th>' +
-                            '</tr>' +
-                            '</thead>' +
-                            '<tbody></tbody>' +
-                            '</table>' +
-                            '</div>' +
-                            '</div>' +
-                            '</div >' +
-                            '</div></div>'
-                    });
-                    init_cameras();
-                    $('button[name=addcamera]').off().on('click', function () {
-                        /* close the sidebar */
-                        sidebar.close();
-                        Add_Camera();
-                    });
-                }
-               // init_geometry_editing();
-                $('button[name=addconnection]').off().on('click', function () {
-                    /* close the sidebar */
-                    sidebar.close();
-                    Add_Connection();
-                });
-                $('button[name=machineinfoedit]').css('display', 'block');
+    //        if (User.hasOwnProperty("Environment")) {
+    //            //Environment Status Controls
+    //            if (/(DEV|SIT|CAT)/i.test(User.Environment)) {
+    //                var Environment = L.Control.extend({
+    //                    options: {
+    //                        position: 'topright'
+    //                    },
+    //                    onAdd: function () {
+    //                        var Domcntainer = L.DomUtil.create('input');
+    //                        Domcntainer.type = "button";
+    //                        Domcntainer.id = "environment";
+    //                        Domcntainer.className = getEnv(User.Environment);
+    //                        Domcntainer.value = User.Environment;
+    //                        return Domcntainer;
+    //                    }
+    //                });
+    //                map.addControl(new Environment());
+    //                function getEnv(env) {
+    //                    if (/CAT/i.test(env)) {
+    //                        return "btn btn-outline-primary btn-sm";
+    //                    }
+    //                    else if (/SIT/i.test(env)) {
+    //                        return "btn btn-outline-warning btn-sm";
+    //                    }
+    //                    else if (/DEV/i.test(env)) {
+    //                        return "btn btn-outline-danger btn-sm";
+    //                    }
+    //                }
+    //            }
+    //        }
+
+    //        if (/^Admin/i.test(User.Role)) {
+    //            sidebar.addPanel({
+    //                id: 'connections',
+    //                tab: '<i class="pi-iconDiagramOutline"></i>',
+    //                position: 'top',
+    //                pane: '<div class="btn-toolbar" role="toolbar" id="connection_div">' +
+    //                    '<div id="div_agvnotification" class="container-fluid">' +
+    //                    '<h4>API Settings</h4>' +
+    //                    '<button type="button" class="btn btn-primary float-left mb-2" name="addconnection">Add</button>' +
+    //                    '<div class="card w-100 bg-white mt-2 pb-1">' +
+    //                    '<div class="card-body">' +
+    //                    '<div class="table-responsive">' +
+    //                    '<table class="table table-sm table-hover table-condensed mb-1" id="connectiontable" style="border-collapse:collapse;">' +
+    //                    '<thead class="thead-dark">' +
+    //                    '<tr>' +
+    //                    '<th class="row-connection-name">Name</th><th class="row-connection-type">Message Type</th><th class="row-connection-status">Status</th><th class="row-connection-action">Action</th>' +
+    //                    '</tr>' +
+    //                    '</thead>' +
+    //                    '<tbody></tbody>' +
+    //                    '</table>' +
+    //                    '</div>' +
+    //                    '</div>' +
+    //                    '</div >' +
+    //                    '</div></div>'
+    //            });
+    //            init_connection();
+    //            //if (!/^https/i.test(window.location.protocol)) {
+    //            //    sidebar.addPanel({
+    //            //        id: 'camera_video',
+    //            //        tab: '<i class="bi-camera-fill"></i>',
+    //            //        position: 'top',
+    //            //        pane: '<div class="btn-toolbar" role="toolbar" id="camera_display">' +
+    //            //            '<div id="div_camera" class="container-fluid">' +
+    //            //            '<h4>Web Cameras</h4>' +
+    //            //            '<button type="button" class="btn btn-primary float-left mb-2" name="addcamera">Add</button>' +
+    //            //            '<div class="card w-100 bg-white mt-2 pb-1">' +
+    //            //            '<div class="card-body">' +
+    //            //            '<div class="table-responsive">' +
+    //            //            '<table class="table table-sm table-hover table-condensed mb-1" id="cameratable" style="border-collapse:collapse;">' +
+    //            //            '<thead class="thead-dark">' +
+    //            //            '<tr>' +
+    //            //            '<th class="row-connection-name">Name</th><th class="row-connection-type">Description</th><th class="row-connection-action">View Camera</th>' +
+    //            //            '</tr>' +
+    //            //            '</thead>' +
+    //            //            '<tbody></tbody>' +
+    //            //            '</table>' +
+    //            //            '</div>' +
+    //            //            '</div>' +
+    //            //            '</div >' +
+    //            //            '</div></div>'
+    //            //    });
+                   
+    //            //    $('button[name=addcamera]').off().on('click', function () {
+    //            //        /* close the sidebar */
+    //            //        sidebar.close();
+    //            //        Add_Camera();
+    //            //    });
+    //            //}
+    //            init_geometry_editing();
+    //            $('button[name=addconnection]').off().on('click', function () {
+    //                /* close the sidebar */
+    //                sidebar.close();
+    //                Add_Connection();
+    //            });
+    //            $('button[name=machineinfoedit]').css('display', 'block');
             
-            }
+    //        }
 
          
-            if (/^Admin/i.test(User.Role)) {
-                sidebar.addPanel({
-                    id: 'setting',
-                    tab: '<i class="pi-iconGearFill"></i>',
-                    position: 'bottom',
-                    pane: '<div class="btn-toolbar" role="toolbar" id="app_setting">' +
-                        '<div id="div_app_settingtable" class="container-fluid">' +
-                        '<div class="card w-100">' +
-                        '<div class="card-body">' +
-                        '<div class="table-responsive fixedHeader" style="max-height: calc(100vh - 100px); ">' +
-                        '<table class="table table-sm table-hover table-condensed" id="app_settingtable" style="border-collapse:collapse;">' +
-                        '<thead class="thead-dark">' +
-                        '<tr>' +
-                        '<th class="row-name">Name</th><th class="row-value">Value</th><th class="row-action">Action</th>' +
-                        '</tr>' +
-                        '</thead>' +
-                        '<tbody></tbody>' +
-                        '</table>' +
-                        '</div>' +
-                        '</div>' +
-                        '</div >' +
-                        '</div></div>'
-                });
+    //        if (/^Admin/i.test(User.Role)) {
+    //            sidebar.addPanel({
+    //                id: 'setting',
+    //                tab: '<i class="pi-iconGearFill"></i>',
+    //                position: 'bottom',
+    //                pane: '<div class="btn-toolbar" role="toolbar" id="app_setting">' +
+    //                    '<div id="div_app_settingtable" class="container-fluid">' +
+    //                    '<div class="card w-100">' +
+    //                    '<div class="card-body">' +
+    //                    '<div class="table-responsive fixedHeader" style="max-height: calc(100vh - 100px); ">' +
+    //                    '<table class="table table-sm table-hover table-condensed" id="app_settingtable" style="border-collapse:collapse;">' +
+    //                    '<thead class="thead-dark">' +
+    //                    '<tr>' +
+    //                    '<th class="row-name">Name</th><th class="row-value">Value</th><th class="row-action">Action</th>' +
+    //                    '</tr>' +
+    //                    '</thead>' +
+    //                    '<tbody></tbody>' +
+    //                    '</table>' +
+    //                    '</div>' +
+    //                    '</div>' +
+    //                    '</div >' +
+    //                    '</div></div>'
+    //            });
                
-            }
-            if (/(^PMCCUser$)|(fsvcd0)/i.test(User.UserId)) {
-                map.removeLayer(tagsMarkersGroup)
-                //remove connection from receiving data for people markers. 
-                fotfmanager.server.leaveGroup("PeopleMarkers");
+    //        }
+    //        if (!/^Admin/i.test(User.Role)) {
+    //            fotfmanager.server.leaveGroup("PeopleMarkers");
+    //        }
+    //        if (/(^PMCCUser$)/i.test(User.UserId)) {
+    //            map.removeLayer(tagsMarkersGroup)
+    //            //remove connection from receiving data for people markers. 
+    //            fotfmanager.server.leaveGroup("PeopleMarkers");
                 
-                //add QRCode
-                var QRCodedisplay = L.Control.extend({
-                    options: {
-                        position: 'topright'
-                    },
-                    onAdd: function () {
-                        var Domcntainer = L.DomUtil.create('div');
-                        Domcntainer.id = "qrcodeUrl";
-                        return Domcntainer;
-                    }
-                });
-                map.addControl(new QRCodedisplay());
+    //            //add QRCode
+    //            var QRCodedisplay = L.Control.extend({
+    //                options: {
+    //                    position: 'topright'
+    //                },
+    //                onAdd: function () {
+    //                    var Domcntainer = L.DomUtil.create('div');
+    //                    Domcntainer.id = "qrcodeUrl";
+    //                    return Domcntainer;
+    //                }
+    //            });
+    //            map.addControl(new QRCodedisplay());
 
-                var qrcode = new QRCode("qrcodeUrl", {
-                    text: window.location.href,
-                    width: 128,
-                    height: 128,
-                    colorDark: "#000000",
-                    colorLight: "#ffffff",
-                    correctLevel: QRCode.CorrectLevel.H
-                });
-            }
-        });
-    }
+    //            var qrcode = new QRCode("qrcodeUrl", {
+    //                text: window.location.href,
+    //                width: 128,
+    //                height: 128,
+    //                colorDark: "#000000",
+    //                colorLight: "#ffffff",
+    //                correctLevel: QRCode.CorrectLevel.H
+    //            });
+    //        }
+    //    });
+    //}
     /******Connection status end******/
 
     // SelectizeJs Init for searching select boxes.
@@ -381,9 +532,7 @@ $(function () {
 
     // Start the connection
     $.connection.hub.qs = { 'page_type': "FOTF".toUpperCase() };
-    $.connection.hub.start()
-        .then(init_Connection)
-        .then(init_Map)
+    $.connection.hub.start({ withCredentials: true })
         .done(function () {
             conntoggle.state('conn-on');
         }).catch(
@@ -581,18 +730,7 @@ $(function () {
             console.log(e);
         }
     }
-    async function sortTable(table, order) {
-        var asc = order === 'asc',
-            tbody = table.find('tbody');
-
-        tbody.find('tr').sort(function (a, b) {
-            if (asc) {
-                return $('td:first', a).text().localeCompare($('td:first', b).text());
-            } else {
-                return $('td:first', b).text().localeCompare($('td:first', a).text());
-            }
-        }).appendTo(tbody);
-    }
+ 
     $(document).on('click', '.ctsdetails', function () {
         var td = $(this);
         var tr = $(td).closest('tr'),
@@ -913,12 +1051,17 @@ function pad(str, max) {
 }
 function objSVTime(t) {
     try {
-        var time = moment().set({ 'year': t.year, 'month': t.month + 1, 'date': t.dayOfMonth, 'hour': t.hourOfDay, 'minute': t.minute, 'second': t.second });
-        if (time._isValid) {
-            if (time.year() === 1) {
-                return "";
+        if (t !== null) {
+            var time = moment().set({ 'year': t.year, 'month': t.month + 1, 'date': t.dayOfMonth, 'hour': t.hourOfDay, 'minute': t.minute, 'second': t.second });
+            if (time._isValid) {
+                if (time.year() === 1) {
+                    return "";
+                }
+                return time.format("HH:mm");
             }
-            return time.format("HH:mm");
+        }
+        else {
+            return "";
         }
     } catch (e) {
         console.log(e);
@@ -926,4 +1069,45 @@ function objSVTime(t) {
 }
 async function updateTime(t) {
     $('#localTime').val(moment(t).format('H:mm'));
+}
+function formatSVmonthdayTime(t) {
+    try {
+        if (checkValue(t)) {
+            var time = moment().set({ 'year': t.year, 'month': t.month, 'date': t.dayOfMonth, 'hour': t.hourOfDay, 'minute': t.minute, 'second': t.second });
+            if (time._isValid) {
+                if (time.year() === 1) {
+                    return "";
+                }
+                return time.format("MM/DD/YYYY HH:mm");
+            }
+            else {
+                return "";
+            }
+        }
+        else {
+            return "";
+        }
+    } catch (e) {
+        console.log(e);
+        return "";
+    }
+}
+function cBlock() {
+    var t = moment().tz(timezone.Facility_TimeZone)
+    $('#localTime').val(moment(t).format('H:mm:ss'));
+    $('#twentyfourmessage').text(GetTwentyFourMessage(t));
+   
+    if ($("#tfhcContent").length > 0) {
+        SetClockHands(t);
+    }
+    var visible = sidebar._getTab("reports");
+    if (visible) {
+        if (visible.classList.length) {
+            if (visible.classList.contains('active')) {
+                GetUserInfo();
+            }
+        }
+    }
+    setTimeout(cBlock, 1000);
+    //async zonecurrentStaff();
 }

@@ -27,13 +27,21 @@ namespace Factory_of_the_Future
                             {
                                AppParameters.LoadData("Zones.json");
                             }
-                            //if (AppParameters.NotificationConditionsList.Keys.Count == 0)
-                            //{
-                            //    AppParameters.NotificationConditionsList = AppParameters.LoadData("Notification.json");
-                            //}
+                            if (AppParameters.NotificationConditionsList.Keys.Count == 0)
+                            {
+                               AppParameters.LoadData("Notification.json");
+                            }
                             if (AppParameters.IndoorMap.Count == 0)
                             {
                                 AppParameters.LoadIndoorapData("ProjectData.json");
+                            }
+                            if (AppParameters.TagsList.Count == 0)
+                            {
+                                AppParameters.LoadData("Markers.json");
+                            }
+                            if (AppParameters.ZoneList.Count == 0)
+                            {
+                                AppParameters.LoadData("CustomZones.json");
                             }
                             //if (AppParameters.RunningConnection.Connection.Count == 0)
                             //{

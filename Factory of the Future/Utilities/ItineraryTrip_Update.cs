@@ -1,52 +1,49 @@
 ﻿using Newtonsoft.Json.Linq;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace Factory_of_the_Future
 {
     internal class ItineraryTrip_Update
     {
-        private JObject item;
-        public ItineraryTrip_Update(JArray jarrayitem, string tripDirectionInd, string routtripid)
+        public ItineraryTrip_Update(string Itineraryitem, string routtripid)
         {
             try
             {
-                if (jarrayitem.HasValues)
+                if (!string.IsNullOrEmpty(Itineraryitem))
                 {
-                    this.item = (JObject)jarrayitem.First;
-                    JToken legs = item.SelectToken("legs");
-                    if (legs.Count() > 0)
+                    JToken Itinerary = JToken.Parse(Itineraryitem);
+                    if (Itinerary.HasValues)
                     {
-                        //if (AppParameters.RouteTripsList.TryGetValue(routtripid, out JObject existingVal))
-                        //{
-                        //    string destsites = "";
-                        //    existingVal["Legs"] = legs;
-                        //    bool update = false;
-                        //    foreach (JObject legitem in legs.Children())
-                        //    {
-                        //        // get all dest do not include origin Site if site is the same
-                        //        if (legitem["legDestSiteID"].ToString() != existingVal["originSiteId"].ToString() && (int)legitem["legNumber"] >= (int)existingVal["legNumber"])
-                        //        {
-                        //            destsites += ("(^" + (string)legitem["legDestSiteID"] + "$)|");
-                        //        }
-                        //    }
-                        //    if (destsites != existingVal["destSite"].ToString())
-                        //    {
-                        //        if (!string.IsNullOrEmpty(destsites))
-                        //        {
-                        //            existingVal["destSite"] = destsites.Substring(0, destsites.Length - 1);
-                        //            update = true;
-                        //        }
-                        //    }
-
-
-                        //    if (update)
-                        //    {
-                        //        existingVal["Trip_Update"] = true;
-                        //    }
-                        //}
+                        JToken legs = Itinerary[0].SelectToken("legs");
+                        if (legs.Count() > 0)
+                        {
+                            if (AppParameters.RouteTripsList.TryGetValue(routtripid, out RouteTrips existingVal))
+                            {
+                                string destsites = "";
+                                existingVal.Legs = legs.ToObject<List<Leg>>();
+                                bool update = false;
+                                foreach (JObject legitem in legs.Children())
+                                {
+                                    // get all dest do not include origin Site if site is the same
+                                    if (legitem["legDestSiteID"].ToString() != existingVal.OriginSiteId && (int)legitem["legNumber"] >= existingVal.LegNumber)
+                                    {
+                                        destsites += ("(^" + (string)legitem["legDestSiteID"] + "$)|");
+                                    }
+                                }
+                                if (destsites != existingVal.DestSites && !string.IsNullOrEmpty(destsites))
+                                {
+                                    existingVal.DestSites = destsites.Substring(0, destsites.Length - 1);
+                                    update = true;
+                                }
+                                if (update)
+                                {
+                                    existingVal.TripUpdate = true;
+                                }
+                            }
+                        }
                     }
-
                     //List<Leg> Legs = JsonConvert.DeserializeObject<List<Leg>>(JsonConvert.SerializeObject(legs));
                     //if (Legs.Count > 0)
                     //{

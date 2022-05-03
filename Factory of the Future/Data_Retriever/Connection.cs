@@ -46,7 +46,7 @@ namespace Factory_of_the_Future
                                     new JProperty("command", "UDP_Client"),
                                     new JProperty("outputFormatId", "DefFormat002"),
                                     new JProperty("outputFormatName", "Location JSON"),
-                                    new JProperty("message", "getTagPosition"),
+                                    new JProperty("message", m.MessageType),
                                     new JProperty("responseTS", DateTimeOffset.Now.ToUnixTimeMilliseconds()),
                                     new JProperty("status", "0"),
                                     new JProperty("tags", new JArray(incomingDataJobject))
@@ -55,7 +55,7 @@ namespace Factory_of_the_Future
                             m.ApiConnected = true;
                             m.LasttimeApiConnected = DateTime.Now;
                             m.UpdateStatus = true;
-                            Task.Run(() => new ProcessRecvdMsg().StartProcess(temp1, temp1["message"].ToString(),this.conid));
+                            Task.Run(() => new ProcessRecvdMsg().StartProcess(JsonConvert.SerializeObject(temp1, Formatting.None), m.MessageType,this.conid));
 
                         }
                         else
@@ -435,6 +435,12 @@ namespace Factory_of_the_Future
                                 Thread.Sleep(100);
                                 Task.Run(() => updateConnection(this));
                             }
+                        }
+                        else
+                        {
+                            Connected = false;
+                            Thread.Sleep(100);
+                            Task.Run(() => updateConnection(this));
                         }
                     }
                 }

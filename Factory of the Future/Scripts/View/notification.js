@@ -161,7 +161,7 @@ $('#Notification_Setup_Modal').on('shown.bs.modal', function () {
 $('button[name=addnotificationsetup]').off().on('click', function () {
     /* close the sidebar */
     sidebar.close();
-    Notificationsetup({}, "notificationsetuptable");
+    AddNotification("notificationsetuptable");
 });
 let notification = [];
 async function updateNotification(updatenotification) {
@@ -299,7 +299,7 @@ function LoadNotification(value) {
     }
 }
 function LoadNotificationsetup(Data, table) {
-    $.connection.FOTFManager.server.getNotification_ConditionsList("").done(function (NotificationData) {
+    $.connection.FOTFManager.server.getNotification_ConditionsList().done(function (NotificationData) {
         notificationTable_Body.empty();
         $.each(NotificationData, function () {
             notificationTable_Body.append(notificationTable_row_template.supplant(formatnotificationrow(this)));
@@ -308,13 +308,13 @@ function LoadNotificationsetup(Data, table) {
             var td = $(this);
             var tr = $(td).closest('tr'),
                 id = tr.attr('data-id');
-            Notificationsetup(id, table);
+            EditNotification(id, table);
         });
         $('button[name=notificationdelete]').on('click', function () {
             var td = $(this);
             var tr = $(td).closest('tr'),
                 id = tr.attr('data-id');
-            NotificationRemove(id, table);
+            RemoveNotification(id, table);
         });
     });
 }
@@ -329,14 +329,14 @@ function formatagvnotifirow(properties, indx) {
     return $.extend(properties, {
         id: properties.notificationId,
         tagid: properties.TAGID,
-        name: properties.NAME,
-        type: properties.name,
-        condition: properties.CONDITIONS,
+        name: properties.Name,
+        type: properties.Type,
+        condition: properties.Conditions,
         duration: calculatevehicleDuration(properties.vehicleTime),
-        conditioncolor: conditioncolor(properties.TIME, parseInt(properties.WARNING), parseInt(properties.CRITICAL)),
-        warning_action_text: properties.WARNING_ACTION,
-        critical_action_text: properties.CRITICAL_ACTION,
-        action_text: conditionaction_text(properties.vehicleTime, parseInt(properties.WARNING), parseInt(properties.CRITICAL)) + "_" + properties.notificationId,
+        conditioncolor: conditioncolor(properties.TIME, parseInt(properties.Warning), parseInt(properties.Critical)),
+        warning_action_text: properties.WarningAction,
+        critical_action_text: properties.CriticalAction,
+        action_text: conditionaction_text(properties.vehicleTime, parseInt(properties.Warning), parseInt(properties.Critical)) + "_" + properties.notificationId,
         indexobj: indx
     });
 }
@@ -383,18 +383,17 @@ function formattripnotifirow(properties, indx) {
         direction: properties.tripDirectionInd,
         leg: properties.legSiteId,
         dest: properties.legSiteName,
-        condition: properties.CONDITIONS,
+        condition: properties.Conditions,
         door: properties.tripDirectionInd === "I" ? "" : properties.hasOwnProperty("doorNumber") ? properties.doorNumber.replace(/^0+/, '') :"",
         duration: calculateDuration(properties.scheduledDtm),
-        conditioncolor: conditioncolor(properties.VEHICLETIME, parseInt(properties.WARNING), parseInt(properties.CRITICAL)),
-        warning_action_text: properties.WARNING_ACTION,
-        critical_action_text: properties.CRITICAL_ACTION,
+        conditioncolor: conditioncolor(properties.VEHICLETIME, parseInt(properties.Warning), parseInt(properties.Critical)),
+        warning_action_text: properties.WarningAction,
+        critical_action_text: properties.CriticalAction,
         indexobj: indx
     });
 }
 let notificationTable = $('table[id=notificationsetuptable]');
 let notificationTable_Body = notificationTable.find('tbody');
-
 let notificationTable_row_template = '<tr data-id="{id}" class="{button_collor}">' +
     '<td>{name}</td>' +
     '<td class="text-center">{warning}</td>' +
@@ -405,89 +404,74 @@ let notificationTable_row_template = '<tr data-id="{id}" class="{button_collor}"
     '<button class="btn btn-light btn-sm mx-1 pi-trashFill" name="notificationdelete"></button>' +
     '</td>' +
     '</tr>';
-function GetnotificationStatus(data) {
-    if (data.ACTIVE_CONDITION) {
-        return "Active";
-    }
-    else {
-        return "Disabled";
-    }
-}
-function Get_notificationColor(data) {
-    if (data.ACTIVE_CONDITION) {
-        return "table-success";
-    }
-    else {
-        return "table-warning";
-    }
-}
+
 function formatnotificationrow(properties) {
     return $.extend(properties, {
-        id: properties.ID,
-        name: properties.NAME,
-        type: properties.TYPE,
-        condition: properties.CONDITIONS,
-        warning: properties.WARNING,
-        warning_action: properties.WARNING_ACTION,
-        warning_color: properties.WARNING_COLOR,
-        critical: properties.CRITICAL,
-        critical_action: properties.CRITICAL_ACTION,
-        critical_color: properties.CRITICAL_COLOR,
+        id: properties.Id,
+        name: properties.Name,
+        type: properties.Type,
+        condition: properties.Conditions,
+        warning: properties.Warning,
+        warning_action: properties.WarningAction,
+        warning_color: properties.WarningColor,
+        critical: properties.Critical,
+        critical_action: properties.CriticalAction,
+        critical_color: properties.CriticalColor,
         status: GetnotificationStatus(properties),
         button_collor: Get_notificationColor(properties)
     })
 }
-async function Notificationsetup(data,table) {
-    if ($.isEmptyObject(data)) {
-        $('#notification_SetupHeader').text('Add New Notification');
-        sidebar.close('notificationsetup');
-        $('#notificationsubmitBtn').css("display", "block");
-        $('#editnotificationsubmitBtn').css("display", "none");
-        $('#Notification_Setup_Modal').modal();
-        $('button[id=notificationsubmitBtn]').prop('disabled', false);
-        $('button[id=notificationsubmitBtn]').off().on('click', function () {
-            $('button[id=notificationsubmitBtn]').prop('disabled', true);
-            var jsonObject = {
-                CREATED_BY_USERNAME: User.UserId,
-                ACTIVE_CONDITION: $('input[type=checkbox][name=condition_active]')[0].checked
-            };
-
-            //condition active
-            checkValue($('input[type=text][name=condition_name]').val()) ? jsonObject.NAME = $('input[type=text][name=condition_name]').val() : '';
-            checkValue($('select[name=condition_type] option:selected').val()) ? jsonObject.TYPE = $('select[name=condition_type] option:selected').val() : '';
-            checkValue($('input[type=text][name=condition]').val()) ? jsonObject.CONDITIONS = $('input[type=text][name=condition]').val() : '';
-            checkValue($('input[id=warning_condition]').val()) ? jsonObject.WARNING = $('input[id=warning_condition]').val() : '';
-            checkValue($('input[id=critical_condition]').val()) ? jsonObject.CRITICAL = $('input[id=critical_condition]').val() : '';
-            checkValue($('textarea[id=warning_action]').val()) ? jsonObject.WARNING_ACTION = $('textarea[id=warning_action]').val() : '';
-            checkValue($('textarea[id=critical_action]').val()) ? jsonObject.CRITICAL_ACTION = $('textarea[id=critical_action]').val() : '';
-            if (!$.isEmptyObject(jsonObject)) {
-                $.connection.FOTFManager.server.addNotification_Conditions(JSON.stringify(jsonObject)).done(function (Data) {
-                    if (Data.length > 0) {
-                        if (Data[0].hasOwnProperty("ERROR_MESSAGE")) {
-                            $('span[id=error_notificationsubmitBtn]').text("Error " + Data[0].ERROR_MESSAGE);
-                            setTimeout(function () { $("#Notification_Setup_Modal").modal('hide'); }, 1500);
-                        }
-                        else {
-                            $('span[id=error_notificationsubmitBtn]').text("Condition has been Added");
-                            LoadNotificationsetup(Data, table);
-                            setTimeout(function () { $("#Notification_Setup_Modal").modal('hide'); sidebar.open('notificationsetup'); }, 1500);
-                        }
-                    }
-                    else {
-                        $('span[id=error_notificationsubmitBtn]').text("Error with the Data");
-                    }
-                });
+async function AddNotification(table) {
+    $('.warning_conditionpickvalue').html(0);
+    $('input[id=warning_condition]').val(0);
+    $('.critical_conditionpickvalue').html(0);
+    $('input[id=critical_condition]').val(0);
+    $('#notification_SetupHeader').text('Add New Notification');
+    sidebar.close('notificationsetup');
+    $('#notificationsubmitBtn').css("display", "block");
+    $('#editnotificationsubmitBtn').css("display", "none");
+    $('#Notification_Setup_Modal').modal();
+    $('button[id=notificationsubmitBtn]').prop('disabled', false);
+    $('button[id=notificationsubmitBtn]').off().on('click', function () {
+        $('button[id=notificationsubmitBtn]').prop('disabled', true);
+        var jsonObject = {
+            CreatedByUsername: User.UserId,
+            ActiveCondition: $('input[type=checkbox][name=condition_active]')[0].checked,
+            Name: $('input[type=text][name=condition_name]').val(),
+            Type: $('select[name=condition_type] option:selected').val(),
+            Conditions: $('input[type=text][name=condition]').val(),
+            Warning: $('input[id=warning_condition]').val(),
+            Critical: $('input[id=critical_condition]').val(),
+            WarningAction: $('textarea[id=warning_action]').val(),
+            CriticalAction: $('textarea[id=critical_action]').val()
+        };
+        $.connection.FOTFManager.server.addNotification_Conditions(JSON.stringify(jsonObject)).done(function (Data) {
+            if (Data.length === 0) {
+                $('span[id=error_notificationsubmitBtn]').text("Error Adding Condition");
+                setTimeout(function () { $("#Notification_Setup_Modal").modal('hide'); }, 1000);
+            }
+            else {
+                $('span[id=error_notificationsubmitBtn]').text("Condition has been Added");
+                LoadNotificationsetup(Data, table);
+                setTimeout(function () {$("#Notification_Setup_Modal").modal('hide'); sidebar.open('notificationsetup');}, 1000);
             }
         });
-    }
-    else {
-        $('#notificationsubmitBtn').css("display", "none");
-        $('#editnotificationsubmitBtn').css("display", "block");
-        try {
-            $.connection.FOTFManager.server.getNotification_ConditionsList(data).done(function (N_Data) {
-                if (N_Data.length > 0) {
-                    $('#notification_SetupHeader').text('Edit Notification');
-                    if (N_Data[0].ACTIVE_CONDITION) {
+    });
+}
+async function EditNotification(Id, table) {
+
+    $('#notificationsubmitBtn').css("display", "none");
+    $('#editnotificationsubmitBtn').css("display", "block");
+    $('button[id=editnotificationsubmitBtn]').prop('disabled', false);
+    $('#notification_SetupHeader').text('Edit Notification');
+    sidebar.close('notificationsetup');
+    try {
+        $.connection.FOTFManager.server.getNotification_Conditions(Id).done(function (N_Data) {
+            if (N_Data.length > 0) {
+                var NotificationData = N_Data[0];
+                if (!$.isEmptyObject(NotificationData)) {
+                
+                    if (NotificationData.ActiveCondition) {
                         if (!$('input[type=checkbox][name=condition_active]')[0].checked) {
                             $('input[type=checkbox][name=condition_active]').prop('checked', true).change();
                         }
@@ -497,71 +481,74 @@ async function Notificationsetup(data,table) {
                             $('input[type=checkbox][name=condition_active]').prop('checked', false).change();
                         }
                     }
-                    $('select[name=condition_type]').val(N_Data[0].TYPE)
-                    $('input[type=text][name=condition_name]').val(N_Data[0].NAME);
-                    $('input[type=text][name=condition]').val(N_Data[0].CONDITIONS);
-                    $('.warning_conditionpickvalue').html($.isNumeric(N_Data[0].WARNING) ? parseInt(N_Data[0].WARNING) : 0);
-                    $('input[id=warning_condition]').val($.isNumeric(N_Data[0].WARNING) ? parseInt(N_Data[0].WARNING) : 0);
-                    $('.critical_conditionpickvalue').html($.isNumeric(N_Data[0].CRITICAL) ? parseInt(N_Data[0].CRITICAL) : 0);
-                    $('input[id=critical_condition]').val($.isNumeric(N_Data[0].CRITICAL) ? parseInt(N_Data[0].CRITICAL) : 0);
-                    $('textarea[id=warning_action]').val(N_Data[0].WARNING_ACTION);
-                    $('textarea[id=critical_action]').val(N_Data[0].CRITICAL_ACTION);
+                    $('input[type=text][name=condition_name]').val(NotificationData.Name);
+                    $('select[name=condition_type]').val(NotificationData.Type)
+                    $('input[type=text][name=condition]').val(NotificationData.Conditions);
+                    $('.warning_conditionpickvalue').html(NotificationData.Warning);
+                    $('input[id=warning_condition]').val(NotificationData.Warning);
+                    $('.critical_conditionpickvalue').html(NotificationData.Critical);
+                    $('input[id=critical_condition]').val(NotificationData.Critical);
+                    $('textarea[id=warning_action]').val(NotificationData.WarningAction);
+                    $('textarea[id=critical_action]').val(NotificationData.CriticalAction);
                 }
-                $('button[id=editnotificationsubmitBtn]').prop('disabled', false);
+
                 $('button[id=editnotificationsubmitBtn]').off().on('click', function () {
                     $('button[id=editnotificationsubmitBtn]').prop('disabled', true);
                     var jsonObject = {
-                        ACTIVE_CONDITION: $('input[type=checkbox][name=condition_active]')[0].checked,
-                        id: data,
-                        LASTUPDATE_BY_USERNAME: User.UserId
+                        Id: Id,
+                        LastupdateByUsername: User.UserId,
+                        ActiveCondition: $('input[type=checkbox][name=condition_active]')[0].checked,
+                        Name: $('input[type=text][name=condition_name]').val(),
+                        Type: $('select[name=condition_type] option:selected').val(),
+                        Conditions: $('input[type=text][name=condition]').val(),
+                        Warning: $('input[id=warning_condition]').val(),
+                        Critical: $('input[id=critical_condition]').val(),
+                        WarningAction: $('textarea[id=warning_action]').val(),
+                        CriticalAction: $('textarea[id=critical_action]').val()
                     };
-                    $('input[type=text][name=condition_name]').val() !== jsonObject.NAME ? jsonObject.NAME = $('input[type=text][name=condition_name]').val() : '';
-                    $('select[name=condition_type] option:selected').val() !== jsonObject.TYPE ? jsonObject.TYPE = $('select[name=condition_type] option:selected').val() : '';
-                    $('input[type=text][name=condition]').val() !== jsonObject.CONDITIONS ? jsonObject.CONDITIONS = $('input[type=text][name=condition]').val() : '';
-                    $('input[id=warning_condition]').val() !== jsonObject.WARNING ? jsonObject.WARNING = $('input[id=warning_condition]').val() : '';
-                    $('input[id=critical_condition]').val() !== jsonObject.CRITICAL ? jsonObject.CRITICAL = $('input[id=critical_condition]').val() : '';
-                    $('textarea[id=warning_action]').val() !== jsonObject.WARNING_ACTION ? jsonObject.WARNING_ACTION = $('textarea[id=warning_action]').val() : '';
-                    $('textarea[id=critical_action]').val() !== jsonObject.CRITICAL_ACTION ? jsonObject.CRITICAL_ACTION = $('textarea[id=critical_action]').val() : '';
-                    if (!$.isEmptyObject(jsonObject)) {
-                        $.connection.FOTFManager.server.editNotification_Conditions(JSON.stringify(jsonObject)).done(function (Data) {
-                            if (Data.length === 0) {
-                                $('span[id=error_notificationsubmitBtn]').text("Unable to loaded Condition");
-                                setTimeout(function () { $("#Notification_Setup_Modal").modal('hide'); }, 3000);
-                            }
-                            else {
-                                $('span[id=error_notificationsubmitBtn]').text("Condition has been Edited");
-                                LoadNotificationsetup(Data, table);
-                                setTimeout(function () { $("#Notification_Setup_Modal").modal('hide'); sidebar.open('notificationsetup'); }, 1500);
-                            }
-                        });
-                    };
-                });
-
-                sidebar.close('notificationsetup');
+                    $.connection.FOTFManager.server.editNotification_Conditions(JSON.stringify(jsonObject)).done(function (Data) {
+                        if (Data.length === 0) {
+                            $('span[id=error_notificationsubmitBtn]').text("Unable to loaded Condition");
+                            setTimeout(function () { $("#Notification_Setup_Modal").modal('hide'); }, 3000);
+                        }
+                        else {
+                            $('span[id=error_notificationsubmitBtn]').text("Condition has been Edited");
+                            LoadNotificationsetup(Data, table);
+                            setTimeout(function () { $("#Notification_Setup_Modal").modal('hide'); sidebar.open('notificationsetup'); }, 1000);
+                        }
+                    });
+                })
                 $('#Notification_Setup_Modal').modal();
-            });
-        } catch (e) {
-            console.log(e);
-        }
+            }
+            else {
+               //Add error reason     
+            }
+        });
+    } catch (e) {
+        console.log(e);
     }
 }
-async function NotificationRemove(data, table) {
+async function RemoveNotification(id, table) {
     //RemoveNotificationModal
-    if ($.isNumeric(data)) {
-        var id = parseInt(data);
-        sidebar.close('notificationsetup');
-        $('#removeNotificationHeader').text('Remove Notification');
-        $('#RemoveNotificationModal').modal();
-
-        $('button[id=removeNotification]').off().on('click', function () {
-            var jsonObject = { ID: id };
-            $.connection.FOTFManager.server.deleteNotification_Conditions(JSON.stringify(jsonObject)).done(function (Data) {
+    sidebar.close('notificationsetup');
+    $('#removeNotificationHeader').text('Remove Notification');
+    $('button[id=removeNotification]').off().on('click', function () {
+        var jsonObject = { Id: id };
+        $.connection.FOTFManager.server.deleteNotification_Conditions(JSON.stringify(jsonObject)).done(function (Data) {
+            if (Data.length === 0) {
+                $('span[id=error_notificationsubmitBtn]').text("Unable to loaded Condition");
+                setTimeout(function () { $("#Notification_Setup_Modal").modal('hide'); }, 3000);
+            }
+            else {
+                $('span[id=error_notificationsubmitBtn]').text("Condition has been Edited");
                 LoadNotificationsetup(Data, table);
-                setTimeout(function () { $("#RemoveNotificationModal").modal('hide'); sidebar.open('notificationsetup'); }, 1500);
-                $('#RemoveNotificationModal').modal();
-            })
-        });
-    }
+                setTimeout(function () { $("#RemoveNotificationModal").modal('hide'); sidebar.open('notificationsetup'); }, 1000);
+         
+            }
+        })
+    });
+    $('#RemoveNotificationModal').modal();
+
 }
 function conditioncolor(time, war_min, crit_min) {
     if (checkValue(time)) {
@@ -651,5 +638,21 @@ function enableNotificationSubmit() {
     }
     else {
         $('button[id=notificationsubmitBtn]').prop('disabled', true);
+    }
+}
+function GetnotificationStatus(data) {
+    if (data.ActiveCondition) {
+        return "Active";
+    }
+    else {
+        return "Disabled";
+    }
+}
+function Get_notificationColor(data) {
+    if (data.ActiveCondition) {
+        return "table-success";
+    }
+    else {
+        return "table-warning";
     }
 }

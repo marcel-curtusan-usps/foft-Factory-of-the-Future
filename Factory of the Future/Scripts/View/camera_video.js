@@ -5,19 +5,43 @@ $('#Camera_Modal').on('hidden.bs.modal', function () {
     camera_modal_body = $('div[id=camera_modalbody]');
     camera_modal_body.empty();
 });
-async function init_cameras() {
-	try {
-        fotfmanager.server.getCameraList().done(function (cameradata) {
-            if (cameradata.length > 0) {
-                camera_Table = $('table[id=cameratable]');
-                let camera_Table_Body = camera_Table.find('tbody');
+var cameras = new L.GeoJSON(null, {
+    pointToLayer: function (feature, latlng) {
+        var locaterIcon = L.divIcon({
+            id: feature.properties.id,
+            className: 'bi-camera-fill',
 
-                camera_Table_Body.empty();
-                $.each(cameradata, function () {
-                    camera_Table_Body.append(camera_row_template.supplant(formatCameralayout(this)));
-                });
-            }
-		});
+        });
+        return L.marker(latlng, {
+            icon: locaterIcon,
+            title: feature.properties.empName,
+            riseOnHover: true,
+            bubblingMouseEvents: true,
+            popupOpen: true
+        })
+    },
+    onEachFeature: function (feature, layer) {
+        layer.on('click', function (e) {
+            View_Web_Camera(feature.properties);
+        });
+        var cameraname = checkValue(feature.properties.empName) ? feature.properties.empName : feature.properties.name;
+        layer.bindTooltip(cameraname, {
+            permanent: true,
+            direction: 'top',
+            opacity: 1,
+            className: 'location'
+        }).openTooltip();
+    }
+})
+async function init_cameras() {
+    try {
+        if (!/^https/i.test(window.location.protocol)) {
+            fotfmanager.server.getCameraMarkerList().done(function (cameradata) {
+                if (cameradata.length > 0) {
+                    cameras.addData(cameradata);
+                }
+            });
+        }
 	} catch (e) {
         console.log(e);
     }
@@ -40,7 +64,7 @@ let camera_row_template = '<tr data-id="{camera_ip}" data-model="{camera_model}"
     '<td class="align-middle">{camera_ip}</td>' +
     '<td class="align-middle">{camera_description} </td>' +
     '<td class="d-flex align-middle justify-content-center">' +
-    '<button class="btn btn-light btn-sm mx-1 bi-camera-video camera_view"></button>' +
+    '<button class="btn btn-light btn-sm mx-1 bi-camera-fill camera_view"></button>' +
     '</td>' +
     '</tr>';
 
@@ -66,25 +90,18 @@ function formatwebcameralayout(id, model, description) {
         camera_model: getModel(model)
     });
 }
-function View_Web_Camera(id, model, description) {
+function View_Web_Camera(Data) {
     try {
         $('#cameramodalHeader').text('View Web Camera');
-        $('#cameradescription').text(description);
+        var cameraname = checkValue(Data.empName) ? Data.empName : Data.name;
+        $('#cameradescription').text(cameraname);
         camera_modal_body = $('div[id=camera_modalbody]');
         camera_modal_body.empty();
-        camera_modal_body.append(camera_layout.supplant(formatwebcameralayout(id, model, description)));
+        camera_modal_body.append(camera_layout.supplant(formatwebcameralayout(Data.name, Data.emptype, Data.empName)));
         $('#Camera_Modal').modal();
-        sidebar.close('camera_video');
+        sidebar.close('');
     } catch (e) {
         $("#error_camera").text(e);
-        console.log(e);
-    }
-}
-function Add_Camera() {
-    try {
-        $('#AddEdit_Camera_Modal').modal();
-
-    } catch (e) {
         console.log(e);
     }
 }

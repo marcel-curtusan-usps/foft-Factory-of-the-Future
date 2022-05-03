@@ -3,16 +3,16 @@
  */
 $(function () {
     $.extend(fotfmanager.client, {
-        updateViewPortStatus: async (viewportzoneupdate) => {
-            try {
-
-            } catch (e) {
-                console.log(e);
-            }
-        }
+        updateViewPortStatus: async (viewportzoneupdate) => { updateviewportzone(viewportzoneupdate)      }
     });
     
 });
+async function updateviewportzone() {
+    try {
+    } catch (e) {
+        console.log(e);
+    }
+}
 var viewPortsAreas = new L.GeoJSON(null, {
     style: function (feature) {
         return {

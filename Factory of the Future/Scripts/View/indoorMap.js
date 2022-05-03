@@ -1,6 +1,4 @@
-﻿var map = null;
-var bounds = [];
-var container = new L.FeatureGroup();
+﻿
 //side bar setup
 var sidebar = L.control.sidebar({
     container: 'sidebar', position: 'left', autopan: false
@@ -9,21 +7,27 @@ var sidebar = L.control.sidebar({
 map = L.map('map', {
     crs: L.CRS.Simple,
     renderer: L.canvas({ padding: 0.5 }),
+    center: L.latLng(58.66, 25.05),
+    zoom: 1.5,
     preferCanvas: true,
+    pmIgnore: false,
     markerZoomAnimation: false,
     minZoom: 1,
     maxZoom: 5,
     zoomControl: false,
     measureControl: true,
     tap: false,
-    layers: [polygonMachine, vehicles, agvLocations, container, stagingAreas, tagsMarkersGroup, dockDoors]
+    layers: [polygonMachine, piv_vehicles, agv_vehicles, agvLocations, container, stagingAreas, tagsMarkersGroup, dockDoors, binzonepoly]
 });
 
 var overlayMaps = {
-    "Vehicles Tag": vehicles,
-    "SELS Tag": tagsMarkersGroup,
+    "AGV Vehicles": agv_vehicles,
+    "PIV Vehicles": piv_vehicles,
+    "Cameras": cameras,
+    "Badge": tagsMarkersGroup,
     "AGV Locations": agvLocations,
     "MPE Work Areas": polygonMachine,
+    "MPE Bins": binzonepoly,
     "Dock Doors": dockDoors,
     "Staging Areas": stagingAreas,
     "View-ports": viewPortsAreas,
@@ -31,7 +35,7 @@ var overlayMaps = {
     "Exit Areas": exitAreas,
     "Work Area": walkwayAreas,
     "Polygon Holes": polyholesAreas,
-    "Locator's": locatorMarker
+    "Locators": locatorMarker
 };
 var timedisplay = L.Control.extend({
     options: {
@@ -95,6 +99,47 @@ L.easyButton({
         icon: '<div id="layersToggle" data-toggle="layerPopover"><i class="pi-iconLayer align-self-center" title="Layer Controls"></i></div>'
     }]
 }).addTo(map);
+//Full-screen button only for Chrome
+if (window.chrome) {
+    var fullscreentoggle = L.easyButton({
+        position: 'bottomright',
+        leafletClasses: true,
+        states: [{
+            stateName: 'enter-fullscreen',
+            icon: '<i class="pi-iconFullScreen" title="Enter Full Screen"></i>',
+            title: 'Enter Full Screen',
+            onClick: function (control) {
+                if (document.documentElement.requestFullscreen) {
+                    document.documentElement.requestFullscreen();
+                } else if (document.documentElement.msRequestFullscreen) {
+                    document.documentElement.msRequestFullscreen();
+                } else if (document.documentElement.mozRequestFullScreen) {
+                    document.documentElement.mozRequestFullScreen();
+                } else if (document.documentElement.webkitRequestFullscreen) {
+                    document.documentElement.webkitRequestFullscreen(Element.ALLOW_KEYBOARD_INPUT);
+                }
+                control.state('exit-fullscreen');
+            }
+        }, {
+            icon: '<i class="pi-iconFullScreenExit" title="Exit Full Screen"></i>',
+            stateName: 'exit-fullscreen',
+            title: 'Exit Full Screen',
+            onClick: function (control) {
+                if (document.exitFullscreen) {
+                    document.exitFullscreen();
+                } else if (document.msExitFullscreen) {
+                    document.msExitFullscreen();
+                } else if (document.mozCancelFullScreen) {
+                    document.mozCancelFullScreen();
+                } else if (document.webkitExitFullscreen) {
+                    document.webkitExitFullscreen();
+                }
+                control.state('enter-fullscreen');
+            }
+        }]
+    });
+    fullscreentoggle.addTo(map);
+}
 // only allow one popover to be open at once
 // bind to body so that this applies to any dynamically generated popovers, such as #faqToggle / #legendToggle
 $('body').popover({
@@ -112,9 +157,6 @@ $('[role=tablist]').click(function (e) {
     $('#twentyfourmessage').popover('hide');
     $('#layersContent').hide();
 });
-
-
-
 $('#viewportsToggle').popover({
     html: true,
     trigger: 'click',
@@ -125,11 +167,8 @@ $('#viewportsToggle').on('click', function () {
     // close the sidebar
     sidebar.close();
 });
-
-
-
 $('.leaflet-control-layers').addClass('layerPopover');
-$('div .layerPopover').attr('id', 'layersContent');
+$('.layerPopover').attr('id', 'layersContent');
 $('#layersContent').prepend('<div class="layersArrow"></div>');
 $('.leaflet-control-layers').hide();
 
@@ -145,112 +184,186 @@ $('#layersToggle').on('click', function () {
     $('#twentyfourmessage').popover('hide');
 });
 
-/****add map items start */
-async function init_Map() {
-    
-    //Full-screen button only for Chrome
-    if (window.chrome) {
-        var fullscreentoggle = L.easyButton({
-            position: 'bottomright',
-            leafletClasses: true,
-            states: [{
-                stateName: 'enter-fullscreen',
-                icon: '<i class="pi-iconFullScreen" title="Enter Full Screen"></i>',
-                title: 'Enter Full Screen',
-                onClick: function (control) {
-                    if (document.documentElement.requestFullscreen) {
-                        document.documentElement.requestFullscreen();
-                    } else if (document.documentElement.msRequestFullscreen) {
-                        document.documentElement.msRequestFullscreen();
-                    } else if (document.documentElement.mozRequestFullScreen) {
-                        document.documentElement.mozRequestFullScreen();
-                    } else if (document.documentElement.webkitRequestFullscreen) {
-                        document.documentElement.webkitRequestFullscreen(Element.ALLOW_KEYBOARD_INPUT);
-                    }
-                    control.state('exit-fullscreen');
-                }
-            }, {
-                icon: '<i class="pi-iconFullScreenExit" title="Exit Full Screen"></i>',
-                stateName: 'exit-fullscreen',
-                title: 'Exit Full Screen',
-                onClick: function (control) {
-                    if (document.exitFullscreen) {
-                        document.exitFullscreen();
-                    } else if (document.msExitFullscreen) {
-                        document.msExitFullscreen();
-                    } else if (document.mozCancelFullScreen) {
-                        document.mozCancelFullScreen();
-                    } else if (document.webkitExitFullscreen) {
-                        document.webkitExitFullscreen();
-                    }
-                    control.state('enter-fullscreen');
-                }
-            }]
-        });
-        fullscreentoggle.addTo(map);
-    }
-    $.connection.FOTFManager.server.getMap().done(function (MapData) {
-        try {
-            if (MapData.length === 1) {
-                MapData = MapData[0];
-                if (!$.isEmptyObject(MapData)) {
-             
-                    //set new image
-                    var img = new Image();
-                    //load Base64 image
-                    img.src = MapData.base64;
-                    //create he bound of the image.
-                    bounds = [[MapData.yMeter, MapData.xMeter], [MapData.heightMeter + MapData.yMeter, MapData.widthMeter + MapData.xMeter]];
-                    var trackingarea = L.polygon(bounds, {});
-                    //add the image to the map
-                    L.imageOverlay(img.src, trackingarea.getBounds()).addTo(map);
+function init_mapSetup(MapData)
+{
+    try {
+      
+        if (MapData.length === 1) {
+            MapData = MapData[0];
+            if (!$.isEmptyObject(MapData)) {
 
-                    //center image
-                    map.setView(trackingarea.getBounds().getCenter(), 1.7);
-
+                map.attributionControl.setPrefix("USPS Factory of the Future (" + MapData.softwareVersion + ")");
+                $('#fotf-site-facility-name').append(MapData.facilityName);
+                map.attributionControl.addAttribution(MapData.facilityName);
+                $(document).prop('title', MapData.facilityName + ' FOTF');
+                //set new image
+                var img = new Image();
+                //load Base64 image
+                img.src = MapData.base64;
+                //create he bound of the image.
+                bounds = [[MapData.yMeter, MapData.xMeter], [MapData.heightMeter + MapData.yMeter, MapData.widthMeter + MapData.xMeter]];
+                var trackingarea = L.polygon(bounds, {});
+                init_viewports();
+                init_machine();
+                init_dockdoor();
+                init_agvlocation();
+                init_zones();
+                init_BinZones();
+                init_arrive_depart_trips();
+                init_locators();
+                init_cameras();
+                LoadNotification("routetrip");
+                LoadNotification("vehicle");
+                //center image
+                map.setView(trackingarea.getBounds().getCenter(), 1.5);
+                setHeight();
+                //add the image to the map
+                L.imageOverlay(img.src, trackingarea.getBounds()).addTo(map);
+                //add user to the tag groups only for none PMCCUser
+                if (!/(^PMCCUser$)/i.test(User.UserId)) {
+                    fotfmanager.server.joinGroup("PeopleMarkers");
                 }
+                 //add user to the vehicles tag groups
+                fotfmanager.server.joinGroup("VehiclsMarkers");
+
             }
-            if ($.isEmptyObject(map)) {
-                $('div[id=map]').css('display', 'none');
-                $('<div/>', { class: 'jumbotron text-center' })
-                    .append($('<h1/>', { class: 'display-4', text: "Map has not been Configured " }))
-                    .append($('<p/>', { class: 'lead', text: 'Please Configure Map' }))
-                    .append($('<hr/>', { class: 'my-4' }))
-                    .append($('<div/>', { class: 'row' })
-                        .append($('<div>', { class: 'col' })
-                            .append($('<button/>', { class: 'btn btn-outline-success ', type: 'button', id: 'API_connection', text: 'Configure Map' })))
-
-                    ).append($('<div/>', { class: 'row' })
-                        .append($('<div>', { class: 'col text-center' })
-                            .append($('<span/>', { class: 'text-info ', id: 'error_remove_server_connection' })))
-                    ).appendTo('.body-content');
-            }
-        } catch (e) {
+        }
+        if ($.isEmptyObject(map)) {
             $('div[id=map]').css('display', 'none');
             $('<div/>', { class: 'jumbotron text-center' })
-                .append($('<h1/>', { class: 'display-4', text: "Error loading Map" }))
-                .append($('<p/>', { class: 'lead', text: 'Erro:' + e }))
+                .append($('<h1/>', { class: 'display-4', text: "Map has not been Configured " }))
+                .append($('<p/>', { class: 'lead', text: 'Please Configure Map' }))
                 .append($('<hr/>', { class: 'my-4' }))
-                .appendTo('.body-content');
+                .append($('<div/>', { class: 'row' })
+                    .append($('<div>', { class: 'col' })
+                        .append($('<button/>', { class: 'btn btn-outline-success ', type: 'button', id: 'API_connection', text: 'Configure Map' })))
+
+                ).append($('<div/>', { class: 'row' })
+                    .append($('<div>', { class: 'col text-center' })
+                        .append($('<span/>', { class: 'text-info ', id: 'error_remove_server_connection' })))
+                ).appendTo('.body-content');
         }
-    })
-        .then(init_viewports())
-        .then(init_machine())
-        .then(init_dockdoor())
-        .then(init_agvlocation())
-        .then(init_zones())
-        .then(function () { init_arrive_depart_trips(); })
-        .then(init_locators())
-        .then(LoadNotification("routetrip"))
-        .then(LoadNotification("vehicle"))
-        .catch(
-            function (err) {
-                console.log(err.toString());
-            });
-    //map.on('layerremove', (e) => {
-    //    console.log(e);
-    //});
+    } catch (e) {
+        $('div[id=map]').css('display', 'none');
+        $('<div/>', { class: 'jumbotron text-center' })
+            .append($('<h1/>', { class: 'display-4', text: "Error loading Map" }))
+            .append($('<p/>', { class: 'lead', text: 'Erro:' + e }))
+            .append($('<hr/>', { class: 'my-4' }))
+            .appendTo('.body-content');
+    }
 }
+
+/****add map items start */
+//function init_Map() {
+//    //Full-screen button only for Chrome
+//    if (window.chrome) {
+//        var fullscreentoggle = L.easyButton({
+//            position: 'bottomright',
+//            leafletClasses: true,
+//            states: [{
+//                stateName: 'enter-fullscreen',
+//                icon: '<i class="pi-iconFullScreen" title="Enter Full Screen"></i>',
+//                title: 'Enter Full Screen',
+//                onClick: function (control) {
+//                    if (document.documentElement.requestFullscreen) {
+//                        document.documentElement.requestFullscreen();
+//                    } else if (document.documentElement.msRequestFullscreen) {
+//                        document.documentElement.msRequestFullscreen();
+//                    } else if (document.documentElement.mozRequestFullScreen) {
+//                        document.documentElement.mozRequestFullScreen();
+//                    } else if (document.documentElement.webkitRequestFullscreen) {
+//                        document.documentElement.webkitRequestFullscreen(Element.ALLOW_KEYBOARD_INPUT);
+//                    }
+//                    control.state('exit-fullscreen');
+//                }
+//            }, {
+//                icon: '<i class="pi-iconFullScreenExit" title="Exit Full Screen"></i>',
+//                stateName: 'exit-fullscreen',
+//                title: 'Exit Full Screen',
+//                onClick: function (control) {
+//                    if (document.exitFullscreen) {
+//                        document.exitFullscreen();
+//                    } else if (document.msExitFullscreen) {
+//                        document.msExitFullscreen();
+//                    } else if (document.mozCancelFullScreen) {
+//                        document.mozCancelFullScreen();
+//                    } else if (document.webkitExitFullscreen) {
+//                        document.webkitExitFullscreen();
+//                    }
+//                    control.state('enter-fullscreen');
+//                }
+//            }]
+//        });
+//        fullscreentoggle.addTo(map);
+//    }
+//    $.connection.FOTFManager.server.getMap().done(function (MapData) {
+//        try {
+//            if (MapData.length === 1) {
+//                MapData = MapData[0];
+//                if (!$.isEmptyObject(MapData)) {
+
+//                    map.attributionControl.setPrefix("USPS Factory of the Future (" + MapData.softwareVersion + ")");
+//                    $('#fotf-site-facility-name').append(MapData.facilityName);
+//                    map.attributionControl.addAttribution(MapData.facilityName);
+//                    $(document).prop('title', MapData.facilityName + ' FOTF');
+
+
+//                    //set new image
+//                    var img = new Image();
+//                    //load Base64 image
+//                    img.src = MapData.base64;
+//                    //create he bound of the image.
+//                    bounds = [[MapData.yMeter, MapData.xMeter], [MapData.heightMeter + MapData.yMeter, MapData.widthMeter + MapData.xMeter]];
+//                    var trackingarea = L.polygon(bounds, {});
+//                    //add the image to the map
+//                    L.imageOverlay(img.src, trackingarea.getBounds()).addTo(map);
+//                    var ty = trackingarea.getBounds().getCenter();
+//                    //center image
+//                    map.setView(trackingarea.getBounds().getCenter(), 1.5);
+//                    setHeight();
+//                }
+//            }
+//            if ($.isEmptyObject(map)) {
+//                $('div[id=map]').css('display', 'none');
+//                $('<div/>', { class: 'jumbotron text-center' })
+//                    .append($('<h1/>', { class: 'display-4', text: "Map has not been Configured " }))
+//                    .append($('<p/>', { class: 'lead', text: 'Please Configure Map' }))
+//                    .append($('<hr/>', { class: 'my-4' }))
+//                    .append($('<div/>', { class: 'row' })
+//                        .append($('<div>', { class: 'col' })
+//                            .append($('<button/>', { class: 'btn btn-outline-success ', type: 'button', id: 'API_connection', text: 'Configure Map' })))
+
+//                    ).append($('<div/>', { class: 'row' })
+//                        .append($('<div>', { class: 'col text-center' })
+//                            .append($('<span/>', { class: 'text-info ', id: 'error_remove_server_connection' })))
+//                    ).appendTo('.body-content');
+//            }
+//        } catch (e) {
+//            $('div[id=map]').css('display', 'none');
+//            $('<div/>', { class: 'jumbotron text-center' })
+//                .append($('<h1/>', { class: 'display-4', text: "Error loading Map" }))
+//                .append($('<p/>', { class: 'lead', text: 'Erro:' + e }))
+//                .append($('<hr/>', { class: 'my-4' }))
+//                .appendTo('.body-content');
+//        }
+//    })
+//        .then(init_viewports())
+//        .then(init_machine())
+//        .then(init_dockdoor())
+//        .then(init_agvlocation())
+//        .then(init_zones())
+//        .then(init_CustomBinZones())
+//        .then(init_arrive_depart_trips())
+//        .then(init_locators())
+//        .then(init_cameras())
+//        .then(LoadNotification("routetrip"))
+//        .then(LoadNotification("vehicle"))
+//        .catch(
+//            function (err) {
+//                console.log(err.toString());
+//            });
+
+//}
 
 $('#fotf-sidebar-close').on('click', function () {
     // close the sidebar
@@ -271,7 +384,7 @@ $('input[id=inputsearchbtn').keyup(function () {
 async function GetUserInfo() {
     try {
         // get people tags
-        $.connection.FOTFManager.server.getPersonTagsList().done(function (Data) {
+        fotfmanager.server.getPersonTagsList().done(function (Data) {
             try {
                 //staffing
                 var inBuilding = [];
@@ -375,9 +488,8 @@ async function GetUserInfo() {
                 console.log(e);
             }
         });
-
         //get undetected tags Data
-        $.connection.FOTFManager.server.getUndetectedTagsList().done(function (undetectedtagsData) {
+        fotfmanager.server.getUndetectedTagsList().done(function (undetectedtagsData) {
             try {
                 if (undetectedtagsData.length > 0) {
                     let compliance_Table = $('table[id=compliancetable]');
@@ -402,7 +514,9 @@ async function GetUserInfo() {
                     $.map(undetectedtagsData, async function (properties, i) {
                         var findtrdataid = compliance_Table_Body.find('tr[data-tag=undetected_' + properties.properties.id + ']');
                         if (findtrdataid.length === 0) {
-                            if (properties.properties.tacs.fnAlert === "false") {
+                            var tacs = JSON.parse(properties.properties.tacs);
+                            properties.properties.tacs = tacs;
+                            if (tacs.fnAlert === "false") {
                                 compliance_Table_Body.append(compliance_row_template.supplant(formatcompliancerow(properties.properties)));
                                 sortTable(compliance_Table, 'asc');
                             }
@@ -417,7 +531,7 @@ async function GetUserInfo() {
             }
         });
         //get LDC alerts
-        $.connection.FOTFManager.server.getLDCAlertTagsList().done(function (ldcalertstagsData) {
+        fotfmanager.server.getLDCAlertTagsList().done(function (ldcalertstagsData) {
             try {
                 if (ldcalertstagsData.length > 0) {
                     let LDCAlert_Table = $('table[id=ldcalerttable]');
@@ -459,9 +573,22 @@ async function GetUserInfo() {
 }
 async function GetUserProfile() {
     if (!$.isEmptyObject(User)) {
-        $('#userfullname').text(User.FirstName + ' ' + User.SurName);
+        var userid = checkValue(User.FirstName) ? User.FirstName + ' ' + User.SurName : User.UserId;
+        $('#userfullname').text(userid);
         $('#useremail').text(User.EmailAddress);
         $('#userphone').text(User.Phone);
         $('#usertitel').text(User.Role);
     }
+}
+async function sortTable(table, order) {
+    var asc = order === 'asc',
+        tbody = table.find('tbody');
+
+    tbody.find('tr').sort(function (a, b) {
+        if (asc) {
+            return $('td:first', a).text().localeCompare($('td:first', b).text());
+        } else {
+            return $('td:first', b).text().localeCompare($('td:first', a).text());
+        }
+    }).appendTo(tbody);
 }

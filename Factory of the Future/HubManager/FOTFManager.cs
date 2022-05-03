@@ -5,6 +5,8 @@ using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.DirectoryServices;
+using System.DirectoryServices.AccountManagement;
 using System.IO;
 using System.Linq;
 using System.Security.Principal;
@@ -18,11 +20,9 @@ namespace Factory_of_the_Future
     public class FOTFManager : IDisposable
     {
         private readonly static Lazy<FOTFManager> _instance = new Lazy<FOTFManager>(() => new FOTFManager(GlobalHost.ConnectionManager.GetHubContext<HubManager>().Clients));
-       
+
 
         //blocks
-        private readonly object updateClocklock = new object();
-
         private readonly object updateZoneStatuslock = new object();
         private readonly object updateTagStatuslock = new object();
         private readonly object updatePersonTagStatuslock = new object();
@@ -31,15 +31,10 @@ namespace Factory_of_the_Future
         private readonly object updateMachineStatuslock = new object();
         private readonly object updateAGVLocationStatuslock = new object();
         private readonly object updateSVTripsStatuslock = new object();
-        //private readonly object updateCTSDepartedStatuslock = new object();
-        //private readonly object updateCTSLocalDepartedStatuslock = new object();
-        //private readonly object updateCTSInboundStatuslock = new object();
-        //private readonly object updateCTSOutboundStatuslock = new object();
         private readonly object updateNotificationStatuslock = new object();
+        private readonly object updateBinZoneStatuslock = new object();
 
         //timers
-        private readonly Timer Clock_timer;
-
         private readonly Timer VehicleTag_timer;
         private readonly Timer PersonTag_timer;
         private readonly Timer Zone_timer;
@@ -48,14 +43,9 @@ namespace Factory_of_the_Future
         private readonly Timer Machine_timer;
         private readonly Timer AGVLocation_timer;
         private readonly Timer SVTrips_timer;
-        //private readonly Timer CTSDeparted_timer;
-        //private readonly Timer CTSLocalDeparted_timer;
-        //private readonly Timer CTSInbound_timer;
-        //private readonly Timer CTSOutbound_timer;
-        private readonly Timer Notification_timer;
+        //private readonly Timer Notification_timer;
+        private readonly Timer BinZone_timer;
         //status
-        private volatile bool _updateClockStatus = false;
-
         private volatile bool _updatePersonTagStatus = false;
         private volatile bool _updateZoneStatus = false;
         private volatile bool _updateTagStatus = false;
@@ -64,46 +54,38 @@ namespace Factory_of_the_Future
         private volatile bool _updateMachineStatus = false;
         private volatile bool _updateAGVLocationStatus = false;
         private volatile bool _updateSVTripsStatus = false;
-        //private volatile bool _updateCTSDepartedStatus = false;
-        //private readonly bool _updateCTSLocalDepartedStatus = false;
-        //private volatile bool _updateCTSInboundStatus = false;
-        //private volatile bool _updateCTSOutboundStatus = false;
         private volatile bool _updateNotificationstatus = false;
+        private volatile bool _updateBinZoneStatus = false;
+        private bool disposedValue;
 
-        //private readonly Random _updateOrNotRandom = new Random();
-        private readonly TimeSpan _updateInterval = TimeSpan.FromMilliseconds(2000);
-
-        private readonly TimeSpan _250milupdateInterval = TimeSpan.FromMilliseconds(250);
-        private readonly TimeSpan _1000milupdateInterval = TimeSpan.FromMilliseconds(1000);
-
-    
+        //250 Milliseconds
+        private readonly TimeSpan _250updateInterval = TimeSpan.FromMilliseconds(250);
+        //1 seconds
+        private readonly TimeSpan _1000updateInterval = TimeSpan.FromMilliseconds(1000);
+        //2 seconds
+        private readonly TimeSpan _2000updateInterval = TimeSpan.FromMilliseconds(2000);
+        //30 seconds
+        private readonly TimeSpan _30000updateInterval = TimeSpan.FromMilliseconds(30000);
 
         //init timers
         private FOTFManager(IHubConnectionContext<dynamic> clients)
         {
             Clients = clients;
-            Clock_timer = new Timer(UpdateClockStatus, null, _1000milupdateInterval, _1000milupdateInterval);
-            VehicleTag_timer = new Timer(UpdateVehicleTagStatus, null, _250milupdateInterval, _250milupdateInterval);
-            PersonTag_timer = new Timer(UpdatePersonTagStatus, null, _250milupdateInterval, _250milupdateInterval);
-            ////////Zone status.
-            Zone_timer = new Timer(UpdateZoneStatus, null, _updateInterval, _updateInterval);
-            DockDoor_timer = new Timer(UpdateDockDoorStatus, null, _250milupdateInterval, _250milupdateInterval);
-            Machine_timer = new Timer(UpdateMachineStatus, null, _updateInterval, _updateInterval);
-            AGVLocation_timer = new Timer(UpdateAGVLocationStatus, null, _250milupdateInterval, _250milupdateInterval);
+            VehicleTag_timer = new Timer(UpdateVehicleTagStatus, null, _250updateInterval, _250updateInterval);
+            PersonTag_timer = new Timer(UpdatePersonTagStatus, null, _250updateInterval, _250updateInterval);
+            /////Zone status.
+            Zone_timer = new Timer(UpdateZoneStatus, null, _2000updateInterval, _2000updateInterval);
+            DockDoor_timer = new Timer(UpdateDockDoorStatus, null, _250updateInterval, _250updateInterval);
+            Machine_timer = new Timer(UpdateMachineStatus, null, _2000updateInterval, _2000updateInterval);
+            AGVLocation_timer = new Timer(UpdateAGVLocationStatus, null, _250updateInterval, _250updateInterval);
             /////SV Trips Data
-            //SVTrips_timer = new Timer(UpdateSVTripsStatus, null, _updateInterval, _updateInterval);
-            /////CTS data timer
-            //CTSDeparted_timer = new Timer(UpdateCTSDepartedStatus, null, _updateInterval, _updateInterval);
-            //CTSLocalDeparted_timer = new Timer(UpdateCTSLocalDepartedStatus, null, _updateInterval, _updateInterval);
-            //CTSInbound_timer = new Timer(UpdateCTSInboundStatus, null, _updateInterval, _updateInterval);
-            //CTSOutbound_timer = new Timer(UpdateCTSOutboundStatus, null, _updateInterval, _updateInterval);
-            // SV Trip Data
-
+            SVTrips_timer = new Timer(UpdateSVTripsStatus, null, _30000updateInterval, _30000updateInterval);
             ////   Notification data timer
             //Notification_timer = new Timer(UpdateNotificationtatus, null, _updateInterval, _updateInterval);
             ////
             //Connection status
-            QSM_timer = new Timer(UpdateQSM, null, _updateInterval, _updateInterval);
+            QSM_timer = new Timer(UpdateQSM, null, _250updateInterval, _250updateInterval);
+            BinZone_timer = new Timer(UpdateBinZoneStatus, null, _2000updateInterval, _2000updateInterval);
         }
         public static FOTFManager Instance
         {
@@ -111,6 +93,8 @@ namespace Factory_of_the_Future
         }
 
         private IHubConnectionContext<dynamic> Clients { get; set; }
+
+
 
         internal void GetConnections(string connectionId)
         {
@@ -126,62 +110,211 @@ namespace Factory_of_the_Future
                 new ErrorLogger().ExceptionLog(e);
             }
         }
-
-        private void UpdateClockStatus(object state)
+        internal GeoZone AddZone(string data)
         {
-            lock (updateClocklock)
+            try
             {
-                if (!_updateClockStatus)
+                GeoZone newtempgZone = JsonConvert.DeserializeObject<GeoZone>(data);
+                newtempgZone.Properties.Id = Guid.NewGuid().ToString();
+                newtempgZone.Properties.RawData = data;
+                newtempgZone.Properties.Source = "user";
+                if (newtempgZone.Properties.ZoneType == "Bin")
                 {
-                    _updateClockStatus = true;
-                    DateTime dtLastUpdate = DateTime.Now;
-                    if (!string.IsNullOrEmpty((string)AppParameters.AppSettings.Property("FACILITY_TIMEZONE").Value))
-                    {
-                        if (AppParameters.TimeZoneConvert.TryGetValue((string)AppParameters.AppSettings.Property("FACILITY_TIMEZONE").Value, out string windowsTimeZoneId))
-                        {
-                            dtLastUpdate = TimeZoneInfo.ConvertTime(dtLastUpdate, TimeZoneInfo.FindSystemTimeZoneById(windowsTimeZoneId));
-                           
-                        }
-                    }
-                    BroadcastClockStatus(dtLastUpdate);
-                    _updateClockStatus = false;
+                    newtempgZone.Properties.MPEBins = new List<string>();
                 }
+                else
+                {
+                    newtempgZone.Properties.MPEBins = null;
+                }
+                if (Regex.IsMatch(newtempgZone.Properties.ZoneType, "(Machine|Bin)", RegexOptions.IgnoreCase))
+                {
+                    //get the MPE Number
+                    if (int.TryParse(string.Join(string.Empty, Regex.Matches(newtempgZone.Properties.Name, @"\d+").OfType<Match>().Select(m => m.Value)).ToString(), out int n))
+                    {
+                        newtempgZone.Properties.MPENumber = n;
+                    }
+                    //get the MPE Name
+                    newtempgZone.Properties.MPEType = string.Join(string.Empty, Regex.Matches(newtempgZone.Properties.Name, @"\p{L}+").OfType<Match>().Select(m => m.Value));
+                }
+                if (Regex.IsMatch(newtempgZone.Properties.ZoneType, "(DockDoor)", RegexOptions.IgnoreCase))
+                {
+                    //get the DockDoor Number
+                    if (int.TryParse(string.Join(string.Empty, Regex.Matches(newtempgZone.Properties.Name, @"\d+").OfType<Match>().Select(m => m.Value)).ToString(), out int n))
+                    {
+                        newtempgZone.Properties.DoorNumber = n.ToString();
+                    }
+
+                }
+                newtempgZone.Properties.MPEWatchData = null;
+                newtempgZone.Properties.MissionList = null;
+                newtempgZone.Properties.DockDoorData = null;
+                newtempgZone.Properties.StaffingData = null;
+                newtempgZone.Properties.DPSData = null;
+                newtempgZone.Properties.ZoneUpdate = true;
+                if (AppParameters.ZoneList.TryAdd(newtempgZone.Properties.Id, newtempgZone))
+                {
+                    new FileIO().Write(string.Concat(AppParameters.Logdirpath, AppParameters.ConfigurationFloder), "CustomZones.json",
+                        JsonConvert.SerializeObject(AppParameters.ZoneList.Where(r => r.Value.Properties.Source == newtempgZone.Properties.Source).Select(x => x.Value).ToList(), Formatting.Indented));
+                }
+                return newtempgZone;
+            }
+            catch (Exception e)
+            {
+                new ErrorLogger().ExceptionLog(e);
+                return null;
+            }
+        }
+        internal IEnumerable<GeoZone> GetBinZonesList()
+        {
+            try
+            {
+                return AppParameters.ZoneList.Where(r => r.Value.Properties.ZoneType.ToString() == "Bin").Select(x => x.Value).ToList();
+            }
+            catch (Exception e)
+            {
+                new ErrorLogger().ExceptionLog(e);
+                return null;
+            }
+        }
+        internal GeoMarker AddMarker(string data)
+        {
+
+            try
+            {
+                GeoMarker newtempgMarker = JsonConvert.DeserializeObject<GeoMarker>(data);
+                newtempgMarker.Properties.Id = Guid.NewGuid().ToString();
+                newtempgMarker.Properties.RawData = data;
+                newtempgMarker.Properties.Source = "user";
+                newtempgMarker.Properties.TagUpdate = true;
+
+                if (AppParameters.CameraInfoList.TryGetValue(newtempgMarker.Properties.Name, out Cameras Camera))
+                {
+                    newtempgMarker.Properties.EmpName = Camera.Description;
+                    newtempgMarker.Properties.Emptype = Camera.ModelNum;
+                    newtempgMarker.Properties.CameraData = JsonConvert.SerializeObject(Camera, Formatting.Indented);
+                }
+                if (AppParameters.TagsList.TryAdd(newtempgMarker.Properties.Id, newtempgMarker))
+                {
+                    new FileIO().Write(string.Concat(AppParameters.Logdirpath, AppParameters.ConfigurationFloder), "Markers.json",
+                        JsonConvert.SerializeObject(AppParameters.TagsList.Where(r => r.Value.Properties.Source == newtempgMarker.Properties.Source).Select(x => x.Value).ToList(), Formatting.Indented));
+
+                    return newtempgMarker;
+                }
+                else
+                {
+                    return null;
+                }
+
+            }
+            catch (Exception e)
+            {
+                new ErrorLogger().ExceptionLog(e);
+                return null;
+            }
+        }
+        internal GeoMarker RemoveMarker(string data)
+        {
+            try
+            {
+                bool removeMarker = false;
+                GeoMarker markerinfo = null;
+                if (AppParameters.TagsList.TryGetValue(data, out  markerinfo))
+                {
+                    if (markerinfo.Properties.Source == "other")
+                    {
+                        markerinfo.Properties.TagVisible = false;
+                        markerinfo.Properties.TagUpdate = true;
+                    }
+                    else
+                    {
+                        removeMarker = true;
+                    }
+
+                }
+                if (removeMarker)
+                {
+                    if (AppParameters.TagsList.TryRemove(data, out markerinfo))
+                    {
+                        new ErrorLogger().CustomLog("Marker has been removed " + markerinfo.Properties.Id + " from list", string.Concat((string)AppParameters.AppSettings["APPLICATION_NAME"], "Appslogs"));
+                        new FileIO().Write(string.Concat(AppParameters.Logdirpath, AppParameters.ConfigurationFloder), "Markers.json", 
+                            JsonConvert.SerializeObject(AppParameters.TagsList.Where(r => r.Value.Properties.Source == "user").Select(x => x.Value).ToList(), Formatting.Indented));
+
+                    }
+                }
+                return markerinfo;
+            }
+            catch (Exception e)
+            {
+                new ErrorLogger().ExceptionLog(e);
+                return null;
             }
         }
 
-
-        private void BroadcastClockStatus(DateTime dtLastUpdate)
+        internal GeoZone RemoveZone(string data)
         {
-            Clients.All.updateClock(dtLastUpdate);
+            try
+            {
+                bool removeZone = false;
+                GeoZone ZoneInfo = null;
+                if (AppParameters.ZoneList.TryGetValue(data, out ZoneInfo)) 
+                {
+                    if (ZoneInfo.Properties.Source == "other")
+                    {
+                        ZoneInfo.Properties.Visible = false;
+                        ZoneInfo.Properties.ZoneUpdate = true;
+                    }
+                    else
+                    {
+                        removeZone = true;
+                    }
+                }
+                if (removeZone)
+                {
+                    if (AppParameters.ZoneList.TryRemove(data, out ZoneInfo))
+                    {
+                        new ErrorLogger().CustomLog("Zone has been removed " + ZoneInfo.Properties.Id + " from list", string.Concat((string)AppParameters.AppSettings["APPLICATION_NAME"], "Appslogs"));
+                        new FileIO().Write(string.Concat(AppParameters.Logdirpath, AppParameters.ConfigurationFloder), "CustomZones.json",
+                      JsonConvert.SerializeObject(AppParameters.ZoneList.Where(r => r.Value.Properties.Source == "user").Select(x => x.Value).ToList(), Formatting.Indented));
+                    }
+                }
+                return ZoneInfo;
+            }
+            catch (Exception e)
+            {
+                new ErrorLogger().ExceptionLog(e);
+                return null;
+            }
         }
 
-        ////internal IEnumerable<JToken> GetNotification(string data)
-        ////{
-        ////    try
-        ////    {
-        ////        if (!string.IsNullOrEmpty(data))
-        ////        {
-        ////            return AppParameters.NotificationList.Where(c => c.Value.Property("TYPE").Value.ToString().ToLower() == data.ToLower()
-        ////            && (bool)c.Value.Property("ACTIVE_CONDITION").Value).Select(x => x.Value).ToList();
-        ////        }
-        ////        else
-        ////        {
-        ////            if (AppParameters.NotificationList.Count() > 0)
-        ////            {
-        ////                return AppParameters.NotificationList.Select(x => x.Value).ToList();
-        ////            }
-        ////            else
-        ////            {
-        ////                return new JObject();
-        ////            }
-        ////        }
-        ////    }
-        ////    catch (Exception e)
-        ////    {
-        ////        new ErrorLogger().ExceptionLog(e);
-        ////        return new JObject();
-        ////    }
-        ////}
+        internal IEnumerable<Notification> GetNotification(string data)
+        {
+            try
+            {
+                if (!string.IsNullOrEmpty(data))
+                {
+                    return AppParameters.NotificationList.Where(c => c.Value.Type.ToLower() == data.ToLower()
+                    && c.Value.ActiveCondition).Select(x => x.Value).ToList();
+                }
+                else
+                {
+                    if (AppParameters.NotificationList.Count() > 0)
+                    {
+                        return AppParameters.NotificationList.Select(x => x.Value).ToList();
+                    }
+                    else
+                    {
+                        return null;
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                new ErrorLogger().ExceptionLog(e);
+                return null;
+            }
+        }
+
+       
 
         //internal IEnumerable<JToken> GetADUserProfile(string userID)
         //{
@@ -264,7 +397,7 @@ namespace Factory_of_the_Future
                             return user;
                         }
                     }
-                    
+
                 }
                 return null;
             }
@@ -275,266 +408,219 @@ namespace Factory_of_the_Future
             }
         }
 
-        ////private void UpdateNotificationtatus(object state)
-        ////{
-        ////    lock (updateNotificationStatuslock)
-        ////    {
-        ////        if (!_updateNotificationstatus)
-        ////        {
-        ////            _updateNotificationstatus = true;
-        ////            foreach (var notification in AppParameters.NotificationList.Values)
-        ////            {
-        ////                if (TryUpdateNotificationStatus(notification))
-        ////                {
-        ////                    BroadcastNotificationStatus(notification);
-        ////                }
-        ////            }
-        ////            _updateNotificationstatus = false;
-        ////        }
-        ////    }
-        ////}
+        private void UpdateNotificationtatus(object state)
+        {
+            lock (updateNotificationStatuslock)
+            {
+                if (!_updateNotificationstatus)
+                {
+                    _updateNotificationstatus = true;
+                    foreach (var notification in from notification in AppParameters.NotificationList.Where(r => r.Value.Notification_Update).Select(y => y.Value)
+                                                 where TryUpdateNotificationStatus(notification)
+                                                 select notification)
+                    {
+                        BroadcastNotificationStatus(notification);
+                    }
 
-        ////private bool TryUpdateNotificationStatus(JObject notification)
-        ////{
-        ////    try
-        ////    {
-        ////        notification["UPDATE"] = false;
-        ////        if ((bool)notification.Property("ACTIVE_CONDITION").Value)
-        ////        {
-        ////            if (notification.ContainsKey("DELETE"))
-        ////            {
-        ////                if (AppParameters.NotificationList.TryRemove((string)notification.Property("notificationId").Value, out JObject outnotification))
-        ////                {
-        ////                    return true;
-        ////                }
-        ////                else
-        ////                {
-        ////                    return false;
-        ////                }
-        ////            }
-        ////            else
-        ////            {
-        ////                return true;
-        ////            }
-        ////        }
-        ////        else
-        ////        {
-        ////            if (AppParameters.NotificationList.TryRemove((string)notification.Property("notificationId").Value, out JObject outnotification))
-        ////            {
-        ////                if (!notification.ContainsKey("DELETE"))
-        ////                {
-        ////                    notification.Add(new JProperty("DELETE", true));
-        ////                }
+                    _updateNotificationstatus = false;
+                }
+            }
+        }
 
-        ////                return true;
-        ////            }
-        ////            else
-        ////            {
-        ////                return false;
-        ////            }
-        ////        }
+        private bool TryUpdateNotificationStatus(Notification notification)
+        {
+            try
+            {
+                notification.Notification_Update = false;
+                return true;
+                //if ((bool)notification.Property("ACTIVE_CONDITION").Value)
+                //{
+                //    if (notification.ContainsKey("DELETE"))
+                //    {
+                //        if (AppParameters.NotificationList.TryRemove((string)notification.Property("notificationId").Value, out JObject outnotification))
+                //        {
+                //            return true;
+                //        }
+                //        else
+                //        {
+                //            return false;
+                //        }
+                //    }
+                //    else
+                //    {
+                //        return true;
+                //    }
+                //}
+                //else
+                //{
+                //    if (AppParameters.NotificationList.TryRemove((string)notification.Property("notificationId").Value, out JObject outnotification))
+                //    {
+                //        if (!notification.ContainsKey("DELETE"))
+                //        {
+                //            notification.Add(new JProperty("DELETE", true));
+                //        }
 
-        ////    }
-        ////    catch (Exception e)
-        ////    {
-        ////        new ErrorLogger().ExceptionLog(e);
-        ////        return true;
-        ////    }
-        ////}
+                //        return true;
+                //    }
+                //    else
+                //    {
+                //        return false;
+                //    }
+                //}
 
-        ////private void BroadcastNotificationStatus(JObject vehiclenotification)
-        ////{
-        ////    Clients.All.updateNotification(vehiclenotification);
-        ////}
+            }
+            catch (Exception e)
+            {
+                new ErrorLogger().ExceptionLog(e);
+                return false;
+            }
+        }
 
-        ////internal IEnumerable<JToken> GetNotification_ConditionsList(string data)
-        ////{
-        ////    try
-        ////    {
-        ////        if (!string.IsNullOrEmpty(data))
-        ////        {
-        ////            return AppParameters.NotificationConditionsList.Where(c => (string)c.Value.Property("id").Value == data).Select(x => x.Value).ToList();
-        ////        }
-        ////        else
-        ////        {
-        ////            return AppParameters.NotificationConditionsList.Select(x => x.Value).ToList();
-        ////        }
-        ////    }
-        ////    catch (Exception e)
-        ////    {
-        ////        new ErrorLogger().ExceptionLog(e);
-        ////        return new JObject();
-        ////    }
-        ////}
+        private void BroadcastNotificationStatus(Notification vehiclenotification)
+        {
+            Clients.All.updateNotification(vehiclenotification);
+        }
 
-        ////internal IEnumerable<JToken> AddNotification_Conditions(string data)
-        ////{
-        ////    try
-        ////    {
-        ////        if (!string.IsNullOrEmpty(data))
-        ////        {
-        ////            JObject Notification = JObject.Parse(data);
-        ////            if (Notification.HasValues)
-        ////            {
-        ////                JObject new_notification = new JObject_List().Notification_Conditions;
-        ////                new_notification.Property("LASTUPDATE_DATE").Value = "";
-        ////                bool updateFile = false;
-        ////                foreach (var kv in from dynamic kv in Notification.Children()
-        ////                                   where new_notification.ContainsKey(kv.Name)
-        ////                                   where kv.Value != new_notification.Property(kv.Name).Value
-        ////                                   select kv)
-        ////                {
-        ////                    new_notification.Property(kv.Name).Value = kv.Value;
-        ////                    updateFile = true;
-        ////                }
+        internal IEnumerable<NotificationConditions> GetNotification_ConditionsList()
+        {
+            try
+            {
+                return AppParameters.NotificationConditionsList.Select(x => x.Value).ToList();
+            }
+            catch (Exception e)
+            {
+                new ErrorLogger().ExceptionLog(e);
+                return null;
+            }
+        }
+        internal IEnumerable<NotificationConditions> GetNotification_Conditions(string id)
+        {
+            try
+            {
+                return AppParameters.NotificationConditionsList.Where(c => c.Value.Id == id).Select(x => x.Value).ToList();
+            }
+            catch (Exception e)
+            {
+                new ErrorLogger().ExceptionLog(e);
+                return null;
+            }
+        }
 
-        ////                if (!AppParameters.NotificationConditionsList.ContainsKey((string)new_notification.Property("id").Value))
-        ////                {
-        ////                    AppParameters.NotificationConditionsList.TryAdd((string)new_notification.Property("id").Value, new_notification);
-        ////                }
-        ////                else
-        ////                {
-        ////                    return new JObject(new JProperty("ERROR_MESSAGE", "ID already exist"));
-        ////                }
+        internal IEnumerable<NotificationConditions> AddNotification_Conditions(string data)
+        {
+            try
+            {
+                if (!string.IsNullOrEmpty(data))
+                {
+                    JObject Notifation = JObject.Parse(data);
+                    if (Notifation.HasValues)
+                    {
+                        NotificationConditions newNotification = Notifation.ToObject<NotificationConditions>();
+                        newNotification.Id = Guid.NewGuid().ToString();
+                        newNotification.CreatedDate = DateTime.Now;
+                        if (AppParameters.NotificationConditionsList.TryAdd(newNotification.Id, newNotification))
+                        {
+                            //write to file the new connection
+                            new FileIO().Write(string.Concat(AppParameters.Logdirpath, AppParameters.ConfigurationFloder), "Notification.json", JsonConvert.SerializeObject(AppParameters.NotificationConditionsList.Select(x => x.Value).ToList(), Formatting.Indented));
+                            new FileIO().Write(string.Concat(AppParameters.CodeBase.Parent.FullName.ToString(), AppParameters.Appsetting), "Notification.json", JsonConvert.SerializeObject(AppParameters.NotificationConditionsList.Select(x => x.Value).ToList(), Formatting.Indented));
+                        }
+                    }
+                }
+                return AppParameters.NotificationConditionsList.Select(e => e.Value).ToList();
+            }
+            catch (Exception ex)
+            {
+                new ErrorLogger().ExceptionLog(ex);
+                return null;
+            }
+        }
 
-        ////                if (updateFile)
-        ////                {
-        ////                    //write to file the new connection
-        ////                    new FileIO().Write(string.Concat(AppParameters.Logdirpath, AppParameters.ConfigurationFloder), "Notification.json", JsonConvert.SerializeObject(AppParameters.NotificationConditionsList.Select(x => x.Value), Formatting.Indented));
-        ////                    return AppParameters.NotificationConditionsList.Select(e => e.Value).ToList();
-        ////                }
-        ////                else
-        ////                {
-        ////                    return new JObject(new JProperty("ERROR_MESSAGE", "No update made"));
-        ////                }
-        ////            }
-        ////            else
-        ////            {
-        ////                return new JObject(new JProperty("ERROR_MESSAGE", "ID not found in list"));
-        ////            }
-        ////        }
-        ////        else
-        ////        {
-        ////            return new JObject(new JProperty("ERROR_MESSAGE", "No data provvided"));
-        ////        }
-        ////    }
-        ////    catch (Exception ex)
-        ////    {
-        ////        new ErrorLogger().ExceptionLog(ex);
-        ////        return new JObject(new JProperty("ERROR_MESSAGE", "Data Not loaded"));
-        ////    }
-        ////}
+        internal IEnumerable<NotificationConditions> EditNotification_Conditions(string data)
+        {
+            try
+            {
+                if (!string.IsNullOrEmpty(data))
+                {
+                    JObject updatenotification = JObject.Parse(data);
+                    if (updatenotification.HasValues)
+                    {
+                        if (updatenotification.ContainsKey("Id"))
+                        {
+                            if (AppParameters.NotificationConditionsList.TryGetValue(updatenotification["Id"].ToString(), out NotificationConditions notification))
+                            {
 
-        ////internal IEnumerable<JToken> EditNotification_Conditions(string data)
-        ////{
-        ////    try
-        ////    {
-        ////        JObject updatenotification = JObject.Parse(data);
-        ////        if (updatenotification.HasValues)
-        ////        {
-        ////            if (updatenotification.ContainsKey("id"))
-        ////            {
-        ////                if (AppParameters.NotificationConditionsList.ContainsKey((string)updatenotification.Property("id").Value))
-        ////                {
-        ////                    if (AppParameters.NotificationConditionsList.TryGetValue((string)updatenotification.Property("id").Value, out JObject notification))
-        ////                    {
-        ////                        bool updateFile = false;
-        ////                        updatenotification["LASTUPDATE_DATE"] = DateTime.Now;
-        ////                        notification.Merge(updatenotification, new JsonMergeSettings { MergeArrayHandling = MergeArrayHandling.Union });
-        ////                        updateFile = true;
-        ////                        //update notification
-        ////                        foreach (JObject item in AppParameters.NotificationList.Where(r => (string)r.Value["conditionId"] == (string)updatenotification["id"]).Select(y => y.Value))
-        ////                        {
-        ////                            if (!(bool)updatenotification["ACTIVE_CONDITION"] )
-        ////                            {
-        ////                                item["DELETE"] = true;
-        ////                                item["UPDATE"] = true;
-        ////                            }
-        ////                            item.Merge(updatenotification, new JsonMergeSettings { MergeArrayHandling = MergeArrayHandling.Union });
+                                JObject tempnotification = (JObject)JsonConvert.DeserializeObject(JsonConvert.SerializeObject(notification, Formatting.Indented));
+                                tempnotification["LASTUP_DATE"] = DateTime.Now;
+                                tempnotification.Merge(updatenotification, new JsonMergeSettings { MergeArrayHandling = MergeArrayHandling.Union });
 
+                                NotificationConditions newTempNotification = tempnotification.ToObject<NotificationConditions>();
+                                if (AppParameters.NotificationConditionsList.TryUpdate(newTempNotification.Id, newTempNotification, notification))
+                                {
 
-        ////                        }
-        ////                        //write to file for backup
-        ////                        if (updateFile)
-        ////                        {
-        ////                            new FileIO().Write(string.Concat(AppParameters.Logdirpath, AppParameters.ConfigurationFloder), "Notification.json", JsonConvert.SerializeObject(AppParameters.NotificationConditionsList.Select(x => x.Value), Formatting.Indented));
-        ////                            return AppParameters.NotificationConditionsList.Select(e => e.Value).ToList();
-        ////                        }
-        ////                        else
-        ////                        {
-        ////                            return new JObject(new JProperty("ERROR_MESSAGE", "No update made"));
-        ////                        }
-        ////                    }
-        ////                    else
-        ////                    {
-        ////                        return new JObject(new JProperty("ERROR_MESSAGE", "ID not found in list"));
-        ////                    }
-        ////                }
-        ////                else
-        ////                {
-        ////                    return new JObject(new JProperty("ERROR_MESSAGE", "ID not found in list"));
-        ////                }
-        ////            }
-        ////            else
-        ////            {
-        ////                return new JObject(new JProperty("ERROR_MESSAGE", "ID not provided"));
-        ////            }
-        ////        }
-        ////        else
-        ////        {
-        ////            return new JObject(new JProperty("ERROR_MESSAGE", "ID not found in list"));
-        ////        }
-        ////    }
-        ////    catch (Exception e)
-        ////    {
-        ////        new ErrorLogger().ExceptionLog(e);
-        ////        return new JObject(new JProperty("ERROR_MESSAGE", "Data Not loaded"));
-        ////    }
-        ////}
+                                    //foreach (JObject item in AppParameters.NotificationList.Where(r => (string)r.Value["conditionId"] == (string)updatenotification["id"]).Select(y => y.Value))
+                                    //{
+                                    //    if (!(bool)updatenotification["ACTIVE_CONDITION"])
+                                    //    {
+                                    //        item["DELETE"] = true;
+                                    //        item["UPDATE"] = true;
+                                    //    }
+                                    //    item.Merge(updatenotification, new JsonMergeSettings { MergeArrayHandling = MergeArrayHandling.Union });
+                                    //}
+                                    new FileIO().Write(string.Concat(AppParameters.Logdirpath, AppParameters.ConfigurationFloder), "Notification.json", JsonConvert.SerializeObject(AppParameters.NotificationConditionsList.Select(x => x.Value).ToList(), Formatting.Indented));
+                                    new FileIO().Write(string.Concat(AppParameters.CodeBase.Parent.FullName.ToString(), AppParameters.Appsetting), "Notification.json", JsonConvert.SerializeObject(AppParameters.NotificationConditionsList.Select(x => x.Value).ToList(), Formatting.Indented));
+                                }
+                            }
+                        }
 
-        ////internal IEnumerable<JToken> DeleteNotification_Conditions(string data)
-        ////{
-        ////    try
-        ////    {
-        ////        JObject Notification = JObject.Parse(data);
-        ////        if (Notification.HasValues)
-        ////        {
-        ////            if (Notification.ContainsKey("id"))
-        ////            {
-        ////                if (AppParameters.NotificationConditionsList.TryRemove((string)Notification.Property("id").Value, out JObject outtemp))
-        ////                {
-        ////                    new FileIO().Write(string.Concat(AppParameters.Logdirpath, AppParameters.ConfigurationFloder), "Notification.json", JsonConvert.SerializeObject(AppParameters.NotificationConditionsList.Select(x => x.Value), Formatting.Indented));
+                    }
+                }
+                return AppParameters.NotificationConditionsList.Select(e => e.Value).ToList();
+            }
+            catch (Exception e)
+            {
+                new ErrorLogger().ExceptionLog(e);
+                return null;
+            }
+        }
 
-        ////                    foreach(JObject item in AppParameters.NotificationList.Where(r => (int)r.Value["id"] == (int)Notification["id"])
-        ////                          .Select(y => y.Value))
-        ////                          {
-        ////                              item["DELETE"] = true;
-        ////                              item["UPDATE"] = true;
+        internal IEnumerable<NotificationConditions> DeleteNotification_Conditions(string data)
+        {
+            try
+            {
+                if (!string.IsNullOrEmpty(data))
+                {
+                    JObject Notification = JObject.Parse(data);
+                    if (Notification.HasValues)
+                    {
+                        if (Notification.ContainsKey("Id"))
+                        {
+                            if (AppParameters.NotificationConditionsList.TryRemove(Notification["Id"].ToString(), out NotificationConditions outtemp))
+                            {
+                                new FileIO().Write(string.Concat(AppParameters.Logdirpath, AppParameters.ConfigurationFloder), "Notification.json", JsonConvert.SerializeObject(AppParameters.NotificationConditionsList.Select(x => x.Value), Formatting.Indented));
+                                new FileIO().Write(string.Concat(AppParameters.CodeBase.Parent.FullName.ToString(), AppParameters.Appsetting), "Notification.json", JsonConvert.SerializeObject(AppParameters.NotificationConditionsList.Select(x => x.Value).ToList(), Formatting.Indented));
+                                //foreach (JObject item in AppParameters.NotificationList.Where(r => (int)r.Value["id"] == (int)Notification["id"])
+                                //      .Select(y => y.Value))
+                                //{
+                                //    item["DELETE"] = true;
+                                //    item["UPDATE"] = true;
 
-        ////                          };
-        ////                    return AppParameters.NotificationConditionsList.Select(e => e.Value).ToList();
-        ////                }
-        ////                else
-        ////                {
-        ////                    return new JObject(new JProperty("ERROR_MESSAGE", "ID not found in list"));
-        ////                }
-        ////            }
-        ////            else
-        ////            {
-        ////                return new JObject(new JProperty("ERROR_MESSAGE", "ID not found in list"));
-        ////            }
-        ////        }
-        ////        else
-        ////        {
-        ////            return new JObject(new JProperty("ERROR_MESSAGE", "ID not found in list"));
-        ////        }
-        ////    }
-        ////    catch (Exception e)
-        ////    {
-        ////        new ErrorLogger().ExceptionLog(e);
-        ////        return new JObject(new JProperty("ERROR_MESSAGE", "Error Deleting data"));
-        ////    }
-        ////}
+                                //}
+
+                            }
+
+                        }
+
+                    }
+
+                }
+                return AppParameters.NotificationConditionsList.Select(e => e.Value).ToList();
+            }
+            catch (Exception e)
+            {
+                new ErrorLogger().ExceptionLog(e);
+                return null;
+            }
+        }
 
         //internal IEnumerable<JToken> EditTagInfo(string data)
         //{
@@ -616,7 +702,9 @@ namespace Factory_of_the_Future
                 if (!_updateZoneStatus)
                 {
                     _updateZoneStatus = true;
-                    foreach (var zoneitem in from GeoZone zoneitem in AppParameters.ZoneList.Where(r => r.Value.Properties.ZoneUpdate && r.Value.Properties.ZoneType == "Area").Select(y => y.Value)
+                    foreach (var zoneitem in from GeoZone zoneitem in AppParameters.ZoneList.Where(r => r.Value.Properties.ZoneUpdate 
+                                             && r.Value.Properties.Visible
+                                             && r.Value.Properties.ZoneType == "Area").Select(y => y.Value)
                                              where TryUpdateZoneStatus(zoneitem)
                                              select zoneitem)
                     {
@@ -630,9 +718,8 @@ namespace Factory_of_the_Future
 
         private void BroadcastZoneStatus(GeoZone zoneitem)
         {
-            Clients.All.updateZoneStatus(zoneitem);
+            Clients.Group("Zones").updateZoneStatus(zoneitem);
         }
-
         private bool TryUpdateZoneStatus(GeoZone zoneitem)
         {
             try
@@ -646,223 +733,266 @@ namespace Factory_of_the_Future
                 return false;
             }
         }
-        ////private void UpdateSVTripsStatus(object state)
-        ////{
-        ////    lock (updateSVTripsStatuslock)
-        ////    {
-        ////        if (!_updateSVTripsStatus)
-        ////        {
-        ////            _updateSVTripsStatus = true;
-        ////            foreach (var trip in from JObject trip in AppParameters.RouteTripsList.Where(r => (bool)r.Value["Trip_Update"]).Select(x => x.Value)
-        ////                                 where TrySVTripStatus(trip)
-        ////                                 select trip)
-        ////            {
-        ////                BroadcastSVTripsStatus(trip);
-        ////            };
 
-        ////            _updateSVTripsStatus = false;
-        ////        }
-        ////    }
-        ////}
 
-        ////private bool TrySVTripStatus(JObject trip)
-        ////{
-        ////    bool update = false;
-        ////    string state = "ACTIVE";
-        ////    try
-        ////    {
-        ////        trip["Trip_Update"] = false;
-        ////        if (!trip.ContainsKey("unloadedContainers"))
-        ////        {
-        ////            trip["unloadedContainers"] = 0;
-        ////        }
-        ////        if (!trip.ContainsKey("containers"))
-        ////        {
-        ////            trip["containers"] = "";
-        ////        }
-        ////        //destSite
-        ////        if (!trip.ContainsKey("destSite"))
-        ////        {
-        ////            trip["destSite"] = "";
-        ////        }
-        ////        if (!trip.ContainsKey("tripMin"))
-        ////        {
-        ////            trip["tripMin"] = 0;
-        ////        }
-        ////        if (!trip.ContainsKey("state"))
-        ////        {
-        ////            trip["state"] = state;
-        ////        }
-        ////        if (trip.ContainsKey("status"))
-        ////        {
-        ////            switch (trip["status"].ToString())
-        ////            {
-        ////                case "CANCELED":
-        ////                    state = "CANCELED";
-        ////                    break;
-        ////                case "DEPARTED":
-        ////                    state = "DEPARTED";
-        ////                    break;
-        ////                case "OMITTED":
-        ////                    state = "OMITTED";
-        ////                    break;
-        ////                case "COMPLETE":
-        ////                    state = "COMPLETE";
-        ////                    break;
-        ////                default:
-        ////                    break;
-        ////            }
+        private void UpdateBinZoneStatus(object state)
+        {
+            lock (updateBinZoneStatuslock)
+            {
+                if (!_updateBinZoneStatus)
+                {
+                    _updateBinZoneStatus = true;
+                    foreach (var zoneitem in from GeoZone zoneitem in AppParameters.ZoneList.Where(r => r.Value.Properties.ZoneUpdate
+                                             && r.Value.Properties.Visible
+                                             && r.Value.Properties.ZoneType == "Bin").Select(y => y.Value)
+                                             where TryUpdateBinZoneStatus(zoneitem)
+                                             select zoneitem)
+                    {
+                        BroadcastBinZoneStatus(zoneitem);
+                    }
 
-        ////        }
-        ////        if (trip.ContainsKey("legStatus"))
-        ////        {
-        ////            switch (trip["legStatus"].ToString())
-        ////            {
-        ////                case "CANCELED":
-        ////                    state = "CANCELED";
-        ////                    break;
-        ////                case "DEPARTED":
-        ////                    state = "DEPARTED";
-        ////                    break;
-        ////                case "OMITTED":
-        ////                    state = "OMITTED";
-        ////                    break;
-        ////                case "COMPLETE":
-        ////                    state = "COMPLETE";
-        ////                    break;
-        ////                default:
-        ////                    break;
-        ////            }
-        ////        }
+                    _updateBinZoneStatus = false;
+                }
+            }
+        }
 
-        ////        int tripInMin = AppParameters.Get_TripMin((JObject)trip["scheduledDtm"]);
-        ////        if (tripInMin != (int)trip["tripMin"])
-        ////        {
-        ////            trip["tripMin"] = tripInMin;
-        ////            update = true;
-        ////        }
-        ////        //check the trip state     
-        ////        if (tripInMin <= -1 && state == "ACTIVE")
-        ////        {
-        ////            state = "LATE";
-        ////            update = true;
-        ////        }
-        ////        if (tripInMin <= -30 && Regex.IsMatch(state, "(CANCELED|DEPARTED|OMITTED|COMPLETE)", RegexOptions.IgnoreCase) )
-        ////        {
-        ////            state = "REMOVE";
-        ////            update = true;
-        ////        }
-        ////        if (tripInMin <= -1440 )
-        ////        {
-        ////            state = "REMOVE";
-        ////            update = true;
-        ////        }
-        ////        if (update)
-        ////        {
-        ////            trip["notificationId"] = CheckNotification(trip["state"].ToString(), state, "routetrip", trip, trip["notificationId"].ToString());
-        ////        }
-        ////        if (string.IsNullOrEmpty(trip["state"].ToString()))
-        ////        {
-        ////            trip["state"] = trip.ContainsKey("status") ? trip["status"].ToString() : trip.ContainsKey("legStatus") ? trip["legStatus"].ToString() : state;
-        ////        }
-        ////        else
-        ////        {
-        ////            trip["state"] = state;
-        ////        }
-        ////        if (state == "REMOVE")
-        ////        {
-        ////            string routetripid = string.Concat(trip["routeTripId"].ToString() + trip["routeTripLegId"].ToString());
-        ////            if (AppParameters.RouteTripsList.TryRemove(routetripid, out JObject r))
-        ////            {
-        ////                trip["state"] = state;
-        ////                trip["notificationId"] = CheckNotification(trip["state"].ToString(), state, "routetrip", trip, trip["notificationId"].ToString());
-        ////                update = true;
-        ////            }
+        private bool TryUpdateBinZoneStatus(GeoZone binZone)
+        {
+            try
+            {
 
-        ////        }
-        ////        if (trip["state"].ToString() == state)
-        ////        {
-        ////            update = false;
-        ////        }
-        ////        return update;
-        ////    }
-        ////    catch (Exception e)
-        ////    {
-        ////        new ErrorLogger().ExceptionLog(e);
-        ////        return update;
-        ////    }
-        ////}
+                binZone.Properties.ZoneUpdate = false;
+                return true;
 
-        ////private string CheckNotification(string currentState, string NewState, string type, JObject trip, string noteifi_id)
-        ////{
-        ////    string noteification_id = noteifi_id;
-        ////    try
-        ////    {
-        ////        if (currentState != NewState)
-        ////        {
-        ////            if (!string.IsNullOrEmpty(noteification_id) && AppParameters.NotificationList.ContainsKey(noteification_id))
-        ////            {
-        ////                if (AppParameters.NotificationList.TryGetValue(noteification_id, out JObject ojbMerge))
-        ////                {
-        ////                    if (!ojbMerge.ContainsKey("DELETE"))
-        ////                    {
-        ////                        ojbMerge["DELETE"] = true;
-        ////                        ojbMerge["UPDATE"] = true;
-        ////                        noteification_id = "";
-        ////                    }
-        ////                }
-        ////            }
-        ////            //new condition
-        ////            foreach (JObject newCondition in AppParameters.NotificationConditionsList.Where(r => Regex.IsMatch(NewState, r.Value["CONDITIONS"].ToString(), RegexOptions.IgnoreCase)
-        ////         && r.Value["TYPE"].ToString().ToLower() == type.ToLower()
-        ////          && (bool)r.Value["ACTIVE_CONDITION"]).Select(x => x.Value))
-        ////            {
-        ////                noteification_id = (string)newCondition["id"] + (string)trip["id"];
-        ////                if (!AppParameters.NotificationList.ContainsKey(noteification_id))
-        ////                {
-        ////                    JObject ojbMerge = (JObject)newCondition.DeepClone();
-        ////                    ojbMerge.Merge(trip, new JsonMergeSettings { MergeArrayHandling = MergeArrayHandling.Union });
-        ////                    ojbMerge["SHOWTOAST"] = true;
-        ////                    ojbMerge["TAGID"] = (string)trip["id"];
-        ////                    ojbMerge["conditionId"] = (string)newCondition["id"] ;
-        ////                    ojbMerge["notificationId"] = (string)newCondition["id"] + (string)trip["id"];
-        ////                    ojbMerge["UPDATE"] = true;
-        ////                    AppParameters.NotificationList.TryAdd((string)newCondition["id"] + (string)trip["id"], ojbMerge);
-        ////                }
-        ////            }
+            }
+            catch (Exception e)
+            {
+                new ErrorLogger().ExceptionLog(e);
+                return false;
+            }
+        }
 
-        ////        }
-        ////        return noteification_id;
-        ////    }
-        ////    catch (Exception e)
-        ////    {
-        ////        new ErrorLogger().ExceptionLog(e);
-        ////        return noteification_id;
-        ////    }
-        ////}
+        private void BroadcastBinZoneStatus(GeoZone binZone)
+        {
+            Clients.Group("BinZones").updateBinZoneStatus(binZone);
+        }
 
-        //private double GetTripMin(DateTime scheduledDtm)
-        //{
-        //    try
-        //    {
-        //        DateTime dtNow = DateTime.Now;
-        //        if (AppParameters.TimeZoneConvert.TryGetValue((string)AppParameters.AppSettings.Property("FACILITY_TIMEZONE").Value, out string windowsTimeZoneId))
-        //        {
-        //            dtNow = TimeZoneInfo.ConvertTime(dtNow, TimeZoneInfo.FindSystemTimeZoneById(windowsTimeZoneId));
-        //        }
-        //        return Math.Round(scheduledDtm.Subtract(dtNow).TotalMinutes);
-        //    }
-        //    catch (Exception e)
-        //    {
-        //        new ErrorLogger().ExceptionLog(e);
-        //        return 0;
-        //    }
-        //}
+        private void UpdateSVTripsStatus(object state)
+        {
+            lock (updateSVTripsStatuslock)
+            {
+                if (!_updateSVTripsStatus)
+                {
+                    _updateSVTripsStatus = true;
+                    foreach (var trip in from RouteTrips trip in AppParameters.RouteTripsList.Select(x => x.Value)
+                                         where TrySVTripStatus(trip)
+                                         select trip)
+                    {
+                        BroadcastSVTripsStatus(trip);
+                    }
 
-        ////private void BroadcastSVTripsStatus(JObject trip)
-        ////{
-        ////    Clients.All.updateSVTripsStatus(trip);
-        ////}
+                    _updateSVTripsStatus = false;
+                }
+            }
+        }
+
+        private bool TrySVTripStatus(RouteTrips trip)
+        {
+            bool update = false;
+            string state = "ACTIVE";
+            string routetripid = string.Concat(trip.RouteTripId, trip.RouteTripLegId, trip.TripDirectionInd);
+            try
+            {
+                trip.TripUpdate = false;
+                if (Regex.IsMatch(trip.LegStatus, "(CANCELED|DEPARTED|OMITTED|COMPLETE|REMOVE)", RegexOptions.IgnoreCase)
+                    || Regex.IsMatch(trip.Status, "(CANCELED|DEPARTED|OMITTED|COMPLETE|REMOVE)", RegexOptions.IgnoreCase))
+                {
+                    trip.Containers = null;
+                    state = "REMOVE";
+                    trip.State = state;
+                    update = true;
+                }
+                //validate trip
+                if (state != "REMOVE")
+                {
+                    //trip minutes 
+                    int tripInMin = AppParameters.Get_TripMin(trip.ScheduledDtm);
+                    if (tripInMin != trip.TripMin)
+                    {
+                        trip.TripMin = tripInMin;
+                        update = true;
+                    }
+                    //check the trip state is late     
+                    if (tripInMin <= -1)
+                    {
+                        state = "LATE";
+                        if (trip.State != "LATE")
+                        {
+                            update = true;
+                        }
+                    }
+                    // remove trip if it has not been CANCELED|DEPARTED|OMITTED|COMPLETE after 24 hours
+                    if (tripInMin <= -1440)
+                    {
+                        state = "REMOVE";
+                        update = true;
+                    }
+                    // Notification check 
+                    if (update)
+                    {
+                        trip.NotificationId = CheckNotification(trip.State, state, "routetrip", trip, routetripid);
+                    }
+                    if (!string.IsNullOrEmpty(trip.DestSites))
+                    {
+                        trip.Containers = GetTripContainer(trip.DestSites,trip.TrailerBarcode, out int NotloadedContainers, out int loaded);
+                        trip.NotloadedContainers = NotloadedContainers;
+                    }
+                    trip.State = state;
+                }
+                else
+                {
+                    //to remove data from list after CANCELED|DEPARTED|OMITTED|COMPLETE
+                    if (AppParameters.RouteTripsList.TryRemove(routetripid, out RouteTrips r))
+                    {
+                        Task.Run(() => CheckNotification(trip.State, state, "routetrip", trip, trip.NotificationId));
+                    }
+                }
+                return update;
+            }
+            catch (Exception e)
+            {
+                new ErrorLogger().ExceptionLog(e);
+                return update;
+            }
+        }
+        private IEnumerable<Container> GetTripContainer(string destSites, string trailerBarcode, out int NotloadedContainers, out int loadedContainers)
+        {
+            NotloadedContainers = 0;
+            loadedContainers = 0;
+            IEnumerable<Container> AllContainer = null;
+            try
+            {
+                
+
+                IEnumerable<Container> TripContainer = AppParameters.Containers.Where(r => !string.IsNullOrEmpty(r.Value.Dest)
+               && Regex.IsMatch(r.Value.Dest, destSites, RegexOptions.IgnoreCase)
+               && r.Value.Origin != r.Value.Dest
+               && r.Value.hasLoadScans == false
+               && r.Value.containerTerminate == false
+               && r.Value.containerAtDest == false
+               && r.Value.hasCloseScans == true).Select(y => y.Value).ToList();
+                NotloadedContainers = TripContainer.Count();
+                AllContainer = TripContainer;
+                if (!string.IsNullOrEmpty(trailerBarcode))
+                {
+                    IEnumerable<Container> LoadedContainer = AppParameters.Containers.Where(r => !string.IsNullOrEmpty(r.Value.Trailer)
+                   && Regex.IsMatch(r.Value.Trailer, trailerBarcode, RegexOptions.IgnoreCase)
+                   && r.Value.hasLoadScans == true).Select(y => y.Value).ToList();
+                    AllContainer = TripContainer.Concat(LoadedContainer);
+                    loadedContainers = LoadedContainer.Count();
+                    LoadedContainer = null;
+                }
+                TripContainer = null;
+                return AllContainer;
+
+                //if ((int)trip["unloadedContainers"] != unloadedtrailerContent.Count())
+                //{
+                //    trip["unloadedContainers"] = unloadedtrailerContent.Count();
+                //}
+                //alltrailercontent = unloadedtrailerContent;
+                //if (!string.IsNullOrEmpty(item["trailerBarcode"].ToString()))
+                //{
+                //    IEnumerable<Container> loadedtrailerContent = null;
+                //    //for the loaded int the trailer
+                //    loadedtrailerContent = AppParameters.Containers.Where(r => !string.IsNullOrEmpty(r.Value.Otrailer)
+                //         && Regex.IsMatch(r.Value.Otrailer, item["trailerBarcode"].ToString(), RegexOptions.IgnoreCase)
+                //         && r.Value.hasLoadScans == true
+                //         ).Select(y => y.Value).ToList();
+                //    alltrailercontent = unloadedtrailerContent.Concat(loadedtrailerContent);
+                //    loadedtrailerContent = null;
+                //}
+                //trip["containers"] = JArray.Parse(JsonConvert.SerializeObject(alltrailercontent, Formatting.Indented));
+                //unloadedtrailerContent = null;
+                //alltrailercontent = null;
+            }
+            catch (Exception e)
+            {
+                new ErrorLogger().ExceptionLog(e);
+                return null;
+            }
+            finally 
+            {
+                AllContainer = null;
+            }
+        }
+
+        private void BroadcastSVTripsStatus(RouteTrips trip)
+        {
+            Clients.All.updateSVTripsStatus(trip);
+        }
+
+        private string CheckNotification(string currentState, string NewState, string type, RouteTrips trip, string noteifi_id)
+        {
+            string noteification_id = noteifi_id;
+            try
+            {
+                if (currentState != NewState)
+                {
+                    if (!string.IsNullOrEmpty(noteification_id) && AppParameters.NotificationList.ContainsKey(noteification_id))
+                    {
+                        if (AppParameters.NotificationList.TryGetValue(noteification_id, out Notification notification))
+                        {
+                            if (!notification.Delete )
+                            {
+                                notification.Delete = true;
+                                notification.Notification_Update = true;
+                                noteification_id = "";
+                            }
+                        }
+                    }
+                    //new condition
+                    AppParameters.NotificationConditionsList.Where(r => Regex.IsMatch(NewState, r.Value.Conditions, RegexOptions.IgnoreCase)
+                  && r.Value.Type.ToLower() == type.ToLower()
+                   && (bool)r.Value.ActiveCondition).Select(x => x.Value).ToList().ForEach(conditions =>
+                   {
+                       noteification_id = conditions.Id + trip.RouteTripId + trip.RouteTripLegId + trip.TripDirectionInd;
+
+                       Notification newNotifi = JsonConvert.DeserializeObject<Notification>(JsonConvert.SerializeObject(conditions, Formatting.None));
+                       newNotifi.Type_ID = trip.RouteTripId + trip.RouteTripLegId + trip.TripDirectionInd;
+                       newNotifi.Type_Name = trip.Route + "-" + trip.Trip;
+                       newNotifi.Type_Duration = trip.TripMin;
+                       newNotifi.Type_Status = trip.State;
+                       newNotifi.Notification_ID = noteification_id;
+                       newNotifi.Notification_Update = true;
+                       AppParameters.NotificationList.TryAdd(noteification_id, newNotifi);
+
+                   });
+
+                    //)
+                    //{
+                    //    noteification_id = (string)newCondition["id"] + trip.Id;
+                    //    if (!AppParameters.NotificationList.ContainsKey(noteification_id))
+                    //    {
+                    //        JObject ojbMerge = (JObject)newCondition.DeepClone();
+                    //        ojbMerge.Merge(trip, new JsonMergeSettings { MergeArrayHandling = MergeArrayHandling.Union });
+                    //        ojbMerge["SHOWTOAST"] = true;
+                    //        ojbMerge["TAGID"] = trip.Id;
+                    //        ojbMerge["conditionId"] = (string)newCondition["id"];
+                    //        ojbMerge["notificationId"] = (string)newCondition["id"] + trip.Id;
+                    //        ojbMerge["UPDATE"] = true;
+                    //        AppParameters.NotificationList.TryAdd((string)newCondition["id"] + trip.Id, ojbMerge);
+                    //    }
+                    //}
+
+                }
+                return noteification_id;
+            }
+            catch (Exception e)
+            {
+                new ErrorLogger().ExceptionLog(e);
+                return noteification_id;
+            }
+        }
 
         //internal IEnumerable<JToken> GetCTSDetailsList(string route, string trip)
         //{
@@ -931,42 +1061,42 @@ namespace Factory_of_the_Future
         //    }
         //}
 
-        ////internal IEnumerable<JObject> GetTripsList()
-        ////{
-        ////    try
-        ////    {
-        ////        return AppParameters.RouteTripsList.Where(x => !Regex.IsMatch(x.Value["state"].ToString(), "(CANCELED|DEPARTED|OMITTED|COMPLETE)", RegexOptions.IgnoreCase)).Select(y => y.Value).ToList();
-        ////    }
-        ////    catch (Exception e)
-        ////    {
-        ////        new ErrorLogger().ExceptionLog(e);
-        ////        return null;
-        ////    }
-        ////}
-        ////internal IEnumerable<JObject> GetRouteTripsInfo(string id)
-        ////{
-        ////    try
-        ////    {
-        ////        return AppParameters.RouteTripsList.Where(r => r.Key == id).Select(y => y.Value).ToList();
-        ////    }
-        ////    catch (Exception e)
-        ////    {
-        ////        new ErrorLogger().ExceptionLog(e);
-        ////        return null;
-        ////    }
-        ////}
-        ////internal IEnumerable<Container> GetContainerInfo(string id)
-        ////{
-        ////    try
-        ////    {
-        ////        return AppParameters.Containers.Where(r => r.Key == id).Select(y => y.Value).ToList();
-        ////    }
-        ////    catch (Exception e)
-        ////    {
-        ////        new ErrorLogger().ExceptionLog(e);
-        ////        return null;
-        ////    }
-        ////}
+        internal IEnumerable<RouteTrips> GetTripsList()
+        {
+            try
+            {
+                return AppParameters.RouteTripsList.Where(x => !Regex.IsMatch(x.Value.State, "(CANCELED|DEPARTED|OMITTED|COMPLETE)", RegexOptions.IgnoreCase)).Select(y => y.Value).ToList();
+            }
+            catch (Exception e)
+            {
+                new ErrorLogger().ExceptionLog(e);
+                return null;
+            }
+        }
+        internal IEnumerable<RouteTrips> GetRouteTripsInfo(string id)
+        {
+            try
+            {
+                return AppParameters.RouteTripsList.Where(r => r.Key == id).Select(y => y.Value).ToList();
+            }
+            catch (Exception e)
+            {
+                new ErrorLogger().ExceptionLog(e);
+                return null;
+            }
+        }
+        internal IEnumerable<Container> GetContainerInfo(string id)
+        {
+            try
+            {
+                return AppParameters.Containers.Where(r => r.Key == id).Select(y => y.Value).ToList();
+            }
+            catch (Exception e)
+            {
+                new ErrorLogger().ExceptionLog(e);
+                return null;
+            }
+        }
         ////internal IEnumerable<JToken> GetCTSList(string type)
         ////{
         ////    try
@@ -1006,18 +1136,17 @@ namespace Factory_of_the_Future
                 if (!_updatingQSMStatus)
                 {
                     _updatingQSMStatus = true;
-                    foreach (var QSMitem in AppParameters.ConnectionList.Values)
+                    foreach (var QSMitem in from QSMitem in AppParameters.ConnectionList.Values.Where(r => r.UpdateStatus).Select(y => y)
+                                            where TryUpdateQSMStaus(QSMitem)
+                                            select QSMitem)
                     {
-                        if (TryUpdateQSMStaus(QSMitem))
-                        {
-                            BroadcastQSMUpdate(QSMitem);
-                        }
+                        BroadcastQSMUpdate(QSMitem);
                     };
                     _updatingQSMStatus = false;
                 }
             }
         }
-       
+
 
         private bool TryUpdateQSMStaus(Connection con)
         {
@@ -1027,7 +1156,7 @@ namespace Factory_of_the_Future
                 {
                     con.UpdateStatus = false;
                     return true;
-                };
+                }
                 return false;
 
             }
@@ -1098,7 +1227,7 @@ namespace Factory_of_the_Future
         {
             try
             {
-                return AppParameters.ZoneList.Where(r => r.Value.Properties.ZoneType == "DockDoor").Select(x => x.Value).ToList();
+                return AppParameters.ZoneList.Where(r => r.Value.Properties.ZoneType == "DockDoor").Select(x => x.Value).OrderBy(o => o.Properties.DoorNumber).ToList();
             }
             catch (Exception e)
             {
@@ -1127,7 +1256,9 @@ namespace Factory_of_the_Future
                 if (!_updateAGVLocationStatus)
                 {
                     _updateAGVLocationStatus = true;
-                    foreach (var AGV_Location in AppParameters.ZoneList.Where(u => u.Value.Properties.ZoneUpdate && u.Value.Properties.ZoneType == "AGVLocation").Select(x => x.Value).Where(AGV_Location => TryUpdateAGVLocationStatus(AGV_Location)))
+                    foreach (var AGV_Location in AppParameters.ZoneList.Where(u => u.Value.Properties.ZoneUpdate
+                    && u.Value.Properties.Visible
+                    && u.Value.Properties.ZoneType == "AGVLocation").Select(x => x.Value).Where(AGV_Location => TryUpdateAGVLocationStatus(AGV_Location)))
                     {
                         BroadcastAGVLocationStatus(AGV_Location);
                     }
@@ -1153,7 +1284,7 @@ namespace Factory_of_the_Future
 
         private void BroadcastAGVLocationStatus(GeoZone machine)
         {
-            Clients.All.updateAGVLocationStatus(machine);
+            Clients.Group("AGVLocationZones").updateAGVLocationStatus(machine);
         }
 
         private void UpdateMachineStatus(object state)
@@ -1164,7 +1295,8 @@ namespace Factory_of_the_Future
                 {
                     _updateMachineStatus = true;
                     foreach (var Machine in AppParameters.ZoneList.Where(u => u.Value.Properties.ZoneUpdate
-                                           && u.Value.Properties.ZoneType == "Machine").Select(x => x.Value).Where(Machine => TryUpdateMachineStatus(Machine)))
+                    && u.Value.Properties.Visible
+                    && u.Value.Properties.ZoneType == "Machine").Select(x => x.Value).Where(Machine => TryUpdateMachineStatus(Machine)))
                     {
                         BroadcastMachineStatus(Machine);
                     }
@@ -1180,8 +1312,20 @@ namespace Factory_of_the_Future
             {
 
                 machine.Properties.ZoneUpdate = false;
-                return true;
+                //MPE Performance
+                machine.Properties.MPEWatchData = GetMPEPerfData(machine.Properties.Name);
 
+                //MPE P2P
+                if (!string.IsNullOrEmpty(machine.Properties.MPEWatchData.CurSortplan))
+                {
+                    machine.Properties.StaffingData = GetStaffingSortplan(machine.Properties.MPEWatchData.MpeType, machine.Properties.MPEWatchData.MpeNumber, machine.Properties.MPEWatchData.CurSortplan);
+                }
+                //MPE DPS
+                if (!string.IsNullOrEmpty(machine.Properties.MPEWatchData.CurSortplan))
+                {
+                    machine.Properties.DPSData = GetDPSData(machine.Properties.MPEWatchData.CurSortplan);
+                }
+                return true;
             }
             catch (Exception e)
             {
@@ -1189,17 +1333,109 @@ namespace Factory_of_the_Future
                 return false;
             }
         }
+        private static StaffingSortplan GetStaffingSortplan(string machine_type, string machine_number, string sortplan)
+        {
+            StaffingSortplan StaffingSortplanData = new StaffingSortplan();
+            try
+            {
 
+                if (!string.IsNullOrEmpty(machine_type))
+                {
+                    if (Regex.IsMatch(machine_type, "(DBCS|AFSM100|ATU|CIOSS|DIOSS)", RegexOptions.IgnoreCase))
+                    {
+                        string sortplan_name = "";
+                        int dotindex = sortplan.IndexOf(".", 1);
+                        if ((dotindex == -1))
+                        {
+                            sortplan_name = sortplan;
+                        }
+                        else
+                        {
+                            sortplan_name = sortplan.Substring(0, dotindex);
+                        }
+                        sortplan = sortplan_name;
+                    }
+                    int.TryParse(machine_number, out int number);
+                    string id = machine_type + "-" + number + "-" + sortplan;
+
+                    if (AppParameters.StaffingSortplansList.TryGetValue(id, out string sp))
+                    {
+                        StaffingSortplanData = JsonConvert.DeserializeObject<StaffingSortplan>(sp);
+                    }
+
+                }
+                return StaffingSortplanData;
+            }
+            catch (Exception ex)
+            {
+                new ErrorLogger().ExceptionLog(ex);
+                return StaffingSortplanData;
+            }
+        }
+        private static RunPerf GetMPEPerfData(string MPEName)
+        {
+            RunPerf PerfData = new RunPerf();
+            try
+            {
+
+                if (AppParameters.MPEPerformanceList.TryGetValue(MPEName, out string Perf))
+                {
+                    PerfData = JsonConvert.DeserializeObject<RunPerf>(Perf);
+                    return PerfData;
+                }
+                return PerfData;
+            }
+            catch (Exception ex)
+            {
+                new ErrorLogger().ExceptionLog(ex);
+                return PerfData;
+            }
+        }
+        private static DPS GetDPSData(string curSortplan)
+        {
+            DPS DPSData = new DPS();
+            try
+            {
+                string tempsortplan = curSortplan.Length >= 7 ? curSortplan.Substring(0, 7) : curSortplan;
+                if (AppParameters.DPSList.TryGetValue(tempsortplan, out string sortplan))
+                {
+                    DPSData = JsonConvert.DeserializeObject<DPS>(sortplan);
+                }
+                return DPSData;
+            }
+            catch (Exception ex)
+            {
+                new ErrorLogger().ExceptionLog(ex);
+                return DPSData;
+            }
+        }
         private void BroadcastMachineStatus(GeoZone machine)
         {
-            Clients.All.updateMachineStatus(machine);
+            Clients.Group("MachineZones").updateMachineStatus(machine);
         }
 
         internal IEnumerable<BackgroundImage> GetIndoorMap()
         {
             try
             {
-                return AppParameters.IndoorMap.Values;   
+                if (AppParameters.IndoorMap.Keys.Count == 0)
+                {
+                    List<BackgroundImage> temp = new List<BackgroundImage> { new BackgroundImage() };
+                    return temp;
+                }
+                return AppParameters.IndoorMap.Values;
+            }
+            catch (Exception e)
+            {
+                new ErrorLogger().ExceptionLog(e);
+                return null;
+            }
+        }
+        internal IEnumerable<GeoMarker> getCameraMarkerList()
+        {
+            try
+            {
+                return AppParameters.TagsList.Where(x => x.Value.Properties.TagType.EndsWith("Camera")).Select(y => y.Value).ToList();
             }
             catch (Exception e)
             {
@@ -1234,68 +1470,48 @@ namespace Factory_of_the_Future
             }
         }
 
-        //internal IEnumerable<JToken> GetPersonTagsList()
-        //{
-        //    try
-        //    {
-        //        if (AppParameters.Tag.Count() > 0)
-        //        {
-        //            return AppParameters.Tag.Where(x => x.Value["properties"]["Tag_Type"].ToString().EndsWith("Person")).Select(y => y.Value).ToList();
-        //        }
-        //        else
-        //        {
-        //            return new JObject();
-        //        }
-        //    }
-        //    catch (Exception e)
-        //    {
-        //        new ErrorLogger().ExceptionLog(e);
-        //        return new JObject();
-        //    }
-        //}
+        internal IEnumerable<GeoMarker> GetPersonTagsList()
+        {
+            try
+            {
+                return AppParameters.TagsList.Where(x => x.Value.Properties.TagType.EndsWith("Person")).Select(y => y.Value).ToList();
+            }
+            catch (Exception e)
+            {
+                new ErrorLogger().ExceptionLog(e);
+                return null;
+            }
+        }
 
-        //internal IEnumerable<JToken> GetUndetectedTagsList()
-        //{
-        //    try
-        //    {
-        //        if (AppParameters.Tag.Count() > 0)
-        //        {
-        //            return AppParameters.Tag.Where(x => x.Value["properties"]["Tag_Type"].ToString().EndsWith("Person")
-        //            && (bool)x.Value["properties"]["isWearingTag"] == false && !(bool)x.Value["properties"]["isLdcAlert"] == true
-        //            && ((JObject)x.Value["properties"]["tacs"]).HasValues).Select(y => y.Value).ToList();
-        //        }
-        //        else
-        //        {
-        //            return new JObject();
-        //        }
-        //    }
-        //    catch (Exception e)
-        //    {
-        //        new ErrorLogger().ExceptionLog(e);
-        //        return new JObject();
-        //    }
-        //}
-        //internal IEnumerable<JToken> GetLDCAlertTagsList()
-        //{
-        //    try
-        //    {
-        //        if (AppParameters.Tag.Count() > 0)
-        //        {
-        //            return AppParameters.Tag.Where(x => x.Value["properties"]["Tag_Type"].ToString().EndsWith("Person")
-        //            && (bool)x.Value["properties"]["isLdcAlert"] == true
-        //            && ((JObject)x.Value["properties"]["tacs"]).HasValues).Select(y => y.Value).ToList();
-        //        }
-        //        else
-        //        {
-        //            return new JObject();
-        //        }
-        //    }
-        //    catch (Exception e)
-        //    {
-        //        new ErrorLogger().ExceptionLog(e);
-        //        return new JObject();
-        //    }
-        //}
+        internal IEnumerable<GeoMarker> GetUndetectedTagsList()
+        {
+            try
+            {
+                return AppParameters.TagsList.Where(x => x.Value.Properties.TagType.EndsWith("Person")
+                && x.Value.Properties.IsWearingTag == false && !x.Value.Properties.IsLdcAlert
+                && !string.IsNullOrEmpty(x.Value.Properties.Tacs)).Select(y => y.Value).ToList();
+
+            }
+            catch (Exception e)
+            {
+                new ErrorLogger().ExceptionLog(e);
+                return null;
+            }
+        }
+        internal IEnumerable<GeoMarker> GetLDCAlertTagsList()
+        {
+            try
+            {
+                return AppParameters.TagsList.Where(x => x.Value.Properties.TagType.EndsWith("Person")
+                    && x.Value.Properties.IsLdcAlert
+                    && !string.IsNullOrEmpty(x.Value.Properties.Tacs)).Select(y => y.Value).ToList();
+            }
+            catch (Exception e)
+            {
+                new ErrorLogger().ExceptionLog(e);
+                return null;
+            }
+        }
 
         //internal IEnumerable<Container> GetContainer(string data, string direction, string route, string trip)
         //{
@@ -1513,6 +1729,7 @@ namespace Factory_of_the_Future
                 {
                     _updateDockDoorStatus = true;
                     foreach (var DockDoor in AppParameters.ZoneList.Where(u => u.Value.Properties.ZoneUpdate
+                                           && u.Value.Properties.Visible
                                            && u.Value.Properties.ZoneType == "DockDoor").Select(x => x.Value).Where(DockDoor => TryUpdateDockDoorStatus(DockDoor)))
                     {
                         BroadcastDockDoorStatus(DockDoor);
@@ -1525,7 +1742,7 @@ namespace Factory_of_the_Future
 
         private void BroadcastDockDoorStatus(GeoZone dockDoor)
         {
-            Clients.All.updateDockDoorStatus(dockDoor);
+            Clients.Group("DockDoorZones").updateDockDoorStatus(dockDoor);
         }
 
         private bool TryUpdateDockDoorStatus(GeoZone dockDoor)
@@ -1534,7 +1751,7 @@ namespace Factory_of_the_Future
             {
                 dockDoor.Properties.ZoneUpdate = false;
                 return true;
-                
+
             }
             catch (Exception e)
             {
@@ -1542,7 +1759,6 @@ namespace Factory_of_the_Future
                 return false;
             }
         }
-
         private void UpdateVehicleTagStatus(object state)
         {
             lock (updateTagStatuslock)
@@ -1551,13 +1767,11 @@ namespace Factory_of_the_Future
                 {
                     _updateTagStatus = true;
                     double tagVisibleRange = AppParameters.AppSettings.ContainsKey("POSITION_MAX_AGE") ? !string.IsNullOrEmpty((string)AppParameters.AppSettings.Property("POSITION_MAX_AGE").Value) ? (long)AppParameters.AppSettings.Property("POSITION_MAX_AGE").Value : 10000 : 10000;
-
-                    foreach (GeoMarker Tag in AppParameters.TagsList.Where(u => u.Value.Properties.TagUpdate && u.Value.Properties.TagType.EndsWith("Vehicle")).Select(x => x.Value))
+                    foreach (var Tag in from GeoMarker Tag in AppParameters.TagsList.Where(u => u.Value.Properties.TagUpdate && u.Value.Properties.TagType.EndsWith("Vehicle")).Select(x => x.Value)
+                                        where TryUpdateVehicleTagStatus(Tag, tagVisibleRange)
+                                        select Tag)
                     {
-                        if (TryUpdateVehicleTagStatus(Tag, tagVisibleRange))
-                        {
-                            BroadcastVehicleTagStatus(Tag);
-                        }
+                        BroadcastVehicleTagStatus(Tag);
                     }
 
                     _updateTagStatus = false;
@@ -1579,14 +1793,12 @@ namespace Factory_of_the_Future
                     //  var watch = new System.Diagnostics.Stopwatch();
                     // watch.Start();
                     double tagVisibleRange = AppParameters.AppSettings.ContainsKey("POSITION_MAX_AGE") ? !string.IsNullOrEmpty((string)AppParameters.AppSettings.Property("POSITION_MAX_AGE").Value) ? (long)AppParameters.AppSettings.Property("POSITION_MAX_AGE").Value : 10000 : 10000;
-
-                    foreach (GeoMarker Marker in AppParameters.TagsList.Where(u => u.Value.Properties.TagUpdate
-                     && u.Value.Properties.TagType.EndsWith("Person")).Select(x => x.Value))
+                    foreach (var Marker in from GeoMarker Marker in AppParameters.TagsList.Where(u => u.Value.Properties.TagUpdate
+                                              && u.Value.Properties.TagType.EndsWith("Person")).Select(x => x.Value)
+                                           where TryUpdatePersonTagStatus(Marker, tagVisibleRange)
+                                           select Marker)
                     {
-                        if (TryUpdatePersonTagStatus(Marker, tagVisibleRange))
-                        {
-                            BroadcastPersonTagStatus(Marker);
-                        }
+                        BroadcastPersonTagStatus(Marker);
                     }
                     // watch.Stop();
                     // new ErrorLogger().CustomLog(string.Concat("Total Execution for all tags ", "Time: ", watch.ElapsedMilliseconds, " ms"), string.Concat((string)AppParameters.AppSettings.Property("APPLICATION_NAME").Value, "TagProcesslogs"));
@@ -1594,16 +1806,30 @@ namespace Factory_of_the_Future
                 }
             }
         }
-        private bool TryUpdatePersonTagStatus(GeoMarker marker, double tagVisibleRange)
+        private bool TryUpdatePersonTagStatus(GeoMarker marker, double PositionMaxAge)
         {
             try
             {
                 marker.Properties.TagUpdate = false;
-                if (marker.Properties.MovementStatus == "noData")
+                bool TagVisible = marker.Properties.TagVisible;
+                bool tagUpdate = false;
+                int PositionCurrentAge = AppParameters.Get_TagTTL(marker.Properties.PositionTS, marker.Properties.TagTS);
+                if (PositionCurrentAge >= PositionMaxAge)
                 {
-                    marker.Properties.TagVisible = false;
+                    TagVisible = false;
                 }
-                return true;
+                if (PositionCurrentAge <= PositionMaxAge)
+                {
+                    TagVisible = true;
+                    tagUpdate = true;
+                }
+                if (marker.Properties.TagVisible != TagVisible)
+                {
+                    marker.Properties.TagVisible = TagVisible;
+                    tagUpdate = true;
+                }
+                marker.Properties.TagVisibleMils = PositionCurrentAge;
+                return tagUpdate;
             }
             catch (Exception e)
             {
@@ -1616,145 +1842,6 @@ namespace Factory_of_the_Future
         {
             Clients.Group("PeopleMarkers").updatePersonTagStatus(Marker);
         }
-
-        //private bool TryUpdatePersonTagStatus(JObject tag, double tagVisibleRange)
-        //{
-        //    try
-        //    {
-        //        bool returnresult = false;
-        //        System.TimeSpan tagdiffResult = ((DateTime)((JObject)tag["properties"]).Property("Tag_TS").Value).ToUniversalTime().Subtract(((DateTime)((JObject)tag["properties"]).Property("positionTS").Value).ToUniversalTime());
-        //        tag["properties"]["tagVisibleMils"] = tagdiffResult.TotalMilliseconds;
-        //        if ((bool)tag["properties"]["Tag_Update"] == true)
-        //        {
-        //            if (tagdiffResult.TotalMilliseconds > tagVisibleRange)
-        //            {
-        //                if ((bool)tag["properties"]["tagVisible"] != false)
-        //                {
-        //                    tag["properties"]["tagVisible"] = false;
-        //                }
-        //            }
-        //            else if (tagdiffResult.TotalMilliseconds <= tagVisibleRange)
-        //            {
-        //                if ((bool)tag["properties"]["tagVisible"] != true)
-        //                {
-        //                    tag["properties"]["tagVisible"] = true;
-        //                }
-        //            }
-        //            if (string.IsNullOrEmpty((string)tag["properties"]["craftName"]))
-        //            {
-        //                if (!string.IsNullOrEmpty(tag["properties"]["name"].ToString()))
-        //                {
-        //                    int equalsIndex = tag["properties"]["name"].ToString().IndexOf("_", 1);
-        //                    if ((equalsIndex > -1))
-        //                    {
-        //                        string[] namesplit = tag["properties"]["name"].ToString().Split('_');
-        //                        if (namesplit.Length > 1)
-        //                        {
-        //                            tag["properties"]["craftName"] = namesplit[0];
-        //                            tag["properties"]["badgeId"] = namesplit[1];
-        //                        }
-        //                    }
-        //                }
-        //            }
-        //            tag["properties"]["Tag_Update"] = false;
-        //            return true;
-        //        }
-        //        else
-        //        {
-        //            if (tagdiffResult.TotalMilliseconds > tagVisibleRange)
-        //            {
-        //                if ((bool)tag["properties"]["tagVisible"] != false)
-        //                {
-        //                    tag["properties"]["tagVisible"] = false;
-        //                    returnresult = true;
-        //                }
-        //            }
-        //            else if (tagdiffResult.TotalMilliseconds <= tagVisibleRange)
-        //            {
-        //                if ((bool)tag["properties"]["tagVisible"] != true)
-        //                {
-        //                    tag["properties"]["tagVisible"] = true;
-        //                }
-        //            }
-        //            return returnresult;
-        //        }
-
-        //        //string tag_id = (string)tag["properties"]["id"];
-
-        //        //if (AppParameters.Tag.ContainsKey(tag_id))
-        //        //{
-        //        //    if (AppParameters.Tag.TryGetValue(tag_id, out JObject tagInfo))
-        //        //    {
-        //        //        tagInfo["properties"]["Tag_Update"] = false;
-        //        //        return true;
-        //        //    }
-        //        //    else
-        //        //    {
-        //        //        return false;
-        //        //    }
-        //        //}
-        //        //else
-        //        //{
-        //        //    return false;
-        //        //}
-        //        //string tag_id = (string)tag["properties"]["id"];
-        //        //if (AppParameters.Tag.ContainsKey(tag_id))
-        //        //{
-        //        //    if (AppParameters.Tag.TryGetValue(tag_id, out JObject tagInfo))
-        //        //    {
-        //        //        double tagVisibleRange = AppParameters.AppSettings.ContainsKey("POSITION_MAX_AGE") ? !string.IsNullOrEmpty((string)AppParameters.AppSettings.Property("POSITION_MAX_AGE").Value) ? (long)AppParameters.AppSettings.Property("POSITION_MAX_AGE").Value : 10000 : 10000;
-
-        //        //        System.TimeSpan tagdiffResult = DateTime.Now.ToUniversalTime().Subtract(((DateTime)((JObject)tagInfo["properties"]).Property("positionTS").Value).ToUniversalTime());
-        //        //        if ((bool)((JObject)tagInfo["properties"]).Property("Tag_Update").Value)
-        //        //        {
-        //        //            if (tagdiffResult.TotalMilliseconds > tagVisibleRange)
-        //        //            {
-        //        //                if ((bool)((JObject)tagInfo["properties"]).Property("tagVisible").Value)
-        //        //                {
-        //        //                    ((JObject)tagInfo["properties"]).Property("Tag_Update").Value = false;
-        //        //                    ((JObject)tagInfo["properties"]).Property("tagVisible").Value = false;
-        //        //                    return true;
-        //        //                }
-        //        //            }
-        //        //                ((JObject)tagInfo["properties"]).Property("Tag_Update").Value = false;
-        //        //            return true;
-        //        //        }
-        //        //        else
-        //        //        {
-        //        //            if (tagdiffResult.TotalMilliseconds > tagVisibleRange)
-        //        //            {
-        //        //                if ((bool)((JObject)tagInfo["properties"]).Property("tagVisible").Value)
-        //        //                {
-        //        //                    ((JObject)tagInfo["properties"]).Property("Tag_Update").Value = false;
-        //        //                    ((JObject)tagInfo["properties"]).Property("tagVisible").Value = false;
-        //        //                    return true;
-        //        //                }
-        //        //            }
-        //        //            return false;
-        //        //        }
-
-        //        //    }
-        //        //    else
-        //        //    {
-        //        //        return false;
-        //        //    }
-        //        //}
-        //        //else
-        //        //{
-        //        //    return false;
-        //        //}
-        //    }
-        //    catch (Exception e)
-        //    {
-        //        new ErrorLogger().ExceptionLog(e);
-        //        return false;
-        //    }
-        //}
-
-
-
-
-
         internal IEnumerable<Connection> GetAPIList(string id)
         {
             try
@@ -1825,7 +1912,7 @@ namespace Factory_of_the_Future
                              updateConndata.CreatedByUsername = oldConndata.CreatedByUsername;
                              updateConndata.CreatedDate = oldConndata.CreatedDate;
                              updateConndata.ApiConnected = oldConndata.ApiConnected;
-                            
+
                              updateConndata.UpdateStatus = true;
                              foreach (Api_Connection Connection_item in AppParameters.RunningConnection.Connection)
                              {
@@ -1975,7 +2062,7 @@ namespace Factory_of_the_Future
                                 else
                                 {
                                     ZoneInfo newzinfo = objectdata.ToObject<ZoneInfo>();
-                                    newzinfo.Name  = objectdata["MPE_Type"] + "-" + objectdata["MPE_Number"].ToString().PadLeft(3, '0');
+                                    newzinfo.Name = objectdata["MPE_Type"] + "-" + objectdata["MPE_Number"].ToString().PadLeft(3, '0');
                                     if (AppParameters.ZoneInfo.TryAdd(id, newzinfo))
                                     {
                                         updateZone = true;
@@ -1997,7 +2084,7 @@ namespace Factory_of_the_Future
                                     if (updateZone)
                                     {
                                         newzoneD.Properties.ZoneUpdate = true;
-                                        if (AppParameters.ZoneList.TryUpdate(id, newzoneD , curretzonedata))
+                                        if (AppParameters.ZoneList.TryUpdate(id, newzoneD, curretzonedata))
                                         {
 
                                         }
@@ -2020,26 +2107,26 @@ namespace Factory_of_the_Future
                 return null;
             }
         }
-        //internal IEnumerable<JToken> GetAppSettingdata()
-        //{
-        //    try
-        //    {
-        //        JToken tempsetting = AppParameters.AppSettings.DeepClone();
-        //        foreach (dynamic item in AppParameters.AppSettings)
-        //        {
-        //            if (item.Key.ToString().StartsWith("ORACONN") && !string.IsNullOrEmpty(item.Value.ToString()))
-        //            {
-        //                tempsetting[item.Key] = AppParameters.Decrypt(item.Value.ToString());
-        //            }
-        //        }
-        //        return tempsetting;
-        //    }
-        //    catch (Exception e)
-        //    {
-        //        new ErrorLogger().ExceptionLog(e);
-        //        return new JObject();
-        //    }
-        //}
+        internal IEnumerable<JToken> GetAppSettingdata()
+        {
+            try
+            {
+                JToken tempsetting = AppParameters.AppSettings.DeepClone();
+                foreach (dynamic item in AppParameters.AppSettings)
+                {
+                    if (item.Key.ToString().StartsWith("ORACONN") && !string.IsNullOrEmpty(item.Value.ToString()))
+                    {
+                        tempsetting[item.Key] = AppParameters.Decrypt(item.Value.ToString());
+                    }
+                }
+                return tempsetting;
+            }
+            catch (Exception e)
+            {
+                new ErrorLogger().ExceptionLog(e);
+                return new JObject();
+            }
+        }
 
         internal IEnumerable<JToken> EditAppSettingdata(string data)
         {
@@ -2127,7 +2214,7 @@ namespace Factory_of_the_Future
                     {
                         new ErrorLogger().CustomLog("Unable to remove User" + ur.UserId, string.Concat((string)AppParameters.AppSettings.Property("APPLICATION_NAME").Value, "_Applogs"));
                     }
-                    
+
                 }
             }
             catch (Exception e)
@@ -2142,6 +2229,7 @@ namespace Factory_of_the_Future
             {
                 if (Context.Request.Environment.TryGetValue("server.RemoteIpAddress", out object Ipaddress))
                 {
+                    AppParameters._connections.Add(Context.ConnectionId, Context.ConnectionId);
                     bool firstTimeLogin = true;
                     ADUser newuser = new ADUser
                     {
@@ -2158,9 +2246,9 @@ namespace Factory_of_the_Future
                         Environment = AppParameters.ApplicationEnvironment,
                         IsAuthenticated = Context.User.Identity.IsAuthenticated,
                         SoftwareVersion = AppParameters.VersionInfo,
-                        BrowserType = HttpContext.Current.Request.Browser.Type,
-                        BrowserName = HttpContext.Current.Request.Browser.Browser,
-                        BrowserVersion = HttpContext.Current.Request.Browser.Version,
+                        //BrowserType = HttpContext.Current.Request.Browser.Type,
+                        //BrowserName = HttpContext.Current.Request.Browser.Browser,
+                        //BrowserVersion = HttpContext.Current.Request.Browser.Version,
                         Role = GetUserRole(GetGroupNames(((WindowsIdentity)Context.User.Identity).Groups)),
                         IpAddress = Ipaddress.ToString().StartsWith("::") ? "127.0.0.1" : Ipaddress.ToString(),
                         ServerIpAddress = AppParameters.ServerIpAddress.ToString()
@@ -2183,11 +2271,11 @@ namespace Factory_of_the_Future
                         });
                     if (firstTimeLogin)
                     {
-                        string data = string.Concat("Client has Connected | User Name:", newuser.UserId ,"(", newuser.FirstName ," ",newuser.SurName,")" ," | Connection ID: ", newuser.ConnectionId);
+                        string data = string.Concat("Client has Connected | User Name:", newuser.UserId, "(", newuser.FirstName, " ", newuser.SurName, ")", " | Connection ID: ", newuser.ConnectionId);
                         new ErrorLogger().CustomLog(data, string.Concat((string)AppParameters.AppSettings.Property("APPLICATION_NAME").Value, "_Applogs"));
                         Task.Run(() => new User_Log().LoginUser(newuser));
                     }
-                    AppParameters._connections.Add(Context.ConnectionId, Context.ConnectionId);
+
                 }
             }
             catch (Exception e)
@@ -2196,6 +2284,163 @@ namespace Factory_of_the_Future
             }
         }
 
+        internal object AddUserProfile(HubCallerContext Context)
+        {
+            ADUser newuser = new ADUser();
+            try
+            {
+                if (Context.Request.Environment.TryGetValue("server.RemoteIpAddress", out object Ipaddress))
+                {
+                    AppParameters._connections.Add(Context.ConnectionId, Context.ConnectionId);
+                   string ACEId = Regex.Replace(Context.User.Identity.Name, @"(USA\\|ENG\\)", "").Trim();
+                    if (AppParameters.Users.TryGetValue(ACEId, out newuser))
+                    {
+                        newuser.ConnectionId = Context.ConnectionId;
+                        newuser.SessionID = Context.ConnectionId;
+                        newuser.LoginDate = DateTime.Now;
+                        newuser.IsAuthenticated = Context.User.Identity.IsAuthenticated;
+                        newuser.IpAddress = Ipaddress.ToString().StartsWith("::") ? "127.0.0.1" : Ipaddress.ToString();
+                        newuser.ServerIpAddress = AppParameters.ServerIpAddress.ToString();
+                        newuser.NASSCode = AppParameters.AppSettings["FACILITY_NASS_CODE"].ToString();
+                        newuser.FDBID = AppParameters.AppSettings["FACILITY_ID"].ToString();
+                        newuser.FacilityName = AppParameters.AppSettings["FACILITY_NAME"].ToString();
+                        newuser.FacilityTimeZone = AppParameters.AppSettings["FACILITY_TIMEZONE"].ToString();
+                        newuser.AppType = AppParameters.AppSettings["APPLICATION_NAME"].ToString();
+                    }
+                    else
+                    {
+                        newuser = new ADUser
+                        {
+                            UserId = Regex.Replace(Context.User.Identity.Name, @"(USA\\|ENG\\)", "").Trim(),
+                            NASSCode = AppParameters.AppSettings["FACILITY_NASS_CODE"].ToString(),
+                            FDBID = AppParameters.AppSettings["FACILITY_ID"].ToString(),
+                            FacilityName = AppParameters.AppSettings["FACILITY_NAME"].ToString(),
+                            FacilityTimeZone = AppParameters.AppSettings["FACILITY_TIMEZONE"].ToString(),
+                            AppType = AppParameters.AppSettings["APPLICATION_NAME"].ToString(),
+                            Domain = !string.IsNullOrEmpty(Context.User.Identity.Name) ? Context.User.Identity.Name.Split('\\')[0].ToLower() : "",
+                            SessionID = Context.ConnectionId,
+                            ConnectionId = Context.ConnectionId,
+                            LoginDate = DateTime.Now,
+                            Environment = AppParameters.ApplicationEnvironment,
+                            IsAuthenticated = Context.User.Identity.IsAuthenticated,
+                            SoftwareVersion = AppParameters.VersionInfo,
+                            //BrowserType = HttpContext.Current.Request.Browser.Type,
+                            //BrowserName = HttpContext.Current.Request.Browser.Browser,
+                            //BrowserVersion = HttpContext.Current.Request.Browser.Version,
+                            Role = GetUserRole(GetGroupNames(((WindowsIdentity)Context.User.Identity).Groups)),
+                            IpAddress = Ipaddress.ToString().StartsWith("::") ? "127.0.0.1" : Ipaddress.ToString(),
+                            ServerIpAddress = AppParameters.ServerIpAddress.ToString()
+                        };
+                    }
+               
+                    Task.Run(() => AddUserToList(newuser));
+                    
+                }
+                return newuser;
+            }
+            catch (Exception e)
+            {
+                new ErrorLogger().ExceptionLog(e);
+                return newuser;
+            }
+        }
+
+        private void AddUserToList(ADUser newuser)
+        {
+            try
+            {
+                bool firstTimeLogin = true;
+                if (FindACEUser(newuser, out newuser))
+                {
+                    AppParameters.Users.AddOrUpdate(newuser.UserId, newuser,
+                      (key, old_user) =>
+                      {
+                      //log out user 
+                      if (!string.IsNullOrEmpty(old_user.ConnectionId))
+                          {
+                              Task.Run(() => new User_Log().LogoutUser(old_user));
+                          }
+                      //log of user logging in.
+                      Task.Run(() => new User_Log().LoginUser(newuser));
+                          string data = string.Concat("Client has Connected | User Name:", newuser.UserId, "(", newuser.FirstName, " ", newuser.SurName, ")", " | Connection ID: ", newuser.ConnectionId);
+                          new ErrorLogger().CustomLog(data, string.Concat((string)AppParameters.AppSettings.Property("APPLICATION_NAME").Value, "_Applogs"));
+                          firstTimeLogin = false;
+                          return newuser;
+                      });
+                    if (firstTimeLogin)
+                    {
+                        string data = string.Concat("Client has Connected | User Name:", newuser.UserId, "(", newuser.FirstName, " ", newuser.SurName, ")", " | Connection ID: ", newuser.ConnectionId);
+                        new ErrorLogger().CustomLog(data, string.Concat((string)AppParameters.AppSettings.Property("APPLICATION_NAME").Value, "_Applogs"));
+                        Task.Run(() => new User_Log().LoginUser(newuser));
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                new ErrorLogger().ExceptionLog(e);
+            }
+        }
+
+        private bool FindACEUser(ADUser ACEUser, out ADUser user)
+        {
+
+            user = ACEUser;
+            try
+            {
+                using (PrincipalContext domainContext = new PrincipalContext(ContextType.Domain, AppParameters.AppSettings.Property("Domain").Value.ToString().Trim(), AppParameters.AppSettings.Property("ADUSAContainer").Value.ToString().Trim()))
+                {
+                    using (var foundUser = UserPrincipal.FindByIdentity(domainContext, IdentityType.SamAccountName, (string)ACEUser.UserId))
+                    {
+                        if (foundUser != null)
+                        {
+                            DirectoryEntry directoryEntry = foundUser.GetUnderlyingObject() as DirectoryEntry;
+                            directoryEntry.RefreshCache(new string[] { "tokenGroups" });
+
+                            DirectorySearcher search = new DirectorySearcher(directoryEntry)
+                            {
+                                Filter = string.Format("({0}={1})", "SAMAccountName", (string)ACEUser.UserId)
+                            };
+                            search.PropertiesToLoad.AddRange(_propertiesToLoad);
+                            SearchResult result = search.FindOne();
+                            if (result == null)
+                            {
+                                return false;
+                            }
+                            string getPropertyValue(ResultPropertyValueCollection p, int i) => p.Count == 0 ? null : (string)p[i];
+
+                            user.FirstName = getPropertyValue(result.Properties[ADProperties.FirstName], 0);
+                            user.MiddleName = getPropertyValue(result.Properties[ADProperties.MiddleName], 0);
+                            user.SurName = getPropertyValue(result.Properties[ADProperties.SurName], 0);
+                            user.ZipCode = getPropertyValue(result.Properties[ADProperties.PostalCode], 0);
+                            user.EmailAddress = foundUser.EmailAddress;
+                            user.Phone = !string.IsNullOrEmpty(foundUser.VoiceTelephoneNumber) ? foundUser.VoiceTelephoneNumber : "";
+                            user.EIN = !string.IsNullOrEmpty(foundUser.EmployeeId) ? foundUser.EmployeeId : "";
+                            return true;
+                        }
+                        else
+                        {
+                            return false;
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                new ErrorLogger().ExceptionLog(ex);
+                return false;
+            }
+
+        }
+        private readonly string[] _propertiesToLoad = new string[]
+            {
+                                    ADProperties.ContainerName,
+                                    ADProperties.LoginName,
+                                    ADProperties.MemberOf,
+                                    ADProperties.FirstName,
+                                    ADProperties.MiddleName,
+                                    ADProperties.SurName,
+                                    ADProperties.PostalCode
+            };
         public static string GetGroupNames(IdentityReferenceCollection groups)
         {
             try
@@ -2289,11 +2534,33 @@ namespace Factory_of_the_Future
             }
         }
 
-        public void Dispose()
+        protected virtual void Dispose(bool disposing)
         {
-            throw new NotImplementedException();
+            if (!disposedValue)
+            {
+                if (disposing)
+                {
+                    // TODO: dispose managed state (managed objects)
+                }
+
+                // TODO: free unmanaged resources (unmanaged objects) and override finalizer
+                // TODO: set large fields to null
+                disposedValue = true;
+            }
+        }
+
+        // // TODO: override finalizer only if 'Dispose(bool disposing)' has code to free unmanaged resources
+        // ~FOTFManager()
+        // {
+        //     // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
+        //     Dispose(disposing: false);
+        // }
+
+        void IDisposable.Dispose()
+        {
+            // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
+            Dispose(disposing: true);
+            GC.SuppressFinalize(this);
         }
     }
-
-       
-    }
+}

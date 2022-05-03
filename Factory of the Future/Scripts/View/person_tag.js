@@ -40,9 +40,6 @@ var tagsMarkersGroup = new L.GeoJSON(null, {
         })
     },
     onEachFeature: function (feature, layer) {
-        layer.on('remove', function (e) {
-            console.log(e);
-        })
         var VisiblefillOpacity = feature.properties.tagVisibleMils < 80000 ? "" : "tooltip-hidden";
         layer.bindTooltip("", {
             permanent: true,
@@ -50,6 +47,9 @@ var tagsMarkersGroup = new L.GeoJSON(null, {
             opacity: 1,
             className: 'persontag ' + VisiblefillOpacity
         }).openTooltip();
+    },
+    filter: function (feature, layer) {
+        return feature.properties.tagVisible;
     }
 })
 async function updateTagLocation(layerindex)

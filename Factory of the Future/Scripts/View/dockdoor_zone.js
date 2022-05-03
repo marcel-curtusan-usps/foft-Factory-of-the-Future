@@ -7,26 +7,28 @@ $.extend(fotfmanager.client, {
 async function updateDockDoorZone(dockdoorzoneupdate) {
     try {
         let layerindex = -0;
-        if (dockDoors.hasOwnProperty("_layers")) {
-
-            $.map(dockDoors._layers, function (layer, i) {
-                if (layer.hasOwnProperty("feature")) {
-                    if (layer.feature.properties.id === dockdoorzoneupdate.properties.id) {
-                        layer.feature.properties = dockdoorzoneupdate.properties;
-                        layerindex = layer._leaflet_id;
-                        return false;
+        map.whenReady(() => {
+            if (map.hasOwnProperty("_layers")) {
+                $.map(map._layers, function (layer, i) {
+                    if (layer.hasOwnProperty("feature")) {
+                        if (layer.feature.properties.id === dockdoorzoneupdate.properties.id) {
+                            layer.feature.properties = dockdoorzoneupdate.properties;
+                            layerindex = layer._leaflet_id;
+                            return false;
+                        }
                     }
-                }
-            });
-            if (layerindex !== -0) {
-                if ($('div[id=dockdoor_div]').is(':visible') && $('div[id=dockdoor_div]').attr("data-id") === dockdoorzoneupdate.properties.id) {
+                });
+                if (layerindex !== -0) {
+                    if ($('div[id=dockdoor_div]').is(':visible') && $('div[id=dockdoor_div]').attr("data-id") === dockdoorzoneupdate.properties.id) {
+                        LoadDockDoorTable(dockdoorzoneupdate.properties);
+                    }
                     updatedockdoor(layerindex);
                 }
+                else {
+                    dockDoors.addData(dockdoorzoneupdate);
+                }
             }
-            else {
-                dockDoors.addData(dockdoorzoneupdate);
-            }
-        }
+        });
 
     } catch (e) {
         console.log(e);
@@ -35,19 +37,31 @@ async function updateDockDoorZone(dockdoorzoneupdate) {
 
 var dockDoors = new L.GeoJSON(null, {
     style: function (feature) {
-        if (feature.properties.hasOwnProperty("dockDoorData")) {
-            if (feature.properties.dockDoorData.hasOwnProperty("tripDirectionInd")) {
-                if (feature.properties.dockDoorData.tripDirectionInd === "O") {
-                    if (feature.properties.dockDoorData.tripMin <= 30) {
-                        return {
-                            weight: 2,
-                            opacity: 1,
-                            color: '#3573b1',       // Blue
-                            fillColor: '#dc3545',   // Red. ff0af7 is Purple
-                            fillOpacity: 0.5,
-                            label: feature.properties.name
-                        };
-                    } 
+        try {
+            if (feature.properties.dockdoorData !== null) {
+                if (feature.properties.dockdoorData.tripDirectionInd !== "") {
+                    if (feature.properties.dockdoorData.tripDirectionInd === "O") {
+                        if (feature.properties.dockdoorData.tripMin <= 30) {
+                            return {
+                                weight: 2,
+                                opacity: 1,
+                                color: '#3573b1',       // Blue
+                                fillColor: '#dc3545',   // Red. ff0af7 is Purple
+                                fillOpacity: 0.5,
+                                label: feature.properties.doorNumber.toString()
+                            };
+                        }
+                        else {
+                            return {
+                                weight: 2,
+                                opacity: 1,
+                                color: '#3573b1',       // Blue
+                                fillColor: '#3573b1',   // Blue. #98c9fa is lighter blue.
+                                fillOpacity: 0.5,
+                                label: feature.properties.doorNumber.toString()
+                            };
+                        }
+                    }
                     else {
                         return {
                             weight: 2,
@@ -55,51 +69,42 @@ var dockDoors = new L.GeoJSON(null, {
                             color: '#3573b1',       // Blue
                             fillColor: '#3573b1',   // Blue. #98c9fa is lighter blue.
                             fillOpacity: 0.5,
-                            label: feature.properties.name
+                            label: feature.properties.doorNumber.toString()
                         };
                     }
+
                 }
                 else {
                     return {
-                        weight: 2,
+                        weight: 1,
                         opacity: 1,
-                        color: '#3573b1',       // Blue
-                        fillColor: '#3573b1',   // Blue. #98c9fa is lighter blue.
-                        fillOpacity: 0.5,
-                        label: feature.properties.name
+                        color: '#3573b1',
+                        fillColor: '#989ea4',
+                        fillOpacity: 0.2,
+                        label: feature.properties.doorNumber.toString()
                     };
                 }
             }
             else {
                 return {
-                    weight: 2,
+                    weight: 1,
                     opacity: 1,
                     color: '#3573b1',
                     fillColor: '#989ea4',
-                    fillOpacity: 0.2,
-                    label: feature.properties.name
+                    fillOpacity: 0.2 ,
+                    label: feature.properties.doorNumber.toString()
                 };
             }
-        }
-        else {
-            return {
-                weight: 2,
-                opacity: 1,
-                color: '#3573b1',
-                fillColor: '#989ea4',
-                fillOpacity: 0.2,
-                label: feature.properties.name
-            };
+        } catch (e) {
+            console.log(e);
         }
     },
     onEachFeature: function (feature, layer) {
         var dockdookflash = "";
-        if (feature.properties.hasOwnProperty("dockDoorData")) {
-            if (feature.properties.dockDoorData.hasOwnProperty("tripDirectionInd")) {
-                if (feature.properties.dockDoorData.tripDirectionInd === "O") {
-                    if (feature.properties.dockDoorData.tripMin <= 30 && feature.properties.dockDoorData.unloadedContainers > 0) {
-                        dockdookflash = "doorflash"
-                    }
+        if (feature.properties.dockdoorData !== null) {
+            if (feature.properties.dockdoorData.tripDirectionInd === "O") {
+                if (feature.properties.dockdoorData.tripMin <= 30 && feature.properties.dockdoorData.Notloadedcontainers > 0) {
+                    dockdookflash = "doorflash"
                 }
             }
         }
@@ -109,15 +114,139 @@ var dockDoors = new L.GeoJSON(null, {
             sidebar.open('home');
             LoadDockDoorTable(feature.properties);
         })
-        layer.bindTooltip(feature.properties.name.replace(/\D+/g, "").replace(/^0+/, ''), {
+        layer.bindTooltip(feature.properties.doorNumber.toString(), {
             permanent: true,
             direction: 'center',
             opacity: 0.9,
             className: 'dockdooknumber ' + dockdookflash
         }).openTooltip();
         dockDoors.bringToFront();
+    },
+    filter: function (feature, layer) {
+        return feature.properties.visible;
     }
 });
+
+let dockdoortop_Table = $('table[id=dockdoortable]');
+let dockdoortop_Table_Body = dockdoortop_Table.find('tbody');
+let dockdoortop_row_template = '<tr data-id={zone_id} >' +
+    '<td class="text-right" style="border-right-style:solid" >{name}</td>' +
+    '<td class="text-left">{value}</td>' +
+    '</tr>';
+function getDoorStatus(status)
+{
+    return status !== "" ? capitalize_Words(status) : "Unknown";
+}
+function formatdockdoortoprow(properties, zoneid) {
+    return $.extend(properties, {
+        zone_id: zoneid,
+        name: properties.name.replace(/^0+/, ''),
+        value: properties.value
+    });
+}
+let container_Table = $('table[id=containertable]');
+let container_Table_Body = container_Table.find('tbody');
+function formatctscontainerrow(properties, zoneid) {
+    return $.extend(properties, {
+        zone_id: zoneid,
+        id: properties.placardBarcode,
+        dest: checkValue(properties.dest) ? properties.dest : "",
+        location: checkValue(properties.location) ? properties.location : "",
+        placard: properties.placardBarcode,
+        status: properties.constainerStatus,
+        backgroundcolorstatus: properties.constainerStatus === "Unloaded" ? "table-secondary" : properties.constainerStatus === "Close" ? "table-primary" : properties.constainerStatus === "Loaded" ? "table-success" : "table-danger",
+    });
+}
+let container_row_template = '<tr>' +
+    '<td data-input="dest" class="text-center">{dest}</td>' +
+    '<td data-input="location" class="text-center">{location}</td>' +
+    '<td data-input="placard" class="text-center"><a data-doorid={zone_id} data-placardid={placard} class="containerdetails">{placard}</a></td>' +
+    '<td data-input="status" class="text-center {backgroundcolorstatus}">{status}</td>' +
+    '</tr>"';
+async function updatedockdoor(layerindex) {
+    if (map._layers[layerindex].feature.properties.dockdoorData !== null) {
+        if (checkValue(map._layers[layerindex].feature.properties.dockdoorData.tripDirectionInd)) {
+
+            if (map._layers[layerindex].feature.properties.dockdoorData.tripDirectionInd === "O") {
+                if (map._layers[layerindex].feature.properties.dockdoorData.tripMin <= 30) {
+                    map._layers[layerindex].setStyle({
+                        weight: 2,
+                        opacity: 1,
+                        color: '#3573b1',
+                        fillColor: '#dc3545',   // Red. ff0af7 is Purple
+                        fillOpacity: 0.5
+                    });
+                    if (map._layers[layerindex].feature.properties.dockdoorData.Notloadedcontainers > 0) {
+                        if (map._layers[layerindex].hasOwnProperty("_tooltip")) {
+                            if (map._layers[layerindex]._tooltip.hasOwnProperty("_container")) {
+                                if (!map._layers[layerindex]._tooltip._container.classList.contains('doorflash')) {
+                                    map._layers[layerindex]._tooltip._container.classList.add('doorflash');
+                                }
+                            }
+                        }
+                    }
+                    else {
+                        if (map._layers[layerindex].hasOwnProperty("_tooltip")) {
+                            if (map._layers[layerindex]._tooltip.hasOwnProperty("_container")) {
+                                if (map._layers[layerindex]._tooltip._container.classList.contains('doorflash')) {
+                                    map._layers[layerindex]._tooltip._container.classList.remove('doorflash');
+                                }
+                            }
+                        }
+                    }
+
+                }
+                else {
+                    map._layers[layerindex].setStyle({
+                        weight: 2,
+                        opacity: 1,
+                        color: '#3573b1',
+                        fillColor: '#3573b1',
+                        fillOpacity: 0.5
+                    });
+                    if (map._layers[layerindex].hasOwnProperty("_tooltip")) {
+                        if (map._layers[layerindex]._tooltip.hasOwnProperty("_container")) {
+                            if (map._layers[layerindex]._tooltip._container.classList.contains('doorflash')) {
+                                map._layers[layerindex]._tooltip._container.classList.remove('doorflash');
+                            }
+                        }
+                    }
+                }
+            }
+            if (map._layers[layerindex].feature.properties.dockdoorData.tripDirectionInd === "I") {
+                map._layers[layerindex].setStyle({
+                    weight: 2,
+                    opacity: 1,
+                    color: '#3573b1',
+                    fillColor: '#3573b1',
+                    fillOpacity: 0.5
+                });
+            }
+        }
+        else {
+            map._layers[layerindex].setStyle({
+                weight: 2,
+                opacity: 1,
+                color: '#3573b1',
+                fillColor: '#989ea4',
+                fillOpacity: 0.2
+            });
+            if (map._layers[layerindex].hasOwnProperty("_tooltip")) {
+                if (map._layers[layerindex]._tooltip.hasOwnProperty("_container")) {
+                    if (map._layers[layerindex]._tooltip._container.classList.contains('doorflash')) {
+                        map._layers[layerindex]._tooltip._container.classList.remove('doorflash');
+                    }
+                }
+            }
+        }
+    }
+    if ($('div[id=dockdoor_div]').is(':visible')) {
+        var findtrdataid = dockdoortop_Table_Body.find('tr[data-id=' + map._layers[layerindex].feature.properties.id + ']');
+        if (findtrdataid.length > 0) {
+            LoadDockDoorTable(map._layers[layerindex].feature.properties);
+        }
+    }
+}
 async function LoadDockDoorTable(dataproperties) {
     try {
         let loadtriphisory = false;
@@ -130,6 +259,7 @@ async function LoadDockDoorTable(dataproperties) {
         $('div[id=staff_div]').css('display', 'none');
         $('div[id=area_div]').css('display', 'none');
         $('div[id=dps_div]').css('display', 'none');
+        $('div[id=layer_div]').css('display', 'none');
         $('div[id=dockdoor_div]').css('display', 'block');
         $('div[id=trailer_div]').css('display', 'block');
 
@@ -137,93 +267,64 @@ async function LoadDockDoorTable(dataproperties) {
         dockdoortop_Table_Body.empty();
         $('button[name=container_counts]').text(0 + "/" + 0);
         container_Table_Body.empty();
-        if (dataproperties.hasOwnProperty("dockDoorData") && dataproperties.dockDoorData.hasOwnProperty("trailerBarcode")) {
+        if (checkValue(dataproperties.dockdoorData.legSiteName)) {
 
-            if (dataproperties.dockDoorData.hasOwnProperty("doorNumber")) {
-
-                $('span[name=doornumberid]').text(dataproperties.dockDoorData.doorNumber);
-            }
-            if (dataproperties.dockDoorData.hasOwnProperty("legSiteName")) {
+            $('span[name=doornumberid]').text(dataproperties.doorNumber);
+            if (dataproperties.dockdoorData.legSiteName !== "") {
                 tempdata.push({
                     name: "Site Name",
-                    value: "(" + dataproperties.dockDoorData.legSiteId + ") " + dataproperties.dockDoorData.legSiteName
+                    value: "(" + dataproperties.dockdoorData.legSiteId + ") " + dataproperties.dockdoorData.legSiteName
                 })
             }
-            if (dataproperties.dockDoorData.hasOwnProperty("route")) {
+            if (dataproperties.dockdoorData.route !== "") {
                 tempdata.push({
                     name: "Route-Trip",
-                    value: dataproperties.dockDoorData.route + "-" + dataproperties.dockDoorData.trip
+                    value: dataproperties.dockdoorData.route + "-" + dataproperties.dockdoorData.trip
                 })
             }
-            if (dataproperties.dockDoorData.hasOwnProperty("trailerBarcode")) {
+            if (dataproperties.dockdoorData.trailerBarcode !== "") {
                 tempdata.push({
                     name: "Trailer Barcode",
-                    value: dataproperties.dockDoorData.trailerBarcode
+                    value: dataproperties.dockdoorData.trailerBarcode
                 })
             }
-            if (dataproperties.dockDoorData.hasOwnProperty("status")) {
-                if (checkValue(dataproperties.dockDoorData.status)) {
-                    $('span[name=doorstatus]').text(capitalize_Words(dataproperties.dockDoorData.status));
+            if (dataproperties.dockdoorData.status !== "") {
+                if (checkValue(dataproperties.dockdoorData.status)) {
+                    $('span[name=doorstatus]').text(capitalize_Words(dataproperties.dockdoorData.status));
                 }
             }
             else {
                 $('span[name=doorstatus]').text("Occupied");
             }
-            //if (dataproperties.dockDoorData.hasOwnProperty("driverBarcode")) {
-            //    tempdata.push({
-            //        name: "Driver Barcode",
-            //        value: dataproperties.dockDoorData.driverBarcode
-            //    })
-            //}
-            //if (dataproperties.dockDoorData.hasOwnProperty("driverFirstName")) {
-            //    var lastname = "";
-            //    if (dataproperties.dockDoorData.hasOwnProperty("driverLastName")) {
-            //        lastname = dataproperties.dockDoorData.driverLastName;
-            //    }
-            //    tempdata.push({
-            //        name: "Driver Name",
-            //        value: dataproperties.dockDoorData.driverFirstName + " " + lastname
-            //    })
-            //}
-            //if (dataproperties.dockDoorData.hasOwnProperty("driverPhoneNumber")) {
-            //    tempdata.push({
-            //        name: "Driver Phone Number",
-            //        value: dataproperties.dockDoorData.driverPhoneNumber
-            //    })
-            //}
-            if (dataproperties.dockDoorData.hasOwnProperty("loadPercent")) {
+            if (dataproperties.dockdoorData.loadPercent !== null) {
                 tempdata.push({
                     name: "Load Percent",
-                    value: checkValue(dataproperties.dockDoorData.loadPercent) ? dataproperties.dockDoorData.loadPercent : 0
+                    value: checkValue(dataproperties.dockdoorData.loadPercent) ? dataproperties.dockdoorData.loadPercent : 0
                 })
             }
-            if (dataproperties.dockDoorData.hasOwnProperty("mailerName")) {
-                tempdata.push({
-                    name: "Mailer",
-                    value: checkValue(dataproperties.dockDoorData.mailerName) ? dataproperties.dockDoorData.mailerName : 0
-                })
-            }
-            if (dataproperties.dockDoorData.hasOwnProperty("tripDirectionInd")) {
+        //if (dataproperties.dockdoorData.supplier !== null) {
+        //        tempdata.push({
+        //            name: "Mailer",
+        //            value: checkValue(dataproperties.dockdoorData.supplier) ? dataproperties.dockdoorData.supplier : 0
+        //        })
+        //    }
+            if (dataproperties.dockdoorData.tripDirectionInd !== "") {
                 tempdata.push({
                     name: "Direction",
-                    value: dataproperties.dockDoorData.tripDirectionInd === "O" ? "Out-bound" : "In-bound"
+                    value: dataproperties.dockdoorData.tripDirectionInd === "O" ? "Out-bound" : "In-bound"
                 })
             }
-
-            if (dataproperties.dockDoorData.hasOwnProperty("scheduledDtm")) {
+            if (dataproperties.dockdoorData.scheduledDtm !== null) {
                 tempdata.push({
-                    name: dataproperties.dockDoorData.tripDirectionInd === "O" ? "Scheduled To Depart" : "Scheduled Arrive Time",
-                    value: (dataproperties.dockDoorData.scheduledDtm.month + 1) + "-" + dataproperties.dockDoorData.scheduledDtm.dayOfMonth + "-" + dataproperties.dockDoorData.scheduledDtm.year + " " +
-                        pad(dataproperties.dockDoorData.scheduledDtm.hourOfDay, 2) + ":" + pad(dataproperties.dockDoorData.scheduledDtm.minute, 2) + ":" + pad(dataproperties.dockDoorData.scheduledDtm.second, 2)
+                    name: dataproperties.dockdoorData.tripDirectionInd === "O" ? "Scheduled To Depart" : "Scheduled Arrive Time",
+                    value: formatSVmonthdayTime(dataproperties.dockdoorData.scheduledDtm)
                 })
             }
-
-            if (dataproperties.dockDoorData.tripDirectionInd === "I") {
-                if (dataproperties.dockDoorData.hasOwnProperty("actualDtm")) {
+            if (dataproperties.dockdoorData.tripDirectionInd === "I") {
+                if (dataproperties.dockdoorData.actualDtm !== null) {
                     tempdata.push({
                         name: "Actual Arrive Time",
-                        value: (dataproperties.dockDoorData.actualDtm.month + 1) + "-" + dataproperties.dockDoorData.actualDtm.dayOfMonth + "-" + dataproperties.dockDoorData.actualDtm.year + " " +
-                            pad(dataproperties.dockDoorData.actualDtm.hourOfDay, 2) + ":" + pad(dataproperties.dockDoorData.actualDtm.minute, 2) + ":" + pad(dataproperties.dockDoorData.actualDtm.second, 2)
+                        value: formatSVmonthdayTime(dataproperties.dockdoorData.actualDtm)
                     })
                 }
             }
@@ -232,23 +333,27 @@ async function LoadDockDoorTable(dataproperties) {
             });
 
             $('button[name=container_counts]').text(0 + "/" + 0);
+            if (dataproperties.dockdoorData.tripDirectionInd) {
+                //var legSite = dataproperties.dockdoorData.tripDirectionInd === "I" ? User.NASS_Code : dataproperties.dockdoorData.legSiteId;
+                //$.connection.FOTFManager.server.getContainer(legSite, dataproperties.dockdoorData.tripDirectionInd, dataproperties.dockdoorData.route, dataproperties.dockdoorData.trip).done(function (Data) {
 
-
-
-            if (dataproperties.dockDoorData.hasOwnProperty("tripDirectionInd")) {
-                //var legSite = dataproperties.dockDoorData.tripDirectionInd === "I" ? User.NASS_Code : dataproperties.dockDoorData.legSiteId;
-                //$.connection.FOTFManager.server.getContainer(legSite, dataproperties.dockDoorData.tripDirectionInd, dataproperties.dockDoorData.route, dataproperties.dockDoorData.trip).done(function (Data) {
-
-                if (dataproperties.dockDoorData.containers.length > 0) {
+                if (dataproperties.dockdoorData.containerScans !== null && dataproperties.dockdoorData.containerScans.length > 0) {
                     var loadedcount = 0;
                     var unloadedcount = 0;
                     var loaddata = [];
                     container_Table_Body.empty();
-                    $.each(dataproperties.dockDoorData.containers, function (index, d) {
+                    $.each(dataproperties.dockdoorData.containerScans, function (index, d) {
                         if (!d.containerTerminate) {
-                            if (dataproperties.dockDoorData.tripDirectionInd === "O") {
+                            if (dataproperties.dockdoorData.tripDirectionInd === "O") {
                                 if (d.containerAtDest === false) {
-                                    if (d.hasLoadScans === true && d.Otrailer === dataproperties.dockDoorData.trailerBarcode) {
+                                    if (d.hasUnloadScans === true) {
+                                        unloadedcount++
+                                        d.constainerStatus = "Unloaded";
+                                        d.sortind = 1;
+                                        loaddata.push(d);
+                                    }
+
+                                    if (d.hasLoadScans === true) {
                                         loadedcount++
                                         d.constainerStatus = "Loaded";
                                         d.sortind = 2;
@@ -263,8 +368,8 @@ async function LoadDockDoorTable(dataproperties) {
 
                                 }
                             }
-                            if (dataproperties.dockDoorData.tripDirectionInd === "I") {
-                                if (d.hasUnloadScans === true && d.Itrailer === dataproperties.dockDoorData.trailerBarcode) {
+                            if (dataproperties.dockdoorData.tripDirectionInd === "I") {
+                                if (d.hasUnloadScans === true && d.Itrailer === dataproperties.dockdoorData.trailerBarcode) {
                                     unloadedcount++
                                     d.constainerStatus = "Unloaded";
                                     d.sortind = 1;
@@ -297,151 +402,22 @@ async function LoadDockDoorTable(dataproperties) {
         }
         else {
             $('div[id=trailer_div]').css('display', 'none');
-            if (dataproperties.dockDoorData.hasOwnProperty("doorNumber")) {
-                $('span[name=doornumberid]').text(dataproperties.dockDoorData.doorNumber);
-            }
-            else {
-                $('span[name=doornumberid]').text(parseInt(dataproperties.doorNumber));
-            }
-            if (dataproperties.dockDoorData.hasOwnProperty("status")) {
-                $('span[name=doorstatus]').text(capitalize_Words(dataproperties.dockDoorData.status));
-            }
-            else {
-                $('span[name=doorstatus]').text("Unknown");
-            }
+            $('span[name=doornumberid]').text(dataproperties.doorNumber.toString());
+            $('span[name=doorstatus]').text(getDoorStatus(dataproperties.dockdoorData.status));
             $.each(tempdata, function () {
                 dockdoortop_Table_Body.append(dockdoortop_row_template.supplant(formatdockdoortoprow(this, dataproperties.id)));
             });
         }
-
-
-    } catch (e) {
+    }
+    catch (e) {
         console.log(e);
     }
 }
-let dockdoortop_Table = $('table[id=dockdoortable]');
-let dockdoortop_Table_Body = dockdoortop_Table.find('tbody');
-let dockdoortop_row_template = '<tr data-id={zone_id} >' +
-    '<td class="text-right" style="border-right-style:solid" >{name}</td>' +
-    '<td class="text-left">{value}</td>' +
-    '</tr>';
-
-function formatdockdoortoprow(properties, zoneid) {
-    return $.extend(properties, {
-        zone_id: zoneid,
-        name: properties.name.replace(/^0+/, ''),
-        value: properties.value
-    });
-}
-let container_Table = $('table[id=containertable]');
-let container_Table_Body = container_Table.find('tbody');
-function formatctscontainerrow(properties, zoneid) {
-    return $.extend(properties, {
-        zone_id: zoneid,
-        id: properties.placardBarcode,
-        dest: checkValue(properties.dest) ? properties.dest : "",
-        location: checkValue(properties.location) ? properties.location : "",
-        placard: properties.placardBarcode,
-        status: properties.constainerStatus,
-        backgroundcolorstatus: properties.constainerStatus === "Unloaded" ? "table-secondary" : properties.constainerStatus === "Close" ? "table-primary" : properties.constainerStatus === "Loaded" ? "table-success" : "table-danger",
-    });
-}
-let container_row_template = '<tr>' +
-    '<td data-input="dest" class="text-center">{dest}</td>' +
-    '<td data-input="location" class="text-center">{location}</td>' +
-    '<td data-input="placard" class="text-center"><a data-doorid={zone_id} data-placardid={placard} class="containerdetails">{placard}</a></td>' +
-    '<td data-input="status" class="text-center {backgroundcolorstatus}">{status}</td>' +
-    '</tr>"';
-async function updatedockdoor(layerindex) {
-    if (dockDoors._layers[layerindex].feature.properties.hasOwnProperty("dockDoorData")) {
-        if (dockDoors._layers[layerindex].feature.properties.dockDoorData.hasOwnProperty("tripDirectionInd")) {
-         
-            if (dockDoors._layers[layerindex].feature.properties.dockDoorData.tripDirectionInd === "O") {
-                if (dockDoors._layers[layerindex].feature.properties.dockDoorData.tripMin <= 30) {
-                    dockDoors._layers[layerindex].setStyle({
-                        weight: 2,
-                        opacity: 1,
-                        color: '#3573b1',
-                        fillColor: '#dc3545',   // Red. ff0af7 is Purple
-                        fillOpacity: 0.5
-                    });
-                    if (dockDoors._layers[layerindex].feature.properties.dockDoorData.unloadedContainers > 0) {
-                        if (dockDoors._layers[layerindex].hasOwnProperty("_tooltip")) {
-                            if (dockDoors._layers[layerindex]._tooltip.hasOwnProperty("_container")) {
-                                if (!dockDoors._layers[layerindex]._tooltip._container.classList.contains('doorflash')) {
-                                    dockDoors._layers[layerindex]._tooltip._container.classList.add('doorflash');
-                                }
-                            }
-                        }
-                    }
-                    else {
-                        if (dockDoors._layers[layerindex].hasOwnProperty("_tooltip")) {
-                            if (dockDoors._layers[layerindex]._tooltip.hasOwnProperty("_container")) {
-                                if (dockDoors._layers[layerindex]._tooltip._container.classList.contains('doorflash')) {
-                                    dockDoors._layers[layerindex]._tooltip._container.classList.remove('doorflash');
-                                }
-                            }
-                        }
-                    }
-
-                }
-                else {
-                    dockDoors._layers[layerindex].setStyle({
-                        weight: 2,
-                        opacity: 1,
-                        color: '#3573b1',
-                        fillColor: '#3573b1',
-                        fillOpacity: 0.5
-                    });
-                    if (dockDoors._layers[layerindex].hasOwnProperty("_tooltip")) {
-                        if (dockDoors._layers[layerindex]._tooltip.hasOwnProperty("_container")) {
-                            if (dockDoors._layers[layerindex]._tooltip._container.classList.contains('doorflash')) {
-                                dockDoors._layers[layerindex]._tooltip._container.classList.remove('doorflash');
-                            }
-                        }
-                    }
-                }
-            }
-            if (dockDoors._layers[layerindex].feature.properties.dockDoorData.tripDirectionInd === "I") {
-                dockDoors._layers[layerindex].setStyle({
-                    weight: 2,
-                    opacity: 1,
-                    color: '#3573b1',
-                    fillColor: '#3573b1',
-                    fillOpacity: 0.5
-                });
-            }
-            if ($('div[id=dockdoor_div]').is(':visible')) {
-                var findtrdataid = dockdoortop_Table_Body.find('tr[data-id=' + dockDoors._layers[layerindex].feature.properties.id + ']');
-                if (findtrdataid.length > 0) {
-                    LoadDockDoorTable(dockDoors._layers[layerindex].feature.properties);
-                }
-            }
-        }
-        else {
-            dockDoors._layers[layerindex].setStyle({
-                weight: 2,
-                opacity: 1,
-                color: '#3573b1',
-                fillColor: '#989ea4',
-                fillOpacity: 0.2
-            });
-            if (dockDoors._layers[layerindex].hasOwnProperty("_tooltip")) {
-                if (dockDoors._layers[layerindex]._tooltip.hasOwnProperty("_container")) {
-                    if (dockDoors._layers[layerindex]._tooltip._container.classList.contains('doorflash')) {
-                        dockDoors._layers[layerindex]._tooltip._container.classList.remove('doorflash');
-                    }
-                }
-            }
-        }
-    }
-}
-
 async function LoadDoorDetails(door) {
     if (dockDoors.hasOwnProperty("_layers")) {
         $.map(dockDoors._layers, function (layer, i) {
             if (layer.hasOwnProperty("feature")) {
-                if (parseInt(layer.feature.properties.name.replace(/\D+/g, "").replace(/^0+/, '')) === parseInt(door)) {
+                if (layer.feature.properties.doorNumber === door) {
                     var Center = new L.latLng(
                         (layer._bounds._southWest.lat + layer._bounds._northEast.lat) / 2,
                         (layer._bounds._southWest.lng + layer._bounds._northEast.lng) / 2);
@@ -463,10 +439,25 @@ async function init_dockdoor() {
             $.each(dockdoorzoneData, function () {
                 updateDockDoorZone(this);
             });
+            fotfmanager.server.joinGroup("DockDoorZones");
         }
+        
     });
 }
-
+async function removeDockDoor(id)
+{
+    try {
+        $.map(map._layers, function (layer, i) {
+            if (layer.hasOwnProperty("feature")) {
+                if (layer._leaflet_id === id) {
+                    dockDoors.removeLayer(layer)
+                }
+            }
+        });
+    } catch (e) {
+        console.log(e)
+    }
+}
 async function LoadContainerDetails(id, placardid) {
     try {
         var d = {};
@@ -517,7 +508,7 @@ async function loadcontainerHistory(d, placardid) {
             '</tr>"';
 
         let containerHistory = {};
-        $.map(d.dockDoorData.containers, function (container, i) {
+        $.map(d.dockdoorData.containerScans, function (container, i) {
             if (container.placardBarcode === placardid) {
                 containerHistory = container.containerHistory
                 return false;

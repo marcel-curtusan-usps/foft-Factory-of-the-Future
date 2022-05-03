@@ -1,6 +1,8 @@
 ﻿using Microsoft.AspNet.SignalR;
 using Microsoft.AspNet.SignalR.Hubs;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using System;
 using System.Collections.Generic;
 using System.Security.Claims;
 using System.Security.Principal;
@@ -26,16 +28,15 @@ namespace Factory_of_the_Future
         /// <summary>
         /// /Application setting section
         /// </summary>
-        /// <returns></returns>
-        //public IEnumerable<JToken> GetAppSettingdata()
-        //{
-        //    return _managerHub.GetAppSettingdata();
-        //}
+        public IEnumerable<JToken> GetAppSettingdata()
+        {
+            return _managerHub.GetAppSettingdata();
+        }
 
-        //public IEnumerable<JToken> EditAppSettingdata(string data)
-        //{
-        //    return _managerHub.EditAppSettingdata(data);
-        //}
+        public IEnumerable<JToken> EditAppSettingdata(string data)
+        {
+            return _managerHub.EditAppSettingdata(data);
+        }
 
         /// <summary>
         /// /API section
@@ -61,39 +62,42 @@ namespace Factory_of_the_Future
             return _managerHub.RemoveAPI(data);
         }
 
-        ///// <summary>
-        /////  Notification Conditions section
-        ///// </summary>
-        ///// <returns></returns>
-        //public IEnumerable<JToken> GetNotification_ConditionsList(string data)
-        //{
-        //    return _managerHub.GetNotification_ConditionsList(data);
-        //}
+        /// <summary>
+        ///  Notification Conditions section
+        /// </summary>
+        /// <returns></returns>
+        public IEnumerable<NotificationConditions> GetNotification_ConditionsList()
+        {
+            return _managerHub.GetNotification_ConditionsList();
+        }
+        public IEnumerable<NotificationConditions> GetNotification_Conditions(string data)
+        {
+            return _managerHub.GetNotification_Conditions(data);
+        }
+        public IEnumerable<NotificationConditions> AddNotification_Conditions(string data)
+        {
+            return _managerHub.AddNotification_Conditions(data);
+        }
 
-        //public IEnumerable<JToken> AddNotification_Conditions(string data)
-        //{
-        //    return _managerHub.AddNotification_Conditions(data);
-        //}
+        public IEnumerable<NotificationConditions> EditNotification_Conditions(string data)
+        {
+            return _managerHub.EditNotification_Conditions(data);
+        }
 
-        //public IEnumerable<JToken> EditNotification_Conditions(string data)
-        //{
-        //    return _managerHub.EditNotification_Conditions(data);
-        //}
-
-        //public IEnumerable<JToken> DeleteNotification_Conditions(string data)
-        //{
-        //    return _managerHub.DeleteNotification_Conditions(data);
-        //}
+        public IEnumerable<NotificationConditions> DeleteNotification_Conditions(string data)
+        {
+            return _managerHub.DeleteNotification_Conditions(data);
+        }
 
         //public IEnumerable<JToken> EditTagInfo(string data)
         //{
         //    return _managerHub.EditTagInfo(data);
         //}
 
-        //public IEnumerable<JToken> GetNotification(string data)
-        //{
-        //    return _managerHub.GetNotification(data);
-        //}
+        public IEnumerable<JToken> GetNotification(string data)
+        {
+            return _managerHub.GetNotification(data);
+        }
 
         ///// <summary>
         ///// Get Containers content.
@@ -113,49 +117,49 @@ namespace Factory_of_the_Future
         //    return _managerHub.GetMarkerList();
         //}
 
-        ///// <summary>
-        ///// Get Person Tags
-        ///// </summary>
-        ///// <returns></returns>
-        //public IEnumerable<JToken> GetPersonTagsList()
-        //{
-        //    return _managerHub.GetPersonTagsList();
-        //}
+        /// <summary>
+        /// Get Person Tags
+        /// </summary>
+        /// <returns></returns>
+        public IEnumerable<GeoMarker> GetPersonTagsList()
+        {
+            return _managerHub.GetPersonTagsList();
+        }
 
-        //public IEnumerable<JToken> GetUndetectedTagsList()
-        //{
-        //    return _managerHub.GetUndetectedTagsList();
-        //}
+        public IEnumerable<GeoMarker> GetUndetectedTagsList()
+        {
+            return _managerHub.GetUndetectedTagsList();
+        }
 
-        //public IEnumerable<JToken> GetLDCAlertTagsList()
-        //{
-        //    return _managerHub.GetLDCAlertTagsList();
-        //}
+        public IEnumerable<GeoMarker> GetLDCAlertTagsList()
+        {
+            return _managerHub.GetLDCAlertTagsList();
+        }
 
-        ///// <summary>
-        ///// Get Trips Data
-        ///// </summary>
-        ///// <returns></returns>
-        //public IEnumerable<JObject> GetTripsList()
-        //{
-        //    return _managerHub.GetTripsList();
-        //}
-        ///// <summary>
-        ///// Get Specific Trips Data
-        ///// </summary>
-        ///// <returns></returns>
-        //public IEnumerable<JObject> GetRouteTripsInfo(string id)
-        //{
-        //    return _managerHub.GetRouteTripsInfo(id);
-        //}
-        ///// <summary>
-        ///// Get Specific placard data
-        ///// </summary>
-        ///// <returns></returns>
-        //public IEnumerable<Container> GetContainerInfo(string id)
-        //{
-        //    return _managerHub.GetContainerInfo(id);
-        //}
+        /// <summary>
+        /// Get Trips Data
+        /// </summary>
+        /// <returns></returns>
+        public IEnumerable<RouteTrips> GetTripsList()
+        {
+            return _managerHub.GetTripsList();
+        }
+        /// <summary>
+        /// Get Specific Trips Data
+        /// </summary>
+        /// <returns></returns>
+        public IEnumerable<RouteTrips> GetRouteTripsInfo(string id)
+        {
+            return _managerHub.GetRouteTripsInfo(id);
+        }
+        /// <summary>
+        /// Get Specific placard data
+        /// </summary>
+        /// <returns></returns>
+        public IEnumerable<Container> GetContainerInfo(string id)
+        {
+            return _managerHub.GetContainerInfo(id);
+        }
         ///// <summary>
         ///// Get CTS Data
         ///// </summary>
@@ -181,6 +185,14 @@ namespace Factory_of_the_Future
         public IEnumerable<Cameras> GetCameraList()
         {
             return _managerHub.GetCameraList();
+        }
+        /// <summary>
+        /// Get Camera markers
+        /// </summary>
+        /// <returns></returns>
+        public IEnumerable<GeoMarker> getCameraMarkerList()
+        {
+            return _managerHub.getCameraMarkerList();
         }
         /// <summary>
         /// Get Zones
@@ -212,7 +224,14 @@ namespace Factory_of_the_Future
         {
             return _managerHub.GetMachineZonesList();
         }
-
+        /// <summary>
+        /// Get Machine Bin Zones
+        /// </summary>
+        /// <returns></returns>
+        public IEnumerable<GeoZone> GetBinZonesList()
+        {
+            return _managerHub.GetBinZonesList();
+        }
         /// <summary>
         /// Get AGV location Zones
         /// </summary>
@@ -231,6 +250,27 @@ namespace Factory_of_the_Future
         //    return _managerHub.GetViewConfigList();
         //}
 
+        /// <summary>
+        /// Add New Custom Zones
+        /// </summary>
+        /// <returns></returns>
+        public GeoZone AddZone(string data)
+        {
+            return _managerHub.AddZone(data);
+        }
+        public GeoMarker AddMarker(string data)
+        {
+            return _managerHub.AddMarker(data);
+        }
+
+        public GeoZone RemoveZone(string data)
+        {
+            return _managerHub.RemoveZone(data);
+        }
+        public GeoMarker RemoveMarker(string data)
+        {
+            return _managerHub.RemoveMarker(data);
+        }
         /// <summary>
         /// Get View Ports Zones
         /// </summary>
@@ -267,7 +307,6 @@ namespace Factory_of_the_Future
             
             return _managerHub.GetUserProfile(user_id);
         }
-
         //public IEnumerable<JToken> GetADUserProfile()
         //{
         //    string user_id = Regex.Replace(Context.User.Identity.Name, @"(USA\\|ENG\\)", "").Trim();
@@ -285,11 +324,18 @@ namespace Factory_of_the_Future
         /// <returns></returns>
         public override Task OnConnected()
         {
-            _managerHub.Adduser(Context);
-            Groups.Add(Context.ConnectionId, "PeopleMarkers");
-            Groups.Add(Context.ConnectionId, "VehiclsMarkers");
-            return base.OnConnected();
+            Clients.Caller.userInfo(_managerHub.AddUserProfile(Context));
+            Clients.Caller.floorImage(_managerHub.GetIndoorMap());
+            return base.OnConnected(); 
         }
+
+        private object GetAuthInfo()
+        {
+            string userId = Regex.Replace(Context.User.Identity.Name, @"(USA\\|ENG\\)", "").Trim();
+            AppParameters.Users.TryGetValue(userId, out ADUser user);
+            return JsonConvert.SerializeObject(user, Formatting.Indented) ;
+        }
+
         public Task JoinGroup(string groupName)
         {
             return Groups.Add(Context.ConnectionId, groupName);
@@ -302,8 +348,13 @@ namespace Factory_of_the_Future
         public override Task OnDisconnected(bool stopCalled)
         {
             _managerHub.Removeuser(Context.ConnectionId);
-            Groups.Remove(Context.ConnectionId, "PeopleMarkers");
-            Groups.Remove(Context.ConnectionId, "VehiclsMarkers");
+            Task.Run(() => LeaveGroup("PeopleMarkers"));
+            Task.Run(() => LeaveGroup("VehiclsMarkers"));
+            Task.Run(() => LeaveGroup("MachineZones"));
+            Task.Run(() => LeaveGroup("Zones"));
+            Task.Run(() => LeaveGroup("BinZones"));
+            Task.Run(() => LeaveGroup("DockDoorZones"));
+            Task.Run(() => LeaveGroup("AGVLocationZones"));
             return base.OnDisconnected(stopCalled);
         }
 

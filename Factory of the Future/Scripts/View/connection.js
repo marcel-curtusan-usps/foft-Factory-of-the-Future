@@ -453,15 +453,15 @@ function Edit_Connection(id) {
                 $('input[type=text][name=hostname]').val(Data.Hostname);
                 $('input[type=text][name=port_number]').val(Data.Port);
                 $('input[type=text][name=url]').val(Data.Url);
-                /*                $('input[type=text][name=outgoingapikey]').val(Data.OUTGOING_APIKEY);*/
+                /*$('input[type=text][name=outgoingapikey]').val(Data.OUTGOING_APIKEY);*/
                 $('input[type=text][name=message_type]').val(Data.MessageType);
-                if ($.isNumeric(Data.HoursBack)) {
+
+                if (Data.HoursBack > 0 || Data.HoursForward > 0) {
+
                     $('.hoursbackvalue').html($.isNumeric(Data.HoursBack) ? parseInt(Data.HoursBack) : 0);
                     $('input[id=hoursback_range]').val($.isNumeric(Data.HoursBack) ? parseInt(Data.HoursBack) : 0);
                     $('.hours_range_row').css("display", "");
                     $('input[type=checkbox][name=active_connection]').prop('checked', true).change();
-                }
-                if ($.isNumeric(Data.HoursForward)) {
                     $('.hoursforwardvalue').html($.isNumeric(Data.HoursForward) ? parseInt(Data.HoursForward) : 0);
                     $('input[id=hoursforward_range]').val($.isNumeric(Data.HoursForward) ? parseInt(Data.HoursForward) : 0);
                     $('.hours_range_row').css("display", "");
@@ -469,7 +469,6 @@ function Edit_Connection(id) {
                         $('input[type=checkbox][name=hour_range]').prop('checked', true).change();
                     }
                 }
-
                 $('select[name=data_retrieve]').val(Data.DataRetrieve);
                 $('input[type=text][name=admin_email_recepient]').val(Data.AdminEmailRecepient);
 

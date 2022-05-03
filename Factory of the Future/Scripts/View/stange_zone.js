@@ -154,7 +154,11 @@ var stagingAreas = new L.GeoJSON(null, {
         $zoneSelect[0].selectize.addItem(feature.properties.id);
         $zoneSelect[0].selectize.setValue(-1, true);
         stagingAreas.bringToBack();
+    },
+    filter: function (feature, layer) {
+        return feature.properties.visible;
     }
+
 });
 async function LoadstageTables(dataproperties) {
     try {
@@ -167,6 +171,7 @@ async function LoadstageTables(dataproperties) {
         $('div[id=ctstabs_div]').css('display', 'none');
         $('div[id=dps_div]').css('display', 'none');
         $('div[id=vehicle_div]').css('display', 'none');
+        $('div[id=layer_div]').css('display', 'none');
         $('div[id=area_div]').css('display', 'block');
         zonetop_Table_Body.empty();
         zonetop_Table_Body.append(zonetop_row_template.supplant(formatzonetoprow(dataproperties)));
@@ -235,10 +240,14 @@ async function init_zones() {
                 else if (/^(Poly|hol)/i.test(this.properties.name)) {
                     polyholesAreas.addData(this);
                 }
+                //else if (/^(Bin)/i.test(this.properties.name)) {
+                //    binzonepoly.addData(this);
+                //}
                 else {
                     stagingAreas.addData(this);
                 }
             })
+            fotfmanager.server.joinGroup("Zones");
         }
     })
 }

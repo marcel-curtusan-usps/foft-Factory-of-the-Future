@@ -1,7 +1,7 @@
 ﻿//Retrieve 24 Hour Clock Message
 function GetTwentyFourMessage(time) {
     var format = 'HH:mm:ss';
-    var currtime = moment(moment(time).format(format), format);
+    var currtime = moment(time.format(format), format);
 
     if (currtime.isBetween(moment('00:00:00', format), moment('00:30:00', format))) {
         return '00:30 Outgoing Secondary Completed';
@@ -28,9 +28,9 @@ function GetTwentyFourMessage(time) {
 
 //Move 24 Hour Clock Hands
 function SetClockHands(time) {
-    var hr = moment(time).hour();
-    var min = moment(time).minute();
-    var sec = moment(time).second();
+    var hr = time.hour();
+    var min = time.minute();
+    var sec = time.second();
     var hr_rotation = 15 * hr + min / 4;
     var min_rotation = 6 * min;
     var sec_rotation = 6 * sec;

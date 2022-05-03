@@ -134,13 +134,35 @@ $(function () {
 var polygonMachine = new L.GeoJSON(null, {
     style: function (feature) {
         if (feature.properties.visible) {
-            return  {
+            var fillColor = GetMacineBackground(feature.properties.MPEWatchData.current_run_start, feature.properties.MPEWatchData.current_run_end, feature.properties.MPEWatchData.cur_thruput_ophr, feature.properties.MPEWatchData.expected_throughput);
+            if (fillColor === "#989ea4") {
+                return {
                     weight: 1,
                     opacity: 1,
                     color: '#3573b1',
                     fillOpacity: 0.2,
-                    fillColor: '#989ea4'
+                    fillColor: fillColor
                 };
+            }
+            else {
+                return {
+                    weight: 1,
+                    opacity: 1,
+                    color: '#3573b1',
+                    fillOpacity: 0.5,
+                    fillColor: fillColor
+                };
+            }
+           
+        }
+        else {
+            return {
+                weight: 1,
+                opacity: 1,
+                color: '#3573b1',
+                fillOpacity: 0.2,
+                fillColor: '#989ea4'
+            };
         }
     },
     onEachFeature: function (feature, layer) {
@@ -170,30 +192,22 @@ var polygonMachine = new L.GeoJSON(null, {
     }
 });
 async function updateMPEZone(properties, index) {
-    var sortplan = properties.MPEWatchData.hasOwnProperty("cur_sortplan") ? properties.MPEWatchData.cur_sortplan : "";
-    var endofrun = properties.MPEWatchData.hasOwnProperty("current_run_end") ? properties.MPEWatchData.current_run_end : "";
-    var startofrun = properties.MPEWatchData.hasOwnProperty("current_run_start") ? properties.MPEWatchData.current_run_start : "";
-    var expectedTP = properties.MPEWatchData.hasOwnProperty("expected_throughput") ? properties.MPEWatchData.expected_throughput : "";
-    var throughput = properties.MPEWatchData.hasOwnProperty("cur_thruput_ophr") ? properties.MPEWatchData.cur_thruput_ophr : "";
-
-    if (checkValue(sortplan) && !checkValue(endofrun)) {
-        var fillColor = GetMacineBackground(startofrun, throughput, expectedTP);
+    var fillColor = GetMacineBackground(properties.MPEWatchData.current_run_start, properties.MPEWatchData.current_run_end, properties.MPEWatchData.cur_thruput_ophr, properties.MPEWatchData.expected_throughput);
+    if (fillColor === "#989ea4") {
+        polygonMachine._layers[index].setStyle({
+            weight: 1,
+            opacity: 1,
+            fillOpacity: 0.2,
+            fillColor: fillColor
+        });
+    }
+    else {
         polygonMachine._layers[index].setStyle({
             weight: 1,
             opacity: 1,
             fillOpacity: 0.5,
             fillColor: fillColor
         });
-    }
-    else {
-        if (polygonMachine._layers[index].options.fillColor !== '#989ea4') { //'gray'
-            polygonMachine._layers[index].setStyle({
-                weight: 1,
-                opacity: 1,
-                fillOpacity: 0.2,
-                fillColor: '#989ea4'//'gray'
-            });
-        }
     }
 }
 async function LoadMachineTables(dataproperties, table) {
@@ -205,6 +219,7 @@ async function LoadMachineTables(dataproperties, table) {
             $('div[id=area_div]').css('display', 'none');
             $('div[id=agvlocation_div]').css('display', 'none');
             $('div[id=vehicle_div]').css('display', 'none');
+            $('div[id=layer_div]').css('display', 'none');
             $('div[id=machine_div]').css('display', 'block');
             $('div[id=ctstabs_div]').css('display', 'block');
             if (/machinetable/i.test(table)) {
@@ -227,9 +242,9 @@ async function LoadMachineTables(dataproperties, table) {
                 if (dataproperties.MPEWatchData.cur_operation_id == "918" || dataproperties.MPEWatchData.cur_operation_id == "919") {
                     LoadMachineTables(dataproperties, "dpstable");
                 }
-                var p2pdata = dataproperties.hasOwnProperty("P2PData") ? dataproperties.P2PData : "";
+                var staffdata = dataproperties.hasOwnProperty("staffingData") ? dataproperties.staffingData : "";
                 var MachineCurrentStaff = [];
-                GetPeopleInZone(dataproperties.id, p2pdata, MachineCurrentStaff);
+                GetPeopleInZone(dataproperties.id, staffdata, MachineCurrentStaff);
                 if (dataproperties.MPEWatchData.hasOwnProperty("hourly_data")) {
                     GetMachinePerfGraph(dataproperties);
                 }
@@ -247,7 +262,7 @@ async function LoadMachineTables(dataproperties, table) {
                         let dpstop_Table = $('table[id=' + table + ']');
                         let dpstop_Table_Body = dpstop_Table.find('tbody')
                         dpstop_Table_Body.empty();
-                        dpstop_Table_Body.append(dpstop_row_template.supplant(formatdpstoprow(dataproperties)));
+                        dpstop_Table_Body.append(dpstop_row_template.supplant(formatdpstoprow(dataproperties.DPSData)));
                     }
                 }
             }
@@ -262,48 +277,45 @@ function formatmachinetoprow(properties) {
         zoneId: properties.id,
         zoneName: properties.name,
         zoneType: properties.Zone_Type,
-        sortPlan: properties.hasOwnProperty("MPEWatchData") ? properties.MPEWatchData.hasOwnProperty("cur_sortplan") ? properties.MPEWatchData.cur_sortplan : "N/A" : "",
-        opNum: properties.hasOwnProperty("MPEWatchData") ? properties.MPEWatchData.hasOwnProperty("cur_operation_id") ? properties.MPEWatchData.cur_operation_id.padStart(3, "0") : "000" : "000",
-        sortPlanStart: properties.hasOwnProperty("MPEWatchData") ? properties.MPEWatchData.hasOwnProperty("current_run_start") ? properties.MPEWatchData.current_run_start : "00:00:00" : "",
-        sortPlanEnd: properties.hasOwnProperty("MPEWatchData") ? properties.MPEWatchData.hasOwnProperty("current_run_end") ? checkValue(properties.MPEWatchData.current_run_end) ? properties.MPEWatchData.current_run_end : "00:00:00" : "00:00:00" : "",
-        peicesFed: properties.hasOwnProperty("MPEWatchData") ? properties.MPEWatchData.hasOwnProperty("tot_sortplan_vol") ? digits(properties.MPEWatchData.tot_sortplan_vol) : 0 : "",
-        throughput: properties.hasOwnProperty("MPEWatchData") ? properties.MPEWatchData.hasOwnProperty("cur_thruput_ophr") ? digits(properties.MPEWatchData.cur_thruput_ophr) : 0 : "",
-        rpgVol: properties.hasOwnProperty("MPEWatchData") ? properties.MPEWatchData.hasOwnProperty("rpg_est_vol") ? digits(properties.MPEWatchData.rpg_est_vol) : 0 : "",
+        sortPlan: checkValue(properties.MPEWatchData.cur_sortplan) ? properties.MPEWatchData.cur_sortplan : "N/A" ,
+        opNum:properties.MPEWatchData.cur_operation_id.padStart(3, "0"),
+        sortPlanStart: properties.MPEWatchData.current_run_start,
+        sortPlanEnd:  properties.MPEWatchData.current_run_end ,
+        peicesFed:  digits(properties.MPEWatchData.tot_sortplan_vol) ,
+        throughput: digits(properties.MPEWatchData.cur_thruput_ophr) ,
+        rpgVol: digits(properties.MPEWatchData.rpg_est_vol),
         stateBadge: getstatebadge(properties),
         stateText: getstateText(properties),
-        estComp: properties.hasOwnProperty("MPEWatchData") ? properties.MPEWatchData.hasOwnProperty("rpg_est_comp_time") ? properties.MPEWatchData.rpg_est_comp_time : "Not Available" : "Estimated Not Available",
-        rpgStart: properties.hasOwnProperty("MPEWatchData") ? properties.MPEWatchData.hasOwnProperty("rpg_start_dtm") ? moment(properties.MPEWatchData.rpg_start_dtm, "MM/DD/YYYY hh:mm:ss A").format("YYYY-MM-DD HH:mm:ss") : "" : "",
-        rpgEnd: properties.hasOwnProperty("MPEWatchData") ? properties.MPEWatchData.hasOwnProperty("rpg_end_dtm") ? moment(properties.MPEWatchData.rpg_end_dtm, "MM/DD/YYYY hh:mm:ss A").format("YYYY-MM-DD HH:mm:ss") : "" : "",
-        expThroughput: properties.hasOwnProperty("MPEWatchData") ? properties.MPEWatchData.hasOwnProperty("expected_throughput") ? digits(properties.MPEWatchData.expected_throughput) : 0 : "",
-        fullBins: properties.hasOwnProperty("MPEWatchData") ? properties.MPEWatchData.hasOwnProperty("bin_full_bins") ? properties.MPEWatchData.bin_full_bins : "" : "",
+        estComp: checkValue(properties.MPEWatchData.rpg_est_comp_time) ? properties.MPEWatchData.rpg_est_comp_time : "Estimated Not Available",
+        rpgStart:moment(properties.MPEWatchData.rpg_start_dtm, "MM/DD/YYYY hh:mm:ss A").format("YYYY-MM-DD HH:mm:ss"),
+        rpgEnd:  moment(properties.MPEWatchData.rpg_end_dtm, "MM/DD/YYYY hh:mm:ss A").format("YYYY-MM-DD HH:mm:ss"),
+        expThroughput: digits(properties.MPEWatchData.expected_throughput),
+        fullBins: properties.MPEWatchData.bin_full_bins ,
     });
 }
 let machinetop_row_template = '<tr data-id="{zoneId}"><td>{zoneType}</td><td>{zoneName}</td><td><span class="badge badge-pill {stateBadge}" style="font-size: 12px;">{stateText}</span></td></tr>' +
-    '<tr><td>Sort Plan</td><td colspan="2">{sortPlan}</td></tr>' +
-    '<tr><td>Operation Number</td><td colspan="2">{opNum}</td></tr>' +
+    '<tr><td>OPN / Sort Plan</td><td colspan="2">{opNum} / {sortPlan}</td></tr>' +
     '<tr><td>Start</td><td colspan="2">{sortPlanStart}</td></tr>' +
     '<tr><td>End</td><td colspan="2">{sortPlanEnd}</td></tr>' +
     '<tr><td>Estimated Completion</td><td colspan="2">{estComp}</td>/tr>' +
-    '<tr><td>Pieces Fed</td><td colspan="2">{peicesFed}</td></tr>' +
-    '<tr><td>Throughput</td><td colspan="2">{throughput}</td></tr>' +
-    '<tr><td>RPG Vol</td><td colspan="2">{rpgVol}</td></tr>' +
-    '<tr><td>Expected Throughput</td><td colspan="2">{expThroughput}</td></tr>' +
+    '<tr><td>Pieces Fed / RPG Vol.</td><td colspan="2">{peicesFed} / {rpgVol}</td></tr>' +
+    '<tr><td>Throughput Act. / Exp.</td><td colspan="2">{throughput} / {expThroughput}</td></tr>' +
     '<tr id="fullbin_tr" style="display: none;"><td>Full Bins</td><td colspan="2" style="white-space: normal; word-wrap:break-word;">{fullBins}</td></tr>' + 
     '<tr id="machineChart_tr"><td colspan="3"><canvas id="machinechart"></canvas></td></tr>'
     ;
 function formatdpstoprow(properties) {
     return $.extend(properties, {
-        dpssortplans: properties.hasOwnProperty("DPSData") ? properties.DPSData.hasOwnProperty("sortplan_name_perf") ? properties.DPSData.sortplan_name_perf : "" : "",
-        piecesfedfirstpass: properties.hasOwnProperty("DPSData") ? properties.DPSData.hasOwnProperty("pieces_fed_1st_cnt") ? digits(properties.DPSData.pieces_fed_1st_cnt) : "" : "",
-        piecesrejectedfirstpass: properties.hasOwnProperty("DPSData") ? properties.DPSData.hasOwnProperty("pieces_rejected_1st_cnt") ? digits(properties.DPSData.pieces_rejected_1st_cnt) : "" : "",
-        piecestosecondpass: properties.hasOwnProperty("DPSData") ? properties.DPSData.hasOwnProperty("pieces_to_2nd_pass") ? digits(properties.DPSData.pieces_to_2nd_pass) : "" : "",
-        piecesfedsecondpass: properties.hasOwnProperty("DPSData") ? properties.DPSData.hasOwnProperty("pieces_fed_2nd_cnt") ? digits(properties.DPSData.pieces_fed_2nd_cnt) : "" : "",
-        piecesrejectedsecondpass: properties.hasOwnProperty("DPSData") ? properties.DPSData.hasOwnProperty("pieces_rejected_2nd_cnt") ? digits(properties.DPSData.pieces_rejected_2nd_cnt) : "" : "",
-        piecesremainingsecondpass: properties.hasOwnProperty("DPSData") ? properties.DPSData.hasOwnProperty("pieces_remaining") ? digits(properties.DPSData.pieces_remaining) : "" : "",
-        timetocompleteactual: properties.hasOwnProperty("DPSData") ? properties.DPSData.hasOwnProperty("time_to_comp_actual") ? digits(properties.DPSData.time_to_comp_actual) : "" : "",
-        timeleftsecondpassactual: properties.hasOwnProperty("DPSData") ? properties.DPSData.hasOwnProperty("time_to_2nd_pass_actual") ? digits(properties.DPSData.time_to_2nd_pass_actual) : "" : "",
-        recomendedstartactual: properties.hasOwnProperty("DPSData") ? properties.DPSData.hasOwnProperty("rec_2nd_pass_start_actual") ? properties.DPSData.rec_2nd_pass_start_actual : "" : "",
-        completiondateTime: properties.hasOwnProperty("DPSData") ? properties.DPSData.hasOwnProperty("time_to_comp_actual_DateTime") ? properties.DPSData.time_to_comp_actual_DateTime : "" : "",
+        dpssortplans:  properties.sortplan_name_perf,
+        piecesfedfirstpass:  digits(properties.pieces_fed_1st_cnt),
+        piecesrejectedfirstpass:  digits(properties.pieces_rejected_1st_cnt),
+        piecestosecondpass:  digits(properties.pieces_to_2nd_pass),
+        piecesfedsecondpass:  digits(properties.pieces_fed_2nd_cnt),
+        piecesrejectedsecondpass: digits(properties.pieces_rejected_2nd_cnt) ,
+        piecesremainingsecondpass: digits(properties.pieces_remaining),
+        timetocompleteactual: digits(properties.time_to_comp_actual),
+        timeleftsecondpassactual:digits(properties.time_to_2nd_pass_actual),
+        recomendedstartactual: properties.rec_2nd_pass_start_actual,
+        completiondateTime:  properties.time_to_comp_actual_DateTime,
     });
 }
 let dpstop_row_template =
@@ -500,10 +512,13 @@ async function init_machine() {
                 o.value = arr[i].v;
                 $(o).text(arr[i].t);
             });
+            fotfmanager.server.joinGroup("MachineZones");
         }
     })
 }
-function GetMacineBackground(starttime, throughput, expectedthr) {
+function GetMacineBackground(starttime,endtime , throughput, expectedthr) {
+    var color = '#989ea4'
+
     var curtime = moment().format('YYYY-MM-DD HH:mm:ss');
 
     if (!$.isEmptyObject(timezone)) {
@@ -513,96 +528,113 @@ function GetMacineBackground(starttime, throughput, expectedthr) {
     }
     var dt = moment(curtime);
     var st = moment(starttime);
-    var timeduration = moment.duration(dt.diff(st));
-    var minutes = parseInt(timeduration.asMinutes());
-    if (minutes > 15) {
-        if (expectedthr != '' && throughput != '') {
-            var expTP = parseInt(expectedthr, 10);
-            var ThrPt = parseInt(throughput, 10);
-            if ($.isNumeric(expTP) && $.isNumeric(ThrPt)) {
-                var percent = (ThrPt / expTP) * 100;
-                if (percent >= 100) {
-                    return '#3573b1'; //'#cce5ff'
-                }
-                if (percent >= 90) {
-                    return '#ffc107'; //'#FFFF88'
-                }
-                if (percent < 90) {
-                    return '#dc3545'; //'#FF4444'
+    if (st._isValid) {
+        color = "#3573b1";
+    }
+    var ed = moment(endtime);
+    if (ed._isValid) {
+        color = "#989ea4";
+    }
+
+    if (!ed._isValid) {
+        var timeduration = moment.duration(dt.diff(st));
+        var minutes = parseInt(timeduration.asMinutes());
+        if (minutes > 15) {
+            if (expectedthr != '' && throughput != '') {
+                var expTP = parseInt(expectedthr, 10);
+                var ThrPt = parseInt(throughput, 10);
+                if ($.isNumeric(expTP) && $.isNumeric(ThrPt)) {
+                    var percent = (ThrPt / expTP) * 100;
+                    if (percent >= 100) {
+                        color = '#3573b1'; //'#cce5ff'
+                    }
+                    if (percent >= 90) {
+                        color = '#ffc107'; //'#FFFF88'
+                    }
+                    if (percent < 90) {
+                        color = '#dc3545'; //'#FF4444'
+                    }
                 }
             }
         }
     }
-    return '#3573b1'; //'#cce5ff'
+    return color; //'#cce5ff'
 }
-function GetMachinePerfGraph(dataproperties)
-{
+function GetMachinePerfGraph(dataproperties) {
     var xValues = [];
     var yValues = [];
+    var total = 0;
     for (var i = 0; i < dataproperties.MPEWatchData.hourly_data.length; i++) {
         xValues.unshift(dataproperties.MPEWatchData.hourly_data[i].count);
+        total += dataproperties.MPEWatchData.hourly_data[i].count;
         yValues.unshift(dataproperties.MPEWatchData.hourly_data[i].hour);
     }
-
-    new Chart("machinechart", {
-        type: "line",
-        data: {
-            labels: yValues,
-            datasets: [{
-                fill: false,
-                lineTension: 0,
-                backgroundColor: "rgba(0,0,255,1.0)",
-                borderColor: "rgba(0,0,255,0.1)",
-                data: xValues
-            }]
-        },
-        options: {
-            legend: { display: false },
-            title: {
-                display: true,
-                text: "Pieces Fed 24 Hours"
+    if (total > 0) {
+        new Chart("machinechart", {
+            type: "line",
+            data: {
+                labels: yValues,
+                datasets: [{
+                    fill: false,
+                    lineTension: 0,
+                    backgroundColor: "rgba(0,0,255,1.0)",
+                    borderColor: "rgba(0,0,255,0.1)",
+                    data: xValues
+                }]
             },
-            tooltips: {
-                callbacks: {
-                    title: function (tooltipItem, data) {
-                        var hour = ("0" + new Date(tooltipItem[0].xLabel).getHours().toString()).slice(-2);
-                        return tooltipItem[0].xLabel.toString() + "-" + hour + ":59";
-                    },
+            options: {
+                legend: { display: false },
+                title: {
+                    display: true,
+                    text: "Pieces Fed 24 Hours"
+                },
+                tooltips: {
+                    callbacks: {
+                        title: function (tooltipItem, data) {
+                            var hour = ("0" + new Date(tooltipItem[0].xLabel).getHours().toString()).slice(-2);
+                            return tooltipItem[0].xLabel.toString() + "-" + hour + ":59";
+                        },
 
-                    label: function (tooltipItem, data) {
-                        return tooltipItem.yLabel.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",") + " pieces";
+                        label: function (tooltipItem, data) {
+                            return tooltipItem.yLabel.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",") + " pieces";
+                        },
                     },
                 },
-            },
-            scales: {
-                xAxes: [{
-                    gridLines: {
-                        display: true
-                    },
-                    ticks: {
-                        autoSkip: true,
-                        maxTicksLimit: 12,
-                        callback: function (value, index, values) {
-                            var hour = ("0" + new Date(value).getHours().toString()).slice(-2);
-                            return hour + ":00-" + hour + ":59";
-
-                        }
-                    }
-                }],
-                yAxes: [{
-                    ticks: {
-                        beginAtZero: true,
-                        callback: function (value, index, values) {
-                            if (parseInt(value) >= 1000) {
-                                return value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
-                            } else {
-                                return value;
+                scales: {
+                    xAxes: [{
+                        gridLines: {
+                            display: true
+                        },
+                        ticks: {
+                            autoSkip: true,
+                            maxTicksLimit: 12,
+                            callback: function (value, index, values) {
+                                //var hour = ("0" + new Date(value).getHours().toString()).slice(-2);
+                                //return hour + ":00-" + hour + ":59";
+                                var hour = (new Date(value).getHours().toString()).slice(-2);
+                                return hour + ":00";
                             }
                         }
-                    }
-                }]
+                    }],
+                    yAxes: [{
+                        ticks: {
+                            beginAtZero: true,
+                            callback: function (value, index, values) {
+                                if (parseInt(value) >= 1000) {
+                                    return value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+                                } else {
+                                    return value;
+                                }
+                            }
+                        }
+                    }]
+                }
             }
-        }
-    });
+        });
+    }
+    else {
+        var mpgtrStyle = document.getElementById('machineChart_tr').style;
+        mpgtrStyle.display = 'none';
+    }
 }
 

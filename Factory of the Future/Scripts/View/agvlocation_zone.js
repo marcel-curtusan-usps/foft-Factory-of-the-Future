@@ -10,11 +10,10 @@ var agvLocations = new L.GeoJSON(null, {
         if (feature.properties.visible) {
             //'green' : 'gray'
             let inmission = '#989ea4';
-            if (feature.properties.hasOwnProperty("MissionList") && feature.properties.MissionList.length > 0) {
-
+            if (feature.properties.MissionList !== null && feature.properties.MissionList.length > 0)
+            {
                 inmission = '#28a745';
             }
-
             return {
                 weight: 1,
                 opacity: 1,
@@ -103,6 +102,7 @@ async function LoadAGVLocationTables(dataproperties) {
         $('div[id=ctstabs_div]').css('display', 'none');
         $('div[id=vehicle_div]').css('display', 'none');
         $('div[id=dps_div]').css('display', 'none');
+        $('div[id=layer_div]').css('display', 'none');
         $zoneSelect[0].selectize.setValue(-1, true);
         $('span[name=locationid]').text(Get_location_Code(dataproperties.name));
 
@@ -142,14 +142,14 @@ let agvlocation_row_inmission_template = '<tr class="text-center" id={RequestId}
     '</tr>';
 function formatagvlocationinmissionrow(properties) {
     return $.extend(properties, {
-        RequestId: properties.Request_Id,
-        VehicleName: properties.Vehicle,
+        RequestId: properties.RequestId,
+        VehicleName: properties.Vehicle !== null ? properties.Vehicle : "N/A",
         PickupLocation: properties.hasOwnProperty("Pickup_Location") ? Get_location_Code(properties.Pickup_Location) : "N/A",
         DropoffLocation: properties.hasOwnProperty("Dropoff_Location") ? Get_location_Code(properties.Dropoff_Location) : "N/A",
         EndLocation: properties.hasOwnProperty("End_Location") ? Get_location_Code(properties.End_Location) : "N/A",
-        PickupLocationEta: properties.hasOwnProperty("ETA") ? properties.ETA : "N/A",
-        Door: properties.hasOwnProperty("Door") ? properties.Door : "N/A",
-        Placard: properties.hasOwnProperty("Placard") ? properties.Placard : "N/A"
+        PickupLocationEta: properties.ETA !== null ? properties.ETA : "N/A",
+        Door: properties.Door !== null ? properties.Door : "N/A",
+        Placard: properties.Placard !== null ? properties.Placard : "N/A"
     });
 }
 function formatAGVzonetoprow(properties) {
@@ -180,6 +180,7 @@ async function init_agvlocation() {
             $.each(agvlocationzoneData, function () {
                 updateAGVLocationZone(this);
             });
+            fotfmanager.server.joinGroup("AGVLocationZones");
         }
     });
 }
