@@ -108,7 +108,6 @@ async function updateMachineZone(machineupdate) {
             });
             if (layerindex !== -0) {
                 if ($('div[id=machine_div]').is(':visible') && $('div[id=machine_div]').attr("data-id") === machineupdate.properties.id) {
-                 
                     LoadMachineTables(machineupdate.properties, 'machinetable');
                 }
                 updateMPEZone(machineupdate.properties, layerindex);
