@@ -1,19 +1,19 @@
 ﻿[
   {
-    "Id": "6a34fec5-1c70-49af-bd18-8d7192590192",
-    "ActiveCondition": false,
-    "CreatedDate": "2022-04-15T13:08:58.048538-04:00",
-    "CreatedByUsername": "FSVCD0",
+    "Id": "4b3c31cc-792b-403e-b1c2-16dc2a435159",
+    "ActiveCondition": true,
+    "CreatedDate": "2022-05-03T16:07:13.5097237-04:00",
+    "CreatedByUsername": "D7VQ00",
     "LastupdateByUsername": "",
     "LastupdateDate": "0001-01-01T00:00:00",
-    "Name": "AGV Error",
-    "Type": "vehicle",
-    "Conditions": "(error)$",
+    "Name": "ThroughPut",
+    "Type": "automation",
+    "Conditions": "throughput_status",
     "Warning": 0,
-    "WarningAction": "Cleared when blockage is removed\n1.  CLEAR PATH FOR AGV \n2.  MANUALLY RESET AGV",
+    "WarningAction": "",
     "WarningColor": "",
     "Critical": 0,
-    "CriticalAction": "Cleared when blockage is removed\n1.  CLEAR PATH FOR AGV \n2.  MANUALLY RESET AGV",
+    "CriticalAction": "",
     "CriticalColor": ""
   },
   {
@@ -31,6 +31,23 @@
     "WarningColor": "",
     "Critical": 9,
     "CriticalAction": "1. Notify Dock SDO or expeditors of missing scan. \n2. Scan truck arrived.\n3. Retrain employee on scanning requirements.",
+    "CriticalColor": ""
+  },
+  {
+    "Id": "6a34fec5-1c70-49af-bd18-8d7192590192",
+    "ActiveCondition": false,
+    "CreatedDate": "2022-04-15T13:08:58.048538-04:00",
+    "CreatedByUsername": "FSVCD0",
+    "LastupdateByUsername": "",
+    "LastupdateDate": "0001-01-01T00:00:00",
+    "Name": "AGV Error",
+    "Type": "vehicle",
+    "Conditions": "(error)$",
+    "Warning": 0,
+    "WarningAction": "Cleared when blockage is removed\n1.  CLEAR PATH FOR AGV \n2.  MANUALLY RESET AGV",
+    "WarningColor": "",
+    "Critical": 0,
+    "CriticalAction": "Cleared when blockage is removed\n1.  CLEAR PATH FOR AGV \n2.  MANUALLY RESET AGV",
     "CriticalColor": ""
   },
   {
