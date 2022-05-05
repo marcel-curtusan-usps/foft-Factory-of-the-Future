@@ -210,7 +210,7 @@ async function updateagvTable(updatenotification) {
         }
         let findagvtrdataid = agvnotificationtable_Body.find('tr[data-id=' + updatenotification.NotificationID + ']');
         if (findagvtrdataid.length > 0) {
-            if (updatenotification.hasOwnProperty("DELETE")) {
+            if (updatenotification.Delete) {
                 agvnotificationtable_Body.find('tr[data-id=' + updatenotification.NotificationID + ']').remove();
             }
             else {
@@ -240,14 +240,12 @@ async function updatetripTable(updatenotification) {
         }
         let findtrdataid = tripsnotificationtable_Body.find('tr[data-id=' + updatenotification.NotificationID + ']');
         if (findtrdataid.length > 0) {
-            if (updatenotification.hasOwnProperty("DELETE")) {
+            if (updatenotification.Delete) {
                 tripsnotificationtable_Body.find('tr[data-id=' + updatenotification.NotificationID + ']').remove();
                 tripsnotificationtable_Body.find('tr[data-id=collapse_' + updatenotification.NotificationID + ']').remove();
             }
             else {
-                tripsnotificationtable_Body.find('tr[data-id=' + updatenotification.NotificationID + ']').remove();
-                tripsnotificationtable_Body.find('tr[data-id=collapse_' + updatenotification.NotificationID + ']').remove();
-                tripsnotificationtable_Body.append(trip_row_template.supplant(formattripnotifirow(updatenotification)));
+                tripsnotificationtable_Body.find('tr[data-id=' + updatenotification.NotificationID + ']').replaceWith(trip_row_template.supplant(formattripnotifirow(updatenotification)));
             }
         }
         else {
@@ -329,11 +327,11 @@ let agv_row_template =
 function formatagvnotifirow(properties, indx) {
     return $.extend(properties, {
         id: properties.NotificationID,
-        tagid: properties.TAGID,
+        tagid: properties.TypeID,
         name: properties.Name,
-        type: properties.Type,
+        type: properties.TypeName,
         condition: properties.Conditions,
-        duration: calculatevehicleDuration(properties.vehicleTime),
+        duration: calculatevehicleDuration(properties.TypeTime),
         conditioncolor: conditioncolor(properties.TIME, parseInt(properties.Warning), parseInt(properties.Critical)),
         warning_action_text: properties.WarningAction,
         critical_action_text: properties.CriticalAction,
@@ -614,8 +612,8 @@ function calculateDuration(t) {
 }
 function calculatevehicleDuration(t) {
     if (checkValue(t)) {
-        var conditiontime = moment(t).tz(timezone.Facility_TimeZone);//moment(time);  // 5am PDT
-        var curenttime = moment();
+        var conditiontime = moment(t);//moment(time);  // 5am PDT
+        var curenttime = moment().tz(timezone.Facility_TimeZone);
         if (conditiontime._isValid) {
             var d = moment.duration(curenttime.diff(conditiontime));
             return moment.duration(d._milliseconds, "milliseconds").format("d [days], h [hrs], m [min]", {

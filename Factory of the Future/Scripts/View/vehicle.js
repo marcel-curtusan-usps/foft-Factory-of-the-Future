@@ -124,8 +124,8 @@ var agv_vehicles = new L.GeoJSON(null, {
             sidebar.open('home');
             LoadVehicleTable(feature.properties);
         })
-        if (feature.properties.hasOwnProperty('state')) {
-            var new_state = Get_Vehicle_Status(feature.properties.state.replace(/VState/ig, ""));
+        if (feature.properties.Vehicle_Status_Data !== null) {
+            var new_state = Get_Vehicle_Status(feature.properties.Vehicle_Status_Data.STATE.replace(/VState/ig, ""));
             if (/Obstructed|(Error)$/i.test(new_state)) {
                 obstructedState = 'obstructedflash';
             }
@@ -186,19 +186,15 @@ function updateVehicleInfo(layerindex) {
 }
 async function AGVStausUpdate(layerindex)
 {
-    try {
-        map._layers[layerindex].feature.properties.Vehicle_Status_Data.STATE
-        map._layers[layerindex].feature.properties.Vehicle_Status_Data.BATTERYPERCENT
-        
-        if (map._layers[layerindex].feature.properties.Vehicle_Status_Data.STATE) {
+    try {        
+        if (map._layers[layerindex].feature.properties.Vehicle_Status_Data !== null) {
             var new_state = Get_Vehicle_Status(map._layers[layerindex].feature.properties.Vehicle_Status_Data.STATE.replace(/VState/ig, ""));
-            var vehicle_div = $('div[id=div_vehicle]').find('button[id=' + map._layers[layerindex].feature.properties.name + '][name=vehicle]');
 
                 var current_state = $("button[id=" + map._layers[layerindex].feature.properties.name + "][name=vehicle]").text();
                 if (new_state !== current_state) {
                     $("button[id=" + map._layers[layerindex].feature.properties.name + "][name=vehicle]").text(new_state);
                 }
-                var new_btn_category = Get_Vehicle_Catagory(map._layers[layerindex].feature.properties.vehicleCategory);
+            var new_btn_category = Get_Vehicle_Catagory(map._layers[layerindex].feature.properties.Vehicle_Status_Data.CATEGORY.toString());
                 var current_btn_category = Get_Current_Class($("button[id=" + map._layers[layerindex].feature.properties.name + "][name=vehicle]").attr("class"));
                 if (new_btn_category !== current_btn_category) {
                     $("button[id=" + map._layers[layerindex].feature.properties.name + "][name=vehicle]").addClass(new_btn_category).removeClass(current_btn_category);
@@ -207,7 +203,7 @@ async function AGVStausUpdate(layerindex)
                 if (!map._layers[layerindex].feature.properties.hasOwnProperty("vehicleBatteryPercent")) {
                     map._layers[layerindex].feature.properties.vehicleBatteryPercent = 0;
                 }
-                if (parseInt(map._layers[layerindex].feature.properties.Vehicle_Status_Data.BATTERYPERCENT) !== batint) {
+            if (parseInt(map._layers[layerindex].feature.properties.Vehicle_Status_Data.BATTERYPERCENT) !== batint) {
                     $("span[name=" + map._layers[layerindex].feature.properties.name + "_batter_level" + "]").text(map._layers[layerindex].feature.properties.Vehicle_Status_Data.BATTERYPERCENT + " % Charged").attr("data-batter_lvl", map._layers[layerindex].feature.properties.Vehicle_Status_Data.BATTERYPERCENT);
                     $("div[name=" + map._layers[layerindex].feature.properties.name + "_progressbar" + "]").attr("aria-valuenow", map._layers[layerindex].feature.properties.name).css("width", map._layers[layerindex].feature.properties.Vehicle_Status_Data.BATTERYPERCENT + "%");
                     new_btn_category = Get_Vehicle_Progress(map._layers[layerindex].feature.properties.Vehicle_Status_Data.BATTERYPERCENT);
@@ -338,12 +334,12 @@ function formatvehicleinforow(properties) {
     return $.extend(properties, {
         TagId: properties.id,
         name: properties.name,
-        batterylevelnum: properties.hasOwnProperty("vehicleBatteryPercent") ? properties.vehicleBatteryPercent : 0,
-        vehiclenumber: properties.name.replace(/[^0-9.]/g, '').replace(/^0+/, ''),
-        vehiclestate: properties.hasOwnProperty("state") ? Get_Vehicle_Status(properties.state.replace(/VState/ig, "")) : "N/A",
-        vehicleBatteryProgressBar: Get_Vehicle_Progress(properties.hasOwnProperty("vehicleBatteryPercent") ? properties.vehicleBatteryPercent : 0),
-        vehiclestateCategory: properties.hasOwnProperty("vehicleCategory") ? Get_Vehicle_Catagory(properties.vehicleCategory) : "btn-outline-info",
-        vehiclestatecolor: properties.hasOwnProperty("state") ? properties.state : "red"
+        batterylevelnum: properties.Vehicle_Status_Data !== null ? properties.Vehicle_Status_Data.BATTERYPERCENT : 0,
+        vehiclenumber: properties.Vehicle_Status_Data !== null ? properties.name.replace(/[^0-9.]/g, '').replace(/^0+/, '') : "",
+        vehiclestate: properties.Vehicle_Status_Data !== null ? Get_Vehicle_Status(properties.Vehicle_Status_Data.STATE.replace(/VState/ig, "")) : "N/A",
+        vehicleBatteryProgressBar: Get_Vehicle_Progress(properties.Vehicle_Status_Data !== null ? properties.Vehicle_Status_Data.BATTERYPERCENT : 0),
+        vehiclestateCategory: properties.Vehicle_Status_Data !== null ? Get_Vehicle_Catagory(properties.Vehicle_Status_Data.CATEGORY.toString()) : "btn-outline-info",
+        vehiclestatecolor: properties.Vehicle_Status_Data !== null ? properties.Vehicle_Status_Data.STATE.replace(/VState/ig, "") : "red"
     });
 }
 function formatvehiclemissionrow(properties) {
@@ -505,4 +501,15 @@ function get_pi_icon(name, type) {
     else {
         return "pi-iconVh_ss ml--16";
     }
+}
+async function init_agvtags() {
+    //Get AGV Location list
+    fotfmanager.server.getVehicleTagsList().done(function (Data) {
+        if (Data.length > 0) {
+            $.each(Data, function () {
+                updateVehicleTag(this);
+            })
+            fotfmanager.server.joinGroup("VehiclsMarkers");
+        }
+    });
 }

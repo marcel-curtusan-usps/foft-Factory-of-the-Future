@@ -240,7 +240,10 @@ namespace Factory_of_the_Future
         {
             return _managerHub.GetAGVLocationZonesList();
         }
-
+        public IEnumerable<GeoMarker> GetVehicleTagsList()
+        {
+            return _managerHub.GetVehicleTagsList();
+        }
         ///// <summary>
         ///// Get AGV location Zones
         ///// </summary>

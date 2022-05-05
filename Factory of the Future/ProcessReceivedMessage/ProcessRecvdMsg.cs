@@ -551,13 +551,15 @@ namespace Factory_of_the_Future
                     {
                         if (existingVal.RawData != newRTData.RawData)
                         {
-                            existingVal.RawData = JsonConvert.SerializeObject(newRTData, Formatting.None);
-                            existingVal.TripUpdate = true;
-                            return existingVal;
+                            newRTData.RawData = JsonConvert.SerializeObject(newRTData, Formatting.None);
+                            newRTData.TripUpdate = true;
+                            newRTData.State = existingVal.State;
+                            newRTData.NotificationId = existingVal.NotificationId;
+                            return newRTData;
                         }
                         else
                         {
-                            return newRTData;
+                            return existingVal;
                         }
 
                     });
@@ -1663,6 +1665,7 @@ namespace Factory_of_the_Future
         }
         private static void FLEET_STATUS(JObject data)
         {
+            bool update = false;
             try
             {
                 if (data.ContainsKey("NASS_CODE") && (string)data["NASS_CODE"] == AppParameters.AppSettings["FACILITY_NASS_CODE"].ToString())
@@ -1680,15 +1683,19 @@ namespace Factory_of_the_Future
                                     //check the notifications 
                                     if (existingValue.Properties.Vehicle_Status_Data.STATE != newVehicleStatus.STATE)
                                     {
-                                        existingValue.Properties.TagUpdate = true;
-                                        //Task.Run(() => CheckNotification(data["state".ToUpper()].ToString(), "vehicle".ToLower(), (string)data["VEHICLE_MAC_ADDRESS".ToUpper()]));
-                                        //CheckNotification(existingValue.Properties.Vehicle_Status_Data.STATE, newVehicleStatus.STATE, "vehicle".ToLower());
+                                        
+                                        existingValue.Properties.NotificationId = CheckNotification(existingValue.Properties.Vehicle_Status_Data.STATE, newVehicleStatus.STATE, "vehicle".ToLower(), existingValue.Properties, existingValue.Properties.NotificationId);
+                                        update = true;
                                     }
-                                    JObject tempVehicleStatus = (JObject)JsonConvert.DeserializeObject(JsonConvert.SerializeObject(existingValue.Properties.Vehicle_Status_Data, Formatting.Indented));
+                                    if (existingValue.Properties.Vehicle_Status_Data.BATTERYPERCENT != newVehicleStatus.BATTERYPERCENT)
+                                    {
+                                        update = true;
+                                    }
+                                    JObject tempVehicleStatus = JObject.Parse(JsonConvert.SerializeObject(existingValue.Properties.Vehicle_Status_Data, Formatting.Indented));
                                     tempVehicleStatus.Merge(data, new JsonMergeSettings { MergeArrayHandling = MergeArrayHandling.Union });
                                     existingValue.Properties.Vehicle_Status_Data = tempVehicleStatus.ToObject<VehicleStatus>();
 
-                                    if (existingValue.Properties.Vehicle_Status_Data.BATTERYPERCENT != newVehicleStatus.BATTERYPERCENT)
+                                    if (update)
                                     {
                                         existingValue.Properties.TagUpdate = true;
                                     }
@@ -1696,6 +1703,7 @@ namespace Factory_of_the_Future
                                 else
                                 {
                                     existingValue.Properties.Vehicle_Status_Data = newVehicleStatus;
+                                    existingValue.Properties.NotificationId = CheckNotification("", newVehicleStatus.STATE, "vehicle".ToLower(), existingValue.Properties, existingValue.Properties.NotificationId);
                                     existingValue.Properties.TagUpdate = true;
                                 }
                             }
@@ -1833,34 +1841,82 @@ namespace Factory_of_the_Future
                 new ErrorLogger().ExceptionLog(e);
             }
         }
-        private static void CheckNotification(string State, string type, string name)
+
+        private static string CheckNotification(string currentState, string NewState, string type, Marker properties, string noteification_Id)
         {
+            string noteification_id = "";
             try
             {
-                //new condition
-                foreach (NotificationConditions newCondition in AppParameters.NotificationConditionsList.Where(r => Regex.IsMatch(r.Value.Conditions ,State, RegexOptions.IgnoreCase)
-                    && r.Value.Type.ToLower() == type.ToLower()
-                    && r.Value.ActiveCondition).Select(x => x.Value))
+                if (currentState != NewState)
                 {
-                    string noteification_id = newCondition.Id + name;
-                    if (!AppParameters.NotificationList.ContainsKey(noteification_id))
+                    if (!string.IsNullOrEmpty(noteification_Id) && AppParameters.NotificationList.ContainsKey(noteification_Id))
                     {
-                        //JObject ojbMerge = (JObject)newCondition.DeepClone();
-                        //ojbMerge.Merge(data, new JsonMergeSettings { MergeArrayHandling = MergeArrayHandling.Union });
-                        //ojbMerge["SHOWTOAST"] = true;
-                        //ojbMerge["TAGID"] = (string)data["id"];
-                        //ojbMerge["notificationId"] = (string)newCondition["ID"] + (string)data["id"];
-                        //ojbMerge["UPDATE"] = true;
-                        //AppParameters.NotificationList.TryAdd(noteification_id, ojbMerge);
-                    }
-                }
-            }
-            catch (Exception)
-            {
+                        if (AppParameters.NotificationList.TryGetValue(noteification_Id, out Notification notification))
+                        {
 
-                throw;
+                            notification.Delete = true;
+                            notification.Notification_Update = true;
+                            noteification_id = "";
+
+                        }
+                    }
+                    //new condition
+                    AppParameters.NotificationConditionsList.Where(r => Regex.IsMatch(NewState, r.Value.Conditions, RegexOptions.IgnoreCase)
+                  && r.Value.Type.ToLower() == type.ToLower()
+                   && r.Value.ActiveCondition).Select(x => x.Value).ToList().ForEach(conditions =>
+                   {
+                       noteification_id = conditions.Id + properties.Id;
+
+                       Notification newNotifi = JsonConvert.DeserializeObject<Notification>(JsonConvert.SerializeObject(conditions, Formatting.None));
+                       newNotifi.Type_ID = properties.Id ; 
+                       newNotifi.Type_Name = properties.Name;
+                       newNotifi.Type_Duration = 0;
+                       newNotifi.Type_Status = currentState;
+                       newNotifi.Notification_ID = noteification_id;
+                       newNotifi.Notification_Update = true;
+                       newNotifi.Type_Time = properties.Vehicle_Status_Data.TIME;
+                       AppParameters.NotificationList.TryAdd(noteification_id, newNotifi);
+
+                   });
+
+                }
+                return noteification_id;
+            }
+            catch (Exception e)
+            {
+                new ErrorLogger().ExceptionLog(e);
+                return noteification_id;
             }
         }
+
+        //private static void CheckNotification(string State, string type, string name)
+        //{
+        //    try
+        //    {
+        //        //new condition
+        //        foreach (NotificationConditions newCondition in AppParameters.NotificationConditionsList.Where(r => Regex.IsMatch(r.Value.Conditions ,State, RegexOptions.IgnoreCase)
+        //            && r.Value.Type.ToLower() == type.ToLower()
+        //            && r.Value.ActiveCondition).Select(x => x.Value))
+        //        {
+        //            string noteification_id = newCondition.Id + name;
+        //            if (!AppParameters.NotificationList.ContainsKey(noteification_id))
+        //            {
+        //                //JObject ojbMerge = (JObject)newCondition.DeepClone();
+        //                //ojbMerge.Merge(data, new JsonMergeSettings { MergeArrayHandling = MergeArrayHandling.Union });
+        //                //ojbMerge["SHOWTOAST"] = true;
+        //                //ojbMerge["TAGID"] = (string)data["id"];
+        //                //ojbMerge["notificationId"] = (string)newCondition["ID"] + (string)data["id"];
+        //                //ojbMerge["UPDATE"] = true;
+        //                //AppParameters.NotificationList.TryAdd(noteification_id, ojbMerge);
+        //            }
+        //        }
+        //    }
+        //    catch (Exception)
+        //    {
+
+        //        throw;
+        //    }
+        //}
         private static void ProjectData(dynamic jsonObject, string connID)
         {
             try

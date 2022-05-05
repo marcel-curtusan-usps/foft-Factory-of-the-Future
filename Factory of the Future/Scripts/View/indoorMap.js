@@ -212,6 +212,7 @@ function init_mapSetup(MapData)
                 init_arrive_depart_trips();
                 init_locators();
                 init_cameras();
+                init_agvtags();
                 LoadNotification("routetrip");
                 LoadNotification("vehicle");
                 //center image
@@ -220,12 +221,9 @@ function init_mapSetup(MapData)
                 //add the image to the map
                 L.imageOverlay(img.src, trackingarea.getBounds()).addTo(map);
                 //add user to the tag groups only for none PMCCUser
-                if (!/(^PMCCUser$)/i.test(User.UserId)) {
-                    fotfmanager.server.joinGroup("PeopleMarkers");
-                }
-                 //add user to the vehicles tag groups
-                fotfmanager.server.joinGroup("VehiclsMarkers");
-
+                //if (!/(^PMCCUser$)/i.test(User.UserId)) {
+                //    fotfmanager.server.joinGroup("PeopleMarkers");
+                //}
             }
         }
         if ($.isEmptyObject(map)) {

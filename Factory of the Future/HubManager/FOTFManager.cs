@@ -490,9 +490,9 @@ namespace Factory_of_the_Future
             }
         }
 
-        private void BroadcastNotificationStatus(Notification vehiclenotification)
+        private void BroadcastNotificationStatus(Notification notification)
         {
-            Clients.All.updateNotification(vehiclenotification);
+            Clients.All.updateNotification(notification);
         }
 
         internal IEnumerable<NotificationConditions> GetNotification_ConditionsList()
@@ -822,12 +822,11 @@ namespace Factory_of_the_Future
                     || Regex.IsMatch(trip.Status, "(CANCELED|DEPARTED|OMITTED|COMPLETE|REMOVE)", RegexOptions.IgnoreCase))
                 {
                     trip.Containers = null;
-                    state = "REMOVE";
-                    trip.State = state;
+                    trip.State = "REMOVE";
                     update = true;
                 }
                 //validate trip
-                if (state != "REMOVE")
+                if (trip.State != "REMOVE")
                 {
                     //trip minutes 
                     int tripInMin = AppParameters.Get_TripMin(trip.ScheduledDtm);
@@ -852,13 +851,12 @@ namespace Factory_of_the_Future
                         update = true;
                     }
                     // Notification check 
-                    if (update)
-                    {
-                        trip.NotificationId = CheckNotification(trip.State, state, "routetrip", trip, routetripid);
-                    }
+
+                    trip.NotificationId = CheckNotification(trip.State, state, "routetrip", trip, trip.NotificationId);
+
                     if (!string.IsNullOrEmpty(trip.DestSites))
                     {
-                        trip.Containers = GetTripContainer(trip.DestSites,trip.TrailerBarcode, out int NotloadedContainers, out int loaded);
+                        trip.Containers = GetTripContainer(trip.DestSites, trip.TrailerBarcode, out int NotloadedContainers, out int loaded);
                         trip.NotloadedContainers = NotloadedContainers;
                     }
                     trip.State = state;
@@ -950,24 +948,25 @@ namespace Factory_of_the_Future
             string noteification_id = "";
             try
             {
+                if (!string.IsNullOrEmpty(noteifi_id))
+                {
+                    noteification_id = noteifi_id;
+                }
                 if (currentState != NewState)
                 {
                     if (!string.IsNullOrEmpty(noteifi_id) && AppParameters.NotificationList.ContainsKey(noteifi_id))
                     {
                         if (AppParameters.NotificationList.TryGetValue(noteification_id, out Notification notification))
                         {
-                            if (!notification.Delete )
-                            {
-                                notification.Delete = true;
-                                notification.Notification_Update = true;
-                                noteification_id = "";
-                            }
+                            notification.Delete = true;
+                            notification.Notification_Update = true;
+                            noteification_id = "";
                         }
                     }
                     //new condition
                     AppParameters.NotificationConditionsList.Where(r => Regex.IsMatch(NewState, r.Value.Conditions, RegexOptions.IgnoreCase)
                   && r.Value.Type.ToLower() == type.ToLower()
-                   && (bool)r.Value.ActiveCondition).Select(x => x.Value).ToList().ForEach(conditions =>
+                   && r.Value.ActiveCondition).Select(x => x.Value).ToList().ForEach(conditions =>
                    {
                        noteification_id = conditions.Id + trip.RouteTripId + trip.RouteTripLegId + trip.TripDirectionInd;
 
@@ -982,22 +981,6 @@ namespace Factory_of_the_Future
                        AppParameters.NotificationList.TryAdd(noteification_id, newNotifi);
 
                    });
-
-                    //)
-                    //{
-                    //    noteification_id = (string)newCondition["id"] + trip.Id;
-                    //    if (!AppParameters.NotificationList.ContainsKey(noteification_id))
-                    //    {
-                    //        JObject ojbMerge = (JObject)newCondition.DeepClone();
-                    //        ojbMerge.Merge(trip, new JsonMergeSettings { MergeArrayHandling = MergeArrayHandling.Union });
-                    //        ojbMerge["SHOWTOAST"] = true;
-                    //        ojbMerge["TAGID"] = trip.Id;
-                    //        ojbMerge["conditionId"] = (string)newCondition["id"];
-                    //        ojbMerge["notificationId"] = (string)newCondition["id"] + trip.Id;
-                    //        ojbMerge["UPDATE"] = true;
-                    //        AppParameters.NotificationList.TryAdd((string)newCondition["id"] + trip.Id, ojbMerge);
-                    //    }
-                    //}
 
                 }
                 return noteification_id;
@@ -1205,6 +1188,18 @@ namespace Factory_of_the_Future
             try
             {
                 return AppParameters.ZoneList.Where(r => r.Value.Properties.ZoneType == "AGVLocation").Select(x => x.Value).ToList();
+            }
+            catch (Exception e)
+            {
+                new ErrorLogger().ExceptionLog(e);
+                return null;
+            }
+        }
+        internal IEnumerable<GeoMarker> GetVehicleTagsList()
+        {
+            try
+            {
+                return AppParameters.TagsList.Where(x => x.Value.Properties.TagType.EndsWith("Vehicle")).Select(y => y.Value).ToList();
             }
             catch (Exception e)
             {
