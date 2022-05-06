@@ -181,6 +181,16 @@ $(function () {
                     pane: '<div class="btn-toolbar" role="toolbar" id="app_setting">' +
                         '<div id="div_app_settingtable" class="container-fluid">' +
                         '<div class="card w-100">' +
+                        '<div class="card-header pl-1">' +
+                        '<h6 class="control-label sectionHeader ml-1 mb-1 d-flex justify-content-between">Workroom/Floor Image</h6>' +
+                        '</div>' +
+                        '<div class="card-body" id="img_card_body">' +
+                        '</div>' +
+                        '</div>'+
+                        '<div class="card w-100">' +
+                        '<div class="card-header pl-1">' +
+                        '<h6 class="control-label sectionHeader ml-1 mb-1 d-flex justify-content-between">Applicaton Setting</h6>' +
+                        '</div>' +
                         '<div class="card-body">' +
                         '<div class="table-responsive fixedHeader" style="max-height: calc(100vh - 100px); ">' +
                         '<table class="table table-sm table-hover table-condensed" id="app_settingtable" style="border-collapse:collapse;">' +
@@ -195,6 +205,8 @@ $(function () {
                         '</div>' +
                         '</div >' +
                         '</div></div>'
+
+                       
                 });
 
             }
@@ -909,7 +921,14 @@ function OrderBy(a, b, n) {
 function SortByTagName(a, b) {
     return a.name < b.name ? -1 : a.name > b.name ? 1 : 0;
 }
-
+function SortByName(a, b) {
+    var aName = a.toLowerCase();
+    var bName = b.toLowerCase();
+    return ((aName < bName) ? -1 : ((aName > bName) ? 1 : 0));
+}
+function SortByNumber(a, b) {
+    return a - b;
+}
 function GetPeopleInZone(zone, P2Pdata, staffarray) {
     //staffing
     var planstaffarray = [];

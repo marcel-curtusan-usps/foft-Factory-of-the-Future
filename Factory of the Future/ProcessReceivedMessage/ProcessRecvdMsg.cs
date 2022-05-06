@@ -603,6 +603,18 @@ namespace Factory_of_the_Future
                     JToken tempData = JToken.Parse(data);
                     foreach (JObject item in tempData.Children())
                     {
+                        string dockdoor_id = item.ContainsKey("doorNumber") ? item["doorNumber"].ToString() :"";
+                        if (!string.IsNullOrEmpty(dockdoor_id))
+                        {
+                            string doorInfo = JsonConvert.SerializeObject(item, Formatting.None);
+                            AppParameters.DockdoorList.AddOrUpdate(dockdoor_id, doorInfo,
+                               (key, oldValue) =>
+                               {
+                                   return doorInfo;
+                               });
+                            doorInfo = null;
+                        }
+                     
                         string routetripid = "";
                         if (item.ContainsKey("routeTripId") && item.ContainsKey("routeTripLegId") && item.ContainsKey("tripDirectionInd"))
                         {

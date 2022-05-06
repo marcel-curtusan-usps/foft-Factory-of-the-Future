@@ -75,7 +75,7 @@ function init_geometry_editing() {
             CreateCamera(e);
 
         }
-        $('button[id=customzonecloseBtn][type=button]').off().on('click', function () {
+        $('button[id=zonecloseBtn][type=button]').off().on('click', function () {
             sidebar.close();
             e.layer.remove();
         })
@@ -104,6 +104,21 @@ function init_geometry_editing() {
             $('select[name=zone_type]').removeClass('is-invalid').addClass('is-valid');
             $('span[id=error_zone_type]').text("");
             
+        }
+    });
+    //mpe select
+    $('select[name=zone_select_name]').change(function () {
+        if (!checkValue($('select[name=zone_select_name]').val())) {
+            $('select[name=zone_select_name]').removeClass('is-valid').addClass('is-invalid');
+            $('input[type=text][name=zone_name]').val("")
+            $('span[id=error_zone_name]').text("Please Enter Name");
+         
+        }
+        else {
+            $('select[name=zone_select_name]').removeClass('is-invalid').addClass('is-valid');
+            $('span[id=error_zone_name]').text("");
+            $('input[type=text][name=zone_name]').removeClass('is-invalid').addClass('is-valid');
+
         }
     });
     //bins name
@@ -206,11 +221,49 @@ function CreateZone(newlayer)
             name: "",
             visible: true
         }
+        $('input[id=zone_name]').css('display', 'block');
+        $('select[id=zone_select_name]').css('display', 'none');
+        $('select[name=zone_type]').change(function () {
+            if ($('select[name=zone_type] option').filter(':selected').val() === "Machine")
+            {
+                fotfmanager.server.getMPEList().done(function (mpedata) {
+                    if (mpedata.length > 0) {
+                        //sort 
+                        mpedata.sort(SortByName);
+                        $('input[id=zone_name]').css('display', 'none');
+                        $('select[id=zone_select_name]').css('display', 'block');
+                        $('<option/>').empty();
+                        $('<option/>').val("");
+                        $.each(mpedata, function () {
+                            $('<option/>').val(this).html(this).appendTo('#zone_select_name');
+                        })
+                    }
+                });
+            }
+            if ($('select[name=zone_type] option').filter(':selected').val() === "DockDoor") {
+                fotfmanager.server.getDockDoorList().done(function (DockDoordata) {
+                    if (DockDoordata.length > 0) {
+                        //sort 
+                        DockDoordata.sort(SortByNumber);
+                        $('input[id=zone_name]').css('display', 'none');
+                        $('select[id=zone_select_name]').css('display', 'block');
+                        $('<option/>').empty();
+                        $('<option/>').val("");
+                        $.each(DockDoordata, function () {
+                            $('<option/>').val(this).html(this).appendTo('#zone_select_name');
+                        })
+                    }
+                });
+            }
+            $('input[id="zone_name"]').val("");
+            $('input[id=zone_name]').css('display', 'block');
+            $('select[id=zone_select_name]').css('display', 'none');
+        });
 
         $('button[id=zonesubmitBtn][type=button]').off().on('click', function () {
             togeo.properties = geoProp;
             togeo.properties.Zone_Type = $('select[name=zone_type] option:selected').val();
-            togeo.properties.name = $('input[id="zone_name"]').val();
+            togeo.properties.name = $('input[id="zone_name"]').is(':visible') ? $('input[id="zone_name"]').val() : $('select[name=zone_select_name] option:selected').val();
 
             $.connection.FOTFManager.server.addZone(JSON.stringify(togeo)).done(function (Data) {
                 if (!$.isEmptyObject(Data)) {
@@ -239,11 +292,26 @@ function CreateBinZone(newlayer) {
             bins: "",
             visible: true
         }
+        $('input[id=zone_name]').css('display', 'block');
+        $('select[id=zone_select_name]').css('display', 'none');
+        fotfmanager.server.getMPEList().done(function (mpedata) {
+            if (mpedata.length > 0) {
+                //sort 
+                mpedata.sort(SortByName);
+                $('input[id=zone_name]').css('display', 'none');
+                $('select[id=zone_select_name]').css('display', 'block');
+                $('<option/>').empty();
+                $('<option/>').val("");
+                $.each(mpedata, function () {
+                    $('<option/>').val(this).html(this).appendTo('#zone_select_name');
+                })
+            }
+        });
 
         $('button[id=zonesubmitBtn][type=button]').off().on('click', function () {
             togeo.properties = geoProp;
             togeo.properties.Zone_Type = $('select[name=zone_type] option:selected').val();
-            togeo.properties.name = $('input[id="zone_name"]').val();
+            togeo.properties.name = $('input[id="zone_name"]').is(':visible') ? $('input[id="zone_name"]').val() : $('select[name=zone_select_name] option:selected').val() ;
             togeo.properties.bins = $('textarea[id="bin_bins"]').val();
 
             $.connection.FOTFManager.server.addZone(JSON.stringify(togeo)).done(function (Data) {
@@ -274,6 +342,8 @@ function CreateCamera(newlayer)
         Tag_Type: "",
         visible: true
     }
+    $('input[id=zone_name]').css('display', 'block');
+    $('select[id=zone_select_name]').css('display', 'none');
     fotfmanager.server.getCameraList().done(function (cameradata) {
         if (cameradata.length > 0) {
             $('<option/>').empty();

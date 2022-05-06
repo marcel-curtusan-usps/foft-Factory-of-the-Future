@@ -215,6 +215,10 @@ namespace Factory_of_the_Future
         {
             return _managerHub.GetDockDoorZonesList();
         }
+        public IEnumerable<string> GetDockDoorList()
+        {
+            return _managerHub.GetDockDoorList();
+        }
 
         /// <summary>
         /// Get Machine Zones
@@ -223,6 +227,10 @@ namespace Factory_of_the_Future
         public IEnumerable<GeoZone> GetMachineZonesList()
         {
             return _managerHub.GetMachineZonesList();
+        }
+        public IEnumerable<string> GetMPEList()
+        {
+            return _managerHub.GetMPEList();
         }
         /// <summary>
         /// Get Machine Bin Zones
@@ -301,7 +309,7 @@ namespace Factory_of_the_Future
         }
 
         ///// <summary>
-        ///// Connection handling section
+        ///// Get user Info section
         ///// </summary>
         /////
         public ADUser GetUserProfile()
@@ -310,6 +318,16 @@ namespace Factory_of_the_Future
             
             return _managerHub.GetUserProfile(user_id);
         }
+        ///// <summary>
+        ///// Connection handling section
+        ///// </summary>
+        /////
+        public IEnumerable<string> GetTimeZone()
+        {
+          return _managerHub.GetTimeZone();
+            
+        }
+
         //public IEnumerable<JToken> GetADUserProfile()
         //{
         //    string user_id = Regex.Replace(Context.User.Identity.Name, @"(USA\\|ENG\\)", "").Trim();

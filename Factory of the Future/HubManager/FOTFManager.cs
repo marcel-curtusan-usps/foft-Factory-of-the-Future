@@ -164,6 +164,33 @@ namespace Factory_of_the_Future
                 return null;
             }
         }
+
+        internal IEnumerable<string> GetDockDoorList()
+        {
+            try
+            {
+                return AppParameters.DockdoorList.Select(y => y.Key).ToList();
+            }
+            catch (Exception e)
+            {
+                new ErrorLogger().ExceptionLog(e);
+                return null;
+            }
+        }
+
+        internal IEnumerable<string> GetMPEList()
+        {
+            try
+            {
+                return AppParameters.MPEPerformanceList.Select(y => y.Key).ToList();
+            }
+            catch (Exception e)
+            {
+                new ErrorLogger().ExceptionLog(e);
+                return null;
+            }
+        }
+
         internal IEnumerable<GeoZone> GetBinZonesList()
         {
             try
@@ -212,6 +239,21 @@ namespace Factory_of_the_Future
                 return null;
             }
         }
+
+        internal IEnumerable<string> GetTimeZone()
+        {
+            try
+            {
+                return AppParameters.TimeZoneConvert.Keys.ToList();
+            }
+            catch (Exception e)
+            {
+                new ErrorLogger().ExceptionLog(e);
+                return null;
+            }
+          
+        }
+
         internal GeoMarker RemoveMarker(string data)
         {
             try

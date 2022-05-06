@@ -423,7 +423,6 @@
     <Compile Include="Controllers\SVDBCallController.cs" />
     <Compile Include="Controllers\SVTripsController.cs" />
     <Compile Include="Controllers\TagsController.cs" />
-    <Compile Include="Controllers\TimeZoneController.cs" />
     <Compile Include="Controllers\UploadFilesController.cs" />
     <Compile Include="Database_Calls\Oracle_DB_Calls.cs" />
     <Compile Include="Database_Calls\SV_DB_Call.cs" />
