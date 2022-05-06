@@ -132,38 +132,6 @@ $(function () {
                         '</div></div>'
                 });
                 init_connection();
-                //if (!/^https/i.test(window.location.protocol)) {
-                //    sidebar.addPanel({
-                //        id: 'camera_video',
-                //        tab: '<i class="bi-camera-fill"></i>',
-                //        position: 'top',
-                //        pane: '<div class="btn-toolbar" role="toolbar" id="camera_display">' +
-                //            '<div id="div_camera" class="container-fluid">' +
-                //            '<h4>Web Cameras</h4>' +
-                //            '<button type="button" class="btn btn-primary float-left mb-2" name="addcamera">Add</button>' +
-                //            '<div class="card w-100 bg-white mt-2 pb-1">' +
-                //            '<div class="card-body">' +
-                //            '<div class="table-responsive">' +
-                //            '<table class="table table-sm table-hover table-condensed mb-1" id="cameratable" style="border-collapse:collapse;">' +
-                //            '<thead class="thead-dark">' +
-                //            '<tr>' +
-                //            '<th class="row-connection-name">Name</th><th class="row-connection-type">Description</th><th class="row-connection-action">View Camera</th>' +
-                //            '</tr>' +
-                //            '</thead>' +
-                //            '<tbody></tbody>' +
-                //            '</table>' +
-                //            '</div>' +
-                //            '</div>' +
-                //            '</div >' +
-                //            '</div></div>'
-                //    });
-
-                //    $('button[name=addcamera]').off().on('click', function () {
-                //        /* close the sidebar */
-                //        sidebar.close();
-                //        Add_Camera();
-                //    });
-                //}
                 init_geometry_editing();
                 $('button[name=addconnection]').off().on('click', function () {
                     /* close the sidebar */
@@ -214,10 +182,6 @@ $(function () {
                 fotfmanager.server.leaveGroup("PeopleMarkers");
             }
             if (/(^PMCCUser$)/i.test(User.UserId)) {
-                map.removeLayer(tagsMarkersGroup)
-                //remove connection from receiving data for people markers. 
-                fotfmanager.server.leaveGroup("PeopleMarkers");
-
                 //add QRCode
                 var QRCodedisplay = L.Control.extend({
                     options: {
