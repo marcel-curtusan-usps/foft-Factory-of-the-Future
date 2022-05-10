@@ -245,6 +245,7 @@ async function updatetripTable(updatenotification) {
                 tripsnotificationtable_Body.find('tr[data-id=collapse_' + updatenotification.NotificationID + ']').remove();
             }
             else {
+                tripsnotificationtable_Body.find('tr[data-id=collapse_' + updatenotification.NotificationID + ']').remove();
                 tripsnotificationtable_Body.find('tr[data-id=' + updatenotification.NotificationID + ']').replaceWith(trip_row_template.supplant(formattripnotifirow(updatenotification)));
             }
         }

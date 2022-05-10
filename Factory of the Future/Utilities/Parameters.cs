@@ -1363,43 +1363,43 @@ namespace Factory_of_the_Future
     public class Mission
     {
         [JsonProperty("RequestId")]
-        public string REQUEST_ID { get; set; }
+        public string REQUEST_ID { get; set; } = "";
 
         [JsonProperty("Vehicle")]
-        public string VEHICLE { get; set; }
+        public string VEHICLE { get; set; } = "";
 
         [JsonProperty("Vehicle_Number")]
-        public int VEHICLE_NUMBER { get; set; }
+        public int VEHICLE_NUMBER { get; set; } = 0;
 
         [JsonProperty("NASS_Code")]
-        public int NASS_CODE { get; set; }
+        public string NASS_CODE { get; set; } = "";
 
         [JsonProperty("Pickup_Location")]
-        public string PICKUP_LOCATION { get; set; }
+        public string PICKUP_LOCATION { get; set; } = "";
 
         [JsonProperty("Dropoff_Location")]
-        public string DROPOFF_LOCATION { get; set; }
+        public string DROPOFF_LOCATION { get; set; } = "";
 
         [JsonProperty("End_Location")]
-        public string END_LOCATION { get; set; }
+        public string END_LOCATION { get; set; } = "";
 
         [JsonProperty("Door")]
-        public string DOOR { get; set; }
+        public string DOOR { get; set; } = "";
 
         [JsonProperty("ETA")]
-        public string ETA { get; set; }
+        public string ETA { get; set; } = "";
 
         [JsonProperty("Placard")]
-        public string PLACARD { get; set; }
+        public string PLACARD { get; set; } = "";
 
         [JsonProperty("QueuePosition")]
         public string QUEUEPOSITION { get; set; }
 
         [JsonProperty("State")]
-        public string STATE { get; set; }
+        public string STATE { get; set; } = "";
 
         [JsonProperty("MissionType")]
-        public string MISSIONTYPE { get; set; }
+        public string MISSIONTYPE { get; set; } = "";
 
         [JsonProperty("MissionRequestTime")]
         public DateTime MISSIONREQUESTTIME { get; set; }
