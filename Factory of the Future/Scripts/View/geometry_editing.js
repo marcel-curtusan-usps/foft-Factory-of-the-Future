@@ -232,8 +232,9 @@ function CreateZone(newlayer)
                         mpedata.sort(SortByName);
                         $('input[id=zone_name]').css('display', 'none');
                         $('select[id=zone_select_name]').css('display', 'block');
-                        $('<option/>').empty();
-                        $('<option/>').val("");
+                        $('select[id=zone_select_name]').empty();
+                        $('<option/>').val("").html("").appendTo('select[id=zone_select_name]');
+                        $('select[id=zone_select_name]').val("");
                         $.each(mpedata, function () {
                             $('<option/>').val(this).html(this).appendTo('#zone_select_name');
                         })
@@ -247,15 +248,16 @@ function CreateZone(newlayer)
                         DockDoordata.sort(SortByNumber);
                         $('input[id=zone_name]').css('display', 'none');
                         $('select[id=zone_select_name]').css('display', 'block');
-                        $('<option/>').empty();
-                        $('<option/>').val("");
+                        $('select[id=zone_select_name]').empty();
+                        $('<option/>').val("").html("").appendTo('select[id=zone_select_name]');
+                        $('select[id=zone_select_name]').val("");
                         $.each(DockDoordata, function () {
-                            $('<option/>').val(this).html(this).appendTo('#zone_select_name');
+                            $('<option/>').val(this).html(this).appendTo('select[id=zone_select_name]');
                         })
                     }
                 });
             }
-            $('input[id="zone_name"]').val("");
+            $('input[id=zone_name]').val("");
             $('input[id=zone_name]').css('display', 'block');
             $('select[id=zone_select_name]').css('display', 'none');
         });
@@ -263,7 +265,7 @@ function CreateZone(newlayer)
         $('button[id=zonesubmitBtn][type=button]').off().on('click', function () {
             togeo.properties = geoProp;
             togeo.properties.Zone_Type = $('select[name=zone_type] option:selected').val();
-            togeo.properties.name = $('input[id="zone_name"]').is(':visible') ? $('input[id="zone_name"]').val() : $('select[name=zone_select_name] option:selected').val();
+            togeo.properties.name = $('input[id=zone_name]').is(':visible') ? $('input[id=zone_name]').val() : $('select[name=zone_select_name] option:selected').val();
 
             $.connection.FOTFManager.server.addZone(JSON.stringify(togeo)).done(function (Data) {
                 if (!$.isEmptyObject(Data)) {
@@ -300,10 +302,11 @@ function CreateBinZone(newlayer) {
                 mpedata.sort(SortByName);
                 $('input[id=zone_name]').css('display', 'none');
                 $('select[id=zone_select_name]').css('display', 'block');
-                $('<option/>').empty();
-                $('<option/>').val("");
+                $('select[id=zone_select_name]').empty();
+                $('<option/>').val("").html("").appendTo('select[id=zone_select_name]');
+                $('select[id=zone_select_name]').val("");
                 $.each(mpedata, function () {
-                    $('<option/>').val(this).html(this).appendTo('#zone_select_name');
+                    $('<option/>').val(this).html(this).appendTo('select[id=zone_select_name]');
                 })
             }
         });
@@ -311,7 +314,7 @@ function CreateBinZone(newlayer) {
         $('button[id=zonesubmitBtn][type=button]').off().on('click', function () {
             togeo.properties = geoProp;
             togeo.properties.Zone_Type = $('select[name=zone_type] option:selected').val();
-            togeo.properties.name = $('input[id="zone_name"]').is(':visible') ? $('input[id="zone_name"]').val() : $('select[name=zone_select_name] option:selected').val() ;
+            togeo.properties.name = $('input[id=zone_name]').is(':visible') ? $('input[id=zone_name]').val() : $('select[name=zone_select_name] option:selected').val() ;
             togeo.properties.bins = $('textarea[id="bin_bins"]').val();
 
             $.connection.FOTFManager.server.addZone(JSON.stringify(togeo)).done(function (Data) {
@@ -346,15 +349,16 @@ function CreateCamera(newlayer)
     $('select[id=zone_select_name]').css('display', 'none');
     fotfmanager.server.getCameraList().done(function (cameradata) {
         if (cameradata.length > 0) {
-            $('<option/>').empty();
+            $('select[id=cameraLocation]').empty();
+            $('<option/>').val("").html("").appendTo('select[id=cameraLocation]');
             $.each(cameradata, function () {
-                $('<option/>').val(this.CAMERA_NAME).html(this.CAMERA_NAME + "/"+ this.DESCRIPTION).appendTo('#cameraLocation');
+                $('<option/>').val(this.CAMERA_NAME).html(this.CAMERA_NAME + "/" + this.DESCRIPTION).appendTo('select[id=cameraLocation]');
             })
         }
     });
     $('button[id=zonesubmitBtn][type=button]').off().on('click', function () {
         togeo.properties = geoProp;
-        togeo.properties.name = $('input[id="zone_name"]').val();
+        togeo.properties.name = $('input[id=zone_name]').val();
         togeo.properties.Tag_Type = $('select[name=zone_type] option:selected').val();
         $.connection.FOTFManager.server.addMarker(JSON.stringify(togeo)).done(function (Data) {
             if (!$.isEmptyObject(Data)) {

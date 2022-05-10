@@ -271,182 +271,6 @@ $(function () {
         // close the sidebar
         sidebar.close();
     });
-
-  
-
-    /******Connection status start******/
-    //function init_Connection() {
-    //    fotfmanager.server.getUserProfile().done(function (User_profile) {
-    //        User = User_profile;
-         
-    //        if (User.hasOwnProperty("FacilityTimeZone")) {
-    //            if (checkValue(User.FacilityTimeZone)) {
-    //                timezone = { Facility_TimeZone: User.FacilityTimeZone }
-    //                cBlock();
-    //            }
-    //        }
-           
-           
-
-    //        if (User.hasOwnProperty("Environment")) {
-    //            //Environment Status Controls
-    //            if (/(DEV|SIT|CAT)/i.test(User.Environment)) {
-    //                var Environment = L.Control.extend({
-    //                    options: {
-    //                        position: 'topright'
-    //                    },
-    //                    onAdd: function () {
-    //                        var Domcntainer = L.DomUtil.create('input');
-    //                        Domcntainer.type = "button";
-    //                        Domcntainer.id = "environment";
-    //                        Domcntainer.className = getEnv(User.Environment);
-    //                        Domcntainer.value = User.Environment;
-    //                        return Domcntainer;
-    //                    }
-    //                });
-    //                map.addControl(new Environment());
-    //                function getEnv(env) {
-    //                    if (/CAT/i.test(env)) {
-    //                        return "btn btn-outline-primary btn-sm";
-    //                    }
-    //                    else if (/SIT/i.test(env)) {
-    //                        return "btn btn-outline-warning btn-sm";
-    //                    }
-    //                    else if (/DEV/i.test(env)) {
-    //                        return "btn btn-outline-danger btn-sm";
-    //                    }
-    //                }
-    //            }
-    //        }
-
-    //        if (/^Admin/i.test(User.Role)) {
-    //            sidebar.addPanel({
-    //                id: 'connections',
-    //                tab: '<i class="pi-iconDiagramOutline"></i>',
-    //                position: 'top',
-    //                pane: '<div class="btn-toolbar" role="toolbar" id="connection_div">' +
-    //                    '<div id="div_agvnotification" class="container-fluid">' +
-    //                    '<h4>API Settings</h4>' +
-    //                    '<button type="button" class="btn btn-primary float-left mb-2" name="addconnection">Add</button>' +
-    //                    '<div class="card w-100 bg-white mt-2 pb-1">' +
-    //                    '<div class="card-body">' +
-    //                    '<div class="table-responsive">' +
-    //                    '<table class="table table-sm table-hover table-condensed mb-1" id="connectiontable" style="border-collapse:collapse;">' +
-    //                    '<thead class="thead-dark">' +
-    //                    '<tr>' +
-    //                    '<th class="row-connection-name">Name</th><th class="row-connection-type">Message Type</th><th class="row-connection-status">Status</th><th class="row-connection-action">Action</th>' +
-    //                    '</tr>' +
-    //                    '</thead>' +
-    //                    '<tbody></tbody>' +
-    //                    '</table>' +
-    //                    '</div>' +
-    //                    '</div>' +
-    //                    '</div >' +
-    //                    '</div></div>'
-    //            });
-    //            init_connection();
-    //            //if (!/^https/i.test(window.location.protocol)) {
-    //            //    sidebar.addPanel({
-    //            //        id: 'camera_video',
-    //            //        tab: '<i class="bi-camera-fill"></i>',
-    //            //        position: 'top',
-    //            //        pane: '<div class="btn-toolbar" role="toolbar" id="camera_display">' +
-    //            //            '<div id="div_camera" class="container-fluid">' +
-    //            //            '<h4>Web Cameras</h4>' +
-    //            //            '<button type="button" class="btn btn-primary float-left mb-2" name="addcamera">Add</button>' +
-    //            //            '<div class="card w-100 bg-white mt-2 pb-1">' +
-    //            //            '<div class="card-body">' +
-    //            //            '<div class="table-responsive">' +
-    //            //            '<table class="table table-sm table-hover table-condensed mb-1" id="cameratable" style="border-collapse:collapse;">' +
-    //            //            '<thead class="thead-dark">' +
-    //            //            '<tr>' +
-    //            //            '<th class="row-connection-name">Name</th><th class="row-connection-type">Description</th><th class="row-connection-action">View Camera</th>' +
-    //            //            '</tr>' +
-    //            //            '</thead>' +
-    //            //            '<tbody></tbody>' +
-    //            //            '</table>' +
-    //            //            '</div>' +
-    //            //            '</div>' +
-    //            //            '</div >' +
-    //            //            '</div></div>'
-    //            //    });
-                   
-    //            //    $('button[name=addcamera]').off().on('click', function () {
-    //            //        /* close the sidebar */
-    //            //        sidebar.close();
-    //            //        Add_Camera();
-    //            //    });
-    //            //}
-    //            init_geometry_editing();
-    //            $('button[name=addconnection]').off().on('click', function () {
-    //                /* close the sidebar */
-    //                sidebar.close();
-    //                Add_Connection();
-    //            });
-    //            $('button[name=machineinfoedit]').css('display', 'block');
-            
-    //        }
-
-         
-    //        if (/^Admin/i.test(User.Role)) {
-    //            sidebar.addPanel({
-    //                id: 'setting',
-    //                tab: '<i class="pi-iconGearFill"></i>',
-    //                position: 'bottom',
-    //                pane: '<div class="btn-toolbar" role="toolbar" id="app_setting">' +
-    //                    '<div id="div_app_settingtable" class="container-fluid">' +
-    //                    '<div class="card w-100">' +
-    //                    '<div class="card-body">' +
-    //                    '<div class="table-responsive fixedHeader" style="max-height: calc(100vh - 100px); ">' +
-    //                    '<table class="table table-sm table-hover table-condensed" id="app_settingtable" style="border-collapse:collapse;">' +
-    //                    '<thead class="thead-dark">' +
-    //                    '<tr>' +
-    //                    '<th class="row-name">Name</th><th class="row-value">Value</th><th class="row-action">Action</th>' +
-    //                    '</tr>' +
-    //                    '</thead>' +
-    //                    '<tbody></tbody>' +
-    //                    '</table>' +
-    //                    '</div>' +
-    //                    '</div>' +
-    //                    '</div >' +
-    //                    '</div></div>'
-    //            });
-               
-    //        }
-    //        if (!/^Admin/i.test(User.Role)) {
-    //            fotfmanager.server.leaveGroup("PeopleMarkers");
-    //        }
-    //        if (/(^PMCCUser$)/i.test(User.UserId)) {
-    //            map.removeLayer(tagsMarkersGroup)
-    //            //remove connection from receiving data for people markers. 
-    //            fotfmanager.server.leaveGroup("PeopleMarkers");
-                
-    //            //add QRCode
-    //            var QRCodedisplay = L.Control.extend({
-    //                options: {
-    //                    position: 'topright'
-    //                },
-    //                onAdd: function () {
-    //                    var Domcntainer = L.DomUtil.create('div');
-    //                    Domcntainer.id = "qrcodeUrl";
-    //                    return Domcntainer;
-    //                }
-    //            });
-    //            map.addControl(new QRCodedisplay());
-
-    //            var qrcode = new QRCode("qrcodeUrl", {
-    //                text: window.location.href,
-    //                width: 128,
-    //                height: 128,
-    //                colorDark: "#000000",
-    //                colorLight: "#ffffff",
-    //                correctLevel: QRCode.CorrectLevel.H
-    //            });
-    //        }
-    //    });
-    //}
-    /******Connection status end******/
-
     // SelectizeJs Init for searching select boxes.
     var options = {
         create: false,
@@ -557,137 +381,6 @@ $(function () {
     $.connection.hub.connectionSlow(function () {
         conntoggle.state('conn-low');
     });
-    // current zone staff
-    //TODO: look in to this more.
-    async function zonecurrentStaff() {
-        try {
-            //clear Old tags 
-            if (tagsMarkersGroup.hasOwnProperty("_layers")) {
-                $.map(tagsMarkersGroup._layers, (layer) => {
-                    if (layer.hasOwnProperty("feature")) {
-                        if (layer.feature.properties.hasOwnProperty("Tag_Type")) {
-                            if (/person/i.test(layer.feature.properties.Tag_Type)) {
-                                if (layer.feature.properties.tagVisible === true) {
-                                    if (layer.feature.properties.hasOwnProperty("positionTS")) {
-                                        var startTime = moment(layer.feature.properties.positionTS);
-                                        var endTime = moment();
-                                        var diffmillsec = endTime.diff(startTime, "milliseconds");
-
-                                        if (diffmillsec > layer.feature.properties.tagVisibleMils) {
-                                            layer.feature.properties.tagVisibleMils = diffmillsec;
-                                        }
-                                    }
-                                    if (layer.feature.properties.tagVisibleMils > 80000) {
-                                        layer.feature.properties.tagVisible = false;
-                                        //this to hide tooltip
-                                        if (layer.hasOwnProperty("_tooltip")) {
-                                            if (layer._tooltip.hasOwnProperty("_container")) {
-                                                if (!layer._tooltip._container.classList.contains('tooltip-hidden')) {
-                                                    layer._tooltip._container.classList.add('tooltip-hidden');
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                })
-            }
-            // Machine zone
-            if (polygonMachine.hasOwnProperty("_layers")) {
-                $.map(polygonMachine._layers, function (Machinelayer, i) {
-                    var MachineCurrentStaff = [];
-                    if (tagsMarkersGroup.hasOwnProperty("_layers")) {
-                        $.map(tagsMarkersGroup._layers, function (layer, i) {
-                            if (layer.hasOwnProperty("feature")) {
-                                if (/person/i.test(layer.feature.properties.Tag_Type)) {
-                                    if (layer.feature.properties.hasOwnProperty("zones")) {
-                                        $.map(layer.feature.properties.zones, function (p_zone) {
-                                            if (p_zone.id == Machinelayer.feature.properties.id) {
-                                                if (layer.hasOwnProperty("_tooltip")) {
-                                                    if (layer._tooltip.hasOwnProperty("_container")) {
-                                                        if (!layer._tooltip._container.classList.contains('tooltip-hidden')) {
-                                                            MachineCurrentStaff.push({
-                                                                name: checkValue(layer.feature.properties.craftName) ? layer.feature.properties.craftName : layer.feature.properties.id,
-                                                                nameId: checkValue(layer.feature.properties.id) ? layer.feature.properties.id : layer.feature.properties.id,
-                                                                id: layer.feature.properties.id
-                                                            })
-                                                        }
-                                                    }
-                                                }
-                                            }
-                                        });
-                                    }
-                                }
-                            }
-                        });
-                    }
-
-                    if (Machinelayer.hasOwnProperty("_tooltip")) {
-                        if (MachineCurrentStaff.length !== Machinelayer.feature.properties.CurrentStaff) {
-                            Machinelayer.setTooltipContent(Machinelayer.feature.properties.name + "<br/>" + "Staffing: " + MachineCurrentStaff.length);
-                            Machinelayer.feature.properties.CurrentStaff = MachineCurrentStaff.length;
-                            if ($('select[id=zoneselect] option:selected').val() === Machinelayer.feature.properties.id) {
-                                var p2pdata = Machinelayer.feature.properties.hasOwnProperty("P2PData") ? Machinelayer.feature.properties.P2PData : "";
-                                GetPeopleInZone(Machinelayer.feature.properties.id, p2pdata, MachineCurrentStaff);
-                            }
-                        }
-                    }
-                });
-            }
-            // other zone
-            if (stagingAreas.hasOwnProperty("_layers")) {
-                $.map(stagingAreas._layers, function (stagelayer, i) {
-                    var CurrentStaff = [];
-                    if (tagsMarkersGroup.hasOwnProperty("_layers")) {
-                        $.map(tagsMarkersGroup._layers, function (layer, i) {
-                            if (layer.hasOwnProperty("feature")) {
-                                if (/person/i.test(layer.feature.properties.Tag_Type)) {
-                                    if (layer.feature.properties.hasOwnProperty("zones")) {
-                                        $.map(layer.feature.properties.zones, function (p_zone) {
-                                            if (p_zone.id == stagelayer.feature.properties.id) {
-                                                if (layer.hasOwnProperty("_tooltip")) {
-                                                    if (layer._tooltip.hasOwnProperty("_container")) {
-                                                        if (!layer._tooltip._container.classList.contains('tooltip-hidden')) {
-                                                            CurrentStaff.push({
-                                                                name: checkValue(layer.feature.properties.craftName) ? layer.feature.properties.craftName : layer.feature.properties.id,
-                                                                nameId: checkValue(layer.feature.properties.id) ? layer.feature.properties.id : layer.feature.properties.id,
-                                                                id: layer.feature.properties.id
-                                                            })
-                                                            //CurrentStaff.push({
-                                                            //    id: layer.feature.properties.id
-                                                            //})
-                                                        }
-                                                    }
-                                                }
-                                            }
-                                        });
-                                    }
-                                }
-                            }
-                        });
-                    }
-
-                    if (stagelayer.hasOwnProperty("_tooltip")) {
-                        if (CurrentStaff.length !== stagelayer.feature.properties.CurrentStaff) {
-                            stagelayer.setTooltipContent(stagelayer.feature.properties.name + "<br/>" + "Staffing: " + CurrentStaff.length);
-                            stagelayer.feature.properties.CurrentStaff = CurrentStaff.length;
-                            if (stagingAreas.hasOwnProperty("feature")) {
-                                if ($('select[id=zoneselect] option:selected').val() === stagingAreas.feature.properties.id) {
-                                    var p2pdata = stagelayer.feature.properties.hasOwnProperty("P2PData") ? stagelayer.feature.properties.P2PData : "";
-                                    GetPeopleInZone(stagelayer.feature.properties.idp2pdata, CurrentStaff);
-                                }
-                            }
-                        }
-                    }
-                });
-            }
-        } catch (e) {
-            console.log(e);
-        }
-    }
-
     async function LoadtagDetails(tagid) {
         try {
             if (map.hasOwnProperty("_layers")) {
@@ -1092,5 +785,126 @@ function cBlock() {
         }
     }
     setTimeout(cBlock, 1000);
-    //async zonecurrentStaff();
+    Promise.all([zonecurrentStaff()]);
+}
+// current zone staff
+//TODO: look in to this more.
+async function zonecurrentStaff() {
+    try {
+        //clear Old tags 
+        if (tagsMarkersGroup.hasOwnProperty("_layers")) {
+            $.map(tagsMarkersGroup._layers, (layer) => {
+
+                if (/person/i.test(layer.feature.properties.Tag_Type)) {
+                    if (layer.feature.properties.tagVisible === true) {
+                        if (layer.feature.properties.hasOwnProperty("positionTS")) {
+                            var startTime = moment(layer.feature.properties.positionTS);
+                            var endTime = moment();
+                            var diffmillsec = endTime.diff(startTime, "milliseconds");
+
+                            if (diffmillsec > layer.feature.properties.tagVisibleMils) {
+                                layer.feature.properties.tagVisibleMils = diffmillsec;
+                            }
+                        }
+                        if (layer.feature.properties.tagVisibleMils > 80000) {
+                            layer.feature.properties.tagVisible = false;
+                            //this to hide tooltip
+                            if (layer.hasOwnProperty("_tooltip")) {
+                                if (layer._tooltip.hasOwnProperty("_container")) {
+                                    if (!layer._tooltip._container.classList.contains('tooltip-hidden')) {
+                                        layer._tooltip._container.classList.add('tooltip-hidden');
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+
+            })
+        }
+        // Machine zone
+        if (polygonMachine.hasOwnProperty("_layers")) {
+            $.map(polygonMachine._layers, function (Machinelayer, i) {
+                var MachineCurrentStaff = [];
+                if (tagsMarkersGroup.hasOwnProperty("_layers")) {
+                    $.map(tagsMarkersGroup._layers, function (layer, i) {
+                        if (/person/i.test(layer.feature.properties.Tag_Type) && layer.feature.properties.tagVisible === true && layer.feature.properties.zones != null) {
+                            $.map(layer.feature.properties.zones, function (p_zone) {
+                                if (p_zone.id == Machinelayer.feature.properties.id) {
+                                    if (layer.hasOwnProperty("_tooltip")) {
+                                        if (layer._tooltip.hasOwnProperty("_container")) {
+                                            if (!layer._tooltip._container.classList.contains('tooltip-hidden')) {
+                                                MachineCurrentStaff.push({
+                                                    name: checkValue(layer.feature.properties.craftName) ? layer.feature.properties.craftName : layer.feature.properties.id,
+                                                    nameId: checkValue(layer.feature.properties.id) ? layer.feature.properties.id : layer.feature.properties.id,
+                                                    id: layer.feature.properties.id
+                                                })
+                                            }
+                                        }
+                                    }
+                                }
+                            });
+                        }
+                    });
+                }
+
+                if (Machinelayer.hasOwnProperty("_tooltip")) {
+                    if (MachineCurrentStaff.length !== Machinelayer.feature.properties.CurrentStaff) {
+                        Machinelayer.setTooltipContent(Machinelayer.feature.properties.name + "<br/>" + "Staffing: " + MachineCurrentStaff.length);
+                        Machinelayer.feature.properties.CurrentStaff = MachineCurrentStaff.length;
+                        if ($('select[id=zoneselect] option:selected').val() === Machinelayer.feature.properties.id) {
+                            var p2pdata = Machinelayer.feature.properties.hasOwnProperty("P2PData") ? Machinelayer.feature.properties.P2PData : "";
+                            GetPeopleInZone(Machinelayer.feature.properties.id, p2pdata, MachineCurrentStaff);
+                        }
+                    }
+                }
+            });
+        }
+        // other zone
+        if (stagingAreas.hasOwnProperty("_layers")) {
+            $.map(stagingAreas._layers, function (stagelayer, i) {
+                var CurrentStaff = [];
+                if (tagsMarkersGroup.hasOwnProperty("_layers")) {
+                    $.map(tagsMarkersGroup._layers, function (layer, i) {
+                        if (/person/i.test(layer.feature.properties.Tag_Type) && layer.feature.properties.tagVisible === true && layer.feature.properties.zones != null) {
+                            $.map(layer.feature.properties.zones, function (p_zone) {
+                                if (p_zone.id == stagelayer.feature.properties.id) {
+                                    if (layer.hasOwnProperty("_tooltip")) {
+                                        if (layer._tooltip.hasOwnProperty("_container")) {
+                                            if (!layer._tooltip._container.classList.contains('tooltip-hidden')) {
+                                                CurrentStaff.push({
+                                                    name: checkValue(layer.feature.properties.craftName) ? layer.feature.properties.craftName : layer.feature.properties.id,
+                                                    nameId: checkValue(layer.feature.properties.id) ? layer.feature.properties.id : layer.feature.properties.id,
+                                                    id: layer.feature.properties.id
+                                                })
+                                                //CurrentStaff.push({
+                                                //    id: layer.feature.properties.id
+                                                //})
+                                            }
+                                        }
+                                    }
+                                }
+                            });
+                        }
+
+                    });
+                }
+
+                if (stagelayer.hasOwnProperty("_tooltip")) {
+                    if (CurrentStaff.length !== stagelayer.feature.properties.CurrentStaff) {
+                        stagelayer.setTooltipContent(stagelayer.feature.properties.name + "<br/>" + "Staffing: " + CurrentStaff.length);
+                        stagelayer.feature.properties.CurrentStaff = CurrentStaff.length;
+                        if (stagingAreas.hasOwnProperty("feature")) {
+                            if ($('select[id=zoneselect] option:selected').val() === stagingAreas.feature.properties.id) {
+                                var p2pdata = stagelayer.feature.properties.hasOwnProperty("P2PData") ? stagelayer.feature.properties.P2PData : "";
+                                GetPeopleInZone(stagelayer.feature.properties.idp2pdata, CurrentStaff);
+                            }
+                        }
+                    }
+                }
+            });
+        }
+    } catch (e) {
+        console.log(e);
+    }
 }

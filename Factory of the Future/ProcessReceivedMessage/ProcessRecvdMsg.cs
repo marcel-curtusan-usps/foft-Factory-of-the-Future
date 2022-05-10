@@ -1255,7 +1255,7 @@ namespace Factory_of_the_Future
                 if (data.ContainsKey("NASS_CODE") && (string)data["NASS_CODE"] == AppParameters.AppSettings["FACILITY_NASS_CODE"].ToString())
                 {
 
-                    Mission tempMission = data.ToObject<Mission>();
+                    Mission tempMission = data.ToObject<Mission>(new JsonSerializer { NullValueHandling = NullValueHandling.Ignore });
                     tempMission.MISSIONERRORTIME = (DateTime)data["time".ToUpper()];
                     tempMission.STATE = "Error";
                     //JObject mission = new JObject
@@ -1287,7 +1287,7 @@ namespace Factory_of_the_Future
                     //remove request id
                     if (AppParameters.MissionList.Keys.Count > 0)
                     {
-                        if (!AppParameters.MissionList.TryRemove(tempMission.REQUEST_ID, out Mission mission))
+                        if (AppParameters.MissionList.ContainsKey(tempMission.REQUEST_ID) && !AppParameters.MissionList.TryRemove(tempMission.REQUEST_ID, out Mission mission))
                         {
                             new ErrorLogger().CustomLog("unable to remove Mission " + mission.REQUEST_ID + " to list", string.Concat((string)AppParameters.AppSettings["APPLICATION_NAME"], "Appslogs"));
                         }
@@ -1372,7 +1372,7 @@ namespace Factory_of_the_Future
             {
                 if (data.ContainsKey("NASS_CODE") && (string)data["NASS_CODE"] == AppParameters.AppSettings["FACILITY_NASS_CODE"].ToString())
                 {
-                    Mission tempMission = data.ToObject<Mission>();
+                    Mission tempMission = data.ToObject<Mission>(new JsonSerializer { NullValueHandling = NullValueHandling.Ignore });
                     tempMission.MISSIONDROPOFFTIME = (DateTime)data["time".ToUpper()];
                     tempMission.PLACARD = (string)data["mtel".ToUpper()];
                     tempMission.STATE = "Complete";
@@ -1405,8 +1405,7 @@ namespace Factory_of_the_Future
                     //remove request id
                     if (AppParameters.MissionList.Keys.Count > 0)
                     {
-                        
-                        if (!AppParameters.MissionList.TryRemove(tempMission.REQUEST_ID, out Mission mission))
+                        if (AppParameters.MissionList.ContainsKey(tempMission.REQUEST_ID) && !AppParameters.MissionList.TryRemove(tempMission.REQUEST_ID, out Mission mission))
                         {
                             new ErrorLogger().CustomLog("unable to remove Mission " + mission.REQUEST_ID + " to list", string.Concat((string)AppParameters.AppSettings["APPLICATION_NAME"], "Appslogs"));
                         }
@@ -1444,7 +1443,7 @@ namespace Factory_of_the_Future
             {
                 if (data.ContainsKey("NASS_CODE") && (string)data["NASS_CODE"] == AppParameters.AppSettings["FACILITY_NASS_CODE"].ToString())
                 {
-                    Mission tempMission = data.ToObject<Mission>();
+                    Mission tempMission = data.ToObject<Mission>(new JsonSerializer { NullValueHandling = NullValueHandling.Ignore });
                     tempMission.MISSIONPICKUPTIME = (DateTime)data["time".ToUpper()];
                     tempMission.PLACARD = (string)data["mtel".ToUpper()];
                     tempMission.STATE = "PickedUp";
@@ -1523,7 +1522,7 @@ namespace Factory_of_the_Future
             {
                 if (data.ContainsKey("NASS_CODE") && (string)data["NASS_CODE"] == AppParameters.AppSettings["FACILITY_NASS_CODE"].ToString())
                 {
-                    Mission tempMission = data.ToObject<Mission>();
+                    Mission tempMission = data.ToObject<Mission>(new JsonSerializer { NullValueHandling = NullValueHandling.Ignore });
                     tempMission.MISSIONASSIGNEDTIME = (DateTime)data["time".ToUpper()];
                     tempMission.PLACARD = (string)data["mtel".ToUpper()];
                     tempMission.STATE = "Active";
@@ -1630,7 +1629,7 @@ namespace Factory_of_the_Future
                         //    ["MissionType"] = (string)data["message".ToUpper()],
                         //    ["MissionRequestTime"] = (DateTime)data["time".ToUpper()]
                         //};
-                        Mission tempMission = data.ToObject<Mission>();
+                        Mission tempMission = data.ToObject<Mission>(new JsonSerializer { NullValueHandling = NullValueHandling.Ignore });
                         tempMission.MISSIONREQUESTTIME = (DateTime)data["time".ToUpper()];
                         tempMission.PLACARD = (string)data["mtel".ToUpper()];
                         tempMission.STATE = "Active";
@@ -1684,7 +1683,7 @@ namespace Factory_of_the_Future
                 {
                     if (data.ContainsKey("VEHICLE"))
                     {
-                        VehicleStatus newVehicleStatus = data.ToObject<VehicleStatus>();
+                        VehicleStatus newVehicleStatus = data.ToObject<VehicleStatus>(new JsonSerializer { NullValueHandling = NullValueHandling.Ignore });
                         foreach (string existingKey in AppParameters.TagsList.Where(u => u.Value.Properties.TagType.ToLower().EndsWith("Vehicle".ToLower()) &&
                          u.Value.Properties.Name == newVehicleStatus.VEHICLE).Select(x => x.Key))
                         {
@@ -1695,7 +1694,7 @@ namespace Factory_of_the_Future
                                     //check the notifications 
                                     if (existingValue.Properties.Vehicle_Status_Data.STATE != newVehicleStatus.STATE)
                                     {
-                                        
+
                                         existingValue.Properties.NotificationId = CheckNotification(existingValue.Properties.Vehicle_Status_Data.STATE, newVehicleStatus.STATE, "vehicle".ToLower(), existingValue.Properties, existingValue.Properties.NotificationId);
                                         update = true;
                                     }
@@ -1720,132 +1719,8 @@ namespace Factory_of_the_Future
                                 }
                             }
                         }
-                            //foreach (JObject existingVa in AppParameters.Tag.Where(u => u.Value["properties"]["Tag_Type"].ToString().ToLower() == "Autonomous Vehicle".ToLower() &&
-                            // u.Value["properties"]["name"].ToString() == (string)data["VEHICLE"]).Select(x => x.Value))
-                            //{
-                            //    if (((JObject)existingVa["properties"]).ContainsKey("vehicleBatteryPercent"))
-                            //    {
-                            //        if ((string)existingVa["properties"]["vehicleBatteryPercent"] != (string)data["batterypercent".ToUpper()])
-                            //        {
-                            //            existingVa["properties"]["vehicleBatteryPercent"] = (string)data["batterypercent".ToUpper()];
-                            //            if (!Update)
-                            //            {
-                            //                Update = true;
-                            //            }
-                            //        }
-                            //    }
-                            //    else
-                            //    {
-                            //        existingVa["properties"]["vehicleBatteryPercent"] = (string)data["batterypercent".ToUpper()];
-                            //        if (!Update)
-                            //        {
-                            //            Update = true;
-                            //        }
-                            //    }
-                            //    if (((JObject)existingVa["properties"]).ContainsKey("MacAddress"))
-                            //    {
-                            //        if ((string)existingVa["properties"]["MacAddress"] != (string)data["VEHICLE_MAC_ADDRESS".ToUpper()])
-                            //        {
-                            //            existingVa["properties"]["MacAddress"] = (string)data["VEHICLE_MAC_ADDRESS".ToUpper()];
-                            //            if (!Update)
-                            //            {
-                            //                Update = true;
-                            //            }
-                            //        }
-                            //    }
-                            //    else
-                            //    {
-                            //        existingVa["properties"]["MacAddress"] = (string)data["VEHICLE_MAC_ADDRESS".ToUpper()];
-                            //        if (!Update)
-                            //        {
-                            //            Update = true;
-                            //        }
-                            //    }
-                            //    if (((JObject)existingVa["properties"]).ContainsKey("vehicleNumber"))
-                            //    {
-                            //        if ((string)existingVa["properties"]["vehicleNumber"] != (string)data["vehicle_number".ToUpper()])
-                            //        {
-                            //            existingVa["properties"]["vehicleNumber"] = (string)data["vehicle_number".ToUpper()];
-                            //            if (!Update)
-                            //            {
-                            //                Update = true;
-                            //            }
-                            //        }
-                            //    }
-                            //    else
-                            //    {
-                            //        existingVa["properties"]["vehicleNumber"] = (string)data["vehicle_number".ToUpper()];
-                            //        if (!Update)
-                            //        {
-                            //            Update = true;
-                            //        }
-                            //    }
-                            //    if (((JObject)existingVa["properties"]).ContainsKey("vehicleCategory"))
-                            //    {
-                            //        if ((string)existingVa["properties"]["vehicleCategory"] != (string)data["Category".ToUpper()])
-                            //        {
-                            //            existingVa["properties"]["vehicleCategory"] = (string)data["Category".ToUpper()];
-                            //            if (!Update)
-                            //            {
-                            //                Update = true;
-                            //            }
-                            //        }
 
-                            //    }
-                            //    else
-                            //    {
-                            //        existingVa["properties"]["vehicleCategory"] = (string)data["Category".ToUpper()];
-                            //        if (!Update)
-                            //        {
-                            //            Update = true;
-                            //        }
-
-                            //    }
-                            //    if (((JObject)existingVa["properties"]).ContainsKey("vehicleTime"))
-                            //    {
-                            //        if ((string)existingVa["properties"]["vehicleTime"] != (string)data["time".ToUpper()])
-                            //        {
-                            //            existingVa["properties"]["vehicleTime"] = ((DateTime)data["time".ToUpper()]).ToUniversalTime();
-                            //            if (!Update)
-                            //            {
-                            //                Update = true;
-                            //            }
-                            //        }
-                            //    }
-                            //    else
-                            //    {
-                            //        existingVa["properties"]["vehicleTime"] = ((DateTime)data["time".ToUpper()]).ToUniversalTime();
-                            //        if (!Update)
-                            //        {
-                            //            Update = true;
-                            //        }
-                            //    }
-                            //    if (((JObject)existingVa["properties"]).ContainsKey("state"))
-                            //    {
-                            //        if ((string)existingVa["properties"]["state"] != (string)data["state".ToUpper()])
-                            //        {
-
-                            //            existingVa["properties"]["notificationId"] = CheckNotification(existingVa["properties"]["state"].ToString(), data["state".ToUpper()].ToString(), "vehicle".ToLower(), (JObject)existingVa["properties"], existingVa["properties"]["notificationId"].ToString());
-                            //            existingVa["properties"]["state"] = (string)data["state".ToUpper()];
-                            //            if (!Update)
-                            //            {
-                            //                Update = true;
-                            //            }
-                            //        }
-                            //    }
-                            //    else
-                            //    {
-                            //        existingVa["properties"]["state"] = "";
-                            //        existingVa["properties"]["notificationId"] = "";
-                            //        existingVa["properties"]["notificationId"] = CheckNotification(existingVa["properties"]["state"].ToString(), data["state".ToUpper()].ToString(), "vehicle".ToLower(), (JObject)existingVa["properties"], "");
-                            //        existingVa["properties"]["state"] = (string)data["state".ToUpper()];
-                            //    }
-                            //    if (Update)
-                            //    {
-                            //        existingVa["properties"]["Tag_Update"] = true;
-                            //    }
-                            //}
-                        }
+                    }
                 }
             }
             catch (Exception e)
@@ -1901,34 +1776,6 @@ namespace Factory_of_the_Future
             }
         }
 
-        //private static void CheckNotification(string State, string type, string name)
-        //{
-        //    try
-        //    {
-        //        //new condition
-        //        foreach (NotificationConditions newCondition in AppParameters.NotificationConditionsList.Where(r => Regex.IsMatch(r.Value.Conditions ,State, RegexOptions.IgnoreCase)
-        //            && r.Value.Type.ToLower() == type.ToLower()
-        //            && r.Value.ActiveCondition).Select(x => x.Value))
-        //        {
-        //            string noteification_id = newCondition.Id + name;
-        //            if (!AppParameters.NotificationList.ContainsKey(noteification_id))
-        //            {
-        //                //JObject ojbMerge = (JObject)newCondition.DeepClone();
-        //                //ojbMerge.Merge(data, new JsonMergeSettings { MergeArrayHandling = MergeArrayHandling.Union });
-        //                //ojbMerge["SHOWTOAST"] = true;
-        //                //ojbMerge["TAGID"] = (string)data["id"];
-        //                //ojbMerge["notificationId"] = (string)newCondition["ID"] + (string)data["id"];
-        //                //ojbMerge["UPDATE"] = true;
-        //                //AppParameters.NotificationList.TryAdd(noteification_id, ojbMerge);
-        //            }
-        //        }
-        //    }
-        //    catch (Exception)
-        //    {
-
-        //        throw;
-        //    }
-        //}
         private static void ProjectData(dynamic jsonObject, string connID)
         {
             try
@@ -2162,7 +2009,7 @@ namespace Factory_of_the_Future
                                     JToken positionTs = tagitem.ContainsKey("positionTS") ? tagitem["positionTS"] : tagitem["locationTS"];
                                     geoLmarker.Properties.PositionTS = AppParameters.UnixTimeStampToDateTime((long)positionTs);
                                     geoLmarker.Properties.TagTS = responseTS;
-
+                                    geoLmarker.Properties.Zones = tagitem["zones"].ToObject<List<Zone>>();
                                     string tempName = tagitem.ContainsKey("name") ? tagitem["name"].ToString() : tagitem["tagName"].ToString();
                                     if (geoLmarker.Properties.Name != tempName)
                                     {
