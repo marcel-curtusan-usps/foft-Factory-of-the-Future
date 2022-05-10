@@ -120,10 +120,10 @@
   },
   {
     "Id": "a5f3eacc-3112-407b-9b43-2a64f03984eb",
-    "ActiveCondition": false,
+    "ActiveCondition": true,
     "CreatedDate": "2022-04-15T13:08:18.9413853-04:00",
     "CreatedByUsername": "FSVCD0",
-    "LastupdateByUsername": "",
+    "LastupdateByUsername": "FSVCD0",
     "LastupdateDate": "0001-01-01T00:00:00",
     "Name": "AGV Blocked",
     "Type": "vehicle",

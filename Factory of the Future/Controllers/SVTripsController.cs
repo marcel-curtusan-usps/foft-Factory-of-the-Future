@@ -1,9 +1,11 @@
-﻿using Newtonsoft.Json.Linq;
+﻿using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
+using System.Threading.Tasks;
 using System.Web.Http;
 
 namespace Factory_of_the_Future.Controllers
@@ -11,9 +13,9 @@ namespace Factory_of_the_Future.Controllers
     public class SVTripsController : ApiController
     {
         // GET: api/SVTrips
-        public IEnumerable<JObject> Get()
+        public JObject Get()
         {
-            return null; /*AppParameters.RouteTripsList.Select(x => x.Value).ToList();*/
+            return JObject.Parse(JsonConvert.SerializeObject(AppParameters.RouteTripsList.Select(x => x.Value).ToList(), Formatting.None));
         }
 
         // GET: api/SVTrips/5
@@ -23,8 +25,23 @@ namespace Factory_of_the_Future.Controllers
         }
 
         // POST: api/SVTrips
-        public void Post([FromBody]string value)
+        public IHttpActionResult Post([FromBody] JToken request_data)
         {
+            //handle bad requests
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+            if (request_data != null)
+            {
+                //Send data to be processed.
+                Task.Run(() => new ProcessRecvdMsg().StartProcess(JsonConvert.SerializeObject(request_data, Formatting.None), "trips", ""));
+            }
+            else
+            {
+                return CreatedAtRoute("DefaultApi", new { message = "Invalid Data in the Request." }, 0);
+            }
+            return CreatedAtRoute("DefaultApi", new { id = "0" }, 0);
         }
 
         // PUT: api/SVTrips/5

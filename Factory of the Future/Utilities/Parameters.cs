@@ -430,6 +430,8 @@ namespace Factory_of_the_Future
         public Mission Misison { get; set; }
         [JsonProperty("source")]
         public string Source { get; set; } = "";
+        [JsonProperty("notificationId")]
+        public string NotificationId { get; set; } = "";
     }
     public class ZoneInfo
     {
@@ -738,7 +740,6 @@ namespace Factory_of_the_Future
         public bool UpdateStatus { get; set; } = false;
         [JsonProperty("Url")]
         public string Url { get; set; } = "";
-
     }
     public class StaffingSortplan
     {
@@ -1319,39 +1320,39 @@ namespace Factory_of_the_Future
         public string OBJECT_TYPE { get; set; }
 
         [JsonProperty("MESSAGE")]
-        public string MESSAGE { get; set; }
+        public string MESSAGE { get; set; } = "";
 
         [JsonProperty("NASS_CODE")]
-        public string NASS_CODE { get; set; }
+        public string NASS_CODE { get; set; } = "";
 
         [JsonProperty("VEHICLE")]
-        public string VEHICLE { get; set; }
+        public string VEHICLE { get; set; } = "";
 
         [JsonProperty("VEHICLE_MAC_ADDRESS")]
-        public string VEHICLE_MAC_ADDRESS { get; set; }
+        public string VEHICLE_MAC_ADDRESS { get; set; } = "";
 
         [JsonProperty("VEHICLE_NUMBER")]
-        public string VEHICLE_NUMBER { get; set; }
+        public int VEHICLE_NUMBER { get; set; }
 
         [JsonProperty("STATE")]
-        public string STATE { get; set; }
+        public string STATE { get; set; } = "";
 
         [JsonProperty("ETA")]
-        public string ETA { get; set; }
+        public string ETA { get; set; } = "";
 
         [JsonProperty("BATTERYPERCENT")]
-        public string BATTERYPERCENT { get; set; }
+        public string BATTERYPERCENT { get; set; } = "";
 
         [JsonProperty("CATEGORY")]
-        public string CATEGORY { get; set; }
+        public int CATEGORY { get; set; }
 
         [JsonProperty("X_LOCATION")]
-        public string X_LOCATION { get; set; }
+        public string X_LOCATION { get; set; } = "";
 
         [JsonProperty("Y_LOCATION")]
-        public string Y_LOCATION { get; set; }
+        public string Y_LOCATION { get; set; } = "";
         [JsonProperty("ERRORCODE")]
-        public string ERRORCODE { get; set; }
+        public string ERRORCODE { get; set; } = "";
 
         [JsonProperty("ERRORCODE_DISCRIPTION")]
         public string ERRORCODE_DISCRIPTION { get; set; }

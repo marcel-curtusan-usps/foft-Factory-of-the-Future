@@ -116,6 +116,7 @@ namespace Factory_of_the_Future
         public UdpClient client;
         public UdpServer server;
         internal Connection ConnectionInfo;
+        public string StatusInfo = "";
 
         // public DateTime DateAdded;
 
@@ -403,6 +404,7 @@ namespace Factory_of_the_Future
                             streamWriter.Write(JsonConvert.SerializeObject(requestBody, Formatting.Indented));
                         }
                     }
+                   
                     using (HttpWebResponse Response = (HttpWebResponse)request.GetResponse())
                     {
                         if (Response.StatusCode == HttpStatusCode.OK)
@@ -451,20 +453,20 @@ namespace Factory_of_the_Future
                     if (ex.Status == WebExceptionStatus.ProtocolError & ex.Response != null)
                     {
                         // Page not found, thread has 404'd
-                        HttpWebResponse Resp = (HttpWebResponse)ex.Response;
-                        if (Resp.StatusCode == HttpStatusCode.NotFound)
-                        {
+                        //HttpWebResponse Resp = (HttpWebResponse)ex.Response;
+                       
                             this.Status = 3;
                             this.ConstantRefresh = false;
                             this.Connected = false;
                             Task.Run(() => updateConnection(this));
                             return;
-                        }
+                        
                     }
                 }
                 catch (Exception e)
                 {
                     new ErrorLogger().ExceptionLog(e);
+                    
                     this.Connected = false;
                     Task.Run(() => updateConnection(this));
                 }
@@ -478,6 +480,7 @@ namespace Factory_of_the_Future
             {
                 foreach (Connection m in AppParameters.ConnectionList.Where(x => x.Value.Id == api_Connection.ID).Select(y => y.Value))
                 {
+                  
                     m.ApiConnected = api_Connection.Connected;
                     m.LasttimeApiConnected= api_Connection.DownloadDatetime;
                     m.UpdateStatus = true;

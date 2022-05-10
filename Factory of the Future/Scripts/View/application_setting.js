@@ -53,23 +53,16 @@ function Edit_AppSetting_Value(id, value, table) {
     $('input[id=modalKeyID]').val(id);
     $('input[id=modalValueID]').val(value);
     if (/TIMEZONE/i.test(id)) {
-        $.ajax({
-            url: '../api/TimeZone',
-            type: 'GET',
-            success: function (data) {
-                $('.valuediv').css("display", "none");
-                $('.timezonediv').css("display", "block");
-                $('#timezoneValueID').empty();
-                $('<option/>').val("").appendTo('#timezoneValueID');
-                $.each(data, function () {
-                    $('<option/>').val(this).html(this).appendTo('#timezoneValueID');
-                })
-                $('#timezoneValueID').val(value);
-            },
-            error: function (request, error) {
-                alert("Request: " + JSON.stringify(request));
-            }
-        });
+        fotfmanager.server.getTimeZone().done(function (data) {
+            $('.valuediv').css("display", "none");
+            $('.timezonediv').css("display", "block");
+            $('#timezoneValueID').empty();
+            $('<option/>').val("").appendTo('#timezoneValueID');
+            $.each(data, function () {
+                $('<option/>').val(this).html(this).appendTo('#timezoneValueID');
+            })
+            $('#timezoneValueID').val(value);
+        })
     }
     else {
         $('.valuediv').css("display", "block");

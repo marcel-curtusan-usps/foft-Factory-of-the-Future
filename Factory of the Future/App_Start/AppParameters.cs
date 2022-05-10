@@ -16,6 +16,7 @@ namespace Factory_of_the_Future
 {
     internal class AppParameters
     {
+        public static TimeZone localZone = TimeZone.CurrentTimeZone;
         public static bool ActiveServer { get; set; } = false;
         public static string Appsetting { get; set; } = @"\AppSetting";
         public static string ConfigurationFloder { get; set; } = @"\Configuration";
@@ -44,6 +45,7 @@ namespace Factory_of_the_Future
         public static ConcurrentDictionary<string, GeoMarker> TagsList { get; set; } = new ConcurrentDictionary<string, GeoMarker>();
         public static ConcurrentDictionary<string, string> DPSList { get; set; } = new ConcurrentDictionary<string, string>();
         public static ConcurrentDictionary<string, string> MPEPerformanceList { get; set; } = new ConcurrentDictionary<string, string>();
+        public static ConcurrentDictionary<string, string> DockdoorList { get; set; } = new ConcurrentDictionary<string, string>();
         public static ConcurrentDictionary<string, string> StaffingSortplansList { get; set; } = new ConcurrentDictionary<string, string>();
         public static ConcurrentDictionary<string, RouteTrips> RouteTripsList { get; set; } = new ConcurrentDictionary<string, RouteTrips>();
         //public static ConcurrentDictionary<string, JObject> QSMList { get; set; } = new ConcurrentDictionary<string, JObject>();
@@ -57,42 +59,14 @@ namespace Factory_of_the_Future
         //public static ConcurrentDictionary<string, JObject> Tag { get; set; } = new ConcurrentDictionary<string, JObject>();
         public static ConnectionContainer RunningConnection { get; set; } = new ConnectionContainer();
         public static Dictionary<string, string> TimeZoneConvert { get; set; } = new Dictionary<string, string>()
-    {
-
-        { "America/Anchorage", "Alaskan Standard Time" },
-        { "America/Argentina/San_Juan", "Argentina Standard Time" },
-        { "America/Asuncion", "Paraguay Standard Time" },
-        { "America/Bahia", "Bahia Standard Time" },
-        { "America/Bogota", "SA Pacific Standard Time" },
-        { "America/Buenos_Aires", "Argentina Standard Time" },
-        { "America/Caracas", "Venezuela Standard Time" },
-        { "America/Cayenne", "SA Eastern Standard Time" },
-        { "America/Chicago", "Central Standard Time" },
-        { "America/Chihuahua", "Mountain Standard Time (Mexico)" },
-        { "America/Cuiaba", "Central Brazilian Standard Time" },
-        { "America/Denver", "Mountain Standard Time" },
-        { "America/Fortaleza", "SA Eastern Standard Time" },
-        { "America/Godthab", "Greenland Standard Time" },
-        { "America/Guatemala", "Central America Standard Time" },
-        { "America/Halifax", "Atlantic Standard Time" },
-        { "America/Indianapolis", "US Eastern Standard Time" },
-        { "America/Indiana/Indianapolis", "US Eastern Standard Time" },
-        { "America/La_Paz", "SA Western Standard Time" },
-        { "America/Los_Angeles", "Pacific Standard Time" },
-        { "America/Montevideo", "Montevideo Standard Time" },
-        { "America/New_York", "Eastern Standard Time" },
-        { "America/Noronha", "UTC-02" },
-        { "America/Phoenix", "US Mountain Standard Time" },
-        { "America/Regina", "Canada Central Standard Time" },
-        { "America/Santa_Isabel", "Pacific Standard Time (Mexico)" },
-        { "America/Santiago", "Pacific SA Standard Time" },
-        { "America/Sao_Paulo", "E. South America Standard Time" },
-        { "America/St_Johns", "Newfoundland Standard Time" },
-        { "America/Tijuana", "Pacific Standard Time" },
-        { "Pacific/Apia", "Samoa Standard Time" },
-        { "Pacific/Guam", "West Pacific Standard Time" },
-        { "Pacific/Honolulu", "Hawaiian Standard Time" }
-    };
+        {
+            { "America/Anchorage", "Alaskan Standard Time" },
+            { "America/Chicago", "Central Standard Time" },
+            { "America/Denver", "Mountain Standard Time" },
+            { "America/Los_Angeles", "Pacific Standard Time" },
+            { "America/New_York", "Eastern Standard Time" },
+            { "Pacific/Honolulu", "Hawaiian Standard Time" }
+        };
         internal static void Start()
         {
             try
@@ -176,6 +150,14 @@ namespace Factory_of_the_Future
                 if (!string.IsNullOrEmpty(file_content))
                 {
                     AppSettings = JObject.Parse(file_content);
+                    if (AppSettings.HasValues && AppSettings.ContainsKey("FACILITY_TIMEZONE"))
+                    {
+                        if (string.IsNullOrEmpty(AppSettings["FACILITY_TIMEZONE"].ToString()))
+                        {
+                            AppSettings["FACILITY_TIMEZONE"] = TimeZoneConvert.Where(r => r.Value == localZone.StandardName).Select(y => y.Key).FirstOrDefault();
+                        }
+                      
+                    }
                     //this will check the attributes if any default are mission it will add it.
                     if (AppSettings.HasValues && AppSettings.ContainsKey("LOG_LOCATION"))
                     {
