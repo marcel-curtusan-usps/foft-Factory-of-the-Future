@@ -1047,26 +1047,26 @@ namespace Factory_of_the_Future
                                 item["rpg_end_dtm"] = results.ContainsKey("rpg_end_dtm") ? results["rpg_end_dtm"].ToString().Trim() : "";
                                 item["expected_throughput"] = results.ContainsKey("expected_throughput") ? results["expected_throughput"].ToString().Trim() : "";
                                 //item["throughput_status"] = "1";
-                                //if (!string.IsNullOrEmpty(item["expected_throughput"].ToString()) && item["expected_throughput"].ToString() != "0")
-                                //{
-                                //    int.TryParse(item.ContainsKey("cur_thruput_ophr") ? item["cur_thruput_ophr"].ToString().Trim() : "0", out int cur_thruput);
-                                //    int.TryParse(item.ContainsKey("expected_throughput") ? item["expected_throughput"].ToString().Trim() : "0", out int expected_throughput);
-                                //    double thrper = (double)cur_thruput / (double)expected_throughput * 100;
-                                //    string throughputState = "1";
-                                //    if (thrper >= 100)
-                                //    {
-                                //        throughputState = "1";
-                                //    }
-                                //    else if (thrper >= 90)
-                                //    {
-                                //        throughputState = "2";
-                                //    }
-                                //    else if (thrper < 90)
-                                //    {
-                                //        throughputState = "3";
-                                //    }
-                                //    item["throughput_status"] = throughputState;
-                                //}
+                                if (!string.IsNullOrEmpty(item["expected_throughput"].ToString()) && item["expected_throughput"].ToString() != "0")
+                                {
+                                    int.TryParse(item.ContainsKey("cur_thruput_ophr") ? item["cur_thruput_ophr"].ToString().Trim() : "0", out int cur_thruput);
+                                    int.TryParse(item.ContainsKey("expected_throughput") ? item["expected_throughput"].ToString().Trim() : "0", out int expected_throughput);
+                                    double thrper = (double)cur_thruput / (double)expected_throughput * 100;
+                                    string throughputState = "1";
+                                    if (thrper >= 100)
+                                    {
+                                        throughputState = "1";
+                                    }
+                                    else if (thrper >= 90)
+                                    {
+                                        throughputState = "2";
+                                    }
+                                    else if (thrper < 90)
+                                    {
+                                        throughputState = "3";
+                                    }
+                                    item["throughput_status"] = throughputState;
+                                }
                             }
                             else
                             {
@@ -2438,7 +2438,7 @@ namespace Factory_of_the_Future
                 }
                 else
                 {
-                    ojbMerge.Name = notificationValue;
+                    //ojbMerge.Name = notificationValue;
                     ojbMerge.Type_Duration = Convert.ToInt32(timerValue);
                     ojbMerge.Notification_Update = true;
                     //ojbMerge[notificationName] = notificationValue;
@@ -2454,7 +2454,8 @@ namespace Factory_of_the_Future
             try
             {
                 foreach (NotificationConditions newCondition in AppParameters.NotificationConditionsList.Where(r => Regex.IsMatch(notificationType, r.Value.Conditions, RegexOptions.IgnoreCase)
-                            && r.Value.Type.ToLower() == "automation".ToLower()
+                            //&& r.Value.Type.ToLower() == "automation".ToLower()
+                            && r.Value.Type.ToLower() == "mpe".ToLower()
                             && (bool)r.Value.ActiveCondition).Select(x => x.Value).ToList())
                 //foreach (JObject newCondition in Global.Notification_Conditions.Where(r => Regex.IsMatch(notificationType, r.Value["CONDITIONS"].ToString(), RegexOptions.IgnoreCase)
                 //            && r.Value["TYPE"].ToString().ToLower() == "automation".ToLower()
@@ -2464,12 +2465,20 @@ namespace Factory_of_the_Future
                     {
                         int intStr = 0;
                         int.TryParse(durationTime, out intStr);
+                        string machineName = machineData["mpe_type"].ToString().Trim() + "-" + machineData["mpe_number"].ToString().Trim().PadLeft(3, '0');
                         Notification ojbMerge = new Notification
                         {
+                            Type = newCondition.Type,
+                            Name = newCondition.Name,
                             Type_ID = zoneID,
                             Notification_ID = notificationID,
                             Notification_Update = true,
-                            Type_Duration = intStr//Convert.ToInt32(durationTime)
+                            Type_Duration = intStr,//Convert.ToInt32(durationTime)
+                            Type_Name = machineName,
+                            Warning = newCondition.Warning,
+                            Critical = newCondition.Critical,
+                            WarningAction = newCondition.WarningAction,
+                            CriticalAction = newCondition.CriticalAction
                         };
                         AppParameters.NotificationList.TryAdd(notificationID, ojbMerge);
                         //JObject ojbMerge = (JObject)newCondition.DeepClone();
