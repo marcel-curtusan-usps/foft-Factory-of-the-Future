@@ -570,5 +570,18 @@ namespace Factory_of_the_Future
                 return 0;
             }
         }
+        public static int Get_NotificationTTL(DateTime start, DateTime end)
+        {
+            try
+            {
+                //POSITION_MAX_AGE
+                return (int)Math.Ceiling(end.Subtract(start).TotalMinutes);
+            }
+            catch (Exception e)
+            {
+                new ErrorLogger().ExceptionLog(e);
+                return 0;
+            }
+        }
     }
 }
