@@ -1426,7 +1426,7 @@ namespace Factory_of_the_Future
         public bool Delete { get; set; }
 
         [JsonProperty("Id")]
-        public string Id { get; set; }
+        public string Id { get; set; } = "";
 
         [JsonProperty("ActiveCondition")]
         public bool ActiveCondition { get; set; }
@@ -1435,55 +1435,55 @@ namespace Factory_of_the_Future
         public DateTime CreatedDate { get; set; }
 
         [JsonProperty("CreatedByUsername")]
-        public string CreatedByUsername { get; set; }
+        public string CreatedByUsername { get; set; } = "";
 
         [JsonProperty("LastupdateByUsername")]
-        public string LastupdateByUsername { get; set; }
+        public string LastupdateByUsername { get; set; } = "";
 
         [JsonProperty("LastupdateDate")]
         public DateTime LastupdateDate { get; set; }
 
         [JsonProperty("Name")]
-        public string Name { get; set; }
+        public string Name { get; set; } = "";
 
         [JsonProperty("Type")]
-        public string Type { get; set; }
+        public string Type { get; set; } = "";
 
         [JsonProperty("Conditions")]
-        public string Conditions { get; set; }
+        public string Conditions { get; set; } = "";
 
         [JsonProperty("Warning")]
         public int Warning { get; set; }
 
         [JsonProperty("WarningAction")]
-        public string WarningAction { get; set; }
+        public string WarningAction { get; set; } = "";
 
         [JsonProperty("WarningColor")]
-        public string WarningColor { get; set; }
+        public string WarningColor { get; set; } = "";
 
         [JsonProperty("Critical")]
         public int Critical { get; set; }
 
         [JsonProperty("CriticalAction")]
-        public string CriticalAction { get; set; }
+        public string CriticalAction { get; set; } = "";
 
         [JsonProperty("CriticalColor")]
-        public string CriticalColor { get; set; }
+        public string CriticalColor { get; set; } = "";
 
         [JsonProperty("TypeID")]
-        public string Type_ID { get; set; }
+        public string Type_ID { get; set; } = "";
 
         [JsonProperty("TypeName")]
-        public string Type_Name { get; set; }
+        public string Type_Name { get; set; } = "";
 
         [JsonProperty("TypeStatus")]
-        public string Type_Status { get; set; }
+        public string Type_Status { get; set; } = "";
 
         [JsonProperty("TypeDuration")]
         public int? Type_Duration { get; set; }
 
         [JsonProperty("NotificationID")]
-        public string Notification_ID { get; set; }
+        public string Notification_ID { get; set; } = "";
 
         [JsonProperty("NotificationUpdate")]
         public bool Notification_Update { get; set; }

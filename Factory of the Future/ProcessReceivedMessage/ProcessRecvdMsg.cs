@@ -41,28 +41,6 @@ namespace Factory_of_the_Future
                         case "container":
                             Container(data);
                             break;
-                        ///*SVWeb Data End*/
-                        ///*CTS Data Start*/
-                        ////case "outbound":
-                        ////    CTS_DockDeparted(data);
-                        ////    break;
-
-                        ////case "LocalTrips":
-                        ////    CTS_LocalDockDeparted(data);
-                        ////    break;
-
-                        ////case "inboundScheduled":
-                        ////    CTS_Inbound(data);
-                        ////    break;
-
-                        ////case "outboundScheduled":
-                        ////    CTS_Outbound(data);
-                        ////    break;
-                        ///*CTS Data End*/
-                        ///*SELS RT Data Start*/
-                        ////case "P2PBySite":
-                        ////    P2PBySite(data, Message_type);
-                        ////    break;
                         case "getTacsVsSels":
                             TacsVsSels(data, Message_type, connID);
                             break;
@@ -2236,22 +2214,18 @@ namespace Factory_of_the_Future
                 if (!string.IsNullOrEmpty(value))
                 {
                     if (Regex.IsMatch(value, (string)AppParameters.AppSettings["TAG_AGV"], RegexOptions.IgnoreCase))
-                    //if (value.ToLower().StartsWith("agv"))
                     {
                         return "Autonomous Vehicle";
                     }
                     else if (Regex.IsMatch(value, (string)AppParameters.AppSettings["TAG_PIV"], RegexOptions.IgnoreCase))
-                    //if (value.ToLower().StartsWith("walkingrider") || value.ToLower().StartsWith("mule") || value.ToLower().StartsWith("forklift"))
                     {
                         return "Vehicle";
                     }
                     else if (Regex.IsMatch(value, (string)AppParameters.AppSettings["TAG_PERSON"], RegexOptions.IgnoreCase))
-                    // else if (value.ToLower().StartsWith("mail") || value.ToLower().StartsWith("clerk") || value.ToLower().StartsWith("mha") || value.ToLower().StartsWith("maint") || value.ToLower().StartsWith("supervisor"))
                     {
                         return "Person";
                     }
                     else if (Regex.IsMatch(value, (string)AppParameters.AppSettings["TAG_LOCATOR"], RegexOptions.IgnoreCase))
-                    // else if (value.ToLower().StartsWith("mail") || value.ToLower().StartsWith("clerk") || value.ToLower().StartsWith("mha") || value.ToLower().StartsWith("maint") || value.ToLower().StartsWith("supervisor"))
                     {
                         return "Locator";
                     }
@@ -2271,51 +2245,6 @@ namespace Factory_of_the_Future
                 return "Error_Unknown_Tag";
             }
         }
-        //private static string CheckNotification(string currentState, string NewState, string type, JObject data, string noteifi_id)
-        //{
-        //    string noteification_id = noteifi_id;
-        //    try
-        //    {
-        //        if (currentState != NewState)
-        //        {
-        //            if (!string.IsNullOrEmpty(noteification_id) && AppParameters.NotificationList.ContainsKey(noteification_id))
-        //            {
-        //                if (AppParameters.NotificationList.TryGetValue(noteification_id, out JObject ojbMerge))
-        //                {
-        //                    if (!ojbMerge.ContainsKey("DELETE"))
-        //                    {
-        //                        ojbMerge["DELETE"] = true;
-        //                        ojbMerge["UPDATE"] = true;
-        //                        noteification_id = "";
-        //                    }
-        //                }
-        //            }
-        //            //new condition
-        //            foreach (JObject newCondition in AppParameters.NotificationConditionsList.Where(r => Regex.IsMatch(NewState, r.Value["CONDITIONS"].ToString(), RegexOptions.IgnoreCase)
-        //                && r.Value["TYPE"].ToString().ToLower() == type.ToLower()
-        //                && (bool)r.Value["ACTIVE_CONDITION"]).Select(x => x.Value))
-        //            {
-        //                noteification_id = (string)newCondition["ID"] + (string)data["id"];
-        //                if (!AppParameters.NotificationList.ContainsKey(noteification_id))
-        //                {
-        //                    JObject ojbMerge = (JObject)newCondition.DeepClone();
-        //                    ojbMerge.Merge(data, new JsonMergeSettings { MergeArrayHandling = MergeArrayHandling.Union });
-        //                    ojbMerge["SHOWTOAST"] = true;
-        //                    ojbMerge["TAGID"] = (string)data["id"];
-        //                    ojbMerge["notificationId"] = (string)newCondition["ID"] + (string)data["id"];
-        //                    ojbMerge["UPDATE"] = true;
-        //                    AppParameters.NotificationList.TryAdd((string)newCondition["ID"] + (string)data["id"], ojbMerge);
-        //                }
-        //            }
-        //        }
-        //        return noteification_id;
-        //    }
-        //    catch (Exception e)
-        //    {
-        //        new ErrorLogger().ExceptionLog(e);
-        //        return noteification_id;
-        //    }
-        //}
 
         private static void CheckMachineNotifications(JObject machineData)
         {
@@ -2323,15 +2252,18 @@ namespace Factory_of_the_Future
                 {
                 string zoneID = AppParameters.ZoneList.Where(x => x.Value.Properties.ZoneType == "Machine" &&
                             x.Value.Properties.MPEType == machineData["mpe_type"].ToString() &&
-                            x.Value.Properties.MPENumber.ToString() == machineData["mpe_number"].ToString())
-                               .Select(l => l.Value.Properties.Id).FirstOrDefault().ToString();
-                string machine = machineData["mpe_type"].ToString().Trim() + machineData["mpe_number"].ToString().Trim();
+                            x.Value.Properties.MPENumber == (int)machineData["mpe_number"])
+                               .Select(l => l.Key).FirstOrDefault();
+                if (!string.IsNullOrEmpty(zoneID))
+                {
+                    string machine = machineData["mpe_type"].ToString().Trim() + machineData["mpe_number"].ToString().Trim();
 
-                CheckMachineThroughPutNotification(machineData, zoneID, machine);
-                CheckUnplannedMaintNotification(machineData, zoneID, machine);
-                CheckOPStartingLateNotification(machineData, zoneID, machine);
-                CheckOPRunningLateNatification(machineData, zoneID, machine);
-                CheckSortplanWrongNotification(machineData, zoneID, machine);
+                    CheckMachineThroughPutNotification(machineData, zoneID, machine);
+                    CheckUnplannedMaintNotification(machineData, zoneID, machine);
+                    CheckOPStartingLateNotification(machineData, zoneID, machine);
+                    CheckOPRunningLateNatification(machineData, zoneID, machine);
+                    CheckSortplanWrongNotification(machineData, zoneID, machine);
+                }
             }
             catch (Exception e)
             {
@@ -2341,25 +2273,17 @@ namespace Factory_of_the_Future
 
         private static void UpdateDeleteMachineNotifications(string notificationID, string notificationName, string timerName, string duration, string notificationValue, string timerValue)
         {
-            //Notification existingNotifiaction = AppParameters.NotificationList.Where(x => x.Value.Notification_ID == notificationID).FirstOrDefault();
             if (AppParameters.NotificationList.TryGetValue(notificationID, out Notification ojbMerge))
             {
                 if (notificationValue == "0" || string.IsNullOrEmpty(notificationValue))
                 {
                     ojbMerge.Delete = true;
                     ojbMerge.Notification_Update = true;
-                    //ojbMerge["DELETE"] = true;
-                    //ojbMerge["UPDATE"] = true;
                 }
                 else
                 {
-                    //ojbMerge.Name = notificationValue;
                     ojbMerge.Type_Duration = Convert.ToInt32(timerValue);
                     ojbMerge.Notification_Update = true;
-                    //ojbMerge[notificationName] = notificationValue;
-                    //ojbMerge["durationTime"] = timerValue;
-                    //ojbMerge["durationText"] = duration;
-                    //ojbMerge["UPDATE"] = true;
                 }
             }
         }
@@ -2369,12 +2293,9 @@ namespace Factory_of_the_Future
             try
             {
                 foreach (NotificationConditions newCondition in AppParameters.NotificationConditionsList.Where(r => Regex.IsMatch(notificationType, r.Value.Conditions, RegexOptions.IgnoreCase)
-                            //&& r.Value.Type.ToLower() == "automation".ToLower()
                             && r.Value.Type.ToLower() == "mpe".ToLower()
                             && (bool)r.Value.ActiveCondition).Select(x => x.Value).ToList())
-                //foreach (JObject newCondition in Global.Notification_Conditions.Where(r => Regex.IsMatch(notificationType, r.Value["CONDITIONS"].ToString(), RegexOptions.IgnoreCase)
-                //            && r.Value["TYPE"].ToString().ToLower() == "automation".ToLower()
-                //            && (bool)r.Value["ACTIVE_CONDITION"]).Select(x => x.Value))
+
                 {
                     if (!AppParameters.NotificationList.ContainsKey(notificationID))
                     {
@@ -2388,7 +2309,8 @@ namespace Factory_of_the_Future
                             Type_ID = zoneID,
                             Notification_ID = notificationID,
                             Notification_Update = true,
-                            Type_Duration = intStr,//Convert.ToInt32(durationTime)
+                            Type_Duration = intStr,
+                            Type_Status = "",
                             Type_Name = machineName,
                             Warning = newCondition.Warning,
                             Critical = newCondition.Critical,
@@ -2396,16 +2318,6 @@ namespace Factory_of_the_Future
                             CriticalAction = newCondition.CriticalAction
                         };
                         AppParameters.NotificationList.TryAdd(notificationID, ojbMerge);
-                        //JObject ojbMerge = (JObject)newCondition.DeepClone();
-                        //ojbMerge.Merge(machineData, new JsonMergeSettings { MergeArrayHandling = MergeArrayHandling.Union });
-                        //ojbMerge["SHOWTOAST"] = true;
-                        //ojbMerge["ZONEID"] = zoneID;
-                        //ojbMerge["NOTIFICATIONGID"] = notificationID;
-                        //ojbMerge["UPDATE"] = true;
-                        //ojbMerge["durationTime"] = durationTime;
-                        //ojbMerge["durationText"] = durationtext;
-                        //Global.Notification.TryAdd(notificationID, ojbMerge);
-
                     }
                 }
             }
@@ -2443,7 +2355,6 @@ namespace Factory_of_the_Future
         {
             string notification_name = "op_started_late_status";
             string notification_timer = "op_started_late_timer";
-            //string notificationID = zoneID + "_op_started_late_status";
             string notificationID = machine + "_op_started_late_status";
             string op_started_late_status = machineData.ContainsKey("op_started_late_status") ? machineData["op_started_late_status"].ToString().Trim() : "0";
             string op_started_late_timer = machineData.ContainsKey("op_started_late_timer") ? machineData["op_started_late_timer"].ToString().Trim() : "0";
@@ -2462,7 +2373,6 @@ namespace Factory_of_the_Future
         {
             string notification_name = "unplan_maint_sp_status";
             string notification_timer = "unplan_maint_sp_timer";
-            //string notificationID = zoneID + "_unplan_maint_sp_status";
             string notificationID = machine + "_unplan_maint_sp_status";
             string unplan_maint_sp_status = machineData.ContainsKey("unplan_maint_sp_status") ? machineData["unplan_maint_sp_status"].ToString().Trim() : "0";
             string unplan_maint_sp_timer = machineData.ContainsKey("unplan_maint_sp_timer") ? machineData["unplan_maint_sp_timer"].ToString().Trim() : "0";
@@ -2481,7 +2391,6 @@ namespace Factory_of_the_Future
         {
             string notification_name = "sortplan_wrong_status";
             string notification_timer = "sortplan_wrong_timer";
-            //string notificationID = zoneID + "_sortplan_wrong_status";
             string notificationID = machine + "_sortplan_wrong_status";
             string sortplan_wrong_status = machineData.ContainsKey("sortplan_wrong_status") ? machineData["sortplan_wrong_status"].ToString().Trim() : "0";
             string sortplan_wrong_timer = machineData.ContainsKey("sortplan_wrong_timer") ? machineData["sortplan_wrong_timer"].ToString().Trim() : "0";
@@ -2500,7 +2409,6 @@ namespace Factory_of_the_Future
         {
             string notification_name = "op_running_late_status";
             string notification_timer = "op_running_late_timer";
-            //string notificationID = zoneID + "_op_running_late_status";
             string notificationID = machine + "_op_running_late_status";
             string op_running_late_status = machineData.ContainsKey("op_running_late_status") ? machineData["op_running_late_status"].ToString().Trim() : "0";
             string op_running_late_timer = machineData.ContainsKey("op_running_late_timer") ? machineData["op_running_late_timer"].ToString().Trim() : "0";
@@ -2517,7 +2425,6 @@ namespace Factory_of_the_Future
 
         private static void CheckMachineThroughPutNotification(JObject machineData, string zoneID, string machine)
         {
-            //string notificationID = zoneID + "_throughput_status";
             string notificationID = machine + "_throughput_status";
             string throughput_status = machineData.ContainsKey("throughput_status") ? machineData["throughput_status"].ToString().Trim() : "0";
             try
@@ -2528,26 +2435,20 @@ namespace Factory_of_the_Future
                     {
                         if (throughput_status == "1" || throughput_status == "0" || string.IsNullOrEmpty(throughput_status))
                         {
-                            //ojbMerge["DELETE"] = true;
-                            //ojbMerge["UPDATE"] = true;
                             ojbMerge.Delete = true;
                             ojbMerge.Notification_Update = true;
                         }
                         else
                         {
-                            //string prev_throughput_status = ojbMerge.ContainsKey("throughput_status") ? ojbMerge["throughput_status"].ToString().Trim() : "1";
                             string prev_throughput_status = ojbMerge.Type_Status.ToString().Trim();
                             if (prev_throughput_status != throughput_status)
                             {
                                 ojbMerge.Type_Status = throughput_status;
                                 ojbMerge.Notification_Update = true;
-                                //ojbMerge["throughput_status"] = throughput_status;
-                                //ojbMerge["UPDATE"] = true;
                             }
                             else
                             {
                                 ojbMerge.Notification_Update = true;
-                                //ojbMerge["UPDATE"] = true;
                             }
                         }
                     }
