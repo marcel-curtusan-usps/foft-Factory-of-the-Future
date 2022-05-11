@@ -441,6 +441,15 @@ $(function () {
             LoadtagDetails(tagid);
         }
     });
+    //search machine details
+    $(document).on('click', '.machinedetails', function (e) {
+        var td = $(this);
+        var machZoneid = td.attr('data-machine');
+        if (checkValue(machZoneid)) {
+            LoadMachineDetails(machZoneid);
+            sidebar.open('home');
+        }
+    });
     $(document).on('click', '.viewportszones', function () {
         try {
             $('input[type=checkbox][name=followvehicle]').prop('checked', false).change();

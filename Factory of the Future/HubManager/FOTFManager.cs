@@ -473,6 +473,12 @@ namespace Factory_of_the_Future
         {
             try
             {
+                //**MPE Notifications duration calculated by MPEWatch.
+                if (notification.Type == "mpe" && !notification.Delete)
+                {
+                    return notification.Notification_Update;
+                }
+
                 notification.Notification_Update = false;
              
                 if (notification.Delete)
@@ -483,6 +489,7 @@ namespace Factory_of_the_Future
                     }
                 }
                 int duration = AppParameters.Get_NotificationTTL(notification.Type_Time, DateTime.Now);
+                
                 if (duration > notification.Type_Duration)
                 {
                     notification.Type_Duration = duration;

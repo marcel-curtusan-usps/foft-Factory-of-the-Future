@@ -257,6 +257,69 @@ async function updatetripTable(updatenotification) {
     }
     return null;
 }
+async function updateMPETable(updatenotification) {
+    try {
+        let mpeCounter = notification.filter(x => x.Type === "mpe" && x.Delete != true).map(x => x).map(x => x).length;
+        if (mpeCounter > 0) {
+            if (parseInt($('#mpenotification_number').text()) !== mpeCounter) {
+                $('#mpenotification_number').text(mpeCounter);
+            }
+        }
+        else {
+            $('#mpenotification_number').text("");
+        }
+        let findmpedataid = mpenotificationtable_Body.find('tr[data-id=' + updatenotification.NotificationID + ']');
+        if (findmpedataid.length > 0) {
+            if (updatenotification.hasOwnProperty("DELETE")) {
+                mpenotificationtable_Body.find('tr[data-id=' + updatenotification.NotificationID + ']').remove();
+            }
+            else {
+                mpenotificationtable_Body.find('tr[data-id=' + updatenotification.NotificationID + ']').replaceWith(mpe_row_template.supplant(formatmpenotifirow(updatenotification)));
+            }
+        }
+        else {
+            mpenotificationtable_Body.append(mpe_row_template.supplant(formatmpenotifirow(updatenotification)));
+        }
+        sortMPETable();
+    }
+    catch (e) {
+        console.log(e);
+    }
+    return null;
+}
+async function sortMPETable() {
+    var table, rows, switching, i, x, y, shouldSwitch;
+    table = document.getElementById("mpenotificationtable");
+    switching = true;
+    while (switching) {
+        switching = false;
+        rows = table.rows;
+        for (i = 1; i < (rows.length - 1); i++) {
+            shouldSwitch = false;
+
+            var id = $(rows[i]).attr("data-id");
+            var notificationrw = notification.filter(y => y.Type === "mpe" && y.id == id);
+
+            if (notificationrw.length < 1 || notificationrw[0].hasOwnProperty("DELETE")) {
+                mpenotificationtable_Body.find('tr[data-id=' + id + ']').remove();
+            }
+            else {
+                x = rows[i].getElementsByTagName("TD")[3];
+                y = rows[i + 1].getElementsByTagName("TD")[3];
+                if (Number(x.innerHTML) < Number(y.innerHTML)) {
+                    shouldSwitch = true;
+                    break;
+                }
+            }
+        }
+        if (shouldSwitch) {
+            rows[i].parentNode.insertBefore(rows[i + 1], rows[i]);
+            switching = true;
+        }
+    }
+}
+let mpenotificationtable = $('table[id=mpenotificationtable]');
+let mpenotificationtable_Body = mpenotificationtable.find('tbody');
 async function delete_notification(id)
 {
     try {
@@ -391,6 +454,32 @@ function formattripnotifirow(properties, indx) {
         indexobj: indx
     });
 }
+let mpe_row_template =
+    '<tr data-id={id} style=background-color:{conditioncolor} data-toggle=collapse data-target=#{action_text} class=accordion-toggle>' +
+    '<td>{name}</td>' +
+    '<td><button class="btn btn-outline-info btn-sm btn-block machinedetails" data-machine="{zoneid}" >{mpeName}</button></td>' +
+    '<td style="text-align:center">{duration}</td>' +
+    '<td style="display:none;">{durationtime}</td>' +
+    '</tr>'
+    ;
+function formatmpenotifirow(properties, indx) {
+    return $.extend(properties, {
+        id: properties.NotificationID,
+        mpeName: properties.TypeName,//properties.mpe_type + "-" + properties.mpe_number.padStart(3, "0"),
+        zoneid: properties.TypeID,
+        name: properties.Name,
+        //type: properties.Type,
+        //condition: properties.Conditions,
+        duration: ConverMPENotificationTime(properties.TypeDuration),
+        durationtime: properties.TypeDuration,
+        conditioncolor: conditioncolor(GetMPENotificationTime(properties.TypeDuration), parseInt(properties.Warning), parseInt(properties.Critical)),
+        warning_action_text: properties.WarningAction,
+        critical_action_text: properties.CriticalAction,
+        action_text: conditionaction_text(GetMPENotificationTime(properties.TypeDuration), parseInt(properties.Warning), parseInt(properties.Critical)) + "_" + properties.notificationId,
+        indexobj: indx
+    });
+}
+
 let notificationTable = $('table[id=notificationsetuptable]');
 let notificationTable_Body = notificationTable.find('tbody');
 let notificationTable_row_template = '<tr data-id="{id}" class="{button_collor}">' +
@@ -662,4 +751,29 @@ function spitName(name, index) {
     } catch (e) {
         console.log(e);
     }
+}
+function ConverMPENotificationTime(secs) {
+    try {
+        if (secs != 0) {
+            var sec_num = parseInt(secs, 10)
+            var hours = Math.floor(sec_num / 3600)
+            var minutes = Math.floor(sec_num / 60) % 60
+            var seconds = sec_num % 60
+
+            return [hours, minutes, seconds]
+                .map(v => v < 10 ? "0" + v : v)
+                .filter((v, i) => v !== "00" || i > 0)
+                .join(":")
+        }
+        return "";
+    } catch (e) {
+        console.log(e);
+    }
+}
+function GetMPENotificationTime(secs) {
+    if (secs != 0) {
+        return moment().subtract(secs, 'seconds');
+    }
+    
+    return moment().add(1, 'minutes');
 }

@@ -1060,7 +1060,7 @@ namespace Factory_of_the_Future
                                 item["rpg_start_dtm"] = results.ContainsKey("rpg_start_dtm") ? results["rpg_start_dtm"].ToString().Trim() : "";
                                 item["rpg_end_dtm"] = results.ContainsKey("rpg_end_dtm") ? results["rpg_end_dtm"].ToString().Trim() : "";
                                 item["expected_throughput"] = results.ContainsKey("expected_throughput") ? results["expected_throughput"].ToString().Trim() : "";
-                                item["throughput_status"] = "1";
+                                //item["throughput_status"] = "1";
                                 if (!string.IsNullOrEmpty(item["expected_throughput"].ToString()) && item["expected_throughput"].ToString() != "0")
                                 {
                                     int.TryParse(item.ContainsKey("cur_thruput_ophr") ? item["cur_thruput_ophr"].ToString().Trim() : "0", out int cur_thruput);
@@ -1089,8 +1089,8 @@ namespace Factory_of_the_Future
                                 item["expected_throughput"] = "";
                                 item["throughput_status"] = "1";
                             }
-                    
 
+                            CheckMachineNotifications(item);
                             string MpeName = string.Concat(item["mpe_type"].ToString().Trim(), "-", item["mpe_number"].ToString().PadLeft(3, '0'));
                             string newMPEPerf = JsonConvert.SerializeObject(item, Formatting.Indented);
                             AppParameters.MPEPerformanceList.AddOrUpdate(MpeName, newMPEPerf,
@@ -2316,5 +2316,271 @@ namespace Factory_of_the_Future
         //        return noteification_id;
         //    }
         //}
+
+        private static void CheckMachineNotifications(JObject machineData)
+        {
+                try
+                {
+                string zoneID = AppParameters.ZoneList.Where(x => x.Value.Properties.ZoneType == "Machine" &&
+                            x.Value.Properties.MPEType == machineData["mpe_type"].ToString() &&
+                            x.Value.Properties.MPENumber.ToString() == machineData["mpe_number"].ToString())
+                               .Select(l => l.Value.Properties.Id).FirstOrDefault().ToString();
+                string machine = machineData["mpe_type"].ToString().Trim() + machineData["mpe_number"].ToString().Trim();
+
+                CheckMachineThroughPutNotification(machineData, zoneID, machine);
+                CheckUnplannedMaintNotification(machineData, zoneID, machine);
+                CheckOPStartingLateNotification(machineData, zoneID, machine);
+                CheckOPRunningLateNatification(machineData, zoneID, machine);
+                CheckSortplanWrongNotification(machineData, zoneID, machine);
+            }
+            catch (Exception e)
+            {
+                new ErrorLogger().ExceptionLog(e);
+            }
+        }
+
+        private static void UpdateDeleteMachineNotifications(string notificationID, string notificationName, string timerName, string duration, string notificationValue, string timerValue)
+        {
+            //Notification existingNotifiaction = AppParameters.NotificationList.Where(x => x.Value.Notification_ID == notificationID).FirstOrDefault();
+            if (AppParameters.NotificationList.TryGetValue(notificationID, out Notification ojbMerge))
+            {
+                if (notificationValue == "0" || string.IsNullOrEmpty(notificationValue))
+                {
+                    ojbMerge.Delete = true;
+                    ojbMerge.Notification_Update = true;
+                    //ojbMerge["DELETE"] = true;
+                    //ojbMerge["UPDATE"] = true;
+                }
+                else
+                {
+                    //ojbMerge.Name = notificationValue;
+                    ojbMerge.Type_Duration = Convert.ToInt32(timerValue);
+                    ojbMerge.Notification_Update = true;
+                    //ojbMerge[notificationName] = notificationValue;
+                    //ojbMerge["durationTime"] = timerValue;
+                    //ojbMerge["durationText"] = duration;
+                    //ojbMerge["UPDATE"] = true;
+                }
+            }
+        }
+
+        private static void AddNewMachineNotification(JObject machineData, string zoneID, string notificationID, string notificationType, string durationtext, string durationTime)
+        {
+            try
+            {
+                foreach (NotificationConditions newCondition in AppParameters.NotificationConditionsList.Where(r => Regex.IsMatch(notificationType, r.Value.Conditions, RegexOptions.IgnoreCase)
+                            //&& r.Value.Type.ToLower() == "automation".ToLower()
+                            && r.Value.Type.ToLower() == "mpe".ToLower()
+                            && (bool)r.Value.ActiveCondition).Select(x => x.Value).ToList())
+                //foreach (JObject newCondition in Global.Notification_Conditions.Where(r => Regex.IsMatch(notificationType, r.Value["CONDITIONS"].ToString(), RegexOptions.IgnoreCase)
+                //            && r.Value["TYPE"].ToString().ToLower() == "automation".ToLower()
+                //            && (bool)r.Value["ACTIVE_CONDITION"]).Select(x => x.Value))
+                {
+                    if (!AppParameters.NotificationList.ContainsKey(notificationID))
+                    {
+                        int intStr = 0;
+                        int.TryParse(durationTime, out intStr);
+                        string machineName = machineData["mpe_type"].ToString().Trim() + "-" + machineData["mpe_number"].ToString().Trim().PadLeft(3, '0');
+                        Notification ojbMerge = new Notification
+                        {
+                            Type = newCondition.Type,
+                            Name = newCondition.Name,
+                            Type_ID = zoneID,
+                            Notification_ID = notificationID,
+                            Notification_Update = true,
+                            Type_Duration = intStr,//Convert.ToInt32(durationTime)
+                            Type_Name = machineName,
+                            Warning = newCondition.Warning,
+                            Critical = newCondition.Critical,
+                            WarningAction = newCondition.WarningAction,
+                            CriticalAction = newCondition.CriticalAction
+                        };
+                        AppParameters.NotificationList.TryAdd(notificationID, ojbMerge);
+                        //JObject ojbMerge = (JObject)newCondition.DeepClone();
+                        //ojbMerge.Merge(machineData, new JsonMergeSettings { MergeArrayHandling = MergeArrayHandling.Union });
+                        //ojbMerge["SHOWTOAST"] = true;
+                        //ojbMerge["ZONEID"] = zoneID;
+                        //ojbMerge["NOTIFICATIONGID"] = notificationID;
+                        //ojbMerge["UPDATE"] = true;
+                        //ojbMerge["durationTime"] = durationTime;
+                        //ojbMerge["durationText"] = durationtext;
+                        //Global.Notification.TryAdd(notificationID, ojbMerge);
+
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                new ErrorLogger().ExceptionLog(e);
+            }
+        }
+
+        private static string GetMachineNotificationDurationText(string durationSeconds)
+        {
+            string durartionText = "";
+            if (Double.TryParse(durationSeconds, out Double dblSeconds))
+            {
+                TimeSpan ts = TimeSpan.FromSeconds(dblSeconds);
+                var hour = ts.Hours;
+                var min = ts.Minutes;
+                var sec = ts.Seconds;
+                Double decSec = (1 / 60) * sec;
+                var secText = decSec != 0 ? "." + Math.Round(decSec, 0, MidpointRounding.AwayFromZero).ToString() : "";
+                if (hour == 0)
+                {
+                    durartionText = min.ToString() + secText + " mins";
+                }
+                else
+                {
+                    string hourtext = hour > 1 ? "hrs" : "hr";
+                    durartionText = hour.ToString() + " " + hourtext + ", " + min.ToString() + secText + " mins";
+                }
+            }
+            return durartionText;
+        }
+
+        private static void CheckOPStartingLateNotification(JObject machineData, string zoneID, string machine)
+        {
+            string notification_name = "op_started_late_status";
+            string notification_timer = "op_started_late_timer";
+            //string notificationID = zoneID + "_op_started_late_status";
+            string notificationID = machine + "_op_started_late_status";
+            string op_started_late_status = machineData.ContainsKey("op_started_late_status") ? machineData["op_started_late_status"].ToString().Trim() : "0";
+            string op_started_late_timer = machineData.ContainsKey("op_started_late_timer") ? machineData["op_started_late_timer"].ToString().Trim() : "0";
+            string duration = op_started_late_timer != "0" ? GetMachineNotificationDurationText(op_started_late_timer) : "";
+            if (!string.IsNullOrEmpty(notificationID) && AppParameters.NotificationList.ContainsKey(notificationID))
+            {
+                UpdateDeleteMachineNotifications(notificationID, notification_name, notification_timer, duration, op_started_late_status, op_started_late_timer);
+            }
+            else if (op_started_late_status != "0" && !string.IsNullOrEmpty(op_started_late_status))
+            {
+                AddNewMachineNotification(machineData, zoneID, notificationID, notification_name, duration, op_started_late_timer);
+            }
+        }
+
+        private static void CheckUnplannedMaintNotification(JObject machineData, string zoneID, string machine)
+        {
+            string notification_name = "unplan_maint_sp_status";
+            string notification_timer = "unplan_maint_sp_timer";
+            //string notificationID = zoneID + "_unplan_maint_sp_status";
+            string notificationID = machine + "_unplan_maint_sp_status";
+            string unplan_maint_sp_status = machineData.ContainsKey("unplan_maint_sp_status") ? machineData["unplan_maint_sp_status"].ToString().Trim() : "0";
+            string unplan_maint_sp_timer = machineData.ContainsKey("unplan_maint_sp_timer") ? machineData["unplan_maint_sp_timer"].ToString().Trim() : "0";
+            string duration = unplan_maint_sp_timer != "0" ? GetMachineNotificationDurationText(unplan_maint_sp_timer) : "";
+            if (!string.IsNullOrEmpty(notificationID) && AppParameters.NotificationList.ContainsKey(notificationID))
+            {
+                UpdateDeleteMachineNotifications(notificationID, notification_name, notification_timer, duration, unplan_maint_sp_status, unplan_maint_sp_timer);
+            }
+            else if (unplan_maint_sp_status != "0" && !string.IsNullOrEmpty(unplan_maint_sp_status))
+            {
+                AddNewMachineNotification(machineData, zoneID, notificationID, notification_name, duration, unplan_maint_sp_timer);
+            }
+        }
+
+        private static void CheckSortplanWrongNotification(JObject machineData, string zoneID, string machine)
+        {
+            string notification_name = "sortplan_wrong_status";
+            string notification_timer = "sortplan_wrong_timer";
+            //string notificationID = zoneID + "_sortplan_wrong_status";
+            string notificationID = machine + "_sortplan_wrong_status";
+            string sortplan_wrong_status = machineData.ContainsKey("sortplan_wrong_status") ? machineData["sortplan_wrong_status"].ToString().Trim() : "0";
+            string sortplan_wrong_timer = machineData.ContainsKey("sortplan_wrong_timer") ? machineData["sortplan_wrong_timer"].ToString().Trim() : "0";
+            string duration = sortplan_wrong_timer != "0" ? GetMachineNotificationDurationText(sortplan_wrong_timer) : "";
+            if (!string.IsNullOrEmpty(notificationID) && AppParameters.NotificationList.ContainsKey(notificationID))
+            {
+                UpdateDeleteMachineNotifications(notificationID, notification_name, notification_timer, duration, sortplan_wrong_status, sortplan_wrong_timer);
+            }
+            else if (sortplan_wrong_status != "0" && !string.IsNullOrEmpty(sortplan_wrong_status))
+            {
+                AddNewMachineNotification(machineData, zoneID, notificationID, notification_name, duration, sortplan_wrong_timer);
+            }
+        }
+
+        private static void CheckOPRunningLateNatification(JObject machineData, string zoneID, string machine)
+        {
+            string notification_name = "op_running_late_status";
+            string notification_timer = "op_running_late_timer";
+            //string notificationID = zoneID + "_op_running_late_status";
+            string notificationID = machine + "_op_running_late_status";
+            string op_running_late_status = machineData.ContainsKey("op_running_late_status") ? machineData["op_running_late_status"].ToString().Trim() : "0";
+            string op_running_late_timer = machineData.ContainsKey("op_running_late_timer") ? machineData["op_running_late_timer"].ToString().Trim() : "0";
+            string duration = op_running_late_timer != "0" ? GetMachineNotificationDurationText(op_running_late_timer) : "";
+            if (!string.IsNullOrEmpty(notificationID) && AppParameters.NotificationList.ContainsKey(notificationID))
+            {
+                UpdateDeleteMachineNotifications(notificationID, notification_name, notification_timer, duration, op_running_late_status, op_running_late_timer);
+            }
+            else if (op_running_late_status != "0" && !string.IsNullOrEmpty(op_running_late_status))
+            {
+                AddNewMachineNotification(machineData, zoneID, notificationID, notification_name, duration, op_running_late_timer);
+            }
+        }
+
+        private static void CheckMachineThroughPutNotification(JObject machineData, string zoneID, string machine)
+        {
+            //string notificationID = zoneID + "_throughput_status";
+            string notificationID = machine + "_throughput_status";
+            string throughput_status = machineData.ContainsKey("throughput_status") ? machineData["throughput_status"].ToString().Trim() : "0";
+            try
+            {
+                if (!string.IsNullOrEmpty(notificationID) && AppParameters.NotificationList.ContainsKey(notificationID))
+                {
+                    if (AppParameters.NotificationList.TryGetValue(notificationID, out Notification ojbMerge))
+                    {
+                        if (throughput_status == "1" || throughput_status == "0" || string.IsNullOrEmpty(throughput_status))
+                        {
+                            //ojbMerge["DELETE"] = true;
+                            //ojbMerge["UPDATE"] = true;
+                            ojbMerge.Delete = true;
+                            ojbMerge.Notification_Update = true;
+                        }
+                        else
+                        {
+                            //string prev_throughput_status = ojbMerge.ContainsKey("throughput_status") ? ojbMerge["throughput_status"].ToString().Trim() : "1";
+                            string prev_throughput_status = ojbMerge.Type_Status.ToString().Trim();
+                            if (prev_throughput_status != throughput_status)
+                            {
+                                ojbMerge.Type_Status = throughput_status;
+                                ojbMerge.Notification_Update = true;
+                                //ojbMerge["throughput_status"] = throughput_status;
+                                //ojbMerge["UPDATE"] = true;
+                            }
+                            else
+                            {
+                                ojbMerge.Notification_Update = true;
+                                //ojbMerge["UPDATE"] = true;
+                            }
+                        }
+                    }
+                }
+                else
+                {
+                    if (throughput_status != "1" && !string.IsNullOrEmpty(throughput_status) && throughput_status != "0")
+                    {
+                        string startdatetime = machineData.ContainsKey("current_run_start") ? machineData["current_run_start"].ToString().Trim() : "";
+                        if (!string.IsNullOrEmpty(startdatetime))
+                        {
+                            DateTime dtSD = Convert.ToDateTime(startdatetime);
+                            DateTime dtNow = DateTime.Now;
+                            if (!string.IsNullOrEmpty((string)AppParameters.AppSettings["FACILITY_TIMEZONE"]))
+                            {
+                                if (AppParameters.TimeZoneConvert.TryGetValue((string)AppParameters.AppSettings["FACILITY_TIMEZONE"], out string windowsTimeZoneId))
+                                {
+                                    dtNow = TimeZoneInfo.ConvertTime(dtNow, TimeZoneInfo.FindSystemTimeZoneById(windowsTimeZoneId));
+                                }
+                            }
+                            TimeSpan ts = dtNow - dtSD;
+                            if (ts.TotalMinutes >= 15)
+                            {
+                                AddNewMachineNotification(machineData, zoneID, notificationID, "throughput_status", "", "");
+                            }
+                        }
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                new ErrorLogger().ExceptionLog(e);
+            }
+        }
     }
 }

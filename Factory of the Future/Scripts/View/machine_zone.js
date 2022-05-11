@@ -133,18 +133,14 @@ $(function () {
 var polygonMachine = new L.GeoJSON(null, {
     style: function (feature) {
         if (feature.properties.visible) {
-            var fillColor = GetMacineBackground(feature.properties.MPEWatchData.current_run_start, feature.properties.MPEWatchData.current_run_end, feature.properties.MPEWatchData.cur_thruput_ophr, feature.properties.MPEWatchData.expected_throughput);
-            if (fillColor === "#989ea4") {
-                return {
-                    weight: 1,
-                    opacity: 1,
-                    color: '#3573b1',
-                    fillOpacity: 0.2,
-                    fillColor: fillColor
-                };
-            }
-            else {
-                return {
+            var style = {};
+            var sortplan = feature.properties.hasOwnProperty("MPEWatchData") ? feature.properties.MPEWatchData.hasOwnProperty("cur_sortplan") ? feature.properties.MPEWatchData.cur_sortplan : "" : "";
+            var endofrun = feature.properties.hasOwnProperty("MPEWatchData") ? feature.properties.MPEWatchData.hasOwnProperty("current_run_end") ? feature.properties.MPEWatchData.current_run_end : "" : "";
+            var startofrun = feature.properties.hasOwnProperty("MPEWatchData") ? feature.properties.MPEWatchData.hasOwnProperty("current_run_start") ? feature.properties.MPEWatchData.current_run_start : "" : "";
+            if (checkValue(sortplan) && !checkValue(endofrun)) {
+                var thpCode = feature.properties.hasOwnProperty("MPEWatchData") ? feature.properties.MPEWatchData.hasOwnProperty("throughput_status") ? feature.properties.MPEWatchData.throughput_status : "0" : "0";
+                var fillColor = GetMacineBackground(startofrun, thpCode);
+                style = {
                     weight: 1,
                     opacity: 1,
                     color: '#3573b1',
@@ -152,16 +148,16 @@ var polygonMachine = new L.GeoJSON(null, {
                     fillColor: fillColor
                 };
             }
-           
-        }
-        else {
-            return {
-                weight: 1,
-                opacity: 1,
-                color: '#3573b1',
-                fillOpacity: 0.2,
-                fillColor: '#989ea4'
-            };
+            else {
+                style = {
+                    weight: 1,
+                    opacity: 1,
+                    color: '#3573b1',
+                    fillOpacity: 0.2,
+                    fillColor: '#989ea4'
+                };
+            }
+            return style;
         }
     },
     onEachFeature: function (feature, layer) {
@@ -191,22 +187,28 @@ var polygonMachine = new L.GeoJSON(null, {
     }
 });
 async function updateMPEZone(properties, index) {
-    var fillColor = GetMacineBackground(properties.MPEWatchData.current_run_start, properties.MPEWatchData.current_run_end, properties.MPEWatchData.cur_thruput_ophr, properties.MPEWatchData.expected_throughput);
-    if (fillColor === "#989ea4") {
-        polygonMachine._layers[index].setStyle({
-            weight: 1,
-            opacity: 1,
-            fillOpacity: 0.2,
-            fillColor: fillColor
-        });
-    }
-    else {
+    var sortplan = properties.MPEWatchData.hasOwnProperty("cur_sortplan") ? properties.MPEWatchData.cur_sortplan : "";
+    var endofrun = properties.MPEWatchData.hasOwnProperty("current_run_end") ? properties.MPEWatchData.current_run_end : "";
+    var startofrun = properties.MPEWatchData.hasOwnProperty("current_run_start") ? properties.MPEWatchData.current_run_start : "";
+    if (checkValue(sortplan) && !checkValue(endofrun)) {
+        var thpCode = properties.MPEWatchData.hasOwnProperty("throughput_status") ? properties.MPEWatchData.throughput_status : "0";
+        var fillColor = GetMacineBackground(startofrun, thpCode);
         polygonMachine._layers[index].setStyle({
             weight: 1,
             opacity: 1,
             fillOpacity: 0.5,
             fillColor: fillColor
         });
+    }
+    else {
+        if (polygonMachine._layers[index].options.fillColor !== '#989ea4') { //'gray'
+            polygonMachine._layers[index].setStyle({
+                weight: 1,
+                opacity: 1,
+                fillOpacity: 0.2,
+                fillColor: '#989ea4'//'gray'
+            });
+        }
     }
 }
 async function LoadMachineTables(dataproperties, table) {
@@ -244,12 +246,47 @@ async function LoadMachineTables(dataproperties, table) {
                 var staffdata = dataproperties.hasOwnProperty("staffingData") ? dataproperties.staffingData : "";
                 var MachineCurrentStaff = [];
                 GetPeopleInZone(dataproperties.id, staffdata, MachineCurrentStaff);
+                if (dataproperties.MPEWatchData.hasOwnProperty("current_run_end")) {
+                    if (dataproperties.MPEWatchData.current_run_end == "") {
+                        var runEndTR = document.getElementById('endtime_tr').style;
+                        runEndTR.display = 'none';
+
+                        $("tr:visible").each(function (index) {
+                            $(this).css("background-color", !!(index & 1) ? "rgba(0,0,0,0)" : "rgba(0,0,0,.05)");
+                        });
+
+                    }
+                }
+                document.getElementById('machineChart_tr').style.backgroundColor = 'rgba(0,0,0,0)';	
                 if (dataproperties.MPEWatchData.hasOwnProperty("hourly_data")) {
                     GetMachinePerfGraph(dataproperties);
                 }
                 else {
                     var mpgtrStyle = document.getElementById('machineChart_tr').style;
                     mpgtrStyle.display = 'none';
+                }
+                var startofrun = dataproperties.hasOwnProperty("MPEWatchData") ? dataproperties.MPEWatchData.hasOwnProperty("current_run_start") ? dataproperties.MPEWatchData.current_run_start : "" : "";
+                var expectedTP = dataproperties.hasOwnProperty("MPEWatchData") ? dataproperties.MPEWatchData.hasOwnProperty("expected_throughput") ? dataproperties.MPEWatchData.expected_throughput : "" : "";
+                var throughput = dataproperties.hasOwnProperty("MPEWatchData") ? dataproperties.MPEWatchData.hasOwnProperty("cur_thruput_ophr") ? dataproperties.MPEWatchData.cur_thruput_ophr : "" : "";
+                var thpCode = dataproperties.hasOwnProperty("MPEWatchData") ? dataproperties.MPEWatchData.hasOwnProperty("throughput_status") ? dataproperties.MPEWatchData.throughput_status : "0" : "0";
+                var color = GetMacineBackground(startofrun, thpCode);
+                if (color != '#3573b1') {
+                    var tp_style = document.getElementById('Throughput_tr').style;
+                    if (tp_style != null) {
+                        if (color == "#dc3545") {
+                            tp_style.backgroundColor = "rgba(220, 53, 69, 0.5)";
+                        }
+                        else if (color == "#ffc107") {
+                            tp_style.backgroundColor = "rgba(255, 193, 7, 0.5)";
+                        }
+                        else {
+                            tp_style.backgroundColor = color;
+                        }
+                    }
+
+                }
+                else {
+                    tp_style.backgroundColor = "";
                 }
                 
             }
@@ -292,16 +329,17 @@ function formatmachinetoprow(properties) {
         fullBins: properties.MPEWatchData.bin_full_bins ,
     });
 }
-let machinetop_row_template = '<tr data-id="{zoneId}"><td>{zoneType}</td><td>{zoneName}</td><td><span class="badge badge-pill {stateBadge}" style="font-size: 12px;">{stateText}</span></td></tr>' +
+let machinetop_row_template =
+    '<tr data-id="{zoneId}"><td>{zoneType}</td><td>{zoneName}</td><td><span class="badge badge-pill {stateBadge}" style="font-size: 12px;">{stateText}</span></td></tr>' +
     '<tr><td>OPN / Sort Plan</td><td colspan="2">{opNum} / {sortPlan}</td></tr>' +
     '<tr><td>Start</td><td colspan="2">{sortPlanStart}</td></tr>' +
-    '<tr><td>End</td><td colspan="2">{sortPlanEnd}</td></tr>' +
+    '<tr id="endtime_tr"><td>End</td><td colspan="2">{sortPlanEnd}</td></tr>' +
     '<tr><td>Estimated Completion</td><td colspan="2">{estComp}</td>/tr>' +
     '<tr><td>Pieces Fed / RPG Vol.</td><td colspan="2">{peicesFed} / {rpgVol}</td></tr>' +
-    '<tr><td>Throughput Act. / Exp.</td><td colspan="2">{throughput} / {expThroughput}</td></tr>' +
-    '<tr id="fullbin_tr" style="display: none;"><td>Full Bins</td><td colspan="2" style="white-space: normal; word-wrap:break-word;">{fullBins}</td></tr>' + 
-    '<tr id="machineChart_tr"><td colspan="3"><canvas id="machinechart"></canvas></td></tr>'
-    ;
+    '<tr id="Throughput_tr"><td>Throughput Act. / Exp.</td><td colspan="2">{throughput} / {expThroughput}</td></tr>' +
+    '<tr id="fullbin_tr" style="display: none;"><td>Full Bins</td><td colspan="2" style="white-space: normal; word-wrap:break-word;">{fullBins}</td></tr>' +
+    '<tr id="machineChart_tr"><td colspan="3"><canvas id="machinechart"></canvas></td></tr>';
+
 function formatdpstoprow(properties) {
     return $.extend(properties, {
         dpssortplans:  properties.sortplan_name_perf,
@@ -515,11 +553,8 @@ async function init_machine() {
         }
     })
 }
-function GetMacineBackground(starttime,endtime , throughput, expectedthr) {
-    var color = '#989ea4'
-
+function GetMacineBackground(starttime, throughputCode) {
     var curtime = moment().format('YYYY-MM-DD HH:mm:ss');
-
     if (!$.isEmptyObject(timezone)) {
         if (timezone.hasOwnProperty("Facility_TimeZone")) {
             curtime = moment().tz(timezone.Facility_TimeZone).format('YYYY-MM-DD HH:mm:ss');
@@ -527,37 +562,20 @@ function GetMacineBackground(starttime,endtime , throughput, expectedthr) {
     }
     var dt = moment(curtime);
     var st = moment(starttime);
-    if (st._isValid) {
-        color = "#3573b1";
-    }
-    var ed = moment(endtime);
-    if (ed._isValid) {
-        color = "#989ea4";
-    }
-
-    if (!ed._isValid) {
-        var timeduration = moment.duration(dt.diff(st));
-        var minutes = parseInt(timeduration.asMinutes());
-        if (minutes > 15) {
-            if (expectedthr != '' && throughput != '') {
-                var expTP = parseInt(expectedthr, 10);
-                var ThrPt = parseInt(throughput, 10);
-                if ($.isNumeric(expTP) && $.isNumeric(ThrPt)) {
-                    var percent = (ThrPt / expTP) * 100;
-                    if (percent >= 100) {
-                        color = '#3573b1'; //'#cce5ff'
-                    }
-                    if (percent >= 90) {
-                        color = '#ffc107'; //'#FFFF88'
-                    }
-                    if (percent < 90) {
-                        color = '#dc3545'; //'#FF4444'
-                    }
-                }
-            }
+    var timeduration = moment.duration(dt.diff(st));
+    var minutes = parseInt(timeduration.asMinutes());
+    if (minutes > 15) {
+        if (throughputCode == "1") {
+            return '#3573b1'; //'#cce5ff'
+        }
+        if (throughputCode == "2") {
+            return '#ffc107'; //'#FFFF88'
+        }
+        if (throughputCode == "3") {
+            return '#dc3545'; //'#FF4444'
         }
     }
-    return color; //'#cce5ff'
+    return '#3573b1'; //'#cce5ff'
 }
 function GetMachinePerfGraph(dataproperties) {
     var xValues = [];
