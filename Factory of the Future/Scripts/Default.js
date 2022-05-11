@@ -106,7 +106,7 @@ $(function () {
                     }
                 }
             }
-            if (/^Admin/i.test(User.Role)) {
+            if (/^(Admin|OIE)/i.test(User.Role)) {
                 sidebar.addPanel({
                     id: 'connections',
                     tab: '<i class="pi-iconDiagramOutline"></i>',
@@ -178,7 +178,7 @@ $(function () {
                 });
 
             }
-            if (!/^Admin/i.test(User.Role)) {
+            if (!/^(Admin|OIE)/i.test(User.Role)) {
                 fotfmanager.server.leaveGroup("PeopleMarkers");
             }
             if (/(^PMCCUser$)/i.test(User.UserId)) {

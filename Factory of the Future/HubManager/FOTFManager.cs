@@ -2358,6 +2358,7 @@ namespace Factory_of_the_Future
                         newuser.FacilityName = AppParameters.AppSettings["FACILITY_NAME"].ToString();
                         newuser.FacilityTimeZone = AppParameters.AppSettings["FACILITY_TIMEZONE"].ToString();
                         newuser.AppType = AppParameters.AppSettings["APPLICATION_NAME"].ToString();
+                        newuser.Role = GetUserRole(GetGroupNames(((WindowsIdentity)Context.User.Identity).Groups));
                     }
                     else
                     {
