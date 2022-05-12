@@ -257,6 +257,7 @@
       <Link>9209_factory-of-the-futurecsharp.ruleset</Link>
     </Content>
     <Content Include="AppSetting\Notification.json" />
+    <Content Include="AppSetting\Connection.json" />
     <None Include="compilerconfig.json" />
     <None Include="compilerconfig.json.defaults">
       <DependentUpon>compilerconfig.json</DependentUpon>

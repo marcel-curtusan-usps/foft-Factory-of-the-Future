@@ -1941,6 +1941,7 @@ namespace Factory_of_the_Future
 
                 if (fileUpdate)
                 {
+                    new FileIO().Write(string.Concat(AppParameters.CodeBase.Parent.FullName.ToString(), AppParameters.Appsetting), "Connection.json", JsonConvert.SerializeObject(AppParameters.ConnectionList.Select(x => x.Value).ToList(), Formatting.Indented, new JsonSerializerSettings() { ContractResolver = new NullToEmptyStringResolver() }));
                     new FileIO().Write(string.Concat(AppParameters.Logdirpath, AppParameters.ConfigurationFloder), "Connection.json", JsonConvert.SerializeObject(AppParameters.ConnectionList.Select(x => x.Value).ToList(), Formatting.Indented, new JsonSerializerSettings() { ContractResolver = new NullToEmptyStringResolver() }));
                 }
                 return AppParameters.ConnectionList.Where(w => w.Key == id).Select(s => s.Value);
@@ -2015,6 +2016,7 @@ namespace Factory_of_the_Future
 
                 if (fileUpdate)
                 {
+                    new FileIO().Write(string.Concat(AppParameters.CodeBase.Parent.FullName.ToString(), AppParameters.Appsetting), "Connection.json", JsonConvert.SerializeObject(AppParameters.ConnectionList.Select(x => x.Value).ToList(), Formatting.Indented, new JsonSerializerSettings() { ContractResolver = new NullToEmptyStringResolver() }));
                     new FileIO().Write(string.Concat(AppParameters.Logdirpath, AppParameters.ConfigurationFloder), "Connection.json", JsonConvert.SerializeObject(AppParameters.ConnectionList.Select(x => x.Value).ToList(), Formatting.Indented, new JsonSerializerSettings() { ContractResolver = new NullToEmptyStringResolver() }));
                 }
                 return AppParameters.ConnectionList.Where(w => w.Key == id).Select(s => s.Value).ToList();
@@ -2047,14 +2049,16 @@ namespace Factory_of_the_Future
                                     {
                                         Connection_item.UDPDelete();
                                         AppParameters.RunningConnection.Connection.Remove(Connection_item);
-                                        new FileIO().Write(string.Concat(AppParameters.Logdirpath, AppParameters.ConfigurationFloder), "Connection.json", JsonConvert.SerializeObject(AppParameters.ConnectionList.Select(x => x.Value).ToList(), Formatting.Indented));
+                                        new FileIO().Write(string.Concat(AppParameters.CodeBase.Parent.FullName.ToString(), AppParameters.Appsetting), "Connection.json", JsonConvert.SerializeObject(AppParameters.ConnectionList.Select(x => x.Value).ToList(), Formatting.Indented, new JsonSerializerSettings() { ContractResolver = new NullToEmptyStringResolver() }));
+                                        new FileIO().Write(string.Concat(AppParameters.Logdirpath, AppParameters.ConfigurationFloder), "Connection.json", JsonConvert.SerializeObject(AppParameters.ConnectionList.Select(x => x.Value).ToList(), Formatting.Indented, new JsonSerializerSettings() { ContractResolver = new NullToEmptyStringResolver() }));
                                         return AppParameters.ConnectionList.Select(e => e.Value).ToList();
                                     }
                                     else
                                     {
                                         Connection_item.Stop_Delete();
                                         AppParameters.RunningConnection.Connection.Remove(Connection_item);
-                                        new FileIO().Write(string.Concat(AppParameters.Logdirpath, AppParameters.ConfigurationFloder), "Connection.json", JsonConvert.SerializeObject(AppParameters.ConnectionList.Select(x => x.Value).ToList(), Formatting.Indented));
+                                        new FileIO().Write(string.Concat(AppParameters.CodeBase.Parent.FullName.ToString(), AppParameters.Appsetting), "Connection.json", JsonConvert.SerializeObject(AppParameters.ConnectionList.Select(x => x.Value).ToList(), Formatting.Indented, new JsonSerializerSettings() { ContractResolver = new NullToEmptyStringResolver() }));
+                                        new FileIO().Write(string.Concat(AppParameters.Logdirpath, AppParameters.ConfigurationFloder), "Connection.json", JsonConvert.SerializeObject(AppParameters.ConnectionList.Select(x => x.Value).ToList(), Formatting.Indented, new JsonSerializerSettings() { ContractResolver = new NullToEmptyStringResolver() }));
                                         return AppParameters.ConnectionList.Select(e => e.Value).ToList();
                                     }
                                 }
