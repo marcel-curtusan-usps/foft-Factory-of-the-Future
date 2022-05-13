@@ -141,38 +141,18 @@ namespace Factory_of_the_Future
                                 string mach_type = Dataitem.ContainsKey("mach_type") ? (string)Dataitem["mach_type"] : "";
                                 string machine_no = Dataitem.ContainsKey("machine_no") ? (string)Dataitem["machine_no"] : "";
                                 string sortplan = Dataitem.ContainsKey("sortplan") ? (string)Dataitem["sortplan"] : "";
-                                string sortplan_name = "";
                                 if (mach_type == "APBS")
                                 {
                                     mach_type = "SPBSTS";
                                 }
-                                //int dotindex = sortplan.IndexOf(".", 1);
-                                //if ((dotindex == -1))
-                                //{
-                                //    sortplan_name = sortplan.Trim();
-                                //}
-                                //else
-                                //{
-                                //    sortplan_name = sortplan.Substring(0, dotindex).Trim();
-                                //}
-                                if (Regex.IsMatch(mach_type, "(DBCS|AFSM100|ATU|CIOSS|DIOSS)", RegexOptions.IgnoreCase))
-                                {
-                                    int dotindex = sortplan.IndexOf(".", 1);
-                                    if ((dotindex == -1))
-                                    {
-                                        sortplan_name = sortplan;
-                                    }
-                                    else
-                                    {
-                                        sortplan_name = sortplan.Substring(0, dotindex);
-                                    }
-                                    sortplan = sortplan_name;
-                                }
+                                
+                                sortplan = AppParameters.SortPlan_Name_Trimer(sortplan);
                                 string mch_sortplan_id = mach_type + "-" + machine_no + "-" + sortplan;
                                 string newtempData = JsonConvert.SerializeObject(Dataitem, Formatting.None);
                                 AppParameters.StaffingSortplansList.AddOrUpdate(mch_sortplan_id, newtempData,
                                      (key, existingVal) =>
                                      {
+                                         updatefile = true;
                                          return newtempData;
                                      });
                             }
@@ -190,6 +170,7 @@ namespace Factory_of_the_Future
                 new ErrorLogger().ExceptionLog(e);
             }
         }
+     
         private void CameraData(dynamic data)
         {
             try
@@ -240,79 +221,7 @@ namespace Factory_of_the_Future
 
                 if (data != null)
                 {
-                    //string siteId = (string)AppParameters.AppSettings["FACILITY_NASS_CODE"];
-                    //JToken containerData = JToken.Parse(data);
-                    //foreach (JObject containeritem in containerData)
-                    //{
-                    //    JObject _container = new JObject_List().Container;
-                    //    _container["placardBarcode"] = containeritem["placardBarcode"].ToString();
-                    //    _container["dest"] = containeritem.ContainsKey("dest") ? containeritem["dest"].ToString() :"";
-                    //    _container["destinationName"] = containeritem.ContainsKey("destinationName") ? containeritem["destinationName"].ToString() : "";
-                    //    if (containeritem["placardBarcode"].ToString().StartsWith("99M"))
-                    //    {
-                    //        _container["mailClass"] = "99M";
-                    //        _container["mailClassDisplay"] = "Mailer";
-                    //        _container["originName"] = "Mailer";
-                    //    }
-                    //    else
-                    //    {
-                    //        if (containeritem.ContainsKey("containerHistory"))
-                    //        {
-                    //            foreach (JObject scan in containeritem["containerHistory"])
-                    //            {
-                    //                _container["binDisplay"] = scan.ContainsKey("binName") || scan.ContainsKey("binNumber") ? scan.ContainsKey("binNumber") ? scan["binName"].ToString() : scan.ContainsKey("binNumber") ? scan["binNumber"].ToString() : "" : "";
-                    //                if (scan["siteId"].ToString() == siteId)
-                    //                {
-                    //                    if (scan.ContainsKey("location") && scan["siteType"].ToString() == "Origin" && scan["event"].ToString() == "PASG" && scan["location"] != containeritem["location"])
-                    //                    {
-                    //                        _container["location"] = scan["location"];
-                    //                    }
-                    //                    _container["hasPrintScans"] = scan["event"].ToString() == "PRINT";
-                    //                    _container["hasAssignScans"] = scan["event"].ToString() == "CLOS" || scan["event"].ToString() == "BCLS";
-                    //                    _container["hasLoadScans"] = scan["event"].ToString() == "LOAD" ;
-                    //                    _container["hasUnloadScans"] = scan["event"].ToString() == "UNLD";
-                    //                    _container["hasAssignScans"] = scan["event"].ToString() == "PASG";
-                    //                    _container["containerTerminate"] = scan["event"].ToString() == "TERM";
-
-                    //                }
-                    //            }
-
-                    //        }
-                    //    }
-                    //    if (AppParameters.Containers.Count() > 0)
-                    //    {
-                    //        JObject temp = AppParameters.Containers.Where(r => r.ContainsKey("placardBarcode") && r["placardBarcode"].ToString() == containeritem["placardBarcode"].ToString()).FirstOrDefault();
-                    //        if (temp != null && temp.Count > 0)
-                    //        {
-                    //           AppParameters.Containers.First(r => r["placardBarcode"].ToString() == containeritem["placardBarcode"].ToString())
-                    //                .Merge(_container, new JsonMergeSettings { MergeArrayHandling = MergeArrayHandling.Union });
-
-                    //        }
-                    //        else
-                    //        {
-                    //            AppParameters.Containers.Add(_container);
-                    //        }
-                    //    }
-                    //    else
-                    //    {
-                    //        AppParameters.Containers.Add(_container);
-                    //    }
-                    //    //if (AppParameters.Containers.ContainsKey(containeritem["placardBarcode"].ToString()))
-                    //    //{
-                    //    //    if(AppParameters.Containers.TryGetValue(containeritem["placardBarcode"].ToString(), out JToken m))
-                    //    //    {
-                    //    //        ((JObject)m).Merge(_container, new JsonMergeSettings { MergeArrayHandling = MergeArrayHandling.Union });  
-                    //    //    }
-
-                    //    //}
-                    //    //else
-                    //    //{
-                    //    //    AppParameters.Containers.Add(containeritem["placardBarcode"].ToString(), _container);
-                    //    //}
-
-                    //}
-                    //containerData = null;
-
+                    
                     List<Container> Containers = JsonConvert.DeserializeObject<List<Container>>(data);
                     string siteId = (string)AppParameters.AppSettings["FACILITY_NASS_CODE"];
 
@@ -1011,7 +920,11 @@ namespace Factory_of_the_Future
                         }
                         foreach (JObject item in machineInfo.Children())
                         {
+                            item["cur_sortplan"] = AppParameters.SortPlan_Name_Trimer(item["cur_sortplan"].ToString());
+                            item["cur_operation_id"] = !string.IsNullOrEmpty(item["cur_operation_id"].ToString()) ? item["cur_operation_id"].ToString() : "0";
+                       
                             MPEWatch_FullBins(item);
+                            
                             total_volume = item.ContainsKey("tot_sortplan_vol") ? item["tot_sortplan_vol"].ToString().Trim() : "0";
                             int.TryParse(item.ContainsKey("rpg_est_vol") ? item["rpg_est_vol"].ToString().Trim() : "0", out int rpg_volume);
                             double.TryParse(item.ContainsKey("rpg_est_vol") ? item["cur_thruput_ophr"].ToString().Trim() : "0", out double throughput);
@@ -1034,30 +947,34 @@ namespace Factory_of_the_Future
                             }
                             if (item["current_run_end"].ToString() == "" && item["current_run_start"].ToString() != "")
                             {
-                                JObject results = new Oracle_DB_Calls().Get_RPG_Plan_Info(item);
-                                item["rpg_start_dtm"] = results.ContainsKey("rpg_start_dtm") ? results["rpg_start_dtm"].ToString().Trim() : "";
-                                item["rpg_end_dtm"] = results.ContainsKey("rpg_end_dtm") ? results["rpg_end_dtm"].ToString().Trim() : "";
-                                item["expected_throughput"] = results.ContainsKey("expected_throughput") ? results["expected_throughput"].ToString().Trim() : "";
-                                //item["throughput_status"] = "1";
-                                if (!string.IsNullOrEmpty(item["expected_throughput"].ToString()) && item["expected_throughput"].ToString() != "0")
+                                // JObject results = new Oracle_DB_Calls().Get_RPG_Plan_Info(item);
+                                JObject results = Get_RPG_Plan_Info(item);
+                                if (results != null && results.HasValues)
                                 {
-                                    int.TryParse(item.ContainsKey("cur_thruput_ophr") ? item["cur_thruput_ophr"].ToString().Trim() : "0", out int cur_thruput);
-                                    int.TryParse(item.ContainsKey("expected_throughput") ? item["expected_throughput"].ToString().Trim() : "0", out int expected_throughput);
-                                    double thrper = (double)cur_thruput / (double)expected_throughput * 100;
-                                    string throughputState = "1";
-                                    if (thrper >= 100)
+                                    item["rpg_start_dtm"] = results.ContainsKey("rpg_start_dtm") ? results["rpg_start_dtm"].ToString().Trim() : "";
+                                    item["rpg_end_dtm"] = results.ContainsKey("rpg_end_dtm") ? results["rpg_end_dtm"].ToString().Trim() : "";
+                                    item["expected_throughput"] = results.ContainsKey("expected_throughput") ? results["expected_throughput"].ToString().Trim() : "";
+                                    //item["throughput_status"] = "1";
+                                    if (!string.IsNullOrEmpty(item["expected_throughput"].ToString()) && item["expected_throughput"].ToString() != "0")
                                     {
-                                        throughputState = "1";
+                                        int.TryParse(item.ContainsKey("cur_thruput_ophr") ? item["cur_thruput_ophr"].ToString().Trim() : "0", out int cur_thruput);
+                                        int.TryParse(item.ContainsKey("expected_throughput") ? item["expected_throughput"].ToString().Trim() : "0", out int expected_throughput);
+                                        double thrper = (double)cur_thruput / (double)expected_throughput * 100;
+                                        string throughputState = "1";
+                                        if (thrper >= 100)
+                                        {
+                                            throughputState = "1";
+                                        }
+                                        else if (thrper >= 90)
+                                        {
+                                            throughputState = "2";
+                                        }
+                                        else if (thrper < 90)
+                                        {
+                                            throughputState = "3";
+                                        }
+                                        item["throughput_status"] = throughputState;
                                     }
-                                    else if (thrper >= 90)
-                                    {
-                                        throughputState = "2";
-                                    }
-                                    else if (thrper < 90)
-                                    {
-                                        throughputState = "3";
-                                    }
-                                    item["throughput_status"] = throughputState;
                                 }
                             }
                             else
@@ -1103,6 +1020,37 @@ namespace Factory_of_the_Future
             }
 
         }
+
+        private static JObject Get_RPG_Plan_Info(JObject item)
+        {
+            try
+            {
+
+
+                RPGPlan tempRPG = AppParameters.MPEPRPGList.Where(x => x.Value.mpe_type == item["mpe_type"].ToString() &&
+                             Convert.ToInt32(x.Value.machine_num) == (int)item["mpe_number"] &&
+                             x.Value.sort_program_name == item["cur_sortplan"].ToString() &&
+                             Convert.ToInt32((x.Value.mail_operation_nbr).ToString().PadRight(6,'0')) == Convert.ToInt32(((int)item["cur_operation_id"]).ToString().PadRight(6,'0')) &&
+                             (DateTime.Now >= x.Value.rpg_start_dtm.AddMinutes(-15) && DateTime.Now <= x.Value.rpg_end_dtm.AddMinutes(+15))
+                             ).Select(l => l.Value).FirstOrDefault();
+
+
+                if (tempRPG == null)
+                {
+                    return null;
+                }
+                else
+                {
+                    return JObject.Parse(JsonConvert.SerializeObject(tempRPG, Formatting.Indented));
+                }
+            }
+            catch (Exception ex)
+            {
+                new ErrorLogger().ExceptionLog(ex);
+                return null;
+            }
+        }
+
         private static void MPEWatch_FullBins(JObject data)
         {
             try
@@ -1154,11 +1102,58 @@ namespace Factory_of_the_Future
                     JToken planInfo = tempData.SelectToken("data");
                     if (planInfo != null && planInfo.HasValues)
                     {
-                        new Oracle_DB_Calls().Insert_RPG_Plan((JObject)tempData);
+                        List<RPGPlan> RPG_collection = planInfo.ToObject<List<RPGPlan>>();
+                        foreach (RPGPlan RPG_item in RPG_collection)
+                        {
+                            RPG_item.expected_throughput = !string.IsNullOrEmpty(RPG_item.line_4_text) ?  RPG_item.line_4_text.Split(' ')[0] : "0";
+                            RPG_item.sort_program_name = AppParameters.SortPlan_Name_Trimer(RPG_item.sort_program_name);
+
+                            string RPGKey = AppParameters.MPEPRPGList.Where(x => x.Value.mpe_type == RPG_item.mpe_type &&
+                            x.Value.machine_num == RPG_item.machine_num &&
+                            x.Value.sort_program_name == RPG_item.sort_program_name &&
+                            x.Value.mail_operation_nbr == RPG_item.mail_operation_nbr &&
+                            x.Value.rpg_start_dtm == RPG_item.rpg_start_dtm
+                            )
+                               .Select(l => l.Key).FirstOrDefault();
+
+                            if (!string.IsNullOrEmpty(RPGKey))
+                            {
+                                if (AppParameters.MPEPRPGList.TryGetValue(RPGKey, out RPGPlan OldRPG_item))
+                                {
+                                    if (!AppParameters.MPEPRPGList.TryUpdate(RPGKey, RPG_item, OldRPG_item))
+                                    {
+                                        new ErrorLogger().CustomLog("Unable to update RPG Data" + RPG_item.mpe_name + " " + RPG_item.mpe_type + " " + RPG_item.machine_num, string.Concat((string)AppParameters.AppSettings.Property("APPLICATION_NAME").Value, "_Applogs"));
+                                    }
+                                }
+                            }
+                            else
+                            {
+                                string newKey = Guid.NewGuid().ToString();
+                                if (!AppParameters.MPEPRPGList.TryAdd(newKey, RPG_item))
+                                {
+                                    new ErrorLogger().CustomLog("Unable to update RPG Data" + RPG_item.mpe_name + " " + RPG_item.mpe_type + " " + RPG_item.machine_num, string.Concat((string)AppParameters.AppSettings.Property("APPLICATION_NAME").Value, "_Applogs"));
+                                }
+
+                            }
+                        }
+                        //new Oracle_DB_Calls().Insert_RPG_Plan((JObject)tempData);
                     }
                     planInfo = null;
                     data = null;
                     tempData = null;
+
+
+                    //remove old data
+                    if (AppParameters.MPEPRPGList.Keys.Count > 0)
+                    {
+                        foreach (string existingkey in AppParameters.MPEPRPGList.Where(f => f.Value.rpg_start_dtm.Date <= DateTime.Now.AddDays(-2).Date).Select(y => y.Key))
+                        {
+                            if (!AppParameters.MPEPRPGList.TryRemove(existingkey, out RPGPlan existingValue))
+                            {
+                                new ErrorLogger().CustomLog("Unable to update RPG Data" + existingValue.mpe_name + " " + existingValue.mpe_type + " " + existingValue.machine_num, string.Concat((string)AppParameters.AppSettings.Property("APPLICATION_NAME").Value, "_Applogs"));
+                            }
+                        }
+                    }
                 }
             }
             catch (Exception ex)
@@ -2248,8 +2243,8 @@ namespace Factory_of_the_Future
 
         private static void CheckMachineNotifications(JObject machineData)
         {
-                try
-                {
+            try
+            {
                 string zoneID = AppParameters.ZoneList.Where(x => x.Value.Properties.ZoneType == "Machine" &&
                             x.Value.Properties.MPEType == machineData["mpe_type"].ToString() &&
                             x.Value.Properties.MPENumber == (int)machineData["mpe_number"])

@@ -356,76 +356,6 @@ namespace Factory_of_the_Future
             }
         }
 
-       
-
-        //internal IEnumerable<JToken> GetADUserProfile(string userID)
-        //{
-        //    try
-        //    {
-        //        if (!string.IsNullOrEmpty(userID))
-        //        {
-        //            if (AppParameters.Users.ContainsKey(userID))
-        //            {
-        //                if (AppParameters.Users.TryGetValue(userID, out JObject user))
-        //                {
-        //                    if (string.IsNullOrEmpty((string)user.Property("EmailAddress").Value))
-        //                    {
-        //                        if (new FindACEUser().User(user, out JObject ADuser))
-        //                        {
-        //                            user.Property("EmailAddress").Value = ADuser.Property("EmailAddress").Value;
-        //                            user.Property("Phone").Value = ADuser.Property("Phone").Value;
-        //                            user.Property("MiddleName").Value = ADuser.Property("MiddleName").Value;
-        //                            user.Property("SurName").Value = ADuser.Property("SurName").Value;
-        //                            user.Property("FirstName").Value = ADuser.Property("FirstName").Value;
-        //                            user.Property("ZipCode").Value = ADuser.Property("ZipCode").Value;
-        //                            return user;
-        //                        }
-
-        //                        return user;
-        //                    }
-        //                    else
-        //                    {
-        //                        return user;
-        //                    }
-        //                }
-        //                else
-        //                {
-        //                    return new JObject();
-        //                }
-        //            }
-        //            else
-        //            {
-        //                return new JObject();
-        //            }
-        //        }
-        //        else
-        //        {
-        //            return new JObject();
-        //        }
-        //    }
-        //    catch (Exception e)
-        //    {
-        //        new ErrorLogger().ExceptionLog(e);
-        //        return new JObject();
-        //    }
-        //}
-
-        ////internal IEnumerable<JToken> UDP_Start_Listener()
-        ////{
-        ////    if (AppParameters.udpServer != null)
-        ////    {
-        ////    }
-        ////    else
-        ////    {
-        ////      new UDP_Client().startListener();
-        ////    }
-        ////}
-
-        ////internal IEnumerable<JToken> UDP_Stop_Listener()
-        ////{
-        ////    throw new NotImplementedException();
-        ////}
-
         internal ADUser GetUserProfile(string conID)
         {
             try
@@ -1400,20 +1330,7 @@ namespace Factory_of_the_Future
 
                 if (!string.IsNullOrEmpty(machine_type))
                 {
-                    if (Regex.IsMatch(machine_type, "(DBCS|AFSM100|ATU|CIOSS|DIOSS)", RegexOptions.IgnoreCase))
-                    {
-                        string sortplan_name = "";
-                        int dotindex = sortplan.IndexOf(".", 1);
-                        if ((dotindex == -1))
-                        {
-                            sortplan_name = sortplan;
-                        }
-                        else
-                        {
-                            sortplan_name = sortplan.Substring(0, dotindex);
-                        }
-                        sortplan = sortplan_name;
-                    }
+                    sortplan = AppParameters.SortPlan_Name_Trimer(sortplan);
                     int.TryParse(machine_number, out int number);
                     string id = machine_type + "-" + number + "-" + sortplan;
 
@@ -1421,7 +1338,6 @@ namespace Factory_of_the_Future
                     {
                         StaffingSortplanData = JsonConvert.DeserializeObject<StaffingSortplan>(sp);
                     }
-
                 }
                 return StaffingSortplanData;
             }

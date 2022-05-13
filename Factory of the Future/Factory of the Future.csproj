@@ -425,7 +425,6 @@
     <Compile Include="Controllers\SVTripsController.cs" />
     <Compile Include="Controllers\TagsController.cs" />
     <Compile Include="Controllers\UploadFilesController.cs" />
-    <Compile Include="Database_Calls\Oracle_DB_Calls.cs" />
     <Compile Include="Database_Calls\SV_DB_Call.cs" />
     <Compile Include="Data_Retention\Data_Retention.cs" />
     <Compile Include="Data_Retention\StartDataRetentionProcess.cs" />

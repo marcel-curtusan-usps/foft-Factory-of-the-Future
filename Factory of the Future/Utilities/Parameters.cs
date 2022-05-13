@@ -1492,5 +1492,23 @@ namespace Factory_of_the_Future
         public DateTime Type_Time { get; set; }
 
     }
+    public class RPGPlan
+    {
+        public DateTime mods_date { get; set; }
+        public string machine_num { get; set; } = "";
+        public string sort_program_name { get; set; } = "";
+        public DateTime rpg_start_dtm { get; set; }
+        public DateTime rpg_end_dtm { get; set; }
+        public string rpg_pieces_fed { get; set; } = "";
+        public int mail_operation_nbr { get; set; } = 0;
+        public string line_4_text { get; set; } = "";
+        public DateTime mpew_start_15min_dtm { get; set; }
+        public DateTime mpew_end_15min_dtm { get; set; }
+        public string mpe_type { get; set; } = "";
+        public string mpe_name { get; set; } = "";
+        public DateTime update_date_time { get; set; }
+        public string nass_code { get; set; } = "";
+        public string expected_throughput { get; set; } = "";
+    }
 
 }

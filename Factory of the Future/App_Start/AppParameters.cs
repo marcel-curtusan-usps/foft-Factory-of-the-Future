@@ -45,6 +45,7 @@ namespace Factory_of_the_Future
         public static ConcurrentDictionary<string, GeoMarker> TagsList { get; set; } = new ConcurrentDictionary<string, GeoMarker>();
         public static ConcurrentDictionary<string, string> DPSList { get; set; } = new ConcurrentDictionary<string, string>();
         public static ConcurrentDictionary<string, string> MPEPerformanceList { get; set; } = new ConcurrentDictionary<string, string>();
+        public static ConcurrentDictionary<string, RPGPlan> MPEPRPGList { get; set; } = new ConcurrentDictionary<string, RPGPlan>();
         public static ConcurrentDictionary<string, string> DockdoorList { get; set; } = new ConcurrentDictionary<string, string>();
         public static ConcurrentDictionary<string, string> StaffingSortplansList { get; set; } = new ConcurrentDictionary<string, string>();
         public static ConcurrentDictionary<string, RouteTrips> RouteTripsList { get; set; } = new ConcurrentDictionary<string, RouteTrips>();
@@ -81,8 +82,6 @@ namespace Factory_of_the_Future
                 VersionInfo = string.Concat(fvi.FileMajorPart.ToString() + ".", fvi.FileMinorPart.ToString() + ".", fvi.FileBuildPart.ToString() + ".", fvi.FilePrivatePart.ToString());
 
                 ServerIpAddress = GetLocalIpAddress();
-
-
                 if (string.IsNullOrEmpty(ApplicationEnvironment))
                 {
                     if (AppSettings.ContainsKey("DEV_SVRP_IP"))
@@ -133,6 +132,8 @@ namespace Factory_of_the_Future
                         ApplicationEnvironment = "PROD";
                     }
                 }
+                ///load default connection setting.
+                GetConnectionDefault();
                 ///load Default Notification settings
                 GetNotificationDefault();
             }
@@ -141,6 +142,9 @@ namespace Factory_of_the_Future
                 new ErrorLogger().ExceptionLog(ex);
             }
         }
+
+     
+
         private static void GetAppSettings()
         {
             try
@@ -184,10 +188,30 @@ namespace Factory_of_the_Future
                     {
                         if (!NotificationConditionsList.ContainsKey(tempnotification[i].Id))
                         {
-                            if (NotificationConditionsList.TryAdd(tempnotification[i].Id, tempnotification[i]))
-                            {
+                            NotificationConditionsList.TryAdd(tempnotification[i].Id, tempnotification[i]);
+                        }
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                new ErrorLogger().ExceptionLog(e);
+            }
+        }
+        private static void GetConnectionDefault()
+        {
+            try
+            {
+                string file_content = new FileIO().Read(string.Concat(CodeBase.Parent.FullName.ToString(), Appsetting), "Connection.json");
 
-                            }
+                if (!string.IsNullOrEmpty(file_content))
+                {
+                    List<Connection> tempcon = JsonConvert.DeserializeObject<List<Connection>>(file_content);
+                    for (int i = 0; i < tempcon.Count; i++)
+                    {
+                        if (ConnectionList.TryAdd(tempcon[i].Id, tempcon[i]))
+                        {
+                            RunningConnection.Add(tempcon[i]);
                         }
                     }
                 }
@@ -563,6 +587,31 @@ namespace Factory_of_the_Future
             {
                 new ErrorLogger().ExceptionLog(e);
                 return 0;
+            }
+        }
+        public static string SortPlan_Name_Trimer(string sortplan)
+        {
+            string sortplan_name = "";
+            try
+            {
+                if (!string.IsNullOrEmpty(sortplan))
+                {
+                    int dotindex = sortplan.IndexOf(".", 1);
+                    if ((dotindex == -1))
+                    {
+                        sortplan_name = sortplan;
+                    }
+                    else
+                    {
+                        sortplan_name = sortplan.Substring(0, dotindex);
+                    }
+                }
+                return sortplan_name;
+            }
+            catch (Exception e)
+            {
+                new ErrorLogger().ExceptionLog(e);
+                return "";
             }
         }
     }

@@ -89,33 +89,10 @@ namespace Factory_of_the_Future
             return _managerHub.DeleteNotification_Conditions(data);
         }
 
-        //public IEnumerable<JToken> EditTagInfo(string data)
-        //{
-        //    return _managerHub.EditTagInfo(data);
-        //}
-
         public IEnumerable<Notification> GetNotification(string data)
         {
             return _managerHub.GetNotification(data);
         }
-
-        ///// <summary>
-        ///// Get Containers content.
-        ///// </summary>
-        ///// <returns></returns>
-        //public IEnumerable<Container> GetContainer(string data, string Direction, string route, string trip)
-        //{
-        //    return _managerHub.GetContainer(data, Direction, route, trip);
-        //}
-
-        ///// <summary>
-        ///// Get Vehicles Markers
-        ///// </summary>
-        ///// <returns></returns>
-        //public IEnumerable<JToken> GetMarkerList()
-        //{
-        //    return _managerHub.GetMarkerList();
-        //}
 
         /// <summary>
         /// Get Person Tags
@@ -160,24 +137,7 @@ namespace Factory_of_the_Future
         {
             return _managerHub.GetContainerInfo(id);
         }
-        ///// <summary>
-        ///// Get CTS Data
-        ///// </summary>
-        ///// <returns></returns>
-        ////public IEnumerable<JToken> GetCTSList(string type)
-        ////{
-        ////    return _managerHub.GetCTSList(type);
-        ////}
-
-        ///// <summary>
-        ///// Get CTS OB Details Data
-        ///// </summary>
-        ///// <returns></returns>
-        //public IEnumerable<JToken> GetCTSDetailsList(string route, string trip)
-        //{
-        //    return _managerHub.GetCTSDetailsList(route, trip);
-        //}
-
+     
         /// <summary>
         /// Get Camera feed
         /// </summary>
@@ -252,15 +212,7 @@ namespace Factory_of_the_Future
         {
             return _managerHub.GetVehicleTagsList();
         }
-        ///// <summary>
-        ///// Get AGV location Zones
-        ///// </summary>
-        ///// <returns></returns>
-        //public IEnumerable<JToken> GetViewConfigList()
-        //{
-        //    return _managerHub.GetViewConfigList();
-        //}
-
+   
         /// <summary>
         /// Add New Custom Zones
         /// </summary>
@@ -269,14 +221,13 @@ namespace Factory_of_the_Future
         {
             return _managerHub.AddZone(data);
         }
-        public GeoMarker AddMarker(string data)
-        {
-            return _managerHub.AddMarker(data);
-        }
-
         public GeoZone RemoveZone(string data)
         {
             return _managerHub.RemoveZone(data);
+        }
+        public GeoMarker AddMarker(string data)
+        {
+            return _managerHub.AddMarker(data);
         }
         public GeoMarker RemoveMarker(string data)
         {
@@ -327,18 +278,6 @@ namespace Factory_of_the_Future
           return _managerHub.GetTimeZone();
             
         }
-
-        //public IEnumerable<JToken> GetADUserProfile()
-        //{
-        //    string user_id = Regex.Replace(Context.User.Identity.Name, @"(USA\\|ENG\\)", "").Trim();
-        //    if (string.IsNullOrEmpty(user_id))
-        //    {
-        //        user_id = Context.ConnectionId;
-        //    }
-        //    return _managerHub.GetADUserProfile(user_id);
-        //}
-
-
         /// <summary>
         /// this is to handle connection after the App has started.
         /// </summary>
