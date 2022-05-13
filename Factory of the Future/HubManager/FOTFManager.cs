@@ -514,7 +514,6 @@ namespace Factory_of_the_Future
                         if (AppParameters.NotificationConditionsList.TryAdd(newNotification.Id, newNotification))
                         {
                             //write to file the new connection
-                            new FileIO().Write(string.Concat(AppParameters.Logdirpath, AppParameters.ConfigurationFloder), "Notification.json", JsonConvert.SerializeObject(AppParameters.NotificationConditionsList.Select(x => x.Value).ToList(), Formatting.Indented));
                             new FileIO().Write(string.Concat(AppParameters.CodeBase.Parent.FullName.ToString(), AppParameters.Appsetting), "Notification.json", JsonConvert.SerializeObject(AppParameters.NotificationConditionsList.Select(x => x.Value).ToList(), Formatting.Indented));
                         }
                     }
@@ -559,8 +558,7 @@ namespace Factory_of_the_Future
                                     //    }
                                     //    item.Merge(updatenotification, new JsonMergeSettings { MergeArrayHandling = MergeArrayHandling.Union });
                                     //}
-                                    new FileIO().Write(string.Concat(AppParameters.Logdirpath, AppParameters.ConfigurationFloder), "Notification.json", JsonConvert.SerializeObject(AppParameters.NotificationConditionsList.Select(x => x.Value).ToList(), Formatting.Indented));
-                                    new FileIO().Write(string.Concat(AppParameters.CodeBase.Parent.FullName.ToString(), AppParameters.Appsetting), "Notification.json", JsonConvert.SerializeObject(AppParameters.NotificationConditionsList.Select(x => x.Value).ToList(), Formatting.Indented));
+                                   new FileIO().Write(string.Concat(AppParameters.CodeBase.Parent.FullName.ToString(), AppParameters.Appsetting), "Notification.json", JsonConvert.SerializeObject(AppParameters.NotificationConditionsList.Select(x => x.Value).ToList(), Formatting.Indented));
                                 }
                             }
                         }
@@ -589,16 +587,7 @@ namespace Factory_of_the_Future
                         {
                             if (AppParameters.NotificationConditionsList.TryRemove(Notification["Id"].ToString(), out NotificationConditions outtemp))
                             {
-                                new FileIO().Write(string.Concat(AppParameters.Logdirpath, AppParameters.ConfigurationFloder), "Notification.json", JsonConvert.SerializeObject(AppParameters.NotificationConditionsList.Select(x => x.Value), Formatting.Indented));
                                 new FileIO().Write(string.Concat(AppParameters.CodeBase.Parent.FullName.ToString(), AppParameters.Appsetting), "Notification.json", JsonConvert.SerializeObject(AppParameters.NotificationConditionsList.Select(x => x.Value).ToList(), Formatting.Indented));
-                                //foreach (JObject item in AppParameters.NotificationList.Where(r => (int)r.Value["id"] == (int)Notification["id"])
-                                //      .Select(y => y.Value))
-                                //{
-                                //    item["DELETE"] = true;
-                                //    item["UPDATE"] = true;
-
-                                //}
-
                             }
 
                         }
@@ -1858,7 +1847,6 @@ namespace Factory_of_the_Future
                 if (fileUpdate)
                 {
                     new FileIO().Write(string.Concat(AppParameters.CodeBase.Parent.FullName.ToString(), AppParameters.Appsetting), "Connection.json", JsonConvert.SerializeObject(AppParameters.ConnectionList.Select(x => x.Value).ToList(), Formatting.Indented, new JsonSerializerSettings() { ContractResolver = new NullToEmptyStringResolver() }));
-                    new FileIO().Write(string.Concat(AppParameters.Logdirpath, AppParameters.ConfigurationFloder), "Connection.json", JsonConvert.SerializeObject(AppParameters.ConnectionList.Select(x => x.Value).ToList(), Formatting.Indented, new JsonSerializerSettings() { ContractResolver = new NullToEmptyStringResolver() }));
                 }
                 return AppParameters.ConnectionList.Where(w => w.Key == id).Select(s => s.Value);
             }
@@ -1933,7 +1921,6 @@ namespace Factory_of_the_Future
                 if (fileUpdate)
                 {
                     new FileIO().Write(string.Concat(AppParameters.CodeBase.Parent.FullName.ToString(), AppParameters.Appsetting), "Connection.json", JsonConvert.SerializeObject(AppParameters.ConnectionList.Select(x => x.Value).ToList(), Formatting.Indented, new JsonSerializerSettings() { ContractResolver = new NullToEmptyStringResolver() }));
-                    new FileIO().Write(string.Concat(AppParameters.Logdirpath, AppParameters.ConfigurationFloder), "Connection.json", JsonConvert.SerializeObject(AppParameters.ConnectionList.Select(x => x.Value).ToList(), Formatting.Indented, new JsonSerializerSettings() { ContractResolver = new NullToEmptyStringResolver() }));
                 }
                 return AppParameters.ConnectionList.Where(w => w.Key == id).Select(s => s.Value).ToList();
             }
@@ -1966,7 +1953,6 @@ namespace Factory_of_the_Future
                                         Connection_item.UDPDelete();
                                         AppParameters.RunningConnection.Connection.Remove(Connection_item);
                                         new FileIO().Write(string.Concat(AppParameters.CodeBase.Parent.FullName.ToString(), AppParameters.Appsetting), "Connection.json", JsonConvert.SerializeObject(AppParameters.ConnectionList.Select(x => x.Value).ToList(), Formatting.Indented, new JsonSerializerSettings() { ContractResolver = new NullToEmptyStringResolver() }));
-                                        new FileIO().Write(string.Concat(AppParameters.Logdirpath, AppParameters.ConfigurationFloder), "Connection.json", JsonConvert.SerializeObject(AppParameters.ConnectionList.Select(x => x.Value).ToList(), Formatting.Indented, new JsonSerializerSettings() { ContractResolver = new NullToEmptyStringResolver() }));
                                         return AppParameters.ConnectionList.Select(e => e.Value).ToList();
                                     }
                                     else
@@ -1974,8 +1960,7 @@ namespace Factory_of_the_Future
                                         Connection_item.Stop_Delete();
                                         AppParameters.RunningConnection.Connection.Remove(Connection_item);
                                         new FileIO().Write(string.Concat(AppParameters.CodeBase.Parent.FullName.ToString(), AppParameters.Appsetting), "Connection.json", JsonConvert.SerializeObject(AppParameters.ConnectionList.Select(x => x.Value).ToList(), Formatting.Indented, new JsonSerializerSettings() { ContractResolver = new NullToEmptyStringResolver() }));
-                                        new FileIO().Write(string.Concat(AppParameters.Logdirpath, AppParameters.ConfigurationFloder), "Connection.json", JsonConvert.SerializeObject(AppParameters.ConnectionList.Select(x => x.Value).ToList(), Formatting.Indented, new JsonSerializerSettings() { ContractResolver = new NullToEmptyStringResolver() }));
-                                        return AppParameters.ConnectionList.Select(e => e.Value).ToList();
+                                       return AppParameters.ConnectionList.Select(e => e.Value).ToList();
                                     }
                                 }
 

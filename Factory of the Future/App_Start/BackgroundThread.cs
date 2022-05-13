@@ -19,17 +19,9 @@ namespace Factory_of_the_Future
                     {
                         if (AppParameters.ActiveServer)
                         {
-                            if (AppParameters.ConnectionList.Keys.Count == 0)
-                            {
-                               AppParameters.LoadData("Connection.json");
-                            }
                             if (AppParameters.ZoneInfo.Keys.Count == 0)
                             {
                                AppParameters.LoadData("Zones.json");
-                            }
-                            if (AppParameters.NotificationConditionsList.Keys.Count == 0)
-                            {
-                               AppParameters.LoadData("Notification.json");
                             }
                             if (AppParameters.IndoorMap.Count == 0)
                             {
@@ -43,12 +35,6 @@ namespace Factory_of_the_Future
                             {
                                 AppParameters.LoadData("CustomZones.json");
                             }
-                            //if (AppParameters.RunningConnection.Connection.Count == 0)
-                            //{
-                            //    Thread ConectionSetupThread = new Thread(new ThreadStart(ConectionSetup));
-                            //    ConectionSetupThread.IsBackground = true;
-                            //    ConectionSetupThread.Start();
-                            //}
                         }
                         else
                         {
