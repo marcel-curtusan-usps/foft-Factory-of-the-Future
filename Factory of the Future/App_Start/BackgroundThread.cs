@@ -19,6 +19,17 @@ namespace Factory_of_the_Future
                     {
                         if (AppParameters.ActiveServer)
                         {
+                            if (AppParameters.DefaulConnectionLoaded)
+                            {
+                                int tempConn = AppParameters.ConnectionList.Keys.Count;
+
+                                AppParameters.LoadData("Connection.json");
+
+                                if (AppParameters.ConnectionList.Keys.Count > tempConn)
+                                {
+                                    AppParameters.DefaulConnectionLoaded = false;
+                                }
+                            }
                             if (AppParameters.ZoneInfo.Keys.Count == 0)
                             {
                                AppParameters.LoadData("Zones.json");

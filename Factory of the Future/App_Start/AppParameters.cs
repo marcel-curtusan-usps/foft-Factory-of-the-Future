@@ -18,6 +18,7 @@ namespace Factory_of_the_Future
     {
         public static TimeZone localZone = TimeZone.CurrentTimeZone;
         public static bool ActiveServer { get; set; } = false;
+        public static bool DefaulConnectionLoaded { get; set; } = false;
         public static string Appsetting { get; set; } = @"\AppSetting";
         public static string ConfigurationFloder { get; set; } = @"\Configuration";
         public static string LogFloder { get; set; } = @"\Log";
@@ -214,6 +215,11 @@ namespace Factory_of_the_Future
                             RunningConnection.Add(tempcon[i]);
                         }
                     }
+                    if (tempcon.Count == ConnectionList.Keys.Count)
+                    {
+                        DefaulConnectionLoaded = true;
+                    }
+                 
                 }
             }
             catch (Exception e)
