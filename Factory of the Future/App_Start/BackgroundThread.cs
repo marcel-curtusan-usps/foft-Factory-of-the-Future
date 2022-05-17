@@ -3,6 +3,7 @@ using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Concurrent;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace Factory_of_the_Future
 {
@@ -19,17 +20,7 @@ namespace Factory_of_the_Future
                     {
                         if (AppParameters.ActiveServer)
                         {
-                            if (AppParameters.DefaulConnectionLoaded)
-                            {
-                                int tempConn = AppParameters.ConnectionList.Keys.Count;
-
-                                AppParameters.LoadData("Connection.json");
-
-                                if (AppParameters.ConnectionList.Keys.Count > tempConn)
-                                {
-                                    AppParameters.DefaulConnectionLoaded = false;
-                                }
-                            }
+                            
                             if (AppParameters.ZoneInfo.Keys.Count == 0)
                             {
                                AppParameters.LoadData("Zones.json");
@@ -46,13 +37,15 @@ namespace Factory_of_the_Future
                             {
                                 AppParameters.LoadData("CustomZones.json");
                             }
+                            //data Retention
+                            Task.Run(() => DataRetentionProcess.Start());
+
                         }
                         else
                         {
-                            AppParameters.ConnectionList = new ConcurrentDictionary<string, Connection>();
-                            AppParameters.ZoneInfo = new ConcurrentDictionary<string, ZoneInfo>();
-                            AppParameters.IndoorMap = new ConcurrentDictionary<string, BackgroundImage>();
-                            AppParameters.RunningConnection = new ConnectionContainer();
+                            Task.Run(() => AppParameters.ResetParameters());
+                            AppParameters.Users = new ConcurrentDictionary<string, ADUser>();
+
                         }
                     }
                     catch (Exception ex)

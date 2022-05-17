@@ -427,6 +427,7 @@
   <ItemGroup>
     <Compile Include="App_Start\AppParameters.cs" />
     <Compile Include="App_Start\BackgroundThread.cs" />
+    <Compile Include="Data_Retention\DataRetentionProcess.cs" />
     <Compile Include="App_Start\WebApiConfig.cs" />
     <Compile Include="Controllers\IncomingDataController.cs" />
     <Compile Include="Controllers\SVContainersController.cs" />
@@ -435,8 +436,6 @@
     <Compile Include="Controllers\TagsController.cs" />
     <Compile Include="Controllers\UploadFilesController.cs" />
     <Compile Include="Database_Calls\SV_DB_Call.cs" />
-    <Compile Include="Data_Retention\Data_Retention.cs" />
-    <Compile Include="Data_Retention\StartDataRetentionProcess.cs" />
     <Compile Include="Data_Retriever\Connection.cs" />
     <Compile Include="Data_Retriever\ConnectionContainer.cs" />
     <Compile Include="Global.asax.cs">

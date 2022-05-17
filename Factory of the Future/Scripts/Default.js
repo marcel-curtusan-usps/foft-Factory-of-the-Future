@@ -113,7 +113,7 @@ $(function () {
                     position: 'top',
                     pane: '<div class="btn-toolbar" role="toolbar" id="connection_div">' +
                         '<div id="div_agvnotification" class="container-fluid">' +
-                        '<h4>API Settings</h4>' +
+                        '<h4>Connections</h4>' +
                         '<button type="button" class="btn btn-primary float-left mb-2" name="addconnection">Add</button>' +
                         '<div class="card w-100 bg-white mt-2 pb-1">' +
                         '<div class="card-body">' +
@@ -153,11 +153,35 @@ $(function () {
                         '<h6 class="control-label sectionHeader ml-1 mb-1 d-flex justify-content-between">Workroom/Floor Image</h6>' +
                         '</div>' +
                         '<div class="card-body" id="img_card_body">' +
+                                '<div class="input-group mb-3">' +
+                                    '<div class="custom-file" >' +
+                                        '<input type="file" class="custom-file-input" id="fupload" aria-describedby="btnUpload">' +
+                                        '<label class="custom-file-label" for="btnUpload">Choose file</label>' +
+                                    '</div>' +
+                                    '<div class="input-group-append">' +
+                                        '<button class="btn btn-outline-secondary" type="button" id="btnUpload">Upload</button>' +
+                                    '</div>' +
+                                '</div>' +
+
+
+                        '<div class="form-row" style="padding-top: 10px; display: none;" id="progresbarrow"> ' +
+                            '<div class="col"> ' +
+                                '<div class="progress">' +
+                                   ' <div id="file_upload_progressbar" class="progress-bar rogress-bar-striped bg-success" role="progressbar" style="width: 10%" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>  ' +
+                               '</div> ' +
+                            '</div> ' +
+                        '</div > ' +
+                            '<div class= "form-row" style = "padding-top: 10px;"> ' +
+                                '<div class= "col text-center"> ' +
+                                    '<span id = "error_btnUpload"></span > ' +
+                            '</div> ' +
+                        '</div>' +
+
                         '</div>' +
                         '</div>'+
                         '<div class="card w-100">' +
                         '<div class="card-header pl-1">' +
-                        '<h6 class="control-label sectionHeader ml-1 mb-1 d-flex justify-content-between">Applicaton Setting</h6>' +
+                        '<h6 class="control-label sectionHeader ml-1 mb-1 d-flex justify-content-between">Application Setting</h6>' +
                         '</div>' +
                         '<div class="card-body">' +
                         '<div class="table-responsive fixedHeader" style="max-height: calc(100vh - 100px); ">' +
@@ -176,7 +200,70 @@ $(function () {
 
                        
                 });
+                $('button[id=btnUpload]').on('click', function () {
+                    $('button[id=btnUpload]').prop("disabled", true);
+                    var fileUpload = $("#fupload").get(0);
+                    var files = fileUpload.files;
+                    if (files.length > 0) {
+                        var data = new FormData();
+                        for (var i = 0; i < files.length; i++) {
+                            data.append(files[i].name, files[i]);
+                        }
+                        $.ajax({
+                            url: "/api/UploadFiles",
+                            type: "POST",
+                            data: data,
+                            cache: false,
+                            contentType: false,
+                            processData: false,
+                            beforeSend: function () {
+                                $('button[id=btnUpload]').prop("disabled", true);
+                                $('#progresbarrow').css('display', 'block');
+                                $('span[id=error_btnUpload]').text("Loading File Please stand by");
+                                var progress = 10
+                                $('#file_upload_progressbar').css('width', progress + '%');
+                            },
+                            xhr: function () {
+                                var xhr = $.ajaxSettings.xhr();
+                                if (xhr.upload) {
+                                    xhr.upload.addEventListener("progress", function (evt) {
+                                        if (evt.lengthComputable) {
+                                            var percentComplete = evt.loaded / evt.total;
+                                            percentComplete = parseInt(percentComplete * 100);
+                                            $('#file_upload_progressbar').attr('aria-valuenow', percentComplete).css('width', percentComplete + '%');
+                                            if (percentComplete === 100) {
+                                                $('span[id=error_btnUpload]').text("File Transfer Complete -->> Processing File ");
+                                            }
+                                        }
+                                    }, false);
+                                }
+                                return xhr;
+                            },
+                            success: function (response) {
+                                if (response !== "") {
+                                    try {
+                                        $('span[id=error_btnUpload]').text("File Processing Completed");
+                                        setTimeout(function () { Clear(); }, 500);
+                                    }
+                                    catch (e) {
+                                        $('span[id=error_btnUpload]').text(e);
+                                    }
+                                }
+                            },
+                            error: function (response) {
+                                $('span[id=error_btnUpload]').text(response.statusText);
+                                ('#progresbarrow').css('display', 'none');
+                                setTimeout(function () { Clear(); }, 10000);
+                            },
+                            failure: function (response) {
+                                $('span[id=error_btnUpload]').text(response.statusText);
+                                ('#progresbarrow').css('display', 'none');
+                                setTimeout(function () { Clear(); }, 10000);
+                            }
+                        })
 
+                    }
+                });
             }
             if (!/^(Admin|OIE)/i.test(User.Role)) {
                 fotfmanager.server.leaveGroup("PeopleMarkers");
@@ -495,6 +582,16 @@ $(function () {
 
 
 });
+function Clear() {
+    var progress = 0;
+    $('#progresbarrow').css('display', 'none');
+    $('#file_upload_progressbar').css('width', progress + '%');
+
+    $('input[type=file]').val('');
+    $('input[type=radio]').prop("checked", "");
+    $('span[id=error_btnUpload]').text("");
+    $('button[id=btnUpload]').prop("disabled", false);
+}
 //sort table header
 $('th').click(function () {
     var $th = $(this).closest('th');

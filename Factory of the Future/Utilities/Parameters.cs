@@ -138,7 +138,7 @@ namespace Factory_of_the_Future
         public int Rotation { get; set; }
 
         [JsonProperty("base64")]
-        public string Base64 { get; set; }
+        public string Base64 { get; set; } = "";
 
         [JsonProperty("origoY")]
         public double OrigoY { get; set; }
@@ -174,6 +174,12 @@ namespace Factory_of_the_Future
 
         [JsonProperty("softwareVersion")]
         public string SoftwareVersion { get; set; } = AppParameters.VersionInfo;
+
+        [JsonProperty("applicationFullName")]
+        public string ApplicationFullName { get; set; } = "";
+
+        [JsonProperty("applicationAbbr")]
+        public string ApplicationAbbr { get; set; } = "";
     }
 
     public class TrackingArea

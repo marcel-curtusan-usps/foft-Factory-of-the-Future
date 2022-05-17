@@ -1025,8 +1025,6 @@ namespace Factory_of_the_Future
         {
             try
             {
-
-
                 RPGPlan tempRPG = AppParameters.MPEPRPGList.Where(x => x.Value.mpe_type == item["mpe_type"].ToString() &&
                              Convert.ToInt32(x.Value.machine_num) == (int)item["mpe_number"] &&
                              x.Value.sort_program_name == item["cur_sortplan"].ToString() &&
@@ -1785,6 +1783,8 @@ namespace Factory_of_the_Future
                                 BackgroundImage newbckimg = backgroundImages.ToObject<BackgroundImage>();
                                 newbckimg.RawData = JsonConvert.SerializeObject(backgroundImages.ToString(), Formatting.None);
                                 newbckimg.FacilityName = AppParameters.AppSettings["FACILITY_NAME"].ToString();
+                                newbckimg.ApplicationFullName = AppParameters.AppSettings["APPLICATION_FULLNAME"].ToString();
+                                newbckimg.ApplicationAbbr = AppParameters.AppSettings["APPLICATION_NAME"].ToString();
                                 newbckimg.UpdateStatus = true;
                                 if (!AppParameters.IndoorMap.TryAdd(newbckimg.Id, newbckimg))
                                 {

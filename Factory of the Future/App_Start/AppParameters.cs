@@ -18,10 +18,10 @@ namespace Factory_of_the_Future
     {
         public static TimeZone localZone = TimeZone.CurrentTimeZone;
         public static bool ActiveServer { get; set; } = false;
-        public static bool DefaulConnectionLoaded { get; set; } = false;
         public static string Appsetting { get; set; } = @"\AppSetting";
         public static string ConfigurationFloder { get; set; } = @"\Configuration";
         public static string LogFloder { get; set; } = @"\Log";
+        public static string Images { get; set; } = @"\Images";
         public static string ORAQuery { get; set; } = @"\OracleQuery";
         public static JObject AppSettings { get; set; } = new JObject();
         public static string ApplicationEnvironment { get; set; } = string.Empty;
@@ -40,7 +40,6 @@ namespace Factory_of_the_Future
         public static ConcurrentDictionary<string, BackgroundImage> IndoorMap { get; set; } = new ConcurrentDictionary<string, BackgroundImage>();
         public static ConcurrentDictionary<string, Cameras> CameraInfoList { get; set; } = new ConcurrentDictionary<string, Cameras>();
         public static ConcurrentDictionary<string, Connection> ConnectionList { get; set; } = new ConcurrentDictionary<string, Connection>();
-
         public static ConcurrentDictionary<string, GeoZone> ZoneList { get; set; } = new ConcurrentDictionary<string, GeoZone>();
         public static ConcurrentDictionary<string, ZoneInfo> ZoneInfo { get; set; } = new ConcurrentDictionary<string, ZoneInfo>();
         public static ConcurrentDictionary<string, GeoMarker> TagsList { get; set; } = new ConcurrentDictionary<string, GeoMarker>();
@@ -50,8 +49,6 @@ namespace Factory_of_the_Future
         public static ConcurrentDictionary<string, string> DockdoorList { get; set; } = new ConcurrentDictionary<string, string>();
         public static ConcurrentDictionary<string, string> StaffingSortplansList { get; set; } = new ConcurrentDictionary<string, string>();
         public static ConcurrentDictionary<string, RouteTrips> RouteTripsList { get; set; } = new ConcurrentDictionary<string, RouteTrips>();
-        //public static ConcurrentDictionary<string, JObject> QSMList { get; set; } = new ConcurrentDictionary<string, JObject>();
-
         public static ConcurrentDictionary<string, Container> Containers { get; set; } = new ConcurrentDictionary<string, Container>();
         public static ConcurrentDictionary<string, Mission> MissionList { get; set; } = new ConcurrentDictionary<string, Mission>();
         public static ConcurrentDictionary<string, Notification> NotificationList { get; set; } = new ConcurrentDictionary<string, Notification>();
@@ -137,6 +134,7 @@ namespace Factory_of_the_Future
                 GetConnectionDefault();
                 ///load Default Notification settings
                 GetNotificationDefault();
+
             }
             catch (Exception ex)
             {
@@ -161,14 +159,13 @@ namespace Factory_of_the_Future
                         {
                             AppSettings["FACILITY_TIMEZONE"] = TimeZoneConvert.Where(r => r.Value == localZone.StandardName).Select(y => y.Key).FirstOrDefault();
                         }
-                      
                     }
                     //this will check the attributes if any default are mission it will add it.
                     if (AppSettings.HasValues && AppSettings.ContainsKey("LOG_LOCATION"))
                     {
                         LoglocationSetup();
-
                     }
+                    
                 }
             }
             catch (Exception e)
@@ -199,7 +196,7 @@ namespace Factory_of_the_Future
                 new ErrorLogger().ExceptionLog(e);
             }
         }
-        private static void GetConnectionDefault()
+        public static void GetConnectionDefault()
         {
             try
             {
@@ -215,11 +212,6 @@ namespace Factory_of_the_Future
                             RunningConnection.Add(tempcon[i]);
                         }
                     }
-                    if (tempcon.Count == ConnectionList.Keys.Count)
-                    {
-                        DefaulConnectionLoaded = true;
-                    }
-                 
                 }
             }
             catch (Exception e)
@@ -249,18 +241,11 @@ namespace Factory_of_the_Future
                                 {
                                     Logdirpath = siteDir;
                                     DirectoryInfo siteConfigDir = new DirectoryInfo(string.Concat(siteDir.ToString(), ConfigurationFloder));
-                                    if (siteConfigDir.Exists)
-                                    {
-                                        new FileIO().Write(string.Concat(Logdirpath, ConfigurationFloder, @"\"), "AppSettings.json", JsonConvert.SerializeObject(AppSettings, Newtonsoft.Json.Formatting.Indented));
-
-                                    }
-                                    else
+                                    if (!siteConfigDir.Exists)
                                     {
                                         Directory.CreateDirectory(siteConfigDir.FullName.ToString());
                                         LoglocationSetup();
                                     }
-
-
                                 }
                                 else
                                 {
@@ -618,6 +603,40 @@ namespace Factory_of_the_Future
             {
                 new ErrorLogger().ExceptionLog(e);
                 return "";
+            }
+        }
+
+        internal static void ResetParameters()
+        {
+            try
+            {
+                StaffingSortplansList = new ConcurrentDictionary<string, string>();
+                DockdoorList = new ConcurrentDictionary<string, string>();
+                DPSList = new ConcurrentDictionary<string, string>();
+                MPEPerformanceList = new ConcurrentDictionary<string, string>();
+
+                MPEPRPGList = new ConcurrentDictionary<string, RPGPlan>();
+                RouteTripsList = new ConcurrentDictionary<string, RouteTrips>();
+                Containers = new ConcurrentDictionary<string, Container>();
+                MissionList = new ConcurrentDictionary<string, Mission>();
+                NotificationList = new ConcurrentDictionary<string, Notification>();
+
+                ConnectionList = new ConcurrentDictionary<string, Connection>();
+                ZoneInfo = new ConcurrentDictionary<string, ZoneInfo>();
+                IndoorMap = new ConcurrentDictionary<string, BackgroundImage>();
+                TagsList = new ConcurrentDictionary<string, GeoMarker>();
+                ZoneList = new ConcurrentDictionary<string, GeoZone>();
+                RunningConnection = new ConnectionContainer();
+                
+                if (ActiveServer)
+                {
+                    ///load default connection setting.
+                    GetConnectionDefault();
+                }
+            }
+            catch (Exception e)
+            {
+                new ErrorLogger().ExceptionLog(e);
             }
         }
     }

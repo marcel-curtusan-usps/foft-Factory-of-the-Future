@@ -191,10 +191,10 @@ function init_mapSetup(MapData)
             MapData = MapData[0];
             if (!$.isEmptyObject(MapData)) {
 
-                map.attributionControl.setPrefix("USPS Factory of the Future (" + MapData.softwareVersion + ")");
+                map.attributionControl.setPrefix("USPS " + MapData.applicationFullName + " (" + MapData.softwareVersion + ")");
                 $('#fotf-site-facility-name').append(MapData.facilityName);
                 map.attributionControl.addAttribution(MapData.facilityName);
-                $(document).prop('title', MapData.facilityName + ' FOTF');
+                $(document).prop('title', MapData.facilityName + ' ' + MapData.applicationAbbr );
                 //set new image
                 var img = new Image();
                 //load Base64 image

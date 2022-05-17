@@ -1384,7 +1384,14 @@ namespace Factory_of_the_Future
             {
                 if (AppParameters.IndoorMap.Keys.Count == 0)
                 {
-                    List<BackgroundImage> temp = new List<BackgroundImage> { new BackgroundImage() };
+                    List<BackgroundImage> temp = new List<BackgroundImage> {
+                        new BackgroundImage()
+                            {
+                                FacilityName =  AppParameters.AppSettings["FACILITY_NAME"].ToString(),
+                                ApplicationFullName = AppParameters.AppSettings["APPLICATION_FULLNAME"].ToString(),
+                                ApplicationAbbr = AppParameters.AppSettings["APPLICATION_NAME"].ToString(),
+                            }
+                    };
                     return temp;
                 }
                 return AppParameters.IndoorMap.Values;
@@ -2126,6 +2133,7 @@ namespace Factory_of_the_Future
                                                 AppParameters.AppSettings["FACILITY_ZIP"] = SiteInfo.ContainsKey("zipCode") ? SiteInfo["zipCode"] : "";
                                                 AppParameters.AppSettings["FACILITY_LKEY"] = SiteInfo.ContainsKey("localeKey") ? SiteInfo["localeKey"] : "";
                                                 Task.Run(() => AppParameters.LoglocationSetup());
+                                                Task.Run(() => AppParameters.ResetParameters());
                                             }
                                         }
                                     }
@@ -2133,15 +2141,13 @@ namespace Factory_of_the_Future
                                     {
                                         if (!string.IsNullOrEmpty(kv.Value.ToString()))
                                         {
-                                            AppParameters.AppSettings[item.Key] = kv.Value.ToString();
+                                            AppParameters.AppSettings[item.Key] = kv.Value;
                                             Task.Run(() => AppParameters.LoglocationSetup());
-                                            //AppParameters.Logdirpath = new DirectoryInfo(kv.Value.ToString());
-                                            //new Directory_Check().DirPath(AppParameters.Logdirpath);
                                         }
                                     }
                                     else
                                     {
-                                        AppParameters.AppSettings[item.Key] = kv.Value.ToString();
+                                        AppParameters.AppSettings[item.Key] = kv.Value;
                                     }
                                 }
                             }
@@ -2152,7 +2158,6 @@ namespace Factory_of_the_Future
                 if (fileUpdate)
                 {
                     new FileIO().Write(string.Concat(AppParameters.CodeBase.Parent.FullName.ToString(), AppParameters.Appsetting), "AppSettings.json", JsonConvert.SerializeObject(AppParameters.AppSettings, Formatting.Indented));
-                    new FileIO().Write(string.Concat(AppParameters.Logdirpath, AppParameters.ConfigurationFloder), "AppSettings.json", JsonConvert.SerializeObject(AppParameters.AppSettings, Formatting.Indented));
                 }
                 return AppParameters.AppSettings;
             }

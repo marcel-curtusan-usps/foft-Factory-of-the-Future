@@ -2,30 +2,19 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Threading;
 
 namespace Factory_of_the_Future
 {
-    internal class StartDataRetentionProcess
+    internal class DataRetentionProcess
     {
-        private static int SPworkItemCount = 0;
-
-        private StartDataRetentionProcess()
-        { }
-
-        internal static void StartProcess(object state)
+        public static void Start()
         {
-            int SPworkItemNumber = SPworkItemCount;
-            Interlocked.Increment(ref SPworkItemCount);
-
-            Data_Retention.StartProcess _SP = (Data_Retention.StartProcess)state;
-
             try
             {
                 //add file data retention check here.
                 if (AppParameters.Logdirpath != null && AppParameters.Logdirpath.Exists)
                 {
-                    DirectoryInfo maindir = new DirectoryInfo(@"" + AppParameters.Logdirpath.FullName + "\\" + "LOG" + "\\");
+                    DirectoryInfo maindir = new DirectoryInfo(@"" + string.Concat(AppParameters.Logdirpath, AppParameters.LogFloder));
                     if (maindir.Exists)
                     {
                         List<FileInfo> files = maindir.GetFiles("*", SearchOption.TopDirectoryOnly).OrderBy(d => d.LastWriteTime.Year).ThenBy(d => d.LastWriteTime.Month).ThenBy(d => d.LastWriteTime.Day).Select(x => x).ToList();
@@ -33,7 +22,7 @@ namespace Factory_of_the_Future
                         long target_size = 1073741824;
                         if (AppParameters.AppSettings.ContainsKey("FILE_RETENTION"))
                         {
-                            string tempint = (string)AppParameters.AppSettings.Property("FILE_RETENTION").Value.ToString();
+                            string tempint = AppParameters.AppSettings.Property("FILE_RETENTION").Value.ToString();
                             int.TryParse(tempint, out int tempdays);
 
                             if (tempdays != days)
@@ -120,14 +109,9 @@ namespace Factory_of_the_Future
             catch (Exception e)
             {
                 new ErrorLogger().ExceptionLog(e);
-                _SP.manualEvents.Set();
             }
-            finally
-            {
-                _SP.manualEvents.Set();
-            }
+            
         }
-
         private static string FormatBytes(long bytes)
         {
             string[] Suffix = { "B", "KB", "MB", "GB", "TB" };
