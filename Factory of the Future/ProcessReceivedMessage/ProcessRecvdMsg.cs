@@ -1758,30 +1758,25 @@ namespace Factory_of_the_Future
                     {
                         //the background image
                         JToken backgroundImages = tempData.SelectToken("coordinateSystems[0].backgroundImages[0]");
-                        if (backgroundImages.HasValues)
+                        if (backgroundImages != null && backgroundImages.HasValues)
                         {
-                            backgroundImages["rawData"] = JsonConvert.SerializeObject(backgroundImages, Formatting.None);
                             //this is for existing images
                             if (AppParameters.IndoorMap.TryGetValue(backgroundImages["id"].ToString(), out BackgroundImage bckimg))
                             {
-                                if (bckimg.RawData != backgroundImages["rawData"].ToString())
+                                BackgroundImage newtempbckimg = backgroundImages.ToObject<BackgroundImage>();
+                                newtempbckimg.FacilityName = AppParameters.AppSettings["FACILITY_NAME"].ToString();
+                                newtempbckimg.ApplicationFullName = AppParameters.AppSettings["APPLICATION_FULLNAME"].ToString();
+                                newtempbckimg.ApplicationAbbr = AppParameters.AppSettings["APPLICATION_NAME"].ToString();
+                                newtempbckimg.UpdateStatus = true;
+                                if (!AppParameters.IndoorMap.TryUpdate(newtempbckimg.Id, newtempbckimg, bckimg))
                                 {
-                                    JObject tempbckimg = (JObject)JsonConvert.DeserializeObject(JsonConvert.SerializeObject(bckimg, Formatting.Indented));
-                                    tempbckimg["updateStatus"] = true;
-                                    tempbckimg.Merge((JObject)backgroundImages, new JsonMergeSettings { MergeArrayHandling = MergeArrayHandling.Union });
-                                    BackgroundImage newtempbckimg = tempbckimg.ToObject<BackgroundImage>();
-                                    if (!AppParameters.IndoorMap.TryUpdate(newtempbckimg.Id, newtempbckimg, bckimg))
-                                    {
-                                        new ErrorLogger().CustomLog("Unable to Update Image" + newtempbckimg.Id, string.Concat((string)AppParameters.AppSettings.Property("APPLICATION_NAME").Value, "_Applogs"));
-                                    }
+                                    new ErrorLogger().CustomLog("Unable to Update Image" + newtempbckimg.Id, string.Concat((string)AppParameters.AppSettings.Property("APPLICATION_NAME").Value, "_Applogs"));
                                 }
-
                             }
-                            ////this for new images
+                            //this for new images
                             else
                             {
                                 BackgroundImage newbckimg = backgroundImages.ToObject<BackgroundImage>();
-                                newbckimg.RawData = JsonConvert.SerializeObject(backgroundImages.ToString(), Formatting.None);
                                 newbckimg.FacilityName = AppParameters.AppSettings["FACILITY_NAME"].ToString();
                                 newbckimg.ApplicationFullName = AppParameters.AppSettings["APPLICATION_FULLNAME"].ToString();
                                 newbckimg.ApplicationAbbr = AppParameters.AppSettings["APPLICATION_NAME"].ToString();
@@ -1796,7 +1791,7 @@ namespace Factory_of_the_Future
 
                         //this is for Zones
                         JToken zones = tempData.SelectToken("coordinateSystems[0].zones");
-                        if (zones.Count() > 0)
+                        if (zones != null && zones.Count() > 0)
                         {
                             foreach (JObject zoneitem in zones.Children())
                             {
@@ -1872,7 +1867,7 @@ namespace Factory_of_the_Future
 
                         //this is for Zones
                         JToken locators = tempData.SelectToken("coordinateSystems[0].locators");
-                        if (locators.Count() > 0)
+                        if (locators != null && locators.Count() > 0)
                         {
                             foreach (JObject locatorsitem in locators.Children())
                             {

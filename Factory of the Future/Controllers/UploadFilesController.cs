@@ -23,6 +23,22 @@ namespace Factory_of_the_Future.Controllers
             {
                 Directory.CreateDirectory(path);
             }
+            /*
+                id =	String	Unique id of this BackgroundImage
+                metersPerPixelX	 = Number	X scale of the image. Denotes how many meters each pixel (in x dir) of the image represents.
+                metersPerPixelY	 = Number	Y scale of the image. Denotes how many meters each pixel (in y dir) of the image represents.
+                origoX =	Number	Origo x location of the coordinate system (ie. pixels from topleft corner of the image)
+                origoY =	Number	Origo y location of the coordinate system (ie. pixels from topleft corner of the image)
+                xMeter =	Number	X coordinate for the bottom left corner of the background image (in meters)
+                yMeter =	Number	Y coordinate for the bottom left corner of the background image (in meters)
+                widthMeter =	Number	Width of the background image (in meters)
+                heightMeter =	Number	Height of the background image (in meters)
+                rotation =	Number	Rotation of the image in degrees
+                alpha =	Number	Alpha value used in rendering of this image
+                visible =	Boolean	Boolean indicating if this image is set to be visible or not
+                otherCoordSys =	String	Comma separated list of other coordinate systems that use the same background image
+                base64 =	String	Image bytes as base64 encoded string.
+             */
             JObject temp1 = new JObject
             {
                 ["coordinateSystems"] = new JArray { new JObject{
@@ -38,7 +54,7 @@ namespace Factory_of_the_Future.Controllers
                              ["heightMeter"] = 0,
                              ["yMeter"] = 0,
                              ["alpha"] = 0,
-                             ["id"] = Guid.NewGuid().ToString(),
+                             ["id"] = "",
                              ["metersPerPixelY"] = 0,
                              ["metersPerPixelX"] = 0,
                           }
@@ -48,15 +64,27 @@ namespace Factory_of_the_Future.Controllers
             };
             //Fetch the File.
             HttpPostedFile postedFile = HttpContext.Current.Request.Files[0];
-            byte[] imagebyte = new byte[postedFile.ContentLength];
+            double metersPerPixelY = Convert.ToDouble(HttpContext.Current.Request.Form["metersPerPixelY"]);
+            double metersPerPixelX = Convert.ToDouble(HttpContext.Current.Request.Form["metersPerPixelX"]);
+            int fileLen;
+            fileLen = postedFile.ContentLength;
+            byte[] input = new byte[fileLen];
+            string imageBase64 = "";
             using (Image OSLImage = Image.FromStream(postedFile.InputStream))
             {
+                temp1["coordinateSystems"][0]["backgroundImages"][0]["id"] = Path.GetFileNameWithoutExtension(postedFile.FileName);
                 temp1["coordinateSystems"][0]["backgroundImages"][0]["origoX"] = OSLImage.Width;
                 temp1["coordinateSystems"][0]["backgroundImages"][0]["origoY"] = OSLImage.Height;
-                temp1["coordinateSystems"][0]["backgroundImages"][0]["widthMeter"] = OSLImage.Width;
-                temp1["coordinateSystems"][0]["backgroundImages"][0]["heightMeter"] = OSLImage.Height;
+                temp1["coordinateSystems"][0]["backgroundImages"][0]["metersPerPixelY"] = metersPerPixelY;
+                temp1["coordinateSystems"][0]["backgroundImages"][0]["metersPerPixelX"] = metersPerPixelX;
+                temp1["coordinateSystems"][0]["backgroundImages"][0]["widthMeter"] = OSLImage.Width * metersPerPixelY;
+                temp1["coordinateSystems"][0]["backgroundImages"][0]["heightMeter"] = OSLImage.Height * metersPerPixelX;
+
+                input = AppParameters.ImageToByteArray(OSLImage);
+                imageBase64 = Convert.ToBase64String(input);
+                temp1["coordinateSystems"][0]["backgroundImages"][0]["base64"] = string.Concat("data:image/png;base64,", imageBase64);
+
             }
-            temp1["coordinateSystems"][0]["backgroundImages"][0]["base64"] = string.Concat("data:image/png;base64", Convert.ToBase64String(imagebyte));
             //Fetch the File Name.
             string fileName = postedFile.FileName;
             string fullFilePath = string.Concat(path, @"\", fileName);
@@ -75,45 +103,10 @@ namespace Factory_of_the_Future.Controllers
                 postedFile.SaveAs(fullFilePath);
                 Task.Run(() => new ProcessRecvdMsg().StartProcess(JsonConvert.SerializeObject(temp1, Formatting.None), "getProjectInfo", "0"));
             }
+
             //Send OK Response to Client.
             return Request.CreateResponse(HttpStatusCode.OK, fileName);
         }
-        //public Task Post()
-        //{
-        //    List<string> savedFilePath = new List<string>();
-        //    if (!Request.Content.IsMimeMultipartContent())
-        //    {
-        //        throw new HttpResponseException(HttpStatusCode.UnsupportedMediaType);
-        //    }
-        //    string rootPath = HttpContext.Current.Server.MapPath("~/UploadedFiles");
-        //    var provider = new MultipartFileStreamProvider(rootPath);
-        //    var task = Request.Content.ReadAsMultipartAsync(provider).
-        //    ContinueWith(t =>
-        //    {
-        //        if (t.IsCanceled || t.IsFaulted)
-        //        {
-        //            Request.CreateErrorResponse(HttpStatusCode.InternalServerError, t.Exception);
-        //        }
-        //        foreach (MultipartFileData item in provider.FileData)
-        //        {
-        //            try
-        //            {
-        //                string name = item.Headers.ContentDisposition.FileName.Replace("\"", "");
-        //                string newFileName = Guid.NewGuid() + Path.GetExtension(name);
-        //                File.Move(item.LocalFileName, Path.Combine(rootPath, newFileName));
-        //                Uri baseuri = new Uri(Request.RequestUri.AbsoluteUri.Replace(Request.RequestUri.PathAndQuery, string.Empty));
-        //                string fileRelativePath = "~/UploadedFiles/" + newFileName;
-        //                Uri fileFullPath = new Uri(baseuri, VirtualPathUtility.ToAbsolute(fileRelativePath));
-        //                savedFilePath.Add(fileFullPath.ToString());
-        //            }
-        //            catch (Exception ex)
-        //            {
-        //                string message = ex.Message;
-        //            }
-        //        }
-        //        return Request.CreateResponse(HttpStatusCode.Created, savedFilePath);
-        //    });
-        //    return task;
-        //}
     }
+   
 }

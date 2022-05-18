@@ -7,7 +7,6 @@ var sidebar = L.control.sidebar({
 map = L.map('map', {
     crs: L.CRS.Simple,
     renderer: L.canvas({ padding: 0.5 }),
-    zoom: 1.5,
     preferCanvas: true,
     pmIgnore: false,
     markerZoomAnimation: false,

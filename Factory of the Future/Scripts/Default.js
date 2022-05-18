@@ -162,8 +162,18 @@ $(function () {
                                         '<button class="btn btn-outline-secondary" type="button" id="btnUpload">Upload</button>' +
                                     '</div>' +
                                 '</div>' +
-
-
+                        '<div class="form-row"> ' +
+                                    '<div class="form-group">' +
+                                        '<div class="col" >' +
+                                            '<input type="text" class="form-control" id="metersPerPixelY">' +
+                                            '<label for="metersPerPixelY">Meters PerPixel Y</label>' +
+                                        '</div>' +
+                                        '<div class="col">' +
+                                            '<input type="text" class="form-control" id="metersPerPixelX">' +
+                                            '<label for="metersPerPixelX">Meters PerPixel X</label>' +
+                                        '</div>' +
+                                    '</div>' +
+                        '</div>' +
                         '<div class="form-row" style="padding-top: 10px; display: none;" id="progresbarrow"> ' +
                             '<div class="col"> ' +
                                 '<div class="progress">' +
@@ -209,6 +219,8 @@ $(function () {
                         for (var i = 0; i < files.length; i++) {
                             data.append(files[i].name, files[i]);
                         }
+                        data.append("metersPerPixelY", $("#metersPerPixelY").val());
+                        data.append("metersPerPixelX", $("#metersPerPixelX").val());
                         $.ajax({
                             url: "/api/UploadFiles",
                             type: "POST",
@@ -252,12 +264,12 @@ $(function () {
                             },
                             error: function (response) {
                                 $('span[id=error_btnUpload]').text(response.statusText);
-                                ('#progresbarrow').css('display', 'none');
+                                $('#progresbarrow').css('display', 'none');
                                 setTimeout(function () { Clear(); }, 10000);
                             },
                             failure: function (response) {
                                 $('span[id=error_btnUpload]').text(response.statusText);
-                                ('#progresbarrow').css('display', 'none');
+                                $('#progresbarrow').css('display', 'none');
                                 setTimeout(function () { Clear(); }, 10000);
                             }
                         })
@@ -586,7 +598,8 @@ function Clear() {
     var progress = 0;
     $('#progresbarrow').css('display', 'none');
     $('#file_upload_progressbar').css('width', progress + '%');
-
+    $("#metersPerPixelY").val("");
+    $("#metersPerPixelX").val("");
     $('input[type=file]').val('');
     $('input[type=radio]').prop("checked", "");
     $('span[id=error_btnUpload]').text("");
