@@ -113,15 +113,16 @@ $(function () {
                     position: 'top',
                     pane: '<div class="btn-toolbar" role="toolbar" id="connection_div">' +
                         '<div id="div_agvnotification" class="container-fluid">' +
-                        '<h4>Connections</h4>' +
-                        '<button type="button" class="btn btn-primary float-left mb-2" name="addconnection">Add</button>' +
+                        '<h4 class="ml-p5rem" >Connections</h4>' +
+                        '<button type="button" class="btn btn-primary float-left mb-2 ml-p5rem" name="addconnection">Add</button>' +
                         '<div class="card w-100 bg-white mt-2 pb-1">' +
                         '<div class="card-body">' +
                         '<div class="table-responsive">' +
                         '<table class="table table-sm table-hover table-condensed mb-1" id="connectiontable" style="border-collapse:collapse;">' +
                         '<thead class="thead-dark">' +
                         '<tr>' +
-                        '<th class="row-connection-name">Name</th><th class="row-connection-type">Message Type</th><th class="row-connection-status">Status</th><th class="row-connection-action">Action</th>' +
+                        '<th class="row-connection-name"><span class="ml-p5rem">Name</span></th><th class="row-connection-type">Message Type</th>' +
+                        '<th class="row-connection-status">Status</th><th class="row-connection-action"><span class="ml-p25rem">Action</span></th>' +
                         '</tr>' +
                         '</thead>' +
                         '<tbody></tbody>' +
@@ -188,7 +189,7 @@ $(function () {
                         '<table class="table table-sm table-hover table-condensed" id="app_settingtable" style="border-collapse:collapse;">' +
                         '<thead class="thead-dark">' +
                         '<tr>' +
-                        '<th class="row-name">Name</th><th class="row-value">Value</th><th class="row-action">Action</th>' +
+                        '<th class="row-name"><span class="ml-p25rem">Name</span></th><th class="row-value">Value</th><th class="row-action">Action</th>' +
                         '</tr>' +
                         '</thead>' +
                         '<tbody></tbody>' +
@@ -344,7 +345,7 @@ $(function () {
         position: 'bottomright',
         states: [{
             stateName: 'faq',
-            icon: '<div id="faqToggle" data-toggle="popover" title="Frequently Asked Questions" ><i class="pi-iconFAQ align-self-center"></i></div> ',
+            icon: '<div id="faqToggle"  data-toggle="popover"  title="Frequently Asked Questions" class="ml-p5rem" ><i class="pi-iconFAQ align-self-center"></i></div> ',
             title: 'faq'
         }]
     }).addTo(map);

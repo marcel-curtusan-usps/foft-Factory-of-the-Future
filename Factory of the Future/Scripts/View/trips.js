@@ -123,13 +123,13 @@ function formatobtriprow(properties) {
 let ob_trips_Table = $('table[id=ctsdockdepartedtable]');
 let ob_trips_Table_Body = ob_trips_Table.find('tbody');
 let ob_trips_row_template = '<tr data-id={routeid} data-route={route} data-trip={trip}  data-door={door}  class={trbackground}>' +
-    '<td class="text-center">{schd}</td>' +
-    '<td class="text-center">{departed}</td>' +
+    '<td><span class="ml-p25rem">{schd}</span></td>' +
+    '<td>{departed}</td>' +
     '<td>' +
     '<button class="btn btn-outline-info btn-sm btn-block px-1 routetripdetails" data-routetrip="{routeid}" style="font-size:12px;">{route}-{trip}</button>' +
     '</td>' +
-    '<td class="text-center">{btnloadDoor}</td>' +
-    '<td class="text-center">{leg}</td>' +
+    '<td>{btnloadDoor}</td>' +
+    '<td>{leg}</td>' +
     '<td data-toggle="tooltip" title="{dest}">{dest}</td>' +
     //'<td class="text-center">{close}</td>' +
     //'<td class="text-center">{load}</td>' +

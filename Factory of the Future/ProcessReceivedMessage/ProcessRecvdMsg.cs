@@ -2243,6 +2243,7 @@ namespace Factory_of_the_Future
 
         private static void CheckMachineNotifications(JObject machineData)
         {
+ 
             try
             {
                 string zoneID = AppParameters.ZoneList.Where(x => x.Value.Properties.ZoneType == "Machine" &&

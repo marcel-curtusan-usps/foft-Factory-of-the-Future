@@ -73,7 +73,7 @@ async function startSearch(sc) {
     }
 }
 let search_row_template = '<tr data-id="{layer_id}" data-tag="{tag_id}">' +
-    '<td>{tag_name}</td>' +
+    '<td><span class="ml-p25rem">{tag_name}</span></td>' +
     '<td class="align-middle text-center">' +
     '<button class="btn btn-light btn-sm mx-1 pi-iconEdit tagedit" name="tagedit"></button>' +
     '</td>' +

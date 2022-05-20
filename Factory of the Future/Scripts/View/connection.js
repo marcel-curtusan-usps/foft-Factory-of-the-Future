@@ -366,10 +366,10 @@ async function init_connection() {
 
 
 let connection_row_template = '<tr data-id="{id}" class="{button_color}" id="api_{id}">' +
-    '<td class="align-middle">{name}</td>' +
-    '<td class="align-middle">{messagetype}</td>' +
-    '<td class="font-weight-bold align-middle text-center" id="apistatus_{id}">{connected}</td>' +
-    '<td class="d-flex align-middle justify-content-center">' +
+    '<td><span class="ml-p5rem">{name}</span></td>' +
+    '<td>{messagetype}</td>' +
+    '<td class="font-weight-bold" id="apistatus_{id}">{connected}</td>' +
+    '<td class="d-flex">' +
     '<button class="btn btn-light btn-sm mx-1 pi-iconEdit connectionedit"></button>' +
     '<button class="btn btn-light btn-sm mx-1 pi-trashFill connectiondelete"></button>' +
     '</td>' +
