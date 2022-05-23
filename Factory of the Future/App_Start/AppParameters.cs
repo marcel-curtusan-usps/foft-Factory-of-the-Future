@@ -42,8 +42,8 @@ namespace Factory_of_the_Future
         public static ConcurrentDictionary<string, Cameras> CameraInfoList { get; set; } = new ConcurrentDictionary<string, Cameras>();
         public static ConcurrentDictionary<string, Connection> ConnectionList { get; set; } = new ConcurrentDictionary<string, Connection>();
         public static ConcurrentDictionary<string, GeoZone> ZoneList { get; set; } = new ConcurrentDictionary<string, GeoZone>();
-        public static ConcurrentDictionary<string, ZoneInfo> ZoneInfo { get; set; } = new ConcurrentDictionary<string, ZoneInfo>();
         public static ConcurrentDictionary<string, GeoMarker> TagsList { get; set; } = new ConcurrentDictionary<string, GeoMarker>();
+        public static ConcurrentDictionary<string, ZoneInfo> ZoneInfo { get; set; } = new ConcurrentDictionary<string, ZoneInfo>();
         public static ConcurrentDictionary<string, string> DPSList { get; set; } = new ConcurrentDictionary<string, string>();
         public static ConcurrentDictionary<string, string> MPEPerformanceList { get; set; } = new ConcurrentDictionary<string, string>();
         public static ConcurrentDictionary<string, RPGPlan> MPEPRPGList { get; set; } = new ConcurrentDictionary<string, RPGPlan>();
@@ -55,8 +55,8 @@ namespace Factory_of_the_Future
         public static ConcurrentDictionary<string, Notification> NotificationList { get; set; } = new ConcurrentDictionary<string, Notification>();
         public static ConcurrentDictionary<string, NotificationConditions> NotificationConditionsList { get; set; } = new ConcurrentDictionary<string, NotificationConditions>();
         public static ConcurrentDictionary<string, ADUser> Users { get; set; } = new ConcurrentDictionary<string, ADUser>();
+
         public static readonly ConnectionMapping<string> _connections = new ConnectionMapping<string>();
-        //public static ConcurrentDictionary<string, JObject> Tag { get; set; } = new ConcurrentDictionary<string, JObject>();
         public static ConnectionContainer RunningConnection { get; set; } = new ConnectionContainer();
         public static Dictionary<string, string> TimeZoneConvert { get; set; } = new Dictionary<string, string>()
         {

@@ -162,7 +162,7 @@ $(function () {
                                         '<button class="btn btn-outline-secondary" type="button" id="btnUpload">Upload</button>' +
                                     '</div>' +
                                 '</div>' +
-                        '<div class="form-row"> ' +
+                                '<div class="form-row"> ' +
                                     '<div class="form-group">' +
                                         '<div class="col" >' +
                                             '<input type="text" class="form-control" id="metersPerPixelY">' +
@@ -173,20 +173,19 @@ $(function () {
                                             '<label for="metersPerPixelX">Meters PerPixel X</label>' +
                                         '</div>' +
                                     '</div>' +
-                        '</div>' +
-                        '<div class="form-row" style="padding-top: 10px; display: none;" id="progresbarrow"> ' +
-                            '<div class="col"> ' +
-                                '<div class="progress">' +
-                                   ' <div id="file_upload_progressbar" class="progress-bar rogress-bar-striped bg-success" role="progressbar" style="width: 10%" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>  ' +
-                               '</div> ' +
-                            '</div> ' +
-                        '</div > ' +
-                            '<div class= "form-row" style = "padding-top: 10px;"> ' +
-                                '<div class= "col text-center"> ' +
-                                    '<span id = "error_btnUpload"></span > ' +
-                            '</div> ' +
-                        '</div>' +
-
+                                '</div>' +
+                            '<div class="form-row" style="padding-top: 10px; display: none;" id="progresbarrow"> ' +
+                                '<div class="col"> ' +
+                                    '<div class="progress">' +
+                                       ' <div id="file_upload_progressbar" class="progress-bar rogress-bar-striped bg-success" role="progressbar" style="width: 10%" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>  ' +
+                                   '</div> ' +
+                                '</div> ' +
+                            '</div > ' +
+                                '<div class= "form-row" style = "padding-top: 10px;"> ' +
+                                    '<div class= "col text-center"> ' +
+                                        '<span id = "error_btnUpload"></span > ' +
+                                '</div> ' +
+                            '</div>' +
                         '</div>' +
                         '</div>'+
                         '<div class="card w-100">' +

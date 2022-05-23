@@ -3,21 +3,11 @@
 var sidebar = L.control.sidebar({
     container: 'sidebar', position: 'left', autopan: false
 });
-//setup map
-map = L.map('map', {
-    crs: L.CRS.Simple,
-    renderer: L.canvas({ padding: 0.5 }),
-    preferCanvas: true,
-    pmIgnore: false,
-    markerZoomAnimation: false,
-    minZoom: 1,
-    maxZoom: 7,
-    zoomControl: false,
-    measureControl: true,
-    tap: false,
-    layers: [polygonMachine, piv_vehicles, agv_vehicles, agvLocations, container, stagingAreas, tagsMarkersGroup, dockDoors, binzonepoly]
-});
-
+var mainfloorOverlays = L.layerGroup();
+var mainfloor = L.imageOverlay(null, [0, 0], { zindex: -1 }).addTo(mainfloorOverlays);
+var baseLayers = {
+  "Main Floor": mainfloor
+};
 var overlayMaps = {
     "AGV Vehicles": agv_vehicles,
     "PIV Vehicles": piv_vehicles,
@@ -35,6 +25,22 @@ var overlayMaps = {
     "Polygon Holes": polyholesAreas,
     "Locators": locatorMarker
 };
+//setup map
+map = L.map('map', {
+    crs: L.CRS.Simple,
+    renderer: L.canvas({ padding: 0.5 }),
+    preferCanvas: true,
+    pmIgnore: false,
+    markerZoomAnimation: false,
+    minZoom: 1,
+    maxZoom: 7,
+    zoomControl: false,
+    measureControl: true,
+    tap: false,
+    layers: [mainfloor, polygonMachine, piv_vehicles, agv_vehicles, agvLocations, container, stagingAreas, tagsMarkersGroup, dockDoors, binzonepoly]
+});
+
+
 var timedisplay = L.Control.extend({
     options: {
         position: 'topright'
@@ -78,7 +84,7 @@ sidebar.on('content', function (ev) {
 map.addControl(sidebar);
 map.addControl(new timedisplay());
 // Add Layer Popover - Proposed
-L.control.layers(null, overlayMaps, { position: 'bottomright', collapsed: false }).addTo(map);
+var layersControl = L.control.layers(baseLayers, overlayMaps, { position: 'bottomright', collapsed: false }).addTo(map);
 //Add zoom button
 new L.Control.Zoom({ position: 'bottomright' }).addTo(map);
 //add View Ports
@@ -169,9 +175,6 @@ $('.leaflet-control-layers').addClass('layerPopover');
 $('.layerPopover').attr('id', 'layersContent');
 $('#layersContent').prepend('<div class="layersArrow"></div>');
 $('.leaflet-control-layers').hide();
-
-
-
 $('#layersToggle').on('click', function () {
     //Toggle layer Popover
     $('#layersContent').toggle();
@@ -182,46 +185,49 @@ $('#layersToggle').on('click', function () {
     $('#twentyfourmessage').popover('hide');
 });
 
-function init_mapSetup(MapData)
-{
+function init_mapSetup(MapData) {
     try {
-      
-        if (MapData.length === 1) {
-            MapData = MapData[0];
-            if (!$.isEmptyObject(MapData)) {
 
-                map.attributionControl.setPrefix("USPS " + MapData.applicationFullName + " (" + MapData.softwareVersion + ")");
-                $('#fotf-site-facility-name').append(MapData.facilityName);
-                map.attributionControl.addAttribution(MapData.facilityName);
-                $(document).prop('title', MapData.facilityName + ' ' + MapData.applicationAbbr );
+        if (MapData.length > 0) {
+            map.attributionControl.setPrefix("USPS " + MapData[0].applicationFullName + " (" + MapData[0].softwareVersion + ")");
+            $('#fotf-site-facility-name').append(MapData[0].facilityName);
+            map.attributionControl.addAttribution(MapData[0].facilityName);
+            $(document).prop('title', MapData[0].facilityName + ' ' + MapData[0].applicationAbbr);
+            $.each(MapData, function (index) {
                 //set new image
                 var img = new Image();
                 //load Base64 image
-                img.src = MapData.base64;
+                img.src = this.base64;
                 //create he bound of the image.
-                bounds = [[MapData.yMeter, MapData.xMeter], [MapData.heightMeter + MapData.yMeter, MapData.widthMeter + MapData.xMeter]];
+                bounds = [[this.yMeter, this.xMeter], [this.heightMeter + this.yMeter, this.widthMeter + this.xMeter]];
                 var trackingarea = L.polygon(bounds, {});
-                init_viewports();
-                init_machine();
-                init_dockdoor();
-                init_agvlocation();
-                init_zones();
-                init_BinZones();
-                init_arrive_depart_trips();
-                init_locators();
-                init_cameras();
-                init_agvtags();
-                LoadNotification("routetrip");
-                LoadNotification("vehicle");
-                //center image
-                map.setView(trackingarea.getBounds().getCenter(), 1.5);
-                setHeight();
-                //add the image to the map
-                L.imageOverlay(img.src, trackingarea.getBounds()).addTo(map);
-                //add user to the tag groups only for none PMCCUser
-                if (!/(^PMCCUser$)/i.test(User.UserId)) {
-                    fotfmanager.server.joinGroup("PeopleMarkers");
+                if (index === 0) {
+                    mainfloor.setUrl(img.src);
+                    mainfloor.setZIndex(index);
+                    mainfloor.setBounds(trackingarea.getBounds());
+                    //center image
+                    map.setView(trackingarea.getBounds().getCenter(), 1.5);
                 }
+                else {
+                    layersControl.addBaseLayer(L.imageOverlay(img.src, trackingarea.getBounds(), { zindex: index }), this.name);
+                }
+            });
+            init_viewports();
+            init_machine();
+            init_dockdoor();
+            init_agvlocation();
+            init_zones();
+            init_BinZones();
+            init_arrive_depart_trips();
+            init_locators();
+            init_cameras();
+            init_agvtags();
+            LoadNotification("routetrip");
+            LoadNotification("vehicle");
+           
+            //add user to the tag groups only for none PMCCUser
+            if (!/(^PMCCUser$)/i.test(User.UserId)) {
+                fotfmanager.server.joinGroup("PeopleMarkers");
             }
         }
         if ($.isEmptyObject(map)) {
@@ -237,15 +243,15 @@ function init_mapSetup(MapData)
                 ).append($('<div/>', { class: 'row' })
                     .append($('<div>', { class: 'col text-center' })
                         .append($('<span/>', { class: 'text-info ', id: 'error_remove_server_connection' })))
-                ).appendTo('.body-content');
+                ).insertBefore('div[id=map]');
         }
     } catch (e) {
         $('div[id=map]').css('display', 'none');
         $('<div/>', { class: 'jumbotron text-center' })
             .append($('<h1/>', { class: 'display-4', text: "Error loading Map" }))
-            .append($('<p/>', { class: 'lead', text: 'Erro:' + e }))
+            .append($('<p/>', { class: 'lead', text: 'Erro:' + e.message + ' ' + e.stack}))
             .append($('<hr/>', { class: 'my-4' }))
-            .appendTo('.body-content');
+            .insertBefore('div[id=map]');
     }
 }
 

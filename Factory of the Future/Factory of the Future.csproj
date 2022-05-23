@@ -293,6 +293,7 @@
     <Content Include="Scripts\leaflet\Plugins\easy-button.js" />
     <Content Include="Scripts\leaflet\Plugins\leaflet-geoman.js" />
     <Content Include="Scripts\leaflet\Plugins\leaflet-geoman.min.js" />
+    <Content Include="Scripts\leaflet\Plugins\leaflet-indoor.js" />
     <Content Include="Scripts\leaflet\Plugins\leaflet-marker-slideto.js" />
     <Content Include="Scripts\leaflet\Plugins\leaflet-sidebar.js" />
     <Content Include="Scripts\leaflet\Plugins\leaflet-sidebar.min.js" />

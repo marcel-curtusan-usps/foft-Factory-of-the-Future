@@ -158,6 +158,9 @@ namespace Factory_of_the_Future
         [JsonProperty("id")]
         public string Id { get; set; }
 
+        [JsonProperty("name")]
+        public string Name { get; set; }
+
         [JsonProperty("metersPerPixelY")]
         public double MetersPerPixelY { get; set; }
 
@@ -1288,22 +1291,22 @@ namespace Factory_of_the_Future
     public class MissedSel
     {
         [JsonProperty("empId")]
-        public string EmpId { get; set; }
+        public string EmpId { get; set; } = "";
 
         [JsonProperty("tagId")]
-        public string TagId { get; set; }
+        public string TagId { get; set; } = "";
 
         [JsonProperty("tagName")]
-        public string TagName { get; set; }
+        public string TagName { get; set; } = "";
 
         [JsonProperty("type")]
-        public string Type { get; set; }
+        public string Type { get; set; } = "";
 
         [JsonProperty("processedTs")]
         public object ProcessedTs { get; set; }
 
         [JsonProperty("processedTxt")]
-        public string ProcessedTxt { get; set; }
+        public string ProcessedTxt { get; set; } = "";
 
         [JsonProperty("tacs")]
         public Tacs Tacs { get; set; }

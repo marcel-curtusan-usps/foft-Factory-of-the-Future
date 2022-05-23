@@ -79,7 +79,7 @@ namespace Factory_of_the_Future.Controllers
                 temp1["coordinateSystems"][0]["backgroundImages"][0]["metersPerPixelX"] = metersPerPixelX;
                 temp1["coordinateSystems"][0]["backgroundImages"][0]["widthMeter"] = OSLImage.Width * metersPerPixelY;
                 temp1["coordinateSystems"][0]["backgroundImages"][0]["heightMeter"] = OSLImage.Height * metersPerPixelX;
-
+                temp1["coordinateSystems"][0]["name"] = Path.GetFileNameWithoutExtension(postedFile.FileName);
                 input = AppParameters.ImageToByteArray(OSLImage);
                 imageBase64 = Convert.ToBase64String(input);
                 temp1["coordinateSystems"][0]["backgroundImages"][0]["base64"] = string.Concat("data:image/png;base64,", imageBase64);
