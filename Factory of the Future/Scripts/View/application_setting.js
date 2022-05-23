@@ -93,7 +93,7 @@ async function LoadappSettingTable(AppsettingData, table) {
     let AppSettingTable = $('table[id=' + table + ']');
     let AppSettingTable_Body = AppSettingTable.find('tbody');
     let AppSettingTable_row_template = '<tr data-id="{id}" data-value="{value}">' +
-        '<td >{id}</td>' +
+        '<td ><span class="ml-p25rem">{id}</span></td>' +
         '<td >{value}</td>' +
         '<td>{action}</td>' +
         '</tr>';

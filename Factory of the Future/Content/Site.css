@@ -128,7 +128,7 @@
   transform: rotate(90deg); }
 
 table thead tr th {
-  text-align: center;
+  text-align: left;
   vertical-align: middle; }
 
 .table {
@@ -1462,7 +1462,7 @@ div.leaflet-touch div.leaflet-control-layers, div.leaflet-touch div.leaflet-bar 
   height: 36px;
   display: flex;
   flex-direction: column;
-  align-items: center; }
+  align-items: left; }
 
 /* layer panel divider - appended based on the listing order in the layers list */
 .leaflet-control-layers label:nth-child(2) {
@@ -1514,7 +1514,8 @@ div.leaflet-control-layers {
   padding: 0.5rem;
   margin-bottom: 0;
   font-size: 1.5rem;
-  text-align: center;
+  text-align: left;
+  margin-left: .75rem;
   color: #333366;
   background-color: #f7f7f7;
   border-bottom: 0;
@@ -1598,6 +1599,7 @@ div.leaflet-control-layers {
 .faqTable td {
   padding: 5px; }
 
+
 /* Modal Override */
 .modal-header1 {
   border-bottom: 0;
@@ -1671,9 +1673,20 @@ div.leaflet-control-layers {
 .btn-link:focus {
   text-decoration: none; }
 
+.ml-p5rem {
+    margin-left: .5rem !important;
+}
+
+.ml-np5rem {
+    margin-left: -.5rem !important;
+}
+.ml-p25rem {
+    margin-left: .25rem !important;
+}
 /* Custom negative Left margin for vehicle icons to center on marker */
 .ml--8 {
-  margin-left: -8px !important; }
+    margin-left: -8px !important;
+}
 
 .ml--16 {
   margin-left: -16px !important; }

@@ -349,7 +349,9 @@ async function update_notification(id) {
 }
 let agvnotificationtable = $('table[id=agvnotificationtable]');
 let agvnotificationtable_Body = agvnotificationtable.find('tbody');
+
 function LoadNotification(value) {
+   
     try {
      
         $.connection.FOTFManager.server.getNotification(value).done(function (Data) {
@@ -383,7 +385,7 @@ function LoadNotificationsetup(Data, table) {
 }
 let agv_row_template =
     '<tr data-id={id} style=background-color:{conditioncolor} data-toggle=collapse data-target=#{action_text} class=accordion-toggle>' +
-    '<td>{name}</td>' +
+    '<td><span class="ml-p25rem">{name}</span></td>' +
     '<td><button class="btn btn-outline-info btn-sm btn-block tagdetails" data-tag="{tagid}" >{type}</button></td>' +
     '<td>{duration}</td>' +
     '</tr>'
@@ -406,9 +408,9 @@ function formatagvnotifirow(properties, indx) {
 let trip_row_template =
     '<tr data-id={id} class="accordion-toggle collapsed" id={id} data-toggle=collapse data-parent=#{id} href="#collapse_{id}">' +
   
-    '<td class="text-center">{schd}</td>' +
-    '<td class="text-center">{duration}</td>' +
-    '<td class="text-center">{direction}</td>' +
+    '<td><span class="ml-p25rem">{schd}</span></td>' +
+    '<td>{duration}</td>' +
+    '<td>{direction}</td>' +
     '<td>' +
     '<button class="btn btn-outline-info btn-sm btn-block px-1 routetripdetails" data-routetrip="{routetripid}" style="font-size:12px;">{routedispaly}</button>' +
     '</td>' +
@@ -456,7 +458,7 @@ function formattripnotifirow(properties, indx) {
 }
 let mpe_row_template =
     '<tr data-id={id} style=background-color:{conditioncolor} data-toggle=collapse data-target=#{action_text} class=accordion-toggle>' +
-    '<td>{name}</td>' +
+    '<td><span class="ml-p25rem">{name}</span></td>' +
     '<td><button class="btn btn-outline-info btn-sm btn-block machinedetails" data-machine="{zoneid}" >{mpeName}</button></td>' +
     '<td style="text-align:center">{duration}</td>' +
     '<td style="display:none;">{durationtime}</td>' +
@@ -483,10 +485,10 @@ function formatmpenotifirow(properties, indx) {
 let notificationTable = $('table[id=notificationsetuptable]');
 let notificationTable_Body = notificationTable.find('tbody');
 let notificationTable_row_template = '<tr data-id="{id}" class="{button_collor}">' +
-    '<td>{name}</td>' +
-    '<td class="text-center">{warning}</td>' +
-    '<td class="text-center">{critical}</td>' +
-    '<td class="text-center">{status}</td>' +
+    '<td><span class="ml-p5rem">{name}</span></td>' +
+    '<td>{warning}</td>' +
+    '<td>{critical}</td>' +
+    '<td>{status}</td>' +
     '<td>' +
     '<button class="btn btn-light btn-sm mx-1 pi-iconEdit" name="notificationedit"></button>' +
     '<button class="btn btn-light btn-sm mx-1 pi-trashFill" name="notificationdelete"></button>' +

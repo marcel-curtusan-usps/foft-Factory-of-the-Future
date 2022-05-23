@@ -1760,7 +1760,7 @@ div.leaflet-touch div.leaflet-control-layers, div.leaflet-touch div.leaflet-bar 
     height: 36px;
     display: flex;
     flex-direction: column;
-    align-items: center;
+    align-items: left;
 }
 /* layer panel divider - appended based on the listing order in the layers list */
 .leaflet-control-layers label:nth-child(2) {
