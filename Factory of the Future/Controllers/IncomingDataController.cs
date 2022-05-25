@@ -21,7 +21,7 @@ namespace Factory_of_the_Future.Controllers
         }
 
         // POST: api/IncomingData
-        public IHttpActionResult Post([FromBody] JObject request_data)
+        public IHttpActionResult Post([FromBody] JToken request_data)
         {
             //handle bad requests
             if (!ModelState.IsValid)

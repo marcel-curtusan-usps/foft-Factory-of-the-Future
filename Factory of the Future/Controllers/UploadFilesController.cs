@@ -64,8 +64,8 @@ namespace Factory_of_the_Future.Controllers
             };
             //Fetch the File.
             HttpPostedFile postedFile = HttpContext.Current.Request.Files[0];
-            double metersPerPixelY = Convert.ToDouble(HttpContext.Current.Request.Form["metersPerPixelY"]);
-            double metersPerPixelX = Convert.ToDouble(HttpContext.Current.Request.Form["metersPerPixelX"]);
+            double metersPerPixelY = Convert.ToDouble(HttpContext.Current.Request.Form["metersPerPixel"]);
+            double metersPerPixelX = Convert.ToDouble(HttpContext.Current.Request.Form["metersPerPixel"]);
             int fileLen;
             fileLen = postedFile.ContentLength;
             byte[] input = new byte[fileLen];

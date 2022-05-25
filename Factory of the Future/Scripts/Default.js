@@ -165,13 +165,22 @@ $(function () {
                                 '</div>' +
                                 '<div class="form-row"> ' +
                                     '<div class="form-group">' +
-                                        '<div class="col" >' +
-                                            '<input type="text" class="form-control" id="metersPerPixelY">' +
-                                            '<label for="metersPerPixelY">Meters PerPixel Y</label>' +
-                                        '</div>' +
-                                        '<div class="col">' +
-                                            '<input type="text" class="form-control" id="metersPerPixelX">' +
-                                            '<label for="metersPerPixelX">Meters PerPixel X</label>' +
+                                    '<div class="col">' +
+                                        '<label class="control-label">Pixel Per Meters</label>'+
+                                            '<select id="metersPerPixel" class="form-control pb-1" name="metersPerPixel">' +
+                                                    '<option value=""></option>' +
+                                                    '<option value="0.0529166667">0.01 Pixel Per Meter</option>' +
+                                                    '<option value="0.0002645833">0.1 Pixel Per Meter</option>' +
+                                                    '<option value="0.0264583333">1 Pixel Per Meter</option>' +
+                                                    '<option value="0.0529166667">2 Pixel Per Meter</option>' +
+                                                    '<option value="0.079375">3 Pixel Per Meter</option>' +
+                                                    '<option value="0.1322916667">5 Pixel Per Meter</option>' +
+                                                    '<option value="0.2645833333">10 Pixel Per Meter</option>' +
+                                                    '<option value="0.5291666667">20 Pixel Per Meter</option>' +
+                                                    '<option value="1.3229166667">50 Pixel Per Meter</option>' +
+                                                    '<option value="2.6458333333">100 Pixel Per Meter</option>' +
+                                                    '<option value="26.4583333333">1000 Pixel Per Meter</option>' +
+                                            '</select>' +
                                         '</div>' +
                                     '</div>' +
                                 '</div>' +
@@ -219,8 +228,7 @@ $(function () {
                         for (var i = 0; i < files.length; i++) {
                             data.append(files[i].name, files[i]);
                         }
-                        data.append("metersPerPixelY", $("#metersPerPixelY").val());
-                        data.append("metersPerPixelX", $("#metersPerPixelX").val());
+                        data.append("metersPerPixel", $("#metersPerPixel option:selected").val());
                         $.ajax({
                             url: "/api/UploadFiles",
                             type: "POST",
@@ -598,8 +606,7 @@ function Clear() {
     var progress = 0;
     $('#progresbarrow').css('display', 'none');
     $('#file_upload_progressbar').css('width', progress + '%');
-    $("#metersPerPixelY").val("");
-    $("#metersPerPixelX").val("");
+    $("#metersPerPixel").val("");
     $('input[type=file]').val('');
     $('input[type=radio]').prop("checked", "");
     $('span[id=error_btnUpload]').text("");

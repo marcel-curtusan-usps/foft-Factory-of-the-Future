@@ -37,7 +37,7 @@ namespace Factory_of_the_Future
         private static readonly string SaltKey = "S@LT&KEY";
         private static readonly string VIKey = "@1B2c3D4e5F6g7H8";
 
-        //Map
+        public static ConcurrentDictionary<string, MachData> MPEWatchData { get; set; } = new ConcurrentDictionary<string, MachData>();
         public static ConcurrentDictionary<string, BackgroundImage> IndoorMap { get; set; } = new ConcurrentDictionary<string, BackgroundImage>();
         public static ConcurrentDictionary<string, Cameras> CameraInfoList { get; set; } = new ConcurrentDictionary<string, Cameras>();
         public static ConcurrentDictionary<string, Connection> ConnectionList { get; set; } = new ConcurrentDictionary<string, Connection>();
@@ -131,6 +131,8 @@ namespace Factory_of_the_Future
                         ApplicationEnvironment = "PROD";
                     }
                 }
+                //load MpeWatch Site Info
+                GetMPEWatchSite();
                 ///load default connection setting.
                 GetConnectionDefault();
                 ///load Default Notification settings
@@ -143,7 +145,39 @@ namespace Factory_of_the_Future
             }
         }
 
-     
+        private static void GetMPEWatchSite()
+        {
+            try
+            {
+                string file_content = new FileIO().Read(string.Concat(CodeBase.Parent.FullName.ToString(), Appsetting), "MPEWatch_Site_List.json");
+
+                if (!string.IsNullOrEmpty(file_content))
+                {
+                    JToken tempData = JToken.Parse(file_content);
+                    JToken machineInfo = tempData.SelectToken("mach_data");
+                    if (machineInfo.HasValues)
+                    {
+                        List<MachData> tempdata = machineInfo.ToObject<List<MachData>>();
+                        for (int i = 0; i < tempdata.Count; i++)
+                        {
+                            Uri tempUrl = new Uri(tempdata[i].LocalLink);
+                            tempdata[i].Port = tempUrl.Port;
+                            tempdata[i].Host = tempUrl.Host;
+                            tempdata[i].URL = string.Concat(tempdata[i].LocalLink, "mpemaster.api_page.get_data_by_time?id={0}&data_source={1}&start_time={2}&end_time={3}");
+                            if (!string.IsNullOrEmpty(tempdata[i].Host) && !MPEWatchData.ContainsKey(tempdata[i].Host))
+                            {
+                                MPEWatchData.TryAdd(tempdata[i].Host, tempdata[i]);
+                            }
+
+                        }
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                new ErrorLogger().ExceptionLog(e);
+            }
+        }
 
         private static void GetAppSettings()
         {
@@ -206,13 +240,34 @@ namespace Factory_of_the_Future
                 if (!string.IsNullOrEmpty(file_content))
                 {
                     List<Connection> tempcon = JsonConvert.DeserializeObject<List<Connection>>(file_content);
+                    
+                    AppParameters.AppSettings["MPE_WATCH_ID"] = "";
+
                     for (int i = 0; i < tempcon.Count; i++)
                     {
+                        tempcon[i].ApiConnected = false;
+                        //tempcon[i].LasttimeApiConnected = DateTime.Now.AddMinutes(-120);
+                        if (tempcon[i].ConnectionName.ToLower() == "MPEWatch".ToLower())
+                        {
+                            tempcon[i].IpAddress = "";
+                            tempcon[i].Port = 0;
+                            tempcon[i].Url = "";
+                            string sitename = AppParameters.AppSettings["FACILITY_NAME"].ToString().ToLower().Replace(" ","_").Replace("&","").Replace("(", "").Replace(")", "");
+                            MPEWatchData.Where(r => r.Value.SiteNameLocal.ToLower() == sitename).Select(y => y.Value).ToList().ForEach(m => {
+                                tempcon[i].IpAddress = m.Host;
+                                tempcon[i].Port = m.Port;
+                                tempcon[i].Url = m.URL;
+                            });
+
+                         
+                        }
                         if (ConnectionList.TryAdd(tempcon[i].Id, tempcon[i]))
                         {
                             RunningConnection.Add(tempcon[i]);
                         }
                     }
+                    //write to file
+                    new FileIO().Write(string.Concat(AppParameters.CodeBase.Parent.FullName.ToString(), AppParameters.Appsetting), "AppSettings.json", JsonConvert.SerializeObject(AppParameters.AppSettings, Formatting.Indented));
                 }
             }
             catch (Exception e)
@@ -628,7 +683,8 @@ namespace Factory_of_the_Future
                 TagsList = new ConcurrentDictionary<string, GeoMarker>();
                 ZoneList = new ConcurrentDictionary<string, GeoZone>();
                 RunningConnection = new ConnectionContainer();
-                
+                AppParameters.AppSettings["MPE_WATCH_ID"] = "";
+
                 if (ActiveServer)
                 {
                     ///load default connection setting.

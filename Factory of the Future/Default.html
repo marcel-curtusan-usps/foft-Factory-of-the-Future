@@ -107,7 +107,8 @@
                             <label class="control-label">Message Type</label><input id="message_type" type="text" class="form-control" name="message_type"><span id="error_message_type" class="text-danger"></span>
                         </div>
                         <div class="form-group col-3">
-                            <label class="control-label">Retrieve Occurrences</label><select id="data_retrieve" class="form-control pb-1" name="data_retrieve">
+                            <label class="control-label">Retrieve Occurrences</label>
+                            <select id="data_retrieve" class="form-control pb-1" name="data_retrieve">
                                 <option value=""></option>
                                 <option value="250">250 Millisecond</option>
                                 <option value="500">500 Millisecond</option>
@@ -121,7 +122,8 @@
                                 <option value="1800000">30 Minute</option>
                                 <option value="3600000">1 Hour</option>
                                 <option value="86400000">1 Day</option>
-                            </select><span id="error_data_retrieve" class="text-danger"></span>
+                            </select>
+                            <span id="error_data_retrieve" class="text-danger"></span>
                         </div>
                         <div class="form-group col-6">
                             <label class="control-label">Administrator Email</label><input id="admin_email_recepient" type="text" class="form-control" name="admin_email_recepient"><span id="error_admin_email_recepient" class="text-danger"></span>
@@ -664,7 +666,7 @@
                                     <div class="row mb-3">
                                         <div class="form-group col-6">
                                             <label class="control-label">Type</label>
-                                            <select id="zone_type" class="form-control" name="zone_type">
+                                            <select id="zone_type" title="Zone Type" class="form-control" name="zone_type">
                                                 <option value=""></option>
                                                 <option value="AGVLocation">AGV Location Zone</option>
                                                 <option value="Area">Area Zone</option>
@@ -680,7 +682,7 @@
                                         <div class="col-6">
                                             <label class="control-label">Name</label>
                                             <input id="zone_name" type="text" class="form-control" name="zone_name" style="display:block;">
-                                            <select id="zone_select_name" type="text" class="form-control" name="zone_select_name" style="display:none;">
+                                            <select id="zone_select_name" type="text" title="Zone Select Name" class="form-control" name="zone_select_name" style="display:none;">
                                                 <option value=""></option>
                                             </select>
                                             <span id="error_zone_name" class="text-danger"></span>

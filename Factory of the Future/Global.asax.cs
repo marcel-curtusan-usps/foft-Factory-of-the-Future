@@ -35,14 +35,22 @@ namespace Factory_of_the_Future
             //        Context.User = principal;
             //    }
             //}
-
             var request = HttpContext.Current.Request;
+            string ipAddress = request.ServerVariables["REMOTE_ADDR"];
             var authHeader = request.Headers["APIAuthorization"];
+            if (string.IsNullOrEmpty(authHeader))
+            {
+                authHeader = request.Headers["Authorization"];
+                if (!string.IsNullOrEmpty(authHeader) && !authHeader.EndsWith("Bearer /"))
+                {
+                    authHeader = null;
+                }
+            }
             string credentials = string.Empty;
             if (authHeader != null)
             {
                 var encoding = Encoding.GetEncoding("iso-8859-1");
-                if (authHeader.StartsWith("/"))
+                if (authHeader.EndsWith("/") )
                 {
                     var identity = new GenericIdentity("APIUser");
                     SetPrincipal(new GenericPrincipal(identity, null));
@@ -61,6 +69,11 @@ namespace Factory_of_the_Future
                         AuthenticateUser(authHeaderVal.Parameter);
                     }
                 }
+            }
+            else
+            {
+              ipAddress = request.ServerVariables["REMOTE_ADDR"];
+
             }
         }
 

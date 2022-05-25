@@ -286,59 +286,62 @@ namespace Factory_of_the_Future
             string formatUrl = string.Empty;
             if (ConnectionInfo.ConnectionName.ToUpper().StartsWith("MPEWatch".ToUpper()))
             {
-                if (!string.IsNullOrEmpty((string)AppParameters.AppSettings.Property("MPE_WATCH_ID").Value))
+                if (ConnectionInfo.Url.Length > 25)
                 {
-                    string MpeWatch_id = (string)AppParameters.AppSettings.Property("MPE_WATCH_ID").Value;
-                    string MpeWatch_data_source = ConnectionInfo.MessageType;
-
-                    int currentHour = dtNow.Hour;
-                    DateTime modsDate = dtNow;
-                    if (currentHour >= 0 && currentHour < 7)
+                    if (!string.IsNullOrEmpty(AppParameters.AppSettings["MPE_WATCH_ID"].ToString()))
                     {
-                        modsDate = dtNow.Date.AddDays(-1);
+                        string MpeWatch_id = AppParameters.AppSettings["MPE_WATCH_ID"].ToString();
+                        string MpeWatch_data_source = ConnectionInfo.MessageType;
+
+                        int currentHour = dtNow.Hour;
+                        DateTime modsDate = dtNow;
+                        if (currentHour >= 0 && currentHour < 7)
+                        {
+                            modsDate = dtNow.Date.AddDays(-1);
+                        }
+                        else
+                        {
+                            modsDate = dtNow.Date;
+                        }
+                        string start_time = "";
+                        string end_time = "";
+                        switch (ConnectionInfo.MessageType.ToUpper())
+                        {
+                            case "RPG_PLAN":
+                                DateTime dtEnd = modsDate.AddDays(5);
+                                start_time = modsDate.ToString("MM/dd/yyyy_HH:mm:ss");
+                                end_time = dtEnd.ToString("MM/dd/yyyy_HH:mm:ss");
+                                formatUrl = string.Format(ConnectionInfo.Url, MpeWatch_id, MpeWatch_data_source, start_time, end_time);
+                                break;
+                            case "DPS_RUN_ESTM":
+                                DateTime modStart = dtNow.Date.AddHours(00).AddMinutes(00).AddSeconds(00);
+                                DateTime modEnd = dtNow.Date.AddHours(23).AddMinutes(59).AddSeconds(59);
+                                start_time = modStart.ToString("MM/dd/yyyy HH:mm:ss");
+                                end_time = modEnd.ToString("MM/dd/yyyy HH:mm:ss");
+                                formatUrl = string.Format(ConnectionInfo.Url, MpeWatch_id, MpeWatch_data_source, start_time, end_time);
+                                break;
+                            case "RPG_RUN_PERF":
+                                string strTimeDiff = "-" + ConnectionInfo.DataRetrieve;
+                                Double dblTimeDiff = 0;
+                                if (Double.TryParse(strTimeDiff, out Double dblDiff)) { dblTimeDiff = dblDiff; }
+                                else { dblTimeDiff = -300000; }
+                                if (dblTimeDiff == 0) { dblTimeDiff = -300000; }
+                                DateTime endDate = dtNow;
+                                DateTime startDate = endDate.AddMilliseconds(dblTimeDiff);
+                                start_time = startDate.ToString("MM/dd/yyyy_HH:mm:ss");
+                                end_time = endDate.ToString("MM/dd/yyyy_HH:mm:ss");
+                                formatUrl = string.Format(ConnectionInfo.Url, MpeWatch_id, MpeWatch_data_source, start_time, end_time);
+                                break;
+                            default:
+                                break;
+                        }
                     }
                     else
                     {
-                        modsDate = dtNow.Date;
+                        MessageType = "mpe_watch_id";
+                        int index = ConnectionInfo.Url.IndexOf("ge.");
+                        formatUrl = string.Concat(ConnectionInfo.Url.Substring(0, (index + 3)), "get_id?group_name=client");
                     }
-                    string start_time = "";
-                    string end_time = "";
-                    switch (ConnectionInfo.MessageType.ToUpper())
-                    {
-                        case "RPG_PLAN":
-                            DateTime dtEnd = modsDate.AddDays(5);
-                            start_time = modsDate.ToString("MM/dd/yyyy_HH:mm:ss");
-                            end_time = dtEnd.ToString("MM/dd/yyyy_HH:mm:ss");
-                            formatUrl = string.Format(ConnectionInfo.Url, MpeWatch_id, MpeWatch_data_source, start_time, end_time);
-                            break;
-                        case "DPS_RUN_ESTM":
-                            DateTime modStart = dtNow.Date.AddHours(00).AddMinutes(00).AddSeconds(00);
-                            DateTime modEnd = dtNow.Date.AddHours(23).AddMinutes(59).AddSeconds(59);
-                            start_time = modStart.ToString("MM/dd/yyyy HH:mm:ss");
-                            end_time = modEnd.ToString("MM/dd/yyyy HH:mm:ss");
-                            formatUrl = string.Format(ConnectionInfo.Url, MpeWatch_id, MpeWatch_data_source, start_time, end_time);
-                            break;
-                        case "RPG_RUN_PERF":
-                            string strTimeDiff = "-" + ConnectionInfo.DataRetrieve;
-                            Double dblTimeDiff = 0;
-                            if (Double.TryParse(strTimeDiff, out Double dblDiff)) { dblTimeDiff = dblDiff; }
-                            else { dblTimeDiff = -300000; }
-                            if (dblTimeDiff == 0) { dblTimeDiff = -300000; }
-                            DateTime endDate = dtNow;
-                            DateTime startDate = endDate.AddMilliseconds(dblTimeDiff);
-                            start_time = startDate.ToString("MM/dd/yyyy_HH:mm:ss");
-                            end_time = endDate.ToString("MM/dd/yyyy_HH:mm:ss");
-                            formatUrl = string.Format(ConnectionInfo.Url, MpeWatch_id, MpeWatch_data_source, start_time, end_time);
-                            break;
-                        default:
-                            break;
-                    }
-                }
-                else
-                {
-                    MessageType = "mpe_watch_id";
-                    int index = ConnectionInfo.Url.IndexOf("ge.");
-                    formatUrl = string.Concat(ConnectionInfo.Url.Substring(0, (index + 3)), "get_id?group_name=client");
                 }
             }
             else if (ConnectionInfo.ConnectionName.ToUpper().StartsWith("SV".ToUpper()))
@@ -391,59 +394,70 @@ namespace Factory_of_the_Future
             {
                 try
                 {
-                    ServicePointManager.SecurityProtocol |= SecurityProtocolType.Tls11 | SecurityProtocolType.Tls12;
-                    ServicePointManager.ServerCertificateValidationCallback = new RemoteCertificateValidationCallback(AcceptAllCertifications);
+                    Uri url = new Uri(formatUrl);
+                    Uri uriResult;
+                    bool URLValid = Uri.TryCreate(formatUrl, UriKind.Absolute, out uriResult) && (url.Scheme == Uri.UriSchemeHttp || url.Scheme == Uri.UriSchemeHttps);
+                    if (URLValid)
+                    {
+                        ServicePointManager.SecurityProtocol |= SecurityProtocolType.Tls11 | SecurityProtocolType.Tls12;
+                        ServicePointManager.ServerCertificateValidationCallback = new RemoteCertificateValidationCallback(AcceptAllCertifications);
 
-                    HttpWebRequest request = (HttpWebRequest)HttpWebRequest.Create(formatUrl);
-                    if (requestBody != null)
-                    {
-                        request.ContentType = "application/json";
-                        request.Method = "POST";
-                        using (var streamWriter = new StreamWriter(request.GetRequestStream()))
+                        HttpWebRequest request = (HttpWebRequest)HttpWebRequest.Create(formatUrl);
+                        if (requestBody != null)
                         {
-                            streamWriter.Write(JsonConvert.SerializeObject(requestBody, Formatting.Indented));
-                        }
-                    }
-                   
-                    using (HttpWebResponse Response = (HttpWebResponse)request.GetResponse())
-                    {
-                        if (Response.StatusCode == HttpStatusCode.OK)
-                        {
-                            using (StreamReader reader = new System.IO.StreamReader(Response.GetResponseStream(), ASCIIEncoding.ASCII))
+                            request.ContentType = "application/json";
+                            request.Method = "POST";
+                            using (var streamWriter = new StreamWriter(request.GetRequestStream()))
                             {
-                                // Thread is complete. Return to idle
-                                DownloadDatetime = dtNow;
-                                Connected = true;
-                                string responseData = reader.ReadToEnd();
-                                if (!string.IsNullOrEmpty(responseData))
+                                streamWriter.Write(JsonConvert.SerializeObject(requestBody, Formatting.Indented));
+                            }
+                        }
+
+                        using (HttpWebResponse Response = (HttpWebResponse)request.GetResponse())
+                        {
+                            if (Response.StatusCode == HttpStatusCode.OK)
+                            {
+                                using (StreamReader reader = new System.IO.StreamReader(Response.GetResponseStream(), ASCIIEncoding.ASCII))
                                 {
-                                    Task.Run(() => new ProcessRecvdMsg().StartProcess(responseData, MessageType, ConnectionInfo.Id));
+                                    // Thread is complete. Return to idle
+                                    DownloadDatetime = dtNow;
+                                    Connected = true;
+                                    string responseData = reader.ReadToEnd();
+                                    if (!string.IsNullOrEmpty(responseData))
+                                    {
+                                        Task.Run(() => new ProcessRecvdMsg().StartProcess(responseData, MessageType, ConnectionInfo.Id));
+                                    }
+
+
+                                    //result = JToken.Parse(reader.ReadToEnd());
+                                    //// process date
+                                    //if (result is JArray || result is JObject)
+                                    //{
+                                    //    if (formatUrl.Contains("api_page.get_id"))
+                                    //    {
+                                    //        new ProcessRecvdMsg().StartProcess(result, "mpe_watch_id");
+                                    //    }
+                                    //    else
+                                    //    {
+                                    //        new ProcessRecvdMsg().StartProcess(result, ConnectionInfo.MessageType);
+                                    //    }
+                                    //}
+                                    //Thread.Sleep(100);
+                                    //Task.Run(() => updateConnection(this));
                                 }
-                                
-                               
-                                //result = JToken.Parse(reader.ReadToEnd());
-                                //// process date
-                                //if (result is JArray || result is JObject)
-                                //{
-                                //    if (formatUrl.Contains("api_page.get_id"))
-                                //    {
-                                //        new ProcessRecvdMsg().StartProcess(result, "mpe_watch_id");
-                                //    }
-                                //    else
-                                //    {
-                                //        new ProcessRecvdMsg().StartProcess(result, ConnectionInfo.MessageType);
-                                //    }
-                                //}
+                            }
+                            else
+                            {
+                                Connected = false;
                                 Thread.Sleep(100);
                                 Task.Run(() => updateConnection(this));
                             }
                         }
-                        else
-                        {
-                            Connected = false;
-                            Thread.Sleep(100);
-                            Task.Run(() => updateConnection(this));
-                        }
+                    }
+                    else
+                    {
+                        this.Connected = false;
+                        Task.Run(() => updateConnection(this));
                     }
                 }
                 catch (WebException ex)
@@ -470,6 +484,11 @@ namespace Factory_of_the_Future
                     this.Connected = false;
                     Task.Run(() => updateConnection(this));
                 }
+            }
+            else
+            {
+                this.Connected = false;
+                Task.Run(() => updateConnection(this));
             }
             this.Status = 0;
         }

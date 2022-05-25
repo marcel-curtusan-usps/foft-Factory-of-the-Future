@@ -21,7 +21,7 @@ namespace Factory_of_the_Future
                     {
                         ///*Web cameras*/
                         case "Cameras":
-                            CameraData(data);
+                            CameraData(data, connID);
                             break;
                         /*Quuppa Data Start*/
                         case "getTagPosition":
@@ -33,13 +33,13 @@ namespace Factory_of_the_Future
                         ///*Quuppa Data End*/
                         ///*SVWeb Data Start*/
                         case "doors":
-                            Doors(data);
+                            Doors(data, connID);
                             break;
                         case "trips":
-                            Trips(data, Message_type);
+                            Trips(data, Message_type, connID);
                             break;
                         case "container":
-                            Container(data);
+                            Container(data, connID);
                             break;
                         case "getTacsVsSels":
                             TacsVsSels(data, Message_type, connID);
@@ -50,7 +50,7 @@ namespace Factory_of_the_Future
                         ///*SELS RT Data End*/
                         ///*IV Data Start*/
                         case "getStaffBySite":
-                            Staffing(data);
+                            Staffing(data, connID);
                             break;
                         ///*IV Data End*/
                         ///*AGVM Data Start*/
@@ -91,13 +91,13 @@ namespace Factory_of_the_Future
                             MPE_Watch_Id(data);
                             break;
                         case "rpg_run_perf":
-                            MPEWatch_RPGPerf(data);
+                            MPEWatch_RPGPerf(data, connID);
                             break;
                         case "rpg_plan":
-                            MPEWatch_RPGPlan(data);
+                            MPEWatch_RPGPlan(data, connID);
                             break;
                         case "dps_run_estm":
-                            MPEWatch_DPSEst(data);
+                            MPEWatch_DPSEst(data, connID);
                             break;
                         ///*MPEWatch Data End*/
                         default:
@@ -110,7 +110,7 @@ namespace Factory_of_the_Future
                 new ErrorLogger().ExceptionLog(e);
             }
         }
-        private void Staffing(dynamic data)
+        private void Staffing(dynamic data ,string conID)
         {
             try
             {
@@ -131,6 +131,10 @@ namespace Factory_of_the_Future
                                 new JProperty("mh", stafff_item[4])));
                         }
 
+                    }
+                    else
+                    {
+                        Task.Run(() => updateConnection(conID, "error"));
                     }
                     if (sortplanlist.HasValues)
                     {
@@ -157,6 +161,11 @@ namespace Factory_of_the_Future
                                      });
                             }
                         }
+                        Task.Run(() => updateConnection(conID, "good"));
+                    }
+                    else
+                    {
+                        Task.Run(() => updateConnection(conID, "error"));
                     }
                     if (updatefile)
                     {
@@ -164,56 +173,70 @@ namespace Factory_of_the_Future
                     }
 
                 }
+                else
+                {
+                    Task.Run(() => updateConnection(conID, "error"));
+                }
             }
             catch (Exception e)
             {
+                Task.Run(() => updateConnection(conID, "error"));
                 new ErrorLogger().ExceptionLog(e);
             }
         }
      
-        private void CameraData(dynamic data)
+        private void CameraData(dynamic data, string conID)
         {
             try
             {
                 if (data != null)
                 {
                     List<Cameras> newCameras = JsonConvert.DeserializeObject<List<Cameras>>(data);
-                    foreach (Cameras camera_item in newCameras)
+                    if (newCameras.Count > 0)
                     {
-                        if (AppParameters.CameraInfoList.TryGetValue(camera_item.CameraName, out Cameras existingValue))
+                        foreach (Cameras camera_item in newCameras)
                         {
-                            existingValue.FacilitySubtypeDesc = camera_item.FacilitySubtypeDesc; 
-                            existingValue.AuthKey = camera_item.AuthKey;
-                            existingValue.Description = camera_item.Description;
-                            existingValue.FacilitiyLatitudeNum = camera_item.FacilitiyLatitudeNum;
-                            existingValue.FacilitiyLongitudeNum = camera_item.FacilitiyLongitudeNum;
-                            existingValue.FacilityDisplayName = camera_item.FacilityDisplayName;
-                            existingValue.FacilityPhysAddrTxt = camera_item.FacilityPhysAddrTxt;
-                            existingValue.GeoProcDivisionNm = camera_item.GeoProcDivisionNm;
-                            existingValue.GeoProcRegionNm = camera_item.GeoProcRegionNm;
-                            existingValue.LocaleKey = camera_item.LocaleKey;
-                            existingValue.ModelNum = camera_item.ModelNum;
-                            existingValue.Reachable = camera_item.Reachable;
-
-                        }
-                        else
-                        {
-                            if (!AppParameters.CameraInfoList.TryAdd(camera_item.CameraName, camera_item))
+                            if (AppParameters.CameraInfoList.TryGetValue(camera_item.CameraName, out Cameras existingValue))
                             {
-                                new ErrorLogger().CustomLog("Unable to Able to add Camera" + camera_item.CameraName, string.Concat((string)AppParameters.AppSettings.Property("APPLICATION_NAME").Value, "_Applogs"));
+                                existingValue.FacilitySubtypeDesc = camera_item.FacilitySubtypeDesc;
+                                existingValue.AuthKey = camera_item.AuthKey;
+                                existingValue.Description = camera_item.Description;
+                                existingValue.FacilitiyLatitudeNum = camera_item.FacilitiyLatitudeNum;
+                                existingValue.FacilitiyLongitudeNum = camera_item.FacilitiyLongitudeNum;
+                                existingValue.FacilityDisplayName = camera_item.FacilityDisplayName;
+                                existingValue.FacilityPhysAddrTxt = camera_item.FacilityPhysAddrTxt;
+                                existingValue.GeoProcDivisionNm = camera_item.GeoProcDivisionNm;
+                                existingValue.GeoProcRegionNm = camera_item.GeoProcRegionNm;
+                                existingValue.LocaleKey = camera_item.LocaleKey;
+                                existingValue.ModelNum = camera_item.ModelNum;
+                                existingValue.Reachable = camera_item.Reachable;
 
                             }
+                            else
+                            {
+                                if (!AppParameters.CameraInfoList.TryAdd(camera_item.CameraName, camera_item))
+                                {
+                                    new ErrorLogger().CustomLog("Unable to Able to add Camera" + camera_item.CameraName, string.Concat((string)AppParameters.AppSettings.Property("APPLICATION_NAME").Value, "_Applogs"));
+
+                                }
+                            }
                         }
+                        Task.Run(() => updateConnection(conID, "good"));
+                    }
+                    else
+                    {
+                        Task.Run(() => updateConnection(conID, "error"));
                     }
                 }
                
             }
             catch (Exception e)
             {
+                Task.Run(() => updateConnection(conID, "error"));
                 new ErrorLogger().ExceptionLog(e);
             }
         }
-        private static void Container(dynamic data)
+        private static void Container(dynamic data, string conID)
         {
 
             try
@@ -221,115 +244,126 @@ namespace Factory_of_the_Future
 
                 if (data != null)
                 {
-                    
                     List<Container> Containers = JsonConvert.DeserializeObject<List<Container>>(data);
-                    string siteId = (string)AppParameters.AppSettings["FACILITY_NASS_CODE"];
-
-                    foreach (Container d in Containers)
+                    if (Containers.Count > 0)
                     {
-                        if (d.PlacardBarcode.StartsWith("99M"))
+                        string siteId = (string)AppParameters.AppSettings["FACILITY_NASS_CODE"];
+
+                        foreach (Container d in Containers)
                         {
-                            d.MailClass = "99M";
-                            d.MailClassDisplay = "Mailer";
-                            d.OriginName = "Mailer";
-                            d.Origin = "";
-                            d.Dest = "";
-                            d.DestinationName = "";
-                        }
-                        int sortindex = 0;
-                        foreach (ContainerHistory scan in d.ContainerHistory.OrderBy(o => o.EventDtmfmt))
-                        {
-                            if (d.EventDtm.Year == 1)
+                            if (d.PlacardBarcode.StartsWith("99M"))
                             {
-                                d.EventDtm = scan.EventDtmfmt;
+                                d.MailClass = "99M";
+                                d.MailClassDisplay = "Mailer";
+                                d.OriginName = "Mailer";
+                                d.Origin = "";
+                                d.Dest = "";
+                                d.DestinationName = "";
                             }
-                            sortindex++;
-                            scan.sortind = sortindex;
-                            d.binDisplay = scan.Event == "PASG" ? scan.BinName : "";
-                            if (scan.SiteId == siteId)
+                            int sortindex = 0;
+                            foreach (ContainerHistory scan in d.ContainerHistory.OrderBy(o => o.EventDtmfmt))
                             {
-                                
-                                if (scan.Event == "PASG")
+                                if (d.EventDtm.Year == 1)
                                 {
-                                    d.hasAssignScans = true;
+                                    d.EventDtm = scan.EventDtmfmt;
                                 }
-                                if ((scan.Event == "CLOS" || scan.Event == "BCLS"))
+                                sortindex++;
+                                scan.sortind = sortindex;
+                                d.binDisplay = scan.Event == "PASG" ? scan.BinName : "";
+                                if (scan.SiteId == siteId)
                                 {
-                                    d.hasCloseScans = true;
-                                }
-                                if (scan.Event == "LOAD")
-                                {
-                                    d.hasLoadScans = true;
-                                    d.Trailer = scan.Trailer;
-                                }
-                                if (scan.Event == "UNLD")
-                                {
-                                    d.hasUnloadScans = true;
-                                    d.Trailer = scan.Trailer;
-                                }
-                                if (scan.Event == "PRINT")
-                                {
-                                    d.hasPrintScans = true;
+
+                                    if (scan.Event == "PASG")
+                                    {
+                                        d.hasAssignScans = true;
+                                    }
+                                    if ((scan.Event == "CLOS" || scan.Event == "BCLS"))
+                                    {
+                                        d.hasCloseScans = true;
+                                    }
+                                    if (scan.Event == "LOAD")
+                                    {
+                                        d.hasLoadScans = true;
+                                        d.Trailer = scan.Trailer;
+                                    }
+                                    if (scan.Event == "UNLD")
+                                    {
+                                        d.hasUnloadScans = true;
+                                        d.Trailer = scan.Trailer;
+                                    }
+                                    if (scan.Event == "PRINT")
+                                    {
+                                        d.hasPrintScans = true;
+                                    }
+                                    if (scan.Event == "TERM")
+                                    {
+                                        d.containerTerminate = true;
+                                    }
+                                    if (!string.IsNullOrEmpty(scan.Location) && scan.SiteType == "Origin" && scan.Event == "PASG" && scan.Location != d.Location)
+                                    {
+                                        d.Location = scan.Location;
+                                    }
+
                                 }
                                 if (scan.Event == "TERM")
                                 {
                                     d.containerTerminate = true;
                                 }
-                                if (!string.IsNullOrEmpty(scan.Location) && scan.SiteType == "Origin" && scan.Event == "PASG" && scan.Location != d.Location)
-                                {
-                                    d.Location = scan.Location;
-                                }
-
-                            }
-                            if (scan.Event == "TERM")
-                            {
-                                d.containerTerminate = true;
-                            }
-                            if (scan.Event == "UNLD" && scan.RedirectInd == "Y" && d.Dest == siteId)
-                            {
-                                d.containerRedirectedDest = true;
-                            }
-
-                            if (scan.Event == "UNLD" && scan.SiteType == "Destination")
-                            {
-                                if (scan.SiteId == d.Dest)
-                                {
-                                    d.containerAtDest = true;
-                                }
-                            }
-                            if (scan.Event == "UNLD" && scan.SiteType == "Via")
-                            {
-                                if (scan.SiteId != d.Dest)
+                                if (scan.Event == "UNLD" && scan.RedirectInd == "Y" && d.Dest == siteId)
                                 {
                                     d.containerRedirectedDest = true;
-                                    d.hasUnloadScans = true;
-                                    d.Location = "X-Dock";
+                                }
+
+                                if (scan.Event == "UNLD" && scan.SiteType == "Destination")
+                                {
+                                    if (scan.SiteId == d.Dest)
+                                    {
+                                        d.containerAtDest = true;
+                                    }
+                                }
+                                if (scan.Event == "UNLD" && scan.SiteType == "Via")
+                                {
+                                    if (scan.SiteId != d.Dest)
+                                    {
+                                        d.containerRedirectedDest = true;
+                                        d.hasUnloadScans = true;
+                                        d.Location = "X-Dock";
+                                    }
                                 }
                             }
+                            if (AppParameters.Containers.TryGetValue(d.PlacardBarcode, out Container exisitingContainer))
+                            {
+                                exisitingContainer.hasAssignScans = d.hasAssignScans;
+                                exisitingContainer.hasCloseScans = d.hasCloseScans;
+                                exisitingContainer.hasLoadScans = d.hasLoadScans;
+                                exisitingContainer.hasUnloadScans = d.hasUnloadScans;
+                                exisitingContainer.hasPrintScans = d.hasPrintScans;
+                                exisitingContainer.containerTerminate = d.containerTerminate;
+                                exisitingContainer.Location = d.Location;
+                                exisitingContainer.containerTerminate = d.containerTerminate;
+                                exisitingContainer.containerRedirectedDest = d.containerRedirectedDest;
+                                exisitingContainer.containerAtDest = d.containerAtDest;
+                                exisitingContainer.containerRedirectedDest = d.containerRedirectedDest;
+                                exisitingContainer.ContainerHistory = d.ContainerHistory;
+                            }
+                            else
+                            {
+                                AppParameters.Containers.TryAdd(d.PlacardBarcode, d);
+                            }
+
                         }
-                        if (AppParameters.Containers.TryGetValue(d.PlacardBarcode, out Container exisitingContainer))
-                        {
-                            exisitingContainer.hasAssignScans = d.hasAssignScans;
-                            exisitingContainer.hasCloseScans = d.hasCloseScans;
-                            exisitingContainer.hasLoadScans = d.hasLoadScans;
-                            exisitingContainer.hasUnloadScans = d.hasUnloadScans;
-                            exisitingContainer.hasPrintScans = d.hasPrintScans;
-                            exisitingContainer.containerTerminate = d.containerTerminate;
-                            exisitingContainer.Location = d.Location;
-                            exisitingContainer.containerTerminate = d.containerTerminate;
-                            exisitingContainer.containerRedirectedDest = d.containerRedirectedDest;
-                            exisitingContainer.containerAtDest = d.containerAtDest;
-                            exisitingContainer.containerRedirectedDest = d.containerRedirectedDest;
-                            exisitingContainer.ContainerHistory = d.ContainerHistory;
-                        }
-                        else
-                        {
-                            AppParameters.Containers.TryAdd(d.PlacardBarcode, d);
-                        }
-                     
+                        Containers = null;
+                        data = null;
+                        Task.Run(() => updateConnection(conID, "good"));
                     }
-                    Containers = null;
-                    data = null;
+                    else
+                    {
+                        Task.Run(() => updateConnection(conID, "error"));
+                    }
+                }
+                else
+                {
+                    Task.Run(() => updateConnection(conID, "error"));
                 }
 
                 if (AppParameters.Containers.Count > 0)
@@ -343,6 +377,7 @@ namespace Factory_of_the_Future
             }
             catch (Exception e)
             {
+                Task.Run(() => updateConnection(conID, "error"));
                 new ErrorLogger().ExceptionLog(e);
             }
             finally
@@ -354,65 +389,75 @@ namespace Factory_of_the_Future
             }
 
         }
-        private static void Trips(dynamic data, string message_type)
+        private static void Trips(dynamic data, string message_type, string conID)
         {
 
             try
             {
                 if (data != null)
                 {
-
                     JToken jsonObject = JToken.Parse(data);
-
-                    foreach (JObject rt in jsonObject.Children())
+                    if (jsonObject != null && jsonObject.HasValues)
                     {
-                        if (rt.ContainsKey("routeTripId") && rt.ContainsKey("routeTripLegId") && rt.ContainsKey("tripDirectionInd"))
+                        foreach (JObject rt in jsonObject.Children())
                         {
-                            string routetripid = string.Concat(rt["routeTripId"].ToString(), rt["routeTripLegId"].ToString(), rt["tripDirectionInd"].ToString());
-                            rt["id"] = routetripid;
-                           
-                            rt["rawData"] = JsonConvert.SerializeObject(rt, Formatting.None);
-                            RouteTrips newRTData = rt.ToObject<RouteTrips>();
-                            newRTData.TripMin = AppParameters.Get_TripMin(newRTData.ScheduledDtm);
-                            // if trip does not exist and does not have CANCELED|DEPARTED|OMITTED|COMPLETE|REMOVE in LegStatus
-                            // then add to list
-                            if (AppParameters.RouteTripsList.ContainsKey(routetripid))
+                            if (rt.ContainsKey("routeTripId") && rt.ContainsKey("routeTripLegId") && rt.ContainsKey("tripDirectionInd"))
                             {
-                                Task.Run(() => AddTriptoList(routetripid, newRTData));
-                            }
-                            else if (!AppParameters.RouteTripsList.ContainsKey(routetripid) &&
-                                !(Regex.IsMatch(newRTData.LegStatus, "(CANCELED|DEPARTED|OMITTED|COMPLETE|REMOVE)", RegexOptions.IgnoreCase)
-                                || Regex.IsMatch(newRTData.Status, "(CANCELED|DEPARTED|OMITTED|COMPLETE|REMOVE)", RegexOptions.IgnoreCase)))
-                            {
-                                Task.Run(() => AddTriptoList(routetripid, newRTData));
-                            }
-                            
+                                string routetripid = string.Concat(rt["routeTripId"].ToString(), rt["routeTripLegId"].ToString(), rt["tripDirectionInd"].ToString());
+                                rt["id"] = routetripid;
+
+                                rt["rawData"] = JsonConvert.SerializeObject(rt, Formatting.None);
+                                RouteTrips newRTData = rt.ToObject<RouteTrips>();
+                                newRTData.TripMin = AppParameters.Get_TripMin(newRTData.ScheduledDtm);
+                                // if trip does not exist and does not have CANCELED|DEPARTED|OMITTED|COMPLETE|REMOVE in LegStatus
+                                // then add to list
+                                if (AppParameters.RouteTripsList.ContainsKey(routetripid))
+                                {
+                                    Task.Run(() => AddTriptoList(routetripid, newRTData));
+                                }
+                                else if (!AppParameters.RouteTripsList.ContainsKey(routetripid) &&
+                                    !(Regex.IsMatch(newRTData.LegStatus, "(CANCELED|DEPARTED|OMITTED|COMPLETE|REMOVE)", RegexOptions.IgnoreCase)
+                                    || Regex.IsMatch(newRTData.Status, "(CANCELED|DEPARTED|OMITTED|COMPLETE|REMOVE)", RegexOptions.IgnoreCase)))
+                                {
+                                    Task.Run(() => AddTriptoList(routetripid, newRTData));
+                                }
+
 
                                 //if (AppParameters.RouteTripsList.ContainsKey(routetripid))
-                            //{
+                                //{
 
-                            //    if (AppParameters.RouteTripsList.AddOrUpdate(routetripid, out RouteTrips existingVal))
-                            //    {
-                            //        if (rt.ToString() != existingVal.RawData)
-                            //        {
-                            //            existingVal.TripUpdate = true;
-                            //            existingVal.Merge(rt, new JsonMergeSettings { MergeArrayHandling = MergeArrayHandling.Union });
-                            //            //Task.Run(() => new ItineraryTrip_Update(GetItinerary(rt["route"].ToString(), rt["trip"].ToString(), AppParameters.AppSettings["FACILITY_NASS_CODE"].ToString(), GetSvDate((JObject)rt["operDate"])), rt["tripDirectionInd"].ToString(), routetripid));
-                            //        }
-                            //    }
-                            //}
-                            //else
-                            //{
+                                //    if (AppParameters.RouteTripsList.AddOrUpdate(routetripid, out RouteTrips existingVal))
+                                //    {
+                                //        if (rt.ToString() != existingVal.RawData)
+                                //        {
+                                //            existingVal.TripUpdate = true;
+                                //            existingVal.Merge(rt, new JsonMergeSettings { MergeArrayHandling = MergeArrayHandling.Union });
+                                //            //Task.Run(() => new ItineraryTrip_Update(GetItinerary(rt["route"].ToString(), rt["trip"].ToString(), AppParameters.AppSettings["FACILITY_NASS_CODE"].ToString(), GetSvDate((JObject)rt["operDate"])), rt["tripDirectionInd"].ToString(), routetripid));
+                                //        }
+                                //    }
+                                //}
+                                //else
+                                //{
 
-                            //    if (AppParameters.RouteTripsList.TryAdd(routetripid, rt.ToObject<RouteTrips>()))
-                            //    {
-                            //        // Task.Run(() => new ItineraryTrip_Update(GetItinerary(rt["route"].ToString(), rt["trip"].ToString(), AppParameters.AppSettings["FACILITY_NASS_CODE"].ToString(), GetSvDate((JObject)rt["operDate"])), rt["tripDirectionInd"].ToString(), routetripid));
-                            //    }
-                            //}
+                                //    if (AppParameters.RouteTripsList.TryAdd(routetripid, rt.ToObject<RouteTrips>()))
+                                //    {
+                                //        // Task.Run(() => new ItineraryTrip_Update(GetItinerary(rt["route"].ToString(), rt["trip"].ToString(), AppParameters.AppSettings["FACILITY_NASS_CODE"].ToString(), GetSvDate((JObject)rt["operDate"])), rt["tripDirectionInd"].ToString(), routetripid));
+                                //    }
+                                //}
+                            }
+
                         }
-
+                        Task.Run(() => updateConnection(conID, "good"));
+                    }
+                    else
+                    {
+                        Task.Run(() => updateConnection(conID, "error"));
                     }
                     jsonObject = null;
+                }
+                else
+                {
+                    Task.Run(() => updateConnection(conID, "error"));
                 }
                 if (AppParameters.RouteTripsList.Count > 0)
                 {
@@ -421,11 +466,10 @@ namespace Factory_of_the_Future
                         AppParameters.RouteTripsList.TryRemove(m, out RouteTrips value);
                     }
                 }
-
-
             }
             catch (Exception e)
             {
+                Task.Run(() => updateConnection(conID, "error"));
                 new ErrorLogger().ExceptionLog(e);
             }
         }
@@ -481,65 +525,77 @@ namespace Factory_of_the_Future
                 return temp;
             }
         }
-        private static void Doors(dynamic data)
+        private static void Doors(dynamic data, string conID)
         {
             try
             {
                 if (data != null)
                 {
                     JToken tempData = JToken.Parse(data);
-                    foreach (JObject item in tempData.Children())
+                    if (tempData !=null && tempData.HasValues)
                     {
-                        string dockdoor_id = item.ContainsKey("doorNumber") ? item["doorNumber"].ToString() :"";
-                        if (!string.IsNullOrEmpty(dockdoor_id))
+                        foreach (JObject item in tempData.Children())
                         {
-                            string doorInfo = JsonConvert.SerializeObject(item, Formatting.None);
-                            AppParameters.DockdoorList.AddOrUpdate(dockdoor_id, doorInfo,
-                               (key, oldValue) =>
-                               {
-                                   return doorInfo;
-                               });
-                            doorInfo = null;
-                        }
-                     
-                        string routetripid = "";
-                        if (item.ContainsKey("routeTripId") && item.ContainsKey("routeTripLegId") && item.ContainsKey("tripDirectionInd"))
-                        {
-                            routetripid = string.Concat(item["routeTripId"].ToString(), item["routeTripLegId"].ToString(), item["tripDirectionInd"].ToString());
-                        }
-
-                        if (!string.IsNullOrEmpty(routetripid))
-                        {
-                            if (AppParameters.RouteTripsList.TryGetValue(routetripid, out RouteTrips trip))
+                            string dockdoor_id = item.ContainsKey("doorNumber") ? item["doorNumber"].ToString() : "";
+                            if (!string.IsNullOrEmpty(dockdoor_id))
                             {
-                                trip.DoorId = item["doorId"].ToString();
-                                trip.DoorNumber = item["doorNumber"].ToString();
-                                //dooritem = JsonConvert.SerializeObject(trip, Formatting.None);
-                                Task.Run(() => UpdateDoorZone(trip) );
-                              
+                                string doorInfo = JsonConvert.SerializeObject(item, Formatting.None);
+                                AppParameters.DockdoorList.AddOrUpdate(dockdoor_id, doorInfo,
+                                   (key, oldValue) =>
+                                   {
+                                       return doorInfo;
+                                   });
+                                doorInfo = null;
+                            }
+
+                            string routetripid = "";
+                            if (item.ContainsKey("routeTripId") && item.ContainsKey("routeTripLegId") && item.ContainsKey("tripDirectionInd"))
+                            {
+                                routetripid = string.Concat(item["routeTripId"].ToString(), item["routeTripLegId"].ToString(), item["tripDirectionInd"].ToString());
+                            }
+
+                            if (!string.IsNullOrEmpty(routetripid))
+                            {
+                                if (AppParameters.RouteTripsList.TryGetValue(routetripid, out RouteTrips trip))
+                                {
+                                    trip.DoorId = item["doorId"].ToString();
+                                    trip.DoorNumber = item["doorNumber"].ToString();
+                                    //dooritem = JsonConvert.SerializeObject(trip, Formatting.None);
+                                    Task.Run(() => UpdateDoorZone(trip));
+
+                                }
+                                else
+                                {
+                                    item["id"] = routetripid;
+                                    item["rawData"] = JsonConvert.SerializeObject(item, Formatting.None);
+                                    RouteTrips newRTData = item.ToObject<RouteTrips>();
+                                    newRTData.OperDate = newRTData.ScheduledDtm;
+                                    newRTData.TripMin = AppParameters.Get_TripMin(newRTData.ScheduledDtm);
+                                    Task.Run(() => AddTriptoList(routetripid, newRTData));
+                                    Task.Run(() => UpdateDoorZone(newRTData));
+                                }
                             }
                             else
                             {
-                                item["id"] = routetripid;
-                                item["rawData"] = JsonConvert.SerializeObject(item, Formatting.None);
-                                RouteTrips newRTData = item.ToObject<RouteTrips>();
-                                newRTData.OperDate = newRTData.ScheduledDtm;
-                                newRTData.TripMin = AppParameters.Get_TripMin(newRTData.ScheduledDtm);
-                                Task.Run(() => AddTriptoList(routetripid, newRTData));
-                                Task.Run(() => UpdateDoorZone(newRTData));
+                                Task.Run(() => UpdateDoorZone(item.ToObject<RouteTrips>()));
                             }
                         }
-                        else
-                        {
-                            Task.Run(() => UpdateDoorZone(item.ToObject<RouteTrips>()));
-                        }
+                        Task.Run(() => updateConnection(conID, "good"));
                     }
-
+                    else
+                    {
+                        Task.Run(() => updateConnection(conID, "error"));
+                    }
+                }
+                else
+                {
+                    Task.Run(() => updateConnection(conID, "error"));
                 }
                 data = null;
             }
             catch (Exception e)
             {
+                Task.Run(() => updateConnection(conID, "error"));
                 new ErrorLogger().ExceptionLog(e);
             }
         }
@@ -754,114 +810,12 @@ namespace Factory_of_the_Future
                                 }
                             }
                         }
+                        Task.Run(() => updateConnection(conID, "good"));
                     }
                     else
                     {
                         Task.Run(() => updateConnection(conID, "error"));
                     }
-                    //JToken tempData = JToken.Parse(data);
-                    //if (((JObject)tempData).ContainsKey("missedSels"))
-                    //{
-                    //    JToken missedSels = tempData.SelectToken("missedSels");
-                    //    if (missedSels.HasValues)
-                    //    {
-                    //        foreach (JObject item in missedSels.Children())
-                    //        {
-                    //            if (AppParameters.TagsList.TryGetValue((string)item["tagId"], out GeoMarker geoLmarker))
-                    //            {
-                    //                geoLmarker.Properties.Tacs = item["tacs"].ToString();
-                    //                geoLmarker.Properties.IsWearingTag = false;
-                    //                geoLmarker.Properties.CraftName = GetCraftName((string)item["tagName"]);
-                    //                geoLmarker.Properties.BadgeId = GetBadgeId((string)item["tagName"]);
-                    //                geoLmarker.Properties.TagUpdate = true;
-
-                    //            }
-                    //            else
-                    //            {
-                    //                GeoMarker Lmarker = new GeoMarker();
-                    //                Lmarker.Properties.Id = (string)item["tagId"];
-                    //                Lmarker.Properties.Name = (string)item["tagName"];
-                    //                Lmarker.Properties.TagType = "Person";
-
-                    //                Lmarker.Properties.CraftName = GetCraftName(Lmarker.Properties.Name);
-                    //                Lmarker.Properties.BadgeId = GetBadgeId(Lmarker.Properties.Name);
-
-                    //                Lmarker.Properties.PositionTS = DateTime.Now.AddDays(-10).ToUniversalTime();
-                    //                Lmarker.Properties.TagVisible = false;
-                    //                Lmarker.Properties.IsWearingTag = false;
-                    //                Lmarker.Properties.TagUpdate = true;
-                    //                if (!AppParameters.TagsList.TryAdd(Lmarker.Properties.Id, Lmarker))
-                    //                {
-                    //                    new ErrorLogger().CustomLog("Unable to Add Marker" + Lmarker.Properties.Id, string.Concat((string)AppParameters.AppSettings.Property("APPLICATION_NAME").Value, "_Applogs"));
-                    //                }
-                    //            }
-                    //            //if (AppParameters.Tag.ContainsKey((string)item["tagId"]))
-                    //            //{
-                    //            //    foreach (JObject m in AppParameters.Tag.Where(r => r.Key == (string)item["tagId"]).Select(y => y.Value))
-                    //            //    {
-
-                    //            //        if ((bool)m["properties"]["isWearingTag"] == true)
-                    //            //        {
-                    //            //            m["properties"]["isWearingTag"] = false;
-                    //            //        }
-                    //            //        if (m["properties"]["empId"] != item["empId"])
-                    //            //        {
-                    //            //            m["properties"]["empId"] = item["empId"];
-                    //            //        }
-                    //            //        if (m["properties"]["tacs"].ToString() != item["tacs"].ToString())
-                    //            //        {
-                    //            //            m["properties"]["tacs"] = item["tacs"];
-                    //            //        }
-
-                    //            //    }
-                    //            //}
-                    //            //else
-                    //            //{
-                    //            //    JObject GeoJsonType = new JObject_List().GeoJSON_Tag;
-                    //            //    JArray temp_zone = new JArray(new JObject(new JProperty("name", "NOTINZONE"), new JProperty("id", "NOTINZONE")));
-                    //            //    ((JObject)GeoJsonType["geometry"])["type"] = "Point";
-                    //            //    GeoJsonType["geometry"]["coordinates"] = new JArray(0, 0);
-                    //            //    GeoJsonType["properties"]["id"] = (string)item["tagId"];
-                    //            //    GeoJsonType["properties"]["zones"] = temp_zone;
-                    //            //    GeoJsonType["properties"]["name"] = item["tagName"];
-                    //            //    GeoJsonType["properties"]["Tag_Type"] = "Person";
-                    //            //    GeoJsonType["properties"]["empId"] = item["empId"];
-                    //            //    GeoJsonType["properties"]["tacs"] = item["tacs"];
-                    //            //    GeoJsonType["properties"]["positionTS"] = DateTime.Now.AddDays(-10).ToUniversalTime();
-
-                    //            //    //add to the tags
-                    //            //    if (!AppParameters.Tag.ContainsKey((string)item["tagId"]))
-                    //            //    {
-                    //            //        AppParameters.Tag.TryAdd((string)item["tagId"], GeoJsonType);
-                    //            //    }
-                    //            //}
-                    //        }
-                    //        //if (AppParameters.Tag.Count() > 0)
-                    //        //{
-                    //        //    foreach (JObject m in AppParameters.Tag.Where(u => u.Value["properties"]["Tag_Type"].ToString().EndsWith("Person")).Select(x => x.Value))
-                    //        //    {
-                    //        //        if (missedSels.SelectTokens("[?(@.tagId)]").Where(i => (string)i["tagId"] == (string)m["properties"]["id"]).ToList().Count == 0)
-                    //        //        {
-                    //        //            if (!(bool)m["properties"]["isWearingTag"])
-                    //        //            {
-                    //        //                m["properties"]["isWearingTag"] = true;
-
-                    //        //            }
-                    //        //        }
-                    //        //    }
-                    //        //}
-                    //    }
-                    //}
-                    //else
-                    //{
-                    //    if (!((JObject)tempData).ContainsKey("missedSels") && ((JObject)tempData).ContainsKey("msg"))
-                    //    {
-                    //        if (tempData["msg"].ToString().StartsWith("No data"))
-                    //        {
-                    //            Task.Run(() => updateConnection(conID, "error"));
-                    //        }
-                    //    }
-                    //}
                 }
 
               
@@ -900,7 +854,7 @@ namespace Factory_of_the_Future
                 new ErrorLogger().ExceptionLog(e);
             }
         }
-        private static void MPEWatch_RPGPerf(dynamic data)
+        private static void MPEWatch_RPGPerf(dynamic data, string conID)
         {
             try
             {
@@ -910,7 +864,7 @@ namespace Factory_of_the_Future
                 {
                     JToken tempData = JToken.Parse(data);
                     JToken machineInfo = tempData.SelectToken("data");
-                    if (machineInfo.HasValues)
+                    if (machineInfo != null && machineInfo.HasValues)
                     {
                         DateTime dtNow = DateTime.Now;
                         string windowsTimeZoneId = "";
@@ -1009,13 +963,24 @@ namespace Factory_of_the_Future
                              });
 
                         }
+                        Task.Run(() => updateConnection(conID, "good"));
+                    }
+                    else
+                    {
+                        Task.Run(() => updateConnection(conID, "error"));
                     }
                     machineInfo = null;
                     data = null;
+                  
+                }
+                else
+                {
+                    Task.Run(() => updateConnection(conID, "error"));
                 }
             }
             catch (Exception ex)
             {
+                Task.Run(() => updateConnection(conID, "error"));
                 new ErrorLogger().ExceptionLog(ex);
             }
 
@@ -1090,7 +1055,7 @@ namespace Factory_of_the_Future
                 new ErrorLogger().ExceptionLog(ex);
             }
         }
-        private static void MPEWatch_RPGPlan(dynamic data)
+        private static void MPEWatch_RPGPlan(dynamic data, string conID)
         {
             try
             {
@@ -1103,7 +1068,7 @@ namespace Factory_of_the_Future
                         List<RPGPlan> RPG_collection = planInfo.ToObject<List<RPGPlan>>();
                         foreach (RPGPlan RPG_item in RPG_collection)
                         {
-                            RPG_item.expected_throughput = !string.IsNullOrEmpty(RPG_item.line_4_text) ?  RPG_item.line_4_text.Split(' ')[0] : "0";
+                            RPG_item.expected_throughput = !string.IsNullOrEmpty(RPG_item.line_4_text) ? RPG_item.line_4_text.Split(' ')[0] : "0";
                             RPG_item.sort_program_name = AppParameters.SortPlan_Name_Trimer(RPG_item.sort_program_name);
 
                             string RPGKey = AppParameters.MPEPRPGList.Where(x => x.Value.mpe_type == RPG_item.mpe_type &&
@@ -1136,13 +1101,21 @@ namespace Factory_of_the_Future
                         }
                         //new Oracle_DB_Calls().Insert_RPG_Plan((JObject)tempData);
                     }
+                    else
+                    {
+                        Task.Run(() => updateConnection(conID, "error"));
+                    }
                     planInfo = null;
                     data = null;
                     tempData = null;
 
-
-                    //remove old data
-                    if (AppParameters.MPEPRPGList.Keys.Count > 0)
+                }
+                else
+                {
+                    Task.Run(() => updateConnection(conID, "error"));
+                }
+                //remove old data
+                if (AppParameters.MPEPRPGList.Keys.Count > 0)
                     {
                         foreach (string existingkey in AppParameters.MPEPRPGList.Where(f => f.Value.rpg_start_dtm.Date <= DateTime.Now.AddDays(-2).Date).Select(y => y.Key))
                         {
@@ -1152,14 +1125,14 @@ namespace Factory_of_the_Future
                             }
                         }
                     }
-                }
+                
             }
             catch (Exception ex)
             {
                 new ErrorLogger().ExceptionLog(ex);
             }
         }
-        private static void MPEWatch_DPSEst(dynamic data)
+        private static void MPEWatch_DPSEst(dynamic data, string conID)
         {
             try
             {
@@ -1167,7 +1140,7 @@ namespace Factory_of_the_Future
                 {
                     JToken tempData = JToken.Parse(data);
                     JToken dpsInfo = tempData.SelectToken("data");
-                    if (dpsInfo.HasValues)
+                    if (dpsInfo != null && dpsInfo.HasValues)
                     {
                         int time_to_comp_optimal = 0;
                         int time_to_comp_actual = 0;
@@ -1207,15 +1180,27 @@ namespace Factory_of_the_Future
                             }
                             
                         }
+
+                        Task.Run(() => updateConnection(conID, "good"));
+                    }
+                    else
+                    {
+                        Task.Run(() => updateConnection(conID, "error"));
                     }
                     tempData = null;
                     dpsInfo = null;
                     data = null;
                 }
+                else
+                {
+                    Task.Run(() => updateConnection(conID, "error"));
+                }
+
             }
             catch (Exception ex)
             {
                 new ErrorLogger().ExceptionLog(ex);
+                Task.Run(() => updateConnection(conID, "error"));
             }
         }
         private static void ERRORWITHWORK(JObject data)
@@ -1747,7 +1732,7 @@ namespace Factory_of_the_Future
             }
         }
 
-        private static void ProjectData(dynamic jsonObject, string connID)
+        private static void ProjectData(dynamic jsonObject, string conID)
         {
             try
             {
@@ -1771,7 +1756,7 @@ namespace Factory_of_the_Future
                                     if (AppParameters.IndoorMap.TryGetValue(bgItem["id"].ToString(), out BackgroundImage bckimg))
                                     {
                                         BackgroundImage newtempbckimg = bgItem.ToObject<BackgroundImage>();
-                                        newtempbckimg.FacilityName = AppParameters.AppSettings["FACILITY_NAME"].ToString();
+                                        newtempbckimg.FacilityName = !string.IsNullOrEmpty(AppParameters.AppSettings["FACILITY_NAME"].ToString()) ? AppParameters.AppSettings["FACILITY_NAME"].ToString() : "Site Not Configured";
                                         newtempbckimg.ApplicationFullName = AppParameters.AppSettings["APPLICATION_FULLNAME"].ToString();
                                         newtempbckimg.ApplicationAbbr = AppParameters.AppSettings["APPLICATION_NAME"].ToString();
                                         newtempbckimg.Name = System["name"].ToString();
@@ -1786,7 +1771,7 @@ namespace Factory_of_the_Future
                                     {
                                         BackgroundImage newbckimg = bgItem.ToObject<BackgroundImage>();
                                         newbckimg.Name = System["name"].ToString();
-                                        newbckimg.FacilityName = AppParameters.AppSettings["FACILITY_NAME"].ToString();
+                                        newbckimg.FacilityName = !string.IsNullOrEmpty(AppParameters.AppSettings["FACILITY_NAME"].ToString()) ? AppParameters.AppSettings["FACILITY_NAME"].ToString() : "Site Not Configured";
                                         newbckimg.ApplicationFullName = AppParameters.AppSettings["APPLICATION_FULLNAME"].ToString();
                                         newbckimg.ApplicationAbbr = AppParameters.AppSettings["APPLICATION_NAME"].ToString();
                                         newbckimg.UpdateStatus = true;
@@ -1938,6 +1923,7 @@ namespace Factory_of_the_Future
                                 }
                             }
                         }
+                        Task.Run(() => updateConnection(conID, "good"));
                     }
                     //log Project Data to locale drive.
                     if (!((JObject)tempData).ContainsKey("localdata"))
@@ -1949,6 +1935,7 @@ namespace Factory_of_the_Future
             }
             catch (Exception e)
             {
+                Task.Run(() => updateConnection(conID, "error"));
                 new ErrorLogger().ExceptionLog(e);
             }
             
@@ -2040,7 +2027,8 @@ namespace Factory_of_the_Future
                                         new ErrorLogger().CustomLog("Unable to Add Marker" + tagid, string.Concat((string)AppParameters.AppSettings.Property("APPLICATION_NAME").Value, "_Applogs"));
                                     }
                                 }
-                            }
+                            }    
+                            Task.Run(() => updateConnection(conID, "good"));
                         }
                     }
                     if (!((JObject)tempData).ContainsKey("tags") && ((JObject)tempData).ContainsKey("status"))
@@ -2050,12 +2038,14 @@ namespace Factory_of_the_Future
                             Task.Run(() => updateConnection(conID, "error"));
                         } 
                     }
+               
                 }
             }
             catch (Exception e)
             {
-
+                Task.Run(() => updateConnection(conID, "error"));
                 new ErrorLogger().ExceptionLog(e);
+
             }
         }
         internal static void updateConnection(string conId,string type)

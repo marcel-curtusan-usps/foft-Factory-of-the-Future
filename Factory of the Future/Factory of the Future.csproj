@@ -267,6 +267,7 @@
     </Content>
     <Content Include="AppSetting\Notification.json" />
     <Content Include="AppSetting\Connection.json" />
+    <Content Include="AppSetting\MPEWatch_Site_List.json" />
     <None Include="compilerconfig.json" />
     <None Include="compilerconfig.json.defaults">
       <DependentUpon>compilerconfig.json</DependentUpon>

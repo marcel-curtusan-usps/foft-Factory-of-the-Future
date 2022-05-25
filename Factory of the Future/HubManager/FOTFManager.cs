@@ -1387,7 +1387,7 @@ namespace Factory_of_the_Future
                     List<BackgroundImage> temp = new List<BackgroundImage> {
                         new BackgroundImage()
                             {
-                                FacilityName =  AppParameters.AppSettings["FACILITY_NAME"].ToString(),
+                                FacilityName =  !string.IsNullOrEmpty(AppParameters.AppSettings["FACILITY_NAME"].ToString()) ? AppParameters.AppSettings["FACILITY_NAME"].ToString() : "Site Not Configured",
                                 ApplicationFullName = AppParameters.AppSettings["APPLICATION_FULLNAME"].ToString(),
                                 ApplicationAbbr = AppParameters.AppSettings["APPLICATION_NAME"].ToString(),
                             }
@@ -1844,6 +1844,20 @@ namespace Factory_of_the_Future
                     Connection newConndata = JsonConvert.DeserializeObject<Connection>(data);
                     newConndata.CreatedDate = DateTime.Now;
                     id = newConndata.Id;
+                    newConndata.ApiConnected = false;
+                    //tempcon[i].LasttimeApiConnected = DateTime.Now.AddMinutes(-120);
+                    if (newConndata.ConnectionName.ToLower() == "MPEWatch".ToLower())
+                    {
+                        newConndata.IpAddress = "";
+                        newConndata.Port = 0;
+                        newConndata.Url = "";
+                        string sitename = AppParameters.AppSettings["FACILITY_NAME"].ToString().ToLower().Replace(" ", "_").Replace("&", "").Replace("(", "").Replace(")", "");
+                        AppParameters.MPEWatchData.Where(r => r.Value.SiteNameLocal.ToLower() == sitename).Select(y => y.Value).ToList().ForEach(m => {
+                            newConndata.IpAddress = m.Host;
+                            newConndata.Port = m.Port;
+                            newConndata.Url = m.URL;
+                        });
+                    }
                     if (AppParameters.ConnectionList.TryAdd(newConndata.Id, newConndata))
                     {
                         AppParameters.RunningConnection.Add(newConndata);
@@ -2128,7 +2142,7 @@ namespace Factory_of_the_Future
                                             if (SiteInfo.HasValues)
                                             {
                                                 AppParameters.AppSettings[kv.Name] = kv.Value.ToString();
-                                                AppParameters.AppSettings["FACILITY_NAME"] = SiteInfo.ContainsKey("displayName") ? SiteInfo["displayName"] : "";
+                                                AppParameters.AppSettings["FACILITY_NAME"] = SiteInfo.ContainsKey("displayName") ? SiteInfo["displayName"] : "Site Not Configured";
                                                 AppParameters.AppSettings["FACILITY_ID"] = SiteInfo.ContainsKey("fdbId") ? SiteInfo["fdbId"] : "";
                                                 AppParameters.AppSettings["FACILITY_ZIP"] = SiteInfo.ContainsKey("zipCode") ? SiteInfo["zipCode"] : "";
                                                 AppParameters.AppSettings["FACILITY_LKEY"] = SiteInfo.ContainsKey("localeKey") ? SiteInfo["localeKey"] : "";
@@ -2205,7 +2219,7 @@ namespace Factory_of_the_Future
                         UserId = Regex.Replace(Context.User.Identity.Name, @"(USA\\|ENG\\)", "").Trim(),
                         NASSCode = AppParameters.AppSettings["FACILITY_NASS_CODE"].ToString(),
                         FDBID = AppParameters.AppSettings["FACILITY_ID"].ToString(),
-                        FacilityName = AppParameters.AppSettings["FACILITY_NAME"].ToString(),
+                        FacilityName = !string.IsNullOrEmpty(AppParameters.AppSettings["FACILITY_NAME"].ToString()) ? AppParameters.AppSettings["FACILITY_NAME"].ToString() : "Site Not Configured",
                         FacilityTimeZone = AppParameters.AppSettings["FACILITY_TIMEZONE"].ToString(),
                         AppType = AppParameters.AppSettings["APPLICATION_NAME"].ToString(),
                         Domain = !string.IsNullOrEmpty(Context.User.Identity.Name) ? Context.User.Identity.Name.Split('\\')[0].ToLower() : "",
@@ -2272,7 +2286,7 @@ namespace Factory_of_the_Future
                         newuser.ServerIpAddress = AppParameters.ServerIpAddress.ToString();
                         newuser.NASSCode = AppParameters.AppSettings["FACILITY_NASS_CODE"].ToString();
                         newuser.FDBID = AppParameters.AppSettings["FACILITY_ID"].ToString();
-                        newuser.FacilityName = AppParameters.AppSettings["FACILITY_NAME"].ToString();
+                        newuser.FacilityName = !string.IsNullOrEmpty(AppParameters.AppSettings["FACILITY_NAME"].ToString()) ? AppParameters.AppSettings["FACILITY_NAME"].ToString() : "Site Not Configured";
                         newuser.FacilityTimeZone = AppParameters.AppSettings["FACILITY_TIMEZONE"].ToString();
                         newuser.AppType = AppParameters.AppSettings["APPLICATION_NAME"].ToString();
                         newuser.Role = GetUserRole(GetGroupNames(((WindowsIdentity)Context.User.Identity).Groups));
@@ -2284,7 +2298,7 @@ namespace Factory_of_the_Future
                             UserId = Regex.Replace(Context.User.Identity.Name, @"(USA\\|ENG\\)", "").Trim(),
                             NASSCode = AppParameters.AppSettings["FACILITY_NASS_CODE"].ToString(),
                             FDBID = AppParameters.AppSettings["FACILITY_ID"].ToString(),
-                            FacilityName = AppParameters.AppSettings["FACILITY_NAME"].ToString(),
+                            FacilityName = !string.IsNullOrEmpty(AppParameters.AppSettings["FACILITY_NAME"].ToString()) ? AppParameters.AppSettings["FACILITY_NAME"].ToString() : "Site Not Configured",
                             FacilityTimeZone = AppParameters.AppSettings["FACILITY_TIMEZONE"].ToString(),
                             AppType = AppParameters.AppSettings["APPLICATION_NAME"].ToString(),
                             Domain = !string.IsNullOrEmpty(Context.User.Identity.Name) ? Context.User.Identity.Name.Split('\\')[0].ToLower() : "",
