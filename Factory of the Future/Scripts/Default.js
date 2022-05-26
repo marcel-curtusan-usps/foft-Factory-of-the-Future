@@ -155,11 +155,11 @@ $(function () {
                         '</div>' +
                         '<div class="card-body" id="img_card_body">' +
                                 '<div class="input-group mb-3">' +
-                                    '<div class="custom-file" >' +
+                                    '<div class="custom-file mr-p5rem" >' +
                                         '<input type="file" class="custom-file-input" id="fupload" aria-describedby="btnUpload">' +
                                         '<label class="custom-file-label" for="btnUpload">Choose file</label>' +
                                     '</div>' +
-                                    '<div class="input-group-append">' +
+                                    '<div class="input-group-append mr-p5rem">' +
                                         '<button class="btn btn-outline-secondary" type="button" id="btnUpload">Upload</button>' +
                                     '</div>' +
                                 '</div>' +

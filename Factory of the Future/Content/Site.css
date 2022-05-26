@@ -1680,6 +1680,16 @@ div.leaflet-control-layers {
 .ml-np5rem {
     margin-left: -.5rem !important;
 }
+
+.mr-p5rem {
+    margin-right: .5rem !important;
+}
+.mr-p65rem {
+    margin-right: .65rem !important
+}
+.mr-np5rem {
+    margin-right: -.5rem !important;
+}
 .ml-p25rem {
     margin-left: .25rem !important;
 }
