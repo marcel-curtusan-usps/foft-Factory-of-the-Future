@@ -210,7 +210,6 @@ namespace Factory_of_the_Future
                                 existingValue.LocaleKey = camera_item.LocaleKey;
                                 existingValue.ModelNum = camera_item.ModelNum;
                                 existingValue.Reachable = camera_item.Reachable;
-
                             }
                             else
                             {

@@ -152,6 +152,7 @@
     <Content Include="Content\images\marker-icon-2x.png" />
     <Content Include="Content\images\marker-icon.png" />
     <Content Include="Content\images\marker-shadow.png" />
+    <Content Include="Content\images\NoImage.png" />
     <Content Include="Content\images\supervisor.png" />
     <Content Include="Content\images\tag.png" />
     <Content Include="Content\images\tag1.png" />

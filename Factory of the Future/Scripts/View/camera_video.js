@@ -6,12 +6,17 @@ $('#Camera_Modal').on('hidden.bs.modal', function () {
     camera_modal_body.empty();
 });
 var cameras = new L.GeoJSON(null, {
+    
     pointToLayer: function (feature, latlng) {
-        var locaterIcon = L.divIcon({
-            id: feature.properties.id,
-            className: 'bi-camera-fill',
-
+        let m = map;
+        var locaterIcon = L.icon({
+            iconUrl: "../../Content/images/NoImage.png",
+            iconSize: [64, 48], // size of the icon
+            iconAnchor: [0, 0], // point of the icon which will correspond to marker's location
+            shadowAnchor: [0, 0],  // the same for the shadow
+            popupAnchor: [0, 0] // point from which the popup should open relative to the iconAnchor
         });
+
         return L.marker(latlng, {
             icon: locaterIcon,
             title: feature.properties.empName,
@@ -48,13 +53,53 @@ var cameras = new L.GeoJSON(null, {
 async function init_cameras() {
     try {
         if (!/^https/i.test(window.location.protocol)) {
+            fotfmanager.server.joinGroup("CameraMarkers");
             fotfmanager.server.getCameraMarkerList().done(function (cameradata) {
                 if (cameradata.length > 0) {
-                    cameras.addData(cameradata);
+                    setTimeout(
+                        () => {
+                            cameras.addData(cameradata);
+                            updateCameras(cameradata);},
+                        1000);
+                    
                 }
             });
         }
 	} catch (e) {
+        console.log(e);
+    }
+}
+
+
+$.extend(fotfmanager.client, {
+    updateCameraStatus: async (cameraupdate) => { updateCameras(cameraupdate) }
+});
+
+async function updateCameras(cameraupdates) {
+    try {
+        for (var cameraupdate of cameraupdates) {
+            if (cameras.hasOwnProperty("_layers")) {
+                $.map(cameras._layers, function (layer) {
+                    if (layer.hasOwnProperty("feature")) {
+                        if (layer.feature.properties.id === cameraupdate.properties.id) {
+                            var locaterIcon = L.icon({
+                                iconUrl: cameraupdate.properties.base64Image,
+
+                                iconSize: [64, 48], // size of the icon
+                                iconAnchor: [0, 0], // point of the icon which will correspond to marker's location
+                                shadowAnchor: [0, 0],  // the same for the shadow
+                                popupAnchor: [0, 0] // point from which the popup should open relative to the iconAnchor
+                            });
+                            layer.setIcon(locaterIcon);
+                            var a = 1;
+                            
+                        }
+                    }
+                });
+            }
+        }
+
+    } catch (e) {
         console.log(e);
     }
 }
