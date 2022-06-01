@@ -321,8 +321,8 @@ function formatmachinetoprow(properties) {
         peicesFed:  digits(properties.MPEWatchData.tot_sortplan_vol) ,
         throughput: digits(properties.MPEWatchData.cur_thruput_ophr) ,
         rpgVol: digits(properties.MPEWatchData.rpg_est_vol),
-        stateBadge: "",// getstatebadge(properties),
-        stateText:"", // getstateText(properties),
+        stateBadge: getstatebadge(properties),
+        stateText: getstateText(properties),
         estComp: checkValue(properties.MPEWatchData.rpg_est_comp_time) ? properties.MPEWatchData.rpg_est_comp_time : "Estimated Not Available",
         rpgStart:moment(properties.MPEWatchData.rpg_start_dtm, "MM/DD/YYYY hh:mm:ss A").format("YYYY-MM-DD HH:mm:ss"),
         rpgEnd:  moment(properties.MPEWatchData.rpg_end_dtm, "MM/DD/YYYY hh:mm:ss A").format("YYYY-MM-DD HH:mm:ss"),
@@ -402,7 +402,9 @@ $('#zoneselect').change(function (e) {
 function getstatebadge(properties) {
     if (properties.hasOwnProperty("MPEWatchData")) {
         if (properties.MPEWatchData.hasOwnProperty("current_run_end")) {
-            var endtime = moment(properties.MPEWatchData.current_run_end);
+            //var endtime = moment(properties.MPEWatchData.current_run_end);
+            var endtime = properties.MPEWatchData.current_run_end == "0" ? "" : moment(properties.MPEWatchData.current_run_end);
+            
             var starttime = moment(properties.MPEWatchData.current_run_start);
             var sortPlan = properties.MPEWatchData.cur_sortplan;
 
@@ -432,7 +434,8 @@ function getstatebadge(properties) {
 function getstateText(properties) {
     if (properties.hasOwnProperty("MPEWatchData")) {
         if (properties.MPEWatchData.hasOwnProperty("current_run_end")) {
-            var endtime = moment(properties.MPEWatchData.current_run_end);
+            //var endtime = moment(properties.MPEWatchData.current_run_end);
+            var endtime = properties.MPEWatchData.current_run_end == "0" ? "" : moment(properties.MPEWatchData.current_run_end);
             var starttime = moment(properties.MPEWatchData.current_run_start);
             var sortPlan = properties.MPEWatchData.cur_sortplan;
 
