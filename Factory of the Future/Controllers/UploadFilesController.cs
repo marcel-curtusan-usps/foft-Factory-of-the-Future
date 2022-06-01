@@ -39,70 +39,58 @@ namespace Factory_of_the_Future.Controllers
                 otherCoordSys =	String	Comma separated list of other coordinate systems that use the same background image
                 base64 =	String	Image bytes as base64 encoded string.
              */
-            JObject temp1 = new JObject
-            {
-                ["coordinateSystems"] = new JArray { new JObject{
-                ["backgroundImages"] = new JArray { new JObject{
-                             ["widthMeter"] = 0,
-                             ["xMeter"] = 0,
-                             ["visible"] = true,
-                             ["otherCoordSys"] = "",
-                             ["rotation"] = 0,
-                             ["base64"] = "",
-                             ["origoY"] = 0,
-                             ["origoX"] = 0,
-                             ["heightMeter"] = 0,
-                             ["yMeter"] = 0,
-                             ["alpha"] = 0,
-                             ["id"] = "",
-                             ["metersPerPixelY"] = 0,
-                             ["metersPerPixelX"] = 0,
-                          }
-                       }
-                    }
-                }
-            };
+            
             //Fetch the File.
             HttpPostedFile postedFile = HttpContext.Current.Request.Files[0];
             double metersPerPixelY = Convert.ToDouble(HttpContext.Current.Request.Form["metersPerPixel"]);
             double metersPerPixelX = Convert.ToDouble(HttpContext.Current.Request.Form["metersPerPixel"]);
+            string name = HttpContext.Current.Request.Form["name"];
             int fileLen;
             fileLen = postedFile.ContentLength;
-            byte[] input = new byte[fileLen];
-            string imageBase64 = "";
+           
+            CoordinateSystem CSystem = new CoordinateSystem();
+            CSystem.Name = Path.GetFileNameWithoutExtension(postedFile.FileName);
+            CSystem.Id = Guid.NewGuid().ToString();
             using (Image OSLImage = Image.FromStream(postedFile.InputStream))
             {
-                temp1["coordinateSystems"][0]["backgroundImages"][0]["id"] = Path.GetFileNameWithoutExtension(postedFile.FileName);
-                temp1["coordinateSystems"][0]["backgroundImages"][0]["origoX"] = OSLImage.Width;
-                temp1["coordinateSystems"][0]["backgroundImages"][0]["origoY"] = OSLImage.Height;
-                temp1["coordinateSystems"][0]["backgroundImages"][0]["metersPerPixelY"] = metersPerPixelY;
-                temp1["coordinateSystems"][0]["backgroundImages"][0]["metersPerPixelX"] = metersPerPixelX;
-                temp1["coordinateSystems"][0]["backgroundImages"][0]["widthMeter"] = OSLImage.Width * metersPerPixelY;
-                temp1["coordinateSystems"][0]["backgroundImages"][0]["heightMeter"] = OSLImage.Height * metersPerPixelX;
-                temp1["coordinateSystems"][0]["name"] = Path.GetFileNameWithoutExtension(postedFile.FileName);
-                input = AppParameters.ImageToByteArray(OSLImage);
-                imageBase64 = Convert.ToBase64String(input);
-                temp1["coordinateSystems"][0]["backgroundImages"][0]["base64"] = string.Concat("data:image/png;base64,", imageBase64);
-
+                byte[] input = AppParameters.ImageToByteArray(OSLImage);
+                string imageBase64 = Convert.ToBase64String(input);
+                BackgroundImage temp = new BackgroundImage()
+                {
+                    Id = Path.GetFileNameWithoutExtension(postedFile.FileName),
+                    Name = string.IsNullOrEmpty(name) ? "Main Floor" : name,
+                    OrigoX = OSLImage.Width,
+                    OrigoY = OSLImage.Height,
+                    MetersPerPixelX = metersPerPixelX,
+                    MetersPerPixelY = metersPerPixelY,
+                    WidthMeter = OSLImage.Width * metersPerPixelY,
+                    HeightMeter = OSLImage.Height * metersPerPixelX,
+                    Base64 = string.Concat("data:image/png;base64,", imageBase64) ,
+                    FacilityName = !string.IsNullOrEmpty(AppParameters.AppSettings["FACILITY_NAME"].ToString()) ? AppParameters.AppSettings["FACILITY_NAME"].ToString() : "Site Not Configured",
+                    ApplicationFullName = AppParameters.AppSettings["APPLICATION_FULLNAME"].ToString(),
+                    ApplicationAbbr = AppParameters.AppSettings["APPLICATION_NAME"].ToString(),
+                };
+                CSystem.BackgroundImage = temp;
+                AppParameters.CoordinateSystem.TryAdd(CSystem.Id, CSystem);
             }
-            //Fetch the File Name.
+            ////Fetch the File Name.
             string fileName = postedFile.FileName;
-            string fullFilePath = string.Concat(path, @"\", fileName);
-            FileInfo fileToupload = new FileInfo(fullFilePath);
-            if (fileToupload.Exists)
-            {
-                //move file to archive
-                File.Move(fileToupload.FullName, fileToupload.DirectoryName + "\\" + Path.GetFileNameWithoutExtension(fileToupload.Name) + "_" + fileToupload.LastWriteTime.ToString("yyyy_MM_dd_HH_mm_ss_fff") + fileToupload.Extension);
-                postedFile.SaveAs(fullFilePath);
+            //string fullFilePath = string.Concat(path, @"\", fileName);
+            //FileInfo fileToupload = new FileInfo(fullFilePath);
+            //if (fileToupload.Exists)
+            //{
+            //    //move old image to archive
+            //    File.Move(fileToupload.FullName, fileToupload.DirectoryName + "\\" + Path.GetFileNameWithoutExtension(fileToupload.Name) + "_" + fileToupload.LastWriteTime.ToString("yyyy_MM_dd_HH_mm_ss_fff") + fileToupload.Extension);
+            //    postedFile.SaveAs(fullFilePath);
 
-                Task.Run(() => new ProcessRecvdMsg().StartProcess(JsonConvert.SerializeObject(temp1, Formatting.None), "getProjectInfo", "0"));
-            }
-            else
-            {
-                //Save the File.
-                postedFile.SaveAs(fullFilePath);
-                Task.Run(() => new ProcessRecvdMsg().StartProcess(JsonConvert.SerializeObject(temp1, Formatting.None), "getProjectInfo", "0"));
-            }
+            //    //Task.Run(() => new ProcessRecvdMsg().StartProcess(JsonConvert.SerializeObject(temp1, Formatting.None), "getProjectInfo", "0"));
+            //}
+            //else
+            //{
+            //    //Save the image.
+            //    postedFile.SaveAs(fullFilePath);
+            //    //Task.Run(() => new ProcessRecvdMsg().StartProcess(JsonConvert.SerializeObject(temp1, Formatting.None), "getProjectInfo", "0"));
+            //}
 
             //Send OK Response to Client.
             return Request.CreateResponse(HttpStatusCode.OK, fileName);

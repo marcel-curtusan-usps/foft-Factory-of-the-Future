@@ -270,8 +270,9 @@ async function LoadMachineTables(dataproperties, table) {
                 var throughput = dataproperties.hasOwnProperty("MPEWatchData") ? dataproperties.MPEWatchData.hasOwnProperty("cur_thruput_ophr") ? dataproperties.MPEWatchData.cur_thruput_ophr : "" : "";
                 var thpCode = dataproperties.hasOwnProperty("MPEWatchData") ? dataproperties.MPEWatchData.hasOwnProperty("throughput_status") ? dataproperties.MPEWatchData.throughput_status : "0" : "0";
                 var color = GetMacineBackground(startofrun, thpCode);
+                var tp_style = document.getElementById('Throughput_tr').style;
                 if (color != '#3573b1') {
-                    var tp_style = document.getElementById('Throughput_tr').style;
+              
                     if (tp_style != null) {
                         if (color == "#dc3545") {
                             tp_style.backgroundColor = "rgba(220, 53, 69, 0.5)";
@@ -320,8 +321,8 @@ function formatmachinetoprow(properties) {
         peicesFed:  digits(properties.MPEWatchData.tot_sortplan_vol) ,
         throughput: digits(properties.MPEWatchData.cur_thruput_ophr) ,
         rpgVol: digits(properties.MPEWatchData.rpg_est_vol),
-        stateBadge: getstatebadge(properties),
-        stateText: getstateText(properties),
+        stateBadge: "",// getstatebadge(properties),
+        stateText:"", // getstateText(properties),
         estComp: checkValue(properties.MPEWatchData.rpg_est_comp_time) ? properties.MPEWatchData.rpg_est_comp_time : "Estimated Not Available",
         rpgStart:moment(properties.MPEWatchData.rpg_start_dtm, "MM/DD/YYYY hh:mm:ss A").format("YYYY-MM-DD HH:mm:ss"),
         rpgEnd:  moment(properties.MPEWatchData.rpg_end_dtm, "MM/DD/YYYY hh:mm:ss A").format("YYYY-MM-DD HH:mm:ss"),
@@ -534,24 +535,6 @@ function enablezoneSubmit() {
     else {
         $('button[id=machinesubmitBtn]').prop('disabled', true);
     }
-}
-async function init_machine() {
-    //Get MachineZones list
-    fotfmanager.server.getMachineZonesList().done(function (machinedatazone) {
-        if (machinedatazone.length > 0) {
-            $.each(machinedatazone, function () {
-                updateMachineZone(this);
-            });
-            var options = $('#zoneselect option');
-            var arr = options.map(function (_, o) { return { t: $(o).text(), v: o.value }; }).get();
-            arr.sort(function (o1, o2) { return o1.t > o2.t ? 1 : o1.t < o2.t ? -1 : 0; });
-            options.each(function (i, o) {
-                o.value = arr[i].v;
-                $(o).text(arr[i].t);
-            });
-            fotfmanager.server.joinGroup("MachineZones");
-        }
-    })
 }
 function GetMacineBackground(starttime, throughputCode) {
     var curtime = moment().format('YYYY-MM-DD HH:mm:ss');

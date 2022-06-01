@@ -250,6 +250,7 @@ function CreateZone(newlayer)
         var togeo = newlayer.layer.toGeoJSON();
         var geoProp = {
             Zone_Type: "",
+            floorid: baselayerid,
             name: "",
             visible: true
         }
@@ -275,11 +276,13 @@ function CreateZone(newlayer)
 }
 function CreateBinZone(newlayer) {
     try {
+        newlayer.sourceTarget.options.layers[0].options.id
         map.setView(newlayer.layer._bounds.getCenter());
         sidebar.open('home');
         var togeo = newlayer.layer.toGeoJSON();
         var geoProp = {
             Zone_Type: "",
+            floorid: baselayerid,
             name: "",
             bins: "",
             visible: true
@@ -315,6 +318,7 @@ function CreateCamera(newlayer)
     map.setView(newlayer.layer._latlng, 3);
     var geoProp = {
         name: "",
+        floorid: baselayerid,
         Tag_Type: "",
         visible: true
     }

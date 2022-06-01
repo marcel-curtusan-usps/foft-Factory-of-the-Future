@@ -220,34 +220,52 @@ $('#zoneselect').change(function (e) {
     LoadstageDetails(selcValue);
 
 });
-async function init_zones() {
+async function init_zones(zoneData, id) {
     //Get Zones list
-    fotfmanager.server.getZonesList().done(function (zoneData) {
-        if (zoneData.length > 0) {
-            $.each(zoneData, function () {
-                if (/^ebr/i.test(this.properties.name)) {
-                    ebrAreas.addData(this);
-                }
-                else if (/^Staging/i.test(this.properties.name)) {
-                    stagingAreas.addData(this);
-                }
-                else if (/^Walkway/i.test(this.properties.name)) {
-                    walkwayAreas.addData(this);
-                }
-                else if (/^exit/i.test(this.properties.name)) {
-                    exitAreas.addData(this);
-                }
-                else if (/^(Poly|hol)/i.test(this.properties.name)) {
-                    polyholesAreas.addData(this);
-                }
-                //else if (/^(Bin)/i.test(this.properties.name)) {
-                //    binzonepoly.addData(this);
-                //}
-                else {
-                    stagingAreas.addData(this);
-                }
-            })
-            fotfmanager.server.joinGroup("Zones");
+    $.each(zoneData, function () {
+        if (/^ebr/i.test(this.properties.name)) {
+          
+            ebrAreas.addData(this);
+        }
+        else if (/^Staging/i.test(this.properties.name)) {
+      
+            stagingAreas.addData(this);
+        }
+        else if (/^Walkway/i.test(this.properties.name)) {
+           
+            walkwayAreas.addData(this);
+        }
+        else if (/^exit/i.test(this.properties.name)) {
+
+            exitAreas.addData(this);
+        }
+        else if (/^(Poly|hol)/i.test(this.properties.name)) {
+      
+            polyholesAreas.addData(this);
+        }
+        else if (/^(DockDoor)/i.test(this.properties.Zone_Type)) {
+            dockDoors.addData(this);
+        }
+        else if (/^(Machine)/i.test(this.properties.Zone_Type)) {
+      
+            polygonMachine.addData(this);
+        }
+        else if (/^(Bin)/i.test(this.properties.Zone_Type)) {
+         
+            binzonepoly.addData(this);
+        }
+        else if (/^(AGVLocation)/i.test(this.properties.Zone_Type)) {
+        
+            agvLocations.addData(this);
+        }
+        else if (/^(ViewPorts)/i.test(this.properties.Zone_Type)) {
+            viewPortsAreas.addData(this);
+        }
+        else {
+            
+            stagingAreas.addData(this);
         }
     })
+    fotfmanager.server.joinGroup("Zones");
+
 }

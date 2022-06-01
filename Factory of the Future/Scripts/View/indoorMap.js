@@ -4,7 +4,7 @@ var sidebar = L.control.sidebar({
     container: 'sidebar', position: 'left', autopan: false
 });
 var mainfloorOverlays = L.layerGroup();
-var mainfloor = L.imageOverlay(null, [0, 0], { zindex: -1 }).addTo(mainfloorOverlays);
+var mainfloor = L.imageOverlay(null, [0, 0], { id:-1 ,zindex: -1 }).addTo(mainfloorOverlays);
 var baseLayers = {
   "Main Floor": mainfloor
 };
@@ -40,7 +40,24 @@ map = L.map('map', {
     layers: [mainfloor, polygonMachine, piv_vehicles, agv_vehicles, agvLocations, container, stagingAreas, tagsMarkersGroup, dockDoors, binzonepoly]
 });
 
-
+map.on('baselayerchange', function (e) {
+    baselayerid = e.layer.options.id;
+    console.log(baselayerid);
+    fotfmanager.server.getIndoorMapFloor(baselayerid).done(function (data) {
+        map.removeLayer(ebrAreas);
+        map.removeLayer(stagingAreas);
+        map.removeLayer(walkwayAreas);
+        map.removeLayer(exitAreas);
+        map.removeLayer(polyholesAreas);
+        map.removeLayer(dockDoors);
+        map.removeLayer(polygonMachine);
+        map.removeLayer(binzonepoly);
+        map.removeLayer(agvLocations);
+        map.removeLayer(viewPortsAreas);
+        map.removeLayer(stagingAreas);
+        init_zones(data[0].zones, baselayerid);
+    })
+});
 var timedisplay = L.Control.extend({
     options: {
         position: 'topright'
@@ -189,38 +206,37 @@ function init_mapSetup(MapData) {
     try {
 
         if (MapData.length > 0) {
-            map.attributionControl.setPrefix("USPS " + MapData[0].applicationFullName + " (" + MapData[0].softwareVersion + ")");
-            $('#fotf-site-facility-name').append(MapData[0].facilityName);
-            map.attributionControl.addAttribution(MapData[0].facilityName);
-            $(document).prop('title', MapData[0].facilityName + ' ' + MapData[0].applicationAbbr);
+            map.attributionControl.setPrefix("USPS " + MapData[0].backgroundImages.applicationFullName + " (" + MapData[0].backgroundImages.softwareVersion + ")");
+            $('#fotf-site-facility-name').append(MapData[0].backgroundImages.facilityName);
+            map.attributionControl.addAttribution(MapData[0].backgroundImages.facilityName);
+            $(document).prop('title', MapData[0].backgroundImages.facilityName + ' ' + MapData[0].backgroundImages.applicationAbbr);
             $.each(MapData, function (index) {
                 //set new image
                 var img = new Image();
                 //load Base64 image
-                img.src = this.base64;
+                img.src = this.backgroundImages.base64;
                 //create he bound of the image.
-                bounds = [[this.yMeter, this.xMeter], [this.heightMeter + this.yMeter, this.widthMeter + this.xMeter]];
+                bounds = [[this.backgroundImages.yMeter, this.backgroundImages.yMeter], [this.backgroundImages.heightMeter + this.backgroundImages.yMeter, this.backgroundImages.widthMeter + this.backgroundImages.xMeter]];
                 var trackingarea = L.polygon(bounds, {});
                 if (index === 0) {
+                    mainfloor.options.id = this.id;         
                     mainfloor.setUrl(img.src);
                     mainfloor.setZIndex(index);
                     mainfloor.setBounds(trackingarea.getBounds());
                     //center image
                     map.setView(trackingarea.getBounds().getCenter(), 1.5);
+                    //init_zones(this.zones, this.id);
+                    //init_locators(this.locators, this.id);
                 }
                 else {
-                    layersControl.addBaseLayer(L.imageOverlay(img.src, trackingarea.getBounds(), { zindex: index }), this.name);
+                    layersControl.addBaseLayer(L.imageOverlay(img.src, trackingarea.getBounds(), { id: this.id, zindex: index }), this.backgroundImages.name);
+                    //init_zones(this.zones, this.id);
+                    //init_locators(this.locators, this.id);
                 }
+             
             });
-            init_viewports();
-            init_machine();
-            init_dockdoor();
-            init_agvlocation();
-            init_zones();
-            init_BinZones();
             init_arrive_depart_trips();
-            init_locators();
-            init_cameras();
+           
             init_agvtags();
             LoadNotification("routetrip");
             LoadNotification("vehicle");
@@ -229,6 +245,19 @@ function init_mapSetup(MapData) {
             if (!/(^PMCCUser$)/i.test(User.UserId)) {
                 fotfmanager.server.joinGroup("PeopleMarkers");
             }
+        }
+        else {
+            fotfmanager.server.GetIndoorMap().done(function (GetIndoorMap) {
+                if (GetIndoorMap.length > 0) {
+                    $.each(GetIndoorMap, function () {
+                        map.attributionControl.setPrefix("USPS " + this.backgroundImages.applicationFullName + " (" + this.backgroundImages.softwareVersion + ")");
+                        $('#fotf-site-facility-name').append(this.backgroundImages.facilityName);
+                        map.attributionControl.addAttribution(this.backgroundImages.facilityName);
+                        $(document).prop('title', this.backgroundImages.facilityName + ' ' + this.backgroundImages.applicationAbbr);
+                    });
+                }
+            })
+
         }
         if ($.isEmptyObject(map)) {
             $('div[id=map]').css('display', 'none');

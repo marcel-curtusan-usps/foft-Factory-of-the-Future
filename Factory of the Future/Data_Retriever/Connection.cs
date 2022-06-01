@@ -40,23 +40,24 @@ namespace Factory_of_the_Future
                     {
                         if (AppParameters.IsValidJson(incomingData))
                         {
-                            JObject incomingDataJobject = JObject.Parse(incomingData);
-                            JObject temp1 = new JObject(
-                                    new JProperty("code", "0"),
-                                    new JProperty("command", "UDP_Client"),
-                                    new JProperty("outputFormatId", "DefFormat002"),
-                                    new JProperty("outputFormatName", "Location JSON"),
-                                    new JProperty("message", m.MessageType),
-                                    new JProperty("responseTS", DateTimeOffset.Now.ToUnixTimeMilliseconds()),
-                                    new JProperty("status", "0"),
-                                    new JProperty("tags", new JArray(incomingDataJobject))
-
-                                    );
-                            m.ApiConnected = true;
-                            m.LasttimeApiConnected = DateTime.Now;
-                            m.UpdateStatus = true;
-                            Task.Run(() => new ProcessRecvdMsg().StartProcess(JsonConvert.SerializeObject(temp1, Formatting.None), m.MessageType,this.conid));
-
+                            JToken incomingDataJobject = JToken.Parse(incomingData);
+                            if (incomingDataJobject.HasValues && incomingDataJobject != null)
+                            {
+                                JToken temp1 = new JObject(
+                                        new JProperty("code", "0"),
+                                        new JProperty("command", "UDP_Client"),
+                                        new JProperty("outputFormatId", "DefFormat002"),
+                                        new JProperty("outputFormatName", "Location JSON"),
+                                        new JProperty("message", m.MessageType),
+                                        new JProperty("responseTS", DateTimeOffset.Now.ToUnixTimeMilliseconds()),
+                                        new JProperty("status", "0"),
+                                        new JProperty("tags", new JArray(incomingDataJobject))
+                                        );
+                                m.ApiConnected = true;
+                                m.LasttimeApiConnected = DateTime.Now;
+                                m.UpdateStatus = true;
+                                Task.Run(() => new ProcessRecvdMsg().StartProcess(JsonConvert.SerializeObject(temp1, Formatting.None), m.MessageType, this.conid));
+                            }
                         }
                         else
                         {
@@ -79,7 +80,7 @@ namespace Factory_of_the_Future
                     m.LasttimeApiConnected = DateTime.Now;
                     m.UpdateStatus = true;
                 }
-            };
+            }
             ReceiveAsync();
 
         }
@@ -108,7 +109,6 @@ namespace Factory_of_the_Future
         internal string MessageType = string.Empty;
         public int Thread_ID;
         public int Status; // 0 = Idle, 1 = Running, 2 = Stopped, 3 = Dead, 4 = Stopping(Paused)
-       // public int DATA_RETRIEVE = 120000;
         public bool ConstantRefresh = true;
         public bool Stopping = false;
         public DateTime DownloadDatetime;
@@ -117,10 +117,6 @@ namespace Factory_of_the_Future
         public UdpServer server;
         internal Connection ConnectionInfo;
         public string StatusInfo = "";
-
-        // public DateTime DateAdded;
-
-        //UDP
         public void DownloadLoop()
         {
             do
@@ -212,12 +208,15 @@ namespace Factory_of_the_Future
             this.Status = 1;
            
         }
-        private void UDPStop()
+        public void UDPStop()
         {
             //stop UDP server
-            this.server.Stop();
-            this.Stopping = true;
-            this.Status = 2;
+            if (this.server != null)
+            {
+                this.server.Stop();
+                this.Stopping = true;
+                this.Status = 2;
+            }
         }
         private void UDPInit()
         {
@@ -286,9 +285,10 @@ namespace Factory_of_the_Future
             string formatUrl = string.Empty;
             if (ConnectionInfo.ConnectionName.ToUpper().StartsWith("MPEWatch".ToUpper()))
             {
-                if (ConnectionInfo.Url.Length > 25)
+
+                if (!string.IsNullOrEmpty(AppParameters.AppSettings["MPE_WATCH_ID"].ToString()))
                 {
-                    if (!string.IsNullOrEmpty(AppParameters.AppSettings["MPE_WATCH_ID"].ToString()))
+                    if (ConnectionInfo.Url.Length > 25)
                     {
                         string MpeWatch_id = AppParameters.AppSettings["MPE_WATCH_ID"].ToString();
                         string MpeWatch_data_source = ConnectionInfo.MessageType;
@@ -336,13 +336,20 @@ namespace Factory_of_the_Future
                                 break;
                         }
                     }
-                    else
+                }
+                else
+                {
+                    if (ConnectionInfo.Url.Length > 25)
                     {
-                        MessageType = "mpe_watch_id";
-                        int index = ConnectionInfo.Url.IndexOf("ge.");
-                        formatUrl = string.Concat(ConnectionInfo.Url.Substring(0, (index + 3)), "get_id?group_name=client");
+                        if (ConnectionInfo.MessageType == "rpg_run_perf")
+                        {
+                            MessageType = "mpe_watch_id";
+                            int index = ConnectionInfo.Url.IndexOf("ge.");
+                            formatUrl = string.Concat(ConnectionInfo.Url.Substring(0, (index + 3)), "get_id?group_name=client");
+                        }
                     }
                 }
+
             }
             else if (ConnectionInfo.ConnectionName.ToUpper().StartsWith("SV".ToUpper()))
             {
@@ -421,29 +428,20 @@ namespace Factory_of_the_Future
                                 {
                                     // Thread is complete. Return to idle
                                     DownloadDatetime = dtNow;
-                                    Connected = true;
+                                    if (MessageType == "mpe_watch_id")
+                                    {
+                                        Connected = false;
+                                    }
+                                    else
+                                    {
+                                        Connected = true;
+                                    }
+                                    
                                     string responseData = reader.ReadToEnd();
                                     if (!string.IsNullOrEmpty(responseData))
                                     {
                                         Task.Run(() => new ProcessRecvdMsg().StartProcess(responseData, MessageType, ConnectionInfo.Id));
                                     }
-
-
-                                    //result = JToken.Parse(reader.ReadToEnd());
-                                    //// process date
-                                    //if (result is JArray || result is JObject)
-                                    //{
-                                    //    if (formatUrl.Contains("api_page.get_id"))
-                                    //    {
-                                    //        new ProcessRecvdMsg().StartProcess(result, "mpe_watch_id");
-                                    //    }
-                                    //    else
-                                    //    {
-                                    //        new ProcessRecvdMsg().StartProcess(result, ConnectionInfo.MessageType);
-                                    //    }
-                                    //}
-                                    //Thread.Sleep(100);
-                                    //Task.Run(() => updateConnection(this));
                                 }
                             }
                             else
@@ -492,7 +490,6 @@ namespace Factory_of_the_Future
             }
             this.Status = 0;
         }
-
         private void updateConnection(Api_Connection api_Connection)
         {
             try
@@ -510,7 +507,6 @@ namespace Factory_of_the_Future
                 new ErrorLogger().ExceptionLog(e);
             }
         }
-
         private bool AcceptAllCertifications(object sender, X509Certificate certificate, X509Chain chain, SslPolicyErrors sslPolicyErrors)
         {
             if (sslPolicyErrors == SslPolicyErrors.None)
@@ -519,28 +515,6 @@ namespace Factory_of_the_Future
             }
 
             return false;
-        }
-        private string GetDataFromStream(WebResponse response)
-        {
-            var result = string.Empty;
-            try
-            {
-                if (response != null)
-                {
-                    using (var reader = new StreamReader(response.GetResponseStream()))
-                    {
-                        result = reader.ReadToEnd();
-                    }
-                }
-                return result;
-            }
-            catch (Exception e)
-            {
-                new ErrorLogger().ExceptionLog(e);
-                return result;
-            }
-            
-            
         }
         private void _ThreadStop()
         {

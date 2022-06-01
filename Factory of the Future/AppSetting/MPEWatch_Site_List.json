@@ -1500,7 +1500,7 @@
       "rnum": "214"
     },
     {
-      "site_name_local": "PORTLAND_NEW",
+      "site_name_local": "PORTLAND_OR_PDC",
       "area_name": "Pacific Northwest",
       "district": "ID-MT-OR",
       "local_link": "http://56.143.87.11:7777/pls/mpewatch/",
@@ -1528,7 +1528,7 @@
       "rnum": "218"
     },
     {
-      "site_name_local": "QUEENS",
+      "site_name_local": "QUEENS_NY_PDC",
       "area_name": "New York Metro",
       "district": "New York 2",
       "local_link": "http://56.41.129.11:7777/pls/mpewatch/",

@@ -1,12 +1,17 @@
 ﻿/* use this for locater data */
 
-async function init_locators() {
-    //Get view ports list
-    fotfmanager.server.getLocatorsList().done(function (Data) {
-        if (Data.length > 0) {
-            locatorMarker.addData(Data);
+async function init_locators(tag) {
+    $.each(tag, function () {
+        if (this.properties.Tag_Type === "Vehicle") {
+            piv_vehicles.addData(this);
         }
-    })
+        else if (this.properties.Tag_Type === "Autonomous Vehicle") {
+            agv_vehicles.addData(this);
+        }
+        else {
+            locatorMarker.addData(this)
+        };
+    });
 }
 
 var locatorMarker = new L.GeoJSON(null, {
