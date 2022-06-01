@@ -8,11 +8,45 @@ using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using System.Web;
+using System.Net.Http;
+using System.Net.Http.Headers;
 
 namespace Factory_of_the_Future
 {
     public class AsyncAPICall 
     {
+
+        public static string GetImageData(Uri url)
+        {
+
+            string statusDescription;
+            int response_code;
+            try
+            {
+                using (WebClient client = new WebClient())
+                {
+                    client.Headers.Add(HttpRequestHeader.ContentType, "application/octet-stream");
+                    //add header
+                    byte[] result = client.DownloadData(url);
+                    response_code = GetStatusCode(client, out statusDescription);
+                    //get the response from Vendor
+                    if (response_code == 201 || response_code == 200)
+                    {
+                        string returnResult = "data:image/jpeg;base64," +
+                        Convert.ToBase64String(result);
+                        return returnResult;
+                    }
+
+                }
+
+
+            }
+            catch (Exception e)
+            {
+                new ErrorLogger().ExceptionLog(e);
+            }
+            return null;
+        }
         public static string GetData(Uri url) {
 
             string statusDescription;

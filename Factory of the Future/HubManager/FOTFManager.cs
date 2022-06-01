@@ -13,6 +13,8 @@ using System.Security.Principal;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Net;
+using System.Net.Http;
 using System.Web;
 
 namespace Factory_of_the_Future
@@ -33,6 +35,7 @@ namespace Factory_of_the_Future
         private readonly object updateSVTripsStatuslock = new object();
         private readonly object updateNotificationStatuslock = new object();
         private readonly object updateBinZoneStatuslock = new object();
+        private readonly object updateCameralock = new object();
 
         //timers
         private readonly Timer VehicleTag_timer;
@@ -45,6 +48,7 @@ namespace Factory_of_the_Future
         private readonly Timer SVTrips_timer;
         private readonly Timer Notification_timer;
         private readonly Timer BinZone_timer;
+        private Timer Camera_timer;
         //status
         private volatile bool _updatePersonTagStatus = false;
         private volatile bool _updateZoneStatus = false;
@@ -56,6 +60,7 @@ namespace Factory_of_the_Future
         private volatile bool _updateSVTripsStatus = false;
         private volatile bool _updateNotificationstatus = false;
         private volatile bool _updateBinZoneStatus = false;
+        private volatile bool _updateCameraStatus = false;
         private bool disposedValue;
 
         //250 Milliseconds
@@ -86,8 +91,35 @@ namespace Factory_of_the_Future
             //Connection status
             QSM_timer = new Timer(UpdateQSM, null, _250updateInterval, _250updateInterval);
             BinZone_timer = new Timer(UpdateBinZoneStatus, null, _2000updateInterval, _2000updateInterval);
+            Camera_timer = null;
+            SetCameraThumbnailInterval();
+            UpdateCameraImages();
         }
-        public static FOTFManager Instance
+
+
+         
+
+        internal void SetCameraThumbnailInterval()
+        {
+
+            int cameraThumbnailInterval = 30000;
+            try
+            {
+                cameraThumbnailInterval = Convert.ToInt32(AppParameters.AppSettings["CAMERA_THUMBNAIL_INTERVAL"]);
+            }
+            catch (Exception e)
+            {
+                new ErrorLogger().ExceptionLog(e);
+            }
+            if (Camera_timer != null)
+            {
+                Camera_timer.Dispose();
+                Camera_timer = null;
+            }
+            Camera_timer = new Timer(UpdateCameraImages, null, cameraThumbnailInterval, cameraThumbnailInterval);
+             
+        }
+    public static FOTFManager Instance
         {
             get { return _instance.Value; }
         }
@@ -217,6 +249,80 @@ namespace Factory_of_the_Future
                 return null;
             }
         }
+
+        public void UpdateCameraImages(object state)
+        {
+            UpdateCameraImages();
+        }
+        public void UpdateCameraImages()
+        {
+            lock (updateCameralock)
+            {
+                if (!_updateCameraStatus)
+                {
+                    try
+                    {
+                        List<Task> TaskList = new List<Task>();
+                        _updateCameraStatus = true;
+                        foreach (KeyValuePair<string, GeoMarker> geoMarkerEntry in AppParameters.TagsList)
+                        {
+                            if (!String.IsNullOrEmpty(geoMarkerEntry.Value.Properties.CameraData))
+                            {
+                                Func<object, Task<bool>> action = (object cameraData) =>
+                                {
+                                    return UpdateCameraImage((GeoMarker) cameraData);
+                                };
+                                TaskList.Add(action(geoMarkerEntry.Value));
+                            }
+                        }
+                        // run the tasks "simultaneously" but wait for all to complete
+                        Task.WaitAll(TaskList.ToArray());
+                        var markers = AppParameters.TagsList
+                            .Where(u => !String.IsNullOrEmpty(u.Value.Properties.CameraData));
+
+                        List<GeoMarker> cameraList = new List<GeoMarker>();
+                        foreach (KeyValuePair<string, GeoMarker> tag in AppParameters.TagsList)
+                        {
+                            if (! String.IsNullOrEmpty(tag.Value.Properties.CameraData) )
+                            {
+                                cameraList.Add(tag.Value);
+                            }
+                        }
+                        BroadcastCameraStatus(cameraList);
+                    }
+                    catch (Exception e)
+                    {
+                        new ErrorLogger().ExceptionLog(e);
+                    }
+                    _updateCameraStatus = false;
+                }
+            }
+        }
+        internal async Task<bool> UpdateCameraImage(GeoMarker cameraData)
+        {
+            try
+            {
+                string url = @"http://" + cameraData.Properties.Name + 
+                    @"/axis-cgi/jpg/image.cgi?resolution=320x240";
+
+                using (var client = new HttpClient())
+                {
+                    Uri thisUri = new Uri(url);
+                    cameraData.Properties.Base64Image =
+                        AsyncAPICall.GetImageData(thisUri);
+
+                    Console.WriteLine("image gotten: " + cameraData.Properties.Base64Image.Substring(0, 100));
+                    return true;
+                }
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("Exception getting image: " + e.Message);
+                new ErrorLogger().ExceptionLog(e);
+                return false;
+            }
+        }
+        
         internal GeoMarker AddMarker(string data)
         {
 
@@ -1861,6 +1967,7 @@ namespace Factory_of_the_Future
             Clients.Group("VehiclsMarkers").updateVehicleTagStatus(marker);
         }
 
+        
         private void UpdatePersonTagStatus(object state)
         {
             lock (updatePersonTagStatuslock)
@@ -1914,6 +2021,10 @@ namespace Factory_of_the_Future
                 new ErrorLogger().ExceptionLog(e);
                 return false;
             }
+        }
+        private void BroadcastCameraStatus(List<GeoMarker> Markers)
+        {
+            Clients.Group("CameraMarkers").updateCameraStatus(Markers);
         }
 
         private void BroadcastPersonTagStatus(GeoMarker Marker)
@@ -2269,6 +2380,10 @@ namespace Factory_of_the_Future
                                     else
                                     {
                                         AppParameters.AppSettings[item.Key] = kv.Value;
+                                    }
+                                    if (kv.Name == "CAMERA_THUMBNAIL_INTERVAL")
+                                    {
+                                        SetCameraThumbnailInterval();
                                     }
                                 }
                             }

@@ -458,6 +458,8 @@ namespace Factory_of_the_Future
         public string Source { get; set; } = "";
         [JsonProperty("notificationId")]
         public string NotificationId { get; set; } = "";
+        [JsonProperty("base64Image")]
+        public string Base64Image { get; set; }
     }
     public class ZoneInfo
     {
