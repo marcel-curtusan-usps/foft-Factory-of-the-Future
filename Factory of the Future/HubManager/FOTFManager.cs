@@ -289,7 +289,7 @@ namespace Factory_of_the_Future
             try
             {
                 string url = @"http://" + cameraData.Properties.Name + 
-                    @"/axis-cgi/jpg/image.cgi?resolution=640x480";
+                    @"/axis-cgi/jpg/image.cgi?resolution=320x240";
 
                 using (var client = new HttpClient())
                 {
