@@ -43,7 +43,6 @@ map = L.map('map', {
 map.on('baselayerchange', function (e) {
     baselayerid = e.layer.options.id;
     console.log(baselayerid);
-
     fotfmanager.server.getIndoorMapFloor(baselayerid).done(function (data) {
         sidebar.close('home');
         $zoneSelect[0].selectize.setValue(-1, true);

@@ -1461,7 +1461,7 @@ namespace Factory_of_the_Future
                         {
                             if (TryUpdateMachineStatus(Machine))
                             {
-                                BroadcastMachineStatus(Machine);
+                                BroadcastMachineStatus(Machine, cs.Id);
                             }
                      
                         });
@@ -1567,9 +1567,10 @@ namespace Factory_of_the_Future
                 return DPSData;
             }
         }
-        private void BroadcastMachineStatus(GeoZone machine)
+        private void BroadcastMachineStatus(GeoZone machine, string id)
         {
-            Clients.Group("MachineZones").updateMachineStatus(machine);
+            Clients.Group("MachineZones").updateMachineStatus(machine, id);
+            
         }
 
         internal IEnumerable<CoordinateSystem> GetIndoorMapFloor(string id)
