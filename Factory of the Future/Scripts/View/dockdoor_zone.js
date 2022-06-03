@@ -432,18 +432,7 @@ async function LoadDoorDetails(door) {
 function SortByind(a, b) {
     return a.sortind < b.sortind ? -1 : a.sortind > b.sortind ? 1 : 0;
 }
-async function init_dockdoor() {
-    //Get Doock Doorlist
-    fotfmanager.server.getDockDoorZonesList().done(function (dockdoorzoneData) {
-        if (dockdoorzoneData.length > 0) {
-            $.each(dockdoorzoneData, function () {
-                updateDockDoorZone(this);
-            });
-            fotfmanager.server.joinGroup("DockDoorZones");
-        }
-        
-    });
-}
+
 async function removeDockDoor(id)
 {
     try {

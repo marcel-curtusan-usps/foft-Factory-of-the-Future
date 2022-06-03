@@ -20,23 +20,24 @@ namespace Factory_of_the_Future
                     {
                         if (AppParameters.ActiveServer)
                         {
-                            
-                            if (AppParameters.ZoneInfo.Keys.Count == 0)
+
+                            //if (AppParameters.ZoneInfo.Keys.Count == 0)
+                            //{
+                            //   AppParameters.LoadData("Zones.json");
+                            //}
+                            //if (AppParameters.ZoneList.Count == 0)
+                            //{
+                            //    AppParameters.LoadData("CustomZones.json");
+                            //}
+                            if (AppParameters.CoordinateSystem.Count == 0)
                             {
-                               AppParameters.LoadData("Zones.json");
+                                AppParameters.LoadIndoorapData("Project_Data.json");
                             }
-                            if (AppParameters.IndoorMap.Count == 0)
-                            {
-                                AppParameters.LoadIndoorapData("ProjectData.json");
-                            }
-                            if (AppParameters.TagsList.Count == 0)
-                            {
-                                AppParameters.LoadData("Markers.json");
-                            }
-                            if (AppParameters.ZoneList.Count == 0)
-                            {
-                                AppParameters.LoadData("CustomZones.json");
-                            }
+                            //if (AppParameters.TagsList.Count == 0)
+                            //{
+                            //    AppParameters.LoadData("Markers.json");
+                            //}
+
                             //data Retention
                             Task.Run(() => DataRetentionProcess.Start());
 

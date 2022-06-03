@@ -38,7 +38,7 @@ namespace Factory_of_the_Future
         private static readonly string VIKey = "@1B2c3D4e5F6g7H8";
 
         public static ConcurrentDictionary<string, MachData> MPEWatchData { get; set; } = new ConcurrentDictionary<string, MachData>();
-        public static ConcurrentDictionary<string, BackgroundImage> IndoorMap { get; set; } = new ConcurrentDictionary<string, BackgroundImage>();
+        public static ConcurrentDictionary<string, CoordinateSystem> CoordinateSystem { get; set; } = new ConcurrentDictionary<string, CoordinateSystem>();  
         public static ConcurrentDictionary<string, Cameras> CameraInfoList { get; set; } = new ConcurrentDictionary<string, Cameras>();
         public static ConcurrentDictionary<string, Connection> ConnectionList { get; set; } = new ConcurrentDictionary<string, Connection>();
         public static ConcurrentDictionary<string, GeoZone> ZoneList { get; set; } = new ConcurrentDictionary<string, GeoZone>();
@@ -137,6 +137,8 @@ namespace Factory_of_the_Future
                 GetConnectionDefault();
                 ///load Default Notification settings
                 GetNotificationDefault();
+                //loadtemp
+                LoadTempIndoorapData("ProjectData.json");
 
             }
             catch (Exception ex)
@@ -334,16 +336,36 @@ namespace Factory_of_the_Future
         {
             try
             {
-                if (AppSettings.ContainsKey("LOCAL_PROJECT_DATA") && (bool)AppSettings.Property("LOCAL_PROJECT_DATA").Value)
+                string ProjectData = new FileIO().Read(string.Concat(Logdirpath, ConfigurationFloder), fileName);
+
+                if (!string.IsNullOrEmpty(ProjectData))
                 {
-                    string ProjectData = new FileIO().Read(string.Concat(Logdirpath, ConfigurationFloder), fileName);
-                    if (!string.IsNullOrEmpty(ProjectData))
+                    List<CoordinateSystem> cs = JsonConvert.DeserializeObject<List<CoordinateSystem>>(ProjectData);
+                    foreach (CoordinateSystem csitem in cs)
                     {
-                        if (!string.IsNullOrEmpty(ProjectData))
+                        if (!CoordinateSystem.TryAdd(csitem.Id, csitem)) 
                         {
-                            Task.Run(() => new ProcessRecvdMsg().StartProcess(ProjectData, "getProjectInfo", ""));
+                            new ErrorLogger().CustomLog("Unable to CoordinateSystem" + csitem.Name, string.Concat((string)AppParameters.AppSettings.Property("APPLICATION_NAME").Value, "_Applogs"));
+
                         }
                     }
+                    //Task.Run(() => new ProcessRecvdMsg().StartProcess(ProjectData, "getProjectInfo", ""));
+                }
+            }
+            catch (Exception e)
+            {
+                new ErrorLogger().ExceptionLog(e);
+            }
+        }
+        internal static void LoadTempIndoorapData(string fileName)
+        {
+            try
+            {
+                string ProjectData = new FileIO().Read(string.Concat(Logdirpath, ConfigurationFloder), fileName);
+
+                if (!string.IsNullOrEmpty(ProjectData))
+                {
+                    Task.Run(() => new ProcessRecvdMsg().StartProcess(ProjectData, "getProjectInfo", ""));
                 }
             }
             catch (Exception e)
@@ -677,18 +699,31 @@ namespace Factory_of_the_Future
                 MissionList = new ConcurrentDictionary<string, Mission>();
                 NotificationList = new ConcurrentDictionary<string, Notification>();
 
-                ConnectionList = new ConcurrentDictionary<string, Connection>();
+               
                 ZoneInfo = new ConcurrentDictionary<string, ZoneInfo>();
-                IndoorMap = new ConcurrentDictionary<string, BackgroundImage>();
-                TagsList = new ConcurrentDictionary<string, GeoMarker>();
-                ZoneList = new ConcurrentDictionary<string, GeoZone>();
+                //IndoorMap = new ConcurrentDictionary<string, BackgroundImage>();
+                //TagsList = new ConcurrentDictionary<string, GeoMarker>();
+                //ZoneList = new ConcurrentDictionary<string, GeoZone>();
+                CoordinateSystem = new ConcurrentDictionary<string, CoordinateSystem>();
+                foreach (Api_Connection conn in RunningConnection.Connection)
+                {
+                    if (conn.ConnectionInfo.UdpConnection)
+                    {
+                        conn.UDPStop();
+                    }
+                    else
+                    {
+                        conn.Stop();
+                    }
+                  
+                }
                 RunningConnection = new ConnectionContainer();
+                ConnectionList = new ConcurrentDictionary<string, Connection>();
                 AppParameters.AppSettings["MPE_WATCH_ID"] = "";
 
                 if (ActiveServer)
                 {
-                    ///load default connection setting.
-                    GetConnectionDefault();
+                    Start();
                 }
             }
             catch (Exception e)

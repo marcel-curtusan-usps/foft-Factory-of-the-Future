@@ -98,10 +98,6 @@ namespace Factory_of_the_Future
         /// Get Person Tags
         /// </summary>
         /// <returns></returns>
-        public IEnumerable<GeoMarker> GetPersonTagsList()
-        {
-            return _managerHub.GetPersonTagsList();
-        }
 
         public IEnumerable<GeoMarker> GetUndetectedTagsList()
         {
@@ -171,10 +167,6 @@ namespace Factory_of_the_Future
         /// Get dock door Zones
         /// </summary>
         /// <returns></returns>
-        public IEnumerable<GeoZone> GetDockDoorZonesList()
-        {
-            return _managerHub.GetDockDoorZonesList();
-        }
         public IEnumerable<string> GetDockDoorList()
         {
             return _managerHub.GetDockDoorList();
@@ -184,35 +176,11 @@ namespace Factory_of_the_Future
         /// Get Machine Zones
         /// </summary>
         /// <returns></returns>
-        public IEnumerable<GeoZone> GetMachineZonesList()
-        {
-            return _managerHub.GetMachineZonesList();
-        }
+      
         public IEnumerable<string> GetMPEList()
         {
             return _managerHub.GetMPEList();
         }
-        /// <summary>
-        /// Get Machine Bin Zones
-        /// </summary>
-        /// <returns></returns>
-        public IEnumerable<GeoZone> GetBinZonesList()
-        {
-            return _managerHub.GetBinZonesList();
-        }
-        /// <summary>
-        /// Get AGV location Zones
-        /// </summary>
-        /// <returns></returns>
-        public IEnumerable<GeoZone> GetAGVLocationZonesList()
-        {
-            return _managerHub.GetAGVLocationZonesList();
-        }
-        public IEnumerable<GeoMarker> GetVehicleTagsList()
-        {
-            return _managerHub.GetVehicleTagsList();
-        }
-   
         /// <summary>
         /// Add New Custom Zones
         /// </summary>
@@ -233,32 +201,28 @@ namespace Factory_of_the_Future
         {
             return _managerHub.RemoveMarker(data);
         }
-        /// <summary>
-        /// Get View Ports Zones
-        /// </summary>
-        /// <returns></returns>
-        public IEnumerable<GeoZone> GetViewPortsZonesList()
-        {
-            return _managerHub.GetViewPortsZonesList();
-        }
-        /// <summary>
-        /// Get Locator Tags
-        /// </summary>
-        /// <returns></returns>
-        public IEnumerable<GeoMarker> GetLocatorsList()
-        {
-            return _managerHub.GetLocatorsList();
-        }
 
         /// <summary>
         /// Get Map settings
         /// </summary>
         /// <returns></returns>
-        public IEnumerable<BackgroundImage> GetMap()
+        public IEnumerable<CoordinateSystem> GetMap()
         {
             return _managerHub.GetIndoorMap();
         }
-
+        public IEnumerable<CoordinateSystem> GetIndoorMapFloor(string id)
+        {
+            return _managerHub.GetIndoorMapFloor(id);
+        }
+        
+        /// <summary>
+        /// Get Vehicle tags
+        /// </summary>
+        /// <returns></returns>
+        public IEnumerable<GeoMarker> GetVehicleTagsList()
+        {
+            return _managerHub.GetVehicleTagsList();
+        }
         ///// <summary>
         ///// Get user Info section
         ///// </summary>

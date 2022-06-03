@@ -36,11 +36,3 @@ var viewPortsAreas = new L.GeoJSON(null, {
         viewPortsAreas.bringToBack();
     }
 });
-async function init_viewports() {
-    //Get view ports list
-    fotfmanager.server.getViewPortsZonesList().done(function (viewportsData) {
-        if (viewportsData.length > 0) {
-            viewPortsAreas.addData(viewportsData);
-        }
-    })
-}

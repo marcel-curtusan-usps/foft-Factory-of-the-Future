@@ -173,14 +173,3 @@ function Get_location_Code(location) {
     }
     return location_temp;
 }
-async function init_agvlocation() {
-    //Get AGV Location list
-    fotfmanager.server.getAGVLocationZonesList().done(function (agvlocationzoneData) {
-        if (agvlocationzoneData.length > 0) {
-            $.each(agvlocationzoneData, function () {
-                updateAGVLocationZone(this);
-            });
-            fotfmanager.server.joinGroup("AGVLocationZones");
-        }
-    });
-}

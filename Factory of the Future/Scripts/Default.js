@@ -9,6 +9,7 @@ if (!String.prototype.supplant) {
         );
     };
 }
+var baselayerid = "";
 var map = null;
 var bounds = [];
 var container = new L.FeatureGroup();

@@ -146,9 +146,10 @@ namespace Factory_of_the_Future
         {
             try
             {
+               
                 GeoZone newtempgZone = JsonConvert.DeserializeObject<GeoZone>(data);
                 newtempgZone.Properties.Id = Guid.NewGuid().ToString();
-                newtempgZone.Properties.RawData = data;
+                newtempgZone.Properties.RawData = "";
                 newtempgZone.Properties.Source = "user";
                 if (newtempgZone.Properties.ZoneType == "Bin")
                 {
@@ -183,12 +184,24 @@ namespace Factory_of_the_Future
                 newtempgZone.Properties.StaffingData = null;
                 newtempgZone.Properties.DPSData = null;
                 newtempgZone.Properties.ZoneUpdate = true;
-                if (AppParameters.ZoneList.TryAdd(newtempgZone.Properties.Id, newtempgZone))
+
+                if (AppParameters.CoordinateSystem.ContainsKey(newtempgZone.Properties.FloorId))
                 {
-                    new FileIO().Write(string.Concat(AppParameters.Logdirpath, AppParameters.ConfigurationFloder), "CustomZones.json",
-                        JsonConvert.SerializeObject(AppParameters.ZoneList.Where(r => r.Value.Properties.Source == newtempgZone.Properties.Source).Select(x => x.Value).ToList(), Formatting.Indented));
+                    if (AppParameters.CoordinateSystem.TryGetValue(newtempgZone.Properties.FloorId, out CoordinateSystem cs))
+                    {
+                        if (cs.Zones.TryAdd(newtempgZone.Properties.Id, newtempgZone))
+                        {
+                            new FileIO().Write(string.Concat(AppParameters.Logdirpath, AppParameters.ConfigurationFloder), "Project_Data.json", JsonConvert.SerializeObject(AppParameters.CoordinateSystem.Select(y => y.Value).ToList(), Formatting.Indented));
+                            return newtempgZone;
+                        }
+                    }
                 }
-                return newtempgZone;
+                //if (AppParameters.ZoneList.TryAdd(newtempgZone.Properties.Id, newtempgZone))
+                //{
+                //    new FileIO().Write(string.Concat(AppParameters.Logdirpath, AppParameters.ConfigurationFloder), "CustomZones.json",
+                //        JsonConvert.SerializeObject(AppParameters.ZoneList.Where(r => r.Value.Properties.Source == newtempgZone.Properties.Source).Select(x => x.Value).ToList(), Formatting.Indented));
+                //}
+                return null;
             }
             catch (Exception e)
             {
@@ -196,6 +209,7 @@ namespace Factory_of_the_Future
                 return null;
             }
         }
+
 
         internal IEnumerable<string> GetDockDoorList()
         {
@@ -316,7 +330,7 @@ namespace Factory_of_the_Future
             {
                 GeoMarker newtempgMarker = JsonConvert.DeserializeObject<GeoMarker>(data);
                 newtempgMarker.Properties.Id = Guid.NewGuid().ToString();
-                newtempgMarker.Properties.RawData = data;
+                newtempgMarker.Properties.RawData = "";
                 newtempgMarker.Properties.Source = "user";
                 newtempgMarker.Properties.TagUpdate = true;
 
@@ -326,18 +340,29 @@ namespace Factory_of_the_Future
                     newtempgMarker.Properties.Emptype = Camera.ModelNum;
                     newtempgMarker.Properties.CameraData = JsonConvert.SerializeObject(Camera, Formatting.Indented);
                 }
-                if (AppParameters.TagsList.TryAdd(newtempgMarker.Properties.Id, newtempgMarker))
+
+                if (AppParameters.CoordinateSystem.ContainsKey(newtempgMarker.Properties.FloorId))
                 {
-                    new FileIO().Write(string.Concat(AppParameters.Logdirpath, AppParameters.ConfigurationFloder), "Markers.json",
-                        JsonConvert.SerializeObject(AppParameters.TagsList.Where(r => r.Value.Properties.Source == newtempgMarker.Properties.Source).Select(x => x.Value).ToList(), Formatting.Indented));
-                    
-                    UpdateCameraImage(newtempgMarker);
-                    return newtempgMarker;
+                    if (AppParameters.CoordinateSystem.TryGetValue(newtempgMarker.Properties.FloorId, out CoordinateSystem cs))
+                    {
+                        if (cs.Locators.TryAdd(newtempgMarker.Properties.Id, newtempgMarker))
+                        {
+                            new FileIO().Write(string.Concat(AppParameters.Logdirpath, AppParameters.ConfigurationFloder), "Project_Data.json", JsonConvert.SerializeObject(AppParameters.CoordinateSystem.Select(y => y.Value).ToList(), Formatting.Indented));
+                            return newtempgMarker;
+                        }
+                    }
                 }
-                else
-                {
+                //if (AppParameters.TagsList.TryAdd(newtempgMarker.Properties.Id, newtempgMarker))
+                //{
+                //    new FileIO().Write(string.Concat(AppParameters.Logdirpath, AppParameters.ConfigurationFloder), "Markers.json",
+                //        JsonConvert.SerializeObject(AppParameters.TagsList.Where(r => r.Value.Properties.Source == newtempgMarker.Properties.Source).Select(x => x.Value).ToList(), Formatting.Indented));
+
+                //    return newtempgMarker;
+                //}
+                //else
+                //{
                     return null;
-                }
+               // }
 
             }
             catch (Exception e)
@@ -367,29 +392,55 @@ namespace Factory_of_the_Future
             {
                 bool removeMarker = false;
                 GeoMarker markerinfo = null;
-                if (AppParameters.TagsList.TryGetValue(data, out  markerinfo))
+                foreach (CoordinateSystem cs in AppParameters.CoordinateSystem.Values)
                 {
-                    if (markerinfo.Properties.Source == "other")
+                    if (cs.Locators.ContainsKey(data))
                     {
-                        markerinfo.Properties.TagVisible = false;
-                        markerinfo.Properties.TagUpdate = true;
+                        if (cs.Locators.TryGetValue(data, out markerinfo))
+                        {
+                            if (markerinfo.Properties.Source == "other")
+                            {
+                                markerinfo.Properties.TagVisible = false;
+                                markerinfo.Properties.TagUpdate = true;
+                            }
+                            else
+                            {
+                                removeMarker = true;
+                            }
+                        }
+                        if (removeMarker)
+                        {
+                            if (cs.Locators.TryRemove(data, out markerinfo))
+                            {
+                                new FileIO().Write(string.Concat(AppParameters.Logdirpath, AppParameters.ConfigurationFloder), "Project_Data.json", JsonConvert.SerializeObject(AppParameters.CoordinateSystem.Select(y => y.Value).ToList(), Formatting.Indented));
+                            }
+                        }
                     }
-                    else
-                    {
-                        removeMarker = true;
-                    }
-
                 }
-                if (removeMarker)
-                {
-                    if (AppParameters.TagsList.TryRemove(data, out markerinfo))
-                    {
-                        new ErrorLogger().CustomLog("Marker has been removed " + markerinfo.Properties.Id + " from list", string.Concat((string)AppParameters.AppSettings["APPLICATION_NAME"], "Appslogs"));
-                        new FileIO().Write(string.Concat(AppParameters.Logdirpath, AppParameters.ConfigurationFloder), "Markers.json", 
-                            JsonConvert.SerializeObject(AppParameters.TagsList.Where(r => r.Value.Properties.Source == "user").Select(x => x.Value).ToList(), Formatting.Indented));
 
-                    }
-                }
+                //if (AppParameters.TagsList.TryGetValue(data, out  markerinfo))
+                //{
+                //    if (markerinfo.Properties.Source == "other")
+                //    {
+                //        markerinfo.Properties.TagVisible = false;
+                //        markerinfo.Properties.TagUpdate = true;
+                //    }
+                //    else
+                //    {
+                //        removeMarker = true;
+                //    }
+
+                //}
+                //if (removeMarker)
+                //{
+                //    if (AppParameters.TagsList.TryRemove(data, out markerinfo))
+                //    {
+                //        new ErrorLogger().CustomLog("Marker has been removed " + markerinfo.Properties.Id + " from list", string.Concat((string)AppParameters.AppSettings["APPLICATION_NAME"], "Appslogs"));
+                //        new FileIO().Write(string.Concat(AppParameters.Logdirpath, AppParameters.ConfigurationFloder), "Markers.json", 
+                //            JsonConvert.SerializeObject(AppParameters.TagsList.Where(r => r.Value.Properties.Source == "user").Select(x => x.Value).ToList(), Formatting.Indented));
+
+                //    }
+                //}
                 return markerinfo;
             }
             catch (Exception e)
@@ -405,27 +456,52 @@ namespace Factory_of_the_Future
             {
                 bool removeZone = false;
                 GeoZone ZoneInfo = null;
-                if (AppParameters.ZoneList.TryGetValue(data, out ZoneInfo)) 
+                foreach (CoordinateSystem cs in AppParameters.CoordinateSystem.Values)
                 {
-                    if (ZoneInfo.Properties.Source == "other")
+                    if (cs.Zones.ContainsKey(data))
                     {
-                        ZoneInfo.Properties.Visible = false;
-                        ZoneInfo.Properties.ZoneUpdate = true;
-                    }
-                    else
-                    {
-                        removeZone = true;
+                        if (cs.Zones.TryGetValue(data, out ZoneInfo))
+                        {
+                            if (ZoneInfo.Properties.Source == "other")
+                            {
+                                ZoneInfo.Properties.Visible = false;
+                                ZoneInfo.Properties.ZoneUpdate = true;
+                            }
+                            else
+                            {
+                                removeZone = true;
+                            }
+                        }
+                        if (removeZone)
+                        {
+                            if (cs.Zones.TryRemove(data, out ZoneInfo))
+                            {
+                                new FileIO().Write(string.Concat(AppParameters.Logdirpath, AppParameters.ConfigurationFloder), "Project_Data.json", JsonConvert.SerializeObject(AppParameters.CoordinateSystem.Select(y => y.Value).ToList(), Formatting.Indented));
+                            }
+                        }
                     }
                 }
-                if (removeZone)
-                {
-                    if (AppParameters.ZoneList.TryRemove(data, out ZoneInfo))
-                    {
-                        new ErrorLogger().CustomLog("Zone has been removed " + ZoneInfo.Properties.Id + " from list", string.Concat((string)AppParameters.AppSettings["APPLICATION_NAME"], "Appslogs"));
-                        new FileIO().Write(string.Concat(AppParameters.Logdirpath, AppParameters.ConfigurationFloder), "CustomZones.json",
-                      JsonConvert.SerializeObject(AppParameters.ZoneList.Where(r => r.Value.Properties.Source == "user").Select(x => x.Value).ToList(), Formatting.Indented));
-                    }
-                }
+                //if (AppParameters.ZoneList.TryGetValue(data, out ZoneInfo)) 
+                //{
+                //    if (ZoneInfo.Properties.Source == "other")
+                //    {
+                //        ZoneInfo.Properties.Visible = false;
+                //        ZoneInfo.Properties.ZoneUpdate = true;
+                //    }
+                //    else
+                //    {
+                //        removeZone = true;
+                //    }
+                //}
+                //if (removeZone)
+                //{
+                //    if (AppParameters.ZoneList.TryRemove(data, out ZoneInfo))
+                //    {
+                //        new ErrorLogger().CustomLog("Zone has been removed " + ZoneInfo.Properties.Id + " from list", string.Concat((string)AppParameters.AppSettings["APPLICATION_NAME"], "Appslogs"));
+                //        new FileIO().Write(string.Concat(AppParameters.Logdirpath, AppParameters.ConfigurationFloder), "CustomZones.json",
+                //      JsonConvert.SerializeObject(AppParameters.ZoneList.Where(r => r.Value.Properties.Source == "user").Select(x => x.Value).ToList(), Formatting.Indented));
+                //    }
+                //}
                 return ZoneInfo;
             }
             catch (Exception e)
@@ -1379,12 +1455,23 @@ namespace Factory_of_the_Future
                 if (!_updateMachineStatus)
                 {
                     _updateMachineStatus = true;
-                    foreach (var Machine in AppParameters.ZoneList.Where(u => u.Value.Properties.ZoneUpdate
-                    && u.Value.Properties.Visible
-                    && u.Value.Properties.ZoneType == "Machine").Select(x => x.Value).Where(Machine => TryUpdateMachineStatus(Machine)))
+                    foreach (CoordinateSystem cs in AppParameters.CoordinateSystem.Values)
                     {
-                        BroadcastMachineStatus(Machine);
+                        cs.Zones.Where(f => f.Value.Properties.ZoneType == "Machine").Select(y => y.Value).ToList().ForEach(Machine =>
+                        {
+                            if (TryUpdateMachineStatus(Machine))
+                            {
+                                BroadcastMachineStatus(Machine, cs.Id);
+                            }
+                     
+                        });
                     }
+                    //        foreach (var Machine in AppParameters.ZoneList.Where(u => u.Value.Properties.ZoneUpdate
+                    //&& u.Value.Properties.Visible
+                    //&& u.Value.Properties.ZoneType == "Machine").Select(x => x.Value).Where(Machine => TryUpdateMachineStatus(Machine)))
+                    //{
+                    //    BroadcastMachineStatus(Machine);
+                    //}
 
                     _updateMachineStatus = false;
                 }
@@ -1480,28 +1567,48 @@ namespace Factory_of_the_Future
                 return DPSData;
             }
         }
-        private void BroadcastMachineStatus(GeoZone machine)
+        private void BroadcastMachineStatus(GeoZone machine, string id)
         {
-            Clients.Group("MachineZones").updateMachineStatus(machine);
+            Clients.Group("MachineZones").updateMachineStatus(machine, id);
+            
         }
 
-        internal IEnumerable<BackgroundImage> GetIndoorMap()
+        internal IEnumerable<CoordinateSystem> GetIndoorMapFloor(string id)
         {
             try
             {
-                if (AppParameters.IndoorMap.Keys.Count == 0)
+                return AppParameters.CoordinateSystem.Where(r => r.Key == id ).Select(y => y.Value).ToList();
+            }
+            catch (Exception e)
+            {
+                new ErrorLogger().ExceptionLog(e);
+                return null;
+            }
+        }
+        internal IEnumerable<CoordinateSystem> GetIndoorMap()
+        {
+            try
+            {
+                if (AppParameters.CoordinateSystem.Keys.Count == 0)
                 {
-                    List<BackgroundImage> temp = new List<BackgroundImage> {
-                        new BackgroundImage()
-                            {
-                                FacilityName =  !string.IsNullOrEmpty(AppParameters.AppSettings["FACILITY_NAME"].ToString()) ? AppParameters.AppSettings["FACILITY_NAME"].ToString() : "Site Not Configured",
-                                ApplicationFullName = AppParameters.AppSettings["APPLICATION_FULLNAME"].ToString(),
-                                ApplicationAbbr = AppParameters.AppSettings["APPLICATION_NAME"].ToString(),
-                            }
+                    ConcurrentDictionary<string, CoordinateSystem> CoordinateSystem = new ConcurrentDictionary<string, CoordinateSystem>();
+                 
+                   CoordinateSystem temp = new CoordinateSystem
+                    {
+                        Id = "temp",
+                        BackgroundImage = new BackgroundImage
+                        {
+                            Id = "temp",
+                            FacilityName = !string.IsNullOrEmpty(AppParameters.AppSettings["FACILITY_NAME"].ToString()) ? AppParameters.AppSettings["FACILITY_NAME"].ToString() : "Site Not Configured",
+                            ApplicationFullName = AppParameters.AppSettings["APPLICATION_FULLNAME"].ToString(),
+                            ApplicationAbbr = AppParameters.AppSettings["APPLICATION_NAME"].ToString(),
+
+                        }
                     };
-                    return temp;
+                    CoordinateSystem.TryAdd(temp.Id, temp);
+                    return CoordinateSystem.Select(y => y.Value).ToList();   
                 }
-                return AppParameters.IndoorMap.Values;
+                return AppParameters.CoordinateSystem.Select(y => y.Value).ToList();
             }
             catch (Exception e)
             {

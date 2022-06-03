@@ -2,6 +2,7 @@
 using Newtonsoft.Json.Linq;
 using Newtonsoft.Json.Serialization;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -259,6 +260,15 @@ namespace Factory_of_the_Future
         [JsonProperty("polygonHoles")]
         public List<PolygonHole> PolygonHoles { get; set; }
     }
+
+    public class ProjectData
+    {
+        [JsonProperty("coordinateSystems")]
+        public List<CoordinateSystem> CoordinateSystems { get; set; }
+
+        [JsonProperty("message")]
+        public string Message { get; set; }
+    }
     public class ZoneGeometry
     {
         [JsonProperty("type")]
@@ -280,6 +290,9 @@ namespace Factory_of_the_Future
     {
         [JsonProperty("id")]
         public string Id { get; set; }
+
+        [JsonProperty("floorId")]
+        public string FloorId { get; set; }
 
         [JsonProperty("visible")]
         public bool Visible { get; set; }
@@ -364,6 +377,10 @@ namespace Factory_of_the_Future
     {
         [JsonProperty("id")]
         public string Id { get; set; }  = "";
+
+        [JsonProperty("floorId")]
+        public string FloorId { get; set; }
+
         [JsonProperty("rFId")]
         public string RFid { get; set; } = "";
 
@@ -546,26 +563,19 @@ namespace Factory_of_the_Future
 
     public class CoordinateSystem
     {
+        [JsonProperty("id")]
+        public string Id { get; set; } = "";
+        [JsonProperty("name")]
+        public string Name { get; set; } = "";
+
         [JsonProperty("locators")]
-        public List<Locator> Locators { get; set; }
+        public ConcurrentDictionary<string, GeoMarker> Locators = new ConcurrentDictionary<string, GeoMarker>();
 
         [JsonProperty("backgroundImages")]
-        public List<BackgroundImage> BackgroundImages { get; set; }
-
-        [JsonProperty("relativeZ")]
-        public int RelativeZ { get; set; }
-
-        [JsonProperty("polygons")]
-        public List<Polygon> Polygons { get; set; }
-
-        [JsonProperty("name")]
-        public string Name { get; set; }
-
-        [JsonProperty("id")]
-        public string Id { get; set; }
+        public BackgroundImage BackgroundImage = new BackgroundImage();
 
         [JsonProperty("zones")]
-        public List<Zone> Zones { get; set; }
+        public ConcurrentDictionary<string, GeoZone> Zones= new ConcurrentDictionary<string, GeoZone>();
     }          
     public class TrackTagGroups
     {
@@ -936,6 +946,9 @@ namespace Factory_of_the_Future
     }
     public class Cameras
     {
+        [JsonProperty("base64")]
+        public string Base64;
+
         [JsonProperty("LOCALE_KEY")]
         public string LocaleKey { get; set; }
 

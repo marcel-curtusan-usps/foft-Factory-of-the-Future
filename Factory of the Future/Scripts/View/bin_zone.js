@@ -62,7 +62,7 @@ async function LoadBinZoneTables(dataproperties) {
 }
 
 let czzonetop_Table = $('table[id=areazonetoptable]');
-let czzonetop_Table_Body = zonetop_Table.find('tbody');
+let czzonetop_Table_Body = czzonetop_Table.find('tbody');
 let czzonetop_row_template = '<tr data-id="{zoneId}"><td style="width: 22%;">Bin Zone Name</td><td>{zoneName}</td></tr>' +
     '<tr><td>Bins Configured</td><td>{AssignedBins}</td></tr>' +
     '<tr><td>Full Bins</td><td>{fullbins}</td></tr>';
@@ -74,20 +74,6 @@ function formatczzonetoprow(properties) {
         fullbins: properties.MPE_Bins.toString()
     });
 }
-
-async function init_BinZones() {
-    fotfmanager.server.getBinZonesList().done(function (bindatazone) {
-        if (bindatazone.length > 0) {
-            $.each(bindatazone, function () {
-                updateBinZone(this);
-            });
-            fotfmanager.server.joinGroup("BinZones");
-        }
-    })
-}
-
-
-
 async function updateBinZone(binzoneupdate) {
     try {
         let layerindex = -0;
