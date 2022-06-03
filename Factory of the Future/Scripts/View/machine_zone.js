@@ -498,7 +498,7 @@ async function Edit_Machine_Info(id) {
                             MPE_Type: $('input[type=text][name=machine_name]').val(),
                             MPE_Number: $('input[type=text][name=machine_number]').val(),
                             Zone_LDC: $('input[type=text][name=zone_ldc]').val(),
-                            Floor_ID: baselayerid
+                            floorId: baselayerid
                            };
 
                             if (!$.isEmptyObject(jsonObject)) {

@@ -76,24 +76,26 @@ function formatczzonetoprow(properties) {
 }
 async function updateBinZone(binzoneupdate) {
     try {
-        let layerindex = -0;
-        if (binzonepoly.hasOwnProperty("_layers")) {
-            $.map(binzonepoly._layers, function (layer, i) {
-                if (layer.feature.properties.id === binzoneupdate.properties.id) {
-                    layer.feature.properties = binzoneupdate.properties;
-                    layerindex = layer._leaflet_id;
-                    Promise.all([updatebin(layerindex)]);
-                    return false;
-                }
-            });
-            if (layerindex !== -0) {
-                if ($('div[id=area_div]').is(':visible') && $('div[id=area_div]').attr("data-id") === binzoneupdate.properties.id) {
+        if (id == baselayerid) {
+            let layerindex = -0;
+            if (binzonepoly.hasOwnProperty("_layers")) {
+                $.map(binzonepoly._layers, function (layer, i) {
+                    if (layer.feature.properties.id === binzoneupdate.properties.id) {
+                        layer.feature.properties = binzoneupdate.properties;
+                        layerindex = layer._leaflet_id;
+                        Promise.all([updatebin(layerindex)]);
+                        return false;
+                    }
+                });
+                if (layerindex !== -0) {
+                    if ($('div[id=area_div]').is(':visible') && $('div[id=area_div]').attr("data-id") === binzoneupdate.properties.id) {
+
+                    }
 
                 }
-              
-            }
-            else {
-                binzonepoly.addData(binzoneupdate);
+                else {
+                    binzonepoly.addData(binzoneupdate);
+                }
             }
         }
     } catch (e) {
