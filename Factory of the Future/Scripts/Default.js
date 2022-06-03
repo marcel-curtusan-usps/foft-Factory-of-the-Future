@@ -109,7 +109,7 @@ $(function () {
             if (/^(Admin|OIE)/i.test(User.Role)) {
                 sidebar.addPanel({
                     id: 'connections',
-                    tab: '<i class="pi-iconDiagramOutline"></i>',
+                    tab: '<span class="iconCenter"><i class="pi-iconDiagramOutline"></i></span>',
                     position: 'top',
                     pane: '<div class="btn-toolbar" role="toolbar" id="connection_div">' +
                         '<div id="div_agvnotification" class="container-fluid">' +
@@ -145,7 +145,7 @@ $(function () {
             if (/^Admin/i.test(User.Role)) {
                 sidebar.addPanel({
                     id: 'setting',
-                    tab: '<i class="pi-iconGearFill"></i>',
+                    tab: '<span class="iconCenter"><i class="pi-iconGearFill"></i></span>',
                     position: 'bottom',
                     pane: '<div class="btn-toolbar" role="toolbar" id="app_setting">' +
                         '<div id="div_app_settingtable" class="container-fluid">' +
@@ -364,7 +364,7 @@ $(function () {
         position: 'bottomright',
         states: [{
             stateName: 'faq',
-            icon: '<div id="faqToggle"  data-toggle="popover"  title="Frequently Asked Questions" class="ml-p5rem" ><i class="pi-iconFAQ align-self-center"></i></div> ',
+            icon: '<div id="faqToggle"  data-toggle="popover"  title="Frequently Asked Questions" class="iconCenter" ><i class="pi-iconFAQ align-self-center"></i></div> ',
             title: 'faq'
         }]
     }).addTo(map);

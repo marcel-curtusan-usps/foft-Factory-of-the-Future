@@ -125,7 +125,7 @@ if (window.chrome) {
                 control.state('exit-fullscreen');
             }
         }, {
-            icon: '<i class="pi-iconFullScreenExit" title="Exit Full Screen"></i>',
+            icon: '<i class="pi-iconFullScreenExit iconCenter" title="Exit Full Screen"></i>',
             stateName: 'exit-fullscreen',
             title: 'Exit Full Screen',
             onClick: function (control) {
