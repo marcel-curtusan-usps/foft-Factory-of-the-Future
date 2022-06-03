@@ -20,6 +20,13 @@
     vertical-align: middle !important;
 }
 
+.enter-fullscreen-active {
+    top: .1rem !important;
+}
+
+.exit-fullscreen-active {
+    top: -.1rem !important;
+}
 .leaflet-control-zoom-in {
     font-size: 22px !important;
 }
