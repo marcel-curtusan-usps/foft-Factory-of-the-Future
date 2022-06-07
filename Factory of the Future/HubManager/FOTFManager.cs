@@ -2224,10 +2224,10 @@ namespace Factory_of_the_Future
                 return null;
             }
         }
-        internal IEnumerable<ZoneInfo> EditZone(string data)
+        internal IEnumerable<GeoZone> EditZone(string data)
         {
             string id = string.Empty;
-
+            string floorID = string.Empty;
             try
             {
                 bool fileUpdate = false;
@@ -2239,71 +2239,153 @@ namespace Factory_of_the_Future
                         JObject objectdata = JObject.Parse(data);
                         if (objectdata.HasValues)
                         {
-                            if (objectdata.ContainsKey("id"))
+                            if(objectdata.ContainsKey("floorId") && objectdata.ContainsKey("id"))
                             {
+                                floorID = objectdata["floorId"].ToString();
                                 id = objectdata["id"].ToString();
-                                if (AppParameters.ZoneInfo.ContainsKey(id))
+                                GeoZone newzinfo = new GeoZone();
+                                // foreach (CoordinateSystem cs in AppParameters.CoordinateSystem.Values)
+                                if (AppParameters.CoordinateSystem.TryGetValue(floorID, out CoordinateSystem cs))
                                 {
-                                    ZoneInfo newzinfo = new ZoneInfo();
-                                    if (AppParameters.ZoneInfo.TryGetValue(id, out ZoneInfo zoneinfodata))
+                                    if(cs.Zones.TryGetValue(id, out GeoZone zoneinfodata))
                                     {
                                         JObject zinfo = (JObject)JsonConvert.DeserializeObject(JsonConvert.SerializeObject(zoneinfodata, Formatting.Indented));
 
                                         zinfo.Merge(objectdata, new JsonMergeSettings { MergeArrayHandling = MergeArrayHandling.Union });
                                         zinfo["name"] = zinfo["MPE_Type"] + "-" + zinfo["MPE_Number"].ToString().PadLeft(3, '0');
-                                        newzinfo = zinfo.ToObject<ZoneInfo>();
+                                        newzinfo = zinfo.ToObject<GeoZone>();
                                         updateZone = true;
                                     }
                                     if (updateZone)
                                     {
-                                        if (AppParameters.ZoneInfo.TryUpdate(id, newzinfo, zoneinfodata))
+                                        if (AppParameters.CoordinateSystem[floorID].Zones.TryUpdate(id, newzinfo, zoneinfodata))
                                         {
                                             updateZone = true;
                                             fileUpdate = true;
                                         }
                                     }
                                 }
-                                else
+                            }
+                            else
+                            {
+                                GeoZone newzinfo = objectdata.ToObject<GeoZone>();
+                                newzinfo.Properties.Name = objectdata["MPE_Type"] + "-" + objectdata["MPE_Number"].ToString().PadLeft(3, '0');
+                                if (AppParameters.CoordinateSystem[floorID].Zones.TryAdd(id, newzinfo))
                                 {
-                                    ZoneInfo newzinfo = objectdata.ToObject<ZoneInfo>();
-                                    newzinfo.Name = objectdata["MPE_Type"] + "-" + objectdata["MPE_Number"].ToString().PadLeft(3, '0');
-                                    if (AppParameters.ZoneInfo.TryAdd(id, newzinfo))
-                                    {
-                                        updateZone = true;
-                                        fileUpdate = true;
-                                    }
+                                    updateZone = true;
+                                    fileUpdate = true;
+                                }
+                            }
+                            if (updateZone)
+                            {
+                                updateZone = false;
+                                GeoZone newzoneD = new GeoZone();
+                                if (AppParameters.CoordinateSystem[floorID].Zones.TryGetValue(id, out GeoZone curretzonedata))
+                                {
+                                    JObject zoneD = (JObject)JsonConvert.DeserializeObject(JsonConvert.SerializeObject(curretzonedata, Formatting.Indented));
+                                    ((JObject)zoneD["properties"]).Merge(objectdata, new JsonMergeSettings { MergeArrayHandling = MergeArrayHandling.Union });
+                                    newzoneD = zoneD.ToObject<GeoZone>();
+                                    newzoneD.Properties.Name = objectdata["MPE_Type"] + "-" + objectdata["MPE_Number"].ToString().PadLeft(3, '0');
+                                    updateZone = true;
                                 }
                                 if (updateZone)
                                 {
-                                    updateZone = false;
-                                    GeoZone newzoneD = new GeoZone();
-                                    if (AppParameters.ZoneList.TryGetValue(id, out GeoZone curretzonedata))
+                                    newzoneD.Properties.ZoneUpdate = true;
+                                    if (AppParameters.CoordinateSystem[floorID].Zones.TryUpdate(id, newzoneD, curretzonedata))
                                     {
-                                        JObject zoneD = (JObject)JsonConvert.DeserializeObject(JsonConvert.SerializeObject(curretzonedata, Formatting.Indented));
-                                        ((JObject)zoneD["properties"]).Merge(objectdata, new JsonMergeSettings { MergeArrayHandling = MergeArrayHandling.Union });
-                                        newzoneD = zoneD.ToObject<GeoZone>();
-                                        newzoneD.Properties.Name = objectdata["MPE_Type"] + "-" + objectdata["MPE_Number"].ToString().PadLeft(3, '0');
-                                        updateZone = true;
-                                    }
-                                    if (updateZone)
-                                    {
-                                        newzoneD.Properties.ZoneUpdate = true;
-                                        if (AppParameters.ZoneList.TryUpdate(id, newzoneD, curretzonedata))
-                                        {
 
+                                    }
+                                }
+                            }
+                            //if (objectdata.ContainsKey("id"))
+                            //{
+                            //    id = objectdata["id"].ToString();
+                            //    if (AppParameters.ZoneInfo.ContainsKey(id))
+                            //    {
+                            //        ZoneInfo newzinfo = new ZoneInfo();
+                            //        if (AppParameters.ZoneInfo.TryGetValue(id, out ZoneInfo zoneinfodata))
+                            //        {
+                            //            JObject zinfo = (JObject)JsonConvert.DeserializeObject(JsonConvert.SerializeObject(zoneinfodata, Formatting.Indented));
+
+                            //            zinfo.Merge(objectdata, new JsonMergeSettings { MergeArrayHandling = MergeArrayHandling.Union });
+                            //            zinfo["name"] = zinfo["MPE_Type"] + "-" + zinfo["MPE_Number"].ToString().PadLeft(3, '0');
+                            //            newzinfo = zinfo.ToObject<ZoneInfo>();
+                            //            updateZone = true;
+                            //        }
+                            //        if (updateZone)
+                            //        {
+                            //            if (AppParameters.ZoneInfo.TryUpdate(id, newzinfo, zoneinfodata))
+                            //            {
+                            //                updateZone = true;
+                            //                fileUpdate = true;
+                            //            }
+                            //        }
+                            //    }
+                            //    else
+                            //    {
+                            //        ZoneInfo newzinfo = objectdata.ToObject<ZoneInfo>();
+                            //        newzinfo.Name = objectdata["MPE_Type"] + "-" + objectdata["MPE_Number"].ToString().PadLeft(3, '0');
+                            //        if (AppParameters.ZoneInfo.TryAdd(id, newzinfo))
+                            //        {
+                            //            updateZone = true;
+                            //            fileUpdate = true;
+                            //        }
+                            //    }
+                            //    if (updateZone)
+                            //    {
+                            //        updateZone = false;
+                            //        GeoZone newzoneD = new GeoZone();
+                            //        if (AppParameters.ZoneList.TryGetValue(id, out GeoZone curretzonedata))
+                            //        {
+                            //            JObject zoneD = (JObject)JsonConvert.DeserializeObject(JsonConvert.SerializeObject(curretzonedata, Formatting.Indented));
+                            //            ((JObject)zoneD["properties"]).Merge(objectdata, new JsonMergeSettings { MergeArrayHandling = MergeArrayHandling.Union });
+                            //            newzoneD = zoneD.ToObject<GeoZone>();
+                            //            newzoneD.Properties.Name = objectdata["MPE_Type"] + "-" + objectdata["MPE_Number"].ToString().PadLeft(3, '0');
+                            //            updateZone = true;
+                            //        }
+                            //        if (updateZone)
+                            //        {
+                            //            newzoneD.Properties.ZoneUpdate = true;
+                            //            if (AppParameters.ZoneList.TryUpdate(id, newzoneD, curretzonedata))
+                            //            {
+
+                            //            }
+                            //        }
+                            //    }
+                            //}
+                        }
+
+                        if (fileUpdate)
+                        {
+                            string ProjectData = new FileIO().Read(string.Concat(AppParameters.Logdirpath, AppParameters.ConfigurationFloder), "ProjectData.json");
+                            dynamic jsonObj = Newtonsoft.Json.JsonConvert.DeserializeObject(ProjectData);
+                            foreach (JObject jo in jsonObj["coordinateSystems"])
+                            {
+                                if (jo["id"].ToString() == floorID)
+                                {
+                                    foreach (JObject item in jo["zones"])
+                                    {
+                                        if (item["id"].ToString() == id)
+                                        {
+                                            item["name"] = objectdata["MPE_Type"] + "-" + objectdata["MPE_Number"].ToString().PadLeft(3, '0');
+                                            item["Zone_LDC"] = objectdata["Zone_LDC"];
+                                            item["MPE_Type"] = objectdata["MPE_Type"];
+                                            item["MPE_Number"] = objectdata["MPE_Number"];
                                         }
                                     }
                                 }
                             }
+                            new FileIO().Write(string.Concat(AppParameters.Logdirpath, AppParameters.ConfigurationFloder), "ProjectData.json", Newtonsoft.Json.JsonConvert.SerializeObject(jsonObj, Newtonsoft.Json.Formatting.Indented));
                         }
                     }
                 }
 
-                if (fileUpdate)
-                {
-                    new FileIO().Write(string.Concat(AppParameters.Logdirpath, AppParameters.ConfigurationFloder), "Zones.json", JsonConvert.SerializeObject(AppParameters.ZoneInfo.Select(x => x.Value).ToList(), Formatting.Indented));
-                }
-                return AppParameters.ZoneInfo.Where(w => w.Key == id).Select(s => s.Value).ToList();
+                //if (fileUpdate)
+                //{
+                //    new FileIO().Write(string.Concat(AppParameters.Logdirpath, AppParameters.ConfigurationFloder), "Zones.json", JsonConvert.SerializeObject(AppParameters.ZoneInfo.Select(x => x.Value).ToList(), Formatting.Indented));
+                //}
+                //return AppParameters.ZoneInfo.Where(w => w.Key == id).Select(s => s.Value).ToList();
+                return AppParameters.CoordinateSystem[floorID].Zones.Where(w => w.Key == id).Select(s => s.Value).ToList();
             }
             catch (Exception e)
             {

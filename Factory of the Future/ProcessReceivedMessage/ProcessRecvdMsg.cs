@@ -2372,20 +2372,38 @@ namespace Factory_of_the_Future
  
             try
             {
-                string zoneID = AppParameters.ZoneList.Where(x => x.Value.Properties.ZoneType == "Machine" &&
+                string zoneID = string.Empty;
+                foreach(CoordinateSystem cs in AppParameters.CoordinateSystem.Values)
+                {
+                    zoneID = cs.Zones.Where(x => x.Value.Properties.ZoneType == "Machine" &&
                             x.Value.Properties.MPEType == machineData["mpe_type"].ToString() &&
                             x.Value.Properties.MPENumber == (int)machineData["mpe_number"])
                                .Select(l => l.Key).FirstOrDefault();
-                if (!string.IsNullOrEmpty(zoneID))
-                {
-                    string machine = machineData["mpe_type"].ToString().Trim() + machineData["mpe_number"].ToString().Trim();
+                    if (!string.IsNullOrEmpty(zoneID))
+                    {
+                        string machine = machineData["mpe_type"].ToString().Trim() + machineData["mpe_number"].ToString().Trim();
 
-                    CheckMachineThroughPutNotification(machineData, zoneID, machine);
-                    CheckUnplannedMaintNotification(machineData, zoneID, machine);
-                    CheckOPStartingLateNotification(machineData, zoneID, machine);
-                    CheckOPRunningLateNatification(machineData, zoneID, machine);
-                    CheckSortplanWrongNotification(machineData, zoneID, machine);
+                        CheckMachineThroughPutNotification(machineData, zoneID, machine);
+                        CheckUnplannedMaintNotification(machineData, zoneID, machine);
+                        CheckOPStartingLateNotification(machineData, zoneID, machine);
+                        CheckOPRunningLateNatification(machineData, zoneID, machine);
+                        CheckSortplanWrongNotification(machineData, zoneID, machine);
+                    }
                 }
+                //string zoneID = AppParameters.ZoneList.Where(x => x.Value.Properties.ZoneType == "Machine" &&
+                //            x.Value.Properties.MPEType == machineData["mpe_type"].ToString() &&
+                //            x.Value.Properties.MPENumber == (int)machineData["mpe_number"])
+                //               .Select(l => l.Key).FirstOrDefault();
+                //if (!string.IsNullOrEmpty(zoneID))
+                //{
+                //    string machine = machineData["mpe_type"].ToString().Trim() + machineData["mpe_number"].ToString().Trim();
+
+                //    CheckMachineThroughPutNotification(machineData, zoneID, machine);
+                //    CheckUnplannedMaintNotification(machineData, zoneID, machine);
+                //    CheckOPStartingLateNotification(machineData, zoneID, machine);
+                //    CheckOPRunningLateNatification(machineData, zoneID, machine);
+                //    CheckSortplanWrongNotification(machineData, zoneID, machine);
+                //}
             }
             catch (Exception e)
             {

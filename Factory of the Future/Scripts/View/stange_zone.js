@@ -254,6 +254,7 @@ $('#zoneselect').change(function (e) {
         else if (/^(Bin)/i.test(this.properties.Zone_Type)) {
          
             binzonepoly.addData(this);
+            fotfmanager.server.joinGroup("BinZones");
         }
         else if (/^(AGVLocation)/i.test(this.properties.Zone_Type)) {
         
