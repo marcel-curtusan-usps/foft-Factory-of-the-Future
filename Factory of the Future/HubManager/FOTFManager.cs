@@ -907,14 +907,25 @@ namespace Factory_of_the_Future
                 if (!_updateBinZoneStatus)
                 {
                     _updateBinZoneStatus = true;
-                    foreach (var zoneitem in from GeoZone zoneitem in AppParameters.ZoneList.Where(r => r.Value.Properties.ZoneUpdate
-                                             && r.Value.Properties.Visible
-                                             && r.Value.Properties.ZoneType == "Bin").Select(y => y.Value)
-                                             where TryUpdateBinZoneStatus(zoneitem)
-                                             select zoneitem)
+                    foreach (CoordinateSystem cs in AppParameters.CoordinateSystem.Values)
                     {
-                        BroadcastBinZoneStatus(zoneitem);
+                        cs.Zones.Where(f => f.Value.Properties.ZoneType == "Bin").Select(y => y.Value).ToList().ForEach(BIN =>
+                        {
+                            if (TryUpdateBinZoneStatus(BIN))
+                            {
+                                BroadcastBinZoneStatus(BIN, cs.Id);
+                            }
+
+                        });
                     }
+                    //foreach (var zoneitem in from GeoZone zoneitem in AppParameters.ZoneList.Where(r => r.Value.Properties.ZoneUpdate
+                    //                         && r.Value.Properties.Visible
+                    //                         && r.Value.Properties.ZoneType == "Bin").Select(y => y.Value)
+                    //                         where TryUpdateBinZoneStatus(zoneitem)
+                    //                         select zoneitem)
+                    //{
+                    //    BroadcastBinZoneStatus(zoneitem);
+                    //}
 
                     _updateBinZoneStatus = false;
                 }
@@ -937,9 +948,9 @@ namespace Factory_of_the_Future
             }
         }
 
-        private void BroadcastBinZoneStatus(GeoZone binZone)
+        private void BroadcastBinZoneStatus(GeoZone binZone, string id)
         {
-            Clients.Group("BinZones").updateBinZoneStatus(binZone);
+            Clients.Group("BinZones").updateBinZoneStatus(binZone, id);
         }
 
         private void UpdateSVTripsStatus(object state)
@@ -2355,35 +2366,37 @@ namespace Factory_of_the_Future
                             //}
                         }
 
-                        if (fileUpdate)
-                        {
-                            string ProjectData = new FileIO().Read(string.Concat(AppParameters.Logdirpath, AppParameters.ConfigurationFloder), "ProjectData.json");
-                            dynamic jsonObj = Newtonsoft.Json.JsonConvert.DeserializeObject(ProjectData);
-                            foreach (JObject jo in jsonObj["coordinateSystems"])
-                            {
-                                if (jo["id"].ToString() == floorID)
-                                {
-                                    foreach (JObject item in jo["zones"])
-                                    {
-                                        if (item["id"].ToString() == id)
-                                        {
-                                            item["name"] = objectdata["MPE_Type"] + "-" + objectdata["MPE_Number"].ToString().PadLeft(3, '0');
-                                            item["Zone_LDC"] = objectdata["Zone_LDC"];
-                                            item["MPE_Type"] = objectdata["MPE_Type"];
-                                            item["MPE_Number"] = objectdata["MPE_Number"];
-                                        }
-                                    }
-                                }
-                            }
-                            new FileIO().Write(string.Concat(AppParameters.Logdirpath, AppParameters.ConfigurationFloder), "ProjectData.json", Newtonsoft.Json.JsonConvert.SerializeObject(jsonObj, Newtonsoft.Json.Formatting.Indented));
-                        }
+                        //if (fileUpdate)
+                        //{
+                        //    string ProjectData = new FileIO().Read(string.Concat(AppParameters.Logdirpath, AppParameters.ConfigurationFloder), "ProjectData.json");
+                        //    dynamic jsonObj = Newtonsoft.Json.JsonConvert.DeserializeObject(ProjectData);
+                        //    foreach (JObject jo in jsonObj["coordinateSystems"])
+                        //    {
+                        //        if (jo["id"].ToString() == floorID)
+                        //        {
+                        //            foreach (JObject item in jo["zones"])
+                        //            {
+                        //                if (item["id"].ToString() == id)
+                        //                {
+                        //                    item["name"] = objectdata["MPE_Type"] + "-" + objectdata["MPE_Number"].ToString().PadLeft(3, '0');
+                        //                    item["Zone_LDC"] = objectdata["Zone_LDC"];
+                        //                    item["MPE_Type"] = objectdata["MPE_Type"];
+                        //                    item["MPE_Number"] = objectdata["MPE_Number"];
+                        //                }
+                        //            }
+                        //        }
+                        //    }
+                        //    new FileIO().Write(string.Concat(AppParameters.Logdirpath, AppParameters.ConfigurationFloder), "ProjectData.json", Newtonsoft.Json.JsonConvert.SerializeObject(jsonObj, Newtonsoft.Json.Formatting.Indented));
+                        //    new FileIO().Write(string.Concat(AppParameters.Logdirpath, AppParameters.ConfigurationFloder), "Project_Data.json", JsonConvert.SerializeObject(AppParameters.CoordinateSystem.Select(x => x.Value).ToList(), Formatting.Indented));
+                        //}
                     }
                 }
 
-                //if (fileUpdate)
-                //{
-                //    new FileIO().Write(string.Concat(AppParameters.Logdirpath, AppParameters.ConfigurationFloder), "Zones.json", JsonConvert.SerializeObject(AppParameters.ZoneInfo.Select(x => x.Value).ToList(), Formatting.Indented));
-                //}
+                if (fileUpdate)
+                {
+                    new FileIO().Write(string.Concat(AppParameters.Logdirpath, AppParameters.ConfigurationFloder), "Project_Data.json", JsonConvert.SerializeObject(AppParameters.CoordinateSystem.Select(x => x.Value).ToList(), Formatting.Indented));
+                    //new FileIO().Write(string.Concat(AppParameters.Logdirpath, AppParameters.ConfigurationFloder), "Zones.json", JsonConvert.SerializeObject(AppParameters.ZoneInfo.Select(x => x.Value).ToList(), Formatting.Indented));
+                }
                 //return AppParameters.ZoneInfo.Where(w => w.Key == id).Select(s => s.Value).ToList();
                 return AppParameters.CoordinateSystem[floorID].Zones.Where(w => w.Key == id).Select(s => s.Value).ToList();
             }

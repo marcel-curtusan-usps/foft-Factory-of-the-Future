@@ -1,5 +1,5 @@
 ﻿$.extend(fotfmanager.client, {
-    updateBinZoneStatus: async (binzoneupdate) => { updateBinZone(binzoneupdate) }
+    updateBinZoneStatus: async (binzoneupdate, id) => { updateBinZone(binzoneupdate, id) }
 });
 
 var binzonepoly = new L.GeoJSON(null, {
@@ -74,7 +74,7 @@ function formatczzonetoprow(properties) {
         fullbins: properties.MPE_Bins.toString()
     });
 }
-async function updateBinZone(binzoneupdate) {
+async function updateBinZone(binzoneupdate, id) {
     try {
         if (id == baselayerid) {
             let layerindex = -0;
