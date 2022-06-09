@@ -2241,10 +2241,10 @@ namespace Factory_of_the_Future
                             if (objectdata.ContainsKey("id"))
                             {
                                 id = objectdata["id"].ToString();
-                                if (AppParameters.ZoneInfo.ContainsKey(id))
+                                if (AppParameters.CoordinateSystem.ContainsKey(id))
                                 {
                                     ZoneInfo newzinfo = new ZoneInfo();
-                                    if (AppParameters.ZoneInfo.TryGetValue(id, out ZoneInfo zoneinfodata))
+                                    if (AppParameters.CoordinateSystem.TryGetValue(id, out ZoneInfo zoneinfodata))
                                     {
                                         JObject zinfo = (JObject)JsonConvert.DeserializeObject(JsonConvert.SerializeObject(zoneinfodata, Formatting.Indented));
 
