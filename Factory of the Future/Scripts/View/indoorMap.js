@@ -44,18 +44,22 @@ map.on('baselayerchange', function (e) {
     baselayerid = e.layer.options.id;
     console.log(baselayerid);
     fotfmanager.server.getIndoorMapFloor(baselayerid).done(function (data) {
-        map.removeLayer(ebrAreas);
-        map.removeLayer(stagingAreas);
-        map.removeLayer(walkwayAreas);
-        map.removeLayer(exitAreas);
-        map.removeLayer(polyholesAreas);
-        map.removeLayer(dockDoors);
-        map.removeLayer(polygonMachine);
-        map.removeLayer(binzonepoly);
-        map.removeLayer(agvLocations);
-        map.removeLayer(viewPortsAreas);
-        map.removeLayer(stagingAreas);
+        sidebar.close('home');
+        $zoneSelect[0].selectize.setValue(-1, true);
+        $zoneSelect[0].selectize.clearOptions();
+        ebrAreas.clearLayers();
+        stagingAreas.clearLayers();
+        walkwayAreas.clearLayers();
+        exitAreas.clearLayers();
+        polyholesAreas.clearLayers();
+        dockDoors.clearLayers();
+        polygonMachine.clearLayers();
+        binzonepoly.clearLayers();
+        agvLocations.clearLayers();
+        viewPortsAreas.clearLayers();
+        stagingAreas.clearLayers();
         init_zones(data[0].zones, baselayerid);
+
     })
 });
 var timedisplay = L.Control.extend({
@@ -101,7 +105,17 @@ sidebar.on('content', function (ev) {
 map.addControl(sidebar);
 map.addControl(new timedisplay());
 // Add Layer Popover - Proposed
-var layersControl = L.control.layers(baseLayers, overlayMaps, { position: 'bottomright', collapsed: false }).addTo(map);
+var layersControl = L.control.layers(baseLayers, overlayMaps, {
+    sortLayers: true, sortFunction: function (layerA, layerB, nameA, nameB) {
+        if (nameA.toUpperCase().includes("FLOOR")) {
+            if (nameA.toUpperCase().includes("MAIN")) {
+                return -1;
+            }
+            else {
+                return nameA < nameB ? -1 : (nameB < nameA ? 1 : 0);
+            }
+        }
+    }, position: 'bottomright', collapsed: false }).addTo(map);
 //Add zoom button
 new L.Control.Zoom({ position: 'bottomright' }).addTo(map);
 //add View Ports
@@ -142,7 +156,7 @@ if (window.chrome) {
                 control.state('exit-fullscreen');
             }
         }, {
-            icon: '<i class="pi-iconFullScreenExit" title="Exit Full Screen"></i>',
+            icon: '<i class="pi-iconFullScreenExit iconCenter" title="Exit Full Screen"></i>',
             stateName: 'exit-fullscreen',
             title: 'Exit Full Screen',
             onClick: function (control) {

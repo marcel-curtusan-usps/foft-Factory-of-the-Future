@@ -159,7 +159,7 @@ namespace Factory_of_the_Future
             return _managerHub.GetZonesList();
         }
 
-        public IEnumerable<ZoneInfo> EditZone(string data)
+        public IEnumerable<GeoZone> EditZone(string data)
         {
             return _managerHub.EditZone(data);
         }

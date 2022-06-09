@@ -15,6 +15,40 @@
 .card-body {
   padding: 0.05rem; }
 
+.iconCenter {
+    text-align: center !important;
+    vertical-align: middle !important;
+}
+
+.enter-fullscreen-active {
+    top: .1rem !important;
+}
+
+.exit-fullscreen-active {
+    top: -.1rem !important;
+}
+.leaflet-control-zoom-in {
+    font-size: 22px !important;
+}
+
+.leaflet-control-zoom-out {
+    font-size: 22px !important;
+}
+#faqToggle {
+    padding-top: .1rem !important;
+}
+#legendToggle {
+    padding-top: .1rem !important;
+}
+
+#layersToggle {
+    padding-top: .1rem !important;
+}
+
+#viewportsToggle {
+    padding-top: .1rem !important;
+}
+
 .hiddenRow {
   padding: 0 !important; }
 
