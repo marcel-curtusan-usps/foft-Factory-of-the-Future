@@ -2256,24 +2256,24 @@ namespace Factory_of_the_Future
                                 id = objectdata["id"].ToString();
                                 if (AppParameters.CoordinateSystem.ContainsKey(id))
                                 {
-                                    //ZoneInfo newzinfo = new ZoneInfo();
-                                    //if (AppParameters.CoordinateSystem.TryGetValue(id, out ZoneInfo zoneinfodata))
-                                    //{
-                                    //    JObject zinfo = (JObject)JsonConvert.DeserializeObject(JsonConvert.SerializeObject(zoneinfodata, Formatting.Indented));
+                                    ZoneInfo newzinfo = new ZoneInfo();
+                                    if (AppParameters.CoordinateSystem.TryGetValue(id, out ZoneInfo zoneinfodata))
+                                    {
+                                        JObject zinfo = (JObject)JsonConvert.DeserializeObject(JsonConvert.SerializeObject(zoneinfodata, Formatting.Indented));
 
-                                    //    zinfo.Merge(objectdata, new JsonMergeSettings { MergeArrayHandling = MergeArrayHandling.Union });
-                                    //    zinfo["name"] = zinfo["MPE_Type"] + "-" + zinfo["MPE_Number"].ToString().PadLeft(3, '0');
-                                    //    newzinfo = zinfo.ToObject<GeoZone>();
-                                    //    updateZone = true;
-                                    //}
-                                    //if (updateZone)
-                                    //{
-                                    //    if (AppParameters.CoordinateSystem[floorID].Zones.TryUpdate(id, newzinfo, zoneinfodata))
-                                    //    {
-                                    //        updateZone = true;
-                                    //        fileUpdate = true;
-                                    //    }
-                                    //}
+                                        zinfo.Merge(objectdata, new JsonMergeSettings { MergeArrayHandling = MergeArrayHandling.Union });
+                                        zinfo["name"] = zinfo["MPE_Type"] + "-" + zinfo["MPE_Number"].ToString().PadLeft(3, '0');
+                                        newzinfo = zinfo.ToObject<GeoZone>();
+                                        updateZone = true;
+                                    }
+                                    if (updateZone)
+                                    {
+                                        if (AppParameters.CoordinateSystem[floorID].Zones.TryUpdate(id, newzinfo, zoneinfodata))
+                                        {
+                                            updateZone = true;
+                                            fileUpdate = true;
+                                        }
+                                    }
                                 }
                             }
                             else
