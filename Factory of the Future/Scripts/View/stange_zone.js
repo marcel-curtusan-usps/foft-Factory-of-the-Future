@@ -220,7 +220,7 @@ $('#zoneselect').change(function (e) {
     LoadstageDetails(selcValue);
 
 });
-async function init_zones(zoneData, id) {
+ function init_zones(zoneData, id) {
     //Get Zones list
     $.each(zoneData, function () {
         if (/^ebr/i.test(this.properties.name)) {
@@ -249,10 +249,12 @@ async function init_zones(zoneData, id) {
         else if (/^(Machine)/i.test(this.properties.Zone_Type)) {
       
             polygonMachine.addData(this);
+            fotfmanager.server.joinGroup("MachineZones");
         }
         else if (/^(Bin)/i.test(this.properties.Zone_Type)) {
          
             binzonepoly.addData(this);
+            fotfmanager.server.joinGroup("BinZones");
         }
         else if (/^(AGVLocation)/i.test(this.properties.Zone_Type)) {
         
@@ -267,5 +269,4 @@ async function init_zones(zoneData, id) {
         }
     })
     fotfmanager.server.joinGroup("Zones");
-
 }

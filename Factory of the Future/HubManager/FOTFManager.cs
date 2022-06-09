@@ -92,33 +92,33 @@ namespace Factory_of_the_Future
             QSM_timer = new Timer(UpdateQSM, null, _250updateInterval, _250updateInterval);
             BinZone_timer = new Timer(UpdateBinZoneStatus, null, _2000updateInterval, _2000updateInterval);
             Camera_timer = null;
-            SetCameraThumbnailInterval();
-            UpdateCameraImages();
+            //SetCameraThumbnailInterval();
+            //UpdateCameraImages();
         }
 
 
          
 
-        internal void SetCameraThumbnailInterval()
-        {
+        //internal void SetCameraThumbnailInterval()
+        //{
 
-            int cameraThumbnailInterval = 30000;
-            try
-            {
-                cameraThumbnailInterval = Convert.ToInt32(AppParameters.AppSettings["CAMERA_THUMBNAIL_INTERVAL"]);
-            }
-            catch (Exception e)
-            {
-                new ErrorLogger().ExceptionLog(e);
-            }
-            if (Camera_timer != null)
-            {
-                Camera_timer.Dispose();
-                Camera_timer = null;
-            }
-            Camera_timer = new Timer(UpdateCameraImages, null, cameraThumbnailInterval, cameraThumbnailInterval);
+        //    int cameraThumbnailInterval = 30000;
+        //    try
+        //    {
+        //        cameraThumbnailInterval = Convert.ToInt32(AppParameters.AppSettings["CAMERA_THUMBNAIL_INTERVAL"]);
+        //    }
+        //    catch (Exception e)
+        //    {
+        //        new ErrorLogger().ExceptionLog(e);
+        //    }
+        //    if (Camera_timer != null)
+        //    {
+        //        Camera_timer.Dispose();
+        //        Camera_timer = null;
+        //    }
+        //    Camera_timer = new Timer(UpdateCameraImages, null, cameraThumbnailInterval, cameraThumbnailInterval);
              
-        }
+        //}
     public static FOTFManager Instance
         {
             get { return _instance.Value; }
@@ -250,78 +250,78 @@ namespace Factory_of_the_Future
             }
         }
 
-        public void UpdateCameraImages(object state)
-        {
-            UpdateCameraImages();
-        }
-        public void UpdateCameraImages()
-        {
-            lock (updateCameralock)
-            {
-                if (!_updateCameraStatus)
-                {
-                    try
-                    {
-                        List<Task> TaskList = new List<Task>();
-                        _updateCameraStatus = true;
-                        foreach (KeyValuePair<string, GeoMarker> geoMarkerEntry in AppParameters.TagsList)
-                        {
-                            if (!String.IsNullOrEmpty(geoMarkerEntry.Value.Properties.CameraData))
-                            {
-                                Func<object, Task<bool>> action = (object cameraData) =>
-                                {
-                                    return UpdateCameraImage((GeoMarker) cameraData);
-                                };
-                                TaskList.Add(action(geoMarkerEntry.Value));
-                            }
-                        }
-                        // run the tasks "simultaneously" but wait for all to complete
-                        Task.WaitAll(TaskList.ToArray());
-                        var markers = AppParameters.TagsList
-                            .Where(u => !String.IsNullOrEmpty(u.Value.Properties.CameraData));
+        //public void UpdateCameraImages(object state)
+        //{
+        //    UpdateCameraImages();
+        //}
+        //public void UpdateCameraImages()
+        //{
+        //    lock (updateCameralock)
+        //    {
+        //        if (!_updateCameraStatus)
+        //        {
+        //            try
+        //            {
+        //                List<Task> TaskList = new List<Task>();
+        //                _updateCameraStatus = true;
+        //                foreach (KeyValuePair<string, GeoMarker> geoMarkerEntry in AppParameters.TagsList)
+        //                {
+        //                    if (!String.IsNullOrEmpty(geoMarkerEntry.Value.Properties.CameraData))
+        //                    {
+        //                        Func<object, Task<bool>> action = (object cameraData) =>
+        //                        {
+        //                            return UpdateCameraImage((GeoMarker) cameraData);
+        //                        };
+        //                        TaskList.Add(action(geoMarkerEntry.Value));
+        //                    }
+        //                }
+        //                // run the tasks "simultaneously" but wait for all to complete
+        //                Task.WaitAll(TaskList.ToArray());
+        //                var markers = AppParameters.TagsList
+        //                    .Where(u => !String.IsNullOrEmpty(u.Value.Properties.CameraData));
 
-                        List<GeoMarker> cameraList = new List<GeoMarker>();
-                        foreach (KeyValuePair<string, GeoMarker> tag in AppParameters.TagsList)
-                        {
-                            if (! String.IsNullOrEmpty(tag.Value.Properties.CameraData) )
-                            {
-                                cameraList.Add(tag.Value);
-                            }
-                        }
-                        BroadcastCameraStatus(cameraList);
-                    }
-                    catch (Exception e)
-                    {
-                        new ErrorLogger().ExceptionLog(e);
-                    }
-                    _updateCameraStatus = false;
-                }
-            }
-        }
-        internal async Task<bool> UpdateCameraImage(GeoMarker cameraData)
-        {
-            try
-            {
-                string url = @"http://" + cameraData.Properties.Name + 
-                    @"/axis-cgi/jpg/image.cgi?resolution=320x240";
+        //                List<GeoMarker> cameraList = new List<GeoMarker>();
+        //                foreach (KeyValuePair<string, GeoMarker> tag in AppParameters.TagsList)
+        //                {
+        //                    if (! String.IsNullOrEmpty(tag.Value.Properties.CameraData) )
+        //                    {
+        //                        cameraList.Add(tag.Value);
+        //                    }
+        //                }
+        //                BroadcastCameraStatus(cameraList);
+        //            }
+        //            catch (Exception e)
+        //            {
+        //                new ErrorLogger().ExceptionLog(e);
+        //            }
+        //            _updateCameraStatus = false;
+        //        }
+        //    }
+        //}
+        //internal async Task<bool> UpdateCameraImage(GeoMarker cameraData)
+        //{
+        //    try
+        //    {
+        //        string url = @"http://" + cameraData.Properties.Name + 
+        //            @"/axis-cgi/jpg/image.cgi?resolution=320x240";
 
-                using (var client = new HttpClient())
-                {
-                    Uri thisUri = new Uri(url);
-                    cameraData.Properties.Base64Image =
-                        AsyncAPICall.GetImageData(thisUri);
+        //        using (var client = new HttpClient())
+        //        {
+        //            Uri thisUri = new Uri(url);
+        //            cameraData.Properties.Base64Image =
+        //                AsyncAPICall.GetImageData(thisUri);
 
-                    Console.WriteLine("image gotten: " + cameraData.Properties.Base64Image.Substring(0, 100));
-                    return true;
-                }
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine("Exception getting image: " + e.Message);
-                new ErrorLogger().ExceptionLog(e);
-                return false;
-            }
-        }
+        //            Console.WriteLine("image gotten: " + cameraData.Properties.Base64Image.Substring(0, 100));
+        //            return true;
+        //        }
+        //    }
+        //    catch (Exception e)
+        //    {
+        //        Console.WriteLine("Exception getting image: " + e.Message);
+        //        new ErrorLogger().ExceptionLog(e);
+        //        return false;
+        //    }
+        //}
         
         internal GeoMarker AddMarker(string data)
         {
@@ -907,14 +907,25 @@ namespace Factory_of_the_Future
                 if (!_updateBinZoneStatus)
                 {
                     _updateBinZoneStatus = true;
-                    foreach (var zoneitem in from GeoZone zoneitem in AppParameters.ZoneList.Where(r => r.Value.Properties.ZoneUpdate
-                                             && r.Value.Properties.Visible
-                                             && r.Value.Properties.ZoneType == "Bin").Select(y => y.Value)
-                                             where TryUpdateBinZoneStatus(zoneitem)
-                                             select zoneitem)
+                    foreach (CoordinateSystem cs in AppParameters.CoordinateSystem.Values)
                     {
-                        BroadcastBinZoneStatus(zoneitem);
+                        cs.Zones.Where(f => f.Value.Properties.ZoneType == "Bin").Select(y => y.Value).ToList().ForEach(BIN =>
+                        {
+                            if (TryUpdateBinZoneStatus(BIN))
+                            {
+                                BroadcastBinZoneStatus(BIN, cs.Id);
+                            }
+
+                        });
                     }
+                    //foreach (var zoneitem in from GeoZone zoneitem in AppParameters.ZoneList.Where(r => r.Value.Properties.ZoneUpdate
+                    //                         && r.Value.Properties.Visible
+                    //                         && r.Value.Properties.ZoneType == "Bin").Select(y => y.Value)
+                    //                         where TryUpdateBinZoneStatus(zoneitem)
+                    //                         select zoneitem)
+                    //{
+                    //    BroadcastBinZoneStatus(zoneitem);
+                    //}
 
                     _updateBinZoneStatus = false;
                 }
@@ -937,9 +948,9 @@ namespace Factory_of_the_Future
             }
         }
 
-        private void BroadcastBinZoneStatus(GeoZone binZone)
+        private void BroadcastBinZoneStatus(GeoZone binZone, string id)
         {
-            Clients.Group("BinZones").updateBinZoneStatus(binZone);
+            Clients.Group("BinZones").updateBinZoneStatus(binZone, id);
         }
 
         private void UpdateSVTripsStatus(object state)
@@ -1461,7 +1472,7 @@ namespace Factory_of_the_Future
                         {
                             if (TryUpdateMachineStatus(Machine))
                             {
-                                BroadcastMachineStatus(Machine);
+                                BroadcastMachineStatus(Machine, cs.Id);
                             }
                      
                         });
@@ -1567,9 +1578,10 @@ namespace Factory_of_the_Future
                 return DPSData;
             }
         }
-        private void BroadcastMachineStatus(GeoZone machine)
+        private void BroadcastMachineStatus(GeoZone machine, string id)
         {
-            Clients.Group("MachineZones").updateMachineStatus(machine);
+            Clients.Group("MachineZones").updateMachineStatus(machine, id);
+            
         }
 
         internal IEnumerable<CoordinateSystem> GetIndoorMapFloor(string id)
@@ -2223,10 +2235,10 @@ namespace Factory_of_the_Future
                 return null;
             }
         }
-        internal IEnumerable<ZoneInfo> EditZone(string data)
+        internal IEnumerable<GeoZone> EditZone(string data)
         {
             string id = string.Empty;
-
+            string floorID = string.Empty;
             try
             {
                 bool fileUpdate = false;
@@ -2238,71 +2250,154 @@ namespace Factory_of_the_Future
                         JObject objectdata = JObject.Parse(data);
                         if (objectdata.HasValues)
                         {
-                            if (objectdata.ContainsKey("id"))
+                            if(objectdata.ContainsKey("floorId") && objectdata.ContainsKey("id"))
                             {
+                                floorID = objectdata["floorId"].ToString();
                                 id = objectdata["id"].ToString();
-                                if (AppParameters.ZoneInfo.ContainsKey(id))
+                                if (AppParameters.CoordinateSystem.ContainsKey(id))
                                 {
-                                    ZoneInfo newzinfo = new ZoneInfo();
-                                    if (AppParameters.ZoneInfo.TryGetValue(id, out ZoneInfo zoneinfodata))
-                                    {
-                                        JObject zinfo = (JObject)JsonConvert.DeserializeObject(JsonConvert.SerializeObject(zoneinfodata, Formatting.Indented));
+                                    //ZoneInfo newzinfo = new ZoneInfo();
+                                    //if (AppParameters.CoordinateSystem.TryGetValue(id, out ZoneInfo zoneinfodata))
+                                    //{
+                                    //    JObject zinfo = (JObject)JsonConvert.DeserializeObject(JsonConvert.SerializeObject(zoneinfodata, Formatting.Indented));
 
-                                        zinfo.Merge(objectdata, new JsonMergeSettings { MergeArrayHandling = MergeArrayHandling.Union });
-                                        zinfo["name"] = zinfo["MPE_Type"] + "-" + zinfo["MPE_Number"].ToString().PadLeft(3, '0');
-                                        newzinfo = zinfo.ToObject<ZoneInfo>();
-                                        updateZone = true;
-                                    }
-                                    if (updateZone)
-                                    {
-                                        if (AppParameters.ZoneInfo.TryUpdate(id, newzinfo, zoneinfodata))
-                                        {
-                                            updateZone = true;
-                                            fileUpdate = true;
-                                        }
-                                    }
+                                    //    zinfo.Merge(objectdata, new JsonMergeSettings { MergeArrayHandling = MergeArrayHandling.Union });
+                                    //    zinfo["name"] = zinfo["MPE_Type"] + "-" + zinfo["MPE_Number"].ToString().PadLeft(3, '0');
+                                    //    newzinfo = zinfo.ToObject<GeoZone>();
+                                    //    updateZone = true;
+                                    //}
+                                    //if (updateZone)
+                                    //{
+                                    //    if (AppParameters.CoordinateSystem[floorID].Zones.TryUpdate(id, newzinfo, zoneinfodata))
+                                    //    {
+                                    //        updateZone = true;
+                                    //        fileUpdate = true;
+                                    //    }
+                                    //}
                                 }
-                                else
+                            }
+                            else
+                            {
+                                GeoZone newzinfo = objectdata.ToObject<GeoZone>();
+                                newzinfo.Properties.Name = objectdata["MPE_Type"] + "-" + objectdata["MPE_Number"].ToString().PadLeft(3, '0');
+                                if (AppParameters.CoordinateSystem[floorID].Zones.TryAdd(id, newzinfo))
                                 {
-                                    ZoneInfo newzinfo = objectdata.ToObject<ZoneInfo>();
-                                    newzinfo.Name = objectdata["MPE_Type"] + "-" + objectdata["MPE_Number"].ToString().PadLeft(3, '0');
-                                    if (AppParameters.ZoneInfo.TryAdd(id, newzinfo))
-                                    {
-                                        updateZone = true;
-                                        fileUpdate = true;
-                                    }
+                                    updateZone = true;
+                                    fileUpdate = true;
+                                }
+                            }
+                            if (updateZone)
+                            {
+                                updateZone = false;
+                                GeoZone newzoneD = new GeoZone();
+                                if (AppParameters.CoordinateSystem[floorID].Zones.TryGetValue(id, out GeoZone curretzonedata))
+                                {
+                                    JObject zoneD = (JObject)JsonConvert.DeserializeObject(JsonConvert.SerializeObject(curretzonedata, Formatting.Indented));
+                                    ((JObject)zoneD["properties"]).Merge(objectdata, new JsonMergeSettings { MergeArrayHandling = MergeArrayHandling.Union });
+                                    newzoneD = zoneD.ToObject<GeoZone>();
+                                    newzoneD.Properties.Name = objectdata["MPE_Type"] + "-" + objectdata["MPE_Number"].ToString().PadLeft(3, '0');
+                                    updateZone = true;
                                 }
                                 if (updateZone)
                                 {
-                                    updateZone = false;
-                                    GeoZone newzoneD = new GeoZone();
-                                    if (AppParameters.ZoneList.TryGetValue(id, out GeoZone curretzonedata))
+                                    newzoneD.Properties.ZoneUpdate = true;
+                                    if (AppParameters.CoordinateSystem[floorID].Zones.TryUpdate(id, newzoneD, curretzonedata))
                                     {
-                                        JObject zoneD = (JObject)JsonConvert.DeserializeObject(JsonConvert.SerializeObject(curretzonedata, Formatting.Indented));
-                                        ((JObject)zoneD["properties"]).Merge(objectdata, new JsonMergeSettings { MergeArrayHandling = MergeArrayHandling.Union });
-                                        newzoneD = zoneD.ToObject<GeoZone>();
-                                        newzoneD.Properties.Name = objectdata["MPE_Type"] + "-" + objectdata["MPE_Number"].ToString().PadLeft(3, '0');
-                                        updateZone = true;
-                                    }
-                                    if (updateZone)
-                                    {
-                                        newzoneD.Properties.ZoneUpdate = true;
-                                        if (AppParameters.ZoneList.TryUpdate(id, newzoneD, curretzonedata))
-                                        {
 
-                                        }
                                     }
                                 }
                             }
+                            //if (objectdata.ContainsKey("id"))
+                            //{
+                            //    id = objectdata["id"].ToString();
+                            //    if (AppParameters.ZoneInfo.ContainsKey(id))
+                            //    {
+                            //        ZoneInfo newzinfo = new ZoneInfo();
+                            //        if (AppParameters.ZoneInfo.TryGetValue(id, out ZoneInfo zoneinfodata))
+                            //        {
+                            //            JObject zinfo = (JObject)JsonConvert.DeserializeObject(JsonConvert.SerializeObject(zoneinfodata, Formatting.Indented));
+
+                            //            zinfo.Merge(objectdata, new JsonMergeSettings { MergeArrayHandling = MergeArrayHandling.Union });
+                            //            zinfo["name"] = zinfo["MPE_Type"] + "-" + zinfo["MPE_Number"].ToString().PadLeft(3, '0');
+                            //            newzinfo = zinfo.ToObject<ZoneInfo>();
+                            //            updateZone = true;
+                            //        }
+                            //        if (updateZone)
+                            //        {
+                            //            if (AppParameters.ZoneInfo.TryUpdate(id, newzinfo, zoneinfodata))
+                            //            {
+                            //                updateZone = true;
+                            //                fileUpdate = true;
+                            //            }
+                            //        }
+                            //    }
+                            //    else
+                            //    {
+                            //        ZoneInfo newzinfo = objectdata.ToObject<ZoneInfo>();
+                            //        newzinfo.Name = objectdata["MPE_Type"] + "-" + objectdata["MPE_Number"].ToString().PadLeft(3, '0');
+                            //        if (AppParameters.ZoneInfo.TryAdd(id, newzinfo))
+                            //        {
+                            //            updateZone = true;
+                            //            fileUpdate = true;
+                            //        }
+                            //    }
+                            //    if (updateZone)
+                            //    {
+                            //        updateZone = false;
+                            //        GeoZone newzoneD = new GeoZone();
+                            //        if (AppParameters.ZoneList.TryGetValue(id, out GeoZone curretzonedata))
+                            //        {
+                            //            JObject zoneD = (JObject)JsonConvert.DeserializeObject(JsonConvert.SerializeObject(curretzonedata, Formatting.Indented));
+                            //            ((JObject)zoneD["properties"]).Merge(objectdata, new JsonMergeSettings { MergeArrayHandling = MergeArrayHandling.Union });
+                            //            newzoneD = zoneD.ToObject<GeoZone>();
+                            //            newzoneD.Properties.Name = objectdata["MPE_Type"] + "-" + objectdata["MPE_Number"].ToString().PadLeft(3, '0');
+                            //            updateZone = true;
+                            //        }
+                            //        if (updateZone)
+                            //        {
+                            //            newzoneD.Properties.ZoneUpdate = true;
+                            //            if (AppParameters.ZoneList.TryUpdate(id, newzoneD, curretzonedata))
+                            //            {
+
+                            //            }
+                            //        }
+                            //    }
+                            //}
                         }
+
+                        //if (fileUpdate)
+                        //{
+                        //    string ProjectData = new FileIO().Read(string.Concat(AppParameters.Logdirpath, AppParameters.ConfigurationFloder), "ProjectData.json");
+                        //    dynamic jsonObj = Newtonsoft.Json.JsonConvert.DeserializeObject(ProjectData);
+                        //    foreach (JObject jo in jsonObj["coordinateSystems"])
+                        //    {
+                        //        if (jo["id"].ToString() == floorID)
+                        //        {
+                        //            foreach (JObject item in jo["zones"])
+                        //            {
+                        //                if (item["id"].ToString() == id)
+                        //                {
+                        //                    item["name"] = objectdata["MPE_Type"] + "-" + objectdata["MPE_Number"].ToString().PadLeft(3, '0');
+                        //                    item["Zone_LDC"] = objectdata["Zone_LDC"];
+                        //                    item["MPE_Type"] = objectdata["MPE_Type"];
+                        //                    item["MPE_Number"] = objectdata["MPE_Number"];
+                        //                }
+                        //            }
+                        //        }
+                        //    }
+                        //    new FileIO().Write(string.Concat(AppParameters.Logdirpath, AppParameters.ConfigurationFloder), "ProjectData.json", Newtonsoft.Json.JsonConvert.SerializeObject(jsonObj, Newtonsoft.Json.Formatting.Indented));
+                        //    new FileIO().Write(string.Concat(AppParameters.Logdirpath, AppParameters.ConfigurationFloder), "Project_Data.json", JsonConvert.SerializeObject(AppParameters.CoordinateSystem.Select(x => x.Value).ToList(), Formatting.Indented));
+                        //}
                     }
                 }
 
                 if (fileUpdate)
                 {
-                    new FileIO().Write(string.Concat(AppParameters.Logdirpath, AppParameters.ConfigurationFloder), "Zones.json", JsonConvert.SerializeObject(AppParameters.ZoneInfo.Select(x => x.Value).ToList(), Formatting.Indented));
+                    new FileIO().Write(string.Concat(AppParameters.Logdirpath, AppParameters.ConfigurationFloder), "Project_Data.json", JsonConvert.SerializeObject(AppParameters.CoordinateSystem.Select(x => x.Value).ToList(), Formatting.Indented));
+                    //new FileIO().Write(string.Concat(AppParameters.Logdirpath, AppParameters.ConfigurationFloder), "Zones.json", JsonConvert.SerializeObject(AppParameters.ZoneInfo.Select(x => x.Value).ToList(), Formatting.Indented));
                 }
-                return AppParameters.ZoneInfo.Where(w => w.Key == id).Select(s => s.Value).ToList();
+                //return AppParameters.ZoneInfo.Where(w => w.Key == id).Select(s => s.Value).ToList();
+                return AppParameters.CoordinateSystem[floorID].Zones.Where(w => w.Key == id).Select(s => s.Value).ToList();
             }
             catch (Exception e)
             {
@@ -2381,10 +2476,10 @@ namespace Factory_of_the_Future
                                     {
                                         AppParameters.AppSettings[item.Key] = kv.Value;
                                     }
-                                    if (kv.Name == "CAMERA_THUMBNAIL_INTERVAL")
-                                    {
-                                        SetCameraThumbnailInterval();
-                                    }
+                                    //if (kv.Name == "CAMERA_THUMBNAIL_INTERVAL")
+                                    //{
+                                    //    SetCameraThumbnailInterval();
+                                    //}
                                 }
                             }
                         }

@@ -87,33 +87,35 @@ $('#Zone_Modal').on('shown.bs.modal', function () {
     });
 });
 $.extend(fotfmanager.client, {
-    updateMachineStatus: async (updateMachine) => { updateMachineZone(updateMachine) }
+    updateMachineStatus: async (updateMachine, id) => { updateMachineZone(updateMachine, id) }
 });
 
-async function updateMachineZone(machineupdate) {
+async function updateMachineZone(machineupdate, id) {
     try {
-        if (polygonMachine.hasOwnProperty("_layers")) {
-            var layerindex = -0;
-            $.map(polygonMachine._layers, function (layer, i) {
-                if (layer.hasOwnProperty("feature")) {
-                    if (layer.feature.properties.id === machineupdate.properties.id) {
-                        if (layer.feature.properties.name != machineupdate.properties.name) {
-                            layer.setTooltipContent(machineupdate.properties.name + "<br/>" + "Staffing: " + machineupdate.properties.CurrentStaff);
+        if (id == baselayerid) {
+            if (polygonMachine.hasOwnProperty("_layers")) {
+                var layerindex = -0;
+                $.map(polygonMachine._layers, function (layer, i) {
+                    if (layer.hasOwnProperty("feature")) {
+                        if (layer.feature.properties.id === machineupdate.properties.id) {
+                            if (layer.feature.properties.name != machineupdate.properties.name) {
+                                layer.setTooltipContent(machineupdate.properties.name + "<br/>" + "Staffing: " + machineupdate.properties.CurrentStaff);
+                            }
+                            layer.feature.properties = machineupdate.properties;
+                            layerindex = layer._leaflet_id;
+                            return false;
                         }
-                        layer.feature.properties = machineupdate.properties;
-                        layerindex = layer._leaflet_id;
-                        return false;
                     }
+                });
+                if (layerindex !== -0) {
+                    if ($('div[id=machine_div]').is(':visible') && $('div[id=machine_div]').attr("data-id") === machineupdate.properties.id) {
+                        LoadMachineTables(machineupdate.properties, 'machinetable');
+                    }
+                    updateMPEZone(machineupdate.properties, layerindex);
                 }
-            });
-            if (layerindex !== -0) {
-                if ($('div[id=machine_div]').is(':visible') && $('div[id=machine_div]').attr("data-id") === machineupdate.properties.id) {
-                    LoadMachineTables(machineupdate.properties, 'machinetable');
+                else {
+                    polygonMachine.addData(machineupdate);
                 }
-                updateMPEZone(machineupdate.properties, layerindex);
-            }
-            else {
-                polygonMachine.addData(machineupdate);
             }
         }
     } catch (e) {
@@ -135,7 +137,7 @@ var polygonMachine = new L.GeoJSON(null, {
         if (feature.properties.visible) {
             var style = {};
             var sortplan = feature.properties.hasOwnProperty("MPEWatchData") ? feature.properties.MPEWatchData.hasOwnProperty("cur_sortplan") ? feature.properties.MPEWatchData.cur_sortplan : "" : "";
-            var endofrun = feature.properties.hasOwnProperty("MPEWatchData") ? feature.properties.MPEWatchData.hasOwnProperty("current_run_end") ? feature.properties.MPEWatchData.current_run_end : "" : "";
+            var endofrun = feature.properties.hasOwnProperty("MPEWatchData") ? feature.properties.MPEWatchData.hasOwnProperty("current_run_end") ? feature.properties.MPEWatchData.current_run_end != "0" ? feature.properties.MPEWatchData.current_run_end : "" : "" : "";
             var startofrun = feature.properties.hasOwnProperty("MPEWatchData") ? feature.properties.MPEWatchData.hasOwnProperty("current_run_start") ? feature.properties.MPEWatchData.current_run_start : "" : "";
             if (checkValue(sortplan) && !checkValue(endofrun)) {
                 var thpCode = feature.properties.hasOwnProperty("MPEWatchData") ? feature.properties.MPEWatchData.hasOwnProperty("throughput_status") ? feature.properties.MPEWatchData.throughput_status : "0" : "0";
@@ -188,7 +190,7 @@ var polygonMachine = new L.GeoJSON(null, {
 });
 async function updateMPEZone(properties, index) {
     var sortplan = properties.MPEWatchData.hasOwnProperty("cur_sortplan") ? properties.MPEWatchData.cur_sortplan : "";
-    var endofrun = properties.MPEWatchData.hasOwnProperty("current_run_end") ? properties.MPEWatchData.current_run_end : "";
+    var endofrun = properties.MPEWatchData.hasOwnProperty("current_run_end") ? properties.MPEWatchData.current_run_end == "0" ? "" : properties.MPEWatchData.current_run_end : "";
     var startofrun = properties.MPEWatchData.hasOwnProperty("current_run_start") ? properties.MPEWatchData.current_run_start : "";
     if (checkValue(sortplan) && !checkValue(endofrun)) {
         var thpCode = properties.MPEWatchData.hasOwnProperty("throughput_status") ? properties.MPEWatchData.throughput_status : "0";
@@ -247,7 +249,7 @@ async function LoadMachineTables(dataproperties, table) {
                 var MachineCurrentStaff = [];
                 GetPeopleInZone(dataproperties.id, staffdata, MachineCurrentStaff);
                 if (dataproperties.MPEWatchData.hasOwnProperty("current_run_end")) {
-                    if (dataproperties.MPEWatchData.current_run_end == "") {
+                    if (dataproperties.MPEWatchData.current_run_end == "" || dataproperties.MPEWatchData.current_run_end == "0") {
                         var runEndTR = document.getElementById('endtime_tr').style;
                         runEndTR.display = 'none';
 
@@ -321,9 +323,9 @@ function formatmachinetoprow(properties) {
         peicesFed:  digits(properties.MPEWatchData.tot_sortplan_vol) ,
         throughput: digits(properties.MPEWatchData.cur_thruput_ophr) ,
         rpgVol: digits(properties.MPEWatchData.rpg_est_vol),
-        stateBadge: "",// getstatebadge(properties),
-        stateText:"", // getstateText(properties),
-        estComp: checkValue(properties.MPEWatchData.rpg_est_comp_time) ? properties.MPEWatchData.rpg_est_comp_time : "Estimated Not Available",
+        stateBadge: getstatebadge(properties),
+        stateText: getstateText(properties),
+        estComp: checkValue(properties.MPEWatchData.rpg_est_comp_time) ? properties.MPEWatchData.rpg_est_comp_time : "Estimate Not Available",
         rpgStart:moment(properties.MPEWatchData.rpg_start_dtm, "MM/DD/YYYY hh:mm:ss A").format("YYYY-MM-DD HH:mm:ss"),
         rpgEnd:  moment(properties.MPEWatchData.rpg_end_dtm, "MM/DD/YYYY hh:mm:ss A").format("YYYY-MM-DD HH:mm:ss"),
         expThroughput: digits(properties.MPEWatchData.expected_throughput),
@@ -402,7 +404,9 @@ $('#zoneselect').change(function (e) {
 function getstatebadge(properties) {
     if (properties.hasOwnProperty("MPEWatchData")) {
         if (properties.MPEWatchData.hasOwnProperty("current_run_end")) {
-            var endtime = moment(properties.MPEWatchData.current_run_end);
+            //var endtime = moment(properties.MPEWatchData.current_run_end);
+            var endtime = properties.MPEWatchData.current_run_end == "0" ? "" : moment(properties.MPEWatchData.current_run_end);
+            
             var starttime = moment(properties.MPEWatchData.current_run_start);
             var sortPlan = properties.MPEWatchData.cur_sortplan;
 
@@ -432,7 +436,8 @@ function getstatebadge(properties) {
 function getstateText(properties) {
     if (properties.hasOwnProperty("MPEWatchData")) {
         if (properties.MPEWatchData.hasOwnProperty("current_run_end")) {
-            var endtime = moment(properties.MPEWatchData.current_run_end);
+            //var endtime = moment(properties.MPEWatchData.current_run_end);
+            var endtime = properties.MPEWatchData.current_run_end == "0" ? "" : moment(properties.MPEWatchData.current_run_end);
             var starttime = moment(properties.MPEWatchData.current_run_start);
             var sortPlan = properties.MPEWatchData.cur_sortplan;
 
@@ -486,15 +491,16 @@ async function Edit_Machine_Info(id) {
                     $('input[type=text][name=zone_ldc]').val(Data.Zone_LDC);
                     $('input[type=text][name=machine_id]').val(Data.id);
 
-
                     $('button[id=machinesubmitBtn]').off().on('click', function () {
                         try {
                             $('button[id=machinesubmitBtn]').prop('disabled', true);
                             var jsonObject = {
+                                Floor_Id: baselayerid,
                             MPE_Type: $('input[type=text][name=machine_name]').val(),
                             MPE_Number: $('input[type=text][name=machine_number]').val(),
-                            Zone_LDC: $('input[type=text][name=zone_ldc]').val()
-                            };
+                            Zone_LDC: $('input[type=text][name=zone_ldc]').val(),
+                            floorId: baselayerid
+                           };
 
                             if (!$.isEmptyObject(jsonObject)) {
                                 jsonObject.id = Data.id;

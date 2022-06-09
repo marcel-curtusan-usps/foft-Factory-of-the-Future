@@ -906,7 +906,7 @@ namespace Factory_of_the_Future
                         {
                             item["cur_sortplan"] = AppParameters.SortPlan_Name_Trimer(item["cur_sortplan"].ToString());
                             item["cur_operation_id"] = !string.IsNullOrEmpty(item["cur_operation_id"].ToString()) ? item["cur_operation_id"].ToString() : "0";
-                       
+
                             MPEWatch_FullBins(item);
                             
                             total_volume = item.ContainsKey("tot_sortplan_vol") ? item["tot_sortplan_vol"].ToString().Trim() : "0";
@@ -929,7 +929,7 @@ namespace Factory_of_the_Future
                             {
                                 item["rpg_est_comp_time"] = "";
                             }
-                            if (item["current_run_end"].ToString() == "" && item["current_run_start"].ToString() != "")
+                            if ((item["current_run_end"].ToString() == "" || item["current_run_end"].ToString() == "0") && item["current_run_start"].ToString() != "")
                             {
                                 // JObject results = new Oracle_DB_Calls().Get_RPG_Plan_Info(item);
                                 JObject results = Get_RPG_Plan_Info(item);
@@ -1063,12 +1063,14 @@ namespace Factory_of_the_Future
                 string MpeType = data["mpe_type"].ToString().Trim();
                 string MpeNumber = data["mpe_number"].ToString().PadLeft(3, '0');
                 List<string> FullBins = !string.IsNullOrEmpty(data["bin_full_bins"].ToString()) ? data["bin_full_bins"].ToString().Split(',').Select(p => p.Trim().TrimStart('0')).ToList() : new List<string>();
-                foreach (string key in AppParameters.ZoneList.Where(r => r.Value.Properties.ZoneType == "Bin" && r.Value.Properties.MPEType.Trim() == MpeType && r.Value.Properties.MPENumber.ToString().PadLeft(3, '0') == MpeNumber).Select(y => y.Key).ToList())
+
+                foreach (CoordinateSystem cs in AppParameters.CoordinateSystem.Values)
                 {
-                    List<string> FullBinList = new List<string>();
-                    if (AppParameters.ZoneList.TryGetValue(key, out GeoZone binZone))
+                    foreach (string key in cs.Zones.Where(f => f.Value.Properties.ZoneType == "Bin" &&
+                    f.Value.Properties.MPEType.Trim() == MpeType && f.Value.Properties.MPENumber.ToString().PadLeft(3, '0') == MpeNumber).Select(y => y.Key).ToList())
                     {
-                        if (FullBins.Any())
+                        List<string> FullBinList = new List<string>();
+                        if(cs.Zones.TryGetValue(key, out GeoZone binZone))
                         {
                             binZone.Properties.MPEBins = null;
                             for (int i = 0; i < FullBins.Count; i++)
@@ -1091,6 +1093,39 @@ namespace Factory_of_the_Future
                         }
                     }
                 }
+
+
+
+
+
+                //    foreach (string key in AppParameters.ZoneList.Where(r => r.Value.Properties.ZoneType == "Bin" && r.Value.Properties.MPEType.Trim() == MpeType && r.Value.Properties.MPENumber.ToString().PadLeft(3, '0') == MpeNumber).Select(y => y.Key).ToList())
+                //{
+                //    List<string> FullBinList = new List<string>();
+                //    if (AppParameters.ZoneList.TryGetValue(key, out GeoZone binZone))
+                //    {
+                //        if (FullBins.Any())
+                //        {
+                //            binZone.Properties.MPEBins = null;
+                //            for (int i = 0; i < FullBins.Count; i++)
+                //            {
+                //                if (binZone.Properties.Bins.Split(',').Select(p => p.Trim()).ToList().Contains(FullBins[i]))
+                //                {
+                //                    FullBinList.Add(FullBins[i]);
+                //                }
+                //            }
+                //            binZone.Properties.MPEBins = FullBinList;
+                //            binZone.Properties.ZoneUpdate = true;
+                //        }
+                //        else
+                //        {
+                //            if (binZone.Properties.MPEBins.Count() != FullBinList.Count())
+                //            {
+                //                binZone.Properties.MPEBins = FullBinList;
+                //                binZone.Properties.ZoneUpdate = true;
+                //            }
+                //        }
+                //    }
+                //}
             }
             catch (Exception ex)
             {
@@ -2337,20 +2372,38 @@ namespace Factory_of_the_Future
  
             try
             {
-                string zoneID = AppParameters.ZoneList.Where(x => x.Value.Properties.ZoneType == "Machine" &&
+                string zoneID = string.Empty;
+                foreach(CoordinateSystem cs in AppParameters.CoordinateSystem.Values)
+                {
+                    zoneID = cs.Zones.Where(x => x.Value.Properties.ZoneType == "Machine" &&
                             x.Value.Properties.MPEType == machineData["mpe_type"].ToString() &&
                             x.Value.Properties.MPENumber == (int)machineData["mpe_number"])
                                .Select(l => l.Key).FirstOrDefault();
-                if (!string.IsNullOrEmpty(zoneID))
-                {
-                    string machine = machineData["mpe_type"].ToString().Trim() + machineData["mpe_number"].ToString().Trim();
+                    if (!string.IsNullOrEmpty(zoneID))
+                    {
+                        string machine = machineData["mpe_type"].ToString().Trim() + machineData["mpe_number"].ToString().Trim();
 
-                    CheckMachineThroughPutNotification(machineData, zoneID, machine);
-                    CheckUnplannedMaintNotification(machineData, zoneID, machine);
-                    CheckOPStartingLateNotification(machineData, zoneID, machine);
-                    CheckOPRunningLateNatification(machineData, zoneID, machine);
-                    CheckSortplanWrongNotification(machineData, zoneID, machine);
+                        CheckMachineThroughPutNotification(machineData, zoneID, machine);
+                        CheckUnplannedMaintNotification(machineData, zoneID, machine);
+                        CheckOPStartingLateNotification(machineData, zoneID, machine);
+                        CheckOPRunningLateNatification(machineData, zoneID, machine);
+                        CheckSortplanWrongNotification(machineData, zoneID, machine);
+                    }
                 }
+                //string zoneID = AppParameters.ZoneList.Where(x => x.Value.Properties.ZoneType == "Machine" &&
+                //            x.Value.Properties.MPEType == machineData["mpe_type"].ToString() &&
+                //            x.Value.Properties.MPENumber == (int)machineData["mpe_number"])
+                //               .Select(l => l.Key).FirstOrDefault();
+                //if (!string.IsNullOrEmpty(zoneID))
+                //{
+                //    string machine = machineData["mpe_type"].ToString().Trim() + machineData["mpe_number"].ToString().Trim();
+
+                //    CheckMachineThroughPutNotification(machineData, zoneID, machine);
+                //    CheckUnplannedMaintNotification(machineData, zoneID, machine);
+                //    CheckOPStartingLateNotification(machineData, zoneID, machine);
+                //    CheckOPRunningLateNatification(machineData, zoneID, machine);
+                //    CheckSortplanWrongNotification(machineData, zoneID, machine);
+                //}
             }
             catch (Exception e)
             {

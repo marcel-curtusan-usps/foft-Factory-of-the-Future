@@ -142,8 +142,47 @@
     transform: rotate(90deg);
 }
 
+
+.iconCenter {
+    text-align: center !important;
+    vertical-align: middle !important;
+}
+
+.enter-fullscreen-active {
+    top: .1rem !important;
+}
+
+.exit-fullscreen-active {
+    top: -.1rem !important;
+}
+
+.leaflet-control-zoom-in {
+    font-size: 22px !important;
+}
+
+.leaflet-control-zoom-out {
+    font-size: 22px !important;
+}
+
+#faqToggle {
+    padding-top: .1rem !important;
+}
+
+#legendToggle {
+    padding-top: .1rem !important;
+}
+
+#layersToggle {
+    padding-top: .1rem !important;
+}
+
+#viewportsToggle {
+    padding-top: .1rem !important;
+}
+
+
 table thead tr th {
-    text-align: center;
+    text-align: left;
     vertical-align: middle;
 }
 
@@ -1815,7 +1854,8 @@ div.leaflet-control-layers {
     padding: 0.5rem;
     margin-bottom: 0;
     font-size: 1.5rem;
-    text-align: center;
+    text-align: left;
+    margin-left: .75rem;
     color: #333366;
     background-color: #f7f7f7;
     border-bottom: 0;
@@ -1995,6 +2035,33 @@ div.leaflet-control-layers {
 
 .btn-link:focus {
     text-decoration: none;
+}
+
+
+// custom adjustments for alignment
+
+.ml-p5rem {
+    margin-left: .5rem !important;
+}
+
+.ml-np5rem {
+    margin-left: -.5rem !important;
+}
+
+.mr-p5rem {
+    margin-right: .5rem !important;
+}
+
+.mr-p65rem {
+    margin-right: .65rem !important
+}
+
+.mr-np5rem {
+    margin-right: -.5rem !important;
+}
+
+.ml-p25rem {
+    margin-left: .25rem !important;
 }
 
 /* Custom negative Left margin for vehicle icons to center on marker */
