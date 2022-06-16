@@ -99,15 +99,15 @@ namespace Factory_of_the_Future
         /// </summary>
         /// <returns></returns>
 
-        public IEnumerable<GeoMarker> GetUndetectedTagsList()
-        {
-            return _managerHub.GetUndetectedTagsList();
-        }
+        //public IEnumerable<GeoMarker> GetUndetectedTagsList()
+        //{
+        //    return _managerHub.GetUndetectedTagsList();
+        //}
 
-        public IEnumerable<GeoMarker> GetLDCAlertTagsList()
-        {
-            return _managerHub.GetLDCAlertTagsList();
-        }
+        //public IEnumerable<GeoMarker> GetLDCAlertTagsList()
+        //{
+        //    return _managerHub.GetLDCAlertTagsList();
+        //}
 
         /// <summary>
         /// Get Trips Data
@@ -142,22 +142,15 @@ namespace Factory_of_the_Future
         {
             return _managerHub.GetCameraList();
         }
-        /// <summary>
-        /// Get Camera markers
-        /// </summary>
-        /// <returns></returns>
-        public IEnumerable<GeoMarker> getCameraMarkerList()
-        {
-            return _managerHub.getCameraMarkerList();
-        }
+      
         /// <summary>
         /// Get Zones
         /// </summary>
         /// <returns></returns>
-        public IEnumerable<GeoZone> GetZonesList()
-        {
-            return _managerHub.GetZonesList();
-        }
+        //public IEnumerable<GeoZone> GetZonesList()
+        //{
+        //    return _managerHub.GetZonesList();
+        //}
 
         public IEnumerable<GeoZone> EditZone(string data)
         {
@@ -219,10 +212,10 @@ namespace Factory_of_the_Future
         /// Get Vehicle tags
         /// </summary>
         /// <returns></returns>
-        public IEnumerable<GeoMarker> GetVehicleTagsList()
-        {
-            return _managerHub.GetVehicleTagsList();
-        }
+        //public IEnumerable<GeoMarker> GetVehicleTagsList()
+        //{
+        //    return _managerHub.GetVehicleTagsList();
+        //}
         ///// <summary>
         ///// Get user Info section
         ///// </summary>
@@ -274,6 +267,7 @@ namespace Factory_of_the_Future
             _managerHub.Removeuser(Context.ConnectionId);
             Task.Run(() => LeaveGroup("PeopleMarkers"));
             Task.Run(() => LeaveGroup("VehiclsMarkers"));
+            Task.Run(() => LeaveGroup("CameraMarkers"));
             Task.Run(() => LeaveGroup("MachineZones"));
             Task.Run(() => LeaveGroup("Zones"));
             Task.Run(() => LeaveGroup("BinZones"));

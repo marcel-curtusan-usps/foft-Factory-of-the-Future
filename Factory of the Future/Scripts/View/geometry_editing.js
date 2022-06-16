@@ -295,9 +295,10 @@ function CreateBinZone(newlayer) {
 
             $.connection.FOTFManager.server.addZone(JSON.stringify(togeo)).done(function (Data) {
                 if (!$.isEmptyObject(Data)) {
-                    setTimeout(function () { sidebar.close('home'); }, 1000);
+                    var tempObj = { data: Data }
+                    setTimeout(function () { sidebar.close('home'); }, 500);
+                    init_zones(tempObj, baselayerid);
                     newlayer.layer.remove();
-                    updateBinZone(Data);
                 }
                 else {
                     newlayer.layer.remove();
@@ -340,7 +341,7 @@ function CreateCamera(newlayer)
         $.connection.FOTFManager.server.addMarker(JSON.stringify(togeo)).done(function (Data) {
             if (!$.isEmptyObject(Data)) {
                 setTimeout(function () { sidebar.close('home'); }, 500);
-                cameras.addData(Data);
+                cameras.addData(Data, baselayerid);
                 newlayer.layer.remove();
             }
             else {

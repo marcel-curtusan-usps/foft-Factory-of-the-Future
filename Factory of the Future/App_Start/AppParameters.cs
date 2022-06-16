@@ -41,8 +41,8 @@ namespace Factory_of_the_Future
         public static ConcurrentDictionary<string, CoordinateSystem> CoordinateSystem { get; set; } = new ConcurrentDictionary<string, CoordinateSystem>();  
         public static ConcurrentDictionary<string, Cameras> CameraInfoList { get; set; } = new ConcurrentDictionary<string, Cameras>();
         public static ConcurrentDictionary<string, Connection> ConnectionList { get; set; } = new ConcurrentDictionary<string, Connection>();
-        public static ConcurrentDictionary<string, GeoZone> ZoneList { get; set; } = new ConcurrentDictionary<string, GeoZone>();
-        public static ConcurrentDictionary<string, GeoMarker> TagsList { get; set; } = new ConcurrentDictionary<string, GeoMarker>();
+        //public static ConcurrentDictionary<string, GeoZone> ZoneList { get; set; } = new ConcurrentDictionary<string, GeoZone>();
+       // public static ConcurrentDictionary<string, GeoMarker> TagsList { get; set; } = new ConcurrentDictionary<string, GeoMarker>();
         public static ConcurrentDictionary<string, ZoneInfo> ZoneInfo { get; set; } = new ConcurrentDictionary<string, ZoneInfo>();
         public static ConcurrentDictionary<string, string> DPSList { get; set; } = new ConcurrentDictionary<string, string>();
         public static ConcurrentDictionary<string, string> MPEPerformanceList { get; set; } = new ConcurrentDictionary<string, string>();
@@ -138,7 +138,7 @@ namespace Factory_of_the_Future
                 ///load Default Notification settings
                 GetNotificationDefault();
                 //loadtemp
-                LoadTempIndoorapData("ProjectData.json");
+                LoadTempIndoorapData("Project_Data.json");
 
             }
             catch (Exception ex)
@@ -367,6 +367,10 @@ namespace Factory_of_the_Future
                 {
                     Task.Run(() => new ProcessRecvdMsg().StartProcess(ProjectData, "getProjectInfo", ""));
                 }
+                //else
+                //{
+                //    LoadTempIndoorapData("ProjectData.json");
+                //}
             }
             catch (Exception e)
             {
@@ -408,37 +412,37 @@ namespace Factory_of_the_Future
                                 }
                             }
                         }
-                        if (FileName.StartsWith("CustomZones.json"))
-                        {
-                            List<GeoZone> tempzone = JsonConvert.DeserializeObject<List<GeoZone>>(file_content);
+                        //if (FileName.StartsWith("CustomZones.json"))
+                        //{
+                        //    List<GeoZone> tempzone = JsonConvert.DeserializeObject<List<GeoZone>>(file_content);
 
-                            for (int i = 0; i < tempzone.Count; i++)
-                            {
-                                if (!ZoneList.ContainsKey(tempzone[i].Properties.Id))
-                                {
-                                    tempzone[i].Properties.Source = "user";
-                                    if (ZoneList.TryAdd(tempzone[i].Properties.Id, tempzone[i]))
-                                    {
+                        //    for (int i = 0; i < tempzone.Count; i++)
+                        //    {
+                        //        if (!ZoneList.ContainsKey(tempzone[i].Properties.Id))
+                        //        {
+                        //            tempzone[i].Properties.Source = "user";
+                        //            if (ZoneList.TryAdd(tempzone[i].Properties.Id, tempzone[i]))
+                        //            {
 
-                                    }
-                                }
-                            }
-                        }
-                        if (FileName.StartsWith("Markers.json"))
-                        {
-                            List<GeoMarker> tempMarker = JsonConvert.DeserializeObject<List<GeoMarker>>(file_content);
-                            for (int i = 0; i < tempMarker.Count; i++)
-                            {
-                                if (!TagsList.ContainsKey(tempMarker[i].Properties.Id))
-                                {
-                                    tempMarker[i].Properties.Source = "user";
-                                    if (TagsList.TryAdd(tempMarker[i].Properties.Id, tempMarker[i]))
-                                    {
+                        //            }
+                        //        }
+                        //    }
+                        //}
+                        //if (FileName.StartsWith("Markers.json"))
+                        //{
+                        //    List<GeoMarker> tempMarker = JsonConvert.DeserializeObject<List<GeoMarker>>(file_content);
+                        //    for (int i = 0; i < tempMarker.Count; i++)
+                        //    {
+                        //        if (!TagsList.ContainsKey(tempMarker[i].Properties.Id))
+                        //        {
+                        //            tempMarker[i].Properties.Source = "user";
+                        //            if (TagsList.TryAdd(tempMarker[i].Properties.Id, tempMarker[i]))
+                        //            {
 
-                                    }
-                                }
-                            }
-                        }
+                        //            }
+                        //        }
+                        //    }
+                        //}
                         //Notification
                         if (FileName.StartsWith("Notification.json"))
                         {
@@ -739,5 +743,47 @@ namespace Factory_of_the_Future
                 return ms.ToArray();
             }
         }
+        public static string ZoneOutPutdata(List<CoordinateSystem> coordinateSystems)
+        {
+            try
+            {
+                var jsonResolver = new PropertyRenameAndIgnoreSerializerContractResolver();
+                jsonResolver.IgnoreProperty(typeof(Properties), "MPEWatchData");
+                jsonResolver.IgnoreProperty(typeof(Properties), "DPSData");
+                jsonResolver.IgnoreProperty(typeof(Properties), "staffingData");
+                jsonResolver.IgnoreProperty(typeof(Properties), "dockdoorData");
+                jsonResolver.IgnoreProperty(typeof(Properties), "Zone_Update");
+                jsonResolver.IgnoreProperty(typeof(Properties), "MissionList");
+                jsonResolver.IgnoreProperty(typeof(Properties), "rawData");
+                jsonResolver.IgnoreProperty(typeof(Marker), "CameraData");
+                jsonResolver.IgnoreProperty(typeof(Marker), "zones");
+                jsonResolver.IgnoreProperty(typeof(Marker), "isWearingTag");
+                jsonResolver.IgnoreProperty(typeof(Marker), "tagVisibleMils");
+                jsonResolver.IgnoreProperty(typeof(Marker), "isLdcAlert");
+                jsonResolver.IgnoreProperty(typeof(Marker), "currentLDCs");
+                jsonResolver.IgnoreProperty(typeof(Marker), "Mission");
+                jsonResolver.IgnoreProperty(typeof(Marker), "Tag_TS");
+                jsonResolver.IgnoreProperty(typeof(Marker), "Tag_Update");
+                jsonResolver.IgnoreProperty(typeof(Marker), "Raw_Data");
+                jsonResolver.IgnoreProperty(typeof(Marker), "Camera_Data");
+                jsonResolver.IgnoreProperty(typeof(Marker), "Vehicle_Status_Data");
+                jsonResolver.IgnoreProperty(typeof(Marker), "positionTS");
+                jsonResolver.IgnoreProperty(typeof(Marker), "tacs");
+                jsonResolver.IgnoreProperty(typeof(Marker), "sels");
+                jsonResolver.IgnoreProperty(typeof(Marker), "base64Image");
+                jsonResolver.IgnoreProperty(typeof(BackgroundImage), "updateStatus");
+                jsonResolver.IgnoreProperty(typeof(BackgroundImage), "rawData");
+                
+                var serializerSettings = new JsonSerializerSettings();
+                serializerSettings.ContractResolver = jsonResolver;
+                return JsonConvert.SerializeObject(coordinateSystems,Formatting.Indented, serializerSettings);
+            }
+            catch (Exception e)
+            {
+                new ErrorLogger().ExceptionLog(e);
+                return "";
+            }
+        }
+
     }
 }

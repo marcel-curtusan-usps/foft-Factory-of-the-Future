@@ -185,90 +185,6 @@ namespace Factory_of_the_Future
         [JsonProperty("applicationAbbr")]
         public string ApplicationAbbr { get; set; } = "";
     }
-
-    public class TrackingArea
-    {
-        [JsonProperty("notes")]
-        public string Notes { get; set; }
-
-        [JsonProperty("maxZ")]
-        public int MaxZ { get; set; }
-
-        [JsonProperty("name")]
-        public string Name { get; set; }
-
-        [JsonProperty("id")]
-        public string Id { get; set; }
-
-        [JsonProperty("minZ")]
-        public int MinZ { get; set; }
-
-        [JsonProperty("track3d")]
-        public bool Track3d { get; set; }
-
-        [JsonProperty("trackingAreaGroup")]
-        public string TrackingAreaGroup { get; set; }
-    }
-
-    public class PolygonHole
-    {
-        [JsonProperty("locationLocked")]
-        public bool LocationLocked { get; set; }
-
-        [JsonProperty("notes")]
-        public string Notes { get; set; }
-
-        [JsonProperty("visible")]
-        public bool Visible { get; set; }
-
-        [JsonProperty("name")]
-        public string Name { get; set; }
-
-        [JsonProperty("polygonData")]
-        public string PolygonData { get; set; }
-
-        [JsonProperty("id")]
-        public string Id { get; set; }
-    }
-
-    public class Polygon
-    {
-        [JsonProperty("locationLocked")]
-        public bool LocationLocked { get; set; }
-
-        [JsonProperty("notes")]
-        public string Notes { get; set; }
-
-        [JsonProperty("visible")]
-        public bool Visible { get; set; }
-
-        [JsonProperty("color")]
-        public string Color { get; set; }
-
-        [JsonProperty("name")]
-        public string Name { get; set; }
-
-        [JsonProperty("polygonData")]
-        public string PolygonData { get; set; }
-
-        [JsonProperty("trackingArea")]
-        public TrackingArea TrackingArea { get; set; }
-
-        [JsonProperty("id")]
-        public string Id { get; set; }
-
-        [JsonProperty("polygonHoles")]
-        public List<PolygonHole> PolygonHoles { get; set; }
-    }
-
-    public class ProjectData
-    {
-        [JsonProperty("coordinateSystems")]
-        public List<CoordinateSystem> CoordinateSystems { get; set; }
-
-        [JsonProperty("message")]
-        public string Message { get; set; }
-    }
     public class ZoneGeometry
     {
         [JsonProperty("type")]
@@ -285,7 +201,7 @@ namespace Factory_of_the_Future
         [JsonProperty("coordinates")]
         public List<double> Coordinates { get; set; } 
     }
-  
+
     public class Properties
     {
         [JsonProperty("id")]
@@ -308,6 +224,9 @@ namespace Factory_of_the_Future
 
         [JsonProperty("Zone_Update")]
         public bool ZoneUpdate { get; set; }
+
+        [JsonProperty("Quuppa_Override")]
+        public bool QuuppaOverride { get; set; }
 
         [JsonProperty("Zone_Type")]
         public string ZoneType { get; set; } = "";
@@ -337,7 +256,7 @@ namespace Factory_of_the_Future
         public int CurrentStaff { get; set; }
         
         [JsonProperty("doorNumber")]
-        public string DoorNumber { get; set; }
+        public string DoorNumber { get; set; }  = "";
 
         [JsonProperty("dockdoorData")]
         public RouteTrips DockDoorData { get; set; } = new RouteTrips();
@@ -448,18 +367,25 @@ namespace Factory_of_the_Future
 
         [JsonProperty("Raw_Data")]
         public string RawData { get; set; } = "";
+
         [JsonProperty("Camera_Data")]
-        public string CameraData { get; set; } = "";
+        public Cameras CameraData { get; set; }
+
+        [JsonProperty("base64Image")]
+        public string Base64Image { get; set; } = "";
+
         [JsonProperty("Vehicle_Status_Data")]
         public VehicleStatus Vehicle_Status_Data { get; set; }
+
         [JsonProperty("Mission")]
         public Mission Misison { get; set; }
+
         [JsonProperty("source")]
         public string Source { get; set; } = "";
+
         [JsonProperty("notificationId")]
         public string NotificationId { get; set; } = "";
-        [JsonProperty("base64Image")]
-        public string Base64Image { get; set; }
+       
     }
     public class ZoneInfo
     {
@@ -946,9 +872,6 @@ namespace Factory_of_the_Future
     }
     public class Cameras
     {
-        [JsonProperty("base64")]
-        public string Base64;
-
         [JsonProperty("LOCALE_KEY")]
         public string LocaleKey { get; set; }
 
@@ -987,6 +910,9 @@ namespace Factory_of_the_Future
 
         [JsonProperty("FACILITY_DISPLAY_NME")]
         public string FacilityDisplayName { get; set; }
+
+        [JsonProperty("base64Image")]
+        public string Base64Image { get; set; } = "";
 
     }
     public class Leg
@@ -1559,5 +1485,70 @@ namespace Factory_of_the_Future
 
         [JsonProperty("url")]
         public string URL { get; set; } = "";
+    }
+    public class PropertyRenameAndIgnoreSerializerContractResolver : DefaultContractResolver
+    {
+        private readonly Dictionary<Type, HashSet<string>> _ignores;
+        private readonly Dictionary<Type, Dictionary<string, string>> _renames;
+
+        public PropertyRenameAndIgnoreSerializerContractResolver()
+        {
+            _ignores = new Dictionary<Type, HashSet<string>>();
+            _renames = new Dictionary<Type, Dictionary<string, string>>();
+        }
+
+        public void IgnoreProperty(Type type, params string[] jsonPropertyNames)
+        {
+            if (!_ignores.ContainsKey(type))
+                _ignores[type] = new HashSet<string>();
+
+            foreach (var prop in jsonPropertyNames)
+                _ignores[type].Add(prop);
+        }
+
+        public void RenameProperty(Type type, string propertyName, string newJsonPropertyName)
+        {
+            if (!_renames.ContainsKey(type))
+                _renames[type] = new Dictionary<string, string>();
+
+            _renames[type][propertyName] = newJsonPropertyName;
+        }
+
+        protected override JsonProperty CreateProperty(MemberInfo member, MemberSerialization memberSerialization)
+        {
+            var property = base.CreateProperty(member, memberSerialization);
+
+            if (IsIgnored(property.DeclaringType, property.PropertyName))
+            {
+                property.ShouldSerialize = i => false;
+                property.Ignored = true;
+            }
+
+            if (IsRenamed(property.DeclaringType, property.PropertyName, out var newJsonPropertyName))
+                property.PropertyName = newJsonPropertyName;
+
+            return property;
+        }
+
+        private bool IsIgnored(Type type, string jsonPropertyName)
+        {
+            if (!_ignores.ContainsKey(type))
+                return false;
+
+            return _ignores[type].Contains(jsonPropertyName);
+        }
+
+        private bool IsRenamed(Type type, string jsonPropertyName, out string newJsonPropertyName)
+        {
+            Dictionary<string, string> renames;
+
+            if (!_renames.TryGetValue(type, out renames) || !renames.TryGetValue(jsonPropertyName, out newJsonPropertyName))
+            {
+                newJsonPropertyName = null;
+                return false;
+            }
+
+            return true;
+        }
     }
 }

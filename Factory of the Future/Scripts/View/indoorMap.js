@@ -58,9 +58,15 @@ map.on('baselayerchange', function (e) {
         agvLocations.clearLayers();
         viewPortsAreas.clearLayers();
         stagingAreas.clearLayers();
+        //markers
+        tagsMarkersGroup.clearLayers();
+        piv_vehicles.clearLayers();
+        agv_vehicles.clearLayers();
+        cameras.clearLayers();
+        locatorMarker.clearLayers();
         init_zones(data[0].zones, baselayerid);
-
-    })
+        init_locators(data[0].locators, baselayerid);
+    });
 });
 var timedisplay = L.Control.extend({
     options: {
@@ -251,7 +257,7 @@ function init_mapSetup(MapData) {
             });
             init_arrive_depart_trips();
            
-            init_agvtags();
+            //init_agvtags();
             LoadNotification("routetrip");
             LoadNotification("vehicle");
            

@@ -103,6 +103,7 @@ async function updateBinZone(binzoneupdate, id) {
     }
 }
 async function updatebin(layerindex) {
+    //add flashing to the bind 
     if (binzonepoly._layers[layerindex].feature.properties.MPE_Bins.length > 0) {
         if (binzonepoly._layers[layerindex].hasOwnProperty("_tooltip")) {
             if (binzonepoly._layers[layerindex]._tooltip.hasOwnProperty("_container")) {
@@ -111,6 +112,12 @@ async function updatebin(layerindex) {
                 }
             }
         }
+        binzonepoly._layers[layerindex].setStyle({
+            weight: 1,
+            opacity: 1,
+            fillOpacity: 0.5,
+            fillColor: "#ff8855"
+        });
     }
     else {
         if (binzonepoly._layers[layerindex].hasOwnProperty("_tooltip")) {
@@ -120,6 +127,12 @@ async function updatebin(layerindex) {
                 }
             }
         }
+        binzonepoly._layers[layerindex].setStyle({
+            weight: 1,
+            opacity: 1,
+            fillOpacity: 0.2,
+            fillColor: "#989ea4"
+        });
     }
     return true;
 }

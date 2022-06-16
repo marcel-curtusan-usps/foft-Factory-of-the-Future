@@ -495,7 +495,6 @@ async function Edit_Machine_Info(id) {
                         try {
                             $('button[id=machinesubmitBtn]').prop('disabled', true);
                             var jsonObject = {
-                                Floor_Id: baselayerid,
                             MPE_Type: $('input[type=text][name=machine_name]').val(),
                             MPE_Number: $('input[type=text][name=machine_number]').val(),
                             Zone_LDC: $('input[type=text][name=zone_ldc]').val(),
@@ -506,7 +505,7 @@ async function Edit_Machine_Info(id) {
                                 jsonObject.id = Data.id;
                                 fotfmanager.server.editZone(JSON.stringify(jsonObject)).done(function (updatedData) {
 
-                                    $('span[id=error_machinesubmitBtn]').text(updatedData[0].MPE_Type + " Zone has been Updated.");
+                                    $('span[id=error_machinesubmitBtn]').text(updatedData[0].properties.MPE_Type + " Zone has been Updated.");
                                     setTimeout(function () { $("#Zone_Modal").modal('hide'); }, 1500);
 
                                 });

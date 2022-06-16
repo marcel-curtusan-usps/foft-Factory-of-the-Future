@@ -3,41 +3,42 @@
 */
 
 $.extend(fotfmanager.client, {
-    updateVehicleTagStatus: async (vehicleupdate) => { updateVehicleTag(vehicleupdate) }
+    updateVehicleTagStatus: async (vehicleupdate,id) => { updateVehicleTag(vehicleupdate, id) }
 });
 
-async function updateVehicleTag(vehicleupdate) {
+async function updateVehicleTag(vehicleupdate, id) {
     try {
-        var layerindex = -0;
-        map.whenReady(() => {
-            if (map.hasOwnProperty("_layers")) {
-                $.map(map._layers, function (layer, i) {
-                    if (layer.hasOwnProperty("feature")) {
-                        if (layer.feature.properties.id === vehicleupdate.properties.id) {
-                            layerindex = layer._leaflet_id;
-                            layer.feature.geometry = vehicleupdate.geometry.coordinates;
-                            layer.feature.properties = vehicleupdate.properties;
-                            Promise.all([updateVehicleLocation(layerindex)]);
-                            return false;
+        if (id == baselayerid) {
+            var layerindex = -0;
+            map.whenReady(() => {
+                if (map.hasOwnProperty("_layers")) {
+                    $.map(map._layers, function (layer, i) {
+                        if (layer.hasOwnProperty("feature")) {
+                            if (layer.feature.properties.id === vehicleupdate.properties.id) {
+                                layerindex = layer._leaflet_id;
+                                layer.feature.geometry = vehicleupdate.geometry.coordinates;
+                                layer.feature.properties = vehicleupdate.properties;
+                                Promise.all([updateVehicleLocation(layerindex)]);
+                                return false;
+                            }
                         }
+                    });
+                }
+                if (layerindex !== -0) {
+                    if ($('div[id=vehicle_div]').is(':visible') && $('div[id=vehicle_div]').attr("data-id") === vehicleupdate.properties.id) {
+                        updateVehicleInfo(layerindex);
                     }
-                });
-            }
-            if (layerindex !== -0) {
-                if ($('div[id=vehicle_div]').is(':visible') && $('div[id=vehicle_div]').attr("data-id") === vehicleupdate.properties.id) {
-                    updateVehicleInfo(layerindex);
                 }
-            }
-            else {
-                if (vehicleupdate.properties.Tag_Type === "Vehicle") {
-                    piv_vehicles.addData(vehicleupdate);
+                else {
+                    if (vehicleupdate.properties.Tag_Type === "Vehicle") {
+                        piv_vehicles.addData(vehicleupdate);
+                    }
+                    if (vehicleupdate.properties.Tag_Type === "Autonomous Vehicle") {
+                        agv_vehicles.addData(vehicleupdate);
+                    }
                 }
-                if (vehicleupdate.properties.Tag_Type === "Autonomous Vehicle") {
-                    agv_vehicles.addData(vehicleupdate);
-                }
-            }
-        });
-
+            });
+        }
     } catch (e) {
         console.log(e);
     }
@@ -502,14 +503,14 @@ function get_pi_icon(name, type) {
         return "pi-iconVh_ss ml--16";
     }
 }
-async function init_agvtags() {
-    //Get AGV Location list
-    fotfmanager.server.getVehicleTagsList().done(function (Data) {
-        if (Data.length > 0) {
-            $.each(Data, function () {
-                updateVehicleTag(this);
-            })
-            fotfmanager.server.joinGroup("VehiclsMarkers");
-        }
-    });
-}
+//async function init_agvtags() {
+//    //Get AGV Location list
+//    fotfmanager.server.getVehicleTagsList().done(function (Data) {
+//        if (Data.length > 0) {
+//            $.each(Data, function () {
+//                updateVehicleTag(this);
+//            })
+//            fotfmanager.server.joinGroup("VehiclsMarkers");
+//        }
+//    });
+//}

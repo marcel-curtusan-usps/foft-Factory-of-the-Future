@@ -29,10 +29,10 @@ namespace Factory_of_the_Future
                             //{
                             //    AppParameters.LoadData("CustomZones.json");
                             //}
-                            if (AppParameters.CoordinateSystem.Count == 0)
-                            {
-                                AppParameters.LoadIndoorapData("Project_Data.json");
-                            }
+                            //if (AppParameters.CoordinateSystem.Count == 0)
+                            //{
+                            //    AppParameters.LoadIndoorapData("Project_Data.json");
+                            //}
                             //if (AppParameters.TagsList.Count == 0)
                             //{
                             //    AppParameters.LoadData("Markers.json");

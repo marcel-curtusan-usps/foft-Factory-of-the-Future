@@ -1,17 +1,23 @@
 ﻿/* use this for locater data */
 
-async function init_locators(tag) {
-    $.each(tag, function () {
+async function init_locators(marker,id) {
+    $.each(marker, function () {
         if (this.properties.Tag_Type === "Vehicle") {
             piv_vehicles.addData(this);
         }
         else if (this.properties.Tag_Type === "Autonomous Vehicle") {
             agv_vehicles.addData(this);
         }
+        else if (this.properties.Tag_Type === "Camera") {
+            cameras.addData(this);
+          
+        }
         else {
             locatorMarker.addData(this)
         };
     });
+    fotfmanager.server.joinGroup("VehiclsMarkers");
+    fotfmanager.server.joinGroup("CameraMarkers");
 }
 
 var locatorMarker = new L.GeoJSON(null, {

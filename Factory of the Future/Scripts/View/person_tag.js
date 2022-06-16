@@ -2,27 +2,29 @@
 this is for the person details.
  */
 $.extend(fotfmanager.client, {
-    updatePersonTagStatus: async (tagupdate) => { updatePersonTag(tagupdate) }
+    updatePersonTagStatus: async (tagupdate,id) => { updatePersonTag(tagupdate, id) }
 });
-async function updatePersonTag(tagpositionupdate) {
+async function updatePersonTag(tagpositionupdate,id) {
     try {
-        if (tagsMarkersGroup.hasOwnProperty("_layers")) {
-            var layerindex = -0;
-            $.map(tagsMarkersGroup._layers, function (layer) {
-                if (layer.hasOwnProperty("feature")) {
-                    if (layer.feature.properties.id === tagpositionupdate.properties.id) {
-                        layer.feature.properties = tagpositionupdate.properties;
-                        layer.feature.geometry = tagpositionupdate.geometry.coordinates;
-                        layerindex = layer._leaflet_id;
-                         Promise.all([updateTagLocation(layerindex)]);
+        if (id == baselayerid) {
+            if (tagsMarkersGroup.hasOwnProperty("_layers")) {
+                var layerindex = -0;
+                $.map(tagsMarkersGroup._layers, function (layer) {
+                    if (layer.hasOwnProperty("feature")) {
+                        if (layer.feature.properties.id === tagpositionupdate.properties.id) {
+                            layer.feature.properties = tagpositionupdate.properties;
+                            layer.feature.geometry = tagpositionupdate.geometry.coordinates;
+                            layerindex = layer._leaflet_id;
+                            Promise.all([updateTagLocation(layerindex)]);
 
-                        
-                        return false;
+
+                            return false;
+                        }
                     }
+                });
+                if (layerindex === -0) {
+                    tagsMarkersGroup.addData(tagpositionupdate);
                 }
-            });
-            if (layerindex === -0) {
-                tagsMarkersGroup.addData(tagpositionupdate);
             }
         }
 
