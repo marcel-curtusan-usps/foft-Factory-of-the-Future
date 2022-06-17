@@ -71,10 +71,23 @@ var piv_vehicles = new L.GeoJSON(null, {
     },
     onEachFeature: function (feature, layer) {
         var obstructedState = '';
+        $zoneSelect[0].selectize.addOption({ value: feature.properties.id, text: feature.properties.name });
+        $zoneSelect[0].selectize.addItem(feature.properties.id);
+        $zoneSelect[0].selectize.setValue(-1, true);
         layer.on('click', function (e) {
             $('input[type=checkbox][name=followvehicle]').prop('checked', false).change();
             map.setView(e.latlng, 4);
-            sidebar.open('home');
+            if ((' ' + document.getElementById('sidebar').className + ' ').indexOf(' ' + 'collapsed' + ' ') <= -1) {
+                if ($('#zoneselect').val() == feature.properties.id) {
+                    sidebar.close('home');
+                }
+                else {
+                    sidebar.open('home');
+                }
+            }
+            else {
+                sidebar.open('home');
+            }
             LoadVehicleTable(feature.properties);
         })
         if (feature.properties.hasOwnProperty('state')) {
@@ -85,6 +98,7 @@ var piv_vehicles = new L.GeoJSON(null, {
         }
         layer.bindTooltip(feature.properties.name.replace(/[^0-9.]/g, '').replace(/^0+/, ''), {
             permanent: true,
+            interactive: true,
             direction: 'top',
             opacity: 0.9,
             className: 'vehiclenumber ' + obstructedState
@@ -119,10 +133,23 @@ var agv_vehicles = new L.GeoJSON(null, {
     },
     onEachFeature: function (feature, layer) {
         var obstructedState = '';
+        $zoneSelect[0].selectize.addOption({ value: feature.properties.id, text: feature.properties.name });
+        $zoneSelect[0].selectize.addItem(feature.properties.id);
+        $zoneSelect[0].selectize.setValue(-1, true);
         layer.on('click', function (e) {
             $('input[type=checkbox][name=followvehicle]').prop('checked', false).change();
             map.setView(e.latlng, 4);
-            sidebar.open('home');
+            if ((' ' + document.getElementById('sidebar').className + ' ').indexOf(' ' + 'collapsed' + ' ') <= -1) {
+                if ($('#zoneselect').val() == feature.properties.id) {
+                    sidebar.close('home');
+                }
+                else {
+                    sidebar.open('home');
+                }
+            }
+            else {
+                sidebar.open('home');
+            }
             LoadVehicleTable(feature.properties);
         })
         if (feature.properties.Vehicle_Status_Data !== null) {
@@ -133,6 +160,7 @@ var agv_vehicles = new L.GeoJSON(null, {
         }
         layer.bindTooltip(feature.properties.name.replace(/[^0-9.]/g, '').replace(/^0+/, ''), {
             permanent: true,
+            interactive: true,
             direction: 'top',
             opacity: 0.9,
             className: 'vehiclenumber ' + obstructedState
@@ -263,6 +291,7 @@ async function LoadVehicleTable(dataproperties) {
         $zoneSelect[0].selectize.setValue(-1, true);
         vehicletop_Table_Body.empty();
         vehiclemission_Table_Body.empty();
+        $zoneSelect[0].selectize.setValue(dataproperties.id, true);
         $('div[id=vehicle_div]').attr("data-id", dataproperties.id);
         $('div[id=agvlocation_div]').css('display', 'none');
         $('div[id=dockdoor_div]').css('display', 'none');

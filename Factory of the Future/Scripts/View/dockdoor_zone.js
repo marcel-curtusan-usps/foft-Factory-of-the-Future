@@ -108,14 +108,28 @@ var dockDoors = new L.GeoJSON(null, {
                 }
             }
         }
+        $zoneSelect[0].selectize.addOption({ value: feature.properties.id, text: feature.properties.name });
+        $zoneSelect[0].selectize.addItem(feature.properties.id);
+        $zoneSelect[0].selectize.setValue(-1, true);
         layer.on('click', function (e) {
             $('input[type=checkbox][name=followvehicle]').prop('checked', false).change();
             map.setView(e.latlng, 3);
-            sidebar.open('home');
+            if ((' ' + document.getElementById('sidebar').className + ' ').indexOf(' ' + 'collapsed' + ' ') <= -1) {
+                if ($('#zoneselect').val() == feature.properties.id) {
+                    sidebar.close('home');
+                }
+                else {
+                    sidebar.open('home');
+                }
+            }
+            else {
+                sidebar.open('home');
+            }
             LoadDockDoorTable(feature.properties);
         })
         layer.bindTooltip(feature.properties.doorNumber.toString(), {
             permanent: true,
+            interactive: true,
             direction: 'center',
             opacity: 0.9,
             className: 'dockdooknumber ' + dockdookflash
@@ -264,6 +278,7 @@ async function LoadDockDoorTable(dataproperties) {
         $('div[id=trailer_div]').css('display', 'block');
 
         $zoneSelect[0].selectize.setValue(-1, true);
+        $zoneSelect[0].selectize.setValue(dataproperties.id, true);
         dockdoortop_Table_Body.empty();
         $('button[name=container_counts]').text(0 + "/" + 0);
         container_Table_Body.empty();

@@ -823,7 +823,7 @@ function GetPeopleInZone(zone, P2Pdata, staffarray) {
         console.log(e);
     }
 }
-let stafftop_row_template = '<tr data-id={staffName}>' +
+let stafftop_row_template = '<tr data-id={staffName}{style}>' +
     '<td class="text-center">{staffName}</td>' +
     '<td class="text-center">{staffNameId}</td>' +
     '<td class="text-center">{planstaff}</td>' +
@@ -834,7 +834,23 @@ function formatstafftoprow(properties) {
         staffId: properties.id,
         staffNameId: properties.hasOwnProperty("currentstaff") ? properties.currentstaff : 0,
         planstaff: properties.hasOwnProperty("planstaff") ? properties.planstaff : 0,
+        style: GetStaffRowStyle(properties.hasOwnProperty("currentstaff") ? properties.currentstaff : 0, properties.hasOwnProperty("planstaff") ? properties.planstaff : 0),
     });
+}
+function GetStaffRowStyle(currStaff, planStaff) {
+    var rowAlertColor = ' style="background-color:rgba(220, 53, 69, 0.5);"';
+    var rowWarningColor = ' style="background-color:rgba(255, 193, 7, 0.5);"';
+    if (planStaff > 4) {
+        if (currStaff < planStaff) {
+            if ((currStaff / planStaff) * 100 > 95) {
+                return rowWarningColor
+            }
+            else {
+                return rowAlertColor
+            }
+        }
+    }
+    return "";
 }
 function digits(num) {
     return num.replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,");

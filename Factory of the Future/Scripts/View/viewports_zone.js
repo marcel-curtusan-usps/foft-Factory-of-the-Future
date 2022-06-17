@@ -30,6 +30,7 @@ var viewPortsAreas = new L.GeoJSON(null, {
         $('<div/>', { id: 'div_' + feature.properties.id }).append($('<button/>', { class: 'btn btn-light btn-sm mx-1 py-2 viewportszones', id: feature.properties.id, text: vp_namer })).appendTo($('div[id=viewportsContent]'))
         layer.bindTooltip(feature.properties.name, {
             permanent: true,
+            interactive: true,
             direction: 'center',
             opacity: 1
         }).openTooltip();
