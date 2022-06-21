@@ -70,6 +70,7 @@ var cameras = new L.GeoJSON(null, {
         //});
         layer.bindTooltip(cameraname, {
             permanent: true,
+            interactive: true,
             direction: 'top',
             opacity: 1,
             className: 'location'

@@ -141,7 +141,7 @@ var polygonMachine = new L.GeoJSON(null, {
             var startofrun = feature.properties.hasOwnProperty("MPEWatchData") ? feature.properties.MPEWatchData.hasOwnProperty("current_run_start") ? feature.properties.MPEWatchData.current_run_start : "" : "";
             if (checkValue(sortplan) && !checkValue(endofrun)) {
                 var thpCode = feature.properties.hasOwnProperty("MPEWatchData") ? feature.properties.MPEWatchData.hasOwnProperty("throughput_status") ? feature.properties.MPEWatchData.throughput_status : "0" : "0";
-                var fillColor = GetMacineBackground(startofrun, thpCode);
+                var fillColor = GetMacineBackground(feature.properties.MPEWatchData, startofrun);
                 style = {
                     weight: 1,
                     opacity: 1,
@@ -169,11 +169,22 @@ var polygonMachine = new L.GeoJSON(null, {
         layer.on('click', function (e) {
             $('input[type=checkbox][name=followvehicle]').prop('checked', false).change();
             map.setView(e.sourceTarget.getCenter(), 3);
-            sidebar.open('home');
+            if ((' ' + document.getElementById('sidebar').className + ' ').indexOf(' ' + 'collapsed' + ' ') <= -1) {
+                if ($('#zoneselect').val() == feature.properties.id) {
+                    sidebar.close('home');
+                }
+                else {
+                    sidebar.open('home');
+                }
+            }
+            else {
+                sidebar.open('home');
+            }
             LoadMachineTables(feature.properties, 'machinetable');
         });
         layer.bindTooltip(feature.properties.name + "<br/>" + "Staffing: " + (feature.properties.hasOwnProperty("CurrentStaff") ? feature.properties.CurrentStaff : "0"), {
             permanent: true,
+            interactive: true,
             direction: 'center',
             opacity: 1,
             className: 'location'
@@ -194,7 +205,7 @@ async function updateMPEZone(properties, index) {
     var startofrun = properties.MPEWatchData.hasOwnProperty("current_run_start") ? properties.MPEWatchData.current_run_start : "";
     if (checkValue(sortplan) && !checkValue(endofrun)) {
         var thpCode = properties.MPEWatchData.hasOwnProperty("throughput_status") ? properties.MPEWatchData.throughput_status : "0";
-        var fillColor = GetMacineBackground(startofrun, thpCode);
+        var fillColor = GetMacineBackground(properties.MPEWatchData, startofrun);
         polygonMachine._layers[index].setStyle({
             weight: 1,
             opacity: 1,
@@ -254,7 +265,10 @@ async function LoadMachineTables(dataproperties, table) {
                         runEndTR.display = 'none';
 
                         $("tr:visible").each(function (index) {
-                            $(this).css("background-color", !!(index & 1) ? "rgba(0,0,0,0)" : "rgba(0,0,0,.05)");
+                            var curcolor = $(this).css("background-color");
+                            if (curcolor == "" || curcolor == "rgba(0, 0, 0, 0)" || curcolor == "rgba(0, 0, 0, 0.5)") {
+                                $(this).css("background-color", !!(index & 1) ? "rgba(0,0,0,0)" : "rgba(0,0,0,.05)");
+                            }
                         });
 
                     }
@@ -271,27 +285,7 @@ async function LoadMachineTables(dataproperties, table) {
                 var expectedTP = dataproperties.hasOwnProperty("MPEWatchData") ? dataproperties.MPEWatchData.hasOwnProperty("expected_throughput") ? dataproperties.MPEWatchData.expected_throughput : "" : "";
                 var throughput = dataproperties.hasOwnProperty("MPEWatchData") ? dataproperties.MPEWatchData.hasOwnProperty("cur_thruput_ophr") ? dataproperties.MPEWatchData.cur_thruput_ophr : "" : "";
                 var thpCode = dataproperties.hasOwnProperty("MPEWatchData") ? dataproperties.MPEWatchData.hasOwnProperty("throughput_status") ? dataproperties.MPEWatchData.throughput_status : "0" : "0";
-                var color = GetMacineBackground(startofrun, thpCode);
-                var tp_style = document.getElementById('Throughput_tr').style;
-                if (color != '#3573b1') {
-              
-                    if (tp_style != null) {
-                        if (color == "#dc3545") {
-                            tp_style.backgroundColor = "rgba(220, 53, 69, 0.5)";
-                        }
-                        else if (color == "#ffc107") {
-                            tp_style.backgroundColor = "rgba(255, 193, 7, 0.5)";
-                        }
-                        else {
-                            tp_style.backgroundColor = color;
-                        }
-                    }
-
-                }
-                else {
-                    tp_style.backgroundColor = "";
-                }
-                
+                FormatMachineRowColors(dataproperties.MPEWatchData, startofrun);
             }
             if (/dpstable/i.test(table)) {
                 if (dataproperties.hasOwnProperty("DPSData")) {
@@ -334,10 +328,10 @@ function formatmachinetoprow(properties) {
 }
 let machinetop_row_template =
     '<tr data-id="{zoneId}"><td>{zoneType}</td><td>{zoneName}</td><td><span class="badge badge-pill {stateBadge}" style="font-size: 12px;">{stateText}</span></td></tr>' +
-    '<tr><td>OPN / Sort Plan</td><td colspan="2">{opNum} / {sortPlan}</td></tr>' +
-    '<tr><td>Start</td><td colspan="2">{sortPlanStart}</td></tr>' +
+    '<tr id="SortPlan_tr"><td>OPN / Sort Plan</td><td colspan="2">{opNum} / {sortPlan}</td></tr>' +
+    '<tr id="StartTime_tr"><td>Start</td><td colspan="2">{sortPlanStart}</td></tr>' +
     '<tr id="endtime_tr"><td>End</td><td colspan="2">{sortPlanEnd}</td></tr>' +
-    '<tr><td>Estimated Completion</td><td colspan="2">{estComp}</td>/tr>' +
+    '<tr id="EstComp_tr"><td>Estimated Completion</td><td colspan="2">{estComp}</td>/tr>' +
     '<tr><td>Pieces Fed / RPG Vol.</td><td colspan="2">{peicesFed} / {rpgVol}</td></tr>' +
     '<tr id="Throughput_tr"><td>Throughput Act. / Exp.</td><td colspan="2">{throughput} / {expThroughput}</td></tr>' +
     '<tr id="fullbin_tr" style="display: none;"><td>Full Bins</td><td colspan="2" style="white-space: normal; word-wrap:break-word;">{fullBins}</td></tr>' +
@@ -541,29 +535,129 @@ function enablezoneSubmit() {
         $('button[id=machinesubmitBtn]').prop('disabled', true);
     }
 }
-function GetMacineBackground(starttime, throughputCode) {
-    var curtime = moment().format('YYYY-MM-DD HH:mm:ss');
-    if (!$.isEmptyObject(timezone)) {
-        if (timezone.hasOwnProperty("Facility_TimeZone")) {
-            curtime = moment().tz(timezone.Facility_TimeZone).format('YYYY-MM-DD HH:mm:ss');
+function GetMacineBackground(mpeWatchData, starttime) {
+    var OkColor = '#3573b1';
+    var WarningColor = '#ffc107';
+    var AlertColor = '#dc3545';
+    var bkColor = OkColor;
+    try {
+        var throughput_status = mpeWatchData.hasOwnProperty("throughput_status") ? mpeWatchData.throughput_status : "0";
+        var unplan_maint_sp_status = mpeWatchData.hasOwnProperty("unplan_maint_sp_status") ? mpeWatchData.unplan_maint_sp_status : "0";
+        var op_started_late_status = mpeWatchData.hasOwnProperty("op_started_late_status") ? mpeWatchData.op_started_late_status : "0";
+        var op_running_late_status = mpeWatchData.hasOwnProperty("op_running_late_status") ? mpeWatchData.op_running_late_status : "0";
+        var sortplan_wrong_status = mpeWatchData.hasOwnProperty("sortplan_wrong_status") ? mpeWatchData.sortplan_wrong_status : "0";
+
+        var curtime = moment().format('YYYY-MM-DD HH:mm:ss');
+        if (!$.isEmptyObject(timezone)) {
+            if (timezone.hasOwnProperty("Facility_TimeZone")) {
+                curtime = moment().tz(timezone.Facility_TimeZone).format('YYYY-MM-DD HH:mm:ss');
+            }
         }
+        var dt = moment(curtime);
+        var st = moment(starttime);
+        var timeduration = moment.duration(dt.diff(st));
+        var minutes = parseInt(timeduration.asMinutes());
+        if (minutes > 15) {
+            if (throughput_status == "3") {
+                return AlertColor;
+            }
+            else if (throughput_status == "2") {
+                bkColor = WarningColor;
+            }
+        }
+        if (unplan_maint_sp_status == "2" || op_started_late_status == "2" || op_running_late_status == "2" || sortplan_wrong_status == "2") {
+            return AlertColor;
+        }
+        if (unplan_maint_sp_status == "1" || op_started_late_status == "1" || op_running_late_status == "1" || sortplan_wrong_status == "1") {
+            return WarningColor;
+        }
+        return bkColor;
     }
-    var dt = moment(curtime);
-    var st = moment(starttime);
-    var timeduration = moment.duration(dt.diff(st));
-    var minutes = parseInt(timeduration.asMinutes());
-    if (minutes > 15) {
-        if (throughputCode == "1") {
-            return '#3573b1'; //'#cce5ff'
-        }
-        if (throughputCode == "2") {
-            return '#ffc107'; //'#FFFF88'
-        }
-        if (throughputCode == "3") {
-            return '#dc3545'; //'#FF4444'
-        }
+    catch (e) {
+        console.log(e);
     }
-    return '#3573b1'; //'#cce5ff'
+
+}
+function FormatMachineRowColors(mpeWatchData, starttime) {
+    var Throughput_tr_style = document.getElementById('Throughput_tr').style;
+    var SortPlan_tr_style = document.getElementById('SortPlan_tr').style;
+    var StartTime_tr_style = document.getElementById('StartTime_tr').style;
+    var EstComp_tr_style = document.getElementById('EstComp_tr').style;
+    var rowAlertColor = "rgba(220, 53, 69, 0.5)";
+    var rowWarningColor = "rgba(255, 193, 7, 0.5)";
+    try {
+        var throughput_status = mpeWatchData.hasOwnProperty("throughput_status") ? mpeWatchData.throughput_status : "0";
+        var unplan_maint_sp_status = mpeWatchData.hasOwnProperty("unplan_maint_sp_status") ? mpeWatchData.unplan_maint_sp_status : "0";
+        var op_started_late_status = mpeWatchData.hasOwnProperty("op_started_late_status") ? mpeWatchData.op_started_late_status : "0";
+        var op_running_late_status = mpeWatchData.hasOwnProperty("op_running_late_status") ? mpeWatchData.op_running_late_status : "0";
+        var sortplan_wrong_status = mpeWatchData.hasOwnProperty("sortplan_wrong_status") ? mpeWatchData.sortplan_wrong_status : "0";
+        var curtime = moment().format('YYYY-MM-DD HH:mm:ss');
+        if (!$.isEmptyObject(timezone)) {
+            if (timezone.hasOwnProperty("Facility_TimeZone")) {
+                curtime = moment().tz(timezone.Facility_TimeZone).format('YYYY-MM-DD HH:mm:ss');
+            }
+        }
+        var dt = moment(curtime);
+        var st = moment(starttime);
+        var timeduration = moment.duration(dt.diff(st));
+        var minutes = parseInt(timeduration.asMinutes());
+        if (minutes > 15) {
+            if (Throughput_tr_style != null) {
+                if (throughput_status == "3") {
+                    Throughput_tr_style.backgroundColor = rowAlertColor;
+                }
+                else if (throughput_status == "2") {
+                    Throughput_tr_style.backgroundColor = rowWarningColor;
+                }
+                //else {
+                //    Throughput_tr_style.backgroundColor = "";
+                //}
+            }
+            //else {
+            //    Throughput_tr_style.backgroundColor = "";
+            //}
+        }
+
+        if (StartTime_tr_style != null) {
+            if (op_started_late_status == "2") {
+                StartTime_tr_style.backgroundColor = rowAlertColor;
+            }
+            else if (op_started_late_status == "1") {
+                StartTime_tr_style.backgroundColor = rowWarningColor;
+            }
+            else {
+                //StartTime_tr_style.backgroundColor = "";
+            }
+        }
+
+        if (EstComp_tr_style != null) {
+            if (op_running_late_status == "2") {
+                EstComp_tr_style.backgroundColor = rowAlertColor;
+            }
+            else if (op_running_late_status == "1") {
+                EstComp_tr_style.backgroundColor = rowWarningColor;
+            }
+            else {
+                //EstComp_tr_style.backgroundColor = "";
+            }
+        }
+
+        if (SortPlan_tr_style != null) {
+            if (unplan_maint_sp_status == "2" || sortplan_wrong_status == "2") {
+                SortPlan_tr_style.backgroundColor = rowAlertColor;
+            }
+            else if (unplan_maint_sp_status == "1" || sortplan_wrong_status == "1") {
+                SortPlan_tr_style.backgroundColor = rowWarningColor;
+            }
+            else {
+                //SortPlan_tr_style.backgroundColor = "";
+            }
+        }
+
+    }
+    catch (e) {
+        console.log(e);
+    }
 }
 function GetMachinePerfGraph(dataproperties) {
     var xValues = [];
