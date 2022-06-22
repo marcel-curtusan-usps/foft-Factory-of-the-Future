@@ -38,6 +38,7 @@ var locatorMarker = new L.GeoJSON(null, {
     onEachFeature: function (feature, layer) {
         layer.bindTooltip(feature.properties.name, {
             permanent: false,
+            interactive: true,
             direction: 'top',
             opacity: 0.9
         }).openTooltip();

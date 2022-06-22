@@ -24,16 +24,29 @@ var agvLocations = new L.GeoJSON(null, {
         }
     },
     onEachFeature: function (feature, layer) {
-
+        $zoneSelect[0].selectize.addOption({ value: feature.properties.id, text: feature.properties.name });
+        $zoneSelect[0].selectize.addItem(feature.properties.id);
+        $zoneSelect[0].selectize.setValue(-1, true);
         layer.on('click', function (e) {
             $('input[type=checkbox][name=followvehicle]').prop('checked', false).change();
 
             map.setView(e.latlng, 3);
-            sidebar.open('home');
+            if ((' ' + document.getElementById('sidebar').className + ' ').indexOf(' ' + 'collapsed' + ' ') <= -1) {
+                if ($('#zoneselect').val() == feature.properties.id) {
+                    sidebar.close('home');
+                }
+                else {
+                    sidebar.open('home');
+                }
+            }
+            else {
+                sidebar.open('home');
+            }
             LoadAGVLocationTables(feature.properties)
         });
         layer.bindTooltip(Get_location_Code(feature.properties.name), {
             direction: 'center',
+            interactive: true,
             opacity: 0.9,
         }).openTooltip();
         agvLocations.bringToFront();
@@ -92,6 +105,7 @@ async function updatelocation(layerindex) {
 }
 async function LoadAGVLocationTables(dataproperties) {
     try {
+        $zoneSelect[0].selectize.setValue(dataproperties.id, true);
         $('div[id=agvlocation_div]').attr("data-id", dataproperties.id);
         $('div[id=agvlocation_div]').css('display', 'block');
         $('div[id=area_div]').css('display', 'none');

@@ -45,6 +45,7 @@ var tagsMarkersGroup = new L.GeoJSON(null, {
         var VisiblefillOpacity = feature.properties.tagVisibleMils < 80000 ? "" : "tooltip-hidden";
         layer.bindTooltip("", {
             permanent: true,
+            interactive: true,
             direction: 'center',
             opacity: 1,
             className: 'persontag ' + VisiblefillOpacity

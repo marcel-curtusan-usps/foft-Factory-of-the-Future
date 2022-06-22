@@ -22,15 +22,29 @@ var exitAreas = new L.GeoJSON(null, {
         };
     },
     onEachFeature: function (feature, layer) {
+        $zoneSelect[0].selectize.addOption({ value: feature.properties.id, text: feature.properties.name });
+        $zoneSelect[0].selectize.addItem(feature.properties.id);
+        $zoneSelect[0].selectize.setValue(-1, true);
         layer.on('click', function (e) {
             $('input[type=checkbox][name=followvehicle]').prop('checked', false).change();
             map.setView(e.latlng);
-            sidebar.open('home');
+            if ((' ' + document.getElementById('sidebar').className + ' ').indexOf(' ' + 'collapsed' + ' ') <= -1) {
+                if ($('#zoneselect').val() == feature.properties.id) {
+                    sidebar.close('home');
+                }
+                else {
+                    sidebar.open('home');
+                }
+            }
+            else {
+                sidebar.open('home');
+            }
             LoadstageTables(feature.properties);
 
         });
         layer.bindTooltip(feature.properties.name, {
             permanent: true,
+            interactive: true,
             direction: 'center',
             //opacity: 0.8,
             opacity: 1,
@@ -50,15 +64,29 @@ var polyholesAreas = new L.GeoJSON(null, {
         };
     },
     onEachFeature: function (feature, layer) {
+        $zoneSelect[0].selectize.addOption({ value: feature.properties.id, text: feature.properties.name });
+        $zoneSelect[0].selectize.addItem(feature.properties.id);
+        $zoneSelect[0].selectize.setValue(-1, true);
         layer.on('click', function (e) {
             //set to the center of the polygon.
             $('input[type=checkbox][name=followvehicle]').prop('checked', false).change();
             map.setView(e.latlng);
-            sidebar.open('home');
+            if ((' ' + document.getElementById('sidebar').className + ' ').indexOf(' ' + 'collapsed' + ' ') <= -1) {
+                if ($('#zoneselect').val() == feature.properties.id) {
+                    sidebar.close('home');
+                }
+                else {
+                    sidebar.open('home');
+                }
+            }
+            else {
+                sidebar.open('home');
+            }
             LoadstageTables(feature.properties);
         });
         layer.bindTooltip(feature.properties.name, {
             permanent: true,
+            interactive: true,
             direction: 'center',
             //opacity: 0.8,
             opacity: 1,
@@ -78,15 +106,29 @@ var ebrAreas = new L.GeoJSON(null, {
         };
     },
     onEachFeature: function (feature, layer) {
+        $zoneSelect[0].selectize.addOption({ value: feature.properties.id, text: feature.properties.name });
+        $zoneSelect[0].selectize.addItem(feature.properties.id);
+        $zoneSelect[0].selectize.setValue(-1, true);
         layer.on('click', function (e) {
             //set to the center of the polygon.
             $('input[type=checkbox][name=followvehicle]').prop('checked', false).change();
             map.setView(e.latlng);
-            sidebar.open('home');
+            if ((' ' + document.getElementById('sidebar').className + ' ').indexOf(' ' + 'collapsed' + ' ') <= -1) {
+                if ($('#zoneselect').val() == feature.properties.id) {
+                    sidebar.close('home');
+                }
+                else {
+                    sidebar.open('home');
+                }
+            }
+            else {
+                sidebar.open('home');
+            }
             LoadstageTables(feature.properties);
         });
         layer.bindTooltip(feature.properties.name, {
             permanent: true,
+            interactive: true,
             direction: 'center',
             //opacity: 0.8,
             opacity: 1,
@@ -106,15 +148,29 @@ var walkwayAreas = new L.GeoJSON(null, {
         };
     },
     onEachFeature: function (feature, layer) {
+        $zoneSelect[0].selectize.addOption({ value: feature.properties.id, text: feature.properties.name });
+        $zoneSelect[0].selectize.addItem(feature.properties.id);
+        $zoneSelect[0].selectize.setValue(-1, true);
         layer.on('click', function (e) {
             //set to the center of the polygon.
             $('input[type=checkbox][name=followvehicle]').prop('checked', false).change();
             map.setView(e.latlng);
-            sidebar.open('home');
+            if ((' ' + document.getElementById('sidebar').className + ' ').indexOf(' ' + 'collapsed' + ' ') <= -1) {
+                if ($('#zoneselect').val() == feature.properties.id) {
+                    sidebar.close('home');
+                }
+                else {
+                    sidebar.open('home');
+                }
+            }
+            else {
+                sidebar.open('home');
+            }
             LoadstageTables(feature.properties);
         });
         layer.bindTooltip(feature.properties.name, {
             permanent: true,
+            interactive: true,
             direction: 'center',
             //opacity: 0.8,
             opacity: 1,
@@ -134,17 +190,31 @@ var stagingAreas = new L.GeoJSON(null, {
         };
     },
     onEachFeature: function (feature, layer) {
+        $zoneSelect[0].selectize.addOption({ value: feature.properties.id, text: feature.properties.name });
+        $zoneSelect[0].selectize.addItem(feature.properties.id);
+        $zoneSelect[0].selectize.setValue(-1, true);
         layer.on('click', function (e) {
             //set to the center of the polygon.
             $('input[type=checkbox][name=followvehicle]').prop('checked', false).change();
             map.setView(e.latlng);
-            sidebar.open('home');
+            if ((' ' + document.getElementById('sidebar').className + ' ').indexOf(' ' + 'collapsed' + ' ') <= -1) {
+                if ($('#zoneselect').val() == feature.properties.id) {
+                    sidebar.close('home');
+                }
+                else {
+                    sidebar.open('home');
+                }
+            }
+            else {
+                sidebar.open('home');
+            }
             LoadstageTables(feature.properties);
         
         });
 
         layer.bindTooltip(feature.properties.name.replace(/^Staging_/i, ''), {
             permanent: true,
+            interactive: true,
             direction: 'center',
             //opacity: 0.8,
             opacity: 1,
