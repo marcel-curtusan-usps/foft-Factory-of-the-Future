@@ -1321,24 +1321,23 @@ namespace Factory_of_the_Future
                     //match with vehicle
                     foreach (CoordinateSystem cs in AppParameters.CoordinateSystem.Values)
                     {
-                        cs.Locators.Where(f => f.Value.Properties.TagType.EndsWith("Vehicle")
-                        && f.Value.Properties.TagUpdate).Select(y => y.Value).ToList().ForEach(existingValue =>
+                        //get the key for the tag.
+                        List<string> tag_id = cs.Locators.Where(f => f.Value.Properties.Name == tempMission.VEHICLE
+                        && f.Value.Properties.TagType.EndsWith("Vehicle")).Select(y => y.Key).ToList();
+                        //if tag is found then update data if tag is not found then at tag/vehicle 
+                        if (tag_id.Count > 0)
                         {
-                            existingValue.Properties.Misison = null;
-                            existingValue.Properties.TagUpdate = true;
-
-                        });
+                            for (int i = 0; i < tag_id.Count; i++)
+                            {
+                                cs.Locators.Where(f => f.Key == tag_id[i]).Select(y => y.Value).ToList().ForEach(existingValue =>
+                                {
+                                    existingValue.Properties.Misison = null;
+                                    existingValue.Properties.TagUpdate = true;
+                                });
+                            }
+                        }
                     }
-                   // foreach (string existingkey in AppParameters.TagsList.Where(f => f.Value.Properties.Name == tempMission.VEHICLE
-                   //&& f.Value.Properties.TagType.ToLower().EndsWith("Vehicle".ToLower())).Select(y => y.Key))
-                   // {
-                   //     if (AppParameters.TagsList.TryGetValue(existingkey, out GeoMarker existingValue))
-                   //     {
-                   //         // get list of request for the pickup location.
-                   //         existingValue.Properties.Misison = null;
-                   //         existingValue.Properties.TagUpdate = true;
-                   //     }
-                   // }
+                 
                     //remove request id
                     if (AppParameters.MissionList.Keys.Count > 0)
                     {
@@ -1367,22 +1366,6 @@ namespace Factory_of_the_Future
                               existingVal.Properties.ZoneUpdate = true;
                           });
                     }
-
-                    //foreach (GeoZone existingVa in AppParameters.ZoneList.Where(f => f.Value.Properties.ZoneType == "AGVLocation" &&
-                    //f.Value.Properties.Name == tempMission.PICKUP_LOCATION).Select(y => y.Value))
-                    //{
-                    //    existingVa.Properties.MissionList = AppParameters.MissionList.Where(r => r.Value.PICKUP_LOCATION == tempMission.PICKUP_LOCATION
-                    //    && r.Value.STATE == "Active").Select(y => y.Value).ToList();
-                    //    existingVa.Properties.ZoneUpdate = true;
-                    //}
-                    //foreach (GeoZone existingVa in AppParameters.ZoneList.Where(f => f.Value.Properties.ZoneType == "AGVLocation" &&
-                    //f.Value.Properties.Name == tempMission.DROPOFF_LOCATION).Select(y => y.Value))
-                    //{
-                    //    existingVa.Properties.MissionList = AppParameters.MissionList.Where(r => r.Value.DROPOFF_LOCATION == tempMission.DROPOFF_LOCATION
-                    //    && r.Value.STATE == "Active").Select(y => y.Value).ToList();
-                    //    existingVa.Properties.ZoneUpdate = true;
-                    //}
-
                    
                 }
             }
@@ -1406,43 +1389,27 @@ namespace Factory_of_the_Future
                         //match with vehicle
                         foreach (CoordinateSystem cs in AppParameters.CoordinateSystem.Values)
                         {
-                            cs.Locators.Where(f => f.Value.Properties.TagType.EndsWith("Vehicle")
-                            && f.Value.Properties.TagUpdate).Select(y => y.Value).ToList().ForEach(existingValue =>
+                            //get the key for the tag.
+                            List<string> tag_id = cs.Locators.Where(f => f.Value.Properties.Name == (string)data["VEHICLE"]
+                            && f.Value.Properties.TagType.EndsWith("Vehicle")).Select(y => y.Key).ToList();
+                            //if tag is found then update data if tag is not found then at tag/vehicle 
+                            if (tag_id.Count > 0)
                             {
-                                // get list of request for the pickup location.
-                                existingValue.Properties.Misison = null;
-                                existingValue.Properties.Vehicle_Status_Data.ERRORCODE = (string)data["errorCode".ToUpper()];
-                                existingValue.Properties.Vehicle_Status_Data.ERRORCODE_DISCRIPTION = (string)data["error_Discription".ToUpper()];
-                                existingValue.Properties.Vehicle_Status_Data.TIME = (DateTime)data["time".ToUpper()];
-                                existingValue.Properties.TagUpdate = true;
+                                for (int i = 0; i < tag_id.Count; i++)
+                                {
+                                    cs.Locators.Where(f => f.Key == tag_id[i]).Select(y => y.Value).ToList().ForEach(existingValue =>
+                                    {
+                                        existingValue.Properties.Misison = null;
+                                        existingValue.Properties.Vehicle_Status_Data.ERRORCODE = (string)data["errorCode".ToUpper()];
+                                        existingValue.Properties.Vehicle_Status_Data.ERRORCODE_DISCRIPTION = (string)data["error_Discription".ToUpper()];
+                                        existingValue.Properties.Vehicle_Status_Data.TIME = (DateTime)data["time".ToUpper()];
+                                        existingValue.Properties.TagUpdate = true;
+                                    });
+                                }
+                            }
 
-                            });
                         }
-                       // foreach (string existingkey in AppParameters.TagsList.Where(f => f.Value.Properties.Name == (string)data["VEHICLE"]
-                       //&& f.Value.Properties.TagType.ToLower().EndsWith("Vehicle".ToLower())).Select(y => y.Key))
-                       // {
-                       //     if (AppParameters.TagsList.TryGetValue(existingkey, out GeoMarker existingValue))
-                       //     {
-                       //         // get list of request for the pickup location.
-                       //         existingValue.Properties.Misison = null;
-                       //         existingValue.Properties.Vehicle_Status_Data.ERRORCODE = (string)data["errorCode".ToUpper()];
-                       //         existingValue.Properties.Vehicle_Status_Data.ERRORCODE_DISCRIPTION = (string)data["error_Discription".ToUpper()];
-                       //         existingValue.Properties.Vehicle_Status_Data.TIME = (DateTime)data["time".ToUpper()];
-                       //         existingValue.Properties.TagUpdate = true;
-                       //     }
-                       // }
-                        //foreach (JObject existingVa in AppParameters.Tag.Where(f => f.Value["properties"]["name"].ToString() == (string)data["VEHICLE"]).Select(y => y.Value))
-                        //{
-                        //    if ((string)existingVa["properties"]["state"] != "Error")
-                        //    {
-                        //        existingVa["properties"]["notificationId"] = CheckNotification(existingVa["properties"]["state"].ToString(), "Error", "vehicle", (JObject)existingVa["properties"], existingVa["properties"]["notificationId"].ToString());
-                        //        existingVa["properties"]["state"] = "Error";
-                        //        existingVa["properties"]["errorCode"] = (string)data["errorCode".ToUpper()];
-                        //        existingVa["properties"]["errorDiscription"] = (string)data["error_Discription".ToUpper()];
-                        //        existingVa["properties"]["errorTime"] = (DateTime)data["time".ToUpper()];
-                        //        existingVa["properties"]["Tag_Update"] = true;
-                        //    }
-                        //}
+                       
                     }
                 }
             }
@@ -1483,24 +1450,24 @@ namespace Factory_of_the_Future
                     //match with vehicle
                     foreach (CoordinateSystem cs in AppParameters.CoordinateSystem.Values)
                     {
-                        cs.Locators.Where(f => f.Value.Properties.TagType.EndsWith("Vehicle")
-                        && f.Value.Properties.TagUpdate).Select(y => y.Value).ToList().ForEach(existingValue =>
+                        //get the key for the tag.
+                        List<string> tag_id = cs.Locators.Where(f => f.Value.Properties.Name == tempMission.VEHICLE
+                        && f.Value.Properties.TagType.EndsWith("Vehicle")).Select(y => y.Key).ToList();
+                        //if tag is found then update data if tag is not found then at tag/vehicle 
+                        if (tag_id.Count > 0)
                         {
-                            existingValue.Properties.Misison = null;
-                            existingValue.Properties.TagUpdate = true;
-
-                        });
+                            for (int i = 0; i < tag_id.Count; i++)
+                            {
+                                cs.Locators.Where(f => f.Key == tag_id[i]).Select(y => y.Value).ToList().ForEach(existingValue =>
+                                {
+                                    existingValue.Properties.Misison = null;
+                                    existingValue.Properties.TagUpdate = true;
+                                });
+                            }
+                        }
+                        
                     }
-                   // foreach (string existingkey in AppParameters.TagsList.Where(f => f.Value.Properties.Name == tempMission.VEHICLE
-                   //&& f.Value.Properties.TagType.ToLower().EndsWith("Vehicle".ToLower())).Select(y => y.Key))
-                   // {
-                   //     if (AppParameters.TagsList.TryGetValue(existingkey, out GeoMarker existingValue))
-                   //     {
-                   //         // get list of request for the pickup location.
-                   //         existingValue.Properties.Misison = null;
-                   //         existingValue.Properties.TagUpdate = true;
-                   //     }
-                   // }
+                   
                     //remove request id
                     if (AppParameters.MissionList.Keys.Count > 0)
                     {
@@ -1531,20 +1498,7 @@ namespace Factory_of_the_Future
                             existingVal.Properties.ZoneUpdate = true;
                         });
                     }
-                    //foreach (GeoZone existingVa in AppParameters.ZoneList.Where(f => f.Value.Properties.ZoneType == "AGVLocation" &&
-                    //f.Value.Properties.Name == tempMission.PICKUP_LOCATION).Select(y => y.Value))
-                    //{
-                    //    existingVa.Properties.MissionList = AppParameters.MissionList.Where(r => r.Value.PICKUP_LOCATION == tempMission.PICKUP_LOCATION
-                    //    && r.Value.STATE == "Active").Select(y => y.Value).ToList();
-                    //    existingVa.Properties.ZoneUpdate = true;
-                    //}
-                    //foreach (GeoZone existingVa in AppParameters.ZoneList.Where(f => f.Value.Properties.ZoneType == "AGVLocation" &&
-                    //f.Value.Properties.Name == tempMission.DROPOFF_LOCATION).Select(y => y.Value))
-                    //{
-                    //    existingVa.Properties.MissionList = AppParameters.MissionList.Where(r => r.Value.DROPOFF_LOCATION == tempMission.DROPOFF_LOCATION
-                    //    && r.Value.STATE == "Active").Select(y => y.Value).ToList();
-                    //    existingVa.Properties.ZoneUpdate = true;
-                    //}
+                   
                 }
             }
             catch (Exception e)
@@ -1597,31 +1551,30 @@ namespace Factory_of_the_Future
                         existinnMision.STATE = tempMission.STATE;
                     }
                     //match with vehicle
+                 
                     foreach (CoordinateSystem cs in AppParameters.CoordinateSystem.Values)
                     {
-                        cs.Locators.Where(f => f.Value.Properties.TagType.EndsWith("Vehicle")
-                        && f.Value.Properties.TagUpdate).Select(y => y.Value).ToList().ForEach(existingValue =>
+                        //get the key for the tag.
+                        List<string> tag_id = cs.Locators.Where(f => f.Value.Properties.Name == tempMission.VEHICLE
+                        && f.Value.Properties.TagType.EndsWith("Vehicle")).Select(y => y.Key).ToList();
+                        //if tag is found then update data if tag is not found then at tag/vehicle 
+                        if (tag_id.Count > 0)
                         {
-                            // get list of request for the pickup location.
-                            existingValue.Properties.Misison = AppParameters.MissionList.Where(r => r.Value.VEHICLE == tempMission.VEHICLE
-                            && r.Value.STATE == tempMission.STATE
-                            && r.Value.REQUEST_ID == tempMission.REQUEST_ID).Select(y => y.Value).FirstOrDefault();
-                            existingValue.Properties.TagUpdate = true;
+                            for (int i = 0; i < tag_id.Count; i++)
+                            {
+                                cs.Locators.Where(f => f.Key == tag_id[i]).Select(y => y.Value).ToList().ForEach(existingValue =>
+                                {
 
-                        });
+                                    existingValue.Properties.Misison = AppParameters.MissionList.Where(r => r.Value.VEHICLE == tempMission.VEHICLE
+                                    && r.Value.STATE == tempMission.STATE
+                                    && r.Value.REQUEST_ID == tempMission.REQUEST_ID).Select(y => y.Value).FirstOrDefault();
+                                    existingValue.Properties.TagUpdate = true;
+
+                                });
+                            }
+                        }
                     }
-                   // foreach (string existingkey in AppParameters.TagsList.Where(f => f.Value.Properties.Name == tempMission.VEHICLE
-                   //&& f.Value.Properties.TagType.ToLower().EndsWith("Vehicle".ToLower())).Select(y => y.Key))
-                   // {
-                   //     if (AppParameters.TagsList.TryGetValue(existingkey, out GeoMarker existingValue))
-                   //     {
-                   //         // get list of request for the pickup location.
-                   //         existingValue.Properties.Misison = AppParameters.MissionList.Where(r => r.Value.VEHICLE == tempMission.VEHICLE
-                   //         && r.Value.STATE == tempMission.STATE
-                   //         && r.Value.REQUEST_ID == tempMission.REQUEST_ID).Select(y => y.Value).FirstOrDefault();
-                   //         existingValue.Properties.TagUpdate = true;
-                   //     }
-                   // }
+               
                     //update AGV zone location
                     foreach (CoordinateSystem cs in AppParameters.CoordinateSystem.Values)
                     {
@@ -1642,20 +1595,7 @@ namespace Factory_of_the_Future
                             existingVal.Properties.ZoneUpdate = true;
                         });
                     }
-                    //foreach (GeoZone existingVa in AppParameters.ZoneList.Where(f => f.Value.Properties.ZoneType == "AGVLocation" &&
-                    //f.Value.Properties.Name == tempMission.PICKUP_LOCATION).Select(y => y.Value))
-                    //{
-                    //    existingVa.Properties.MissionList = AppParameters.MissionList.Where(r => r.Value.PICKUP_LOCATION == tempMission.PICKUP_LOCATION
-                    //    && r.Value.STATE == "Active").Select(y => y.Value).ToList();
-                    //    existingVa.Properties.ZoneUpdate = true;
-                    //}
-                    //foreach (GeoZone existingVa in AppParameters.ZoneList.Where(f => f.Value.Properties.ZoneType == "AGVLocation" &&
-                    //f.Value.Properties.Name == tempMission.DROPOFF_LOCATION).Select(y => y.Value))
-                    //{
-                    //    existingVa.Properties.MissionList = AppParameters.MissionList.Where(r => r.Value.DROPOFF_LOCATION == tempMission.DROPOFF_LOCATION
-                    //    && r.Value.STATE == tempMission.STATE).Select(y => y.Value).ToList();
-                    //    existingVa.Properties.ZoneUpdate = true;
-                    //}
+               
                 }
             }
             catch (Exception e)
@@ -1723,29 +1663,27 @@ namespace Factory_of_the_Future
                     //match with vehicle
                     foreach (CoordinateSystem cs in AppParameters.CoordinateSystem.Values)
                     {
-                        cs.Locators.Where(f => f.Value.Properties.TagType.EndsWith("Vehicle")
-                        && f.Value.Properties.TagUpdate).Select(y => y.Value).ToList().ForEach(existingValue =>
+                        //get the key for the tag.
+                        List<string> tag_id = cs.Locators.Where(f => f.Value.Properties.Name == tempMission.VEHICLE
+                        && f.Value.Properties.TagType.EndsWith("Vehicle")).Select(y => y.Key).ToList();
+                        //if tag is found then update data if tag is not found then at tag/vehicle 
+                        if (tag_id.Count > 0)
                         {
-                            // get list of request for the pickup location.
-                            existingValue.Properties.Misison = AppParameters.MissionList.Where(r => r.Value.VEHICLE == tempMission.VEHICLE
-                            && r.Value.STATE == tempMission.STATE
-                            && r.Value.REQUEST_ID == tempMission.REQUEST_ID).Select(y => y.Value).FirstOrDefault();
-                            existingValue.Properties.TagUpdate = true;
+                            for (int i = 0; i < tag_id.Count; i++)
+                            {
+                                cs.Locators.Where(f => f.Key == tag_id[i]).Select(y => y.Value).ToList().ForEach(existingValue =>
+                                {
 
-                        });
+                                    existingValue.Properties.Misison = AppParameters.MissionList.Where(r => r.Value.VEHICLE == tempMission.VEHICLE
+                                    && r.Value.STATE == tempMission.STATE
+                                    && r.Value.REQUEST_ID == tempMission.REQUEST_ID).Select(y => y.Value).FirstOrDefault();
+                                    existingValue.Properties.TagUpdate = true;
+
+                                });
+                            }
+                        }
                     }
-                   // foreach (string existingkey in AppParameters.TagsList.Where(f => f.Value.Properties.Name == tempMission.VEHICLE
-                   //&& f.Value.Properties.TagType.ToLower().EndsWith("Vehicle".ToLower())).Select(y => y.Key))
-                   // {
-                   //     if (AppParameters.TagsList.TryGetValue(existingkey, out GeoMarker existingValue))
-                   //     {
-                   //         // get list of request for the pickup location.
-                   //         existingValue.Properties.Misison = AppParameters.MissionList.Where(r => r.Value.VEHICLE == tempMission.VEHICLE
-                   //         && r.Value.STATE == tempMission.STATE
-                   //         && r.Value.REQUEST_ID == tempMission.REQUEST_ID).Select(y => y.Value).FirstOrDefault();
-                   //         existingValue.Properties.TagUpdate = true;
-                   //     }
-                   // }
+                  
                     //update AGV zone location
                     foreach (CoordinateSystem cs in AppParameters.CoordinateSystem.Values)
                     {
@@ -1767,20 +1705,6 @@ namespace Factory_of_the_Future
                         });
                     }
 
-                    //foreach (GeoZone existingVa in AppParameters.ZoneList.Where(f => f.Value.Properties.ZoneType == "AGVLocation" &&
-                    //f.Value.Properties.Name == tempMission.PICKUP_LOCATION).Select(y => y.Value))
-                    //{
-                    //    existingVa.Properties.MissionList = AppParameters.MissionList.Where(r => r.Value.PICKUP_LOCATION == tempMission.PICKUP_LOCATION
-                    //    && r.Value.STATE == tempMission.STATE).Select(y => y.Value).ToList();
-                    //    existingVa.Properties.ZoneUpdate = true;
-                    //}
-                    //foreach (GeoZone existingVa in AppParameters.ZoneList.Where(f => f.Value.Properties.ZoneType == "AGVLocation" &&
-                    //f.Value.Properties.Name == tempMission.DROPOFF_LOCATION).Select(y => y.Value))
-                    //{
-                    //    existingVa.Properties.MissionList = AppParameters.MissionList.Where(r => r.Value.DROPOFF_LOCATION == tempMission.DROPOFF_LOCATION
-                    //    && r.Value.STATE == tempMission.STATE).Select(y => y.Value).ToList();
-                    //    existingVa.Properties.ZoneUpdate = true;
-                    //}
 
                 }
             }
@@ -1890,75 +1814,100 @@ namespace Factory_of_the_Future
                         VehicleStatus newVehicleStatus = data.ToObject<VehicleStatus>(new JsonSerializer { NullValueHandling = NullValueHandling.Ignore });
                         foreach (CoordinateSystem cs in AppParameters.CoordinateSystem.Values)
                         {
-                            cs.Locators.Where(f => f.Value.Properties.TagType.EndsWith("Vehicle")
-                            && f.Value.Properties.TagUpdate).Select(y => y.Value).ToList().ForEach(existingValue =>
+                            //get the key for the tag.
+                            List<string> tag_id = cs.Locators.Where(f => f.Value.Properties.Name == newVehicleStatus.VEHICLE
+                            && f.Value.Properties.TagType.EndsWith("Vehicle")).Select(y => y.Key).ToList();
+                            //if tag is found then update data if tag is not found then at tag/vehicle 
+                            if (tag_id.Count > 0)
                             {
-                                if (existingValue.Properties.Vehicle_Status_Data != null)
+                                for (int i = 0; i < tag_id.Count; i++)
                                 {
-                                    //check the notifications 
-                                    if (existingValue.Properties.Vehicle_Status_Data.STATE != newVehicleStatus.STATE)
+                                    cs.Locators.Where(f => f.Key == tag_id[i]).Select(y => y.Value).ToList().ForEach(existingValue =>
                                     {
+                                        if (existingValue.Properties.Vehicle_Status_Data != null)
+                                        {
+                                            //check the notifications 
+                                            if (existingValue.Properties.Vehicle_Status_Data.STATE != newVehicleStatus.STATE)
+                                            {
 
-                                        existingValue.Properties.NotificationId = CheckNotification(existingValue.Properties.Vehicle_Status_Data.STATE, newVehicleStatus.STATE, "vehicle".ToLower(), existingValue.Properties, existingValue.Properties.NotificationId);
-                                        update = true;
-                                    }
-                                    if (existingValue.Properties.Vehicle_Status_Data.BATTERYPERCENT != newVehicleStatus.BATTERYPERCENT)
-                                    {
-                                        update = true;
-                                    }
-                                    JObject tempVehicleStatus = JObject.Parse(JsonConvert.SerializeObject(existingValue.Properties.Vehicle_Status_Data, Formatting.Indented));
-                                    tempVehicleStatus.Merge(data, new JsonMergeSettings { MergeArrayHandling = MergeArrayHandling.Union });
-                                    existingValue.Properties.Vehicle_Status_Data = tempVehicleStatus.ToObject<VehicleStatus>();
+                                                existingValue.Properties.NotificationId = CheckNotification(existingValue.Properties.Vehicle_Status_Data.STATE, newVehicleStatus.STATE, "vehicle".ToLower(), existingValue.Properties, existingValue.Properties.NotificationId);
+                                                update = true;
+                                            }
+                                            if (existingValue.Properties.Vehicle_Status_Data.BATTERYPERCENT != newVehicleStatus.BATTERYPERCENT)
+                                            {
+                                                update = true;
+                                            }
+                                            JObject tempVehicleStatus = JObject.Parse(JsonConvert.SerializeObject(existingValue.Properties.Vehicle_Status_Data, Formatting.Indented));
+                                            tempVehicleStatus.Merge(data, new JsonMergeSettings { MergeArrayHandling = MergeArrayHandling.Union });
+                                            existingValue.Properties.Vehicle_Status_Data = tempVehicleStatus.ToObject<VehicleStatus>();
 
-                                    if (update)
-                                    {
-                                        existingValue.Properties.TagUpdate = true;
-                                    }
+                                            if (update)
+                                            {
+                                                existingValue.Properties.TagUpdate = true;
+                                            }
+                                        }
+                                        else
+                                        {
+                                            existingValue.Properties.Vehicle_Status_Data = newVehicleStatus;
+                                            existingValue.Properties.NotificationId = CheckNotification("", newVehicleStatus.STATE, "vehicle".ToLower(), existingValue.Properties, existingValue.Properties.NotificationId);
+                                            existingValue.Properties.TagUpdate = true;
+                                        }
+                                    });
                                 }
-                                else
+                            }
+                            else
+                            {
+                                GeoMarker Lmarker = new GeoMarker();
+                                Lmarker.Properties.Id = newVehicleStatus.VEHICLE_MAC_ADDRESS;
+                                Lmarker.Properties.Name = newVehicleStatus.VEHICLE;
+                                Lmarker.Properties.TagType = GetTagType("AGV");
+                                Lmarker.Properties.TagTS = newVehicleStatus.TIME;
+                                Lmarker.Properties.PositionTS = newVehicleStatus.TIME;
+                                Lmarker.Geometry = GetVehicleGeometry(newVehicleStatus.X_LOCATION, newVehicleStatus.Y_LOCATION);
+                                Lmarker.Properties.Vehicle_Status_Data = newVehicleStatus;
+                                Lmarker.Properties.NotificationId = CheckNotification("", newVehicleStatus.STATE, "vehicle".ToLower(), Lmarker.Properties, Lmarker.Properties.NotificationId);
+
+                                Lmarker.Properties.TagVisible = true;
+                                Lmarker.Properties.TagUpdate = true;
+                                if (!cs.Locators.TryAdd(Lmarker.Properties.Id, Lmarker))
                                 {
-                                    existingValue.Properties.Vehicle_Status_Data = newVehicleStatus;
-                                    existingValue.Properties.NotificationId = CheckNotification("", newVehicleStatus.STATE, "vehicle".ToLower(), existingValue.Properties, existingValue.Properties.NotificationId);
-                                    existingValue.Properties.TagUpdate = true;
+                                    new ErrorLogger().CustomLog("Unable to Add Marker " + newVehicleStatus.VEHICLE_MAC_ADDRESS, string.Concat((string)AppParameters.AppSettings.Property("APPLICATION_NAME").Value, "_Applogs"));
                                 }
+                            }
+                            //    cs.Locators.Where(f => f.Value.Properties.Name == newVehicleStatus.VEHICLE 
+                            //&& f.Value.Properties.TagType.EndsWith("Vehicle")).Select(y => y.Value).ToList().ForEach(existingValue =>
+                            //{
+                            //    if (existingValue.Properties.Vehicle_Status_Data != null)
+                            //    {
+                            //        //check the notifications 
+                            //        if (existingValue.Properties.Vehicle_Status_Data.STATE != newVehicleStatus.STATE)
+                            //        {
 
-                            });
+                            //            existingValue.Properties.NotificationId = CheckNotification(existingValue.Properties.Vehicle_Status_Data.STATE, newVehicleStatus.STATE, "vehicle".ToLower(), existingValue.Properties, existingValue.Properties.NotificationId);
+                            //            update = true;
+                            //        }
+                            //        if (existingValue.Properties.Vehicle_Status_Data.BATTERYPERCENT != newVehicleStatus.BATTERYPERCENT)
+                            //        {
+                            //            update = true;
+                            //        }
+                            //        JObject tempVehicleStatus = JObject.Parse(JsonConvert.SerializeObject(existingValue.Properties.Vehicle_Status_Data, Formatting.Indented));
+                            //        tempVehicleStatus.Merge(data, new JsonMergeSettings { MergeArrayHandling = MergeArrayHandling.Union });
+                            //        existingValue.Properties.Vehicle_Status_Data = tempVehicleStatus.ToObject<VehicleStatus>();
+
+                            //        if (update)
+                            //        {
+                            //            existingValue.Properties.TagUpdate = true;
+                            //        }
+                            //    }
+                            //    else
+                            //    {
+                            //        existingValue.Properties.Vehicle_Status_Data = newVehicleStatus;
+                            //        existingValue.Properties.NotificationId = CheckNotification("", newVehicleStatus.STATE, "vehicle".ToLower(), existingValue.Properties, existingValue.Properties.NotificationId);
+                            //        existingValue.Properties.TagUpdate = true;
+                            //    }
+
+                            //});
                         }
-                        //foreach (string existingKey in AppParameters.TagsList.Where(u => u.Value.Properties.TagType.ToLower().EndsWith("Vehicle".ToLower()) &&
-                        // u.Value.Properties.Name == newVehicleStatus.VEHICLE).Select(x => x.Key))
-                        //{
-                        //    if (AppParameters.TagsList.TryGetValue(existingKey, out GeoMarker existingValue))
-                        //    {
-                        //        if (existingValue.Properties.Vehicle_Status_Data != null)
-                        //        {
-                        //            //check the notifications 
-                        //            if (existingValue.Properties.Vehicle_Status_Data.STATE != newVehicleStatus.STATE)
-                        //            {
-
-                        //                existingValue.Properties.NotificationId = CheckNotification(existingValue.Properties.Vehicle_Status_Data.STATE, newVehicleStatus.STATE, "vehicle".ToLower(), existingValue.Properties, existingValue.Properties.NotificationId);
-                        //                update = true;
-                        //            }
-                        //            if (existingValue.Properties.Vehicle_Status_Data.BATTERYPERCENT != newVehicleStatus.BATTERYPERCENT)
-                        //            {
-                        //                update = true;
-                        //            }
-                        //            JObject tempVehicleStatus = JObject.Parse(JsonConvert.SerializeObject(existingValue.Properties.Vehicle_Status_Data, Formatting.Indented));
-                        //            tempVehicleStatus.Merge(data, new JsonMergeSettings { MergeArrayHandling = MergeArrayHandling.Union });
-                        //            existingValue.Properties.Vehicle_Status_Data = tempVehicleStatus.ToObject<VehicleStatus>();
-
-                        //            if (update)
-                        //            {
-                        //                existingValue.Properties.TagUpdate = true;
-                        //            }
-                        //        }
-                        //        else
-                        //        {
-                        //            existingValue.Properties.Vehicle_Status_Data = newVehicleStatus;
-                        //            existingValue.Properties.NotificationId = CheckNotification("", newVehicleStatus.STATE, "vehicle".ToLower(), existingValue.Properties, existingValue.Properties.NotificationId);
-                        //            existingValue.Properties.TagUpdate = true;
-                        //        }
-                        //    }
-                        //}
 
                     }
                 }
@@ -1966,6 +1915,32 @@ namespace Factory_of_the_Future
             catch (Exception e)
             {
                 new ErrorLogger().ExceptionLog(e);
+            }
+        }
+
+        private static MarkerGeometry GetVehicleGeometry(string x, string y)
+        {
+            try
+            {
+                JObject geometry = new JObject();
+                JArray temp = new JArray();
+                if (string.IsNullOrEmpty(x) && string.IsNullOrEmpty(y))
+                {
+                    temp = new JArray(0.0, 0.0);
+                    
+                }
+                else
+                {
+                    temp = new JArray(y, x);
+                }
+                geometry["coordinates"] = temp;
+                MarkerGeometry result = geometry.ToObject<MarkerGeometry>();
+                return result;
+            }
+            catch (Exception e)
+            {
+                new ErrorLogger().ExceptionLog(e);
+                return null;
             }
         }
 
@@ -2425,44 +2400,44 @@ namespace Factory_of_the_Future
                                     if (tag_id.Count > 0)
                                     {
                                         cs.Locators.Where(f => f.Key == tag_id[0]).Select(y => y.Value).ToList().ForEach(geoLmarker =>
-                                   {
-                                       // check if position changed
-                                       JToken position = tagitem.ContainsKey("smoothedPosition") ? tagitem["smoothedPosition"] : tagitem["location"];
-                                       MarkerGeometry tempGeometry = GetQuuppaTagGeometry(position);
-                                       if (JsonConvert.SerializeObject(geoLmarker.Geometry.Coordinates, Formatting.None) != JsonConvert.SerializeObject(tempGeometry.Coordinates, Formatting.None))
-                                       {
-                                           geoLmarker.Geometry.Coordinates = tempGeometry.Coordinates;
-                                           update = true;
-                                       }
-
-                                       JToken positionTs = tagitem.ContainsKey("positionTS") ? tagitem["positionTS"] : tagitem["locationTS"];
-                                       geoLmarker.Properties.PositionTS = AppParameters.UnixTimeStampToDateTime((long)positionTs);
-                                       geoLmarker.Properties.TagTS = responseTS;
-                                       geoLmarker.Properties.Zones = tagitem["zones"].ToObject<List<Zone>>();
-                                       string tempName = tagitem.ContainsKey("name") ? tagitem["name"].ToString() : tagitem["tagName"].ToString();
-                                       if (geoLmarker.Properties.Name != tempName)
-                                       {
-                                           geoLmarker.Properties.Name = tempName;
-                                           string tempTagype = GetTagType(geoLmarker.Properties.Name);
-                                           if (geoLmarker.Properties.TagType != tempTagype)
                                            {
-                                               geoLmarker.Properties.TagType = tempTagype;
-                                               update = true;
-                                           }
-                                           if (geoLmarker.Properties.TagType == "Person")
-                                           {
-                                               geoLmarker.Properties.CraftName = GetCraftName(geoLmarker.Properties.Name);
-                                               geoLmarker.Properties.BadgeId = GetBadgeId(geoLmarker.Properties.Name);
-                                               update = true;
-                                           }
+                                               // check if position changed
+                                               JToken position = tagitem.ContainsKey("smoothedPosition") ? tagitem["smoothedPosition"] : tagitem["location"];
+                                               MarkerGeometry tempGeometry = GetQuuppaTagGeometry(position);
+                                               if (JsonConvert.SerializeObject(geoLmarker.Geometry.Coordinates, Formatting.None) != JsonConvert.SerializeObject(tempGeometry.Coordinates, Formatting.None))
+                                               {
+                                                   geoLmarker.Geometry.Coordinates = tempGeometry.Coordinates;
+                                                   update = true;
+                                               }
 
-                                           update = true;
-                                       }
-                                       if (update)
-                                       {
-                                           geoLmarker.Properties.TagUpdate = true;
-                                       }
-                                   });
+                                               JToken positionTs = tagitem.ContainsKey("positionTS") ? tagitem["positionTS"] : tagitem["locationTS"];
+                                               geoLmarker.Properties.PositionTS = AppParameters.UnixTimeStampToDateTime((long)positionTs);
+                                               geoLmarker.Properties.TagTS = responseTS;
+                                               geoLmarker.Properties.Zones = tagitem["zones"].ToObject<List<Zone>>();
+                                               string tempName = tagitem.ContainsKey("name") ? tagitem["name"].ToString() : tagitem["tagName"].ToString();
+                                               if (geoLmarker.Properties.Name != tempName)
+                                               {
+                                                   geoLmarker.Properties.Name = tempName;
+                                                   string tempTagype = GetTagType(geoLmarker.Properties.Name);
+                                                   if (geoLmarker.Properties.TagType != tempTagype)
+                                                   {
+                                                       geoLmarker.Properties.TagType = tempTagype;
+                                                       update = true;
+                                                   }
+                                                   if (geoLmarker.Properties.TagType == "Person")
+                                                   {
+                                                       geoLmarker.Properties.CraftName = GetCraftName(geoLmarker.Properties.Name);
+                                                       geoLmarker.Properties.BadgeId = GetBadgeId(geoLmarker.Properties.Name);
+                                                       update = true;
+                                                   }
+
+                                                   update = true;
+                                               }
+                                               if (update)
+                                               {
+                                                   geoLmarker.Properties.TagUpdate = true;
+                                               }
+                                           });
                                     }
                                     else
                                     {
@@ -2492,72 +2467,6 @@ namespace Factory_of_the_Future
                                     }
                                 }
 
-                                //        if (AppParameters.TagsList.TryGetValue(tagid, out GeoMarker geoLmarker))
-                                //{
-                                //    // check if position changed
-                                //    JToken position = tagitem.ContainsKey("smoothedPosition") ? tagitem["smoothedPosition"] : tagitem["location"];
-                                //    MarkerGeometry tempGeometry = GetQuuppaTagGeometry(position);
-                                //    if (JsonConvert.SerializeObject(geoLmarker.Geometry.Coordinates, Formatting.None) != JsonConvert.SerializeObject(tempGeometry.Coordinates, Formatting.None))
-                                //    {
-                                //        geoLmarker.Geometry.Coordinates = tempGeometry.Coordinates;
-                                //        update = true;
-                                //    }
-
-                                //    JToken positionTs = tagitem.ContainsKey("positionTS") ? tagitem["positionTS"] : tagitem["locationTS"];
-                                //    geoLmarker.Properties.PositionTS = AppParameters.UnixTimeStampToDateTime((long)positionTs);
-                                //    geoLmarker.Properties.TagTS = responseTS;
-                                //    geoLmarker.Properties.Zones = tagitem["zones"].ToObject<List<Zone>>();
-                                //    string tempName = tagitem.ContainsKey("name") ? tagitem["name"].ToString() : tagitem["tagName"].ToString();
-                                //    if (geoLmarker.Properties.Name != tempName)
-                                //    {
-                                //        geoLmarker.Properties.Name = tempName;
-                                //        string tempTagype = GetTagType(geoLmarker.Properties.Name);
-                                //        if (geoLmarker.Properties.TagType != tempTagype)
-                                //        {
-                                //            geoLmarker.Properties.TagType = tempTagype;
-                                //            update = true;
-                                //        }
-                                //        if (geoLmarker.Properties.TagType == "Person")
-                                //        {
-                                //            geoLmarker.Properties.CraftName = GetCraftName(geoLmarker.Properties.Name);
-                                //            geoLmarker.Properties.BadgeId = GetBadgeId(geoLmarker.Properties.Name);
-                                //            update = true;
-                                //        }
-
-                                //        update = true;
-                                //    }
-                                //    if (update)
-                                //    {
-                                //        geoLmarker.Properties.TagUpdate = true;
-                                //    }
-                                //}
-                                //else
-                                //{
-
-                                //    GeoMarker Lmarker = new GeoMarker();
-                                //    Lmarker.Properties.Id = tagid;
-                                //    Lmarker.Properties.Name = tagitem.ContainsKey("name") ? tagitem["name"].ToString() : tagitem["tagName"].ToString();
-                                //    Lmarker.Properties.Color = tagitem["color"].ToString();
-                                //    Lmarker.Properties.TagType = GetTagType(Lmarker.Properties.Name);
-                                //    if (Lmarker.Properties.TagType == "Person")
-                                //    {
-                                //        Lmarker.Properties.CraftName = GetCraftName(Lmarker.Properties.Name);
-                                //        Lmarker.Properties.BadgeId = GetBadgeId(Lmarker.Properties.Name);
-                                //    }
-                                  
-                                //    Lmarker.Properties.TagTS = responseTS;
-                                //    JToken positionTs = tagitem.ContainsKey("positionTS") ? tagitem["positionTS"] : tagitem["locationTS"];
-                                //    Lmarker.Properties.PositionTS = AppParameters.UnixTimeStampToDateTime((long)positionTs);
-                                //    JToken position = tagitem.ContainsKey("smoothedPosition") ? tagitem["smoothedPosition"] : tagitem["location"];
-                                //    Lmarker.Geometry = GetQuuppaTagGeometry(position);
-                                //    Lmarker.Properties.RawData = tagitem["rawData"].ToString();
-                                //    Lmarker.Properties.TagVisible = tagitem.ContainsKey("locationMovementStatus") ? tagitem["locationMovementStatus"].ToString() == "noData" ? false : true  : false;
-                                //    Lmarker.Properties.TagUpdate = true;
-                                //    if (!AppParameters.TagsList.TryAdd(tagid, Lmarker))
-                                //    {
-                                //        new ErrorLogger().CustomLog("Unable to Add Marker" + tagid, string.Concat((string)AppParameters.AppSettings.Property("APPLICATION_NAME").Value, "_Applogs"));
-                                //    }
-                                //}
                             }    
                             Task.Run(() => updateConnection(conID, "good"));
                         }

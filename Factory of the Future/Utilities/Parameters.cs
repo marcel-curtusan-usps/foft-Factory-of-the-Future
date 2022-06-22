@@ -201,6 +201,14 @@ namespace Factory_of_the_Future
         [JsonProperty("coordinates")]
         public List<double> Coordinates { get; set; } 
     }
+    public class LineGeometry
+    {
+        [JsonProperty("type")]
+        public string Type { get; set; } = "LineString";
+
+        [JsonProperty("coordinates")]
+        public List<List<List<double>>> Coordinates { get; set; }
+    }
 
     public class Properties
     {
@@ -292,6 +300,33 @@ namespace Factory_of_the_Future
         [JsonProperty("properties")]
         public Marker Properties { get; set; } = new Marker();
     }
+    public class GeoLine
+    {
+        [JsonProperty("type")]
+        public string Type { get; set; } = "Feature";
+
+        [JsonProperty("geometry")]
+        public LineGeometry Geometry { get; set; } = new LineGeometry();
+
+        [JsonProperty("properties")]
+        public RoutePath Properties { get; set; } = new RoutePath();
+    }
+
+    public class RoutePath
+    {
+        [JsonProperty("name")]
+        public string Name { get; set; } = "";
+
+        [JsonProperty("to")]
+        public string To { get; set; } = "";
+
+        [JsonProperty("from")]
+        public string From { get; set; } = "";
+
+        [JsonProperty("average_duration")]
+        public string Average_Duration { get; set; } = "";
+    }
+
     public class Marker
     {
         [JsonProperty("id")]
@@ -362,7 +397,7 @@ namespace Factory_of_the_Future
         [JsonProperty("sels")]
         public string Sels { get; set; } = "";
 
-        [JsonProperty("ovementStatus")]
+        [JsonProperty("movementStatus")]
         public string MovementStatus { get; set; } = "noData";
 
         [JsonProperty("Raw_Data")]
@@ -385,7 +420,10 @@ namespace Factory_of_the_Future
 
         [JsonProperty("notificationId")]
         public string NotificationId { get; set; } = "";
-       
+
+        [JsonProperty("routePath")]
+        public GeoLine RoutePath { get; set; } 
+
     }
     public class ZoneInfo
     {
