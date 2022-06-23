@@ -2148,6 +2148,10 @@ namespace Factory_of_the_Future
                                          {
                                              Connection_item._StopUDPListener();
                                          }
+                                         else if (updateConndata.WsConnection)
+                                         {
+                                             Connection_item._StopWSListener();
+                                         }
                                          else
                                          {
                                              Connection_item.ConstantRefresh = false;
@@ -2160,6 +2164,10 @@ namespace Factory_of_the_Future
                                          if (updateConndata.UdpConnection)
                                          {
                                              Connection_item._StartUDPListener();
+                                         }
+                                         else if (updateConndata.WsConnection)
+                                         {
+                                             Connection_item._StartWSListener();
                                          }
                                          else
                                          {
@@ -2211,6 +2219,13 @@ namespace Factory_of_the_Future
                                     if (Connection_item.ConnectionInfo.UdpConnection)
                                     {
                                         Connection_item.UDPDelete();
+                                        AppParameters.RunningConnection.Connection.Remove(Connection_item);
+                                        new FileIO().Write(string.Concat(AppParameters.CodeBase.Parent.FullName.ToString(), AppParameters.Appsetting), "Connection.json", JsonConvert.SerializeObject(AppParameters.ConnectionList.Select(x => x.Value).ToList(), Formatting.Indented, new JsonSerializerSettings() { ContractResolver = new NullToEmptyStringResolver() }));
+                                        return AppParameters.ConnectionList.Select(e => e.Value).ToList();
+                                    }
+                                    else if (Connection_item.ConnectionInfo.WsConnection)
+                                    {
+                                        Connection_item.WSDelete();
                                         AppParameters.RunningConnection.Connection.Remove(Connection_item);
                                         new FileIO().Write(string.Concat(AppParameters.CodeBase.Parent.FullName.ToString(), AppParameters.Appsetting), "Connection.json", JsonConvert.SerializeObject(AppParameters.ConnectionList.Select(x => x.Value).ToList(), Formatting.Indented, new JsonSerializerSettings() { ContractResolver = new NullToEmptyStringResolver() }));
                                         return AppParameters.ConnectionList.Select(e => e.Value).ToList();
