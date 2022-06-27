@@ -1493,6 +1493,7 @@ namespace Factory_of_the_Future
         public string rpg_pieces_fed { get; set; } = "";
         public int mail_operation_nbr { get; set; } = 0;
         public string line_4_text { get; set; } = "";
+        public string rpg_expected_thruput { get; set; } = "";
         public DateTime mpew_start_15min_dtm { get; set; }
         public DateTime mpew_end_15min_dtm { get; set; }
         public string mpe_type { get; set; } = "";

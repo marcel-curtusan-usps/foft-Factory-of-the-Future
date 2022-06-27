@@ -920,7 +920,9 @@ namespace Factory_of_the_Future
                         {
                             item["cur_sortplan"] = AppParameters.SortPlan_Name_Trimer(item["cur_sortplan"].ToString());
                             item["cur_operation_id"] = !string.IsNullOrEmpty(item["cur_operation_id"].ToString()) ? item["cur_operation_id"].ToString() : "0";
-
+                            item["rpg_start_dtm"] = "";
+                            item["rpg_end_dtm"] = "";
+                            item["expected_throughput"] = "0";
                             MPEWatch_FullBins(item);
                             
                             total_volume = item.ContainsKey("tot_sortplan_vol") ? item["tot_sortplan_vol"].ToString().Trim() : "0";
@@ -943,44 +945,64 @@ namespace Factory_of_the_Future
                             {
                                 item["rpg_est_comp_time"] = "";
                             }
-                            if ((item["current_run_end"].ToString() == "" || item["current_run_end"].ToString() == "0") && item["current_run_start"].ToString() != "")
+                            if (item.ContainsKey("rpg_expected_thruput"))
                             {
-                                // JObject results = new Oracle_DB_Calls().Get_RPG_Plan_Info(item);
-                                JObject results = Get_RPG_Plan_Info(item);
-                                if (results != null && results.HasValues)
+                                item["expected_throughput"] = !string.IsNullOrEmpty(item["rpg_expected_thruput"].ToString()) ? item["rpg_expected_thruput"].ToString().Split(' ').FirstOrDefault() : "0";
+                                if (!string.IsNullOrEmpty(item["expected_throughput"].ToString()) && item["expected_throughput"].ToString() != "0")
                                 {
-                                    item["rpg_start_dtm"] = results.ContainsKey("rpg_start_dtm") ? results["rpg_start_dtm"].ToString().Trim() : "";
-                                    item["rpg_end_dtm"] = results.ContainsKey("rpg_end_dtm") ? results["rpg_end_dtm"].ToString().Trim() : "";
-                                    item["expected_throughput"] = results.ContainsKey("expected_throughput") ? results["expected_throughput"].ToString().Trim() : "";
-                                    //item["throughput_status"] = "1";
-                                    if (!string.IsNullOrEmpty(item["expected_throughput"].ToString()) && item["expected_throughput"].ToString() != "0")
+                                    int.TryParse(item.ContainsKey("cur_thruput_ophr") ? item["cur_thruput_ophr"].ToString().Trim() : "0", out int cur_thruput);
+                                    int.TryParse(item.ContainsKey("expected_throughput") ? item["expected_throughput"].ToString().Trim() : "0", out int expected_throughput);
+                                    double thrper = (double)cur_thruput / (double)expected_throughput * 100;
+                                    string throughputState = "1";
+                                    if (thrper >= 100)
                                     {
-                                        int.TryParse(item.ContainsKey("cur_thruput_ophr") ? item["cur_thruput_ophr"].ToString().Trim() : "0", out int cur_thruput);
-                                        int.TryParse(item.ContainsKey("expected_throughput") ? item["expected_throughput"].ToString().Trim() : "0", out int expected_throughput);
-                                        double thrper = (double)cur_thruput / (double)expected_throughput * 100;
-                                        string throughputState = "1";
-                                        if (thrper >= 100)
-                                        {
-                                            throughputState = "1";
-                                        }
-                                        else if (thrper >= 90)
-                                        {
-                                            throughputState = "2";
-                                        }
-                                        else if (thrper < 90)
-                                        {
-                                            throughputState = "3";
-                                        }
-                                        item["throughput_status"] = throughputState;
+                                        throughputState = "1";
                                     }
+                                    else if (thrper >= 90)
+                                    {
+                                        throughputState = "2";
+                                    }
+                                    else if (thrper < 90)
+                                    {
+                                        throughputState = "3";
+                                    }
+                                    item["throughput_status"] = throughputState;
                                 }
                             }
                             else
                             {
-                                item["rpg_start_dtm"] = "";
-                                item["rpg_end_dtm"] = "";
-                                item["expected_throughput"] = "";
-                                item["throughput_status"] = "1";
+                                if ((item["current_run_end"].ToString() == "" || item["current_run_end"].ToString() == "0") && item["current_run_start"].ToString() != "")
+                                {
+                                    // JObject results = new Oracle_DB_Calls().Get_RPG_Plan_Info(item);
+                                    JObject results = Get_RPG_Plan_Info(item);
+                                    if (results != null && results.HasValues)
+                                    {
+                                        item["rpg_start_dtm"] = results.ContainsKey("rpg_start_dtm") ? results["rpg_start_dtm"].ToString().Trim() : "";
+                                        item["rpg_end_dtm"] = results.ContainsKey("rpg_end_dtm") ? results["rpg_end_dtm"].ToString().Trim() : "";
+                                        item["expected_throughput"] = results.ContainsKey("expected_throughput") ? results["expected_throughput"].ToString().Trim() : "";
+                                        //item["throughput_status"] = "1";
+                                        if (!string.IsNullOrEmpty(item["expected_throughput"].ToString()) && item["expected_throughput"].ToString() != "0")
+                                        {
+                                            int.TryParse(item.ContainsKey("cur_thruput_ophr") ? item["cur_thruput_ophr"].ToString().Trim() : "0", out int cur_thruput);
+                                            int.TryParse(item.ContainsKey("expected_throughput") ? item["expected_throughput"].ToString().Trim() : "0", out int expected_throughput);
+                                            double thrper = (double)cur_thruput / (double)expected_throughput * 100;
+                                            string throughputState = "1";
+                                            if (thrper >= 100)
+                                            {
+                                                throughputState = "1";
+                                            }
+                                            else if (thrper >= 90)
+                                            {
+                                                throughputState = "2";
+                                            }
+                                            else if (thrper < 90)
+                                            {
+                                                throughputState = "3";
+                                            }
+                                            item["throughput_status"] = throughputState;
+                                        }
+                                    }
+                                }
                             }
 
                             CheckMachineNotifications(item);
@@ -1159,7 +1181,15 @@ namespace Factory_of_the_Future
                         List<RPGPlan> RPG_collection = planInfo.ToObject<List<RPGPlan>>();
                         foreach (RPGPlan RPG_item in RPG_collection)
                         {
-                            RPG_item.expected_throughput = !string.IsNullOrEmpty(RPG_item.line_4_text) ? RPG_item.line_4_text.Split(' ')[0] : "0";
+                            if (!string.IsNullOrEmpty(RPG_item.line_4_text))
+                            {
+                                RPG_item.expected_throughput = !string.IsNullOrEmpty(RPG_item.line_4_text) ? RPG_item.line_4_text.Split(' ').FirstOrDefault() : "0";
+                            }
+                            else
+                            {
+                                RPG_item.expected_throughput = !string.IsNullOrEmpty(RPG_item.rpg_expected_thruput) ? RPG_item.rpg_expected_thruput.Split(' ').FirstOrDefault() : "0";
+                            }
+          
                             RPG_item.sort_program_name = AppParameters.SortPlan_Name_Trimer(RPG_item.sort_program_name);
 
                             string RPGKey = AppParameters.MPEPRPGList.Where(x => x.Value.mpe_type == RPG_item.mpe_type &&
