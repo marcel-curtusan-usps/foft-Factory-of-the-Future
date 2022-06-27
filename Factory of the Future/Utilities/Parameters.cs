@@ -721,6 +721,9 @@ namespace Factory_of_the_Future
         public Int32 Port { get; set; } = 0;
         [JsonProperty("UdpConnection")]
         public bool UdpConnection { get; set; } = false;
+        [JsonProperty("WsConnection")]
+
+        public bool WsConnection { get; set; } = false;
         [JsonIgnore]
         public bool UpdateStatus { get; set; } = false;
         [JsonProperty("Url")]

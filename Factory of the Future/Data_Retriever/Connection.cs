@@ -6,6 +6,7 @@ using System.Linq;
 using System.Net;
 using System.Net.Security;
 using System.Net.Sockets;
+using WebSocket4Net;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Threading;
@@ -115,8 +116,10 @@ namespace Factory_of_the_Future
         public bool Connected;
         public UdpClient client;
         public UdpServer server;
+        public WebSocket4Net.WebSocket wsClient;
         internal Connection ConnectionInfo;
         public string StatusInfo = "";
+       
         public void DownloadLoop()
         {
             do
@@ -180,15 +183,33 @@ namespace Factory_of_the_Future
             ListenerThread.IsBackground = true;
             ListenerThread.Start();
         }
+        public void _WSThreadListener()
+        {
+            Thread ListenerThread = new Thread(new ThreadStart(WSInit));
+            ListenerThread.IsBackground = true;
+            ListenerThread.Start();
+        }
         public void _StopUDPListener()
         {
             Thread StopListenerThread = new Thread(new ThreadStart(UDPStop));
             StopListenerThread.IsBackground = true;
             StopListenerThread.Start();
         }
+        public void _StopWSListener()
+        {
+            Thread StopListenerThread = new Thread(new ThreadStart(WSStop));
+            StopListenerThread.IsBackground = true;
+            StopListenerThread.Start();
+        }
         public void _StartUDPListener()
         {
             Thread StartListenerThread = new Thread(new ThreadStart(UDPStart));
+            StartListenerThread.IsBackground = true;
+            StartListenerThread.Start();
+        }
+        public void _StartWSListener()
+        {
+            Thread StartListenerThread = new Thread(new ThreadStart(WSInit));
             StartListenerThread.IsBackground = true;
             StartListenerThread.Start();
         }
@@ -208,12 +229,73 @@ namespace Factory_of_the_Future
             this.Status = 1;
            
         }
+        
+        private void WSInit()
+        { 
+            try
+            {
+                //Start UDP server
+                if (!String.IsNullOrEmpty(ConnectionInfo.Url))
+                {
+                    this.wsClient = new WebSocket(ConnectionInfo.Url);
+                    
+                    //this.wsClient = new WebSocket(ConnectionInfo.Url);
+                    this.wsClient.MessageReceived += new EventHandler<MessageReceivedEventArgs>(wsMessageReceived);
+                    
+                    this.wsClient.Error += new EventHandler
+                        <SuperSocket.ClientEngine.ErrorEventArgs>(websocket_Error);
+                    this.wsClient.Open();
+                }
+
+                this.Stopping = false;
+                this.Status = 1;
+            }
+            catch (Exception ex)
+            {
+
+            }
+
+        }
+        private void processWSDarvisMessage(string message)
+        {
+            if (message.StartsWith("42["))
+            {
+                message = message.Substring(2);
+            }
+        }
+        private void wsMessageReceived(object e, MessageReceivedEventArgs args)
+        {
+            
+            switch (ConnectionInfo.MessageType)
+            {
+                case "wsDarvis":
+                    string message = args.Message;
+                    break;
+            }
+        }
+        private void websocket_Error(object e, SuperSocket.ClientEngine.ErrorEventArgs args)
+        {
+
+           
+        }
         public void UDPStop()
         {
             //stop UDP server
             if (this.server != null)
             {
                 this.server.Stop();
+                this.Stopping = true;
+                this.Status = 2;
+            }
+        }
+        public void WSStop()
+        {
+            //stop UDP server
+            if (this.wsClient != null)
+            {
+                this.wsClient.Close();
+                this.wsClient.Dispose();
+                this.wsClient = null;
                 this.Stopping = true;
                 this.Status = 2;
             }
@@ -239,6 +321,14 @@ namespace Factory_of_the_Future
             DeleteThread.Start();
 
         }
+        public void WSDelete()
+        {
+            Thread DeleteThread = new Thread(new ThreadStart(WSStop));
+            DeleteThread.IsBackground = true;
+            DeleteThread.Start();
+
+        }
+
         public void Download()
         {
 

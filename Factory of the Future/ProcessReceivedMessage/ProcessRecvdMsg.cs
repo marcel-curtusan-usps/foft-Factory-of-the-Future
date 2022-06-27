@@ -187,7 +187,9 @@ namespace Factory_of_the_Future
                 new ErrorLogger().ExceptionLog(e);
             }
         }
-     
+
+      
+
         private void CameraData(dynamic data, string conID)
         {
             try
