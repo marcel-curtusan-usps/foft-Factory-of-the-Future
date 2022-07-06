@@ -6,16 +6,19 @@ using System.Linq;
 using System.Net;
 using System.Net.Security;
 using System.Net.Sockets;
-using WebSocket4Net;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using WebSocket4Net;
+using System.Collections.Concurrent;
 
 namespace Factory_of_the_Future
 {
-   
-    class MulticastUdpServer : UdpServer
+    public delegate void OnWsMessage (string msg);
+    public delegate void OnWsEvent();
+    public delegate void ThreadListenerCall();
+class MulticastUdpServer : UdpServer
     {
         public MulticastUdpServer(IPAddress address, int port, string conid) : base(address, port, conid) { }
 
@@ -104,6 +107,8 @@ namespace Factory_of_the_Future
             }
         }
     }
+
+
     public class Api_Connection
     {
         public string ID;
@@ -116,10 +121,11 @@ namespace Factory_of_the_Future
         public bool Connected;
         public UdpClient client;
         public UdpServer server;
-        public WebSocket4Net.WebSocket wsClient;
+        public WebSocketInstanceHandler webSocketIntanceHandler;
+        private Thread reconnectThread;
         internal Connection ConnectionInfo;
         public string StatusInfo = "";
-       
+
         public void DownloadLoop()
         {
             do
@@ -195,24 +201,21 @@ namespace Factory_of_the_Future
             StopListenerThread.IsBackground = true;
             StopListenerThread.Start();
         }
-        public void _StopWSListener()
-        {
-            Thread StopListenerThread = new Thread(new ThreadStart(WSStop));
-            StopListenerThread.IsBackground = true;
-            StopListenerThread.Start();
-        }
+
         public void _StartUDPListener()
         {
             Thread StartListenerThread = new Thread(new ThreadStart(UDPStart));
             StartListenerThread.IsBackground = true;
             StartListenerThread.Start();
         }
-        public void _StartWSListener()
+        public void _StopWSListener()
         {
-            Thread StartListenerThread = new Thread(new ThreadStart(WSInit));
-            StartListenerThread.IsBackground = true;
-            StartListenerThread.Start();
+            Thread DeleteThread = new Thread(new ThreadStart(WSStop));
+            DeleteThread.IsBackground = true;
+            DeleteThread.Start();
+
         }
+
         private void UDPStart()
         {
             //Start UDP server
@@ -224,31 +227,153 @@ namespace Factory_of_the_Future
             {
                 this._UDPThreadListener();
             }
-            
+
             this.Stopping = false;
             this.Status = 1;
-           
+
         }
-        
+        public void ProcessNewOrExistingCameraData(JObject thisObject, string camera_id, bool isNew )
+        {
+                if (thisObject.ContainsKey("zones"))
+                {
+                    JArray zones = (JArray)thisObject["zones"];
+                    foreach (JObject zo in zones)
+                    {
+                        string zoName = zo["name"].ToString();
+                        if (zoName.StartsWith("IG_") ||
+                            zoName.StartsWith("DT_"))
+                        {
+                            float dwelltime = (float)Convert.ToDouble(zo["dwell_time"].ToString());
+                            DarvisCameraAlert alert = new DarvisCameraAlert();
+                            alert.DwellTime = dwelltime;
+                            alert.Type = zoName.StartsWith("IG_") ? "IG" : "DT";
+                            alert.Top = Convert.ToInt32(thisObject["top"].ToString());
+                            alert.Bottom = Convert.ToInt32(thisObject["bottom"].ToString());
+                            alert.Left = Convert.ToInt32(thisObject["left"].ToString());
+                            alert.Right = Convert.ToInt32(thisObject["right"].ToString());
+                            AddAlertToCameraData(camera_id, alert);
+                        }
+                    }
+                }
+        }
+
+        public void AddAlertToCameraData(string camera_id, DarvisCameraAlert alert)
+        {
+            string ip = AppParameters.CameraMapping[camera_id];
+            Cameras newCamera = AppParameters.CameraInfoList[ip];
+            newCamera.Alert = alert;
+            AppParameters.CameraInfoList[ip] = newCamera;
+            foreach (CoordinateSystem cs in AppParameters.CoordinateSystem.Values)
+            {
+                cs.Locators.Where(f => f.Value.Properties.TagType == "Camera" &&
+                f.Value.Properties.Name == ip).Select(y => y.Value).ToList().ForEach(Camera =>
+                {
+                    Camera.Properties.DarvisAlert = alert;
+                    FOTFManager.Instance.BroadcastCameraStatus(Camera, cs.Id);
+                });
+            }
+            if (AppParameters.CameraInfoList.ContainsKey(ip))
+            {
+                Cameras camera = AppParameters.CameraInfoList[ip];
+                camera.Alert = alert;
+                AppParameters.CameraInfoList[ip] = camera;
+
+            }
+        }
+       
+        public async Task ProcessAlerts(string message)
+        {
+            if (message.Contains("IG_") || message.Contains("DT_"))
+            {
+                try
+                {
+
+                    JArray msgJson = (JArray)JsonConvert.DeserializeObject(message);
+                    if (msgJson[0].ToString() == "detections")
+                    {
+                        JArray cameraData = (JArray)msgJson[1]["data"];
+                        foreach (JObject jo in cameraData)
+                        {
+                            string camera_id = jo["camera_id"].ToString();
+                            JArray newDetections = (JArray)jo["detections"]["new"];
+                            JArray removedDetections = (JArray)jo["detections"]["removed"];
+                            JArray updatedDetections = (JArray)jo["detections"]["updated"];
+                            foreach (JObject newObject in newDetections)
+                            {
+                                ProcessNewOrExistingCameraData(newObject, camera_id, true);
+                            }
+                            foreach (JToken object_id in removedDetections)
+                            {
+
+                            }
+                            foreach (JObject updatedObject in updatedDetections)
+                            {
+                                ProcessNewOrExistingCameraData(updatedObject, camera_id, false);
+                            }
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+
+                }
+            }
+        }
+       
+        public void DarvisWSMessage(string message)
+        {
+            // temporary workaround for socket io without a socket io library
+            
+            if (message.StartsWith("42"))
+            {
+                message = message.Substring(2);
+                
+                ProcessAlerts(message);
+            }
+
+        }
+       
+        public void DarvisClose()
+        {
+            this.Connected = false;
+            this.ConnectionInfo.ApiConnected = false;
+        }
+        public void DarvisOpen()
+        {
+            this.Connected = true;
+            this.ConnectionInfo.ApiConnected = true;
+        }
         private void WSInit()
-        { 
+        {
+            OnWsMessage messageEvent = null;
+            webSocketIntanceHandler = new WebSocketInstanceHandler();
+            OnWsEvent closeEvent = null;
+
+            OnWsEvent openEvent = null;
+            switch (ConnectionInfo.MessageType.ToUpper())
+            {
+                case "WSDARVIS":
+                    messageEvent = DarvisWSMessage;
+                    closeEvent = DarvisClose;
+                    openEvent = DarvisOpen;
+                    break;
+            }
             try
             {
-                //Start UDP server
-                if (!String.IsNullOrEmpty(ConnectionInfo.Url))
+                if (!String.IsNullOrEmpty(ConnectionInfo.Url) && messageEvent != null)
                 {
-                    this.wsClient = new WebSocket(ConnectionInfo.Url);
-                    
-                    //this.wsClient = new WebSocket(ConnectionInfo.Url);
-                    this.wsClient.MessageReceived += new EventHandler<MessageReceivedEventArgs>(wsMessageReceived);
-                    
-                    this.wsClient.Error += new EventHandler
-                        <SuperSocket.ClientEngine.ErrorEventArgs>(websocket_Error);
-                    this.wsClient.Open();
+
+                    webSocketIntanceHandler.CreateWSInstance(ConnectionInfo.ConnectionName, ConnectionInfo.Url,
+                        messageEvent, closeEvent, openEvent);
+                    webSocketIntanceHandler.Connect(ConnectionInfo.ConnectionName);
+                    this.Stopping = false;
+                    if (webSocketIntanceHandler.Connected(ConnectionInfo.ConnectionName))
+                    {
+                        this.Connected = true;
+                        this.Status = 1;
+                    }
                 }
 
-                this.Stopping = false;
-                this.Status = 1;
             }
             catch (Exception ex)
             {
@@ -256,28 +381,8 @@ namespace Factory_of_the_Future
             }
 
         }
-        private void processWSDarvisMessage(string message)
-        {
-            if (message.StartsWith("42["))
-            {
-                message = message.Substring(2);
-            }
-        }
-        private void wsMessageReceived(object e, MessageReceivedEventArgs args)
-        {
-            
-            switch (ConnectionInfo.MessageType)
-            {
-                case "wsDarvis":
-                    string message = args.Message;
-                    break;
-            }
-        }
-        private void websocket_Error(object e, SuperSocket.ClientEngine.ErrorEventArgs args)
-        {
-
-           
-        }
+       
+       
         public void UDPStop()
         {
             //stop UDP server
@@ -290,14 +395,20 @@ namespace Factory_of_the_Future
         }
         public void WSStop()
         {
-            //stop UDP server
-            if (this.wsClient != null)
+            //stop WS instance
+            try
             {
-                this.wsClient.Close();
-                this.wsClient.Dispose();
-                this.wsClient = null;
-                this.Stopping = true;
-                this.Status = 2;
+                if (!String.IsNullOrEmpty(ConnectionInfo.Url))
+                {
+
+                    webSocketIntanceHandler.Close(ConnectionInfo.ConnectionName);
+                    this.Status = 2;
+                    
+                }
+            }
+            catch (Exception ex)
+            {
+                new ErrorLogger().ExceptionLog(ex);
             }
         }
         private void UDPInit()
@@ -487,6 +598,7 @@ namespace Factory_of_the_Future
             {
                 formatUrl = string.Format(ConnectionInfo.Url, ConnectionInfo.MessageType);
             }
+           
             if (!string.IsNullOrEmpty(formatUrl))
             {
                 try

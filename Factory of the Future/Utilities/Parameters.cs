@@ -422,8 +422,8 @@ namespace Factory_of_the_Future
         public string NotificationId { get; set; } = "";
 
         [JsonProperty("routePath")]
-        public GeoLine RoutePath { get; set; } 
-
+        public GeoLine RoutePath { get; set; }
+        public DarvisCameraAlert DarvisAlert { get; internal set; }
     }
     public class ZoneInfo
     {
@@ -911,6 +911,24 @@ namespace Factory_of_the_Future
         [JsonProperty("time_to_comp_actual_DateTime")]
         public string TimeToCompActualDateTime { get; set; } = "";
     }
+    
+    public class DarvisCameraAlert
+    {
+        [JsonProperty("TYPE")]
+        public string Type { get; set; }
+        [JsonProperty("DWELL_TIME")]
+        public float DwellTime { get; set; }
+        [JsonProperty("TOP")]
+        public int Top { get; set; }
+        [JsonProperty("BOTTOM")]
+        public int Bottom { get; set; }
+        [JsonProperty("LEFT")]
+        public int Left { get; set; }
+        [JsonProperty("RIGHT")]
+        public int Right { get; set; }
+        [JsonProperty("ALERT_BASE64")]
+        public string AlertBase64Image { get; set; }
+    }
     public class Cameras
     {
         [JsonProperty("LOCALE_KEY")]
@@ -954,6 +972,9 @@ namespace Factory_of_the_Future
 
         [JsonProperty("base64Image")]
         public string Base64Image { get; set; } = "";
+        
+        [JsonProperty("CAMERA_ALERT")]
+        public DarvisCameraAlert Alert { get; set;  }
 
     }
     public class Leg

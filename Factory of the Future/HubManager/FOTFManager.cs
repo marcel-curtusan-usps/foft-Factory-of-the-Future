@@ -20,6 +20,7 @@ using System.Drawing;
 
 namespace Factory_of_the_Future
 {
+  
     public class FOTFManager : IDisposable
     {
         private readonly static Lazy<FOTFManager> _instance = new Lazy<FOTFManager>(() => new FOTFManager(GlobalHost.ConnectionManager.GetHubContext<HubManager>().Clients));
@@ -37,7 +38,7 @@ namespace Factory_of_the_Future
         private readonly object updateNotificationStatuslock = new object();
         private readonly object updateBinZoneStatuslock = new object();
         private readonly object updateCameralock = new object();
-
+        
         //timers
         private readonly Timer VehicleTag_timer;
         private readonly Timer PersonTag_timer;
@@ -258,7 +259,7 @@ namespace Factory_of_the_Future
           
         }
 
-        private void BroadcastCameraStatus(GeoMarker camera, string id)
+        public void BroadcastCameraStatus(GeoMarker camera, string id)
         {
             Clients.Group("CameraMarkers").updateCameraStatus(camera, id);
         }
@@ -2150,7 +2151,7 @@ namespace Factory_of_the_Future
                                          }
                                          else if (updateConndata.WsConnection)
                                          {
-                                             Connection_item._StopWSListener();
+                                             Connection_item.WSStop();
                                          }
                                          else
                                          {
@@ -2167,7 +2168,7 @@ namespace Factory_of_the_Future
                                          }
                                          else if (updateConndata.WsConnection)
                                          {
-                                             Connection_item._StartWSListener();
+                                             Connection_item._WSThreadListener();
                                          }
                                          else
                                          {
