@@ -836,6 +836,12 @@ namespace Factory_of_the_Future
 
         [JsonProperty("hourly_data")]
         public List<HourlyData> HourlyData { get; set; } = new List<HourlyData>();
+
+        [JsonProperty("ars_recrej3")]
+        public string ArsRecrej3 { get; set; } = "";
+
+        [JsonProperty("sweep_recrej3")]
+        public string SweepRecrej3 { get; set; } = "";
     }
     public class DPS
     {
