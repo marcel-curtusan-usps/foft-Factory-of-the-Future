@@ -5,24 +5,196 @@
 *
 * **/
 $.extend(fotfmanager.client, {
-    updateCameraStatus: async (cameraupdate, id) => { updateCameras(cameraupdate,id) }
+    updateCameraStatus: async (cameraupdatesnew) => { addCameraUpdate(cameraupdatesnew);  }
 });
 
-async function updateCameras(cameraupdates, id) {
-    try {
-        if (id == baselayerid) {
-            if (cameras.hasOwnProperty("_layers")) {
-                $.map(cameras._layers, function (layer) {
-                    if (layer.hasOwnProperty("feature")) {
-                        if (layer.feature.properties.id === cameraupdates.properties.id) {
-                            var base64Image = (cameraupdates.properties.base64Image ===
-                                "" ? "../../Content/images/NoImage.png" : cameraupdates.properties.base64Image);
-                            
-                            if (layer.feature.properties.DarvisAlert &&
-                                layer.feature.properties.DarvisAlert.TYPE) {
+function drawAlertText(ctx, txt, font, viewWidth, viewHeight, x, y, txtBGColor, txtColor, bgHeight) {
+    let padding = 4;
+    y = y - 10 - bgHeight;
+    ctx.save();
 
-                                highlightCameraAlert(base64Image, 255, 0, 0, 16).then((img) => {
+    ctx.font = font;
 
+    /// draw text from top
+    ctx.textBaseline = 'top';
+
+    ctx.fillStyle = txtBGColor;
+
+    var width = ctx.measureText(txt).width;
+    var totalWidth = width + (padding * 2);
+    var totalHeight = bgHeight + (padding * 2);
+    if (x < 5) {
+        x = 5;
+    }
+    if (x > (viewWidth - totalWidth - 5)) {
+        x = viewWidth - totalWidth - 5;
+    }
+    if (y < 35) {
+        y = 35;
+    }
+    if (y > (viewHeight - totalHeight - 5)) {
+        y = viewHeight - totalHeight - 5;
+    }
+    ctx.fillRect(x - padding, y - padding, totalWidth, totalHeight);
+
+    ctx.fillStyle = txtColor;
+
+    ctx.fillText(txt, x, y);
+}
+
+let cameraupdates = [];
+
+let flashRate = 1000;
+let flashCheckRate = 250;
+let lastAlertBlinkChange = 0;
+let lastAlertStatus = null;
+let alertTurnoffThreshold = 60 * 1000;
+
+let alertsOn = false;
+setInterval(() => {
+    let thisTime = Date.now();
+    let timeSinceLastUpdateBlink = thisTime - lastAlertBlinkChange;
+
+    if (timeSinceLastUpdateBlink >= (flashRate - flashCheckRate)) {
+
+        let timeSinceLastUpdate = thisTime - lastUpdateCamera;
+
+        if (timeSinceLastUpdate >= alertTurnoffThreshold) {
+            alertsOn = false;
+        }
+        else {
+            alertsOn = true;
+        }
+        updateAllCameras(thisTime, alertsOn);
+        
+    }
+}, flashCheckRate);
+
+let lastUpdateCamera = 0;
+
+function alertChanged(prevDarvisAlerts, darvisAlerts) {
+    if (prevDarvisAlerts && !darvisAlerts) return true;
+    if (!prevDarvisAlerts && darvisAlerts) return true;
+    return JSON.stringify(prevDarvisAlerts) != JSON.stringify(darvisAlerts);
+}
+function addCameraUpdate(allcameras) {
+    for (const tuple of allcameras) {
+        let cameraupdate = tuple.Item1;
+        let id = tuple.Item2;
+        var changed = false;
+            try {
+                cameraupdate.baselayerid = id;
+                var foundIndex = -1;
+                for (var i = 0; i < cameraupdates.length; i++) {
+                    if (cameraupdates[i].properties.id === cameraupdate.properties.id) {
+                        foundIndex = i;
+                        break;
+                    }
+                }
+                if (foundIndex == -1) {
+                    cameraupdate.properties.lastNoAlert = 0;
+                    cameraupdates.push(cameraupdate);
+                    changed = true;
+                }
+                else {
+                    cameraupdate.properties.lastNoAlert = cameraupdates[foundIndex].properties.lastNoAlert;
+                    let compare1 = JSON.parse(JSON.stringify(cameraupdates[foundIndex].properties.DarvisAlerts));
+                    cameraupdates[foundIndex] = cameraupdate;
+                    changed = alertChanged(compare1, cameraupdate.properties.DarvisAlerts);
+                }
+            }
+            catch (e) {
+                console.log(e.message);
+        }
+        if (changed) {
+
+            lastUpdateCamera = Date.now();
+        }
+    }
+
+}
+
+
+
+async function getLayersAndIcons(datePassed) {
+        
+        let layersAndIconsUpdate = [];
+        if (cameraupdates.length > 0) {
+            for (var camera of cameraupdates) {
+
+                try {
+                    var layerAndIcon = await updateCameras(camera, camera.baselayerid, datePassed);
+                    if (layerAndIcon !== null) {
+                        layersAndIconsUpdate.push(layerAndIcon);
+                    }
+                }
+                catch (e) {
+                    console.log(e.message);
+                }
+            }
+        }
+        return layersAndIconsUpdate;
+       
+}
+
+
+
+
+function updateAllCameras(datePassed) {
+    getLayersAndIcons(datePassed).then((layersAndIconsUpdate) => {
+
+        for (const layerAndIconToUpdate of layersAndIconsUpdate) {
+
+            let layer = layerAndIconToUpdate[0];
+            let icon = layerAndIconToUpdate[1];
+            layer.setIcon(icon);
+           
+        }
+    }).catch((e) => {
+        console.log(e.message);
+    });
+   
+          
+        
+    
+}
+
+
+async function updateCameras(cameraupdate, id, datePassed) {
+    return new Promise((resolve, reject) => {
+
+
+        try {
+            if (id == baselayerid) {
+                if (cameras.hasOwnProperty("_layers")) {
+                    $.map(cameras._layers, async function (layer) {
+                        if (layer.hasOwnProperty("feature")) {
+                            if (layer.feature.properties.id === cameraupdate.properties.id) {
+
+                                if (cameraupdate.properties.id === openCameraId) {
+                                    webCameraViewData = JSON.parse(JSON.stringify(cameraupdate.properties));
+                                }
+                                if (alertsOn && cameraupdate.properties.DarvisAlerts &&
+                                    cameraupdate.properties.DarvisAlerts.length > 0) {
+                                    let red = 255;
+                                    if (datePassed % (flashRate * 2) > flashRate) {
+                                        red = 200;
+                                        if (lastAlertStatus === 1) {
+                                            lastAlertBlinkChange = datePassed;
+                                        }
+                                        lastAlertStatus = 0;
+                                    }
+                                    else {
+                                        if (lastAlertStatus === 0) {
+                                            lastAlertBlinkChange = datePassed;
+                                        }
+                                        lastAlertStatus = 1;
+                                    }
+                                    var base64Image = (cameraupdate.properties.base64Image ===
+                                        "" ? "../../Content/images/NoImage.png" :
+                                        cameraupdate.properties.base64Image);
+
+                                    let img = await highlightCameraAlert(base64Image, red, 0, 0, 20);
                                     var locaterIcon = L.icon({
                                         iconUrl: img,
                                         iconSize: [64, 48], // size of the icon
@@ -31,32 +203,39 @@ async function updateCameras(cameraupdates, id) {
                                         popupAnchor: [0, 0] // point from which the popup should open relative to the iconAnchor
 
                                     });
-                                    layer.setIcon(locaterIcon);
-                                }).catch((err) => {
-                                    console.log(err.message);
-                                });
-                            }
-                            else {
-                                var locaterIcon = L.icon({
-                                    iconUrl: base64Image,
-                                    iconSize: [64, 48], // size of the icon
-                                    iconAnchor: [0, 0], // point of the icon which will correspond to marker's location
-                                    shadowAnchor: [0, 0],  // the same for the shadow
-                                    popupAnchor: [0, 0] // point from which the popup should open relative to the iconAnchor
+                                    resolve([layer, locaterIcon]);
+                                }
+                                else {
+                                    var base64Image = (cameraupdate.properties.base64Image ===
+                                        "" ? "../../Content/images/NoImage.png" : cameraupdate.properties.base64Image);
+                                    var locaterIcon = L.icon({
+                                        iconUrl: base64Image,
+                                        iconSize: [64, 48], // size of the icon
+                                        iconAnchor: [0, 0], // point of the icon which will correspond to marker's location
+                                        shadowAnchor: [0, 0],  // the same for the shadow
+                                        popupAnchor: [0, 0] // point from which the popup should open relative to the iconAnchor
 
-                                });
-                                layer.setIcon(locaterIcon);
+                                    });
+                                    resolve([layer, locaterIcon]);
+                                }
                             }
                         }
-                    }
-                });
+                    });
+                }
             }
-        }
+            else {
+                resolve(null);
+            }
 
-    } catch (e) {
-        console.log(e);
-    }
+        } catch (e) {
+            reject(e);
+        }
+    });
 }
+
+
+
+
 //on close clear all inputs
 $('#Camera_Modal').on('hidden.bs.modal', function () {
     camera_modal_body = $('div[id=camera_modalbody]');
@@ -64,7 +243,7 @@ $('#Camera_Modal').on('hidden.bs.modal', function () {
 });
 
 // used to get alert boundaries
-var getAlertBoundingBox = async (Data, width, height) => {
+var getAlertBoundingBox = async (Alerts, width, height) => {
     
     return new Promise((resolve, reject) => {
 
@@ -75,13 +254,33 @@ var getAlertBoundingBox = async (Data, width, height) => {
 
         var context = canvas.getContext('2d');
 
-        // to be completed...
+        if (alertsOn && Alerts && Alerts.length > 0) {
+            var alert = null;
+            for (alert of Alerts) {
+                let left = alert.TOP * scaleWidth;
+                let right = alert.BOTTOM * scaleWidth;
+                let top = alert.LEFT * scaleHeight;
+                let bottom = alert.RIGHT * scaleHeight;
+                context.strokeStyle = "red";
+                context.lineWidth = 5;
+                context.beginPath();
+                context.rect(left,  top,
+                    (right - left), (bottom - top));
+                context.stroke();
+            }
+            for (alert of Alerts) {
+                let left = alert.TOP * scaleWidth;
+                let right = alert.BOTTOM * scaleWidth;
+                let top = alert.LEFT * scaleHeight;
+                let bottom = alert.RIGHT * scaleHeight;
+                let text = alert.TYPE + ": " + getHHMMSSFromSeconds(alert.DWELL_TIME);
 
-        //context.strokeStyle = "red";
-        //context.lineWidth = 5;
-           // context.beginPath();
-          //  context.rect(0, 0, width, height);
-          //  context.stroke();
+                var posX = left;
+                var posY = top;
+                drawAlertText(context, text, "bold 18px Arial", width, height, posX,
+                    posY, "#fff", "#000", 18, 4);
+            }
+        }
 
             var imageData = context.getImageData(0, 0, canvas.width, canvas.height);
 
@@ -91,6 +290,8 @@ var getAlertBoundingBox = async (Data, width, height) => {
         
     });
 }
+
+var imageManipCanvas = document.createElement('canvas');
 var highlightCameraAlert = async (base64Image, r, g, b, borderWidth) => {
     return new Promise((resolve, reject) => {
 
@@ -100,29 +301,43 @@ var highlightCameraAlert = async (base64Image, r, g, b, borderWidth) => {
             reject("failed to load image");
         }
         image.onload = function () {
-            var canvas = document.createElement('canvas');
+            let canvas = imageManipCanvas;
             canvas.width = image.width;
             canvas.height = image.height;
 
             var context = canvas.getContext('2d');
+
             context.drawImage(image, 0, 0);
-
-            var imageData = context.getImageData(0, 0, canvas.width, canvas.height);
-
+            var index = 0;
             var x = 0;
             var y = 0;
-            var index = 0;
-          
+            let imageData = context.getImageData(0, 0, image.width, image.height);
             for (x = 0; x < imageData.width; x++) {
-                
-                for (y = 0; y < imageData.height; y++) {
-                    if (x < borderWidth || x >= imageData.width - borderWidth
-                        || y < borderWidth || y >= imageData.height - borderWidth) {
-                        index = (y * imageData.width + x) * 4;
-                        imageData.data[index] = r;
-                        imageData.data[index + 1] = g;
-                        imageData.data[index + 2] = b;
-                    }
+                for (y = 0; y < borderWidth; y++) {
+                    index = (y * imageData.width + x) * 4;
+                    imageData.data[index] = r;
+                    imageData.data[index + 1] = g;
+                    imageData.data[index + 2] = b;
+                }
+                for (y = imageData.height - borderWidth; y < imageData.height ; y++) {
+                    index = (y * imageData.width + x) * 4;
+                    imageData.data[index] = r;
+                    imageData.data[index + 1] = g;
+                    imageData.data[index + 2] = b;
+                }
+            }
+            for (y = 0; y < imageData.height; y++) {
+                for (x = 0; x < borderWidth; x++) {
+                    index = (y * imageData.width + x) * 4;
+                    imageData.data[index] = r;
+                    imageData.data[index + 1] = g;
+                    imageData.data[index + 2] = b;
+                }
+                for (x = imageData.width - borderWidth; x < imageData.width; x++) {
+                    index = (y * imageData.width + x) * 4;
+                    imageData.data[index] = r;
+                    imageData.data[index + 1] = g;
+                    imageData.data[index + 2] = b;
                 }
             }
             context.putImageData(imageData, 0, 0);
@@ -135,22 +350,7 @@ var cameras = new L.GeoJSON(null, {
 
     pointToLayer: function (feature, latlng) {
 
-        var locaterIcon = null;
-        if (feature.properties.Camera_Data &&
-            feature.properties.Camera_Data.CAMERA_ALERT &&
-            feature.properties.Camera_Data.CAMERA_ALERT.TYPE) {
-
-            locaterIcon = L.icon({
-                iconUrl: feature.properties.base64Image === "" ? "../../Content/images/NoImage.png" : feature.properties.base64Image,
-                iconSize: [64, 48], // size of the icon
-                iconAnchor: [0, 0], // point of the icon which will correspond to marker's location
-                shadowAnchor: [0, 0],  // the same for the shadow
-                popupAnchor: [0, 0], // point from which the popup should open relative to the iconAnchor
-                fillColor: '#ff0000',   // Red. 
-                fillOpacity: 0.3
-            });
-        }
-        else {
+        var 
             locaterIcon = L.icon({
                 iconUrl: feature.properties.base64Image === "" ? "../../Content/images/NoImage.png" : feature.properties.base64Image,
                 iconSize: [64, 48], // size of the icon
@@ -159,7 +359,7 @@ var cameras = new L.GeoJSON(null, {
                 popupAnchor: [0, 0] // point from which the popup should open relative to the iconAnchor
                
             });
-        }
+       
        
 
         return L.marker(latlng, {
@@ -168,7 +368,8 @@ var cameras = new L.GeoJSON(null, {
             riseOnHover: true,
             bubblingMouseEvents: true,
             popupOpen: true
-        })
+        });
+
     },
     onEachFeature: function (feature, layer) {
         var cameraname = checkValue(feature.properties.empName) ? feature.properties.empName : feature.properties.name;
@@ -176,10 +377,6 @@ var cameras = new L.GeoJSON(null, {
             View_Web_Camera(feature.properties);
         });
 
-        //var CameraFeedInterval = 120
-        //layer.bindPopup(camera_layout.supplant(formatwebcameralayout(feature.properties.name, feature.properties.emptype, feature.properties.empName)), {
-        //    className:'popupCustom'
-        //});
         layer.bindTooltip(cameraname, {
             permanent: true,
             interactive: true,
@@ -204,8 +401,10 @@ function formatCameralayout(camera) {
 
 
 
-let imageWidth = 1020;
-let imageHeight = 700;
+let imageWidth = 1280;
+let imageHeight = 720;
+let scaleWidth = imageWidth / 1920;
+let scaleHeight = imageHeight / 1080;
 let extraOffset = 5;
 let verticalOffset = (-  (imageHeight + extraOffset)) + "px";
 
@@ -254,22 +453,43 @@ function formatwebcameralayout(id, model, description, base64Image) {
         camera_model: getModel(model)
     });
 }
+var webCameraViewData = null;
+function updateBoundingBox() {
+    var Data = webCameraViewData;
+
+    // uncommented until we understand how Darvis coordinates translate to the video stream coordinates
+    getAlertBoundingBox(Data.DarvisAlerts, imageWidth, imageHeight).then((img) => {
+    // getAlertBoundingBox(null, 1, 1).then((img) => {
+        document.getElementById("openCameraOverlay").src = img;
+    });
+}
+var boundingInterval = null;
+var openCameraId = null;
 function View_Web_Camera(Data) {
     try {
+        webCameraViewData = Data;
+        openCameraId = Data.id;
         $('#cameramodalHeader').text('View Web Camera');
         var cameraname = checkValue(Data.empName) ? Data.empName : Data.name;
         $('#cameradescription').text(cameraname);
         camera_modal_body = $('div[id=camera_modalbody]');
         camera_modal_body.empty();
         
-        getAlertBoundingBox(Data, imageWidth, imageHeight).then((img) => {
-            
+        if (boundingInterval) {
+            boundingInterval = null;
+        }
+        boundingInterval = setInterval(() => { updateBoundingBox(); }, 1000);
+
+        // to be uncommented later when Alert coordinates are able to match the video stream
+        getAlertBoundingBox(Data.DarvisAlerts, imageWidth, imageHeight).then((img) => {
+
+
+       //  getAlertBoundingBox(null, 1, 1).then((img) => {
             camera_modal_body.append(camera_layout.supplant(formatwebcameralayout(Data.name, Data.emptype, Data.empName,
                 img)));
             $('#Camera_Modal').modal();
             sidebar.close('');
         });
-        
     } catch (e) {
         $("#error_camera").text(e);
         console.log(e);

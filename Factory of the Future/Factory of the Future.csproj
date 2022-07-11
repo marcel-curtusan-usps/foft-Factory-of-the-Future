@@ -471,6 +471,7 @@
     <Content Include="Scripts\View\person_tag.js" />
     <Content Include="Scripts\View\stange_zone.js" />
     <Content Include="Scripts\View\twenty_four_hour_clock.js" />
+    <Content Include="Scripts\View\utils.js" />
     <Content Include="Scripts\View\vehicle.js" />
     <Content Include="Scripts\View\viewports_zone.js" />
     <Content Include="Web.config" />
