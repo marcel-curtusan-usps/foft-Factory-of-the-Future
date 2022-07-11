@@ -49,7 +49,7 @@
                                 </div>
                             </div>
                             <div class="custom-control custom-switch">
-                                
+
                             </div>
                         </div>
                         <div class="col mt-3">
@@ -62,9 +62,9 @@
                                 <label class="custom-control-label" for="ws_connection">WS Connection</label>
                             </div>
                             <div class="custom-control custom-switch">
-                                    <input id="hour_range" type="checkbox" class="custom-control-input" name="hour_range">
-                                    <label class="custom-control-label" for="hour_range">Hour Range</label>
-                              
+                                <input id="hour_range" type="checkbox" class="custom-control-input" name="hour_range">
+                                <label class="custom-control-label" for="hour_range">Hour Range</label>
+
                             </div>
                         </div>
                     </div>
@@ -1110,27 +1110,66 @@
                 <h4 class="ml-p5rem">Trips Notification</h4>
                 <div class="btn-toolbar" role="toolbar" id="tripsnotificationinfo_div">
                     <div id="div_tripsnotification" class="container-fluid">
-                        <div class="card w-100">
-                            <div class="card-header pl-1">
-                                <h6 class="sectionHeader ml-1 mb-1">Late Trips</h6>
-                            </div>
-                            <div class="card-body">
-                                <div class="table-responsive fixedHeader">
-                                    <table class="table table-sm table-hover table-condensed mb-1 border-bottom" id="tripsnotificationtable">
-                                        <thead class="thead-dark">
-                                            <tr>
-                                                <th class="row-cts-schd"><span class="ml-p25rem">Schd</span></th>
-                                                <th style="width:min-content">Duration</th>
-                                                <th style="width:30px">Direc</th>
-                                                <th style="width:min-content">Route-Trip</th>
-                                                <th style="width:min-content" colspan="2">Site Name</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody></tbody>
-                                    </table>
+
+                        <div class="accordion" id="tripsaccordion">
+
+                            <div class="card w-100">
+                                <div class="card-header pl-1">
+                                    <h6 class="sectionHeader ml-1 mb-1">
+                                        Late Trips
+                                        <button class="btn btn-link" data-toggle="collapse" data-target="#latetrips">
+                                            <i class="bi bi-arrows-collapse"></i>
+                                        </button>
+                                        <!--<a href="#latetrips" data-toggle="collapse" class="bi-arrows-collapse"></a>-->
+                                    </h6>
+
+                                </div>
+                                <div class="card-body collapse show" id="latetrips">
+                                    <div class="table-responsive fixedHeader">
+                                        <table class="table table-sm table-hover table-condensed mb-1 border-bottom" id="tripsnotificationtable">
+                                            <thead class="thead-dark">
+                                                <tr>
+                                                    <th class="row-cts-schd"><span class="ml-p25rem">Schd</span></th>
+                                                    <th style="width:min-content">Duration</th>
+                                                    <th style="width:30px">Direc</th>
+                                                    <th style="width:min-content">Route-Trip</th>
+                                                    <th style="width:min-content" colspan="2">Site Name</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody></tbody>
+                                        </table>
+                                    </div>
                                 </div>
                             </div>
+
+                            <div class="card w-100">
+                                <div class="card-header pl-1">
+                                    <h6 class="sectionHeader ml-1 mb-1">
+                                        Load Scan After Departure
+                                        <button class="btn btn-link" data-toggle="collapse" data-target="#loadafterdepart">
+                                            <i class="bi bi-arrows-collapse"></i>
+                                        </button>
+                                    </h6>
+                                </div>
+                                <div class="card-body collapse show" id="loadafterdepart">
+                                    <div class="table-responsive fixedHeader">
+                                        <table class="table table-sm table-hover table-condensed mb-1 border-bottom" id="loadafterdeparttable">
+                                            <thead class="thead-dark">
+                                                <tr>
+                                                    <th style="width:min-content">Placard</th>
+                                                    <th style="width:min-content">Load Scan</th>
+                                                    <th style="width:min-content">Trailer</th>
+                                                    <th style="width:min-content" colspan="2">Depart Scan</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody></tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+
                         </div>
+
                     </div>
                 </div>
             </div>
@@ -1515,9 +1554,20 @@
     <!--tag search js-->
     <script src="Scripts/View/tag_search.js"></script>
     <!--24 Hour Clock js-->
-    <script src="Scripts/View/twenty_four_hour_clock.js"></script>
+    <script src="Scripts/View/twenty_four_hour_clock.js"</script>
     <!--Load Indoor Map settings for the site-->
     <script src="Scripts/View/indoorMap.js"></script>
-
+    <script>
+        $(document).ready(function () {
+            $('.collapse.show').each(function () {
+                $(this).parent().find(".bi").removeClass("bi-arrows-expand").addClass("bi-arrows-collapse");
+            });
+            $('.collapse').on('shown.bs.collapse', function () {
+                $(this).parent().find(".bi").removeClass("bi-arrows-expand").addClass("bi-arrows-collapse");
+            }).on('hidden.bs.collapse', function () {
+                $(this).parent().find(".bi").removeClass("bi-arrows-collapse").addClass("bi-arrows-expand");
+            });
+        });
+    </script>
 </body>
 </html>

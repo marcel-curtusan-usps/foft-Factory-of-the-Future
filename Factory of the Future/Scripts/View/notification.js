@@ -482,6 +482,44 @@ function formatmpenotifirow(properties, indx) {
     });
 }
 
+
+let dockdoorloadafterdeparttable = $('table[id=loadafterdeparttable]');
+let dockdoorloadafterdeparttable_Body = dockdoorloadafterdeparttable.find('tbody');
+
+
+
+let dockdoorloadafterdeparttable_row_template = '<tr data-id={id} class="accordion-toggle collapsed" id={id} data-toggle=collapse data-parent=#{id} href="#collapse_{id}">' +
+    '<td>< button class="btn btn-outline-info btn-sm btn-block px-1 placarddetails" data - data-placardid={placard}" style = "font-size:12px;" > { placard }</button ></td>' +
+    '<td>{loadscan}</td>' +
+    '<td>{trailer}</td>' +
+    '<td>{departscan}</td>' +
+
+
+    '<td class="expand-button">' +
+    '<a class="btn btn-link d-flex justify-content-end" data-toggle="collapse" href="#collapse_{id}" role="button" aria-expanded="false" aria-controls="collapseSection">' +
+    '<div class="iconXSmall">' +
+    ' <i class="pi-iconCaretDownFill" />' +
+    '</div>' +
+    '</a>' +
+    '</td>' +
+    '</tr>' +
+    '<tr data-id=collapse_{id} class="hide-table-padding">' +
+    '<td colspan="6">' +
+    '<div class="collapse" id="collapse_{id}">' +
+    '<div class="mt-1">' +
+    '<ol class="pl-4 mb-0">' +
+    '<p class="pb-1">{warning_action_text}</p> ' +
+    '</ol>' +
+    '</div>' +
+    '</div>' +
+    '</td>' +
+    '</tr>'
+
+
+
+
+
+
 let notificationTable = $('table[id=notificationsetuptable]');
 let notificationTable_Body = notificationTable.find('tbody');
 let notificationTable_row_template = '<tr data-id="{id}" class="{button_collor}">' +
