@@ -308,39 +308,11 @@ var highlightCameraAlert = async (base64Image, r, g, b, borderWidth) => {
             var context = canvas.getContext('2d');
 
             context.drawImage(image, 0, 0);
-            var index = 0;
-            var x = 0;
-            var y = 0;
-            let imageData = context.getImageData(0, 0, image.width, image.height);
-            for (x = 0; x < imageData.width; x++) {
-                for (y = 0; y < borderWidth; y++) {
-                    index = (y * imageData.width + x) * 4;
-                    imageData.data[index] = r;
-                    imageData.data[index + 1] = g;
-                    imageData.data[index + 2] = b;
-                }
-                for (y = imageData.height - borderWidth; y < imageData.height ; y++) {
-                    index = (y * imageData.width + x) * 4;
-                    imageData.data[index] = r;
-                    imageData.data[index + 1] = g;
-                    imageData.data[index + 2] = b;
-                }
-            }
-            for (y = 0; y < imageData.height; y++) {
-                for (x = 0; x < borderWidth; x++) {
-                    index = (y * imageData.width + x) * 4;
-                    imageData.data[index] = r;
-                    imageData.data[index + 1] = g;
-                    imageData.data[index + 2] = b;
-                }
-                for (x = imageData.width - borderWidth; x < imageData.width; x++) {
-                    index = (y * imageData.width + x) * 4;
-                    imageData.data[index] = r;
-                    imageData.data[index + 1] = g;
-                    imageData.data[index + 2] = b;
-                }
-            }
-            context.putImageData(imageData, 0, 0);
+            context.strokeStyle = "rgb(" + r + ", " + g + ", " + b + ")";
+            context.lineWidth = borderWidth;
+            context.strokeRect(borderWidth / 2, borderWidth / 2, image.width - 1 - borderWidth,
+                image.height - 1 - borderWidth);
+            
             resolve(canvas.toDataURL());
         };
         image.src = base64Image;
