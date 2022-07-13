@@ -227,6 +227,7 @@
     <Content Include="Content\images\vh_bss.png" />
     <Content Include="Content\images\vh_ss.png" />
     <Content Include="Content\images\24_hour_clock.jpg" />
+    <Content Include="Content\images\warning-signal.png" />
     <Content Include="Content\leaflet-geoman.css" />
     <Content Include="Content\leaflet-sidebar.css" />
     <Content Include="Content\leaflet-sidebar.min.css" />

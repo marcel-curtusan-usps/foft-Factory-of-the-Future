@@ -7,7 +7,8 @@
 $.extend(fotfmanager.client, {
     updateCameraStatus: async (cameraupdatesnew) => { addCameraUpdate(cameraupdatesnew);  }
 });
-
+var brightRed = 255;
+var darkRed = 200;
 function drawAlertText(ctx, txt, font, viewWidth, viewHeight, x, y, txtBGColor, txtColor, bgHeight) {
     let padding = 4;
     y = y - 10 - bgHeight;
@@ -44,7 +45,7 @@ function drawAlertText(ctx, txt, font, viewWidth, viewHeight, x, y, txtBGColor, 
 
 let cameraupdates = [];
 
-let flashRate = 1000;
+let flashRate = 3000;
 let flashCheckRate = 250;
 let lastAlertBlinkChange = 0;
 let lastAlertStatus = null;
@@ -176,9 +177,9 @@ async function updateCameras(cameraupdate, id, datePassed) {
                                 }
                                 if (alertsOn && cameraupdate.properties.DarvisAlerts &&
                                     cameraupdate.properties.DarvisAlerts.length > 0) {
-                                    let red = 255;
+                                    let red = brightRed;
                                     if (datePassed % (flashRate * 2) > flashRate) {
-                                        red = 200;
+                                        red = darkRed;
                                         if (lastAlertStatus === 1) {
                                             lastAlertBlinkChange = datePassed;
                                         }
@@ -282,21 +283,89 @@ var getAlertBoundingBox = async (Alerts, width, height) => {
             }
         }
 
-            var imageData = context.getImageData(0, 0, canvas.width, canvas.height);
-
-
-            context.putImageData(imageData, 0, 0);
+           
             resolve(canvas.toDataURL());
         
     });
 }
 
+var exclamation = new Image();
+var exclamationImage = null;
+var exclamationSize = 180;
+var brightRedExclamation = new Image();
+var darkRedExclamation = new Image();
+var brightRedLoaded = false;
+var darkRedLoaded = false;
+brightRedExclamation.onload = function () {
+    brightRedLoaded = true;
+}
+
+
+darkRedExclamation.onload = function () {
+    darkRedLoaded = true;
+}
+exclamation.onload = function () {
+    for (var i = 0; i <= 1; i++) {
+        let red = brightRed;
+        if (i === 1) {
+            red = darkRed;
+        }
+    let canvas = document.createElement('canvas');
+    canvas.width = exclamationSize;
+        canvas.height = exclamationSize;
+
+        let toCanvas = document.createElement('canvas');
+        toCanvas.width = exclamationSize;
+        toCanvas.height = exclamationSize;
+
+        var context = canvas.getContext('2d');
+
+        var toContext = toCanvas.getContext('2d');
+        context.drawImage(exclamation, 0, 0, exclamationSize, exclamationSize);
+    var imgData = context.getImageData(0, 0, exclamationSize, exclamationSize);
+        var newImgData = toContext.getImageData(0, 0, exclamationSize, exclamationSize);
+    for (var x = 0; x < exclamationSize; x++) {
+        for (var y = 0; y < exclamationSize; y++) {
+            var pixelStartPosition = (y * exclamationSize * 4) + (x * 4);
+            if (imgData.data[pixelStartPosition]
+                < 255 && imgData.data[pixelStartPosition + 3] > 0) {
+                newImgData.data[pixelStartPosition] = red;
+                newImgData.data[pixelStartPosition + 1] = 0;
+                newImgData.data[pixelStartPosition + 2] = 0;
+                newImgData.data[pixelStartPosition + 3] = 255;
+            }
+            else {
+
+                newImgData.data[pixelStartPosition] = imgData.data[pixelStartPosition];
+
+                newImgData.data[pixelStartPosition + 1] = imgData.data[pixelStartPosition + 1];
+                newImgData.data[pixelStartPosition + 2] = imgData.data[pixelStartPosition + 2];
+                newImgData.data[pixelStartPosition + 3] = imgData.data[pixelStartPosition + 3];
+
+            }
+ }
+        }
+        toContext.putImageData(newImgData, 0, 0);
+        if (red == brightRed) {
+            brightRedExclamation.src = toCanvas.toDataURL();
+        }
+        else {
+            darkRedExclamation.src = toCanvas.toDataURL();
+        }
+
+    }
+    var done = true;
+}
+
+
+exclamation.src = "../../Content/images/warning-signal.png";
 var imageManipCanvas = document.createElement('canvas');
 var highlightCameraAlert = async (base64Image, r, g, b, borderWidth) => {
     return new Promise((resolve, reject) => {
 
 
         var image = new Image();
+       
         image.onerror = function () {
             reject("failed to load image");
         }
@@ -308,11 +377,21 @@ var highlightCameraAlert = async (base64Image, r, g, b, borderWidth) => {
             var context = canvas.getContext('2d');
 
             context.drawImage(image, 0, 0);
-            context.strokeStyle = "rgb(" + r + ", " + g + ", " + b + ")";
+            var alertColor = "rgb(" + r + ", " + g + ", " + b + ")";
+            context.strokeStyle = alertColor;
             context.lineWidth = borderWidth;
+            var warningHeight = "64px";
             context.strokeRect(borderWidth / 2, borderWidth / 2, image.width - 1 - borderWidth,
                 image.height - 1 - borderWidth);
-            
+           
+            if (r === brightRed && brightRedLoaded) {
+                context.drawImage(brightRedExclamation, (image.width / 2) -
+                    (exclamationSize / 2), (image.height / 2) - (exclamationSize / 2));
+            }
+            else if (darkRedLoaded) {
+                context.drawImage(darkRedExclamation, (image.width / 2) -
+                    (exclamationSize / 2), (image.height / 2) - (exclamationSize / 2));
+            }
             resolve(canvas.toDataURL());
         };
         image.src = base64Image;
