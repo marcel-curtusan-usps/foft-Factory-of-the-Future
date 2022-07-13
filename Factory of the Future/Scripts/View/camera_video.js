@@ -51,13 +51,17 @@ let lastAlertBlinkChange = 0;
 let lastAlertStatus = null;
 let alertTurnoffThreshold = 60 * 1000;
 
-let alertsOn = false;
+let alertsOn = false; 
+let camerathumbnailsupdating = false;
 setInterval(() => {
     let thisTime = Date.now();
     let timeSinceLastUpdateBlink = thisTime - lastAlertBlinkChange;
 
     if (timeSinceLastUpdateBlink >= (flashRate - flashCheckRate)) {
+        // keep waiting until update is done
+        if (camerathumbnailsupdating) return;
 
+        camerathumbnailsupdating = true;
         let timeSinceLastUpdate = thisTime - lastUpdateCamera;
 
         if (timeSinceLastUpdate >= alertTurnoffThreshold) {
@@ -66,8 +70,9 @@ setInterval(() => {
         else {
             alertsOn = true;
         }
-        updateAllCameras(thisTime, alertsOn);
         
+        updateAllCameras(thisTime);
+        camerathumbnailsupdating = false;
     }
 }, flashCheckRate);
 
@@ -78,7 +83,25 @@ function alertChanged(prevDarvisAlerts, darvisAlerts) {
     if (!prevDarvisAlerts && darvisAlerts) return true;
     return JSON.stringify(prevDarvisAlerts) != JSON.stringify(darvisAlerts);
 }
+
+function logCameraUpdates() {
+    console.log("----------- NEW DATA ------------------");
+    console.log(Date.now());
+    console.log("------------ BEGIN ------------------");
+    for (var i = 0; i < cameraupdates.length; i++) {
+        
+        console.log(i + ": " + cameraupdates[i].properties.name + " " +
+            JSON.stringify(cameraupdates[i].properties.DarvisAlerts));
+    }
+    console.log("------------ END  --------------");
+}
 function addCameraUpdate(allcameras) {
+    if (camerathumbnailsupdating) {
+        // if the thumbnails are updating, ignore  this update to avoid flicker,
+        // next update will reflect the data so it's okay
+        return;
+    }
+    let cameraupdatescopy = JSON.parse(JSON.stringify(cameraupdates));
     for (const tuple of allcameras) {
         let cameraupdate = tuple.Item1;
         let id = tuple.Item2;
@@ -86,21 +109,21 @@ function addCameraUpdate(allcameras) {
             try {
                 cameraupdate.baselayerid = id;
                 var foundIndex = -1;
-                for (var i = 0; i < cameraupdates.length; i++) {
-                    if (cameraupdates[i].properties.id === cameraupdate.properties.id) {
+                for (var i = 0; i < cameraupdatescopy.length; i++) {
+                    if (cameraupdatescopy[i].properties.id === cameraupdate.properties.id) {
                         foundIndex = i;
                         break;
                     }
                 }
                 if (foundIndex == -1) {
                     cameraupdate.properties.lastNoAlert = 0;
-                    cameraupdates.push(cameraupdate);
+                    cameraupdatescopy.push(cameraupdate);
                     changed = true;
                 }
                 else {
-                    cameraupdate.properties.lastNoAlert = cameraupdates[foundIndex].properties.lastNoAlert;
-                    let compare1 = JSON.parse(JSON.stringify(cameraupdates[foundIndex].properties.DarvisAlerts));
-                    cameraupdates[foundIndex] = cameraupdate;
+                    cameraupdate.properties.lastNoAlert = cameraupdatescopy[foundIndex].properties.lastNoAlert;
+                    let compare1 = JSON.parse(JSON.stringify(cameraupdatescopy[foundIndex].properties.DarvisAlerts));
+                    cameraupdatescopy[foundIndex] = cameraupdate;
                     changed = alertChanged(compare1, cameraupdate.properties.DarvisAlerts);
                 }
             }
@@ -112,7 +135,7 @@ function addCameraUpdate(allcameras) {
             lastUpdateCamera = Date.now();
         }
     }
-
+    cameraupdates = cameraupdatescopy;
 }
 
 
