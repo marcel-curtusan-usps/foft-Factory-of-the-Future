@@ -1117,7 +1117,7 @@
                                 <div class="card-header pl-1">
                                     <h6 class="sectionHeader ml-1 mb-1">
                                         Late Trips
-                                        <button class="btn btn-link" data-toggle="collapse" data-target="#latetrips">
+                                        <button class="btn btn-link" data-toggle="collapse" data-target="#latetrips" onclick="">
                                             <i class="bi bi-arrows-collapse"></i>
                                         </button>
                                         <!--<a href="#latetrips" data-toggle="collapse" class="bi-arrows-collapse"></a>-->
@@ -1156,10 +1156,10 @@
                                         <table class="table table-sm table-hover table-condensed mb-1 border-bottom" id="loadafterdeparttable">
                                             <thead class="thead-dark">
                                                 <tr>
-                                                    <th style="width:min-content">Placard</th>
-                                                    <th style="width:min-content">Load Scan</th>
-                                                    <th style="width:min-content">Trailer</th>
-                                                    <th style="width:min-content" colspan="2">Depart Scan</th>
+                                                    <th colspan="2">Placard</th>
+                                                    <th>Load Scan</th>
+                                                    <th colspan="2">Trailer</th>
+                                                    <th  colspan="2">Depart Scan</th>
                                                 </tr>
                                             </thead>
                                             <tbody></tbody>
@@ -1554,19 +1554,29 @@
     <!--tag search js-->
     <script src="Scripts/View/tag_search.js"></script>
     <!--24 Hour Clock js-->
-    <script src="Scripts/View/twenty_four_hour_clock.js"</script>
+    <script src="Scripts/View/twenty_four_hour_clock.js"></script>
     <!--Load Indoor Map settings for the site-->
     <script src="Scripts/View/indoorMap.js"></script>
     <script>
         $(document).ready(function () {
-            $('.collapse.show').each(function () {
-                $(this).parent().find(".bi").removeClass("bi-arrows-expand").addClass("bi-arrows-collapse");
+            $(".bi").on("click", function () {
+                $(this).toggleClass("bi-arrows-expand");
+                $(this).toggleClass("bi-arrows-collapse");
             });
-            $('.collapse').on('shown.bs.collapse', function () {
-                $(this).parent().find(".bi").removeClass("bi-arrows-expand").addClass("bi-arrows-collapse");
-            }).on('hidden.bs.collapse', function () {
-                $(this).parent().find(".bi").removeClass("bi-arrows-collapse").addClass("bi-arrows-expand");
-            });
+            //$('.collapse.show').each(function () {
+            //    if (this.id == 'latetrips' || this.id == 'loadafterdepart') {
+            //        $(this).parent().find(".bi").removeClass("bi-arrows-expand").addClass("bi-arrows-collapse");
+            //    }
+            //});
+            //$('.collapse').on('shown.bs.collapse', function () {
+            //    //if (this.id == 'latetrips' || this.id == 'loadafterdepart') {
+            //        $(this).parent().find(".bi").removeClass("bi-arrows-expand").addClass("bi-arrows-collapse");
+            //    //}
+            //}).on('hidden.bs.collapse', function () {
+            //    //if (this.id == 'latetrips' || this.id == 'loadafterdepart') {
+            //        $(this).parent().find(".bi").removeClass("bi-arrows-collapse").addClass("bi-arrows-expand");
+            //    //}
+            //});
         });
     </script>
 </body>

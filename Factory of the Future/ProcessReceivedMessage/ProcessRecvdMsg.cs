@@ -3023,7 +3023,7 @@ namespace Factory_of_the_Future
         private static void AddScanNotification(string notificationType, string notificationID, string scanID, string typeName, int minutes)
         {
             foreach (NotificationConditions newCondition in AppParameters.NotificationConditionsList.Where(r => Regex.IsMatch(notificationType, r.Value.Conditions, RegexOptions.IgnoreCase)
-                            && r.Value.Type.ToLower() == "dock door".ToLower()
+                            && r.Value.Type.ToLower() == "dockdoor".ToLower()
                             && (bool)r.Value.ActiveCondition).Select(x => x.Value).ToList())
             {
                 var warningMinutes = newCondition.Warning;
@@ -3040,6 +3040,7 @@ namespace Factory_of_the_Future
 
                 Notification _notification = new Notification
                 {
+                    ActiveCondition = newCondition.ActiveCondition,
                     Type = newCondition.Type,
                     Name = newCondition.Name,
                     Type_ID = scanID,
@@ -3050,7 +3051,8 @@ namespace Factory_of_the_Future
                     Warning = newCondition.Warning,
                     Critical = newCondition.Critical,
                     WarningAction = newCondition.WarningAction,
-                    CriticalAction = newCondition.CriticalAction
+                    CriticalAction = newCondition.CriticalAction,
+                    Type_Duration = 0
                 };
                 AppParameters.NotificationList.TryAdd(notificationID, _notification);
             }
