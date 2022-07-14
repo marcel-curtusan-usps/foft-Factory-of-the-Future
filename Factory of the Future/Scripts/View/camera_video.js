@@ -314,7 +314,7 @@ var getAlertBoundingBox = async (Alerts, width, height) => {
 
 var exclamation = new Image();
 var exclamationImage = null;
-var exclamationSize = 180;
+var exclamationSize = 100;
 var brightRedExclamation = new Image();
 var darkRedExclamation = new Image();
 var brightRedLoaded = false;
@@ -408,12 +408,12 @@ var highlightCameraAlert = async (base64Image, r, g, b, borderWidth) => {
                 image.height - 1 - borderWidth);
            
             if (r === brightRed && brightRedLoaded) {
-                context.drawImage(brightRedExclamation, (image.width / 2) -
-                    (exclamationSize / 2), (image.height / 2) - (exclamationSize / 2));
+                context.drawImage(brightRedExclamation, (image.width * .667) -
+                    (exclamationSize / 2), (image.height * .333) - (exclamationSize / 2));
             }
             else if (darkRedLoaded) {
-                context.drawImage(darkRedExclamation, (image.width / 2) -
-                    (exclamationSize / 2), (image.height / 2) - (exclamationSize / 2));
+                context.drawImage(darkRedExclamation, (image.width * .667) -
+                    (exclamationSize / 2), (image.height * .333) - (exclamationSize / 2));
             }
             resolve(canvas.toDataURL());
         };
