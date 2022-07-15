@@ -422,8 +422,8 @@ namespace Factory_of_the_Future
         public string NotificationId { get; set; } = "";
 
         [JsonProperty("routePath")]
-        public GeoLine RoutePath { get; set; } 
-
+        public GeoLine RoutePath { get; set; }
+        public List<DarvisCameraAlert> DarvisAlerts { get; internal set; }
     }
     public class ZoneInfo
     {
@@ -836,6 +836,12 @@ namespace Factory_of_the_Future
 
         [JsonProperty("hourly_data")]
         public List<HourlyData> HourlyData { get; set; } = new List<HourlyData>();
+
+        [JsonProperty("ars_recrej3")]
+        public string ArsRecrej3 { get; set; } = "";
+
+        [JsonProperty("sweep_recrej3")]
+        public string SweepRecrej3 { get; set; } = "";
     }
     public class DPS
     {
@@ -911,6 +917,28 @@ namespace Factory_of_the_Future
         [JsonProperty("time_to_comp_actual_DateTime")]
         public string TimeToCompActualDateTime { get; set; } = "";
     }
+    
+    public class DarvisCameraAlert
+    {
+        [JsonProperty("TYPE")]
+        public string Type { get; set; }
+        [JsonProperty("DWELL_TIME")]
+        public float DwellTime { get; set; }
+        [JsonProperty("TOP")]
+        public int Top { get; set; }
+        [JsonProperty("BOTTOM")]
+        public int Bottom { get; set; }
+        [JsonProperty("LEFT")]
+        public int Left { get; set; }
+        [JsonProperty("RIGHT")]
+        public int Right { get; set; }
+        [JsonProperty("OBJECT_ID")]
+        public string object_id { get; set; }
+        [JsonProperty("OBJECT_CLASS")]
+        public string object_class { get; set; }
+        [JsonProperty("ALERT_BASE64")]
+        public string AlertBase64Image { get; set; }
+    }
     public class Cameras
     {
         [JsonProperty("LOCALE_KEY")]
@@ -954,6 +982,11 @@ namespace Factory_of_the_Future
 
         [JsonProperty("base64Image")]
         public string Base64Image { get; set; } = "";
+        
+        [JsonProperty("CAMERA_ALERTS")]
+        public List<DarvisCameraAlert> Alerts { get; set; }
+        [JsonProperty("LAST_ALERT_UPDATE")]
+        public long LastAlertUpdate { get; set; }
 
     }
     public class Leg

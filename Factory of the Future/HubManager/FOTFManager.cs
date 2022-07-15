@@ -20,6 +20,7 @@ using System.Drawing;
 
 namespace Factory_of_the_Future
 {
+  
     public class FOTFManager : IDisposable
     {
         private readonly static Lazy<FOTFManager> _instance = new Lazy<FOTFManager>(() => new FOTFManager(GlobalHost.ConnectionManager.GetHubContext<HubManager>().Clients));
@@ -37,7 +38,7 @@ namespace Factory_of_the_Future
         private readonly object updateNotificationStatuslock = new object();
         private readonly object updateBinZoneStatuslock = new object();
         private readonly object updateCameralock = new object();
-
+        
         //timers
         private readonly Timer VehicleTag_timer;
         private readonly Timer PersonTag_timer;
@@ -232,20 +233,34 @@ namespace Factory_of_the_Future
             {
                 lock (updateCameralock)
                 {
+                    List<Tuple<GeoMarker, string>> camerasToBroadcast = new List<Tuple<GeoMarker, string>>();
+
                     if (!_updateCameraStatus)
                     {
-                        _updateCameraStatus = true;
                         foreach (CoordinateSystem cs in AppParameters.CoordinateSystem.Values)
                         {
-                            cs.Locators.Where(f => f.Value.Properties.TagType == "Camera").Select(y => y.Value).ToList().ForEach(Camera =>
+                            cs.Locators.Where(f => f.Value.Properties.TagType != null &&
+                            f.Value.Properties.TagType == "Camera").Select(y => y.Value).ToList().ForEach(Camera =>
                             {
                                 if (TryUpdateCameraStatus(Camera))
                                 {
-                                    BroadcastCameraStatus(Camera, cs.Id);
+                                        if (AppParameters.CameraInfoList[Camera.Properties.Name].Alerts == null)
+                                        {
+                                            Camera.Properties.DarvisAlerts = new List<DarvisCameraAlert>();
+                                        }
+                                        else
+                                        {
+                                            Camera.Properties.DarvisAlerts = AppParameters.CameraInfoList[Camera.Properties.Name].Alerts.ToList();
+                                        }
+                                        Tuple<GeoMarker, string> newData = new Tuple<GeoMarker, string>(Camera, cs.Id);
+                                        camerasToBroadcast.Add(newData);
+                                    
                                 }
 
                             });
                         }
+                       
+                        BroadcastCameraStatus(camerasToBroadcast);
                         _updateCameraStatus = false;
                     }
                 }
@@ -254,13 +269,15 @@ namespace Factory_of_the_Future
             catch (Exception e)
             {
                 new ErrorLogger().ExceptionLog(e);
+
+                _updateCameraStatus = false;
             }
           
         }
 
-        private void BroadcastCameraStatus(GeoMarker camera, string id)
+        public void BroadcastCameraStatus(List<Tuple<GeoMarker, string>> broadcastData)
         {
-            Clients.Group("CameraMarkers").updateCameraStatus(camera, id);
+            Clients.Group("CameraMarkers").updateCameraStatus(broadcastData);
         }
 
         private bool TryUpdateCameraStatus(GeoMarker camera)
@@ -280,8 +297,8 @@ namespace Factory_of_the_Future
                     string imageBase64 = "data:image/jpeg;base64," + Convert.ToBase64String(result);
                     //if (camera.Properties.Base64Image != imageBase64)
                     //{
-                        camera.Properties.Base64Image = imageBase64;
-                        updateImage = true;
+                    camera.Properties.Base64Image = imageBase64;
+                    updateImage = true;
                     //}
 
                 }
@@ -2150,7 +2167,7 @@ namespace Factory_of_the_Future
                                          }
                                          else if (updateConndata.WsConnection)
                                          {
-                                             Connection_item._StopWSListener();
+                                             Connection_item.WSStop();
                                          }
                                          else
                                          {
@@ -2167,7 +2184,7 @@ namespace Factory_of_the_Future
                                          }
                                          else if (updateConndata.WsConnection)
                                          {
-                                             Connection_item._StartWSListener();
+                                             Connection_item._WSThreadListener();
                                          }
                                          else
                                          {

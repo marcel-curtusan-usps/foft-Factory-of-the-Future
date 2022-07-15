@@ -32,11 +32,12 @@ namespace Factory_of_the_Future
         public static string ServerIpAddress { get; set; } = string.Empty;
         public static DirectoryInfo CodeBase { get; set; } = null;
         public static DirectoryInfo Logdirpath { get; set; } = null;
-
+        public static readonly object darvisWSCameraLock = new object();
         private static readonly string PdHash = "P@@Sw0rd";
         private static readonly string SaltKey = "S@LT&KEY";
         private static readonly string VIKey = "@1B2c3D4e5F6g7H8";
 
+        public static Dictionary<string, string> CameraMapping { get; set; }
         public static ConcurrentDictionary<string, MachData> MPEWatchData { get; set; } = new ConcurrentDictionary<string, MachData>();
         public static ConcurrentDictionary<string, CoordinateSystem> CoordinateSystem { get; set; } = new ConcurrentDictionary<string, CoordinateSystem>();  
         public static ConcurrentDictionary<string, Cameras> CameraInfoList { get; set; } = new ConcurrentDictionary<string, Cameras>();
@@ -67,6 +68,27 @@ namespace Factory_of_the_Future
             { "America/New_York", "Eastern Standard Time" },
             { "Pacific/Honolulu", "Hawaiian Standard Time" }
         };
+        public static void SetCameraMapping()
+        {
+            CameraMapping = new Dictionary<string, string>();
+            try
+            {
+                using (StreamReader reader = new StreamReader(@"D:\CameraMapping\PortlandCameraMapping.csv"))
+                {
+                    string line;
+                    while ((line = reader.ReadLine()) != null)
+                    {
+                        line = line.Trim();
+                        string[] parts = line.Split(',');
+                        CameraMapping.Add(parts[0], parts[2]);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                new ErrorLogger().ExceptionLog(ex);
+            }
+        }
         internal static void Start()
         {
             try
@@ -76,6 +98,7 @@ namespace Factory_of_the_Future
                 ///load app settings
                 GetAppSettings();
 
+                SetCameraMapping();
                 //get version
                 FileVersionInfo fvi = FileVersionInfo.GetVersionInfo(assembly.Location);
                 VersionInfo = string.Concat(fvi.FileMajorPart.ToString() + ".", fvi.FileMinorPart.ToString() + ".", fvi.FileBuildPart.ToString() + ".", fvi.FilePrivatePart.ToString());
@@ -186,7 +209,7 @@ namespace Factory_of_the_Future
             try
             {
                 string file_content = new FileIO().Read(string.Concat(CodeBase.Parent.FullName.ToString(), Appsetting), "AppSettings.json");
-
+                
                 if (!string.IsNullOrEmpty(file_content))
                 {
                     AppSettings = JObject.Parse(file_content);

@@ -250,6 +250,12 @@ async function LoadMachineTables(dataproperties, table) {
                     if (dataproperties.MPEWatchData.bin_full_bins != "") {
                         var result_style = document.getElementById('fullbin_tr').style;
                         result_style.display = 'table-row';
+                        $("tr:visible").each(function (index) {
+                            var curcolor = $(this).css("background-color");
+                            if (curcolor == "" || curcolor == "rgba(0, 0, 0, 0)" || curcolor == "rgba(0, 0, 0, 0.05)") {
+                                $(this).css("background-color", !!(index & 1) ? "rgba(0, 0, 0, 0)" : "rgba(0, 0, 0, 0.05)");
+                            }
+                        });
                     }
                 }
 
@@ -266,11 +272,35 @@ async function LoadMachineTables(dataproperties, table) {
 
                         $("tr:visible").each(function (index) {
                             var curcolor = $(this).css("background-color");
-                            if (curcolor == "" || curcolor == "rgba(0, 0, 0, 0)" || curcolor == "rgba(0, 0, 0, 0.5)") {
-                                $(this).css("background-color", !!(index & 1) ? "rgba(0,0,0,0)" : "rgba(0,0,0,.05)");
+                            if (curcolor == "" || curcolor == "rgba(0, 0, 0, 0)" || curcolor == "rgba(0, 0, 0, 0.05)") {
+                                $(this).css("background-color", !!(index & 1) ? "rgba(0, 0, 0, 0)" : "rgba(0, 0, 0, 0.05)");
                             }
                         });
 
+                    }
+                }
+                if (dataproperties.MPEWatchData.hasOwnProperty("ars_recrej3")) {
+                    if (dataproperties.MPEWatchData.ars_recrej3 != "0" && dataproperties.MPEWatchData.ars_recrej3 != "") {
+                        var arsrec_tr = document.getElementById('arsrec_tr').style;
+                        arsrec_tr.display = 'table-row';
+                        $("tr:visible").each(function (index) {
+                            var curcolor = $(this).css("background-color");
+                            if (curcolor == "" || curcolor == "rgba(0, 0, 0, 0)" || curcolor == "rgba(0, 0, 0, 0.05)") {
+                                $(this).css("background-color", !!(index & 1) ? "rgba(0, 0, 0, 0)" : "rgba(0, 0, 0, 0.05)");
+                            }
+                        });
+                    }
+                }
+                if (dataproperties.MPEWatchData.hasOwnProperty("sweep_recrej3")) {
+                    if (dataproperties.MPEWatchData.sweep_recrej3 != "0" && dataproperties.MPEWatchData.sweep_recrej3 != "") {
+                        var sweeprec_tr = document.getElementById('sweeprec_tr').style;
+                        sweeprec_tr.display = 'table-row';
+                        $("tr:visible").each(function (index) {
+                            var curcolor = $(this).css("background-color");
+                            if (curcolor == "" || curcolor == "rgba(0, 0, 0, 0)" || curcolor == "rgba(0, 0, 0, 0.05)") {
+                                $(this).css("background-color", !!(index & 1) ? "rgba(0, 0, 0, 0)" : "rgba(0, 0, 0, 0.05)");
+                            }
+                        });
                     }
                 }
                 document.getElementById('machineChart_tr').style.backgroundColor = 'rgba(0,0,0,0)';	
@@ -323,7 +353,9 @@ function formatmachinetoprow(properties) {
         rpgStart:moment(properties.MPEWatchData.rpg_start_dtm, "MM/DD/YYYY hh:mm:ss A").format("YYYY-MM-DD HH:mm:ss"),
         rpgEnd:  moment(properties.MPEWatchData.rpg_end_dtm, "MM/DD/YYYY hh:mm:ss A").format("YYYY-MM-DD HH:mm:ss"),
         expThroughput: digits(properties.MPEWatchData.expected_throughput),
-        fullBins: properties.MPEWatchData.bin_full_bins ,
+        fullBins: properties.MPEWatchData.bin_full_bins,
+        arsRecirc: properties.MPEWatchData.ars_recrej3,
+        sweepRecirc: properties.MPEWatchData.sweep_recrej3,
     });
 }
 let machinetop_row_template =
@@ -335,6 +367,8 @@ let machinetop_row_template =
     '<tr><td>Pieces Fed / RPG Vol.</td><td colspan="2">{peicesFed} / {rpgVol}</td></tr>' +
     '<tr id="Throughput_tr"><td>Throughput Act. / Exp.</td><td colspan="2">{throughput} / {expThroughput}</td></tr>' +
     '<tr id="fullbin_tr" style="display: none;"><td>Full Bins</td><td colspan="2" style="white-space: normal; word-wrap:break-word;">{fullBins}</td></tr>' +
+    '<tr id="arsrec_tr" style="display: none;"><td>ARS Recirc. Rejects</td><td colspan="2">{arsRecirc}</td></tr>' +
+    '<tr id="sweeprec_tr" style="display: none;"><td>Sweep Recirc. Rejects</td><td colspan="2">{sweepRecirc}</td></tr>' +
     '<tr id="machineChart_tr"><td colspan="3"><canvas id="machinechart"></canvas></td></tr>';
 
 function formatdpstoprow(properties) {
