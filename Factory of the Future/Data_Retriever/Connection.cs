@@ -12,6 +12,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using WebSocket4Net;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
 
 namespace Factory_of_the_Future
 {
@@ -232,7 +233,8 @@ class MulticastUdpServer : UdpServer
             this.Status = 1;
 
         }
-        public void ProcessNewOrExistingCameraData(JObject thisObject, string camera_id, bool isNew )
+        public void ProcessNewOrExistingCameraData(JObject thisObject, ref List<DarvisCameraAlert> alertList, 
+            string camera_id,  bool isNew )
         {
                 if (thisObject.ContainsKey("zones"))
                 {
@@ -240,6 +242,7 @@ class MulticastUdpServer : UdpServer
                     foreach (JObject zo in zones)
                     {
                         string zoName = zo["name"].ToString();
+
                         if (zoName.StartsWith("IG_") ||
                             zoName.StartsWith("DT_"))
                         {
@@ -247,77 +250,92 @@ class MulticastUdpServer : UdpServer
                             DarvisCameraAlert alert = new DarvisCameraAlert();
                             alert.DwellTime = dwelltime;
                             alert.Type = zoName.StartsWith("IG_") ? "IG" : "DT";
+                        alert.object_class = thisObject["clazz"].ToString();
+                        alert.object_id = thisObject["object_id"].ToString();
                             alert.Top = Convert.ToInt32(thisObject["top"].ToString());
                             alert.Bottom = Convert.ToInt32(thisObject["bottom"].ToString());
                             alert.Left = Convert.ToInt32(thisObject["left"].ToString());
+                        
                             alert.Right = Convert.ToInt32(thisObject["right"].ToString());
-                            AddAlertToCameraData(camera_id, alert);
+                            alertList.Add(alert);
                         }
                     }
                 }
         }
 
-        public void AddAlertToCameraData(string camera_id, DarvisCameraAlert alert)
-        {
-            string ip = AppParameters.CameraMapping[camera_id];
-            Cameras newCamera = AppParameters.CameraInfoList[ip];
-            newCamera.Alert = alert;
-            AppParameters.CameraInfoList[ip] = newCamera;
-            foreach (CoordinateSystem cs in AppParameters.CoordinateSystem.Values)
-            {
-                cs.Locators.Where(f => f.Value.Properties.TagType == "Camera" &&
-                f.Value.Properties.Name == ip).Select(y => y.Value).ToList().ForEach(Camera =>
-                {
-                    Camera.Properties.DarvisAlert = alert;
-                    FOTFManager.Instance.BroadcastCameraStatus(Camera, cs.Id);
-                });
-            }
-            if (AppParameters.CameraInfoList.ContainsKey(ip))
-            {
-                Cameras camera = AppParameters.CameraInfoList[ip];
-                camera.Alert = alert;
-                AppParameters.CameraInfoList[ip] = camera;
-
-            }
-        }
        
+        
         public async Task ProcessAlerts(string message)
         {
-            if (message.Contains("IG_") || message.Contains("DT_"))
-            {
-                try
+            
+
+                if (message.Contains("IG_") || message.Contains("DT_"))
                 {
-
-                    JArray msgJson = (JArray)JsonConvert.DeserializeObject(message);
-                    if (msgJson[0].ToString() == "detections")
+                    try
                     {
-                        JArray cameraData = (JArray)msgJson[1]["data"];
-                        foreach (JObject jo in cameraData)
+                        lock (AppParameters.darvisWSCameraLock)
                         {
-                            string camera_id = jo["camera_id"].ToString();
-                            JArray newDetections = (JArray)jo["detections"]["new"];
-                            JArray removedDetections = (JArray)jo["detections"]["removed"];
-                            JArray updatedDetections = (JArray)jo["detections"]["updated"];
-                            foreach (JObject newObject in newDetections)
-                            {
-                                ProcessNewOrExistingCameraData(newObject, camera_id, true);
-                            }
-                            foreach (JToken object_id in removedDetections)
-                            {
 
-                            }
-                            foreach (JObject updatedObject in updatedDetections)
+                            JArray msgJson = (JArray)JsonConvert.DeserializeObject(message);
+                            if (msgJson[0].ToString() == "detections")
                             {
-                                ProcessNewOrExistingCameraData(updatedObject, camera_id, false);
+                                JArray cameraData = (JArray)msgJson[1]["data"];
+                                foreach (JObject jo in cameraData)
+                                {
+                                    string camera_id = jo["camera_id"].ToString();
+
+                                    string ip = AppParameters.CameraMapping[camera_id];
+                                    List<DarvisCameraAlert> alertList = new List<DarvisCameraAlert>();
+
+                                    JArray newDetections = (JArray)jo["detections"]["new"];
+                                    JArray removedDetections = (JArray)jo["detections"]["removed"];
+                                    JArray updatedDetections = (JArray)jo["detections"]["updated"];
+                                    foreach (JObject newObject in newDetections)
+                                    {
+
+                                        ProcessNewOrExistingCameraData(newObject, ref alertList,
+                                            camera_id, true);
+                                    }
+                                    foreach (JToken object_id in removedDetections)
+                                    {
+
+                                    }
+                                    foreach (JObject updatedObject in updatedDetections)
+                                    {
+                                        ProcessNewOrExistingCameraData(updatedObject, ref alertList,
+                                            camera_id, false);
+                                    }
+                                    Cameras newCameraData = AppParameters.CameraInfoList[ip];
+                                    List<DarvisCameraAlert> newAlerts = alertList.ToArray<DarvisCameraAlert>().ToList<DarvisCameraAlert>();
+
+                                    newCameraData.Alerts = newAlerts;
+                                    AppParameters.CameraInfoList[ip] = newCameraData;
+
+                                    List<Tuple<GeoMarker, string>> camerasToBroadcast = new List<Tuple<GeoMarker, string>>();
+                                    foreach (CoordinateSystem cs in AppParameters.CoordinateSystem.Values)
+                                    {
+                                        cs.Locators.Where(f => f.Value.Properties.TagType == "Camera" &&
+                                        f.Value.Properties.Name == ip).Select(y => y.Value).
+                                        ToList().ForEach(Camera =>
+                                        {
+                                            Camera.Properties.DarvisAlerts = AppParameters.CameraInfoList[ip].Alerts.ToList();
+                                            Tuple<GeoMarker, string> thisCameraData = new Tuple<GeoMarker, string>(Camera, cs.Id);
+                                            camerasToBroadcast.Add(thisCameraData);
+                                        });
+
+                                    }
+
+                                    FOTFManager.Instance.BroadcastCameraStatus(camerasToBroadcast);
+
+                                }
                             }
                         }
                     }
-                }
-                catch (Exception ex)
-                {
+                    catch (Exception ex)
+                    {
 
+                    }
                 }
-            }
         }
        
         public void DarvisWSMessage(string message)
