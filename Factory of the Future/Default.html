@@ -5,20 +5,17 @@
     <meta charset="utf-8" />
     <meta http-equiv="Cache-control" content="public">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-    <link href="Content/bootstrap-icons.css" rel="stylesheet" />
-    <!--<link href="Content/bootstrap.css" rel="stylesheet" />-->
-    <link href="Content/bootstrap.min.css" rel="stylesheet" />
-    <link href="Content/selectize.bootstrap4.css" rel="stylesheet" />
-    <link href="Content/easy-button.css" rel="stylesheet" />
-    <!--<link href="Content/_base.css" rel="stylesheet" />-->
-    <link href="Content/_base.min.css" rel="stylesheet" />
-    <link href="Content/leaflet.css" rel="stylesheet" />
-    <link href="Content/leaflet-sidebar.css" rel="stylesheet" />
-    <!--<link href="Content/leaflet-sidebar.min.css" rel="stylesheet" />-->
-    <link href="Content/leaflet-geoman.css" rel="stylesheet" />
-    <!--<link href="Content/Site.css" rel="stylesheet" />-->
-    <link href="Content/Site.min.css" rel="stylesheet" />
-    <link href="Content/Filter.css" rel="stylesheet" />
+
+    <link rel="preload" href="Content/bootstrap-icons.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <link rel="preload" href="Content/bootstrap.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <link rel="preload" href="Content/selectize.bootstrap4.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <link rel="preload" href="Content/easy-button.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <link rel="preload" href="Content/_base.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <link rel="preload" href="Content/leaflet.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <link rel="preload" href="Content/leaflet-sidebar.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <link rel="preload" href="Content/leaflet-geoman.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <link rel="preload" href="Content/Site.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <link rel="preload" href="Content/Filter.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
     <script>
         var timezone = {};
         var User = {};
@@ -1482,7 +1479,8 @@
     <!--<script src="Scripts/leaflet/Plugins/leaflet.mousecoordinate.js"></script>-->
     <script src="Scripts/leaflet/Plugins/easy-button.js"></script>
     <script src="Scripts/leaflet/Plugins/leaflet-marker-slideto.js"></script>
-    <script src="Scripts/leaflet/Plugins/leaflet-geoman.js"></script>
+    <!--<script src="Scripts/leaflet/Plugins/leaflet-geoman.js"></script>-->
+    <script src="Scripts/leaflet/Plugins/leaflet-geoman.min.js"></script>
     <script src="Scripts/leaflet/Plugins/leaflet-indoor.js"></script>
     <!--<script src="Scripts/Filter.js"></script>-->
     <script src="Scripts/Filter.min.js"></script>
@@ -1519,12 +1517,10 @@
     <script src="Scripts/View/locators.js"></script>
     <!--Views for trips-->
     <script src="Scripts/View/trips.js"></script>
-
     <!--geometry editing -->
     <script src="Scripts/View/geometry_editing.js"></script>
     <!--QR Code js-->
     <script src="Scripts/QRCode/qrcode.min.js"></script>
-
     <!--tag search js-->
     <script src="Scripts/View/tag_search.js"></script>
     <!--24 Hour Clock js-->

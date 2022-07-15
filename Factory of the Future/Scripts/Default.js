@@ -22,7 +22,6 @@ var condition = false;
 
 $(function () {
     $("form").submit(function () { return false; });
-  
     //setHeight();
     $(window).resize(function () {
         setHeight();
@@ -36,19 +35,6 @@ $(function () {
             event.preventDefault();
         }
     });
-
-    //on close clear all IDS inputs
-
-    //$('#CTS_Details_Modal').on('hidden.bs.modal', () => {
-    //    $CTSDetails_Table = $('table[id=ctsdetailstable]');
-    //    $CTSDetails_Table_Header = $CTSDetails_Table.find('thead');
-    //    $CTSDetails_Table_Header.empty();
-    //    $CTSDetails_Table_Body = $CTSDetails_Table.find('tbody')
-    //    $CTSDetails_Table_Body.empty();
-    //});
-    //$('#CTS_Details_Modal').on('shown.bs.modal', () => {
-    //    $("#modal-preloader").show();
-    //});
     $('#UserTag_Modal').on('hidden.bs.modal', function () {
         $(this)
             .find("input[type=text],textarea,select")
@@ -217,8 +203,6 @@ $(function () {
                         '</div>' +
                         '</div >' +
                         '</div></div>'
-
-                       
                 });
                 $('button[id=btnUpload]').on('click', function () {
                     $('button[id=btnUpload]').prop("disabled", true);
@@ -600,8 +584,6 @@ $(function () {
         let description = tr.attr('data-description');
         View_Web_Camera(id, model, description);
     });
-
-
 });
 function Clear() {
     var progress = 0;
