@@ -423,7 +423,7 @@ namespace Factory_of_the_Future
 
         [JsonProperty("routePath")]
         public GeoLine RoutePath { get; set; }
-        public DarvisCameraAlert DarvisAlert { get; internal set; }
+        public List<DarvisCameraAlert> DarvisAlerts { get; internal set; }
     }
     public class ZoneInfo
     {
@@ -932,6 +932,10 @@ namespace Factory_of_the_Future
         public int Left { get; set; }
         [JsonProperty("RIGHT")]
         public int Right { get; set; }
+        [JsonProperty("OBJECT_ID")]
+        public string object_id { get; set; }
+        [JsonProperty("OBJECT_CLASS")]
+        public string object_class { get; set; }
         [JsonProperty("ALERT_BASE64")]
         public string AlertBase64Image { get; set; }
     }
@@ -979,8 +983,10 @@ namespace Factory_of_the_Future
         [JsonProperty("base64Image")]
         public string Base64Image { get; set; } = "";
         
-        [JsonProperty("CAMERA_ALERT")]
-        public DarvisCameraAlert Alert { get; set;  }
+        [JsonProperty("CAMERA_ALERTS")]
+        public List<DarvisCameraAlert> Alerts { get; set; }
+        [JsonProperty("LAST_ALERT_UPDATE")]
+        public long LastAlertUpdate { get; set; }
 
     }
     public class Leg

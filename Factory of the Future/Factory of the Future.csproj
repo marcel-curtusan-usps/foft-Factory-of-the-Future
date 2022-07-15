@@ -227,6 +227,7 @@
     <Content Include="Content\images\vh_bss.png" />
     <Content Include="Content\images\vh_ss.png" />
     <Content Include="Content\images\24_hour_clock.jpg" />
+    <Content Include="Content\images\warning-signal.png" />
     <Content Include="Content\leaflet-geoman.css" />
     <Content Include="Content\leaflet-sidebar.css" />
     <Content Include="Content\leaflet-sidebar.min.css" />
@@ -471,6 +472,7 @@
     <Content Include="Scripts\View\person_tag.js" />
     <Content Include="Scripts\View\stange_zone.js" />
     <Content Include="Scripts\View\twenty_four_hour_clock.js" />
+    <Content Include="Scripts\View\utils.js" />
     <Content Include="Scripts\View\vehicle.js" />
     <Content Include="Scripts\View\viewports_zone.js" />
     <Content Include="Web.config" />

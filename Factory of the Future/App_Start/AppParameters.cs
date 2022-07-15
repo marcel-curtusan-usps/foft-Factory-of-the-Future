@@ -32,7 +32,7 @@ namespace Factory_of_the_Future
         public static string ServerIpAddress { get; set; } = string.Empty;
         public static DirectoryInfo CodeBase { get; set; } = null;
         public static DirectoryInfo Logdirpath { get; set; } = null;
-
+        public static readonly object darvisWSCameraLock = new object();
         private static readonly string PdHash = "P@@Sw0rd";
         private static readonly string SaltKey = "S@LT&KEY";
         private static readonly string VIKey = "@1B2c3D4e5F6g7H8";
