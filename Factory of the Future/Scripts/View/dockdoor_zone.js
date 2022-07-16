@@ -512,12 +512,20 @@ async function loadcontainerHistory(d, placardid) {
             '</tr>"';
 
         let containerHistory = {};
-        $.map(d.dockdoorData.containerScans, function (container, i) {
-            if (container.placardBarcode === placardid) {
-                containerHistory = container.containerHistory
+        if (d.hasOwnProperty("dockdoorData")) {
+            $.map(d.dockdoorData.containerScans, function (container, i) {
+                if (container.placardBarcode === placardid) {
+                    containerHistory = container.containerHistory
+                    return false;
+                }
+            });
+        }
+        else {
+            $.map(d[0], function (container, i) {
+                containerHistory = d[0].containerHistory
                 return false;
-            }
-        });
+            });
+        }
         if (!$.isEmptyObject(containerHistory)) {
             containerHistory.sort(SortByind);
             $.each(containerHistory, function () {
