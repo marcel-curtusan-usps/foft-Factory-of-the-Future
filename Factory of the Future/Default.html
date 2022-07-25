@@ -21,7 +21,7 @@
     </script>
 </head>
 <body>
-
+    <canvas id="sparkline-canvas" width="80" height="50" style="width: 80px; height: 50px; position: absolute; margin-top: -1000000px" ></canvas>
     <div id="map"></div>
     <!-- Modal Section -->
     <div class="modal fade" id="API_Connection_Modal" tabindex="-1" role="dialog" data-backdrop="static" aria-labelledby="API_Connection_Modal_Label">
@@ -1159,7 +1159,7 @@
                                                     <th colspan="2">Placard</th>
                                                     <th>Load Scan</th>
                                                     <th colspan="2">Trailer</th>
-                                                    <th  colspan="2">Depart Scan</th>
+                                                    <th colspan="2">Depart Scan</th>
                                                 </tr>
                                             </thead>
                                             <tbody></tbody>
@@ -1533,6 +1533,8 @@
     <script src="Scripts/View/viewports_zone.js"></script>
     <!--Views for machine processing equipment details-->
     <script src="Scripts/View/machine_zone.js"></script>
+    <!--Views for sparklines/graphs for machine processing equipment details-->
+    <script src="Scripts/View/machine_sparkline.js"></script>
     <!--Views for vehicle details-->
     <script src="Scripts/View/vehicle.js"></script>
     <!--Views for tags details-->

@@ -8,6 +8,8 @@ var mainfloor = L.imageOverlay(null, [0, 0], { id:-1 ,zindex: -1 }).addTo(mainfl
 var baseLayers = {
   "Main Floor": mainfloor
 };
+
+
 var overlayMaps = {
     "AGV Vehicles": agv_vehicles,
     "PIV Vehicles": piv_vehicles,
@@ -15,6 +17,7 @@ var overlayMaps = {
     "Badge": tagsMarkersGroup,
     "AGV Locations": agvLocations,
     "MPE Work Areas": polygonMachine,
+    "MPE Sparklines": machineSparklines,
     "MPE Bins": binzonepoly,
     "Dock Doors": dockDoors,
     "Staging Areas": stagingAreas,
@@ -37,7 +40,9 @@ map = L.map('map', {
     zoomControl: false,
     measureControl: true,
     tap: false,
-    layers: [mainfloor, polygonMachine, piv_vehicles, agv_vehicles, agvLocations, container, stagingAreas, tagsMarkersGroup, dockDoors, binzonepoly]
+    layers: [mainfloor,
+         polygonMachine,
+        piv_vehicles, agv_vehicles, agvLocations, container, stagingAreas, tagsMarkersGroup, dockDoors, binzonepoly]
 });
 
 map.on('baselayerchange', function (e) {
@@ -54,6 +59,7 @@ map.on('baselayerchange', function (e) {
         polyholesAreas.clearLayers();
         dockDoors.clearLayers();
         polygonMachine.clearLayers();
+        machineSparklines.clearLayers();
         binzonepoly.clearLayers();
         agvLocations.clearLayers();
         viewPortsAreas.clearLayers();
