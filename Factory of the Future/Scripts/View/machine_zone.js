@@ -87,12 +87,14 @@ $('#Zone_Modal').on('shown.bs.modal', function () {
     });
 });
 $.extend(fotfmanager.client, {
-    updateMachineStatus: async (updateMachine, id) =>
+    updateMachineStatus: async (machineStatuses) =>
     {
-        updateMachineZone(updateMachine, id);
-        //let updateMachineSparklineData = JSON.parse(JSON.stringify(updateMachine));
-        //updateMachineSparklineData.properties.id = updateMachineSparklineData.properties.id + "-sp";
-        updateMachineSparkline(updateMachine, id);
+        for (var tuple of machineStatuses) {
+            
+            updateMachineZone(tuple.Item1, tuple.Item2);
+            updateMachineSparkline(tuple.Item1, tuple.Item2);
+           
+        }
     }
 });
 

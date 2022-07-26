@@ -69,6 +69,38 @@ function getLabelsMPESparklineFull(hourly_data) {
     return hourlyArray;
 }
 var sparklineChart = null;
+var sparklineCache = [];
+function clearSparklineCache() {
+    let date_time_old = Date.now() - (1000 * 60 * 61);
+    for (var i = sparklineCache.length - 1; i >= 0; i--) {
+        if (sparklineCache[i].date_time < date_time_old) {
+            sparklineCache.splice(i, 1);
+        }
+    }
+}
+function checkSparklineCache(hourly_data) {
+    for (var i = 0; i < sparklineCache.length; i++) {
+        if (JSON.stringify(sparklineCache[i].hourly_data) ==
+            JSON.stringify(hourly_data)) {
+            return sparklineCache[i].dataURL;
+        }
+    }
+    return null;
+}
+
+function addSparklineCache(hourly_data, dataURL) {
+    for (var i = 0; i < sparklineCache; i++) {
+        if (JSON.stringify(sparklineCache[i].hourly_data) ==
+            JSON.stringify(hourly_data)) {
+            return false;
+        }
+    }
+    sparklineCache.push({
+        hourly_data: hourly_data, dataURL:
+            dataURL
+    });
+    return true;
+}
 function GetSparklineGraph(dataproperties, id) {
     var total = dataproperties.MPEWatchData.hourly_data.length;
     
@@ -80,6 +112,10 @@ function GetSparklineGraph(dataproperties, id) {
         let labels = getLabelsMPESparklineFull(dataproperties.MPEWatchData.hourly_data);
         let hourlyArrayThis24 = hourlyArrays[0];
         let currentColor = hourlyArrays[1];
+        let cacheCheck = checkSparklineCache(dataproperties.MPEWatchData.hourly_data);
+        if (cacheCheck) {
+            return cacheCheck;
+        }
         if (sparklineChart === null) {
 
 
@@ -152,24 +188,17 @@ function GetSparklineGraph(dataproperties, id) {
             });
         }
         else {
-           // sparklineChart.data.datasets[0].data = hourlyArrayPrevious12;
-            //sparklineChart.data.datasets[1].data = hourlyArrayThis12;
-            //sparklineChart.data.datasets[1].borderColor = currentColor;
-
-            console.log("UPDATING: " + Date.now());
             sparklineChart.data.datasets[0].data = hourlyArrayThis24;
             sparklineChart.data.datasets[0].borderColor = currentColor;
             sparklineChart.update();
-            console.log("UPDATED: " + Date.now());
         }
 
-        console.log("TO B64: " + Date.now());
         let b64 = sparklineChart.toBase64Image();
-        console.log("TO B64: " + Date.now());
-        return b64;
+        addSparklineCache(dataproperties.MPEWatchData.hourly_data, b64);
+        return true;
     }
     else {
-        return null;
+        return false;
     }
 }
 
@@ -179,8 +208,8 @@ async function  createSparkline(dataproperties, id) {
 
        // var canvas = document.getElementById("sparkline-canvas");
         
-        let dataURL = GetSparklineGraph(dataproperties);
-        resolve(dataURL);
+        let dataURLFound = GetSparklineGraph(dataproperties);
+        resolve(dataURLFound);
         /*
         let ctx = canvas.getContext("2d");
         ctx.fillStyle = "white";
@@ -245,7 +274,7 @@ var machineSparklines = new L.GeoJSON(null, {
 
 
 
-        var imgUrl =
+        var imgUrlFound =
             await createSparkline(feature.properties,
                 feature.properties.id);
         /*
@@ -257,8 +286,11 @@ var machineSparklines = new L.GeoJSON(null, {
             popupAnchor: [0, 0]
         });
         */
+        let imgUrl = checkSparklineCache(feature.properties.MPEWatchData.hourly_data);
         var locaterIcon = L.divIcon({
-            html: ((imgUrl === null) ? "<div></div>" : "<img src='" + imgUrl +
+            html: ((imgUrl === null) ? "<div></div>" : "<img src='" +
+               imgUrl
+                    +
                 "' width'80' height='50' style='width: 80px; height: 50px', margin-left: 40px; margin-top: -25px; />")
             });
         return L.marker(latlng, {
@@ -303,7 +335,7 @@ async  function getMachineSparkline(machineupdate) {
     let latlng = L.latLng(latlngArray[0], latlngArray[1]);
    // machineupdate.geometry.coordinates
 
-    var imgUrl =
+    var imgUrlFound =
         await createSparkline(machineupdate.properties,
             machineupdate.properties.id);
 
@@ -317,12 +349,16 @@ async  function getMachineSparkline(machineupdate) {
         popupAnchor: [0, 0]
     });
     */
+
+    let imgUrl = null;
+    if (imgUrlFound) {
+         imgUrl = checkSparklineCache(machineupdate.properties.MPEWatchData.hourly_data);
+    }
     var locaterIcon = L.divIcon({
         html: ((imgUrl === null) ? "<div></div>" : "<img src='" + imgUrl +
             "' width'80' height='50' style='margin-left: 40px; margin-top: -25px; width: 80px; height: 50px' />")
     });
-    console.log("getMachineSparkline: " + machineupdate.properties.name)
-    return L.marker(latlng, {
+    let marker = L.marker(latlng, {
         hourly_data: machineupdate.properties.MPEWatchData.hourly_data,
         id: machineupdate.properties.id,
         icon: locaterIcon,
@@ -332,6 +368,25 @@ async  function getMachineSparkline(machineupdate) {
         bubblingMouseEvents: false,
         popupOpen: true
     });
+    marker.on('click', function (e) {
+        /*
+        $('input[type=checkbox][name=followvehicle]').prop('checked', false).change();
+        map.setView(e.sourceTarget.getCenter(), 3);
+        if ((' ' + document.getElementById('sidebar').className + ' ').indexOf(' ' + 'collapsed' + ' ') <= -1) {
+            if ($('#zoneselect').val() == machineupdate.properties.id) {
+                sidebar.close('home');
+            }
+            else {
+                sidebar.open('home');
+            }
+        }
+        else {
+            sidebar.open('home');
+        }
+        LoadMachineTables(machineupdate.properties, 'machinetable');
+        */
+    });
+    return marker;
 
 }
 
@@ -351,13 +406,17 @@ function layerMachineUpdateCheck(layer, machineupdate) {
     }
     return null;
 }
+
+let lastSparklineUpdate = 0;
 async function updateMachineSparkline(machineupdate, id) {
     try {
+
         if (id == baselayerid) {
 
             if (machineupdate.properties.hasOwnProperty("MPEWatchData")) {
+                clearSparklineCache();
                 var found = false;
-                let layerIndex = -1;
+                let layerIndex = -0;
                 $.map(machineSparklines._layers, async function (layer, i) {
 
                     if (layer.hasOwnProperty("options")) {
@@ -366,6 +425,7 @@ async function updateMachineSparkline(machineupdate, id) {
                         if (layerMachineUpdateVal === "update")
                         {
                             layerIndex = i;
+                            found = true;
                         }
                         if (layerMachineUpdateVal === "found") {
                             found = true;
@@ -373,14 +433,13 @@ async function updateMachineSparkline(machineupdate, id) {
 
                     }
                 });
-                if (layerIndex !== -1) {
 
+                if (layerIndex !== -0 && checkSparklineCache(machineupdate.properties.MPEWatchData.hourly_data)) {
                     let sparklineReplace = await getMachineSparkline(machineupdate);
                     machineSparklines.removeLayer(machineSparklines._layers[layerIndex]);
                     machineSparklines.addLayer(sparklineReplace);
                 }
-                else if (!found) {
-
+                if (!found) {
                     let sparkline = await getMachineSparkline(machineupdate);
                     machineSparklines.addLayer(sparkline);
                 }
