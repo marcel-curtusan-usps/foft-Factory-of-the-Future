@@ -8,46 +8,49 @@ function getHourlyArrayMPESparkline(hourly_data, option) {
     }
 }
 function getHourlyArrayMPESparklineSplit(hourly_data) {
+    let hourly_data_low_to_high = JSON.parse(JSON.stringify(hourly_data)).reverse();
+
     let hourlyArray1 = [];
     let hourlyArray2 = [];
     let currentColor = "";
-    let halfPoint = hourly_data.length / 2;
+    let halfPoint = hourly_data_low_to_high.length / 2;
     
-    for (var i = 0; i < hourly_data.length; i++) {
+    for (var i = 0; i < hourly_data_low_to_high.length; i++) {
         let bgColor = "";
 
         if (i < halfPoint) {
-            hourlyArray1.push(hourly_data[i].count);
+            hourlyArray1.push(hourly_data_low_to_high[i].count);
         }
         else {
-            hourlyArray2.push(hourly_data[i].count);
+            hourlyArray2.push(hourly_data_low_to_high[i].count);
         }
     }
     let latestHourIndex = hourly_data.length - 1;
     let previousHourIndex = latestHourIndex - 1;
-    if (hourly_data[latestHourIndex].count >= hourly_data[previousHourIndex].count) {
-        currentColor = "rgba(0, 0, 255, .8)";
+    if (hourly_data_low_to_high[latestHourIndex].count >= hourly_data_low_to_high[previousHourIndex].count) {
+        currentColor = "rgba(51, 51, 102, 1)";
     }
     else {
-        currentColor = "rgba(255, 0, 0, .8)";
+        currentColor = "rgba(231, 25, 33, 1)";
     }
     return [hourlyArray1, hourlyArray2, currentColor];
 }
 
 
 function getHourlyArrayMPESparklineFull(hourly_data) {
+    let hourly_data_low_to_high = JSON.parse(JSON.stringify(hourly_data)).reverse();
     let hourlyArray = [];
     let currentColor = "";
-    for (const obj of hourly_data) {
+    for (const obj of hourly_data_low_to_high) {
         hourlyArray.push(obj.count);
     }
     let latestHourIndex = hourly_data.length - 1;
     let previousHourIndex = latestHourIndex - 1;
-    if (hourly_data[latestHourIndex].count >= hourly_data[previousHourIndex].count) {
-        currentColor = "rgba(0, 0, 255, .8)";
+    if (hourly_data_low_to_high[latestHourIndex].count >= hourly_data_low_to_high[previousHourIndex].count) {
+        currentColor = "rgba(51, 51, 102, 1)";
     }
     else {
-        currentColor = "rgba(255, 0, 0, .8)";
+        currentColor = "rgba(231, 25, 33, 1)";
     }
     return [hourlyArray, currentColor];
 }
@@ -153,13 +156,17 @@ function GetSparklineGraph(dataproperties, id) {
             //sparklineChart.data.datasets[1].data = hourlyArrayThis12;
             //sparklineChart.data.datasets[1].borderColor = currentColor;
 
-
+            console.log("UPDATING: " + Date.now());
             sparklineChart.data.datasets[0].data = hourlyArrayThis24;
             sparklineChart.data.datasets[0].borderColor = currentColor;
             sparklineChart.update();
+            console.log("UPDATED: " + Date.now());
         }
 
-        return sparklineChart.toBase64Image();
+        console.log("TO B64: " + Date.now());
+        let b64 = sparklineChart.toBase64Image();
+        console.log("TO B64: " + Date.now());
+        return b64;
     }
     else {
         return null;
@@ -241,6 +248,7 @@ var machineSparklines = new L.GeoJSON(null, {
         var imgUrl =
             await createSparkline(feature.properties,
                 feature.properties.id);
+        /*
         var locaterIcon = L.icon({
             iconUrl: ((imgUrl === null) ? "../../Content/images/NoImage.png" : imgUrl),
             iconSize: [60, 40], // size of the icon
@@ -248,10 +256,16 @@ var machineSparklines = new L.GeoJSON(null, {
             shadowAnchor: [0, 0],  // the same for the shadow
             popupAnchor: [0, 0]
         });
+        */
+        var locaterIcon = L.divIcon({
+            html: ((imgUrl === null) ? "<div></div>" : "<img src='" + imgUrl +
+                "' width'80' height='50' style='width: 80px; height: 50px', margin-left: 40px; margin-top: -25px; />")
+            });
         return L.marker(latlng, {
             icon: locaterIcon,
             title: feature.properties.name,
             riseOnHover: true,
+            riseOffset: 1000000000,
             bubblingMouseEvents: true,
             popupOpen: true
         });
@@ -268,7 +282,7 @@ var machineSparklines = new L.GeoJSON(null, {
 
     }
 });
-function getApproximateCenter(coordinates) {
+function getSparklineCoords(coordinates) {
     var minLat = 10000000000000;
     var maxLat = -10000000000000;
     var minLng = 10000000000000;
@@ -285,20 +299,27 @@ function getApproximateCenter(coordinates) {
     return [centerLat, centerLng];
 }
 async  function getMachineSparkline(machineupdate) {
-    let latlngArray = getApproximateCenter(machineupdate.geometry.coordinates[0]);
+    let latlngArray = getSparklineCoords(machineupdate.geometry.coordinates[0]);
     let latlng = L.latLng(latlngArray[0], latlngArray[1]);
    // machineupdate.geometry.coordinates
 
     var imgUrl =
         await createSparkline(machineupdate.properties,
             machineupdate.properties.id);
-    
+
+
+    /*
     var locaterIcon = L.icon({
         iconUrl: ((imgUrl === null) ? "../../Content/images/NoImage.png" : imgUrl),
         iconSize: [60, 40], // size of the icon
         iconAnchor: [0, 0], // point of the icon which will correspond to marker's location
         shadowAnchor: [0, 0],  // the same for the shadow
         popupAnchor: [0, 0]
+    });
+    */
+    var locaterIcon = L.divIcon({
+        html: ((imgUrl === null) ? "<div></div>" : "<img src='" + imgUrl +
+            "' width'80' height='50' style='margin-left: 40px; margin-top: -25px; width: 80px; height: 50px' />")
     });
     console.log("getMachineSparkline: " + machineupdate.properties.name)
     return L.marker(latlng, {
@@ -307,9 +328,10 @@ async  function getMachineSparkline(machineupdate) {
         icon: locaterIcon,
         title: machineupdate.properties.name,
         riseOnHover: true,
+        riseOffset: 1000000000,
         bubblingMouseEvents: false,
         popupOpen: true,
-       
+        riseOffset: 1000000000
     });
 
 }
