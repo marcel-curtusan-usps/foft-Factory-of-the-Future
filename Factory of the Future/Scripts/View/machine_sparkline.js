@@ -56,7 +56,7 @@ function getHourlyArrayMPESparklineFull(hourly_data) {
 }
 function getLabelsMPESparkline(hourly_data) {
     let hourlyArray = [];
-    for (var i = 0; i < hourly_data.length / 2; i ++) {
+    for (var i = 0; i < (hourly_data.length / 2); i ++) {
         hourlyArray.push("");
     }
     return hourlyArray;
