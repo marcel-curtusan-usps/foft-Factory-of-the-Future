@@ -330,8 +330,7 @@ async  function getMachineSparkline(machineupdate) {
         riseOnHover: true,
         riseOffset: 1000000000,
         bubblingMouseEvents: false,
-        popupOpen: true,
-        riseOffset: 1000000000
+        popupOpen: true
     });
 
 }
