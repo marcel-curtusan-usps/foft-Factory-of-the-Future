@@ -453,7 +453,6 @@ async function updateMachineSparkline(machineupdate, id) {
         if (id == baselayerid) {
 
             if (machineupdate.properties.hasOwnProperty("MPEWatchData")) {
-                clearSparklineCache();
                 var found = false;
                 let layerIndex = -0;
                 $.map(machineSparklines._layers, async function (layer, i) {

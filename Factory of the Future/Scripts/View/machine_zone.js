@@ -86,15 +86,39 @@ $('#Zone_Modal').on('shown.bs.modal', function () {
         }
     });
 });
+
+// sets the sparkline graph cache so when it is ready to display,
+// no graphs need to be created
+// allow some time period in between function calls so that tags can continue to move
+
+function updateAllMachineSparklines(machineStatuses, index) {
+    if (index === machineStatuses.length) {
+        // at the end of all calls, now check for sparklines and add to map.
+        for (var tuple of machineStatuses) {
+
+            updateMachineSparkline(tuple.Item1, tuple.Item2)
+        }
+    }
+    else {
+        // get the graph and update it to sparkline cache
+        GetSparklineGraph(machineStatuses[index].Item1.properties,
+            machineStatuses[index].Item1.properties.id);
+        setTimeout(() => {
+            updateAllMachineSparklines(machineStatuses, index + 1);
+        }, 10);
+    }
+}
 $.extend(fotfmanager.client, {
     updateMachineStatus: async (machineStatuses) =>
     {
         for (var tuple of machineStatuses) {
             
             updateMachineZone(tuple.Item1, tuple.Item2);
-            updateMachineSparkline(tuple.Item1, tuple.Item2);
            
         }
+        // clears the sparkline graph cache if it is old data
+        clearSparklineCache();
+        updateAllMachineSparklines(machineStatuses, 0);
     }
 });
 
