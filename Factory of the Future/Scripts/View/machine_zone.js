@@ -96,13 +96,22 @@ function updateAllMachineSparklines(machineStatuses, index) {
         // at the end of all calls, now check for sparklines and add to map.
         for (var tuple of machineStatuses) {
 
-            updateMachineSparkline(tuple.Item1, tuple.Item2)
+            var sortPlan1 =
+                tuple.Item1.properties.MPEWatchData.cur_sortplan;
+            if (sortPlan1 != "") {
+                updateMachineSparkline(tuple.Item1, tuple.Item2);
+            }
         }
     }
     else {
-        // get the graph and update it to sparkline cache
-        GetSparklineGraph(machineStatuses[index].Item1.properties,
-            machineStatuses[index].Item1.properties.id);
+        var sortPlan2 =
+            machineStatuses[index].Item1.properties.MPEWatchData.cur_sortplan;
+
+        if (sortPlan2 != "") {
+            // get the graph and update it to sparkline cache
+            GetSparklineGraph(machineStatuses[index].Item1.properties,
+                machineStatuses[index].Item1.properties.id);
+        }
         setTimeout(() => {
             updateAllMachineSparklines(machineStatuses, index + 1);
         }, 10);

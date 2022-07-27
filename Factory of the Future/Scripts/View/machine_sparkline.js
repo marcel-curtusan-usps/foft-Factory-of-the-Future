@@ -1,69 +1,30 @@
 ﻿
-function getHourlyArrayMPESparkline(hourly_data, option) {
-    if (option === "last48") {
-        return getHourlyArrayMPESparklineSplit(hourly_data);
-    }
-    else {
-        return getHourlyArrayMPESparklineFull(hourly_data);
-    }
-}
-function getHourlyArrayMPESparklineSplit(hourly_data) {
-    let hourly_data_low_to_high = JSON.parse(JSON.stringify(hourly_data)).reverse();
 
-    let hourlyArray1 = [];
-    let hourlyArray2 = [];
+
+function getHourlyArrayMPESparkline(hourly_data, n) {
+     let hourlyArray = JSON.parse(JSON.stringify(hourly_data));
+    hourlyArray.splice(n);
+    hourlyArray.reverse();
     let currentColor = "";
-    let halfPoint = hourly_data_low_to_high.length / 2;
-    
-    for (var i = 0; i < hourly_data_low_to_high.length; i++) {
-        let bgColor = "";
-
-        if (i < halfPoint) {
-            hourlyArray1.push(hourly_data_low_to_high[i].count);
-        }
-        else {
-            hourlyArray2.push(hourly_data_low_to_high[i].count);
-        }
-    }
-    let latestHourIndex = hourly_data.length - 1;
+    let latestHourIndex = hourlyArray.length - 1;
     let previousHourIndex = latestHourIndex - 1;
-    if (hourly_data_low_to_high[latestHourIndex].count >= hourly_data_low_to_high[previousHourIndex].count) {
-        currentColor = "rgba(51, 51, 102, 1)";
+    let hourlyData = [];
+    for (const obj of hourlyArray) {
+        hourlyData.push(obj.count);
     }
-    else {
+    if ((hourlyArray[latestHourIndex].count < hourlyArray[previousHourIndex].count)
+        || hourlyArray[latestHourIndex].count === 0) {
         currentColor = "rgba(231, 25, 33, 1)";
     }
-    return [hourlyArray1, hourlyArray2, currentColor];
-}
-
-
-function getHourlyArrayMPESparklineFull(hourly_data) {
-    let hourly_data_low_to_high = JSON.parse(JSON.stringify(hourly_data)).reverse();
-    let hourlyArray = [];
-    let currentColor = "";
-    for (const obj of hourly_data_low_to_high) {
-        hourlyArray.push(obj.count);
-    }
-    let latestHourIndex = hourly_data.length - 1;
-    let previousHourIndex = latestHourIndex - 1;
-    if (hourly_data_low_to_high[latestHourIndex].count >= hourly_data_low_to_high[previousHourIndex].count) {
+    else {
         currentColor = "rgba(51, 51, 102, 1)";
     }
-    else {
-        currentColor = "rgba(231, 25, 33, 1)";
-    }
-    return [hourlyArray, currentColor];
+    return [hourlyData, currentColor];
 }
-function getLabelsMPESparkline(hourly_data) {
+
+function getLabelsMPESparkline(n) {
     let hourlyArray = [];
-    for (var i = 0; i < (hourly_data.length / 2); i ++) {
-        hourlyArray.push("");
-    }
-    return hourlyArray;
-}
-function getLabelsMPESparklineFull(hourly_data) {
-    let hourlyArray = [];
-    for (var i = 0; i < hourly_data.length; i++) {
+    for (var i = 0; i < n; i++) {
         hourlyArray.push("");
     }
     return hourlyArray;
@@ -101,16 +62,17 @@ function addSparklineCache(hourly_data, dataURL) {
     });
     return true;
 }
+let sparklineLength = 8;
 function GetSparklineGraph(dataproperties, id) {
     var total = dataproperties.MPEWatchData.hourly_data.length;
     
     if (total > 0) {
-        let hourlyArrays = getHourlyArrayMPESparklineFull(dataproperties.MPEWatchData.hourly_data);
+        let hourlyArrays = getHourlyArrayMPESparkline(dataproperties.MPEWatchData.hourly_data, sparklineLength);
         // let hourlyArrayPrevious12 = hourlyArrays[0];
         // let hourlyArrayThis12 = hourlyArrays[1];
         // let currentColor = hourlyArrays[2];
-        let labels = getLabelsMPESparklineFull(dataproperties.MPEWatchData.hourly_data);
-        let hourlyArrayThis24 = hourlyArrays[0];
+        let labels = getLabelsMPESparkline(sparklineLength);
+        let hourlyArrayThis = hourlyArrays[0];
         let currentColor = hourlyArrays[1];
         let cacheCheck = checkSparklineCache(dataproperties.MPEWatchData.hourly_data);
         if (cacheCheck) {
@@ -158,7 +120,7 @@ function GetSparklineGraph(dataproperties, id) {
 
                 {
                     label: '',
-                    data: hourlyArrayThis24,
+                    data: hourlyArrayThis,
                     backgroundColor:
                         "rgba(0, 0, 0, 0)"
                     ,
@@ -188,7 +150,7 @@ function GetSparklineGraph(dataproperties, id) {
             });
         }
         else {
-            sparklineChart.data.datasets[0].data = hourlyArrayThis24;
+            sparklineChart.data.datasets[0].data = hourlyArrayThis;
             sparklineChart.data.datasets[0].borderColor = currentColor;
             sparklineChart.update();
         }
@@ -292,84 +254,8 @@ const onSparklineClick = (e) => {
 
     });
 };
-var machineSparklines = new L.GeoJSON(null, {
+var machineSparklines = new L.GeoJSON();
 
-    pointToLayer: async function (feature, latlng) {
-
-
-
-        var imgUrlFound =
-            await createSparkline(feature.properties,
-                feature.properties.id);
-       
-        let imgUrl = checkSparklineCache(feature.properties.MPEWatchData.hourly_data);
-        var locaterIcon = L.divIcon({
-            html: ((imgUrl === null) ? "<div></div>" : "<img src='" +
-               imgUrl
-                    +
-                "' width'50' height='25' style='width: 50px; height: 25px', margin-left: 40px; margin-top: -14px; />")
-            });
-        let marker = L.marker(latlng, {
-            icon: locaterIcon,
-            title: feature.properties.name,
-            riseOnHover: true,
-            riseOffset: 1000000000,
-            bubblingMouseEvents: true,
-            popupOpen: true
-        });
-        var z = 0;
-        
-        $zoneSelect[0].selectize.addOption({ value: feature.properties.id, text: feature.properties.name });
-        $zoneSelect[0].selectize.addItem(feature.properties.id);
-        $zoneSelect[0].selectize.setValue(-1, true);
-        layer.on('click', (e) => { onSparklineClick(e); });
-
-
-        /*L.marker(latlng, {
-            icon: sparkDiv,
-            title: feature.properties.name
-        })*/
-
-    }
-
-    ,
-    onEachFeature: function (feature, layer) {
-            $zoneSelect[0].selectize.addOption({ value: feature.properties.id, text: feature.properties.name });
-            $zoneSelect[0].selectize.addItem(feature.properties.id);
-            $zoneSelect[0].selectize.setValue(-1, true);
-        layer.on('click', function (e) {
-            for (const pm of polygonMachine._layers) {
-                if (pm.findId === e.id) {
-
-                    $('input[type=checkbox][name=followvehicle]').prop('checked', false).change();
-                    map.setView(pm.getCenter(), 3);
-                    if ((' ' + document.getElementById('sidebar').className + ' ').indexOf(' ' + 'collapsed' + ' ') <= -1) {
-                        if ($('#zoneselect').val() == e.id) {
-                            sidebar.close('home');
-                        }
-                        else {
-                            sidebar.open('home');
-                        }
-                    }
-                    else {
-                        sidebar.open('home');
-                    }
-                    LoadMachineTables(machineupdate.properties, 'machinetable');
-                }
-            }
-            });
-
-        /*
-            layer.bindTooltip(feature.properties.name + "<br/>" + "Staffing: " + (feature.properties.hasOwnProperty("CurrentStaff") ? feature.properties.CurrentStaff : "0"), {
-                permanent: true,
-                interactive: true,
-                direction: 'center',
-                opacity: 1,
-                className: 'location'
-            }).openTooltip();
-            */
-        }
-});
 function getSparklineCoords(coordinates) {
     var minLat = 10000000000000;
     var maxLat = -10000000000000;
@@ -396,15 +282,7 @@ async  function getMachineSparkline(machineupdate) {
             machineupdate.properties.id);
 
 
-    /*
-    var locaterIcon = L.icon({
-        iconUrl: ((imgUrl === null) ? "../../Content/images/NoImage.png" : imgUrl),
-        iconSize: [60, 40], // size of the icon
-        iconAnchor: [0, 0], // point of the icon which will correspond to marker's location
-        shadowAnchor: [0, 0],  // the same for the shadow
-        popupAnchor: [0, 0]
-    });
-    */
+ 
 
     let imgUrl = null;
     if (imgUrlFound) {
@@ -412,7 +290,7 @@ async  function getMachineSparkline(machineupdate) {
     }
     var locaterIcon = L.divIcon({
         html: ((imgUrl === null) ? "<div></div>" : "<img src='" + imgUrl +
-            "' width'50' height='25' style='margin-left: 40px; margin-top: -14px; width: 50px; height: 25px' />")
+            "' width'50' height='25' style='margin-left: 40px; margin-top: -14px; width: 50px; height: 25px; position: relative' />")
     });
     let marker = L.marker(latlng, {
         hourly_data: machineupdate.properties.MPEWatchData.hourly_data,
@@ -420,8 +298,8 @@ async  function getMachineSparkline(machineupdate) {
         icon: locaterIcon,
         title: machineupdate.properties.name,
         riseOnHover: true,
-        riseOffset: 1000000000,
-        bubblingMouseEvents: false,
+        riseOffset: 500,
+        bubblingMouseEvents: true,
         popupOpen: true
     });
     marker.on('click', (e) => { onSparklineClick(e); });
