@@ -28,6 +28,48 @@ var overlayMaps = {
     "Polygon Holes": polyholesAreas,
     "Locators": locatorMarker
 };
+
+$.urlParam = function (name) {
+    var results = new RegExp('[\?&]' + name + '=([^&#]*)')
+        .exec(window.location.search);
+
+    return (results !== null) ? results[1] || 0 : false;
+}
+
+
+let layersSelected = [mainfloor];
+
+//mainfloor,
+// polygonMachine,
+//    piv_vehicles, agv_vehicles, agvLocations, container, stagingAreas, tagsMarkersGroup, dockDoors, binzonepoly
+if ($.urlParam('specifyLayers')) {
+    if ($.urlParam('agvVehicles')) layersSelected.push(agv_vehicles);
+    if ($.urlParam('pivVehicles')) layersSelected.push(piv_vehicles);
+    if ($.urlParam('cameras')) layersSelected.push(cameras);
+    if ($.urlParam('badge')) layersSelected.push(tagsMarkersGroup);
+    if ($.urlParam('agvLocations')) layersSelected.push(agvLocations);
+    if ($.urlParam('mpeWorkAreas')) layersSelected.push(polygonMachine);
+    if ($.urlParam('mpeSparklines')) layersSelected.push(machineSparklines);
+    if ($.urlParam('mpeBins')) layersSelected.push(binzonepoly);
+    if ($.urlParam('dockDoors')) layersSelected.push(dockDoors);
+
+    if ($.urlParam('stagingAreas')) layersSelected.push(stagingAreas);
+    if ($.urlParam('viewPorts')) layersSelected.push(viewPortsAreas);
+    if ($.urlParam('ebrAreas')) layersSelected.push(ebrAreas);
+    if ($.urlParam('exitAreas')) layersSelected.push(exitAreas);
+    if ($.urlParam('workArea')) layersSelected.push(walkwayAreas);
+    if ($.urlParam('polygonHoles')) layersSelected.push(polyholesAreas);
+    if ($.urlParam('locators')) layersSelected.push(locatorMarker);
+
+}
+else {
+    layersSelected = [mainfloor,
+        polygonMachine,
+        piv_vehicles, agv_vehicles, agvLocations, container, stagingAreas, tagsMarkersGroup, dockDoors, binzonepoly
+    ];
+
+}
+
 //setup map
 map = L.map('map', {
     crs: L.CRS.Simple,
@@ -40,9 +82,7 @@ map = L.map('map', {
     zoomControl: false,
     measureControl: true,
     tap: false,
-    layers: [mainfloor,
-         polygonMachine,
-        piv_vehicles, agv_vehicles, agvLocations, container, stagingAreas, tagsMarkersGroup, dockDoors, binzonepoly]
+    layers: layersSelected
 });
 
 map.on('baselayerchange', function (e) {
