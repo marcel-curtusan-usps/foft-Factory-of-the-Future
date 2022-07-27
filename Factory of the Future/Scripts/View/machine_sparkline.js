@@ -213,7 +213,7 @@ async function  createSparkline(dataproperties, id) {
         /*
         let ctx = canvas.getContext("2d");
         ctx.fillStyle = "white";
-        ctx.fillRect(0, 0, 80, 50);
+        ctx.fillRect(0, 0, 50, 25);
         var img = new Image();
         img.onload = function () {
 
@@ -268,6 +268,30 @@ async function  createSparkline(dataproperties, id) {
     });
 }
 
+const onSparklineClick = (e) => {
+
+    $.map(polygonMachine._layers, function (pmObj, i) {
+
+        if (pmObj.findId === e.target.options.id) {
+
+            $('input[type=checkbox][name=followvehicle]').prop('checked', false).change();
+            map.setView(pmObj.getCenter(), 3);
+            if ((' ' + document.getElementById('sidebar').className + ' ').indexOf(' ' + 'collapsed' + ' ') <= -1) {
+                if ($('#zoneselect').val() == pmObj.findId) {
+                    sidebar.close('home');
+                }
+                else {
+                    sidebar.open('home');
+                }
+            }
+            else {
+                sidebar.open('home');
+            }
+            LoadMachineTables(pmObj.feature.properties, 'machinetable');
+        }
+
+    });
+};
 var machineSparklines = new L.GeoJSON(null, {
 
     pointToLayer: async function (feature, latlng) {
@@ -277,23 +301,15 @@ var machineSparklines = new L.GeoJSON(null, {
         var imgUrlFound =
             await createSparkline(feature.properties,
                 feature.properties.id);
-        /*
-        var locaterIcon = L.icon({
-            iconUrl: ((imgUrl === null) ? "../../Content/images/NoImage.png" : imgUrl),
-            iconSize: [60, 40], // size of the icon
-            iconAnchor: [0, 0], // point of the icon which will correspond to marker's location
-            shadowAnchor: [0, 0],  // the same for the shadow
-            popupAnchor: [0, 0]
-        });
-        */
+       
         let imgUrl = checkSparklineCache(feature.properties.MPEWatchData.hourly_data);
         var locaterIcon = L.divIcon({
             html: ((imgUrl === null) ? "<div></div>" : "<img src='" +
                imgUrl
                     +
-                "' width'80' height='50' style='width: 80px; height: 50px', margin-left: 40px; margin-top: -25px; />")
+                "' width'50' height='25' style='width: 50px; height: 25px', margin-left: 40px; margin-top: -14px; />")
             });
-        return L.marker(latlng, {
+        let marker = L.marker(latlng, {
             icon: locaterIcon,
             title: feature.properties.name,
             riseOnHover: true,
@@ -301,6 +317,13 @@ var machineSparklines = new L.GeoJSON(null, {
             bubblingMouseEvents: true,
             popupOpen: true
         });
+        var z = 0;
+        
+        $zoneSelect[0].selectize.addOption({ value: feature.properties.id, text: feature.properties.name });
+        $zoneSelect[0].selectize.addItem(feature.properties.id);
+        $zoneSelect[0].selectize.setValue(-1, true);
+        layer.on('click', (e) => { onSparklineClick(e); });
+
 
         /*L.marker(latlng, {
             icon: sparkDiv,
@@ -311,8 +334,41 @@ var machineSparklines = new L.GeoJSON(null, {
 
     ,
     onEachFeature: function (feature, layer) {
+            $zoneSelect[0].selectize.addOption({ value: feature.properties.id, text: feature.properties.name });
+            $zoneSelect[0].selectize.addItem(feature.properties.id);
+            $zoneSelect[0].selectize.setValue(-1, true);
+        layer.on('click', function (e) {
+            for (const pm of polygonMachine._layers) {
+                if (pm.findId === e.id) {
 
-    }
+                    $('input[type=checkbox][name=followvehicle]').prop('checked', false).change();
+                    map.setView(pm.getCenter(), 3);
+                    if ((' ' + document.getElementById('sidebar').className + ' ').indexOf(' ' + 'collapsed' + ' ') <= -1) {
+                        if ($('#zoneselect').val() == e.id) {
+                            sidebar.close('home');
+                        }
+                        else {
+                            sidebar.open('home');
+                        }
+                    }
+                    else {
+                        sidebar.open('home');
+                    }
+                    LoadMachineTables(machineupdate.properties, 'machinetable');
+                }
+            }
+            });
+
+        /*
+            layer.bindTooltip(feature.properties.name + "<br/>" + "Staffing: " + (feature.properties.hasOwnProperty("CurrentStaff") ? feature.properties.CurrentStaff : "0"), {
+                permanent: true,
+                interactive: true,
+                direction: 'center',
+                opacity: 1,
+                className: 'location'
+            }).openTooltip();
+            */
+        }
 });
 function getSparklineCoords(coordinates) {
     var minLat = 10000000000000;
@@ -356,7 +412,7 @@ async  function getMachineSparkline(machineupdate) {
     }
     var locaterIcon = L.divIcon({
         html: ((imgUrl === null) ? "<div></div>" : "<img src='" + imgUrl +
-            "' width'80' height='50' style='margin-left: 40px; margin-top: -25px; width: 80px; height: 50px' />")
+            "' width'50' height='25' style='margin-left: 40px; margin-top: -14px; width: 50px; height: 25px' />")
     });
     let marker = L.marker(latlng, {
         hourly_data: machineupdate.properties.MPEWatchData.hourly_data,
@@ -368,24 +424,7 @@ async  function getMachineSparkline(machineupdate) {
         bubblingMouseEvents: false,
         popupOpen: true
     });
-    marker.on('click', function (e) {
-        /*
-        $('input[type=checkbox][name=followvehicle]').prop('checked', false).change();
-        map.setView(e.sourceTarget.getCenter(), 3);
-        if ((' ' + document.getElementById('sidebar').className + ' ').indexOf(' ' + 'collapsed' + ' ') <= -1) {
-            if ($('#zoneselect').val() == machineupdate.properties.id) {
-                sidebar.close('home');
-            }
-            else {
-                sidebar.open('home');
-            }
-        }
-        else {
-            sidebar.open('home');
-        }
-        LoadMachineTables(machineupdate.properties, 'machinetable');
-        */
-    });
+    marker.on('click', (e) => { onSparklineClick(e); });
     return marker;
 
 }

@@ -171,6 +171,7 @@ var polygonMachine = new L.GeoJSON(null, {
         }
     },
     onEachFeature: function (feature, layer) {
+        layer.findId = feature.properties.id;
         $zoneSelect[0].selectize.addOption({ value: feature.properties.id, text: feature.properties.name });
         $zoneSelect[0].selectize.addItem(feature.properties.id);
         $zoneSelect[0].selectize.setValue(-1, true);
