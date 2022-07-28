@@ -237,7 +237,13 @@ const onSparklineClick = (e) => {
         if (pmObj.findId === e.target.options.id) {
 
             $('input[type=checkbox][name=followvehicle]').prop('checked', false).change();
-            map.setView(pmObj.getCenter(), 3);
+            try {
+                map.setView(pmObj.getCenter(), 3);
+            }
+            catch (e_) {
+
+                map.setView(e.target._latlng);
+            }
             if ((' ' + document.getElementById('sidebar').className + ' ').indexOf(' ' + 'collapsed' + ' ') <= -1) {
                 if ($('#zoneselect').val() == pmObj.findId) {
                     sidebar.close('home');
@@ -290,7 +296,8 @@ async  function getMachineSparkline(machineupdate) {
     }
     var locaterIcon = L.divIcon({
         html: ((imgUrl === null) ? "<div></div>" : "<img src='" + imgUrl +
-            "' width'50' height='25' style='margin-left: 40px; margin-top: -14px; width: 50px; height: 25px; position: relative' />")
+            "' width'50' height='25' style='margin-left: 40px; margin-top: -14px; width: 50px; height: 25px; position: relative' />"),
+        iconSize: [0, 0]
     });
     let marker = L.marker(latlng, {
         hourly_data: machineupdate.properties.MPEWatchData.hourly_data,
