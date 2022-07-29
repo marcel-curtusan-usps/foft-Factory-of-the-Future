@@ -1003,6 +1003,7 @@ async function zonecurrentStaff() {
                 }
             });
         }
+
         // other zone
         if (stagingAreas.hasOwnProperty("_layers")) {
             $.map(stagingAreas._layers, function (stagelayer, i) {

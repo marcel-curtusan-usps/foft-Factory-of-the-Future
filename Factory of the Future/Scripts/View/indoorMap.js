@@ -85,6 +85,23 @@ map = L.map('map', {
     layers: layersSelected
 });
 
+function setLayerCheckboxId(thisCheckBox, innerHTML) {
+    let name = innerHTML.replace(/ /g, '');
+    thisCheckBox.id = name;
+}
+function assignIdsToLayerCheckboxes() {
+    var leafletSelectors
+        = document.getElementsByClassName("leaflet-control-layers-selector");
+    for (var selector of leafletSelectors) {
+        let sp = selector.nextElementSibling;
+        let keys = Object.keys(overlayMaps);
+        for (const key of keys) {
+            if (sp.innerHTML.trim() == key.trim()) {
+                setLayerCheckboxId(selector, sp.innerHTML);
+            }
+        }
+    }
+}
 map.on('baselayerchange', function (e) {
     baselayerid = e.layer.options.id;
     console.log(baselayerid);
@@ -112,7 +129,18 @@ map.on('baselayerchange', function (e) {
         locatorMarker.clearLayers();
         init_zones(data[0].zones, baselayerid);
         init_locators(data[0].locators, baselayerid);
+        assignIdsToLayerCheckboxes();
+        setLayerCheckUncheckEvents();
     });
+});
+function setLayerCheckUncheckEvents() {
+    $("#MPESparklines").click(function () {
+        checkSparklineVisibility(true);
+    })
+}
+var lastMapZoom = null;
+map.on('zoomend', function () {
+    setTimeout(checkSparklineVisibility, 100);
 });
 var timedisplay = L.Control.extend({
     options: {

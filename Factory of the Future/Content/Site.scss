@@ -22,10 +22,38 @@
     padding: 0 !important;
 }
 
+#sparkline-message {
+    z-index: 2147483647;
+    width: 20%;
+    margin-left: auto;
+    margin-right: auto;
+    display: none;
+}
+
+#sparkline-message-fixed {
+    position: fixed;
+    z-index: 2147483647;
+    margin-top: 10px;
+}
+
+#sparkline-message-inner {
+    text-align: center;
+    width: 100%;
+    padding: 10px;
+    border-radius: 10px;
+    background-color: #ffffff;
+    border: 2px solid #e0e0e0;
+}
+
+
+.leaflet-tooltip-sparkline {
+    padding: 1px !important;
+    opacity: .5 !important;
+}
 .leaflet-control-mouseCoordinate {
     width: 250px;
     min-height: 30px;
-    text-align: left;                                                                                                  
+    text-align: left;
     border-radius: 5px;
     box-shadow: 0 1px 5px rgba(0, 0, 0, 0.4);
     background: none repeat scroll 0 0 #fff;

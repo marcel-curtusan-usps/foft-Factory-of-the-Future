@@ -34,6 +34,30 @@
 .leaflet-control-zoom-out {
     font-size: 22px !important;
 }
+
+
+#sparkline-message {
+    z-index: 2147483647;
+    width: 20%;
+    margin-left: auto;
+    margin-right: auto;
+    display: none;
+}
+
+#sparkline-message-fixed {
+    position: fixed;
+    z-index: 2147483647;
+    margin-top: 10px;
+}
+
+#sparkline-message-inner {
+    text-align: center;
+    width: 100%;
+    padding: 10px;
+    border-radius: 10px;
+    background-color: #ffffff;
+    border: 2px solid #e0e0e0;
+}
 #faqToggle {
     padding-top: .1rem !important;
 }
@@ -47,6 +71,11 @@
 
 #viewportsToggle {
     padding-top: .1rem !important;
+}
+
+.leaflet-tooltip-sparkline {
+    padding: 1px !important;
+    opacity: .5 !important;
 }
 
 .hiddenRow {

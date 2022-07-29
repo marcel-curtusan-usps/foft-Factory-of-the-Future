@@ -3,8 +3,9 @@
 
 function getHourlyArrayMPESparkline(hourly_data, n) {
      let hourlyArray = JSON.parse(JSON.stringify(hourly_data));
-    hourlyArray.splice(n);
+    hourlyArray.splice(n + 1);
     hourlyArray.reverse();
+    hourlyArray.pop();
     let currentColor = "";
     let latestHourIndex = hourlyArray.length - 1;
     let previousHourIndex = latestHourIndex - 1;
@@ -40,10 +41,10 @@ function clearSparklineCache() {
     }
 }
 function checkSparklineCache(hourly_data) {
-    for (var i = 0; i < sparklineCache.length; i++) {
-        if (JSON.stringify(sparklineCache[i].hourly_data) ==
+    for (var spCache of sparklineCache) {
+        if (JSON.stringify(spCache.hourly_data) ==
             JSON.stringify(hourly_data)) {
-            return sparklineCache[i].dataURL;
+            return spCache.dataURL;
         }
     }
     return null;
@@ -68,9 +69,7 @@ function GetSparklineGraph(dataproperties, id) {
     
     if (total > 0) {
         let hourlyArrays = getHourlyArrayMPESparkline(dataproperties.MPEWatchData.hourly_data, sparklineLength);
-        // let hourlyArrayPrevious12 = hourlyArrays[0];
-        // let hourlyArrayThis12 = hourlyArrays[1];
-        // let currentColor = hourlyArrays[2];
+      
         let labels = getLabelsMPESparkline(sparklineLength);
         let hourlyArrayThis = hourlyArrays[0];
         let currentColor = hourlyArrays[1];
@@ -91,32 +90,6 @@ function GetSparklineGraph(dataproperties, id) {
 
                     datasets: [
 
-                        /*{
-                        label: '',
-                        data: hourlyArrayPrevious12,
-                        backgroundColor:
-                            "rgba(0, 0, 0, 0)"
-                        ,
-                        borderColor:
-                            "rgba(0, 0, 0, .6)"
-                        ,
-                        borderWidth: 50
-                    },
-
-
-                        {
-                            label: '',
-                            data: hourlyArrayThis12,
-                            backgroundColor:
-                                "rgba(0, 0, 0, 0)"
-                            ,
-                            borderColor:
-                                currentColor
-                            ,
-                            borderWidth: 50
-                        }
-
-*/
 
                 {
                     label: '',
@@ -168,64 +141,9 @@ async function  createSparkline(dataproperties, id) {
     return new Promise((resolve, reject) => {
 
 
-       // var canvas = document.getElementById("sparkline-canvas");
-        
         let dataURLFound = GetSparklineGraph(dataproperties);
         resolve(dataURLFound);
-        /*
-        let ctx = canvas.getContext("2d");
-        ctx.fillStyle = "white";
-        ctx.fillRect(0, 0, 50, 25);
-        var img = new Image();
-        img.onload = function () {
-
-            ctx.drawImage(img, 0, 0);
-            resolve(canvas.toDataURL());
-        }
-        img.onerror = function () {
-            reject("could not load image");
-        }
-        img.src = dataURL;
-
-*/
-        //var hourlyArray = getHourlyArray(hourly_data);
-        //const labels = Utils.months({ count: 7 });
-        /*
-        const myChart = new Chart(ctx, {
-            type: 'bar',
-            data: {
-                labels: ['Red', 'Blue', 'Yellow', 'Green', 'Purple', 'Orange'],
-                datasets: [{
-                    label: '# of Votes',
-                    data: [12, 19, 3, 5, 2, 3],
-                    backgroundColor: [
-                        'rgba(255, 99, 132, 0.2)',
-                        'rgba(54, 162, 235, 0.2)',
-                        'rgba(255, 206, 86, 0.2)',
-                        'rgba(75, 192, 192, 0.2)',
-                        'rgba(153, 102, 255, 0.2)',
-                        'rgba(255, 159, 64, 0.2)'
-                    ],
-                    borderColor: [
-                        'rgba(255, 99, 132, 1)',
-                        'rgba(54, 162, 235, 1)',
-                        'rgba(255, 206, 86, 1)',
-                        'rgba(75, 192, 192, 1)',
-                        'rgba(153, 102, 255, 1)',
-                        'rgba(255, 159, 64, 1)'
-                    ],
-                    borderWidth: 1
-                }]
-            },
-            options: {
-                scales: {
-                    y: {
-                        beginAtZero: true
-                    }
-                }
-            }
-        });
-        */
+       
 
     });
 }
@@ -260,7 +178,7 @@ const onSparklineClick = (e) => {
 
     });
 };
-var machineSparklines = new L.GeoJSON();
+var machineSparklines = new L.GeoJSON(null, polyObj);
 
 function getSparklineCoords(coordinates) {
     var minLat = 10000000000000;
@@ -278,45 +196,39 @@ function getSparklineCoords(coordinates) {
     let centerLng = (minLng + maxLng) / 2;
     return [centerLat, centerLng];
 }
-async  function getMachineSparkline(machineupdate) {
-    let latlngArray = getSparklineCoords(machineupdate.geometry.coordinates[0]);
-    let latlng = L.latLng(latlngArray[0], latlngArray[1]);
-   // machineupdate.geometry.coordinates
 
-    var imgUrlFound =
-        await createSparkline(machineupdate.properties,
-            machineupdate.properties.id);
+const sparklineWidthNormal = 40;
+const sparklineHeightNormal = 20;
 
+async function updateMachineSparklineTooltip(feature, layer) {
 
- 
+    var zoom = map.getZoom();
+    let sparklineWidth = sparklineWidthNormal;
+    let sparklineHeight = sparklineHeightNormal;
+    let sparklineClass = 'leaflet-tooltip-sparkline';
+    
+    let imgUrl = checkSparklineCache(feature.properties.MPEWatchData.hourly_data);
+   
+    var htmlData = ((imgUrl === null) ? "<div></div>" : "<img src='" + imgUrl +
+        "' width'" + sparklineWidth +
+        "' height='" + sparklineHeight +
+        "' style='width: " + sparklineWidth + "px; height: " + sparklineHeight +
+        "px; ' />")
+        ;
+    if (layer._tooltip) {
+        layer.removeTooltip();
 
-    let imgUrl = null;
-    if (imgUrlFound) {
-         imgUrl = checkSparklineCache(machineupdate.properties.MPEWatchData.hourly_data);
     }
-    var locaterIcon = L.divIcon({
-        html: ((imgUrl === null) ? "<div></div>" : "<img src='" + imgUrl +
-            "' width'50' height='25' style='margin-left: 40px; margin-top: -14px; width: 50px; height: 25px; position: relative' />"),
-        iconSize: [0, 0]
-    });
-    let marker = L.marker(latlng, {
-        hourly_data: machineupdate.properties.MPEWatchData.hourly_data,
-        id: machineupdate.properties.id,
-        icon: locaterIcon,
-        title: machineupdate.properties.name,
-        riseOnHover: true,
-        riseOffset: 500,
-        bubblingMouseEvents: true,
-        popupOpen: true
-    });
-    marker.on('click', (e) => { onSparklineClick(e); });
-    return marker;
-
+        layer.bindTooltip(htmlData, {
+            permanent: true,
+            interactive: true,
+            direction: 'right',
+            className: sparklineClass
+        }).openTooltip();
+    
+    return true;
 }
 
-function hideOrShowSparkline() {
-
-}
 
 function layerMachineUpdateCheck(layer, machineupdate) {
     if (layer.options.id === machineupdate.properties.id) {
@@ -332,14 +244,30 @@ function layerMachineUpdateCheck(layer, machineupdate) {
 }
 
 let lastSparklineUpdate = 0;
-async function updateMachineSparkline(machineupdate, id) {
-    try {
 
+async function getSparklineLayerFromId(id) {
+    return new Promise((resolve, reject) => {
+
+        $.map(machineSparklines._layers, function (layer, i) {
+
+            if (layer.hasOwnProperty("feature") && layer.feature.properties.id == id) {
+                resolve(layer);
+            }
+        });
+            resolve(null);
+    });
+}
+async function updateMachineSparkline(machineupdate, id) {
+    
+    machineupdate.properties.transparent = true;
+    machineupdate.properties.sparkline = true;
         if (id == baselayerid) {
 
             if (machineupdate.properties.hasOwnProperty("MPEWatchData")) {
                 var found = false;
                 let layerIndex = -0;
+
+
                 $.map(machineSparklines._layers, async function (layer, i) {
 
                     if (layer.hasOwnProperty("options")) {
@@ -357,19 +285,15 @@ async function updateMachineSparkline(machineupdate, id) {
                     }
                 });
 
-                if (layerIndex !== -0 && checkSparklineCache(machineupdate.properties.MPEWatchData.hourly_data)) {
-                    let sparklineReplace = await getMachineSparkline(machineupdate);
-                    machineSparklines.removeLayer(machineSparklines._layers[layerIndex]);
-                    machineSparklines.addLayer(sparklineReplace);
+                if (found && layerIndex !== -0) {
+                    updateMachineSparklineTooltip(machineupdate._layers[layerIndex].feature,
+                        machineupdate._layers[layerIndex]);
                 }
                 if (!found) {
-                    let sparkline = await getMachineSparkline(machineupdate);
-                    machineSparklines.addLayer(sparkline);
+                    machineSparklines.addData(machineupdate);
+                   
                 }
             }
         }
-    }
-    catch (e) {
-        console.log(e.message + ", " + e.stack);
-    }
+    
 }

@@ -1,4 +1,8 @@
-﻿/**
+﻿const sparklineTooltipOpacity = .5;
+
+
+
+/**
  * this is use to setup a the machine information and other function
  * 
  * **/
@@ -87,10 +91,64 @@ $('#Zone_Modal').on('shown.bs.modal', function () {
     });
 });
 
+function shouldUpdateSparkline(lastZoom, zoom, forceUpdate) {
+    if (forceUpdate) return true;
+    if (zoom !== lastZoom) {
+        return true;
+    }
+    return false;
+}
+function checkSparklineVisibility(forceUpdate) {
+    var zoom = map.getZoom();
+    if (shouldUpdateSparkline(lastMapZoom, zoom, forceUpdate)) {
+
+
+        var machineSparklineKeys = Object.keys(machineSparklines._layers);
+
+
+        if (zoom < sparklineMinZoom) {
+            if (machineSparklineKeys.length > 0) {
+                $("#sparkline-message").show();
+            }
+            $.map(
+                machineSparklines._layers,
+                function (layer, i) {
+
+                    layer.getTooltip().setOpacity(0);
+                });
+        }
+        else {
+
+            $("#sparkline-message").hide();
+
+            $.map(
+                machineSparklines._layers,
+                function (layer, i) {
+
+                    updateMachineSparklineTooltip(layer.feature, layer);
+
+                });
+        }
+        if (machineSparklineKeys.length == 0 ||
+            !$("#MPESparklines").prop("checked")) {
+            $("#sparkline-message").hide();
+
+        }
+        if (!$("#MPESparklines").prop("checked")) {
+            for (const key of machineSparklineKeys) {
+                machineSparklines._layers[key].unbindTooltip();
+                map.removeLayer(machineSparklines._layers[key]);
+                map.addLayer(machineSparklines._layers[key]);
+            }
+        }
+    }
+    lastMapZoom = zoom;
+}
 // sets the sparkline graph cache so when it is ready to display,
 // no graphs need to be created
 // allow some time period in between function calls so that tags can continue to move
 
+var firstMachineSparklines = true;
 function updateAllMachineSparklines(machineStatuses, index) {
     if (index === machineStatuses.length) {
         // at the end of all calls, now check for sparklines and add to map.
@@ -102,6 +160,12 @@ function updateAllMachineSparklines(machineStatuses, index) {
                 updateMachineSparkline(tuple.Item1, tuple.Item2);
             }
         }
+        var forceUpdate = false;
+        if (firstMachineSparklines) {
+            forceUpdate = true;
+        }
+        firstMachineSparklines = false;
+        checkSparklineVisibility(forceUpdate);
     }
     else {
         var sortPlan2 =
@@ -117,20 +181,30 @@ function updateAllMachineSparklines(machineStatuses, index) {
         }, 10);
     }
 }
+
+var lastMachineStatuses = "";
 $.extend(fotfmanager.client, {
     updateMachineStatus: async (machineStatuses) =>
     {
-        for (var tuple of machineStatuses) {
-            
-            updateMachineZone(tuple.Item1, tuple.Item2);
-           
+        let machineStatusesString = JSON.stringify(machineStatuses);
+        if (lastMachineStatuses != machineStatusesString) {
+            lastMachineStatuses = machineStatusesString;
+
+            let sparklineStatuses = JSON.parse(machineStatusesString);
+            for (var tuple of machineStatuses) {
+
+                updateMachineZone(tuple.Item1, tuple.Item2);
+
+            }
+            // clears the sparkline graph cache if it is old data
+            clearSparklineCache();
+            updateAllMachineSparklines(sparklineStatuses, 0);
         }
-        // clears the sparkline graph cache if it is old data
-        clearSparklineCache();
-        updateAllMachineSparklines(machineStatuses, 0);
     }
 });
 
+var sparklineMinZoom = 2;
+var sparklineMinNormalZoom = 3;
 async function updateMachineZone(machineupdate, id) {
     try {
         if (id == baselayerid) {
@@ -173,64 +247,82 @@ $(function () {
         }
     });
 });
-var polygonMachine = new L.GeoJSON(null, {
+const polyObj = {
     style: function (feature) {
         if (feature.properties.visible) {
-            var style = {};
-            var sortplan = feature.properties.hasOwnProperty("MPEWatchData") ? feature.properties.MPEWatchData.hasOwnProperty("cur_sortplan") ? feature.properties.MPEWatchData.cur_sortplan : "" : "";
-            var endofrun = feature.properties.hasOwnProperty("MPEWatchData") ? feature.properties.MPEWatchData.hasOwnProperty("current_run_end") ? feature.properties.MPEWatchData.current_run_end != "0" ? feature.properties.MPEWatchData.current_run_end : "" : "" : "";
-            var startofrun = feature.properties.hasOwnProperty("MPEWatchData") ? feature.properties.MPEWatchData.hasOwnProperty("current_run_start") ? feature.properties.MPEWatchData.current_run_start : "" : "";
-            if (checkValue(sortplan) && !checkValue(endofrun)) {
-                var thpCode = feature.properties.hasOwnProperty("MPEWatchData") ? feature.properties.MPEWatchData.hasOwnProperty("throughput_status") ? feature.properties.MPEWatchData.throughput_status : "0" : "0";
-                var fillColor = GetMacineBackground(feature.properties.MPEWatchData, startofrun);
-                style = {
-                    weight: 1,
-                    opacity: 1,
-                    color: '#3573b1',
-                    fillOpacity: 0.5,
-                    fillColor: fillColor
-                };
+            if (!feature.properties.sparkline) {
+
+
+                var style = {};
+                var sortplan = feature.properties.hasOwnProperty("MPEWatchData") ? feature.properties.MPEWatchData.hasOwnProperty("cur_sortplan") ? feature.properties.MPEWatchData.cur_sortplan : "" : "";
+                var endofrun = feature.properties.hasOwnProperty("MPEWatchData") ? feature.properties.MPEWatchData.hasOwnProperty("current_run_end") ? feature.properties.MPEWatchData.current_run_end != "0" ? feature.properties.MPEWatchData.current_run_end : "" : "" : "";
+                var startofrun = feature.properties.hasOwnProperty("MPEWatchData") ? feature.properties.MPEWatchData.hasOwnProperty("current_run_start") ? feature.properties.MPEWatchData.current_run_start : "" : "";
+                if (checkValue(sortplan) && !checkValue(endofrun)) {
+                    var thpCode = feature.properties.hasOwnProperty("MPEWatchData") ? feature.properties.MPEWatchData.hasOwnProperty("throughput_status") ? feature.properties.MPEWatchData.throughput_status : "0" : "0";
+                    var fillColor = GetMacineBackground(feature.properties.MPEWatchData, startofrun);
+                    style = {
+                        weight: 1,
+                        opacity: 1,
+                        color: '#3573b1',
+                        fillOpacity: 0.5,
+                        fillColor: fillColor
+                    };
+                }
+                else {
+                    style = {
+                        weight: 1,
+                        opacity: 1,
+                        color: '#3573b1',
+                        fillOpacity: 0.2,
+                        fillColor: '#989ea4'
+                    };
+                }
+                return style;
             }
             else {
-                style = {
-                    weight: 1,
-                    opacity: 1,
-                    color: '#3573b1',
-                    fillOpacity: 0.2,
-                    fillColor: '#989ea4'
+
+
+                
+                return {
+                    fillOpacity: 0,
+                    opacity: 0
                 };
             }
-            return style;
         }
     },
     onEachFeature: function (feature, layer) {
         layer.findId = feature.properties.id;
-        $zoneSelect[0].selectize.addOption({ value: feature.properties.id, text: feature.properties.name });
-        $zoneSelect[0].selectize.addItem(feature.properties.id);
-        $zoneSelect[0].selectize.setValue(-1, true);
-        layer.on('click', function (e) {
-            $('input[type=checkbox][name=followvehicle]').prop('checked', false).change();
-            map.setView(e.sourceTarget.getCenter(), 3);
-            if ((' ' + document.getElementById('sidebar').className + ' ').indexOf(' ' + 'collapsed' + ' ') <= -1) {
-                if ($('#zoneselect').val() == feature.properties.id) {
-                    sidebar.close('home');
+        if (feature.properties.sparkline) {
+            updateMachineSparklineTooltip(feature, layer);
+        }
+        else {
+            $zoneSelect[0].selectize.addOption({ value: feature.properties.id, text: feature.properties.name });
+            $zoneSelect[0].selectize.addItem(feature.properties.id);
+            $zoneSelect[0].selectize.setValue(-1, true);
+            layer.on('click', function (e) {
+                $('input[type=checkbox][name=followvehicle]').prop('checked', false).change();
+                map.setView(e.sourceTarget.getCenter(), 3);
+                if ((' ' + document.getElementById('sidebar').className + ' ').indexOf(' ' + 'collapsed' + ' ') <= -1) {
+                    if ($('#zoneselect').val() == feature.properties.id) {
+                        sidebar.close('home');
+                    }
+                    else {
+                        sidebar.open('home');
+                    }
                 }
                 else {
                     sidebar.open('home');
                 }
-            }
-            else {
-                sidebar.open('home');
-            }
-            LoadMachineTables(feature.properties, 'machinetable');
-        });
-        layer.bindTooltip(feature.properties.name + "<br/>" + "Staffing: " + (feature.properties.hasOwnProperty("CurrentStaff") ? feature.properties.CurrentStaff : "0"), {
-            permanent: true,
-            interactive: true,
-            direction: 'center',
-            opacity: 1,
-            className: 'location'
-        }).openTooltip();
+                LoadMachineTables(feature.properties, 'machinetable');
+            });
+            layer.bindTooltip(feature.properties.name + "<br/>" + "Staffing: " + (feature.properties.hasOwnProperty("CurrentStaff") ? feature.properties.CurrentStaff : "0"), {
+                permanent: true,
+                interactive: true,
+                direction: 'left',
+                opacity: 1,
+                className: 'location'
+            }).openTooltip();
+        }
     },
     filter: function (feature, layer) {
         if (/(way)$/i.test(feature.properties.name)) {
@@ -240,18 +332,25 @@ var polygonMachine = new L.GeoJSON(null, {
             return feature.properties.visible;
         }
     }
-});
+};
+var polygonMachine = new L.GeoJSON(null, polyObj);
 async function updateMPEZone(properties, index) {
     var sortplan = properties.MPEWatchData.hasOwnProperty("cur_sortplan") ? properties.MPEWatchData.cur_sortplan : "";
     var endofrun = properties.MPEWatchData.hasOwnProperty("current_run_end") ? properties.MPEWatchData.current_run_end == "0" ? "" : properties.MPEWatchData.current_run_end : "";
     var startofrun = properties.MPEWatchData.hasOwnProperty("current_run_start") ? properties.MPEWatchData.current_run_start : "";
+    var opacityValue = 1;
+    var fillOpacityValue = .5;
+    if (properties.transparent) {
+        opacityValue = 0;
+        fillOpacityValue = 0;
+    }
     if (checkValue(sortplan) && !checkValue(endofrun)) {
         var thpCode = properties.MPEWatchData.hasOwnProperty("throughput_status") ? properties.MPEWatchData.throughput_status : "0";
         var fillColor = GetMacineBackground(properties.MPEWatchData, startofrun);
         polygonMachine._layers[index].setStyle({
             weight: 1,
-            opacity: 1,
-            fillOpacity: 0.5,
+            opacity: opacityValue,
+            fillOpacity: fillOpacityValue,
             fillColor: fillColor
         });
     }
