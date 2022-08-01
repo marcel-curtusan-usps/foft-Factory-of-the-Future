@@ -215,8 +215,9 @@ async function updateMachineSparklineTooltip(feature, layer) {
         "' style='width: " + sparklineWidth + "px; height: " + sparklineHeight +
         "px; ' />")
         ;
+   // let tt = new tooltip()
     if (layer._tooltip) {
-        layer.removeTooltip();
+        layer.unbindTooltip();
 
     }
         layer.bindTooltip(htmlData, {
@@ -230,17 +231,12 @@ async function updateMachineSparklineTooltip(feature, layer) {
 }
 
 
-function layerMachineUpdateCheck(layer, machineupdate) {
-    if (layer.options.id === machineupdate.properties.id) {
+function layerMachineIdMatch(layer, machineupdate) {
+    if (layer.findId === machineupdate.properties.id) {
         
-        let hourlyData = JSON.stringify(layer.options.hourly_data);
-        let hourlyData2 = JSON.stringify(machineupdate.properties.MPEWatchData.hourly_data);
-        if (hourlyData !== hourlyData2) {
-            return "update";
-        }
-        return "found";
+        return true;
     }
-    return null;
+    return false;
 }
 
 let lastSparklineUpdate = 0;
@@ -268,30 +264,27 @@ async function updateMachineSparkline(machineupdate, id) {
                 let layerIndex = -0;
 
 
-                $.map(machineSparklines._layers, async function (layer, i) {
 
+                var machineSparklineKeys = Object.keys(machineSparklines._layers);
+
+                for (var key of machineSparklineKeys) {
+                    let layer = machineSparklines._layers[key];
                     if (layer.hasOwnProperty("options")) {
-                        let layerMachineUpdateVal =
-                            layerMachineUpdateCheck(layer, machineupdate);
-                        if (layerMachineUpdateVal === "update")
+                        if (layerMachineIdMatch(layer, machineupdate))
                         {
                             layerIndex = i;
-                            found = true;
-                        }
-                        if (layerMachineUpdateVal === "found") {
-                            found = true;
                         }
 
                     }
-                });
-
-                if (found && layerIndex !== -0) {
-                    updateMachineSparklineTooltip(machineupdate._layers[layerIndex].feature,
-                        machineupdate._layers[layerIndex]);
                 }
-                if (!found) {
+
+                if (layerIndex !== -0) {
+                    updateMachineSparklineTooltip(machineSparklines._layers[layerIndex].feature,
+                        machineSparklines._layers[layerIndex]);
+                }
+                else {
                     machineSparklines.addData(machineupdate);
-                   
+
                 }
             }
         }

@@ -93,7 +93,12 @@ $('#Zone_Modal').on('shown.bs.modal', function () {
 
 function shouldUpdateSparkline(lastZoom, zoom, forceUpdate) {
     if (forceUpdate) return true;
-    if (zoom !== lastZoom) {
+    
+    if (lastZoom > zoom && zoom < sparklineMinZoom) {
+        return true;
+    }
+
+    if (zoom > lastZoom && lastZoom < sparklineMinZoom) {
         return true;
     }
     return false;
@@ -106,6 +111,12 @@ function checkSparklineVisibility(forceUpdate) {
         var machineSparklineKeys = Object.keys(machineSparklines._layers);
 
 
+        if (machineSparklineKeys.length == 0 ||
+            !$("#MPESparklines").prop("checked")) {
+            $("#sparkline-message").hide();
+
+        }
+        else
         if (zoom < sparklineMinZoom) {
             if (machineSparklineKeys.length > 0) {
                 $("#sparkline-message").show();
@@ -114,7 +125,7 @@ function checkSparklineVisibility(forceUpdate) {
                 machineSparklines._layers,
                 function (layer, i) {
 
-                    layer.getTooltip().setOpacity(0);
+                    layer.unbindTooltip();
                 });
         }
         else {
@@ -128,18 +139,6 @@ function checkSparklineVisibility(forceUpdate) {
                     updateMachineSparklineTooltip(layer.feature, layer);
 
                 });
-        }
-        if (machineSparklineKeys.length == 0 ||
-            !$("#MPESparklines").prop("checked")) {
-            $("#sparkline-message").hide();
-
-        }
-        if (!$("#MPESparklines").prop("checked")) {
-            for (const key of machineSparklineKeys) {
-                machineSparklines._layers[key].unbindTooltip();
-                map.removeLayer(machineSparklines._layers[key]);
-                map.addLayer(machineSparklines._layers[key]);
-            }
         }
     }
     lastMapZoom = zoom;
@@ -204,7 +203,6 @@ $.extend(fotfmanager.client, {
 });
 
 var sparklineMinZoom = 2;
-var sparklineMinNormalZoom = 3;
 async function updateMachineZone(machineupdate, id) {
     try {
         if (id == baselayerid) {
@@ -293,6 +291,7 @@ const polyObj = {
     onEachFeature: function (feature, layer) {
         layer.findId = feature.properties.id;
         if (feature.properties.sparkline) {
+            console.log("onEachFeature sparkline " + Date.now());
             updateMachineSparklineTooltip(feature, layer);
         }
         else {
