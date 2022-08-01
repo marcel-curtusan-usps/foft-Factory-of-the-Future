@@ -201,7 +201,6 @@ const sparklineWidthNormal = 40;
 const sparklineHeightNormal = 20;
 
 async function updateMachineSparklineTooltip(feature, layer) {
-
     var zoom = map.getZoom();
     let sparklineWidth = sparklineWidthNormal;
     let sparklineHeight = sparklineHeightNormal;
@@ -260,27 +259,26 @@ async function updateMachineSparkline(machineupdate, id) {
         if (id == baselayerid) {
 
             if (machineupdate.properties.hasOwnProperty("MPEWatchData")) {
-                var found = false;
-                let layerIndex = -0;
+                let foundLayer = null;
 
 
 
                 var machineSparklineKeys = Object.keys(machineSparklines._layers);
-
+               
                 for (var key of machineSparklineKeys) {
                     let layer = machineSparklines._layers[key];
                     if (layer.hasOwnProperty("options")) {
                         if (layerMachineIdMatch(layer, machineupdate))
                         {
-                            layerIndex = i;
+                            foundLayer = layer;
                         }
 
                     }
                 }
 
-                if (layerIndex !== -0) {
-                    updateMachineSparklineTooltip(machineSparklines._layers[layerIndex].feature,
-                        machineSparklines._layers[layerIndex]);
+                if (foundLayer) {
+                    updateMachineSparklineTooltip(foundLayer.feature,
+                        foundLayer);
                 }
                 else {
                     machineSparklines.addData(machineupdate);
