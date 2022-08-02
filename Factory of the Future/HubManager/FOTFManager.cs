@@ -1497,8 +1497,11 @@ namespace Factory_of_the_Future
                      
                         });
                     }
-
-                    BroadcastMachineStatus(machineStatuses);
+                    if (machineStatuses.Count > 0)
+                    {
+                        BroadcastMachineStatus(machineStatuses);
+                    }
+                   
                     _updateMachineStatus = false;
                 }
             }

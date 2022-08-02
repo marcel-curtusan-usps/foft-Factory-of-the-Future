@@ -252,7 +252,6 @@ async function getSparklineLayerFromId(id) {
     });
 }
 async function updateMachineSparkline(machineupdate, id) {
-    
     machineupdate.properties.transparent = true;
     machineupdate.properties.sparkline = true;
         if (id == baselayerid) {

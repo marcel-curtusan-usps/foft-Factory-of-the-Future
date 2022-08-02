@@ -93,7 +93,7 @@ $('#Zone_Modal').on('shown.bs.modal', function () {
 
 function shouldUpdateSparkline(lastZoom, zoom, forceUpdate) {
     if (forceUpdate) return true;
-    
+
     if (lastZoom > zoom && zoom < sparklineMinZoom) {
         return true;
     }
@@ -116,28 +116,28 @@ function checkSparklineVisibility(forceUpdate) {
 
         }
         else
-        if (zoom < sparklineMinZoom) {
-            if (machineSparklineKeys.length > 0) {
-                $("#sparkline-message").show();
+            if (zoom < sparklineMinZoom) {
+                if (machineSparklineKeys.length > 0) {
+                    $("#sparkline-message").show();
+                }
+                $.map(
+                    machineSparklines._layers,
+                    function (layer, i) {
+
+                        layer.unbindTooltip();
+                    });
             }
-            $.map(
-                machineSparklines._layers,
-                function (layer, i) {
+            else {
 
-                    layer.unbindTooltip();
-                });
-        }
-        else {
+                $("#sparkline-message").hide();
 
-            $("#sparkline-message").hide();
+                $.map(
+                    machineSparklines._layers,
+                    function (layer, i) {
 
-            $.map(
-                machineSparklines._layers,
-                function (layer, i) {
+                        updateMachineSparklineTooltip(layer.feature, layer);
 
-                    updateMachineSparklineTooltip(layer.feature, layer);
-
-                });
+                    });
             }
 
     }
@@ -148,57 +148,63 @@ function checkSparklineVisibility(forceUpdate) {
 // allow some time period in between function calls so that tags can continue to move
 var firstMPEZoneData = true;
 var firstMachineSparklines = true;
-function updateAllMachineSparklines(machineStatuses, index) {
-    if (index === machineStatuses.length) {
-        // at the end of all calls, now check for sparklines and add to map.
-        for (var tuple of machineStatuses) {
 
-            var sortPlan1 =
-                tuple.Item1.properties.MPEWatchData.cur_sortplan;
-            if (sortPlan1 != "") {
-                updateMachineSparkline(tuple.Item1, tuple.Item2);
-            }
-        }
-        var forceUpdate = false;
+async function waitWithoutBlocking(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+}
+async function updateAllMachineSparklines(machineStatuses, i) {
+    if (i === machineStatuses.length) {
 
-        if (firstMachineSparklines ) {
-            forceUpdate = true;
-        }
-        checkSparklineVisibility(forceUpdate);
-        let sparklinesChecked = $("#MPESparklines").prop("checked");
-        if (firstMachineSparklines && sparklinesChecked) {
-           
-            updateSparklineTooltipDirection();
-        }
-        let mpeZoneDataChecked = $("#MPEWorkAreas").prop("checked");
-        if (firstMPEZoneData && mpeZoneDataChecked) {
-
-            updateMPEZoneTooltipDirection();
-        }
-        if (sparklinesChecked) {
-
-            firstMachineSparklines = false;
-        }
+        updateAllMachineSparklinesDone(machineStatuses);
     }
     else {
-        var sortPlan2 =
-            machineStatuses[index].Item1.properties.MPEWatchData.cur_sortplan;
+        GetSparklineGraph(machineStatuses[i].Item1.properties,
+                machineStatuses[i].Item1.properties.id);
+        waitWithoutBlocking(100).then(() => {
+            updateAllMachineSparklines(machineStatuses, i + 1)
+        });
+    }
+}
+function updateAllMachineSparklinesDone(machineStatuses) {
+    for (const machineStatus of machineStatuses) {
+        updateSparklineCheck(machineStatus);
 
-        if (sortPlan2 != "") {
-            // get the graph and update it to sparkline cache
-            GetSparklineGraph(machineStatuses[index].Item1.properties,
-                machineStatuses[index].Item1.properties.id);
-        }
-        setTimeout(() => {
-            updateAllMachineSparklines(machineStatuses, index + 1);
-        }, 10);
+
+    }
+    var forceUpdate = false;
+
+    if (firstMachineSparklines) {
+        forceUpdate = true;
+    }
+    checkSparklineVisibility(forceUpdate);
+    let sparklinesChecked = $("#MPESparklines").prop("checked");
+    if (firstMachineSparklines && sparklinesChecked) {
+
+        updateSparklineTooltipDirection();
+    }
+    let mpeZoneDataChecked = $("#MPEWorkAreas").prop("checked");
+    if (firstMPEZoneData && mpeZoneDataChecked) {
+
+        updateMPEZoneTooltipDirection();
+    }
+    if (sparklinesChecked) {
+
+        firstMachineSparklines = false;
+    }
+}
+function updateSparklineCheck(machineStatus) {
+
+    var sortPlan =
+        machineStatus.Item1.properties.MPEWatchData.cur_sortplan;
+
+    if (sortPlan != "") {
+        updateMachineSparkline(machineStatus.Item1, machineStatus.Item2);
     }
 }
 
 var lastMachineStatuses = "";
 $.extend(fotfmanager.client, {
-    updateMachineStatus: async (machineStatuses) =>
-    {
+    updateMachineStatus: async (machineStatuses) => {
         let machineStatusesString = JSON.stringify(machineStatuses);
         if (lastMachineStatuses != machineStatusesString) {
             lastMachineStatuses = machineStatusesString;
@@ -282,10 +288,10 @@ function updateMPEZoneTooltipDirection() {
 function getMPEZoneTooltipDirection() {
     let mpeSparklinesChecked = $("#MPESparklines").prop("checked");
     if (Object.keys(machineSparklines._layers).length == 0 ||
-        ! mpeSparklinesChecked) {
+        !mpeSparklinesChecked) {
         return "center";
     }
-        return "left";
+    return "left";
 }
 
 function updateSparklineTooltipDirection() {
@@ -296,25 +302,23 @@ function updateSparklineTooltipDirection() {
         let keys = Object.keys(machineSparklines._layers);
 
         var tooltipDirection = getSparklineTooltipDirection();
-    for (const key of keys) {
-        let layer = machineSparklines._layers[key];
-        if (layer && layer._tooltip !== null) {
-            layer.getTooltip().options.direction = tooltipDirection;
-            layer.closeTooltip();
-            layer.openTooltip();
-        }
+        for (const key of keys) {
+            let layer = machineSparklines._layers[key];
+            if (layer && layer._tooltip !== null) {
+                layer.getTooltip().options.direction = tooltipDirection;
+                layer.closeTooltip();
+                layer.openTooltip();
+            }
 
 
         }
     }
 }
 function getSparklineTooltipDirection() {
-    console.log("getSparklinetooltipdirection");
 
     let mpeWorkAreasChecked = $("#MPEWorkAreas").prop("checked");
     if (Object.keys(polygonMachine._layers).length == 0 ||
         !mpeWorkAreasChecked) {
-        console.log("sparkline center 1");
         return "center";
     }
     return "right";
@@ -354,7 +358,7 @@ const polyObj = {
             else {
 
 
-                
+
                 return {
                     fillOpacity: 0,
                     opacity: 0
@@ -366,7 +370,6 @@ const polyObj = {
         layer.findId = feature.properties.id;
 
         if (feature.properties.sparkline) {
-            console.log("onEachFeature sparkline " + Date.now());
             updateMachineSparklineTooltip(feature, layer);
         }
         else {
@@ -452,7 +455,7 @@ async function LoadMachineTables(dataproperties, table) {
             $('div[id=machine_div]').css('display', 'block');
             $('div[id=ctstabs_div]').css('display', 'block');
             if (/machinetable/i.test(table)) {
-                
+
                 $zoneSelect[0].selectize.setValue(dataproperties.id, true);
                 $('button[name=machineinfoedit]').attr('id', dataproperties.id)
                 $('div[id=dps_div]').css('display', 'none');
@@ -518,7 +521,7 @@ async function LoadMachineTables(dataproperties, table) {
                         });
                     }
                 }
-                document.getElementById('machineChart_tr').style.backgroundColor = 'rgba(0,0,0,0)';	
+                document.getElementById('machineChart_tr').style.backgroundColor = 'rgba(0,0,0,0)';
                 if (dataproperties.MPEWatchData.hasOwnProperty("hourly_data")) {
                     GetMachinePerfGraph(dataproperties);
                 }
@@ -555,18 +558,18 @@ function formatmachinetoprow(properties) {
         zoneId: properties.id,
         zoneName: properties.name,
         zoneType: properties.Zone_Type,
-        sortPlan: checkValue(properties.MPEWatchData.cur_sortplan) ? properties.MPEWatchData.cur_sortplan : "N/A" ,
-        opNum:properties.MPEWatchData.cur_operation_id.padStart(3, "0"),
+        sortPlan: checkValue(properties.MPEWatchData.cur_sortplan) ? properties.MPEWatchData.cur_sortplan : "N/A",
+        opNum: properties.MPEWatchData.cur_operation_id.padStart(3, "0"),
         sortPlanStart: properties.MPEWatchData.current_run_start,
-        sortPlanEnd:  properties.MPEWatchData.current_run_end ,
-        peicesFed:  digits(properties.MPEWatchData.tot_sortplan_vol) ,
-        throughput: digits(properties.MPEWatchData.cur_thruput_ophr) ,
+        sortPlanEnd: properties.MPEWatchData.current_run_end,
+        peicesFed: digits(properties.MPEWatchData.tot_sortplan_vol),
+        throughput: digits(properties.MPEWatchData.cur_thruput_ophr),
         rpgVol: digits(properties.MPEWatchData.rpg_est_vol),
         stateBadge: getstatebadge(properties),
         stateText: getstateText(properties),
         estComp: checkValue(properties.MPEWatchData.rpg_est_comp_time) ? properties.MPEWatchData.rpg_est_comp_time : "Estimate Not Available",
-        rpgStart:moment(properties.MPEWatchData.rpg_start_dtm, "MM/DD/YYYY hh:mm:ss A").format("YYYY-MM-DD HH:mm:ss"),
-        rpgEnd:  moment(properties.MPEWatchData.rpg_end_dtm, "MM/DD/YYYY hh:mm:ss A").format("YYYY-MM-DD HH:mm:ss"),
+        rpgStart: moment(properties.MPEWatchData.rpg_start_dtm, "MM/DD/YYYY hh:mm:ss A").format("YYYY-MM-DD HH:mm:ss"),
+        rpgEnd: moment(properties.MPEWatchData.rpg_end_dtm, "MM/DD/YYYY hh:mm:ss A").format("YYYY-MM-DD HH:mm:ss"),
         expThroughput: digits(properties.MPEWatchData.expected_throughput),
         fullBins: properties.MPEWatchData.bin_full_bins,
         arsRecirc: properties.MPEWatchData.ars_recrej3,
@@ -588,17 +591,17 @@ let machinetop_row_template =
 
 function formatdpstoprow(properties) {
     return $.extend(properties, {
-        dpssortplans:  properties.sortplan_name_perf,
-        piecesfedfirstpass:  digits(properties.pieces_fed_1st_cnt),
-        piecesrejectedfirstpass:  digits(properties.pieces_rejected_1st_cnt),
-        piecestosecondpass:  digits(properties.pieces_to_2nd_pass),
-        piecesfedsecondpass:  digits(properties.pieces_fed_2nd_cnt),
-        piecesrejectedsecondpass: digits(properties.pieces_rejected_2nd_cnt) ,
+        dpssortplans: properties.sortplan_name_perf,
+        piecesfedfirstpass: digits(properties.pieces_fed_1st_cnt),
+        piecesrejectedfirstpass: digits(properties.pieces_rejected_1st_cnt),
+        piecestosecondpass: digits(properties.pieces_to_2nd_pass),
+        piecesfedsecondpass: digits(properties.pieces_fed_2nd_cnt),
+        piecesrejectedsecondpass: digits(properties.pieces_rejected_2nd_cnt),
         piecesremainingsecondpass: digits(properties.pieces_remaining),
         timetocompleteactual: digits(properties.time_to_comp_actual),
-        timeleftsecondpassactual:digits(properties.time_to_2nd_pass_actual),
+        timeleftsecondpassactual: digits(properties.time_to_2nd_pass_actual),
         recomendedstartactual: properties.rec_2nd_pass_start_actual,
-        completiondateTime:  properties.time_to_comp_actual_DateTime,
+        completiondateTime: properties.time_to_comp_actual_DateTime,
     });
 }
 let dpstop_row_template =
@@ -649,7 +652,7 @@ function getstatebadge(properties) {
         if (properties.MPEWatchData.hasOwnProperty("current_run_end")) {
             //var endtime = moment(properties.MPEWatchData.current_run_end);
             var endtime = properties.MPEWatchData.current_run_end == "0" ? "" : moment(properties.MPEWatchData.current_run_end);
-            
+
             var starttime = moment(properties.MPEWatchData.current_run_start);
             var sortPlan = properties.MPEWatchData.cur_sortplan;
 
@@ -738,11 +741,11 @@ async function Edit_Machine_Info(id) {
                         try {
                             $('button[id=machinesubmitBtn]').prop('disabled', true);
                             var jsonObject = {
-                            MPE_Type: $('input[type=text][name=machine_name]').val(),
-                            MPE_Number: $('input[type=text][name=machine_number]').val(),
-                            Zone_LDC: $('input[type=text][name=zone_ldc]').val(),
-                            floorId: baselayerid
-                           };
+                                MPE_Type: $('input[type=text][name=machine_name]').val(),
+                                MPE_Number: $('input[type=text][name=machine_number]').val(),
+                                Zone_LDC: $('input[type=text][name=zone_ldc]').val(),
+                                floorId: baselayerid
+                            };
 
                             if (!$.isEmptyObject(jsonObject)) {
                                 jsonObject.id = Data.id;
@@ -776,7 +779,7 @@ async function Edit_Machine_Info(id) {
 function enablezoneSubmit() {
     //AGV connections
     if ($('input[type=text][name=machine_name]').hasClass('is-valid') &&
-        $('input[type=text][name=machine_number]').hasClass('is-valid') 
+        $('input[type=text][name=machine_number]').hasClass('is-valid')
     ) {
         $('button[id=machinesubmitBtn]').prop('disabled', false);
     }
