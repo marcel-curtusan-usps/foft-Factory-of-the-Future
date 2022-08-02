@@ -135,7 +135,13 @@ map.on('baselayerchange', function (e) {
 });
 function setLayerCheckUncheckEvents() {
     $("#MPESparklines").click(function () {
-        checkSparklineVisibility(true);
+       
+        updateMPEZoneTooltipDirection();
+        updateSparklineTooltipDirection();
+    });
+    $("#MPEWorkAreas").click(function () {
+        updateMPEZoneTooltipDirection();
+        updateSparklineTooltipDirection();
     })
 }
 var lastMapZoom = null;

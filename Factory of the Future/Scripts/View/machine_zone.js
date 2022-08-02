@@ -107,7 +107,6 @@ function checkSparklineVisibility(forceUpdate) {
     var zoom = map.getZoom();
     if (shouldUpdateSparkline(lastMapZoom, zoom, forceUpdate)) {
 
-
         var machineSparklineKeys = Object.keys(machineSparklines._layers);
 
 
@@ -139,14 +138,15 @@ function checkSparklineVisibility(forceUpdate) {
                     updateMachineSparklineTooltip(layer.feature, layer);
 
                 });
-        }
+            }
+
     }
     lastMapZoom = zoom;
 }
 // sets the sparkline graph cache so when it is ready to display,
 // no graphs need to be created
 // allow some time period in between function calls so that tags can continue to move
-
+var firstMPEZoneData = true;
 var firstMachineSparklines = true;
 function updateAllMachineSparklines(machineStatuses, index) {
     if (index === machineStatuses.length) {
@@ -160,11 +160,25 @@ function updateAllMachineSparklines(machineStatuses, index) {
             }
         }
         var forceUpdate = false;
-        if (firstMachineSparklines) {
+
+        if (firstMachineSparklines ) {
             forceUpdate = true;
         }
-        firstMachineSparklines = false;
         checkSparklineVisibility(forceUpdate);
+        let sparklinesChecked = $("#MPESparklines").prop("checked");
+        if (firstMachineSparklines && sparklinesChecked) {
+           
+            updateSparklineTooltipDirection();
+        }
+        let mpeZoneDataChecked = $("#MPEWorkAreas").prop("checked");
+        if (firstMPEZoneData && mpeZoneDataChecked) {
+
+            updateMPEZoneTooltipDirection();
+        }
+        if (sparklinesChecked) {
+
+            firstMachineSparklines = false;
+        }
     }
     else {
         var sortPlan2 =
@@ -245,6 +259,66 @@ $(function () {
         }
     });
 });
+
+function updateMPEZoneTooltipDirection() {
+
+    let mpeWorkAreasChecked = $("#MPEWorkAreas").prop("checked");
+    if (mpeWorkAreasChecked) {
+        let keys = Object.keys(polygonMachine._layers);
+        let tooltipDirection = getMPEZoneTooltipDirection();
+        for (const key of keys) {
+            let layer = polygonMachine._layers[key];
+            if (layer && layer._tooltip !== null) {
+
+                layer.getTooltip().options.direction = tooltipDirection;
+                layer.closeTooltip();
+                layer.openTooltip();
+            }
+
+
+        }
+    }
+}
+function getMPEZoneTooltipDirection() {
+    let mpeSparklinesChecked = $("#MPESparklines").prop("checked");
+    if (Object.keys(machineSparklines._layers).length == 0 ||
+        ! mpeSparklinesChecked) {
+        return "center";
+    }
+        return "left";
+}
+
+function updateSparklineTooltipDirection() {
+
+    let mpeSparklinesChecked = $("#MPESparklines").prop("checked");
+
+    if (mpeSparklinesChecked) {
+        let keys = Object.keys(machineSparklines._layers);
+
+        var tooltipDirection = getSparklineTooltipDirection();
+    for (const key of keys) {
+        let layer = machineSparklines._layers[key];
+        if (layer && layer._tooltip !== null) {
+            layer.getTooltip().options.direction = tooltipDirection;
+            layer.closeTooltip();
+            layer.openTooltip();
+        }
+
+
+        }
+    }
+}
+function getSparklineTooltipDirection() {
+    console.log("getSparklinetooltipdirection");
+
+    let mpeWorkAreasChecked = $("#MPEWorkAreas").prop("checked");
+    if (Object.keys(polygonMachine._layers).length == 0 ||
+        !mpeWorkAreasChecked) {
+        console.log("sparkline center 1");
+        return "center";
+    }
+    return "right";
+}
 const polyObj = {
     style: function (feature) {
         if (feature.properties.visible) {
@@ -290,6 +364,7 @@ const polyObj = {
     },
     onEachFeature: function (feature, layer) {
         layer.findId = feature.properties.id;
+
         if (feature.properties.sparkline) {
             console.log("onEachFeature sparkline " + Date.now());
             updateMachineSparklineTooltip(feature, layer);
@@ -317,7 +392,7 @@ const polyObj = {
             layer.bindTooltip(feature.properties.name + "<br/>" + "Staffing: " + (feature.properties.hasOwnProperty("CurrentStaff") ? feature.properties.CurrentStaff : "0"), {
                 permanent: true,
                 interactive: true,
-                direction: 'left',
+                direction: getMPEZoneTooltipDirection(),
                 opacity: 1,
                 className: 'location'
             }).openTooltip();

@@ -201,7 +201,6 @@ const sparklineWidthNormal = 40;
 const sparklineHeightNormal = 20;
 
 async function updateMachineSparklineTooltip(feature, layer) {
-    var zoom = map.getZoom();
     let sparklineWidth = sparklineWidthNormal;
     let sparklineHeight = sparklineHeightNormal;
     let sparklineClass = 'leaflet-tooltip-sparkline';
@@ -222,7 +221,7 @@ async function updateMachineSparklineTooltip(feature, layer) {
         layer.bindTooltip(htmlData, {
             permanent: true,
             interactive: true,
-            direction: 'right',
+            direction: getSparklineTooltipDirection(),
             className: sparklineClass
         }).openTooltip();
     
