@@ -1,4 +1,115 @@
 ﻿
+function updateAllMachineSparklinesDone(machineStatuses) {
+    for (const machineStatus of machineStatuses) {
+        updateSparklineCheck(machineStatus);
+
+
+    }
+    var forceUpdate = false;
+
+    if (firstMachineSparklines) {
+        forceUpdate = true;
+    }
+    checkSparklineVisibility(forceUpdate);
+    let sparklinesChecked = $("#MPESparklines").prop("checked");
+    if (firstMachineSparklines && sparklinesChecked) {
+
+        updateSparklineTooltipDirection();
+    }
+    let mpeZoneDataChecked = $("#MPEWorkAreas").prop("checked");
+    if (firstMPEZoneData && mpeZoneDataChecked) {
+
+        updateMPEZoneTooltipDirection();
+    }
+    if (sparklinesChecked) {
+
+        firstMachineSparklines = false;
+    }
+}
+function updateSparklineCheck(machineStatus) {
+
+    var sortPlan =
+        machineStatus.Item1.properties.MPEWatchData.cur_sortplan;
+
+    if (sortPlan != "") {
+        updateMachineSparkline(machineStatus.Item1, machineStatus.Item2);
+    }
+}
+
+function shouldUpdateSparkline(lastZoom, zoom, forceUpdate) {
+    if (forceUpdate) return true;
+
+    if (lastZoom > zoom && zoom < sparklineMinZoom) {
+        return true;
+    }
+
+    if (zoom > lastZoom && lastZoom < sparklineMinZoom) {
+        return true;
+    }
+    return false;
+}
+function checkSparklineVisibility(forceUpdate) {
+    var zoom = map.getZoom();
+    if (shouldUpdateSparkline(lastMapZoom, zoom, forceUpdate)) {
+
+        var machineSparklineKeys = Object.keys(machineSparklines._layers);
+
+
+        if (machineSparklineKeys.length == 0 ||
+            !$("#MPESparklines").prop("checked")) {
+            $("#sparkline-message").hide();
+
+        }
+        else
+            if (zoom < sparklineMinZoom) {
+                if (machineSparklineKeys.length > 0) {
+                    $("#sparkline-message").show();
+                }
+                $.map(
+                    machineSparklines._layers,
+                    function (layer, i) {
+
+                        layer.unbindTooltip();
+                    });
+            }
+            else {
+
+                $("#sparkline-message").hide();
+
+                $.map(
+                    machineSparklines._layers,
+                    function (layer, i) {
+
+                        updateMachineSparklineTooltip(layer.feature, layer);
+
+                    });
+            }
+
+    }
+    lastMapZoom = zoom;
+}
+// sets the sparkline graph cache so when it is ready to display,
+// no graphs need to be created
+// allow some time period in between function calls so that tags can continue to move
+var firstMPEZoneData = true;
+var firstMachineSparklines = true;
+
+async function waitWithoutBlocking(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+}
+async function updateAllMachineSparklines(machineStatuses, i) {
+    if (i === machineStatuses.length) {
+
+        updateAllMachineSparklinesDone(machineStatuses);
+    }
+    else {
+        GetSparklineGraph(machineStatuses[i].Item1.properties,
+            machineStatuses[i].Item1.properties.id);
+        waitWithoutBlocking(100).then(() => {
+            updateAllMachineSparklines(machineStatuses, i + 1)
+        });
+    }
+}
 
 
 function getHourlyArrayMPESparkline(hourly_data, n) {
@@ -213,8 +324,7 @@ async function updateMachineSparklineTooltip(feature, layer) {
         "' style='width: " + sparklineWidth + "px; height: " + sparklineHeight +
         "px; ' />")
         ;
-   // let tt = new tooltip()
-    if (layer._tooltip) {
+    if (layer._tooltip !== null) {
         layer.unbindTooltip();
 
     }
