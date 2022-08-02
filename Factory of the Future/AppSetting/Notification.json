@@ -85,6 +85,23 @@
     "CriticalColor": ""
   },
   {
+    "Id": "78d41b4a-7251-4454-8b65-9c839b93cfb9",
+    "ActiveCondition": true,
+    "CreatedDate": "2022-07-12T11:38:58.7146177-04:00",
+    "CreatedByUsername": "D7VQ00",
+    "LastupdateByUsername": "D7VQ00",
+    "LastupdateDate": "0001-01-01T00:00:00",
+    "Name": "Load Scan After Departure",
+    "Type": "dockdoor",
+    "Conditions": "Load After Depart",
+    "Warning": 0,
+    "WarningAction": "",
+    "WarningColor": "",
+    "Critical": 5,
+    "CriticalAction": "",
+    "CriticalColor": ""
+  },
+  {
     "Id": "196e2804-a207-4dfb-9788-1d60e87beb31",
     "ActiveCondition": true,
     "CreatedDate": "2022-05-04T13:45:19.4866386-04:00",

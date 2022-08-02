@@ -406,6 +406,7 @@ namespace Factory_of_the_Future
 
                     }
                 }
+                CheckScanNotification();
             }
             catch (Exception e)
             {
@@ -954,7 +955,11 @@ namespace Factory_of_the_Future
                                     int.TryParse(item.ContainsKey("expected_throughput") ? item["expected_throughput"].ToString().Trim() : "0", out int expected_throughput);
                                     double thrper = (double)cur_thruput / (double)expected_throughput * 100;
                                     string throughputState = "1";
-                                    if (thrper >= 100)
+                                    if (item["current_run_end"].ToString() != "" && item["current_run_end"].ToString() != "0")
+                                    {
+                                        throughputState = "0";
+                                    }
+                                    else if (thrper >= 100)
                                     {
                                         throughputState = "1";
                                     }
@@ -2962,6 +2967,94 @@ namespace Factory_of_the_Future
             catch (Exception e)
             {
                 new ErrorLogger().ExceptionLog(e);
+            }
+        }
+
+        private static void CheckScanNotification()
+        {
+            string loadAfterDepartTypeName = "Load After Depart";
+            try
+            {
+                foreach (Container _container in AppParameters.Containers.Select(y => y.Value))
+                {
+                    foreach (ContainerHistory _scan in _container.ContainerHistory.OrderBy(o => o.EventDtmfmt))
+                    {
+                        if (_scan.Event == "LOAD")
+                        {
+                            var _trip = AppParameters.RouteTripsList.Where(z => z.Value.TrailerBarcode == _container.Trailer).Select(z => z.Value).FirstOrDefault();
+                            if (_trip != null)
+                            {
+                                if ((_trip.Status == "DEPARTED" || _trip.LegStatus == "DEPARTED") && _trip.TripDirectionInd == "O")
+                                {
+                                    var _containerLoadTime = _scan.EventDtmfmt;
+                                    var _trailerDepartTime = new DateTime(_trip.ActualDtm.Year, (_trip.ActualDtm.Month + 1), _trip.ActualDtm.DayOfMonth, _trip.ActualDtm.HourOfDay, _trip.ActualDtm.Minute, _trip.ActualDtm.Second);
+                                    if (_containerLoadTime > _trailerDepartTime)
+                                    {
+                                        TimeSpan span = _containerLoadTime - _trailerDepartTime;
+                                        var totalMinutes = (int)Math.Round(span.TotalMinutes);
+                                        var notification_id = _container.PlacardBarcode + "_" + _trip.TrailerBarcode + "_LAD";
+                                        var notification_name = _container.PlacardBarcode + "|" + _trip.TrailerBarcode + "|" + _containerLoadTime + "|" + _trailerDepartTime;
+                                        AddScanNotification(loadAfterDepartTypeName, notification_id, _container.PlacardBarcode, notification_name, totalMinutes);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+                foreach (Notification _notification in AppParameters.NotificationList.Where(x => Regex.IsMatch(loadAfterDepartTypeName, x.Value.Type, RegexOptions.IgnoreCase)).Select(x => x.Value).ToList())
+                {
+                    var _scan = AppParameters.Containers.Where(z => z.Value.PlacardBarcode == _notification.Type_ID).Select(x => x.Key).ToList();
+                    if (!_scan.Any())
+                    {
+                        if (AppParameters.NotificationList.TryGetValue(_notification.Notification_ID, out Notification ojbMerge))
+                        {
+                            ojbMerge.Delete = true;
+                            ojbMerge.Notification_Update = true;
+                        }
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                new ErrorLogger().ExceptionLog(e);
+            }
+        }
+
+        private static void AddScanNotification(string notificationType, string notificationID, string scanID, string typeName, int minutes)
+        {
+            foreach (NotificationConditions newCondition in AppParameters.NotificationConditionsList.Where(r => Regex.IsMatch(notificationType, r.Value.Conditions, RegexOptions.IgnoreCase)
+                            && r.Value.Type.ToLower() == "dockdoor".ToLower()
+                            && (bool)r.Value.ActiveCondition).Select(x => x.Value).ToList())
+            {
+                var warningMinutes = newCondition.Warning;
+                var criticalMinutes = newCondition.Critical;
+                string status = "";
+                if (minutes >= criticalMinutes)
+                {
+                    status = "Critical";
+                }
+                else if (minutes > warningMinutes)
+                {
+                    status = "Warning";
+                }
+
+                Notification _notification = new Notification
+                {
+                    ActiveCondition = newCondition.ActiveCondition,
+                    Type = newCondition.Type,
+                    Name = newCondition.Name,
+                    Type_ID = scanID,
+                    Notification_ID = notificationID,
+                    Notification_Update = true,
+                    Type_Status = status,
+                    Type_Name = typeName,
+                    Warning = newCondition.Warning,
+                    Critical = newCondition.Critical,
+                    WarningAction = newCondition.WarningAction,
+                    CriticalAction = newCondition.CriticalAction,
+                    Type_Duration = 0
+                };
+                AppParameters.NotificationList.TryAdd(notificationID, _notification);
             }
         }
     }

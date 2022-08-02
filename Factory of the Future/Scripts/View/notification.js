@@ -191,6 +191,9 @@ async function updateNotification(updatenotification) {
         if (/mpe/i.test(updatenotification.Type)) {
             Promise.all([updateMPETable(updatenotification)]);
         }
+        if (/dockdoor/i.test(updatenotification.Type)) {
+            Promise.all([updateDockDoorTables(updatenotification)]);
+        }
     }
     catch (e) {
         console.log(e);
@@ -227,7 +230,8 @@ async function updateagvTable(updatenotification) {
 }
 async function updatetripTable(updatenotification) {
     try {
-        let routetripcount = notification.filter(x => x.Type === "routetrip").map(x => x).length;
+        //let routetripcount = notification.filter(x => x.Type === "routetrip").map(x => x).length;
+        let routetripcount = notification.filter(x => x.Type === "routetrip" || x.type === "dockdoor").map(x => x).length;
         // routetrip Counts
         if (routetripcount > 0) {
             if (parseInt($('#tripsnotificaion_number').text()) !== routetripcount) {
@@ -281,6 +285,42 @@ async function updateMPETable(updatenotification) {
             mpenotificationtable_Body.append(mpe_row_template.supplant(formatmpenotifirow(updatenotification)));
         }
         sortMPETable();
+    }
+    catch (e) {
+        console.log(e);
+    }
+    return null;
+}
+async function updateDockDoorTables(updatenotification) {
+    if (updatenotification.Name === "Load Scan After Departure") {
+        updatedockdoorloadafterdeparttable(updatenotification);
+    }
+    return null;
+}
+async function updatedockdoorloadafterdeparttable(updatenotification) {
+    try {
+        let dockdoorandtripscount = notification.filter(x => x.Type === "routetrip" || x.type === "dockdoor").map(x => x).length;
+        if (dockdoorandtripscount > 0) {
+            if(parseInt($('#tripsnotificaion_number').text()) !== dockdoorandtripscount) {
+                $('#tripsnotificaion_number').text(dockdoorandtripscount);
+            }
+            $('#tripsnotificaion_number').text(dockdoorandtripscount);
+        }
+        else {
+            $('#tripsnotificaion_number').text("");
+        }
+        let findddladdataid = dockdoorloadafterdeparttable_Body.find('tr[data-id=' + updatenotification.NotificationID + ']');
+        if (findddladdataid.length > 0) {
+            if (updatenotification.hasOwnProperty("DELETE")) {
+                dockdoorloadafterdeparttable_Body.find('tr[data-id=' + updatenotification.NotificationID + ']').remove();
+            }
+            //else {
+            //    dockdoorloadafterdeparttable_Body.find('tr[data-id=' + updatenotification.NotificationID + ']').replaceWith(dockdoorloadafterdeparttable_row_template.supplant(formatdockdoorloadafterdeparttablerow(updatenotification)));
+            //}
+        }
+        else {
+            dockdoorloadafterdeparttable_Body.append(dockdoorloadafterdeparttable_row_template.supplant(formatdockdoorloadafterdeparttablerow(updatenotification)));
+        }
     }
     catch (e) {
         console.log(e);
@@ -481,7 +521,72 @@ function formatmpenotifirow(properties, indx) {
         indexobj: indx
     });
 }
-
+let dockdoorloadafterdeparttable = $('table[id=loadafterdeparttable]');
+let dockdoorloadafterdeparttable_Body = dockdoorloadafterdeparttable.find('tbody');
+let dockdoorloadafterdeparttable_row_template = '<tr data-id={id} style=background-color:{conditioncolor} class="accordion-toggle collapsed" id={id} data-toggle=collapse data-parent=#{id} href="#collapse_{id}">' +
+    //'<td><button class="btn btn-outline-info btn-sm btn-block px-1 containerdetails" data-placardid={placard}" style="font-size:12px;" >{placard}</button ></td>' +
+    '<td colspan="2" data-input="placard" class="text-center">' +
+    '<a data-doorid={zone_id} data-placardid={placard} class="containerdetails">{placard}</a>' +
+    //'<a data-doorid={zone_id} data-placardid={placard} class="containerdetails" title={placard}>{placard}</a>' +
+    '</td>' +
+    '<td><a title={loadscan}>{loadscan}</a></td>' +
+    '<td colspan="2"><a title={trailer}>{trailer}</a></td>' +
+    '<td><a title={departscan}>{departscan}</a></td>' +
+    '<td class="expand-button">' +
+    '<a class="btn btn-link d-flex justify-content-end" data-toggle="collapse" href="#collapse_{id}" role="button" aria-expanded="false" aria-controls="collapseSection">' +
+    '<div class="iconXSmall">' +
+    ' <i class="pi-iconCaretDownFill" />' +
+    '</div>' +
+    '</a>' +
+    '</td>' +
+    '</tr>' +
+    '<tr data-id=collapse_{id} class="hide-table-padding">' +
+    '<td colspan="7">' +
+    '<div class="collapse" id="collapse_{id}">' +
+    '<div class="mt-1">' +
+    '<ol class="pl-4 mb-0">' +
+    '<p class="pb-1">Placard: {placard}</br>Load Scan: {loadscan}</br>Trailer: {trailer}</br>Depart Scan: {departscan}</p> ' +
+    '<p class="pb-1">{action_text}</p> ' +
+    '</ol>' +
+    '</div>' +
+    '</div>' +
+    '</td>' +
+    '</tr>';
+function formatdockdoorloadafterdeparttablerow(properties, indx) {
+    return $.extend(properties, {
+        id: properties.NotificationID,
+        placard: properties.TypeID,
+        loadscan: parseloadafterdeparttypename(properties.TypeName, 'loadscan'),
+        trailer: parseloadafterdeparttypename(properties.TypeName, 'trailer'),
+        departscan: parseloadafterdeparttypename(properties.TypeName, 'departscan'),
+        action_text: getLADactiontext(properties),
+        conditioncolor: getLADconditioncolor(properties),
+        indexobj: indx,
+        zone_id: "0"
+    });
+}
+function getLADactiontext(properties) {
+    if (properties.TypeStatus == 'Warning') { return properties.WarningAction; }
+    if (properties.TypeStatus == 'Critical') { return properties.CriticalAction; }
+    return "";
+}
+function getLADconditioncolor(properties) {
+    if (properties.status == 'Warning') { return "#ffff0080" }
+    if (properties.status == 'Critical') { return "#bd213052"; }
+    return "white";
+}
+function parseloadafterdeparttypename(typename, name) {
+    var typenames = typename.split('|', 4);
+    if (name == 'loadscan') {
+        return typenames[2];
+    }
+    if (name == 'trailer') {
+        return typenames[1];
+    }
+    if (name == 'departscan') {
+        return typenames[3]
+    }
+}
 let notificationTable = $('table[id=notificationsetuptable]');
 let notificationTable_Body = notificationTable.find('tbody');
 let notificationTable_row_template = '<tr data-id="{id}" class="{button_collor}">' +

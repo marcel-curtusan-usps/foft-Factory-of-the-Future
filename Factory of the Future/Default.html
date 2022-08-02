@@ -1109,27 +1109,66 @@
                 <h4 class="ml-p5rem">Trips Notification</h4>
                 <div class="btn-toolbar" role="toolbar" id="tripsnotificationinfo_div">
                     <div id="div_tripsnotification" class="container-fluid">
-                        <div class="card w-100">
-                            <div class="card-header pl-1">
-                                <h6 class="sectionHeader ml-1 mb-1">Late Trips</h6>
-                            </div>
-                            <div class="card-body">
-                                <div class="table-responsive fixedHeader">
-                                    <table class="table table-sm table-hover table-condensed mb-1 border-bottom" id="tripsnotificationtable">
-                                        <thead class="thead-dark">
-                                            <tr>
-                                                <th class="row-cts-schd"><span class="ml-p25rem">Schd</span></th>
-                                                <th style="width:min-content">Duration</th>
-                                                <th style="width:30px">Direc</th>
-                                                <th style="width:min-content">Route-Trip</th>
-                                                <th style="width:min-content" colspan="2">Site Name</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody></tbody>
-                                    </table>
+
+                        <div class="accordion" id="tripsaccordion">
+
+                            <div class="card w-100">
+                                <div class="card-header pl-1">
+                                    <h6 class="sectionHeader ml-1 mb-1">
+                                        Late Trips
+                                        <button class="btn btn-link" data-toggle="collapse" data-target="#latetrips" onclick="">
+                                            <i class="bi bi-arrows-collapse"></i>
+                                        </button>
+                                        <!--<a href="#latetrips" data-toggle="collapse" class="bi-arrows-collapse"></a>-->
+                                    </h6>
+
+                                </div>
+                                <div class="card-body collapse show" id="latetrips">
+                                    <div class="table-responsive fixedHeader">
+                                        <table class="table table-sm table-hover table-condensed mb-1 border-bottom" id="tripsnotificationtable">
+                                            <thead class="thead-dark">
+                                                <tr>
+                                                    <th class="row-cts-schd"><span class="ml-p25rem">Schd</span></th>
+                                                    <th style="width:min-content">Duration</th>
+                                                    <th style="width:30px">Direc</th>
+                                                    <th style="width:min-content">Route-Trip</th>
+                                                    <th style="width:min-content" colspan="2">Site Name</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody></tbody>
+                                        </table>
+                                    </div>
                                 </div>
                             </div>
+
+                            <div class="card w-100">
+                                <div class="card-header pl-1">
+                                    <h6 class="sectionHeader ml-1 mb-1">
+                                        Load Scan After Departure
+                                        <button class="btn btn-link" data-toggle="collapse" data-target="#loadafterdepart">
+                                            <i class="bi bi-arrows-collapse"></i>
+                                        </button>
+                                    </h6>
+                                </div>
+                                <div class="card-body collapse show" id="loadafterdepart">
+                                    <div class="table-responsive fixedHeader">
+                                        <table class="table table-sm table-hover table-condensed mb-1 border-bottom" id="loadafterdeparttable">
+                                            <thead class="thead-dark">
+                                                <tr>
+                                                    <th colspan="2">Placard</th>
+                                                    <th>Load Scan</th>
+                                                    <th colspan="2">Trailer</th>
+                                                    <th  colspan="2">Depart Scan</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody></tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+
                         </div>
+
                     </div>
                 </div>
             </div>
@@ -1513,8 +1552,27 @@
     <script src="Scripts/View/geometry_editing.js"></script>
     <!--Load Indoor Map settings for the site-->
     <script src="Scripts/View/indoorMap.js"></script>
-     <!--24 Hour Clock js-->
-    <script defer src="Scripts/View/twenty_four_hour_clock.js"></script>
-    <script defer src="Scripts/Chart.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            $(".bi").on("click", function () {
+                $(this).toggleClass("bi-arrows-expand");
+                $(this).toggleClass("bi-arrows-collapse");
+            });
+            //$('.collapse.show').each(function () {
+            //    if (this.id == 'latetrips' || this.id == 'loadafterdepart') {
+            //        $(this).parent().find(".bi").removeClass("bi-arrows-expand").addClass("bi-arrows-collapse");
+            //    }
+            //});
+            //$('.collapse').on('shown.bs.collapse', function () {
+            //    //if (this.id == 'latetrips' || this.id == 'loadafterdepart') {
+            //        $(this).parent().find(".bi").removeClass("bi-arrows-expand").addClass("bi-arrows-collapse");
+            //    //}
+            //}).on('hidden.bs.collapse', function () {
+            //    //if (this.id == 'latetrips' || this.id == 'loadafterdepart') {
+            //        $(this).parent().find(".bi").removeClass("bi-arrows-collapse").addClass("bi-arrows-expand");
+            //    //}
+            //});
+        });
+    </script>
 </body>
 </html>
