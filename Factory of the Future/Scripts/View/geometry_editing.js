@@ -1,5 +1,4 @@
 ﻿/*uses this for geometry editing  */
-
 $('#Zone_Modal').on('hidden.bs.modal', function () {
     $(this)
         .find("input[type=text],textarea,select")
@@ -13,8 +12,6 @@ $('#Zone_Modal').on('hidden.bs.modal', function () {
         .prop('checked', false).change()
         .end();
 });
-
-
 //remove layers
 $('#Remove_Layer_Modal').on('hidden.bs.modal', function () {
     $(this)
@@ -102,7 +99,6 @@ function init_geometry_editing() {
             $('<option/>').val("Camera").html("Camera").appendTo('select[id=zone_type]');
             CreateCamera(e);
             sidebar.open('home');
-
         }
         $('button[id=zonecloseBtn][type=button]').off().on('click', function () {
             sidebar.close();
@@ -125,7 +121,6 @@ function init_geometry_editing() {
             RemoveZoneItem(e);
         }
     });
-
     //zone type
     $('select[name=zone_type]').change(function () {
         if (!checkValue($('select[name=zone_type]').val())) {
@@ -207,7 +202,6 @@ function init_geometry_editing() {
         }
         enableCameraSubmit();
     });
-
 }
 function enableBinZoneSubmit() {
     if ($('select[name=zone_type]').hasClass('is-valid') &&
@@ -309,7 +303,6 @@ function CreateBinZone(newlayer) {
     } catch (e) {
         console.log(e);
     }
-
 }
 function CreateCamera(newlayer)
 {
@@ -349,7 +342,6 @@ function CreateCamera(newlayer)
             }
         });
     });
-
 }
 function RemoveZoneItem(removeLayer)
 {
@@ -365,7 +357,6 @@ function RemoveZoneItem(removeLayer)
                 
             }
         });
-
     } catch (e) {
         console.log();
     }
@@ -380,7 +371,6 @@ function RemoveMarkerItem(removeLayer) {
                 removeFromMapView(removeLayer.layer.id);
             }
         });
-
     } catch (e) {
         console.log();
     }
@@ -477,8 +467,6 @@ function VaildateForm(FormType)
                 })
             }
         });
-
-        
         if (!checkValue($('textarea[id=bin_bins]').val())) {
             $('textarea[id=bin_bins]').removeClass('is-valid').addClass('is-invalid');
             $('span[id=error_bin_bins]').text("Please Bin Numbers");
@@ -494,7 +482,6 @@ function VaildateForm(FormType)
         else {
             $('select[name=zone_type]').removeClass('is-invalid').addClass('is-valid');
             $('span[id=error_zone_type]').text("");
-
         }
         enableBinZoneSubmit();
     }
@@ -524,7 +511,6 @@ function VaildateForm(FormType)
         else {
             $('select[name=zone_type]').removeClass('is-invalid').addClass('is-valid');
             $('span[id=error_zone_type]').text("");
-
         }
         enableCameraSubmit();
     }

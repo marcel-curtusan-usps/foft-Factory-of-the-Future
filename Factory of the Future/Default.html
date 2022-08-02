@@ -21,7 +21,6 @@
     </script>
 </head>
 <body>
-
     <div id="map"></div>
     <!-- Modal Section -->
     <div class="modal fade" id="API_Connection_Modal" tabindex="-1" role="dialog" data-backdrop="static" aria-labelledby="API_Connection_Modal_Label">
@@ -1464,18 +1463,17 @@
     <script src="Scripts/moment-timezone-with-data-2012-2022.min.js"></script>
     <script src="Scripts/selectize.min.js"></script>
     <script src="Scripts/jquery.signalR-2.4.2.min.js"></script>
+    <!--<script src="Scripts/jquery.signalR-2.4.2.js"></script>-->
     <script src="signalr/hubs/"></script>
     <script src="Scripts/leaflet/leaflet.js"></script>
     <script src="Scripts/leaflet/Plugins/leaflet-sidebar.min.js"></script>
     <script src="Scripts/leaflet/Plugins/easy-button.js"></script>
     <script src="Scripts/leaflet/Plugins/leaflet-marker-slideto.js"></script>
-    <script src="Scripts/leaflet/Plugins/leaflet-geoman.min.js"></script>
     <script src="Scripts/leaflet/Plugins/leaflet-indoor.js"></script>
     <script src="Scripts/Filter.min.js"></script>
-    <script src="Scripts/Chart.min.js"></script>
+
     <!--Load default settings for the site-->
     <script src="Scripts/Default.js"></script>
-
     <!--Load application settings for the site-->
     <script src="Scripts/View/application_setting.js"></script>
     <!--Notification-->
@@ -1484,8 +1482,6 @@
     <script src="Scripts/View/connection.js"></script>
     <!--Extra utility functions-->
     <script src="Scripts/View/utils.js"></script>
-    <!--camera js-->
-    <script src="Scripts/View/camera_video.js"></script>
     <!--Views for bin zone details-->
     <script src="Scripts/View/bin_zone.js"></script>
     <!--Views for view ports zone details-->
@@ -1506,16 +1502,19 @@
     <script src="Scripts/View/locators.js"></script>
     <!--Views for trips-->
     <script src="Scripts/View/trips.js"></script>
-    <!--geometry editing -->
-    <script src="Scripts/View/geometry_editing.js"></script>
     <!--QR Code js-->
     <script src="Scripts/QRCode/qrcode.min.js"></script>
     <!--tag search js-->
     <script src="Scripts/View/tag_search.js"></script>
-    <!--24 Hour Clock js-->
-    <script src="Scripts/View/twenty_four_hour_clock.js"></script>
+    <!--camera js-->
+    <script src="Scripts/View/camera_video.js"></script>
+    <!--geometry editing -->
+    <script src="Scripts/leaflet/Plugins/leaflet-geoman.min.js"></script>
+    <script src="Scripts/View/geometry_editing.js"></script>
     <!--Load Indoor Map settings for the site-->
     <script src="Scripts/View/indoorMap.js"></script>
-
+     <!--24 Hour Clock js-->
+    <script defer src="Scripts/View/twenty_four_hour_clock.js"></script>
+    <script defer src="Scripts/Chart.min.js"></script>
 </body>
 </html>

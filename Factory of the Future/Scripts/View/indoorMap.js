@@ -1,5 +1,4 @@
-﻿
-//side bar setup
+﻿//side bar setup
 var sidebar = L.control.sidebar({
     container: 'sidebar', position: 'left', autopan: false
 });
@@ -39,7 +38,6 @@ map = L.map('map', {
     tap: false,
     layers: [mainfloor, polygonMachine, piv_vehicles, agv_vehicles, agvLocations, container, stagingAreas, tagsMarkersGroup, dockDoors, binzonepoly]
 });
-
 map.on('baselayerchange', function (e) {
     baselayerid = e.layer.options.id;
     console.log(baselayerid);
@@ -221,10 +219,8 @@ $('#layersToggle').on('click', function () {
     $('[data-toggle=popover]').popover('hide');
     $('#twentyfourmessage').popover('hide');
 });
-
 function init_mapSetup(MapData) {
     try {
-
         if (MapData.length > 0) {
             map.attributionControl.setPrefix("USPS " + MapData[0].backgroundImages.applicationFullName + " (" + MapData[0].backgroundImages.softwareVersion + ")");
             $('#fotf-site-facility-name').append(MapData[0].backgroundImages.facilityName);
@@ -253,14 +249,11 @@ function init_mapSetup(MapData) {
                     //init_zones(this.zones, this.id);
                     //init_locators(this.locators, this.id);
                 }
-             
             });
             init_arrive_depart_trips();
-           
             //init_agvtags();
             LoadNotification("routetrip");
             LoadNotification("vehicle");
-           
             //add user to the tag groups only for none PMCCUser
             if (!/(^PMCCUser$)/i.test(User.UserId)) {
                 fotfmanager.server.joinGroup("PeopleMarkers");
@@ -277,7 +270,6 @@ function init_mapSetup(MapData) {
                     });
                 }
             })
-
         }
         if ($.isEmptyObject(map)) {
             $('div[id=map]').css('display', 'none');
@@ -303,8 +295,6 @@ function init_mapSetup(MapData) {
             .insertBefore('div[id=map]');
     }
 }
-
-
 $('#fotf-sidebar-close').on('click', function () {
     // close the sidebar
     sidebar.close();
@@ -346,7 +336,6 @@ async function GetUserInfo() {
                                         craftName_id = feature.properties.name;
                                         nameId_id = "";
                                     }
-
                                     // var currenttime = moment().tz();  // 5am PDT
                                     let currenttime = moment().tz(timezone.Facility_TimeZone);
                                     let lastpositiontime = moment(feature.properties.positionTS);
@@ -402,7 +391,6 @@ async function GetUserInfo() {
                         instaff: inBuilding.length,
                         outstaff: outBuilding.length
                     });
-
                     $userstop_Table = $('table[id=userstoptable]');
                     $userstop_Table_Body = $userstop_Table.find('tbody');
                     $userstop_Table_Body.empty();
@@ -410,7 +398,6 @@ async function GetUserInfo() {
                         '<td>{staffName}</td>' +
                         '<td class="text-center">{instaff}</td>' +
                         '</tr>"';
-
                     function formatstafftoprow(properties) {
                         return $.extend(properties, {
                             staffName: properties.name,
@@ -523,7 +510,6 @@ async function GetUserProfile() {
 async function sortTable(table, order) {
     var asc = order === 'asc',
         tbody = table.find('tbody');
-
     tbody.find('tr').sort(function (a, b) {
         if (asc) {
             return $('td:first', a).text().localeCompare($('td:first', b).text());

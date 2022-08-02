@@ -424,7 +424,7 @@ $(function () {
 
     // Start the connection
     $.connection.hub.qs = { 'page_type': "FOTF".toUpperCase() };
-    $.connection.hub.start({ withCredentials: true })
+    $.connection.hub.start({ withCredentials: true, waitForPageLoad: false})
         .done(function () {
             conntoggle.state('conn-on');
         }).catch(
