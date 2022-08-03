@@ -131,6 +131,7 @@ map.on('baselayerchange', function (e) {
         init_locators(data[0].locators, baselayerid);
         assignIdsToLayerCheckboxes();
         setLayerCheckUncheckEvents();
+        checkViewportLoad();
     });
 });
 function setLayerCheckUncheckEvents() {
