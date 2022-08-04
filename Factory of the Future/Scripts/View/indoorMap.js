@@ -7,6 +7,8 @@ var mainfloor = L.imageOverlay(null, [0, 0], { id:-1 ,zindex: -1 }).addTo(mainfl
 var baseLayers = {
   "Main Floor": mainfloor
 };
+
+
 var overlayMaps = {
     "AGV Vehicles": agv_vehicles,
     "PIV Vehicles": piv_vehicles,
@@ -14,6 +16,7 @@ var overlayMaps = {
     "Badge": tagsMarkersGroup,
     "AGV Locations": agvLocations,
     "MPE Work Areas": polygonMachine,
+    "MPE Sparklines": machineSparklines,
     "MPE Bins": binzonepoly,
     "Dock Doors": dockDoors,
     "Staging Areas": stagingAreas,
@@ -24,6 +27,48 @@ var overlayMaps = {
     "Polygon Holes": polyholesAreas,
     "Locators": locatorMarker
 };
+
+$.urlParam = function (name) {
+    var results = new RegExp('[\?&]' + name + '=([^&#]*)')
+        .exec(window.location.search);
+
+    return (results !== null) ? results[1] || 0 : false;
+}
+
+
+let layersSelected = [mainfloor];
+
+//mainfloor,
+// polygonMachine,
+//    piv_vehicles, agv_vehicles, agvLocations, container, stagingAreas, tagsMarkersGroup, dockDoors, binzonepoly
+if ($.urlParam('specifyLayers')) {
+    if ($.urlParam('agvVehicles')) layersSelected.push(agv_vehicles);
+    if ($.urlParam('pivVehicles')) layersSelected.push(piv_vehicles);
+    if ($.urlParam('cameras')) layersSelected.push(cameras);
+    if ($.urlParam('badge')) layersSelected.push(tagsMarkersGroup);
+    if ($.urlParam('agvLocations')) layersSelected.push(agvLocations);
+    if ($.urlParam('mpeWorkAreas')) layersSelected.push(polygonMachine);
+    if ($.urlParam('mpeSparklines')) layersSelected.push(machineSparklines);
+    if ($.urlParam('mpeBins')) layersSelected.push(binzonepoly);
+    if ($.urlParam('dockDoors')) layersSelected.push(dockDoors);
+
+    if ($.urlParam('stagingAreas')) layersSelected.push(stagingAreas);
+    if ($.urlParam('viewPorts')) layersSelected.push(viewPortsAreas);
+    if ($.urlParam('ebrAreas')) layersSelected.push(ebrAreas);
+    if ($.urlParam('exitAreas')) layersSelected.push(exitAreas);
+    if ($.urlParam('workArea')) layersSelected.push(walkwayAreas);
+    if ($.urlParam('polygonHoles')) layersSelected.push(polyholesAreas);
+    if ($.urlParam('locators')) layersSelected.push(locatorMarker);
+
+}
+else {
+    layersSelected = [mainfloor,
+        polygonMachine,
+        piv_vehicles, agv_vehicles, agvLocations, container, stagingAreas, tagsMarkersGroup, dockDoors, binzonepoly
+    ];
+
+}
+
 //setup map
 map = L.map('map', {
     crs: L.CRS.Simple,
@@ -36,8 +81,26 @@ map = L.map('map', {
     zoomControl: false,
     measureControl: true,
     tap: false,
-    layers: [mainfloor, polygonMachine, piv_vehicles, agv_vehicles, agvLocations, container, stagingAreas, tagsMarkersGroup, dockDoors, binzonepoly]
+    layers: layersSelected
 });
+
+function setLayerCheckboxId(thisCheckBox, innerHTML) {
+    let name = innerHTML.replace(/ /g, '');
+    thisCheckBox.id = name;
+}
+function assignIdsToLayerCheckboxes() {
+    var leafletSelectors
+        = document.getElementsByClassName("leaflet-control-layers-selector");
+    for (var selector of leafletSelectors) {
+        let sp = selector.nextElementSibling;
+        let keys = Object.keys(overlayMaps);
+        for (const key of keys) {
+            if (sp.innerHTML.trim() == key.trim()) {
+                setLayerCheckboxId(selector, sp.innerHTML);
+            }
+        }
+    }
+}
 map.on('baselayerchange', function (e) {
     baselayerid = e.layer.options.id;
     console.log(baselayerid);
@@ -52,6 +115,7 @@ map.on('baselayerchange', function (e) {
         polyholesAreas.clearLayers();
         dockDoors.clearLayers();
         polygonMachine.clearLayers();
+        machineSparklines.clearLayers();
         binzonepoly.clearLayers();
         agvLocations.clearLayers();
         viewPortsAreas.clearLayers();
@@ -64,7 +128,25 @@ map.on('baselayerchange', function (e) {
         locatorMarker.clearLayers();
         init_zones(data[0].zones, baselayerid);
         init_locators(data[0].locators, baselayerid);
+        assignIdsToLayerCheckboxes();
+        setLayerCheckUncheckEvents();
+        checkViewportLoad();
     });
+});
+function setLayerCheckUncheckEvents() {
+    $("#MPESparklines").click(function () {
+       
+        updateMPEZoneTooltipDirection();
+        updateSparklineTooltipDirection();
+    });
+    $("#MPEWorkAreas").click(function () {
+        updateMPEZoneTooltipDirection();
+        updateSparklineTooltipDirection();
+    })
+}
+var lastMapZoom = null;
+map.on('zoomend', function () {
+    setTimeout(checkSparklineVisibility, 100);
 });
 var timedisplay = L.Control.extend({
     options: {

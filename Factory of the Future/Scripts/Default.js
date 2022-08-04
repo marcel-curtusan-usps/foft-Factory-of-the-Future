@@ -985,6 +985,7 @@ async function zonecurrentStaff() {
                 }
             });
         }
+
         // other zone
         if (stagingAreas.hasOwnProperty("_layers")) {
             $.map(stagingAreas._layers, function (stagelayer, i) {
@@ -1031,5 +1032,37 @@ async function zonecurrentStaff() {
         }
     } catch (e) {
         console.log(e);
+    }
+}
+
+function checkViewportLoad() {
+    if ($.urlParam('viewport')) {
+        viewportSelectedByName($.urlParam('viewport'));
+    }
+}
+
+function viewportSelectedByName(name) {
+
+    $('input[type=checkbox][name=followvehicle]').prop('checked', false).change();
+    let selcValue = null;
+    $('button').each(function () {
+        if ($(this).text() === name && $(this).hasClass('viewportszones')) {
+            selcValue = $(this).attr("id");
+        }
+    });
+    if (selcValue === null) return;
+    if (viewPortsAreas.hasOwnProperty("_layers")) {
+        $.map(viewPortsAreas._layers, function (layer, i) {
+            if (layer.hasOwnProperty("feature")) {
+                if (layer.feature.properties.id === selcValue) {
+                    var Center = new L.latLng(
+                        (layer._bounds._southWest.lat + layer._bounds._northEast.lat) / 2,
+                        (layer._bounds._southWest.lng + layer._bounds._northEast.lng) / 2);
+                    map.setView(Center, 3);
+                    Loadtable(layer.feature.properties.id, 'viewportstable');
+                    return false;
+                }
+            }
+        });
     }
 }
