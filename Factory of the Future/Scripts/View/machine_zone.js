@@ -1,11 +1,10 @@
-﻿const sparklineTooltipOpacity = .5;
-
-
-
-/**
+﻿/**
  * this is use to setup a the machine information and other function
  * 
  * **/
+
+const sparklineTooltipOpacity = .5;
+
 //on close clear all inputs
 $('#Zone_Modal').on('hidden.bs.modal', function () {
     $(this)
