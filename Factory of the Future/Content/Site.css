@@ -15,71 +15,32 @@
 .card-body {
   padding: 0.05rem; }
 
-.iconCenter {
-    text-align: center !important;
-    vertical-align: middle !important;
-}
-
-.enter-fullscreen-active {
-    top: .1rem !important;
-}
-
-.exit-fullscreen-active {
-    top: -.1rem !important;
-}
-.leaflet-control-zoom-in {
-    font-size: 22px !important;
-}
-
-.leaflet-control-zoom-out {
-    font-size: 22px !important;
-}
-
-
-#sparkline-message {
-    z-index: 2147483647;
-    width: 20%;
-    margin-left: auto;
-    margin-right: auto;
-    display: none;
-}
-
-#sparkline-message-fixed {
-    position: fixed;
-    z-index: 2147483647;
-    margin-top: 10px;
-}
-
-#sparkline-message-inner {
-    text-align: center;
-    width: 100%;
-    padding: 10px;
-    border-radius: 10px;
-    background-color: #ffffff;
-    border: 2px solid #e0e0e0;
-}
-#faqToggle {
-    padding-top: .1rem !important;
-}
-#legendToggle {
-    padding-top: .1rem !important;
-}
-
-#layersToggle {
-    padding-top: .1rem !important;
-}
-
-#viewportsToggle {
-    padding-top: .1rem !important;
-}
-
-.leaflet-tooltip-sparkline {
-    padding: 1px !important;
-    opacity: .5 !important;
-}
-
 .hiddenRow {
   padding: 0 !important; }
+
+#sparkline-message {
+  z-index: 2147483647;
+  width: 20%;
+  margin-left: auto;
+  margin-right: auto;
+  display: none; }
+
+#sparkline-message-fixed {
+  position: fixed;
+  z-index: 2147483647;
+  margin-top: 10px; }
+
+#sparkline-message-inner {
+  text-align: center;
+  width: 100%;
+  padding: 10px;
+  border-radius: 10px;
+  background-color: #ffffff;
+  border: 2px solid #e0e0e0; }
+
+.leaflet-tooltip-sparkline {
+  padding: 1px !important;
+  opacity: .5 !important; }
 
 .leaflet-control-mouseCoordinate {
   width: 250px;
@@ -189,6 +150,34 @@
   /* Rotate from top left corner (not default) */
   transform-origin: 0 0;
   transform: rotate(90deg); }
+
+.iconCenter {
+  text-align: center !important;
+  vertical-align: middle !important; }
+
+.enter-fullscreen-active {
+  top: .1rem !important; }
+
+.exit-fullscreen-active {
+  top: -.1rem !important; }
+
+.leaflet-control-zoom-in {
+  font-size: 22px !important; }
+
+.leaflet-control-zoom-out {
+  font-size: 22px !important; }
+
+#faqToggle {
+  padding-top: .1rem !important; }
+
+#legendToggle {
+  padding-top: .1rem !important; }
+
+#layersToggle {
+  padding-top: .1rem !important; }
+
+#viewportsToggle {
+  padding-top: .1rem !important; }
 
 table thead tr th {
   text-align: left;
@@ -1662,7 +1651,6 @@ div.leaflet-control-layers {
 .faqTable td {
   padding: 5px; }
 
-
 /* Modal Override */
 .modal-header1 {
   border-bottom: 0;
@@ -1737,29 +1725,26 @@ div.leaflet-control-layers {
   text-decoration: none; }
 
 .ml-p5rem {
-    margin-left: .5rem !important;
-}
+  margin-left: .5rem !important; }
 
 .ml-np5rem {
-    margin-left: -.5rem !important;
-}
+  margin-left: -.5rem !important; }
 
 .mr-p5rem {
-    margin-right: .5rem !important;
-}
+  margin-right: .5rem !important; }
+
 .mr-p65rem {
-    margin-right: .65rem !important
-}
+  margin-right: .65rem !important; }
+
 .mr-np5rem {
-    margin-right: -.5rem !important;
-}
+  margin-right: -.5rem !important; }
+
 .ml-p25rem {
-    margin-left: .25rem !important;
-}
+  margin-left: .25rem !important; }
+
 /* Custom negative Left margin for vehicle icons to center on marker */
 .ml--8 {
-    margin-left: -8px !important;
-}
+  margin-left: -8px !important; }
 
 .ml--16 {
   margin-left: -16px !important; }
