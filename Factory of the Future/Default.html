@@ -21,14 +21,14 @@
     </script>
 </head>
 <body>
-    <div id="sparkline-message" >
+    <div id="sparkline-message">
         <div id="sparkline-message-fixed">
             <div id="sparkline-message-inner">
                 Zoom in to see sparklines
             </div>
         </div>
     </div>
-    <canvas id="sparkline-canvas" width="300" height="150" style="width: 300px; height: 150px; position: absolute; margin-top: -1000000px; " ></canvas>
+    <canvas id="sparkline-canvas" width="300" height="150" style="width: 300px; height: 150px; position: absolute; margin-top: -1000000px; "></canvas>
     <div id="map"></div>
     <!-- Modal Section -->
     <div class="modal fade" id="API_Connection_Modal" tabindex="-1" role="dialog" data-backdrop="static" aria-labelledby="API_Connection_Modal_Label">
@@ -1536,7 +1536,7 @@
     <!--Views for machine processing equipment details-->
     <script src="Scripts/View/machine_zone.js"></script>
     <!--Views for sparklines/graphs for machine processing equipment details-->
-    <script src="Scripts/View/machine_sparkline.js"></script>
+    <!--<script src="Scripts/View/machine_sparkline.js"></script>-->
     <!--Views for vehicle details-->
     <script src="Scripts/View/vehicle.js"></script>
     <!--Views for tags details-->
@@ -1560,11 +1560,14 @@
     <!--geometry editing -->
     <script src="Scripts/leaflet/Plugins/leaflet-geoman.min.js"></script>
     <script src="Scripts/View/geometry_editing.js"></script>
+    <!--Views for sparklines/graphs for machine processing equipment details-->
+    <script src="Scripts/View/machine_sparkline.js"></script>
     <!--Load Indoor Map settings for the site-->
     <script src="Scripts/View/indoorMap.js"></script>
     <!--24 Hour Clock js-->
     <script defer src="Scripts/View/twenty_four_hour_clock.js"></script>
     <script defer src="Scripts/Chart.min.js"></script>
+
     <script>
         $(document).ready(function () {
             $(".bi").on("click", function () {
