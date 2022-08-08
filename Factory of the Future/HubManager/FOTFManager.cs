@@ -1480,6 +1480,8 @@ namespace Factory_of_the_Future
         {
             lock (updateMachineStatuslock)
             {
+                List<Tuple<GeoZone, string>> machineStatuses = new
+                    List<Tuple<GeoZone, string>>();
                 if (!_updateMachineStatus)
                 {
                     _updateMachineStatus = true;
@@ -1489,12 +1491,17 @@ namespace Factory_of_the_Future
                         {
                             if (TryUpdateMachineStatus(Machine))
                             {
-                                BroadcastMachineStatus(Machine, cs.Id);
+
+                                machineStatuses.Add(new Tuple<GeoZone, string>(Machine, cs.Id));
                             }
                      
                         });
                     }
-
+                    if (machineStatuses.Count > 0)
+                    {
+                        BroadcastMachineStatus(machineStatuses);
+                    }
+                   
                     _updateMachineStatus = false;
                 }
             }
@@ -1589,9 +1596,9 @@ namespace Factory_of_the_Future
                 return DPSData;
             }
         }
-        private void BroadcastMachineStatus(GeoZone machine, string id)
+        private void BroadcastMachineStatus(List<Tuple<GeoZone, string>> machineStatuses)
         {
-            Clients.Group("MachineZones").updateMachineStatus(machine, id);
+            Clients.Group("MachineZones").updateMachineStatus(machineStatuses);
             
         }
 
