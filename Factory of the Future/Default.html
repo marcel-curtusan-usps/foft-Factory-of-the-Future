@@ -1198,6 +1198,29 @@
                                 </div>
                             </div>
 
+                            <div class="card w-100">
+                                <div class="card-header pl-1">
+                                    <h6 class="sectionHeader ml-1 mb-1">
+                                        Missing Arrival Scan
+                                        <button class="btn btn-link" data-toggle="collapse" data-target="#missingarrival">
+                                            <i class="bi bi-arrows-collapse"></i>
+                                        </button>
+                                    </h6>
+                                </div>
+                                <div class="card-body collapse show" id="missingarrival">
+                                    <div class="table-responsive fixedHeader">
+                                        <table class="table table-sm table-hover table-condensed mb-1 border-bottom" id="missingarrivaltable">
+                                            <thead class="thead-dark">
+                                                <tr>
+                                                    <th colspan="2">Dock Door</th>
+                                                    <th colspan="7">Trailer</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody></tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
 
                     </div>
@@ -1558,8 +1581,6 @@
     <script src="Scripts/View/viewports_zone.js"></script>
     <!--Views for machine processing equipment details-->
     <script src="Scripts/View/machine_zone.js"></script>
-    <!--Views for sparklines/graphs for machine processing equipment details-->
-    <!--<script src="Scripts/View/machine_sparkline.js"></script>-->
     <!--Views for vehicle details-->
     <script src="Scripts/View/vehicle.js"></script>
     <!--Views for tags details-->

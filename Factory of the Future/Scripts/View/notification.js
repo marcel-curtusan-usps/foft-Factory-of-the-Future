@@ -298,9 +298,12 @@ async function updateDockDoorTables(updatenotification) {
     if (updatenotification.Name === "Missing Closed Scan") {
         updatemissinclosedscantable(updatenotification);
     }
+    if (updatenotification.Name === "Missing Arrived Scan") {
+        updatemissingarrivedscantable(updatenotification);
+    }
     return null;
 }
-async function updatemissinclosedscantable(updatenotification) {
+async function gettipsanddoornotificationcounts() {
     try {
         let dockdoorandtripscount = notification.filter(x => x.Type === "routetrip" || x.Type === "dockdoor").map(x => x).length;
         if (dockdoorandtripscount > 0) {
@@ -312,6 +315,33 @@ async function updatemissinclosedscantable(updatenotification) {
         else {
             $('#tripsnotificaion_number').text("");
         }
+    }
+    catch (e) {
+        console.log(e);
+    }
+    return null;
+}
+async function updatemissingarrivedscantable(updatenotification) {
+    try {
+        gettipsanddoornotificationcounts();
+        let findmissingarriveddataid = dockdoormissingarrivedtable_Body.find('tr[data-id=' + updatenotification.NotificationID + ']');
+        if (findmissingarriveddataid.length > 0) {
+            if (updatenotification.hasOwnProperty("DELETE")) {
+                dockdoormissingarrivedtable_Body.find('tr[data-id=' + updatenotification.NotificationID + ']').remove();
+            }
+        }
+        else {
+            dockdoormissingarrivedtable_Body.append(dockdoormissingarrivedtable_row_template.supplant(formatdockdoormissingarrivedtablerow(updatenotification)));
+        }
+    }
+    catch (e) {
+        console.log(e);
+    }
+    return null;
+}
+async function updatemissinclosedscantable(updatenotification) {
+    try {
+        gettipsanddoornotificationcounts();
         let findddmissingcloseddataid = dockdoormissingclosedtable_Body.find('tr[data-id=' + updatenotification.NotificationID + ']');
         if (findddmissingcloseddataid.length > 0) {
             if (updatenotification.hasOwnProperty("DELETE")) {
@@ -329,16 +359,7 @@ async function updatemissinclosedscantable(updatenotification) {
 }
 async function updatedockdoorloadafterdeparttable(updatenotification) {
     try {
-        let dockdoorandtripscount = notification.filter(x => x.Type === "routetrip" || x.Type === "dockdoor").map(x => x).length;
-        if (dockdoorandtripscount > 0) {
-            if(parseInt($('#tripsnotificaion_number').text()) !== dockdoorandtripscount) {
-                $('#tripsnotificaion_number').text(dockdoorandtripscount);
-            }
-            $('#tripsnotificaion_number').text(dockdoorandtripscount);
-        }
-        else {
-            $('#tripsnotificaion_number').text("");
-        }
+        gettipsanddoornotificationcounts();
         let findddladdataid = dockdoorloadafterdeparttable_Body.find('tr[data-id=' + updatenotification.NotificationID + ']');
         if (findddladdataid.length > 0) {
             if (updatenotification.hasOwnProperty("DELETE")) {
@@ -551,6 +572,46 @@ function formatmpenotifirow(properties, indx) {
         indexobj: indx
     });
 }
+let dockdoormissingarrivedtable = $('table[id=missingarrivaltable]');
+let dockdoormissingarrivedtable_Body = dockdoormissingarrivedtable.find('tbody');
+let dockdoormissingarrivedtable_row_template = '<tr data-id={id} style=background-color:{conditioncolor} class="accordion-toggle collapsed" id={id} data-toggle=collapse data-parent=#{id} href="#collapse_{id}">' +
+    '<td colspan="2">{docknumber}</td>' +
+    '<td colspan="6">{trailer}</td>' +
+    //'<td colspan="7" data-input="trailer" class="text-left">' +
+    //'<a data-doorid={zone_id} data-trailerid={trailer} class="containerdetails">{trailer}</a>' +
+    '</td>' +
+    '<td class="expand-button">' +
+    '<a class="btn btn-link d-flex justify-content-end" data-toggle="collapse" href="#collapse_{id}" role="button" aria-expanded="false" aria-controls="collapseSection">' +
+    '<div class="iconXSmall">' +
+    ' <i class="pi-iconCaretDownFill" />' +
+    '</div>' +
+    '</a>' +
+    '</td>' +
+    '</tr>' +
+    '<tr data-id=collapse_{id} class="hide-table-padding">' +
+    '<td colspan="8">' +
+    '<div class="collapse" id="collapse_{id}">' +
+    '<div class="mt-1">' +
+    '<ol class="pl-4 mb-0">' +
+    '<p class="pb-1">{action_text}</p> ' +
+    '</ol>' +
+    '</div>' +
+    '</div>' +
+    '</td>' +
+    '</tr>';
+function formatdockdoormissingarrivedtablerow(properties, indx) {
+    return $.extend(properties, {
+        id: properties.NotificationID,
+        trailer: parsemissingarrivedscanname(properties.TypeName, "trailer"),
+        docknumber: parsemissingarrivedscanname(properties.TypeName, "docknumber"),
+        zoneid: parsemissingarrivedscanname(properties.TypeName, "dockid"),
+        action_text: getLADactiontext(properties),
+        conditioncolor: getLADconditioncolor(properties),
+        indexobj: indx,
+        zone_id: "0"
+    });
+}
+
 let dockdoormissingclosedtable = $('table[id=missingclosedtable]');
 let dockdoormissingclosedtable_Body = dockdoormissingclosedtable.find('tbody');
 let dockdoormissingclosedtable_row_template = '<tr data-id={id} style=background-color:{conditioncolor} class="accordion-toggle collapsed" id={id} data-toggle=collapse data-parent=#{id} href="#collapse_{id}">' +
@@ -650,6 +711,18 @@ function parseloadafterdeparttypename(typename, name) {
     }
     if (name == 'departscan') {
         return typenames[3]
+    }
+}
+function parsemissingarrivedscanname(typename, name) {
+    var typenames = typename.split('|', 4);
+    if (name == 'trailer') {
+        return typenames[0];
+    }
+    if (name == 'dockid') {
+        return typenames[1];
+    }
+    if (name == 'docknumber') {
+        return typenames[2]
     }
 }
 let notificationTable = $('table[id=notificationsetuptable]');

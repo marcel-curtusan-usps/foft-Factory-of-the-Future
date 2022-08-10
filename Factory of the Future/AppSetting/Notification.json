@@ -102,6 +102,23 @@
     "CriticalColor": ""
   },
   {
+    "Id": "c673cc20-38aa-40c9-acbc-cbceb94d5ce9",
+    "ActiveCondition": true,
+    "CreatedDate": "2022-08-09T11:50:05.5911528-04:00",
+    "CreatedByUsername": "D7VQ00",
+    "LastupdateByUsername": "D7VQ00",
+    "LastupdateDate": "0001-01-01T00:00:00",
+    "Name": "Missing Arrived Scan",
+    "Type": "dockdoor",
+    "Conditions": "Missing Arrived Scan",
+    "Warning": 0,
+    "WarningAction": "",
+    "WarningColor": "",
+    "Critical": 0,
+    "CriticalAction": "",
+    "CriticalColor": ""
+  },
+  {
     "Id": "78d41b4a-7251-4454-8b65-9c839b93cfb9",
     "ActiveCondition": true,
     "CreatedDate": "2022-07-12T11:38:58.7146177-04:00",

@@ -2974,14 +2974,15 @@ namespace Factory_of_the_Future
         {
             string loadAfterDepartTypeName = "Load After Depart";
             string missingLoadTypeName = "Missing Closed Scan";
+            string missingArrived = "Missing Arrived Scan";
 
             RemoveOldScanNotification(loadAfterDepartTypeName);
             RemoveOldScanNotification(missingLoadTypeName);
+            RemoveOldScanNotification(missingArrived);
             try
             {
                 foreach (Container _container in AppParameters.Containers.Select(y => y.Value))
                 {
-                    
                     if(_container.hasAssignScans && _container.hasLoadScans)
                     {
                         var notification_id = _container.PlacardBarcode + "_MissingClosed";
@@ -3018,19 +3019,51 @@ namespace Factory_of_the_Future
                             }
                         }
                     }
+                    if(_container.hasLoadScans || _container.hasUnloadScans)
+                    {
+                        foreach(var door in AppParameters.DockdoorList)
+                        {
+                            JObject _door = JObject.Parse(door.Value);
+                            if(_door != null)
+                            {
+                                string _trailerbarcode = _door.ContainsKey("trailerBarcode") ? _door["trailerBarcode"].ToString().Trim() : "";
+                                string _doorid = _door.ContainsKey("doorId") ? _door["doorId"].ToString().Trim() : "";
+                                string _doornumber = _door.ContainsKey("doorNumber") ? _door["doorNumber"].ToString().Trim() : "";
+
+                                var notification_id = _trailerbarcode + "_MissingArrived";
+                                var notification_name = _trailerbarcode+ "|" + _doorid + "|" + _doornumber;
+
+                                if (_trailerbarcode == _container.Trailer)
+                                {
+                                    bool hasarrivalscan = false;
+                                    if (_door.ContainsKey("events"))
+                                    {
+                                        foreach (var _event in _door["events"])
+                                        {
+                                            if(!string.IsNullOrEmpty(_event["eventName"].ToString().Trim()) && _event["eventName"].ToString().ToUpper().Contains("ARR"))
+                                            {
+                                                hasarrivalscan = true;
+                                            }
+                                        }
+                                    }
+                                    if (!hasarrivalscan)
+                                    {
+                                        AddScanNotification(missingArrived, notification_id, _trailerbarcode, notification_name, 0);
+                                    }
+                                    else
+                                    {
+                                        RemoveScanNotification(notification_id);
+                                    }
+                                }
+                                else
+                                {
+                                    RemoveScanNotification(notification_id);
+                                }
+                            }
+                        }
+                    }
                 }
-                //foreach (Notification _notification in AppParameters.NotificationList.Where(x => Regex.IsMatch(loadAfterDepartTypeName, x.Value.Type, RegexOptions.IgnoreCase)).Select(x => x.Value).ToList())
-                //{
-                //    var _scan = AppParameters.Containers.Where(z => z.Value.PlacardBarcode == _notification.Type_ID).Select(x => x.Key).ToList();
-                //    if (!_scan.Any())
-                //    {
-                //        if (AppParameters.NotificationList.TryGetValue(_notification.Notification_ID, out Notification ojbMerge))
-                //        {
-                //            ojbMerge.Delete = true;
-                //            ojbMerge.Notification_Update = true;
-                //        }
-                //    }
-                //}
+
             }
             catch (Exception e)
             {
@@ -3092,13 +3125,35 @@ namespace Factory_of_the_Future
         {
             foreach (Notification _notification in AppParameters.NotificationList.Where(x => Regex.IsMatch(scanNotificationType, x.Value.Type, RegexOptions.IgnoreCase)).Select(x => x.Value).ToList())
             {
-                var _scan = AppParameters.Containers.Where(z => z.Value.PlacardBarcode == _notification.Type_ID).Select(x => x.Key).ToList();
-                if (!_scan.Any())
+                if (scanNotificationType == "Missing Arrived Scan")
                 {
-                    if (AppParameters.NotificationList.TryGetValue(_notification.Notification_ID, out Notification ojbMerge))
+                    foreach (var door in AppParameters.DockdoorList)
                     {
-                        ojbMerge.Delete = true;
-                        ojbMerge.Notification_Update = true;
+                        JObject _door = JObject.Parse(door.Value);
+                        if (_door != null)
+                        {
+                            string _trailerbarcode = _door.ContainsKey("trailerBarcode") ? _door["trailerBarcode"].ToString().Trim() : "";
+                            if(_trailerbarcode != _notification.Notification_ID)
+                            {
+                                if (AppParameters.NotificationList.TryGetValue(_notification.Notification_ID, out Notification ojbMerge))
+                                {
+                                    ojbMerge.Delete = true;
+                                    ojbMerge.Notification_Update = true;
+                                }
+                            }
+                        }
+                    }
+                }
+                else
+                {
+                    var _scan = AppParameters.Containers.Where(z => z.Value.PlacardBarcode == _notification.Type_ID).Select(x => x.Key).ToList();
+                    if (!_scan.Any())
+                    {
+                        if (AppParameters.NotificationList.TryGetValue(_notification.Notification_ID, out Notification ojbMerge))
+                        {
+                            ojbMerge.Delete = true;
+                            ojbMerge.Notification_Update = true;
+                        }
                     }
                 }
             }
