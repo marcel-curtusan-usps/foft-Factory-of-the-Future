@@ -693,6 +693,11 @@ function SortByName(a, b) {
     var bName = b.toLowerCase();
     return ((aName < bName) ? -1 : ((aName > bName) ? 1 : 0));
 }
+function SortByLocationName(a, b) {
+    var aName = a.locationName.toLowerCase();
+    var bName = b.locationName.toLowerCase();
+    return ((aName < bName) ? -1 : ((aName > bName) ? 1 : 0));
+}
 function SortByNumber(a, b) {
     return a - b;
 }

@@ -333,6 +333,11 @@ $('#zoneselect').change(function (e) {
         else if (/^(ViewPorts)/i.test(this.properties.Zone_Type)) {
             viewPortsAreas.addData(this);
         }
+        else if (/^(Bullpen)/i.test(this.properties.Zone_Type)) {
+            stagingBullpenAreas.addData(this);
+            // fotfmanager.server.joinGroup("SVZones");
+
+        }
         else {
             
             stagingAreas.addData(this);

@@ -461,6 +461,7 @@
     <Content Include="Scripts\View\bin_zone.js" />
     <Content Include="Scripts\View\indoorMap.js" />
     <Content Include="Scripts\View\machine_sparkline.js" />
+    <Content Include="Scripts\View\staging_bullpen.js" />
     <Content Include="Scripts\View\tag_search.js" />
     <Content Include="Scripts\View\trips.js" />
     <Content Include="Scripts\View\camera_video.js" />

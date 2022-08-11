@@ -20,6 +20,7 @@ var overlayMaps = {
     "MPE Bins": binzonepoly,
     "Dock Doors": dockDoors,
     "Staging Areas": stagingAreas,
+    "Staging Bullpen Areas": stagingBullpenAreas,
     "View-ports": viewPortsAreas,
     "EBR Areas": ebrAreas,
     "Exit Areas": exitAreas,
@@ -53,6 +54,7 @@ if ($.urlParam('specifyLayers')) {
     if ($.urlParam('dockDoors')) layersSelected.push(dockDoors);
 
     if ($.urlParam('stagingAreas')) layersSelected.push(stagingAreas);
+    if ($.urlParam('stagingBullpenAreas')) layersSelected.push(stagingBullpenAreas);
     if ($.urlParam('viewPorts')) layersSelected.push(viewPortsAreas);
     if ($.urlParam('ebrAreas')) layersSelected.push(ebrAreas);
     if ($.urlParam('exitAreas')) layersSelected.push(exitAreas);
@@ -64,7 +66,7 @@ if ($.urlParam('specifyLayers')) {
 else {
     layersSelected = [mainfloor,
         polygonMachine,
-        piv_vehicles, agv_vehicles, agvLocations, container, stagingAreas, tagsMarkersGroup, dockDoors, binzonepoly
+        piv_vehicles, agv_vehicles, agvLocations, container, stagingAreas, stagingBullpenAreas, tagsMarkersGroup, dockDoors, binzonepoly
     ];
 
 }
