@@ -34,6 +34,6 @@ var viewPortsAreas = new L.GeoJSON(null, {
             direction: 'center',
             opacity: 1
         }).openTooltip();
-        viewPortsAreas.bringToBack();
+        layer.bringToBack();
     }
 });

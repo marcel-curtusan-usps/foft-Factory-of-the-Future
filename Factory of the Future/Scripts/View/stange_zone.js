@@ -50,7 +50,8 @@ var exitAreas = new L.GeoJSON(null, {
             opacity: 1,
             className: 'location'
         }).openTooltip();
-        exitAreas.bringToBack();
+        layer.bringToBack();
+
     }
 })
 var polyholesAreas = new L.GeoJSON(null, {
@@ -92,7 +93,7 @@ var polyholesAreas = new L.GeoJSON(null, {
             opacity: 1,
             className: 'location'
         }).openTooltip();
-        polyholesAreas.bringToBack();
+        layer.bringToBack();
     },
 });
 var ebrAreas = new L.GeoJSON(null, {
@@ -134,7 +135,7 @@ var ebrAreas = new L.GeoJSON(null, {
             opacity: 1,
             className: 'location'
         }).openTooltip();
-        ebrAreas.bringToBack();
+        layer.bringToBack();
     },
 });
 var walkwayAreas = new L.GeoJSON(null, {
@@ -176,7 +177,7 @@ var walkwayAreas = new L.GeoJSON(null, {
             opacity: 1,
             className: 'location'
         }).openTooltip();
-        walkwayAreas.bringToBack();
+        layer.bringToBack();
     },
 });
 var stagingAreas = new L.GeoJSON(null, {
@@ -223,7 +224,8 @@ var stagingAreas = new L.GeoJSON(null, {
         $zoneSelect[0].selectize.addOption({ value: feature.properties.id, text: feature.properties.name });
         $zoneSelect[0].selectize.addItem(feature.properties.id);
         $zoneSelect[0].selectize.setValue(-1, true);
-        stagingAreas.bringToBack();
+        layer.bringToBack();
+        
     },
     filter: function (feature, layer) {
         return feature.properties.visible;
@@ -343,5 +345,7 @@ $('#zoneselect').change(function (e) {
             stagingAreas.addData(this);
         }
     })
+
+    // setGreyedOut();
     fotfmanager.server.joinGroup("Zones");
 }

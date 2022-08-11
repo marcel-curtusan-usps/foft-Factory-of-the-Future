@@ -3,9 +3,15 @@ var sidebar = L.control.sidebar({
     container: 'sidebar', position: 'left', autopan: false
 });
 var mainfloorOverlays = L.layerGroup();
-var mainfloor = L.imageOverlay(null, [0, 0], { id:-1 ,zindex: -1 }).addTo(mainfloorOverlays);
+// define rectangle geographical bounds
+var greyOutBounds = [[-5000, -5000], [5000, 5000]];
+
+// create an orange rectangle
+var greyedOutRectangle = L.rectangle(greyOutBounds, { color: "#000000", weight: 1, fillOpacity: .65, stroke: false });
+
+var mainfloor = L.imageOverlay(null, [0, 0], { id:-1 ,zIndex: -1 }).addTo(mainfloorOverlays);
 var baseLayers = {
-  "Main Floor": mainfloor
+    "Main Floor": mainfloor
 };
 
 
@@ -86,9 +92,11 @@ map = L.map('map', {
     layers: layersSelected
 });
 
+let layerCheckboxIds = [];
 function setLayerCheckboxId(thisCheckBox, innerHTML) {
     let name = innerHTML.replace(/ /g, '');
     thisCheckBox.id = name;
+    layerCheckboxIds.push(thisCheckBox.id);
 }
 function assignIdsToLayerCheckboxes() {
     var leafletSelectors
@@ -134,6 +142,7 @@ map.on('baselayerchange', function (e) {
         setLayerCheckUncheckEvents();
         checkViewportLoad();
     });
+
 });
 function setLayerCheckUncheckEvents() {
     $("#MPESparklines").click(function () {
@@ -206,6 +215,7 @@ var layersControl = L.control.layers(baseLayers, overlayMaps, {
     }, position: 'bottomright', collapsed: false }).addTo(map);
 //Add zoom button
 new L.Control.Zoom({ position: 'bottomright' }).addTo(map);
+
 //add View Ports
 L.easyButton({
     position: 'bottomright',
@@ -214,6 +224,7 @@ L.easyButton({
         icon: '<div id="viewportsToggle" data-toggle="popover"><i class="pi-iconViewport align-self-center" title="Viewports"></i></div>'
     }]
 }).addTo(map);
+
 // Add Layer Control Button
 L.easyButton({
     position: 'bottomright',
@@ -222,6 +233,9 @@ L.easyButton({
         icon: '<div id="layersToggle" data-toggle="layerPopover"><i class="pi-iconLayer align-self-center" title="Layer Controls"></i></div>'
     }]
 }).addTo(map);
+
+greyedOutRectangle.addTo(map);
+setGreyedOut();
 //Full-screen button only for Chrome
 if (window.chrome) {
     var fullscreentoggle = L.easyButton({

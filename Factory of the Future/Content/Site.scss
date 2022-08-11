@@ -46,7 +46,13 @@
     border: 2px solid #e0e0e0;
 }
 
-
+.greyOutMap {
+    width: 1000000px;
+    top: -50px;
+    height: 100000px;
+    background-color: black;
+    pointer-events : none;
+}
 .leaflet-tooltip-sparkline {
     padding: 1px !important;
     opacity: .5 !important;
