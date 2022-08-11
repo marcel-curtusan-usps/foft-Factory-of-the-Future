@@ -4,6 +4,268 @@
 $.extend(fotfmanager.client, {
     updateDockDoorStatus: async (dockdoorupdate) => { updateDockDoorZone(dockdoorupdate) }
 });
+let greyedOut = false;
+
+let polygonMachineZIndex = null;
+
+function greyOutBG() {
+    /*
+    if (dockdoorloaddata.length > 0) {
+        var greyOut = false;
+        for (const dat of dockdoorloaddata) {
+
+            if (checkZone(dat.zone_id)) {
+                greyOut = true;
+            }
+        }
+    }
+    */
+
+        var obj = new L.Evented();
+        obj.once('greyout', greyOutBGOnce);
+        obj.fire('greyout');
+}
+function greyOutBGOnce() {
+    greyedOut = true;
+    $("#layersContent").hide();
+    setGreyedOut();
+}
+
+function unGreyOutBG() {
+    greyedOut = false;
+    var obj = new L.Evented();
+    obj.once('ungreyout', unGreyOutBGOnce);
+    obj.fire('ungreyout');
+}
+function unGreyOutBGOnce() {
+    greyedOut = false;
+    setGreyedOut();
+    var mapLayerKeys = Object.keys(map._layers);
+
+    for (var key of mapLayerKeys) {
+        let layer = map._layers[key];
+        if (layer.hasOwnProperty("feature")) {
+            let tt = layer.getTooltip();
+            if (tt) {
+                tt.setOpacity(tt.options.lastOpacity);
+                tt.options.lastOpacity = null;
+
+            }
+            if (layer.setStyle) {
+                let style = layer.options.style;
+
+                if (!layer.options.lastOpacity) {
+                    layer.options.lastOpacity = layer.options.fillOpacity;
+                }
+                else {
+                    style.fillOpacity = layer.options.lastOpacity;
+                }
+                layer.setStyle(style);
+            }
+        }
+    }
+
+    $.map(polygonMachine._layers, function (layer, i) {
+        layer.bringToBack();
+    });
+    map.invalidateSize();
+}
+
+let checkboxStateBeforeGreyOut = null;
+let updateGreyedOut = true;
+function setGreyedOut() {
+    var z = 0;
+    if (greyedOut) {
+        updateGreyedOut = true;
+        if (checkboxStateBeforeGreyOut === null) {
+            checkboxStateBeforeGreyOut = {};
+            for (const id of layerCheckboxIds) {
+
+                checkboxStateBeforeGreyOut[id] = $("#" + id).is(":checked");
+                console.log(id + " before " + checkboxStateBeforeGreyOut[id])
+                if (id !== "MainFloor" && id !== "AGVVehicles" &&
+
+                    id !== "PIVVehicles" && id !== "MPEWorkAreas" &&
+                    id !== "Badge" && id !== "DockDoors") {
+                    if (checkboxStateBeforeGreyOut[id] !== false) {
+                        $("#" + id).trigger("click");
+
+                        console.log(id + " after " + checkboxStateBeforeGreyOut[id])
+                    }
+                }
+
+            }
+        }
+        greyedOutRectangle.setStyle({ color: "#000000", weight: 1, fillOpacity: .65, stroke: false, zIndex: 5000 });
+    
+        popZonesToBack();
+        greyedOutRectangle.bringToFront();
+        if (dockdoorloaddata.length > 0) {
+            console.log("length > 0");
+            console.log("length == " + dockdoorloaddata.length);
+            for (var dat of dockdoorloaddata) {
+                console.log("data found");
+                popZone(dat.location, "front");
+                console.log("pop zone called");
+            }
+        }
+        else {
+            console.log("length not greater than 0");
+        }
+    }
+    if (!greyedOut && updateGreyedOut) {
+        updateGreyedOut = false;
+       
+        for (const id of layerCheckboxIds) {
+
+                console.log(id + " is " + $("#" + id).is(":checked"));
+                console.log(id + " was  " + checkboxStateBeforeGreyOut[id])
+                if (checkboxStateBeforeGreyOut[id] !== $("#" + id).is(":checked")) {
+                    console.log("trigger");
+                    $("#" + id).trigger("click");
+                }
+
+            }
+        checkboxStateBeforeGreyOut = null;
+
+        popZonesToBack();
+        greyedOutRectangle.setStyle({ color: "#000000", weight: 1, fillOpacity: 0, stroke: false });
+    }
+
+    return true;
+}
+
+function popZonesToBack() {
+    var polyObjKeys = Object.keys(polygonMachine._layers);
+
+    for (var key of polyObjKeys) {
+        let layer = polygonMachine._layers[key];
+
+        let style = layer.options.style;
+        if (!layer.options.lastOpacity) {
+            layer.options.lastOpacity = layer.options.fillOpacity + 0;
+        }
+        var tooltip = layer.getTooltip();
+        layer.lastTooltipOpacity = tooltip.opacity + 0;
+        tooltip.setOpacity(0.2);
+        style.fillColor = "#c0c0c0";
+        style.fillOpacity = 0;
+        layer.setStyle(style);
+    }
+}
+
+function extractNumber(zoneName) {
+    var numberString = "";
+    for (var i = 0; i < zoneName.length; i++) {
+        if (zoneName[i] >= '0' && zoneName[i] <= '9') {
+            numberString = numberString + zoneName[i];
+        }
+        else if (numberString !== "") {
+            break;
+        }
+    }
+    return numberString;
+}
+
+function extractStringsFromDockDoorIncoming(dockDoorIncomingZoneName) {
+    
+    dockDoorIncomingZoneName = dockDoorIncomingZoneName.replaceAll("-", " ");
+    dockDoorIncomingZoneName = dockDoorIncomingZoneName.replaceAll("_", " ");
+    dockDoorIncomingZoneName = dockDoorIncomingZoneName.replaceAll("x", " ");
+    let strings = dockDoorIncomingZoneName.split(' ');
+    let newStrings = [];
+    for (const str of strings) {
+        if (extractNumber(str) === "") {
+            newStrings.push(str);
+        }
+    }
+    return newStrings;
+}
+function zoneMatchesForDockDoorIncoming(layerZoneName, dockDoorIncomingZoneName) {
+    console.log(layerZoneName + " " + dockDoorIncomingZoneName);
+    layerZoneName = layerZoneName.toLowerCase();
+    dockDoorIncomingZoneName = dockDoorIncomingZoneName.toLowerCase();
+    let num = extractNumber(dockDoorIncomingZoneName);
+    console.log("num: " + num)
+    if (num !== "") {
+        if (layerZoneName.includes(num)) {
+            console.log("layer includes num");
+            var stringsFromDD = extractStringsFromDockDoorIncoming(dockDoorIncomingZoneName);
+            console.log("StringsFromDD: " + JSON.stringify(stringsFromDD));
+            for (const str of stringsFromDD) {
+                console.log("str: " + str);
+                if (str.length > 1 && layerZoneName.includes(str)) {
+                    console.log("MATCH!!!!!");
+                    return true;
+                }
+            }
+        }
+    }
+    else {
+        var stringsFromDD2 = extractStringsFromDockDoorIncoming(dockDoorIncomingZoneName);
+        console.log("StringsFromDD2: " + JSON.stringify(stringsFromDD2));
+
+        for (const str of stringsFromDD2) {
+
+            console.log("str: " + str);
+            if (str.length > 1 && layerZoneName.includes(str)) {
+                console.log("MATCH!!!!!");
+                return true;
+            }
+        }
+    }
+    return false;
+}
+
+function checkZone(zoneId) {
+
+    var polyObjKeys = Object.keys(polygonMachine._layers);
+
+    for (var key of polyObjKeys) {
+        let layer = polygonMachine._layers[key];
+        if (layer.hasOwnProperty("feature")) {
+            if (zoneId === layer.feature.properties.id) {
+                return true;
+            }
+        }
+    }
+    return false;
+}
+function popZone(zoneName, frontOrBack) {
+    $.map(polygonMachine._layers, function (layer, i) {
+        if (layer.hasOwnProperty("feature")) {
+            if (zoneMatchesForDockDoorIncoming(layer.feature.properties.name, zoneName)) {
+                if (frontOrBack === "front") {
+
+                    let style = layer.options.style;
+                    if (!layer.options.lastOpacity) {
+                        layer.options.lastOpacity = layer.options.fillOpacity + 0;
+                    }
+                    var tooltip = layer.getTooltip();
+                    layer.lastTooltipOpacity = tooltip.opacity + 0;
+                    tooltip.setOpacity(1);
+                    style.fillOpacity = 1;
+                    style.fillColor = "#ffffff"
+                    layer.setStyle(style);
+                    layer.bringToFront();
+                }
+                else {
+
+                    var tooltip = layer.getTooltip();
+                    let style = layer.options.style;
+                    layer.lastTooltipOpacity = tooltip.opacity + 0;
+                    tooltip.setOpacity(0.2);
+                    style.fillOpacity = layer.options.lastOpacity + 0;
+                    layer.setStyle(style);
+                    layer.bringToBack();
+                }
+
+            }
+        }
+    });
+}
+
+
 async function updateDockDoorZone(dockdoorzoneupdate) {
     try {
         let layerindex = -0;
@@ -19,7 +281,8 @@ async function updateDockDoorZone(dockdoorzoneupdate) {
                     }
                 });
                 if (layerindex !== -0) {
-                    if ($('div[id=dockdoor_div]').is(':visible') && $('div[id=dockdoor_div]').attr("data-id") === dockdoorzoneupdate.properties.id) {
+                    if ($('div[id=dockdoor_div]').is(':visible') &&
+                        $('div[id=dockdoor_div]').attr("data-id") === dockdoorzoneupdate.properties.id) {
                         LoadDockDoorTable(dockdoorzoneupdate.properties);
                     }
                     updatedockdoor(layerindex);
@@ -35,6 +298,25 @@ async function updateDockDoorZone(dockdoorzoneupdate) {
     }
 }
 
+
+let rtdm = document.getElementById("RouteTripDetails_Modal");
+function zoneStatusClose(closeSidebar) {
+    if (closeSidebar) {
+        sidebar.close("home");
+    }
+    unGreyOutBG();
+}
+
+
+addToSidebarListenCollection(document.getElementById("sidebar"));
+document.getElementById("sidebar").addEventListener("sidebarclose", () => {
+    zoneStatusClose(false);
+});
+
+document.addEventListener("layerscontentvisible", () => {
+    zoneStatusClose(true);
+    
+});
 var dockDoors = new L.GeoJSON(null, {
     style: function (feature) {
         try {
@@ -111,9 +393,16 @@ var dockDoors = new L.GeoJSON(null, {
         $zoneSelect[0].selectize.addOption({ value: feature.properties.id, text: feature.properties.name });
         $zoneSelect[0].selectize.addItem(feature.properties.id);
         $zoneSelect[0].selectize.setValue(-1, true);
+       
         layer.on('click', function (e) {
             $('input[type=checkbox][name=followvehicle]').prop('checked', false).change();
-            map.setView(e.latlng, 3);
+            let bounds = mainfloor.getBounds();
+            let latNorth = bounds._northEast.lat;
+            let latSouth = bounds._southWest.lat;
+            let lngWest = bounds._southWest.lng;
+            let latMiddle = (latNorth + latSouth) / 2;
+            let centerLeft = [latMiddle, lngWest];
+            map.setView(centerLeft, 0);
             if ((' ' + document.getElementById('sidebar').className + ' ').indexOf(' ' + 'collapsed' + ' ') <= -1) {
                 if ($('#zoneselect').val() == feature.properties.id) {
                     sidebar.close('home');
@@ -233,7 +522,7 @@ async function updatedockdoor(layerindex) {
                     opacity: 1,
                     color: '#3573b1',
                     fillColor: '#3573b1',
-                    fillOpacity: 0.5
+                    fillOpacity: 0.2
                 });
             }
         }
@@ -261,8 +550,11 @@ async function updatedockdoor(layerindex) {
         }
     }
 }
+
+let dockdoorloaddata = [];
 async function LoadDockDoorTable(dataproperties) {
     try {
+        dockdoorloaddata = [];
         let loadtriphisory = false;
         let tempdata = [];
         $('div[id=dockdoor_div]').attr("data-id", dataproperties.id);
@@ -397,18 +689,34 @@ async function LoadDockDoorTable(dataproperties) {
                     $.each(loaddata, function () {
                         container_Table_Body.append(container_row_template.supplant(formatctscontainerrow(this, dataproperties.id)));
                     });
+                    dockdoorloaddata = JSON.parse(JSON.stringify(loaddata));
+                   
+                    
+                    greyOutBG();
+                    if (loaddata.length > 0) {
+                        $.each(loaddata, function () {
+                            container_Table_Body.append(container_row_template.supplant
+                                (formatctscontainerrow(this, dataproperties.dockdoorData.id)));
+                         
+                        });
+                    }
 
                     $('button[name=container_counts]').text(loadedcount + "/" + unloadedcount);
                 }
                 else {
                     $('button[name=container_counts]').text(0 + "/" + 0);
                     container_Table_Body.empty();
+
+                    greyOutBG();
                 }
                 //});
+
             }
             else {
                 $('button[name=container_counts]').text(0 + "/" + 0);
                 container_Table_Body.empty();
+
+                greyOutBG();
             }
 
             if (loadtriphisory) {
@@ -422,10 +730,11 @@ async function LoadDockDoorTable(dataproperties) {
             $.each(tempdata, function () {
                 dockdoortop_Table_Body.append(dockdoortop_row_template.supplant(formatdockdoortoprow(this, dataproperties.id)));
             });
+            greyOutBG();
         }
     }
     catch (e) {
-        console.log(e);
+        console.log(e.message + ", "  + e.stack);
     }
 }
 async function LoadDoorDetails(door) {
@@ -433,10 +742,8 @@ async function LoadDoorDetails(door) {
         $.map(dockDoors._layers, function (layer, i) {
             if (layer.hasOwnProperty("feature")) {
                 if (layer.feature.properties.doorNumber === door) {
-                    var Center = new L.latLng(
-                        (layer._bounds._southWest.lat + layer._bounds._northEast.lat) / 2,
-                        (layer._bounds._southWest.lng + layer._bounds._northEast.lng) / 2);
-                    map.setView(Center, 3);
+                    map.invalidateSize();
+                    map.setZoom(1);
                     LoadDockDoorTable(layer.feature.properties);
                     return false;
                 }

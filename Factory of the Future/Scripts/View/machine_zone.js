@@ -224,7 +224,8 @@ const polyObj = {
                 var startofrun = feature.properties.hasOwnProperty("MPEWatchData") ? feature.properties.MPEWatchData.hasOwnProperty("current_run_start") ? feature.properties.MPEWatchData.current_run_start : "" : "";
                 if (checkValue(sortplan) && !checkValue(endofrun)) {
                     var thpCode = feature.properties.hasOwnProperty("MPEWatchData") ? feature.properties.MPEWatchData.hasOwnProperty("throughput_status") ? feature.properties.MPEWatchData.throughput_status : "0" : "0";
-                    var fillColor = GetMacineBackground(feature.properties.MPEWatchData, startofrun);
+                    var fillColor = GetMacineBackground
+                        (feature.properties.MPEWatchData, startofrun);
                     style = {
                         weight: 1,
                         opacity: 1,
