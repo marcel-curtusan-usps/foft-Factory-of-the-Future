@@ -65,7 +65,7 @@ function unGreyOutBGOnce() {
         }
     }
 
-    $.map(polygonMachine._layers, function (layer, i) {
+    $.map(stagingBullpenAreas._layers, function (layer, i) {
         layer.bringToBack();
     });
     map.invalidateSize();
@@ -82,15 +82,12 @@ function setGreyedOut() {
             for (const id of layerCheckboxIds) {
 
                 checkboxStateBeforeGreyOut[id] = $("#" + id).is(":checked");
-                console.log(id + " before " + checkboxStateBeforeGreyOut[id])
                 if (id !== "MainFloor" && id !== "AGVVehicles" &&
 
-                    id !== "PIVVehicles" && id !== "MPEWorkAreas" &&
+                    id !== "PIVVehicles" && id !== "StagingBullpenAreas" &&
                     id !== "Badge" && id !== "DockDoors") {
                     if (checkboxStateBeforeGreyOut[id] !== false) {
                         $("#" + id).trigger("click");
-
-                        console.log(id + " after " + checkboxStateBeforeGreyOut[id])
                     }
                 }
 
@@ -101,16 +98,11 @@ function setGreyedOut() {
         popZonesToBack();
         greyedOutRectangle.bringToFront();
         if (dockdoorloaddata.length > 0) {
-            console.log("length > 0");
-            console.log("length == " + dockdoorloaddata.length);
             for (var dat of dockdoorloaddata) {
-                console.log("data found");
-                popZone(dat.location, "front");
-                console.log("pop zone called");
+                if (dat.constainerStatus !== "Loaded") {
+                    popZone(dat.location, "front");
+                }
             }
-        }
-        else {
-            console.log("length not greater than 0");
         }
     }
     if (!greyedOut && updateGreyedOut) {
@@ -118,10 +110,7 @@ function setGreyedOut() {
        
         for (const id of layerCheckboxIds) {
 
-                console.log(id + " is " + $("#" + id).is(":checked"));
-                console.log(id + " was  " + checkboxStateBeforeGreyOut[id])
                 if (checkboxStateBeforeGreyOut[id] !== $("#" + id).is(":checked")) {
-                    console.log("trigger");
                     $("#" + id).trigger("click");
                 }
 
@@ -136,10 +125,10 @@ function setGreyedOut() {
 }
 
 function popZonesToBack() {
-    var polyObjKeys = Object.keys(polygonMachine._layers);
+    var bullpenObjKeys = Object.keys(stagingBullpenAreas._layers);
 
-    for (var key of polyObjKeys) {
-        let layer = polygonMachine._layers[key];
+    for (var key of bullpenObjKeys) {
+        let layer = stagingBullpenAreas._layers[key];
 
         let style = layer.options.style;
         if (!layer.options.lastOpacity) {
@@ -147,82 +136,19 @@ function popZonesToBack() {
         }
         var tooltip = layer.getTooltip();
         layer.lastTooltipOpacity = tooltip.opacity + 0;
-        tooltip.setOpacity(0.2);
+        tooltip.setOpacity(0);
         style.fillColor = "#c0c0c0";
         style.fillOpacity = 0;
         layer.setStyle(style);
     }
 }
 
-function extractNumber(zoneName) {
-    var numberString = "";
-    for (var i = 0; i < zoneName.length; i++) {
-        if (zoneName[i] >= '0' && zoneName[i] <= '9') {
-            numberString = numberString + zoneName[i];
-        }
-        else if (numberString !== "") {
-            break;
-        }
-    }
-    return numberString;
-}
-
-function extractStringsFromDockDoorIncoming(dockDoorIncomingZoneName) {
-    
-    dockDoorIncomingZoneName = dockDoorIncomingZoneName.replaceAll("-", " ");
-    dockDoorIncomingZoneName = dockDoorIncomingZoneName.replaceAll("_", " ");
-    dockDoorIncomingZoneName = dockDoorIncomingZoneName.replaceAll("x", " ");
-    let strings = dockDoorIncomingZoneName.split(' ');
-    let newStrings = [];
-    for (const str of strings) {
-        if (extractNumber(str) === "") {
-            newStrings.push(str);
-        }
-    }
-    return newStrings;
-}
-function zoneMatchesForDockDoorIncoming(layerZoneName, dockDoorIncomingZoneName) {
-    console.log(layerZoneName + " " + dockDoorIncomingZoneName);
-    layerZoneName = layerZoneName.toLowerCase();
-    dockDoorIncomingZoneName = dockDoorIncomingZoneName.toLowerCase();
-    let num = extractNumber(dockDoorIncomingZoneName);
-    console.log("num: " + num)
-    if (num !== "") {
-        if (layerZoneName.includes(num)) {
-            console.log("layer includes num");
-            var stringsFromDD = extractStringsFromDockDoorIncoming(dockDoorIncomingZoneName);
-            console.log("StringsFromDD: " + JSON.stringify(stringsFromDD));
-            for (const str of stringsFromDD) {
-                console.log("str: " + str);
-                if (str.length > 1 && layerZoneName.includes(str)) {
-                    console.log("MATCH!!!!!");
-                    return true;
-                }
-            }
-        }
-    }
-    else {
-        var stringsFromDD2 = extractStringsFromDockDoorIncoming(dockDoorIncomingZoneName);
-        console.log("StringsFromDD2: " + JSON.stringify(stringsFromDD2));
-
-        for (const str of stringsFromDD2) {
-
-            console.log("str: " + str);
-            if (str.length > 1 && layerZoneName.includes(str)) {
-                console.log("MATCH!!!!!");
-                return true;
-            }
-        }
-    }
-    return false;
-}
-
 function checkZone(zoneId) {
 
-    var polyObjKeys = Object.keys(polygonMachine._layers);
+    var bullpenObjKeys = Object.keys(stagingBullpenAreas._layers);
 
-    for (var key of polyObjKeys) {
-        let layer = polygonMachine._layers[key];
+    for (var key of bullpenObjKeys) {
+        let layer = stagingBullpenAreas._layers[key];
         if (layer.hasOwnProperty("feature")) {
             if (zoneId === layer.feature.properties.id) {
                 return true;
@@ -232,9 +158,9 @@ function checkZone(zoneId) {
     return false;
 }
 function popZone(zoneName, frontOrBack) {
-    $.map(polygonMachine._layers, function (layer, i) {
+    $.map(stagingBullpenAreas._layers, function (layer, i) {
         if (layer.hasOwnProperty("feature")) {
-            if (zoneMatchesForDockDoorIncoming(layer.feature.properties.name, zoneName)) {
+            if (layer.feature.properties.name === zoneName) {
                 if (frontOrBack === "front") {
 
                     let style = layer.options.style;
@@ -734,7 +660,7 @@ async function LoadDockDoorTable(dataproperties) {
         }
     }
     catch (e) {
-        console.log(e.message + ", "  + e.stack);
+        console.log(e);
     }
 }
 async function LoadDoorDetails(door) {
