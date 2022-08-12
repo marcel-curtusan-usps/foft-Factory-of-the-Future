@@ -23,7 +23,7 @@ function addToSidebarListenCollection(el) {
 
 var listenElObjCollapsedSetToTrue = false;
 function listenForLayersContentVisible() {
-    if ($("#layersContent").is(":visible")) {
+    if (greyedOut && $("#layersContent").is(":visible")) {
         document.dispatchEvent(layerscontentvisibleevent);
     }
 }

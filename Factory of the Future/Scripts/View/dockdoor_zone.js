@@ -255,11 +255,13 @@ function zoneStatusClose(closeSidebar) {
 
 addToSidebarListenCollection(document.getElementById("sidebar"));
 document.getElementById("sidebar").addEventListener("sidebarclose", () => {
+    console.log("sidebarclose");
     zoneStatusClose(false);
 
 });
 
 document.addEventListener("layerscontentvisible", () => {
+    console.log("layerscontentvisible");
     zoneStatusClose(true);
     
 });
@@ -505,15 +507,8 @@ async function LoadDockDoorTable(dataproperties) {
         dockdoorloaddata = [];
         let loadtriphisory = false;
         let tempdata = [];
+        hideSidebarLayerDivs();
         $('div[id=dockdoor_div]').attr("data-id", dataproperties.id);
-        $('div[id=machine_div]').css('display', 'none');
-        $('div[id=agvlocation_div]').css('display', 'none');
-        $('div[id=ctstabs_div]').css('display', 'none');
-        $('div[id=vehicle_div]').css('display', 'none');
-        $('div[id=staff_div]').css('display', 'none');
-        $('div[id=area_div]').css('display', 'none');
-        $('div[id=dps_div]').css('display', 'none');
-        $('div[id=layer_div]').css('display', 'none');
         $('div[id=dockdoor_div]').css('display', 'block');
         $('div[id=trailer_div]').css('display', 'block');
 

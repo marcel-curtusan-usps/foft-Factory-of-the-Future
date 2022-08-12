@@ -1072,3 +1072,18 @@ function viewportSelectedByName(name) {
         });
     }
 }
+
+function hideSidebarLayerDivs() {
+
+    $('div[id=agvlocation_div]').css('display', 'none');
+    $('div[id=area_div]').css('display', 'none');
+    $('div[id=bullpen_div]').css('display', 'none');
+    $('div[id=dockdoor_div]').css('display', 'none');
+    $('div[id=trailer_div]').css('display', 'none');
+    $('div[id=machine_div]').css('display', 'none');
+    $('div[id=staff_div]').css('display', 'none');
+    $('div[id=ctstabs_div]').css('display', 'none');
+    $('div[id=vehicle_div]').css('display', 'none');
+    $('div[id=dps_div]').css('display', 'none');
+    $('div[id=layer_div]').css('display', 'none');
+}

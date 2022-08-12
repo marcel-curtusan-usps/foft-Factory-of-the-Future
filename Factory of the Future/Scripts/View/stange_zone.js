@@ -235,15 +235,8 @@ var stagingAreas = new L.GeoJSON(null, {
 async function LoadstageTables(dataproperties) {
     try {
         $zoneSelect[0].selectize.setValue(dataproperties.id, true);
+        hideSidebarLayerDivs();
         $('div[id=area_div]').attr("data-id", dataproperties.id);
-        $('div[id=machine_div]').css('display', 'none');
-        $('div[id=agvlocation_div]').css('display', 'none');
-        $('div[id=dockdoor_div]').css('display', 'none');
-        $('div[id=trailer_div]').css('display', 'none');
-        $('div[id=ctstabs_div]').css('display', 'none');
-        $('div[id=dps_div]').css('display', 'none');
-        $('div[id=vehicle_div]').css('display', 'none');
-        $('div[id=layer_div]').css('display', 'none');
         $('div[id=area_div]').css('display', 'block');
         zonetop_Table_Body.empty();
         zonetop_Table_Body.append(zonetop_row_template.supplant(formatzonetoprow(dataproperties)));

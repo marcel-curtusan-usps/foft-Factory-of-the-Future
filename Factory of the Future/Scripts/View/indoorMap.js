@@ -126,6 +126,7 @@ function assignIdsToLayerCheckboxes() {
         }
     }
 }
+
 map.on('baselayerchange', function (e) {
     baselayerid = e.layer.options.id;
     console.log(baselayerid);

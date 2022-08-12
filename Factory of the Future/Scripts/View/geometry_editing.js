@@ -28,6 +28,30 @@ $('#Remove_Layer_Modal').on('hidden.bs.modal', function () {
 });
 $('#Remove_Layer_Modal').on('shown.bs.modal', function () {
 });
+
+function addCreatedZoneToMap(newZone) {
+    switch (newZone.properties.Zone_Type) {
+        case "AGVLocation":
+            agvLocations.addData(newZone);
+            break;
+        case "Machine":
+            polygonMachine.addData(newZone);
+            break;
+        case "Bullpen":
+            stagingBullpenAreas.addData(newZone);
+            break;
+        case "ViewPorts":
+            viewPortsAreas.addData(newZone);
+            break;
+        case "Bin":
+            binzonepoly.addData(newZone);
+            break;
+        case "DockDoor":
+            dockDoors.addData(newZone);
+            break;
+
+    }
+}
 ////this for later
 function init_geometry_editing() {
     var draw_options = {
@@ -47,16 +71,7 @@ function init_geometry_editing() {
     };
     map.pm.addControls(draw_options);
     map.on('pm:create', (e) => {
-        $('div[id=zoneselectlist_div]').css('display', 'none');
-        $('div[id=machine_div]').css('display', 'none');
-        $('div[id=agvlocation_div]').css('display', 'none');
-        $('div[id=dockdoor_div]').css('display', 'none');
-        $('div[id=trailer_div]').css('display', 'none');
-        $('div[id=ctstabs_div]').css('display', 'none');
-        $('div[id=dps_div]').css('display', 'none');
-        $('div[id=vehicle_div]').css('display', 'none');
-        $('div[id=area_div]').css('display', 'none');
-        $('div[id=staff_div]').css('display', 'none');
+        hideSidebarLayerDivs();
         $('div[id=layer_div]').css('display', 'block');
         $('select[name=zone_type]').prop('disabled', false);
         VaildateForm("");
@@ -280,6 +295,7 @@ function CreateZone(newlayer)
             $.connection.FOTFManager.server.addZone(JSON.stringify(togeo)).done(function (Data) {
                 if (!$.isEmptyObject(Data)) {
                     setTimeout(function () { sidebar.close('home'); }, 500);
+                    addCreatedZoneToMap(Data);
                     newlayer.layer.remove();
                 }
                 else {
