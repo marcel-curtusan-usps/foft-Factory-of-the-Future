@@ -51,17 +51,22 @@ function listenForSidebarClose() {
         }
     }
 }
-
+let listenFunctionRunning = false;
 function periodicListen() {
-    try {
-        listenForSidebarClose();
-        listenForLayersContentVisible();
+    if (!listenFunctionRunning) {
+        listenFunctionRunning = true;
+        try {
+            listenForSidebarClose();
+            listenForLayersContentVisible();
+        }
+        catch (e) {
+            console.log(e.message + " " + e.stack);
+        }
+        listenFunctionRunning = false;
     }
-    catch (e) {
-        console.log(e.message + " " + e.stack);
-    }
-    setTimeout(periodicListen, eventIntervalFrequency);
+   
+    
 }
 
 
-setTimeout(periodicListen, eventIntervalFrequency);
+setInterval(periodicListen, eventIntervalFrequency)

@@ -77,6 +77,21 @@ else {
 
 }
 
+let mapView = {};
+function saveMapView() {
+    mapView.bounds = JSON.parse(JSON.stringify(map.getBounds()));
+    mapView.zoom = map.getZoom() + 0;
+}
+
+function restoreMapView() {
+    if (mapView.bounds) {
+        let centerLat = (mapView.bounds._southWest.lat + mapView.bounds._northEast.lat) / 2;
+        let centerLng = (mapView.bounds._southWest.lng + mapView.bounds._northEast.lng) / 2;
+        let center = [centerLat, centerLng];
+       map.setView(center, mapView.zoom);
+    }
+    mapView = {};
+}
 //setup map
 map = L.map('map', {
     crs: L.CRS.Simple,

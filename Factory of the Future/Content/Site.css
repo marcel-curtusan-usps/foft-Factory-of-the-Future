@@ -700,6 +700,18 @@ p .smaller {
 .iconXSmall [class*="path"]:before {
   font-size: 1.25rem; }
 
+.biIconXSmall:before {
+  font-size: 1rem !important; }
+
+.biIconSmall:before {
+  font-size: 1.25rem !important; }
+
+.biIconMedium:before {
+  font-size: 1.9rem !important; }
+
+.biIconLarge:before {
+  font-size: 2.4rem !important; }
+
 /* i selector for fotf-icon */
 .largeIcon i::before {
   font-size: 2.4rem; }

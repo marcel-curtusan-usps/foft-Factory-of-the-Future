@@ -73,6 +73,14 @@ function unGreyOutBGOnce() {
 
 let checkboxStateBeforeGreyOut = null;
 let updateGreyedOut = true;
+
+function addBullpenNotFoundIcon(zoneName) {
+    $("td[data-input='location']").each((i_, locationElement) => {
+        if ($(locationElement).html() === zoneName) {
+            $(locationElement).next().html("<span class='bi-question-lg biIconXSmall'></span>");
+        }
+    });
+}
 function setGreyedOut() {
     var z = 0;
     if (greyedOut) {
@@ -98,9 +106,15 @@ function setGreyedOut() {
         popZonesToBack();
         greyedOutRectangle.bringToFront();
         if (dockdoorloaddata.length > 0) {
+            console.log(JSON.stringify(dockdoorloaddata));
             for (var dat of dockdoorloaddata) {
                 if (dat.constainerStatus !== "Loaded") {
-                    popZone(dat.location, "front");
+                    console.log(dat.location);
+                    let foundZone = popZone(dat.location, "front");
+                    if (!foundZone) {
+                        console.log("!foundzone");
+                        addBullpenNotFoundIcon(dat.location);
+                    }
                 }
             }
         }
@@ -158,6 +172,7 @@ function checkZone(zoneId) {
     return false;
 }
 function popZone(zoneName, frontOrBack) {
+    var foundZone = false;
     $.map(stagingBullpenAreas._layers, function (layer, i) {
         if (layer.hasOwnProperty("feature")) {
             if (layer.feature.properties.name === zoneName) {
@@ -174,6 +189,7 @@ function popZone(zoneName, frontOrBack) {
                     style.fillColor = "#ffffff"
                     layer.setStyle(style);
                     layer.bringToFront();
+                    foundZone = true;
                 }
                 else {
 
@@ -184,11 +200,13 @@ function popZone(zoneName, frontOrBack) {
                     style.fillOpacity = layer.options.lastOpacity + 0;
                     layer.setStyle(style);
                     layer.bringToBack();
+
                 }
 
             }
         }
     });
+    return foundZone;
 }
 
 
@@ -231,12 +249,14 @@ function zoneStatusClose(closeSidebar) {
         sidebar.close("home");
     }
     unGreyOutBG();
+    restoreMapView();
 }
 
 
 addToSidebarListenCollection(document.getElementById("sidebar"));
 document.getElementById("sidebar").addEventListener("sidebarclose", () => {
     zoneStatusClose(false);
+
 });
 
 document.addEventListener("layerscontentvisible", () => {
@@ -322,6 +342,7 @@ var dockDoors = new L.GeoJSON(null, {
        
         layer.on('click', function (e) {
             $('input[type=checkbox][name=followvehicle]').prop('checked', false).change();
+            saveMapView();
             let bounds = mainfloor.getBounds();
             let latNorth = bounds._northEast.lat;
             let latSouth = bounds._southWest.lat;
@@ -389,6 +410,7 @@ function formatctscontainerrow(properties, zoneid) {
 let container_row_template = '<tr>' +
     '<td data-input="dest" class="text-center">{dest}</td>' +
     '<td data-input="location" class="text-center">{location}</td>' +
+    '<td data-input="found-icon" class="text-center"></td>' +
     '<td data-input="placard" class="text-center"><a data-doorid={zone_id} data-placardid={placard} class="containerdetails">{placard}</a></td>' +
     '<td data-input="status" class="text-center {backgroundcolorstatus}">{status}</td>' +
     '</tr>"';
@@ -619,13 +641,6 @@ async function LoadDockDoorTable(dataproperties) {
                    
                     
                     greyOutBG();
-                    if (loaddata.length > 0) {
-                        $.each(loaddata, function () {
-                            container_Table_Body.append(container_row_template.supplant
-                                (formatctscontainerrow(this, dataproperties.dockdoorData.id)));
-                         
-                        });
-                    }
 
                     $('button[name=container_counts]').text(loadedcount + "/" + unloadedcount);
                 }
