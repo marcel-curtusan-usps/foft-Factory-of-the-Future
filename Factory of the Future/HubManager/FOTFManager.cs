@@ -38,6 +38,7 @@ namespace Factory_of_the_Future
         private readonly object updateNotificationStatuslock = new object();
         private readonly object updateBinZoneStatuslock = new object();
         private readonly object updateCameralock = new object();
+        private readonly object updateSVZoneLock = new object();
         
         //timers
         private readonly Timer VehicleTag_timer;
@@ -51,6 +52,7 @@ namespace Factory_of_the_Future
         private readonly Timer Notification_timer;
         private readonly Timer BinZone_timer;
         private readonly Timer Camera_timer;
+        private readonly Timer SVZone_timer;
         //status
         private volatile bool _updatePersonTagStatus = false;
         private volatile bool _updateZoneStatus = false;
@@ -63,6 +65,7 @@ namespace Factory_of_the_Future
         private volatile bool _updateNotificationstatus = false;
         private volatile bool _updateBinZoneStatus = false;
         private volatile bool _updateCameraStatus = false;
+        private volatile bool _updateSVZone = false;
         private bool disposedValue;
 
         //250 Milliseconds
@@ -78,6 +81,7 @@ namespace Factory_of_the_Future
         //60 seconds
         private readonly TimeSpan _60000updateInterval = TimeSpan.FromMilliseconds(60000);
 
+       
         //init timers
         private FOTFManager(IHubConnectionContext<dynamic> clients)
         {
@@ -99,7 +103,7 @@ namespace Factory_of_the_Future
             QSM_timer = new Timer(UpdateQSM, null, _250updateInterval, _250updateInterval);
             //Camera update;
             Camera_timer = new Timer(UpdateCameraImages, null, _10000updateInterval, _60000updateInterval);
-
+            SVZone_timer = new Timer(UpdateSVZones, null, _250updateInterval, _30000updateInterval);
         }
     public static FOTFManager Instance
         {
@@ -187,7 +191,19 @@ namespace Factory_of_the_Future
             }
         }
 
-
+        internal IEnumerable<string> GetSVZoneNameList()
+        {
+            try
+            {
+                return AppParameters.SVZoneNameList.
+                    Select(y =>  y.Value).ToList();
+            }
+            catch (Exception e)
+            {
+                new ErrorLogger().ExceptionLog(e);
+                return null;
+            }
+        }
         internal IEnumerable<string> GetDockDoorList()
         {
             try
@@ -226,6 +242,41 @@ namespace Factory_of_the_Future
         //        return null;
         //    }
         //}
+
+
+
+        public void UpdateSVZones(object state)
+        {
+            try
+            {
+                lock (updateSVZoneLock)
+                {
+                    _updateSVZone = true;
+                    foreach (CoordinateSystem cs in AppParameters.CoordinateSystem.Values)
+                    {
+                        cs.Zones.Where(f => f.Value.Properties.ZoneType == "SV" 
+                        && f.Value.Properties.ZoneUpdate 
+                        && f.Value.Properties.Visible).Select(y => y.Value).ToList().ForEach(SV =>
+                        {
+                            if (TryUpdateSVZoneStatus(SV))
+                            {
+                                BroadcastSVZoneStatus(SV, cs.Id);
+                            }
+
+                        });
+                    }
+
+                    _updateSVZone = false;
+                }
+            }
+
+            catch (Exception e)
+            {
+                new ErrorLogger().ExceptionLog(e);
+
+                _updateSVZone = false;
+            }
+        }
 
         public void UpdateCameraImages(object state)
         {
@@ -937,6 +988,23 @@ namespace Factory_of_the_Future
             }
         }
 
+
+        private bool TryUpdateSVZoneStatus(GeoZone svZone)
+        {
+            try
+            {
+
+                svZone.Properties.ZoneUpdate = false;
+                return true;
+
+            }
+            catch (Exception e)
+            {
+                new ErrorLogger().ExceptionLog(e);
+                return false;
+            }
+        }
+
         private bool TryUpdateBinZoneStatus(GeoZone binZone)
         {
             try
@@ -958,6 +1026,10 @@ namespace Factory_of_the_Future
             Clients.Group("BinZones").updateBinZoneStatus(binZone, id);
         }
 
+        private void BroadcastSVZoneStatus(GeoZone svZone, string id)
+        {
+            Clients.Group("SVZones").updateSVZoneStatus(svZone, id);
+        }
         private void UpdateSVTripsStatus(object state)
         {
             lock (updateSVTripsStatuslock)

@@ -50,7 +50,8 @@ var exitAreas = new L.GeoJSON(null, {
             opacity: 1,
             className: 'location'
         }).openTooltip();
-        exitAreas.bringToBack();
+        layer.bringToBack();
+
     }
 })
 var polyholesAreas = new L.GeoJSON(null, {
@@ -92,7 +93,7 @@ var polyholesAreas = new L.GeoJSON(null, {
             opacity: 1,
             className: 'location'
         }).openTooltip();
-        polyholesAreas.bringToBack();
+        layer.bringToBack();
     },
 });
 var ebrAreas = new L.GeoJSON(null, {
@@ -134,7 +135,7 @@ var ebrAreas = new L.GeoJSON(null, {
             opacity: 1,
             className: 'location'
         }).openTooltip();
-        ebrAreas.bringToBack();
+        layer.bringToBack();
     },
 });
 var walkwayAreas = new L.GeoJSON(null, {
@@ -176,7 +177,7 @@ var walkwayAreas = new L.GeoJSON(null, {
             opacity: 1,
             className: 'location'
         }).openTooltip();
-        walkwayAreas.bringToBack();
+        layer.bringToBack();
     },
 });
 var stagingAreas = new L.GeoJSON(null, {
@@ -223,7 +224,8 @@ var stagingAreas = new L.GeoJSON(null, {
         $zoneSelect[0].selectize.addOption({ value: feature.properties.id, text: feature.properties.name });
         $zoneSelect[0].selectize.addItem(feature.properties.id);
         $zoneSelect[0].selectize.setValue(-1, true);
-        stagingAreas.bringToBack();
+        layer.bringToBack();
+        
     },
     filter: function (feature, layer) {
         return feature.properties.visible;
@@ -233,15 +235,8 @@ var stagingAreas = new L.GeoJSON(null, {
 async function LoadstageTables(dataproperties) {
     try {
         $zoneSelect[0].selectize.setValue(dataproperties.id, true);
+        hideSidebarLayerDivs();
         $('div[id=area_div]').attr("data-id", dataproperties.id);
-        $('div[id=machine_div]').css('display', 'none');
-        $('div[id=agvlocation_div]').css('display', 'none');
-        $('div[id=dockdoor_div]').css('display', 'none');
-        $('div[id=trailer_div]').css('display', 'none');
-        $('div[id=ctstabs_div]').css('display', 'none');
-        $('div[id=dps_div]').css('display', 'none');
-        $('div[id=vehicle_div]').css('display', 'none');
-        $('div[id=layer_div]').css('display', 'none');
         $('div[id=area_div]').css('display', 'block');
         zonetop_Table_Body.empty();
         zonetop_Table_Body.append(zonetop_row_template.supplant(formatzonetoprow(dataproperties)));
@@ -333,10 +328,17 @@ $('#zoneselect').change(function (e) {
         else if (/^(ViewPorts)/i.test(this.properties.Zone_Type)) {
             viewPortsAreas.addData(this);
         }
+        else if (/^(Bullpen)/i.test(this.properties.Zone_Type)) {
+            stagingBullpenAreas.addData(this);
+            // fotfmanager.server.joinGroup("SVZones");
+
+        }
         else {
             
             stagingAreas.addData(this);
         }
     })
+
+    // setGreyedOut();
     fotfmanager.server.joinGroup("Zones");
 }

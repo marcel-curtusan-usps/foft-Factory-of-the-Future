@@ -28,6 +28,30 @@ $('#Remove_Layer_Modal').on('hidden.bs.modal', function () {
 });
 $('#Remove_Layer_Modal').on('shown.bs.modal', function () {
 });
+
+function addCreatedZoneToMap(newZone) {
+    switch (newZone.properties.Zone_Type) {
+        case "AGVLocation":
+            agvLocations.addData(newZone);
+            break;
+        case "Machine":
+            polygonMachine.addData(newZone);
+            break;
+        case "Bullpen":
+            stagingBullpenAreas.addData(newZone);
+            break;
+        case "ViewPorts":
+            viewPortsAreas.addData(newZone);
+            break;
+        case "Bin":
+            binzonepoly.addData(newZone);
+            break;
+        case "DockDoor":
+            dockDoors.addData(newZone);
+            break;
+
+    }
+}
 ////this for later
 function init_geometry_editing() {
     var draw_options = {
@@ -47,16 +71,7 @@ function init_geometry_editing() {
     };
     map.pm.addControls(draw_options);
     map.on('pm:create', (e) => {
-        $('div[id=zoneselectlist_div]').css('display', 'none');
-        $('div[id=machine_div]').css('display', 'none');
-        $('div[id=agvlocation_div]').css('display', 'none');
-        $('div[id=dockdoor_div]').css('display', 'none');
-        $('div[id=trailer_div]').css('display', 'none');
-        $('div[id=ctstabs_div]').css('display', 'none');
-        $('div[id=dps_div]').css('display', 'none');
-        $('div[id=vehicle_div]').css('display', 'none');
-        $('div[id=area_div]').css('display', 'none');
-        $('div[id=staff_div]').css('display', 'none');
+        hideSidebarLayerDivs();
         $('div[id=layer_div]').css('display', 'block');
         $('select[name=zone_type]').prop('disabled', false);
         VaildateForm("");
@@ -67,10 +82,12 @@ function init_geometry_editing() {
             $('select[name=zone_type] option[value=Camera]').remove();
             $('select[name=zone_type] option[value=DockDoor]').remove();
             $('select[name=zone_type] option[value=Machine]').remove();
+            $('select[name=zone_type] option[value=Bullpen]').remove();
             $('select[name=zone_type] option[value=ViewPorts]').remove();
             $('<option/>').val("Area").html("Area Zone").appendTo('select[id=zone_type]');
             $('<option/>').val("AGVLocation").html("AGV Location Zone").appendTo('select[id=zone_type]');
             $('<option/>').val("Machine").html("Machine Zone").appendTo('select[id=zone_type]');
+            $('<option/>').val("Bullpen").html("Staging Bullpen Zone").appendTo('select[id=zone_type]');
             $('<option/>').val("ViewPorts").html("View Ports").appendTo('select[id=zone_type]');
             CreateZone(e);
             sidebar.open('home');
@@ -83,8 +100,10 @@ function init_geometry_editing() {
             $('select[name=zone_type] option[value=DockDoor]').remove();
             $('select[name=zone_type] option[value=Machine]').remove();
             $('select[name=zone_type] option[value=ViewPorts]').remove();
+            $('select[name=zone_type] option[value=Bullpen]').remove();
             $('<option/>').val("Bin").html("BIN Zone").appendTo('select[id=zone_type]');
             $('<option/>').val("DockDoor").html("Dock Door Zone").appendTo('select[id=zone_type]');
+           
             CreateBinZone(e);
             sidebar.open('home');
         }
@@ -96,6 +115,7 @@ function init_geometry_editing() {
             $('select[name=zone_type] option[value=DockDoor]').remove();
             $('select[name=zone_type] option[value=Machine]').remove();
             $('select[name=zone_type] option[value=ViewPorts]').remove();
+            $('select[name=zone_type] option[value=Bulllpen]').remove();
             $('<option/>').val("Camera").html("Camera").appendTo('select[id=zone_type]');
             CreateCamera(e);
             sidebar.open('home');
@@ -147,6 +167,10 @@ function init_geometry_editing() {
             $('input[type=text][name=zone_name]').removeClass('is-invalid').addClass('is-valid');
 
         }
+        if ($('select[name=zone_type] option:selected').val() === "Bullpen") {
+
+            enableSVZoneSubmit();
+        }
     });
     //bins name
     $('textarea[id=bin_bins]').keyup(function () {
@@ -179,6 +203,10 @@ function init_geometry_editing() {
 
             enableBinZoneSubmit();
         }
+        else if ($('select[name=zone_type] option:selected').val() === "Bullpen") {
+
+            enableSVZoneSubmit();
+        }
         else {
             enableZoneSubmit();
         }
@@ -207,6 +235,17 @@ function enableBinZoneSubmit() {
     if ($('select[name=zone_type]').hasClass('is-valid') &&
         $('input[type=text][name=zone_name]').hasClass('is-valid') &&
         $('textarea[id=bin_bins]').hasClass('is-valid')
+    ) {
+        $('button[id=zonesubmitBtn]').prop('disabled', false);
+    }
+    else {
+        $('button[id=zonesubmitBtn]').prop('disabled', true);
+    }
+}
+
+function enableSVZoneSubmit() {
+    if ($('select[name=zone_type]').hasClass('is-valid') &&
+        $('input[type=text][name=zone_name]').hasClass('is-valid')
     ) {
         $('button[id=zonesubmitBtn]').prop('disabled', false);
     }
@@ -256,6 +295,7 @@ function CreateZone(newlayer)
             $.connection.FOTFManager.server.addZone(JSON.stringify(togeo)).done(function (Data) {
                 if (!$.isEmptyObject(Data)) {
                     setTimeout(function () { sidebar.close('home'); }, 500);
+                    addCreatedZoneToMap(Data);
                     newlayer.layer.remove();
                 }
                 else {
@@ -484,6 +524,42 @@ function VaildateForm(FormType)
             $('span[id=error_zone_type]').text("");
         }
         enableBinZoneSubmit();
+    }
+
+    if (/Bullpen/i.test(FormType)) {
+        var parsedSV = null;
+        var z = null;
+        fotfmanager.server.getSVZoneNameList().done(function (svdata) {
+
+            if (svdata.length > 0) {
+                //sort 
+                svdata.sort(SortByName);
+                $('input[id=zone_name]').css('display', 'none');
+                $('select[id=zone_select_name]').css('display', 'block');
+                $('select[id=zone_select_name]').empty();
+                $('<option/>').val("").html("").appendTo('select[id=zone_select_name]');
+                $('select[id=zone_select_name]').val("");
+                $.each(svdata, function () {
+                    $('<option/>').val(this).html(this).appendTo('select[id=zone_select_name]');
+                })
+            }
+            $('select[name=zone_type]').prop('disabled', true);
+            $('input[name=zone_name]').prop('disabled', true);
+            $('input[name=zone_name]').val("");
+
+            $('input[type=text][name=zone_name]').removeClass('is-invalid').removeClass('is-valid');
+            $('span[id=error_zone_name]').text("");
+
+            if (!checkValue($('select[name=zone_type]').val())) {
+                $('select[name=zone_type]').removeClass('is-valid').addClass('is-invalid');
+                $('span[id=error_zone_type]').text("Please Select Zone Type");
+            }
+            else {
+                $('select[name=zone_type]').removeClass('is-invalid').addClass('is-valid');
+                $('span[id=error_zone_type]').text("");
+            }
+            enableSVZoneSubmit();
+        });
     }
     if (/camera/i.test(FormType)) {
         $('#camerainfo').css("display", "block");
