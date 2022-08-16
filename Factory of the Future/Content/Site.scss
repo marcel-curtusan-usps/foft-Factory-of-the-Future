@@ -22,8 +22,9 @@
     padding: 0 !important;
 }
 
+
 #sparkline-message {
-    z-index: 2147483647;
+    z-index: 2000000000;
     width: 20%;
     margin-left: auto;
     margin-right: auto;
@@ -32,7 +33,7 @@
 
 #sparkline-message-fixed {
     position: fixed;
-    z-index: 2147483647;
+    z-index: 2000000000;
     margin-top: 10px;
 }
 
@@ -45,7 +46,13 @@
     border: 2px solid #e0e0e0;
 }
 
-
+.greyOutMap {
+    width: 1000000px;
+    top: -50px;
+    height: 100000px;
+    background-color: black;
+    pointer-events : none;
+}
 .leaflet-tooltip-sparkline {
     padding: 1px !important;
     opacity: .5 !important;
@@ -835,6 +842,21 @@ p .smaller {
 
 .iconXSmall [class*="path"]:before {
     font-size: 1.25rem;
+}
+
+.biIconXSmall:before {
+    font-size: 1rem !important;
+}
+
+.biIconSmall:before {
+    font-size: 1.25rem !important;
+}
+
+.biIconMedium:before {
+    font-size: 1.9rem !important;
+}
+.biIconLarge:before {
+    font-size: 2.4rem !important;
 }
 /* i selector for fotf-icon */
 .largeIcon i::before {

@@ -25,6 +25,7 @@ function updateAllMachineSparklinesDone(machineStatuses) {
 
         firstMachineSparklines = false;
     }
+    // setGreyedOut();
 }
 function updateSparklineCheck(machineStatus) {
 
@@ -50,6 +51,7 @@ function shouldUpdateSparkline(lastZoom, zoom, forceUpdate) {
 }
 function checkSparklineVisibility(forceUpdate) {
     var zoom = map.getZoom();
+    // setGreyedOut();
     if (shouldUpdateSparkline(lastMapZoom, zoom, forceUpdate)) {
 
         var machineSparklineKeys = Object.keys(machineSparklines._layers);
@@ -84,6 +86,7 @@ function checkSparklineVisibility(forceUpdate) {
 
                     });
             }
+
 
     }
     lastMapZoom = zoom;
@@ -324,9 +327,13 @@ async function updateMachineSparklineTooltip(feature, layer) {
         "' style='width: " + sparklineWidth + "px; height: " + sparklineHeight +
         "px; ' />")
         ;
-    if (layer._tooltip !== null) {
-        layer.unbindTooltip();
+    if (layer._tooltip) {
+        try {
+            layer.unbindTooltip();
+        }
+        catch (e_) {
 
+        }
     }
         layer.bindTooltip(htmlData, {
             permanent: true,
