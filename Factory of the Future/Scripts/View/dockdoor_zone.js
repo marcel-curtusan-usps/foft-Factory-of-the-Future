@@ -73,9 +73,9 @@ function addBullpenNotFoundIcon(zoneName) {
         }
     });
 }
+
 function setGreyedOut() {
     if (greyedOut) {
-        console.log("GREYED OUT");
         updateGreyedOut = true;
         if (checkboxStateBeforeGreyOut === null) {
             checkboxStateBeforeGreyOut = {};

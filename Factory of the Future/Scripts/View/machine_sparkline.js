@@ -25,7 +25,6 @@ function updateAllMachineSparklinesDone(machineStatuses) {
 
         firstMachineSparklines = false;
     }
-    // setGreyedOut();
 }
 function updateSparklineCheck(machineStatus) {
 
@@ -51,7 +50,6 @@ function shouldUpdateSparkline(lastZoom, zoom, forceUpdate) {
 }
 function checkSparklineVisibility(forceUpdate) {
     var zoom = map.getZoom();
-    // setGreyedOut();
     if (shouldUpdateSparkline(lastMapZoom, zoom, forceUpdate)) {
 
         var machineSparklineKeys = Object.keys(machineSparklines._layers);
@@ -251,65 +249,7 @@ function GetSparklineGraph(dataproperties, id) {
     }
 }
 
-async function  createSparkline(dataproperties, id) {
-    return new Promise((resolve, reject) => {
-
-
-        let dataURLFound = GetSparklineGraph(dataproperties);
-        resolve(dataURLFound);
-       
-
-    });
-}
-
-const onSparklineClick = (e) => {
-
-    $.map(polygonMachine._layers, function (pmObj, i) {
-
-        if (pmObj.findId === e.target.options.id) {
-
-            $('input[type=checkbox][name=followvehicle]').prop('checked', false).change();
-            try {
-                map.setView(pmObj.getCenter(), 3);
-            }
-            catch (e_) {
-
-                map.setView(e.target._latlng);
-            }
-            if ((' ' + document.getElementById('sidebar').className + ' ').indexOf(' ' + 'collapsed' + ' ') <= -1) {
-                if ($('#zoneselect').val() == pmObj.findId) {
-                    sidebar.close('home');
-                }
-                else {
-                    sidebar.open('home');
-                }
-            }
-            else {
-                sidebar.open('home');
-            }
-            LoadMachineTables(pmObj.feature.properties, 'machinetable');
-        }
-
-    });
-};
 var machineSparklines = new L.GeoJSON(null, polyObj);
-
-function getSparklineCoords(coordinates) {
-    var minLat = 10000000000000;
-    var maxLat = -10000000000000;
-    var minLng = 10000000000000;
-    var maxLng = -10000000000000;
-    for (const c of coordinates) {
-        if (c[1] < minLat) minLat = c[1];
-        if (c[1] > maxLat) maxLat = c[1];
-        if (c[0] < minLng) minLng = c[0];
-        if (c[0] > maxLng) maxLng = c[0];
-
-    }
-    let centerLat = (minLat + maxLat) / 2;
-    let centerLng = (minLng + maxLng) / 2;
-    return [centerLat, centerLng];
-}
 
 const sparklineWidthNormal = 40;
 const sparklineHeightNormal = 20;
@@ -356,18 +296,8 @@ function layerMachineIdMatch(layer, machineupdate) {
 
 let lastSparklineUpdate = 0;
 
-async function getSparklineLayerFromId(id) {
-    return new Promise((resolve, reject) => {
 
-        $.map(machineSparklines._layers, function (layer, i) {
 
-            if (layer.hasOwnProperty("feature") && layer.feature.properties.id == id) {
-                resolve(layer);
-            }
-        });
-            resolve(null);
-    });
-}
 async function updateMachineSparkline(machineupdate, id) {
     machineupdate.properties.transparent = true;
     machineupdate.properties.sparkline = true;
