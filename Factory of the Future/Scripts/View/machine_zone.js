@@ -212,49 +212,49 @@ function getSparklineTooltipDirection() {
     }
     return "right";
 }
+
+function getPolygonMachineStyle(feature) {
+
+    var style = {};
+    var sortplan = feature.properties.hasOwnProperty("MPEWatchData") ? feature.properties.MPEWatchData.hasOwnProperty("cur_sortplan") ? feature.properties.MPEWatchData.cur_sortplan : "" : "";
+    var endofrun = feature.properties.hasOwnProperty("MPEWatchData") ? feature.properties.MPEWatchData.hasOwnProperty("current_run_end") ? feature.properties.MPEWatchData.current_run_end != "0" ? feature.properties.MPEWatchData.current_run_end : "" : "" : "";
+    var startofrun = feature.properties.hasOwnProperty("MPEWatchData") ? feature.properties.MPEWatchData.hasOwnProperty("current_run_start") ? feature.properties.MPEWatchData.current_run_start : "" : "";
+    if (checkValue(sortplan) && !checkValue(endofrun)) {
+        var thpCode = feature.properties.hasOwnProperty("MPEWatchData") ? feature.properties.MPEWatchData.hasOwnProperty("throughput_status") ? feature.properties.MPEWatchData.throughput_status : "0" : "0";
+        var fillColor = GetMacineBackground
+            (feature.properties.MPEWatchData, startofrun);
+        style = {
+            weight: 1,
+            opacity: 1,
+            color: '#3573b1',
+            fillOpacity: 0.5,
+            fillColor: fillColor
+        };
+    }
+    else {
+        style = {
+            weight: 1,
+            opacity: 1,
+            color: '#3573b1',
+            fillOpacity: 0.2,
+            fillColor: '#989ea4'
+        };
+    }
+    return style;
+}
 const polyObj = {
     style: function (feature) {
-        if (feature.properties.visible) {
-            if (!feature.properties.sparkline) {
-
-
-                var style = {};
-                var sortplan = feature.properties.hasOwnProperty("MPEWatchData") ? feature.properties.MPEWatchData.hasOwnProperty("cur_sortplan") ? feature.properties.MPEWatchData.cur_sortplan : "" : "";
-                var endofrun = feature.properties.hasOwnProperty("MPEWatchData") ? feature.properties.MPEWatchData.hasOwnProperty("current_run_end") ? feature.properties.MPEWatchData.current_run_end != "0" ? feature.properties.MPEWatchData.current_run_end : "" : "" : "";
-                var startofrun = feature.properties.hasOwnProperty("MPEWatchData") ? feature.properties.MPEWatchData.hasOwnProperty("current_run_start") ? feature.properties.MPEWatchData.current_run_start : "" : "";
-                if (checkValue(sortplan) && !checkValue(endofrun)) {
-                    var thpCode = feature.properties.hasOwnProperty("MPEWatchData") ? feature.properties.MPEWatchData.hasOwnProperty("throughput_status") ? feature.properties.MPEWatchData.throughput_status : "0" : "0";
-                    var fillColor = GetMacineBackground
-                        (feature.properties.MPEWatchData, startofrun);
-                    style = {
-                        weight: 1,
-                        opacity: 1,
-                        color: '#3573b1',
-                        fillOpacity: 0.5,
-                        fillColor: fillColor
-                    };
-                }
-                else {
-                    style = {
-                        weight: 1,
-                        opacity: 1,
-                        color: '#3573b1',
-                        fillOpacity: 0.2,
-                        fillColor: '#989ea4'
-                    };
-                }
-                return style;
-            }
-            else {
-
-
-
-                return {
-                    fillOpacity: 0,
-                    opacity: 0
-                };
-            }
+        if (feature.properties.sparkline) {
+            return {
+                fillOpacity: 0,
+                opacity: 0
+            };
         }
+        if (feature.properties.visible) {
+            return getPolygonMachineStyle(feature);
+        
+        }
+            
     },
     onEachFeature: function (feature, layer) {
         layer.findId = feature.properties.id;
