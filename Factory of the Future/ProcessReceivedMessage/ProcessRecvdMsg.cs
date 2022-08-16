@@ -3040,10 +3040,28 @@ namespace Factory_of_the_Future
         private static void CheckScanNotification()
         {
             string loadAfterDepartTypeName = "Load After Depart";
+            string missingLoadTypeName = "Missing Closed Scan";
+
+            RemoveOldScanNotification(loadAfterDepartTypeName);
+            RemoveOldScanNotification(missingLoadTypeName);
             try
             {
                 foreach (Container _container in AppParameters.Containers.Select(y => y.Value))
                 {
+                    
+                    if(_container.hasAssignScans && _container.hasLoadScans)
+                    {
+                        var notification_id = _container.PlacardBarcode + "_MissingClosed";
+                        var notification_name = _container.PlacardBarcode;
+                        if (!_container.hasCloseScans)
+                        {
+                            AddScanNotification(missingLoadTypeName, notification_id, _container.PlacardBarcode, notification_name, 0);
+                        }
+                        else
+                        {
+                            RemoveScanNotification(notification_id);
+                        }
+                    }
                     foreach (ContainerHistory _scan in _container.ContainerHistory.OrderBy(o => o.EventDtmfmt))
                     {
                         if (_scan.Event == "LOAD")
@@ -3068,18 +3086,18 @@ namespace Factory_of_the_Future
                         }
                     }
                 }
-                foreach (Notification _notification in AppParameters.NotificationList.Where(x => Regex.IsMatch(loadAfterDepartTypeName, x.Value.Type, RegexOptions.IgnoreCase)).Select(x => x.Value).ToList())
-                {
-                    var _scan = AppParameters.Containers.Where(z => z.Value.PlacardBarcode == _notification.Type_ID).Select(x => x.Key).ToList();
-                    if (!_scan.Any())
-                    {
-                        if (AppParameters.NotificationList.TryGetValue(_notification.Notification_ID, out Notification ojbMerge))
-                        {
-                            ojbMerge.Delete = true;
-                            ojbMerge.Notification_Update = true;
-                        }
-                    }
-                }
+                //foreach (Notification _notification in AppParameters.NotificationList.Where(x => Regex.IsMatch(loadAfterDepartTypeName, x.Value.Type, RegexOptions.IgnoreCase)).Select(x => x.Value).ToList())
+                //{
+                //    var _scan = AppParameters.Containers.Where(z => z.Value.PlacardBarcode == _notification.Type_ID).Select(x => x.Key).ToList();
+                //    if (!_scan.Any())
+                //    {
+                //        if (AppParameters.NotificationList.TryGetValue(_notification.Notification_ID, out Notification ojbMerge))
+                //        {
+                //            ojbMerge.Delete = true;
+                //            ojbMerge.Notification_Update = true;
+                //        }
+                //    }
+                //}
             }
             catch (Exception e)
             {
@@ -3122,6 +3140,34 @@ namespace Factory_of_the_Future
                     Type_Duration = 0
                 };
                 AppParameters.NotificationList.TryAdd(notificationID, _notification);
+            }
+        }
+
+        private static void RemoveScanNotification(string notification_id)
+        {
+            foreach (Notification _notification in AppParameters.NotificationList.Where(x => Regex.IsMatch(notification_id, x.Value.Notification_ID, RegexOptions.IgnoreCase)).Select(x => x.Value).ToList())
+            {
+                if (AppParameters.NotificationList.TryGetValue(_notification.Notification_ID, out Notification ojbMerge))
+                {
+                    ojbMerge.Delete = true;
+                    ojbMerge.Notification_Update = true;
+                }
+            }
+    }
+
+        private static void RemoveOldScanNotification(string scanNotificationType)
+        {
+            foreach (Notification _notification in AppParameters.NotificationList.Where(x => Regex.IsMatch(scanNotificationType, x.Value.Type, RegexOptions.IgnoreCase)).Select(x => x.Value).ToList())
+            {
+                var _scan = AppParameters.Containers.Where(z => z.Value.PlacardBarcode == _notification.Type_ID).Select(x => x.Key).ToList();
+                if (!_scan.Any())
+                {
+                    if (AppParameters.NotificationList.TryGetValue(_notification.Notification_ID, out Notification ojbMerge))
+                    {
+                        ojbMerge.Delete = true;
+                        ojbMerge.Notification_Update = true;
+                    }
+                }
             }
         }
     }
