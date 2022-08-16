@@ -298,6 +298,36 @@ async function updateDockDoorTables(updatenotification) {
     if (updatenotification.Name === "Missing Closed Scan") {
         updatemissinclosedscantable(updatenotification);
     }
+    if (updatenotification.Name === "Missing Assigned Scan") {
+        updatemissingassignedscantable(updatenotification);
+    }
+    return null;
+}
+async function updatemissingassignedscantable(updatenotification) {
+    try {
+        let dockdoorandtripscount = notification.filter(x => x.Type === "routetrip" || x.Type === "dockdoor").map(x => x).length;
+        if (dockdoorandtripscount > 0) {
+            if (parseInt($('#tripsnotificaion_number').text()) !== dockdoorandtripscount) {
+                $('#tripsnotificaion_number').text(dockdoorandtripscount);
+            }
+            $('#tripsnotificaion_number').text(dockdoorandtripscount);
+        }
+        else {
+            $('#tripsnotificaion_number').text("");
+        }
+        let findmissingassigneddataid = dockdoormissingassignedtable_Body.find('tr[data-id=' + updatenotification.NotificationID + ']');
+        if (findmissingassigneddataid.length > 0) {
+            if (updatenotification.hasOwnProperty("DELETE")) {
+                dockdoormissingassignedtable_Body.find('tr[data-id=' + updatenotification.NotificationID + ']').remove();
+            }
+        }
+        else {
+            dockdoormissingassignedtable_Body.append(dockdoormissingassignedtable_row_template.supplant(formatdockdoormissingassignedtablerow(updatenotification)))
+        }
+    }
+    catch (e) {
+        console.log(e);
+    }
     return null;
 }
 async function updatemissinclosedscantable(updatenotification) {
@@ -551,6 +581,42 @@ function formatmpenotifirow(properties, indx) {
         indexobj: indx
     });
 }
+let dockdoormissingassignedtable = $('table[id=missingassignedtable]');
+let dockdoormissingassignedtable_Body = dockdoormissingassignedtable.find('tbody');
+let dockdoormissingassignedtable_row_template = '<tr data-id={id} style=background-color:{conditioncolor} class="accordion-toggle collapsed" id={id} data-toggle=collapse data-parent=#{id} href="#collapse_{id}">' +
+    '<td colspan="7" data-input="placard" class="text-left">' +
+    '<a data-doorid={zone_id} data-placardid={placard} class="containerdetails">{placard}</a>' +
+    '</td>' +
+    '<td class="expand-button">' +
+    '<a class="btn btn-link d-flex justify-content-end" data-toggle="collapse" href="#collapse_{id}" role="button" aria-expanded="false" aria-controls="collapseSection">' +
+    '<div class="iconXSmall">' +
+    ' <i class="pi-iconCaretDownFill" />' +
+    '</div>' +
+    '</a>' +
+    '</td>' +
+    '</tr>' +
+    '<tr data-id=collapse_{id} class="hide-table-padding">' +
+    '<td colspan="8">' +
+    '<div class="collapse" id="collapse_{id}">' +
+    '<div class="mt-1">' +
+    '<ol class="pl-4 mb-0">' +
+    '<p class="pb-1">{action_text}</p> ' +
+    '</ol>' +
+    '</div>' +
+    '</div>' +
+    '</td>' +
+    '</tr>';
+function formatdockdoormissingassignedtablerow(properties, indx) {
+    return $.extend(properties, {
+        id: properties.NotificationID,
+        placard: properties.TypeID,
+        action_text: getLADactiontext(properties),
+        conditioncolor: getLADconditioncolor(properties),
+        indexobj: indx,
+        zone_id: "0"
+    });
+}
+
 let dockdoormissingclosedtable = $('table[id=missingclosedtable]');
 let dockdoormissingclosedtable_Body = dockdoormissingclosedtable.find('tbody');
 let dockdoormissingclosedtable_row_template = '<tr data-id={id} style=background-color:{conditioncolor} class="accordion-toggle collapsed" id={id} data-toggle=collapse data-parent=#{id} href="#collapse_{id}">' +

@@ -2974,9 +2974,11 @@ namespace Factory_of_the_Future
         {
             string loadAfterDepartTypeName = "Load After Depart";
             string missingLoadTypeName = "Missing Closed Scan";
+            string missingAssignedTypeName = "Missing Assigned Scan";
 
             RemoveOldScanNotification(loadAfterDepartTypeName);
             RemoveOldScanNotification(missingLoadTypeName);
+            RemoveOldScanNotification(missingAssignedTypeName);
             try
             {
                 foreach (Container _container in AppParameters.Containers.Select(y => y.Value))
@@ -2989,6 +2991,19 @@ namespace Factory_of_the_Future
                         if (!_container.hasCloseScans)
                         {
                             AddScanNotification(missingLoadTypeName, notification_id, _container.PlacardBarcode, notification_name, 0);
+                        }
+                        else
+                        {
+                            RemoveScanNotification(notification_id);
+                        }
+                    }
+                    if(_container.hasCloseScans && _container.hasLoadScans)
+                    {
+                        var notification_id = _container.PlacardBarcode + "_MissingAssigned";
+                        var notification_name = _container.PlacardBarcode;
+                        if (!_container.hasAssignScans)
+                        {
+                            AddScanNotification(missingAssignedTypeName, notification_id, _container.PlacardBarcode, notification_name, 0);
                         }
                         else
                         {
