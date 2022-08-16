@@ -310,6 +310,7 @@ $('#zoneselect').change(function (e) {
         }
         else if (/^(DockDoor)/i.test(this.properties.Zone_Type)) {
             dockDoors.addData(this);
+            fotfmanager.server.joinGroup("DockDoorZones");
         }
         else if (/^(Machine)/i.test(this.properties.Zone_Type)) {
       

@@ -8,22 +8,14 @@ let greyedOut = false;
 
 let polygonMachineZIndex = null;
 
-function greyOutBG() {
-    /*
-    if (dockdoorloaddata.length > 0) {
-        var greyOut = false;
-        for (const dat of dockdoorloaddata) {
+function greyOutBGCheck() {
+   
 
-            if (checkZone(dat.zone_id)) {
-                greyOut = true;
-            }
-        }
-    }
-    */
-
+    if (!$("#sidebar").hasClass("collapsed")) {
         var obj = new L.Evented();
         obj.once('greyout', greyOutBGOnce);
         obj.fire('greyout');
+    }
 }
 function greyOutBGOnce() {
     greyedOut = true;
@@ -84,6 +76,7 @@ function addBullpenNotFoundIcon(zoneName) {
 function setGreyedOut() {
     var z = 0;
     if (greyedOut) {
+        console.log("GREYED OUT");
         updateGreyedOut = true;
         if (checkboxStateBeforeGreyOut === null) {
             checkboxStateBeforeGreyOut = {};
@@ -106,13 +99,10 @@ function setGreyedOut() {
         popZonesToBack();
         greyedOutRectangle.bringToFront();
         if (dockdoorloaddata.length > 0) {
-            console.log(JSON.stringify(dockdoorloaddata));
             for (var dat of dockdoorloaddata) {
                 if (dat.constainerStatus !== "Loaded") {
-                    console.log(dat.location);
                     let foundZone = popZone(dat.location, "front");
                     if (!foundZone) {
-                        console.log("!foundzone");
                         addBullpenNotFoundIcon(dat.location);
                     }
                 }
@@ -255,13 +245,11 @@ function zoneStatusClose(closeSidebar) {
 
 addToSidebarListenCollection(document.getElementById("sidebar"));
 document.getElementById("sidebar").addEventListener("sidebarclose", () => {
-    console.log("sidebarclose");
     zoneStatusClose(false);
 
 });
 
 document.addEventListener("layerscontentvisible", () => {
-    console.log("layerscontentvisible");
     zoneStatusClose(true);
     
 });
@@ -634,8 +622,7 @@ async function LoadDockDoorTable(dataproperties) {
                     });
                     dockdoorloaddata = JSON.parse(JSON.stringify(loaddata));
                    
-                    
-                    greyOutBG();
+                    greyOutBGCheck();
 
                     $('button[name=container_counts]').text(loadedcount + "/" + unloadedcount);
                 }
@@ -643,7 +630,7 @@ async function LoadDockDoorTable(dataproperties) {
                     $('button[name=container_counts]').text(0 + "/" + 0);
                     container_Table_Body.empty();
 
-                    greyOutBG();
+                    greyOutBGCheck();
                 }
                 //});
 
@@ -652,7 +639,7 @@ async function LoadDockDoorTable(dataproperties) {
                 $('button[name=container_counts]').text(0 + "/" + 0);
                 container_Table_Body.empty();
 
-                greyOutBG();
+                greyOutBGCheck();
             }
 
             if (loadtriphisory) {
@@ -666,7 +653,7 @@ async function LoadDockDoorTable(dataproperties) {
             $.each(tempdata, function () {
                 dockdoortop_Table_Body.append(dockdoortop_row_template.supplant(formatdockdoortoprow(this, dataproperties.id)));
             });
-            greyOutBG();
+            greyOutBGCheck();
         }
     }
     catch (e) {
