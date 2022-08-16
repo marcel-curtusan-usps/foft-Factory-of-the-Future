@@ -74,7 +74,6 @@ function addBullpenNotFoundIcon(zoneName) {
     });
 }
 function setGreyedOut() {
-    var z = 0;
     if (greyedOut) {
         console.log("GREYED OUT");
         updateGreyedOut = true;
@@ -172,9 +171,9 @@ function popZone(zoneName, frontOrBack) {
                     if (!layer.options.lastOpacity) {
                         layer.options.lastOpacity = layer.options.fillOpacity + 0;
                     }
-                    var tooltip = layer.getTooltip();
-                    layer.lastTooltipOpacity = tooltip.opacity + 0;
-                    tooltip.setOpacity(1);
+                    var tooltip1 = layer.getTooltip();
+                    layer.lastTooltipOpacity = tooltip1.opacity + 0;
+                    tooltip1.setOpacity(1);
                     style.fillOpacity = 1;
                     style.fillColor = "#ffffff"
                     layer.setStyle(style);
@@ -183,10 +182,10 @@ function popZone(zoneName, frontOrBack) {
                 }
                 else {
 
-                    var tooltip = layer.getTooltip();
+                    var tooltip2 = layer.getTooltip();
                     let style = layer.options.style;
-                    layer.lastTooltipOpacity = tooltip.opacity + 0;
-                    tooltip.setOpacity(0.2);
+                    layer.lastTooltipOpacity = tooltip2.opacity + 0;
+                    tooltip2.setOpacity(0.2);
                     style.fillOpacity = layer.options.lastOpacity + 0;
                     layer.setStyle(style);
                     layer.bringToBack();
@@ -540,12 +539,7 @@ async function LoadDockDoorTable(dataproperties) {
                     value: checkValue(dataproperties.dockdoorData.loadPercent) ? dataproperties.dockdoorData.loadPercent : 0
                 })
             }
-        //if (dataproperties.dockdoorData.supplier !== null) {
-        //        tempdata.push({
-        //            name: "Mailer",
-        //            value: checkValue(dataproperties.dockdoorData.supplier) ? dataproperties.dockdoorData.supplier : 0
-        //        })
-        //    }
+       
             if (dataproperties.dockdoorData.tripDirectionInd !== "") {
                 tempdata.push({
                     name: "Direction",
@@ -675,7 +669,10 @@ async function LoadDoorDetails(door) {
     }
 }
 function SortByind(a, b) {
-    return a.sortind < b.sortind ? -1 : a.sortind > b.sortind ? 1 : 0;
+    // sonar lint doesn't like nested ternary operations, 
+    // so this has been updated to two lines of code.
+    if (a.sortind < b.sortind) return -1;
+    return ((a.sortind > b.sortind) ? 1 : 0);
 }
 
 async function removeDockDoor(id)

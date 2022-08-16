@@ -3,7 +3,7 @@
 
 var stagingBullpenAreas = new L.GeoJSON(null, {
     style: function (feature) {
-        return style = {
+        return  {
             weight: 1,
             opacity: 1,
             color: '#3573b1',
@@ -52,7 +52,7 @@ var stagingBullpenAreas = new L.GeoJSON(null, {
 
 });
 
-
+// loads the sidebar for the staging bullpen area zone
 async function LoadStagingBullpenTables(dataproperties) {
     try {
         hideSidebarLayerDivs();
