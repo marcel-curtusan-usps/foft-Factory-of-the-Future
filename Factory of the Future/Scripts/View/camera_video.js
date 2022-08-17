@@ -66,16 +66,7 @@ function alertChanged(prevDarvisAlerts, darvisAlerts) {
     if (!prevDarvisAlerts && darvisAlerts) return true;
     return JSON.stringify(prevDarvisAlerts) != JSON.stringify(darvisAlerts);
 }
-function logCameraUpdates() {
-    console.log("----------- NEW DATA ------------------");
-    console.log(Date.now());
-    console.log("------------ BEGIN ------------------");
-    for (var i = 0; i < cameraupdates.length; i++) {
-        console.log(i + ": " + cameraupdates[i].properties.name + " " +
-            JSON.stringify(cameraupdates[i].properties.DarvisAlerts));
-    }
-    console.log("------------ END  --------------");
-}
+
 function addCameraUpdate(allcameras) {
     if (camerathumbnailsupdating) {
         // if the thumbnails are updating, ignore  this update to avoid flicker,
