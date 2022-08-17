@@ -297,12 +297,24 @@ function layerMachineIdMatch(layer, machineupdate) {
 let lastSparklineUpdate = 0;
 
 
+function convertToSparkline(machineSparklineString) {
+    let machineSparklinesNew = JSON.parse(machineSparklineString);
+
+    for (var tuple of machineSparklinesNew) {
+        tuple.Item1.properties.Zone_Type = "Sparkline";
+        tuple.Item1.properties.sparkline = true;
+        tuple.Item1.properties.color = "#00000000";
+        tuple.Item1.properties.id = tuple.Item1.properties.id + "-sp";
+    }
+    return machineSparklinesNew;
+
+}
 
 async function updateMachineSparkline(machineupdate, id) {
-    machineupdate.properties.transparent = true;
-    machineupdate.properties.sparkline = true;
-        if (id == baselayerid) {
-
+    if (id == baselayerid) {
+        machineupdate.properties.Zone_Type = "Sparkline";
+        machineupdate.properties.sparkline = true;
+        machineupdate.properties.color = "#00000000";
             if (machineupdate.properties.hasOwnProperty("MPEWatchData")) {
                 let foundLayer = null;
 
@@ -313,8 +325,13 @@ async function updateMachineSparkline(machineupdate, id) {
                 for (var key of machineSparklineKeys) {
                     let layer = machineSparklines._layers[key];
                     if (layer.hasOwnProperty("options")) {
+                        layer.options.fillColor = "#000000";
+                        layer.options.color = "#000000";
+                        layer.options.fillOpacity = 0;
+                        layer.options.opacity = 0;
                         if (layerMachineIdMatch(layer, machineupdate))
                         {
+                           
                             foundLayer = layer;
                         }
 

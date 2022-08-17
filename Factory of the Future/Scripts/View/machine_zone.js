@@ -98,7 +98,7 @@ $.extend(fotfmanager.client, {
         if (lastMachineStatuses != machineStatusesString) {
             lastMachineStatuses = machineStatusesString;
 
-            let sparklineStatuses = JSON.parse(machineStatusesString);
+            let sparklineStatuses = convertToSparkline(machineStatusesString);
             for (var tuple of machineStatuses) {
 
                 updateMachineZone(tuple.Item1, tuple.Item2);
@@ -117,9 +117,11 @@ async function updateMachineZone(machineupdate, id) {
         if (id == baselayerid) {
             if (polygonMachine.hasOwnProperty("_layers")) {
                 var layerindex = -0;
+                console.log("mapping");
                 $.map(polygonMachine._layers, function (layer, i) {
                     if (layer.hasOwnProperty("feature")) {
                         if (layer.feature.properties.id === machineupdate.properties.id) {
+                            console.log("ID match: " + machineupdate.properties.id);
                             if (layer.feature.properties.name != machineupdate.properties.name) {
                                 layer.setTooltipContent(machineupdate.properties.name + "<br/>" + "Staffing: " + machineupdate.properties.CurrentStaff);
                             }
@@ -245,12 +247,14 @@ function getPolygonMachineStyle(feature) {
 const polyObj = {
     style: function (feature) {
         if (feature.properties.sparkline) {
+            console.log("sparkline");
             return {
                 fillOpacity: 0,
                 opacity: 0
             };
         }
         if (feature.properties.visible) {
+            console.log("not sparkline");
             return getPolygonMachineStyle(feature);
         
         }
