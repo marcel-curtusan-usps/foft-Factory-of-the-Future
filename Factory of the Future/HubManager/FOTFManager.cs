@@ -2458,56 +2458,56 @@ namespace Factory_of_the_Future
         {
             try
             {
-                if (Context.Request.Environment.TryGetValue("server.RemoteIpAddress", out object Ipaddress))
-                {
-                    AppParameters._connections.Add(Context.ConnectionId, Context.ConnectionId);
-                    bool firstTimeLogin = true;
-                    ADUser newuser = new ADUser
-                    {
-                        UserId = Regex.Replace(Context.User.Identity.Name, @"(USA\\|ENG\\)", "").Trim(),
-                        NASSCode = AppParameters.AppSettings["FACILITY_NASS_CODE"].ToString(),
-                        FDBID = AppParameters.AppSettings["FACILITY_ID"].ToString(),
-                        FacilityName = !string.IsNullOrEmpty(AppParameters.AppSettings["FACILITY_NAME"].ToString()) ? AppParameters.AppSettings["FACILITY_NAME"].ToString() : "Site Not Configured",
-                        FacilityTimeZone = AppParameters.AppSettings["FACILITY_TIMEZONE"].ToString(),
-                        AppType = AppParameters.AppSettings["APPLICATION_NAME"].ToString(),
-                        Domain = !string.IsNullOrEmpty(Context.User.Identity.Name) ? Context.User.Identity.Name.Split('\\')[0].ToLower() : "",
-                        SessionID = Context.ConnectionId,
-                        ConnectionId = Context.ConnectionId,
-                        LoginDate = DateTime.Now,
-                        Environment = AppParameters.ApplicationEnvironment,
-                        IsAuthenticated = Context.User.Identity.IsAuthenticated,
-                        SoftwareVersion = AppParameters.VersionInfo,
-                        //BrowserType = HttpContext.Current.Request.Browser.Type,
-                        //BrowserName = HttpContext.Current.Request.Browser.Browser,
-                        //BrowserVersion = HttpContext.Current.Request.Browser.Version,
-                        Role = GetUserRole(GetGroupNames(((WindowsIdentity)Context.User.Identity).Groups)),
-                        IpAddress = Ipaddress.ToString().StartsWith("::") ? "127.0.0.1" : Ipaddress.ToString(),
-                        ServerIpAddress = AppParameters.ServerIpAddress.ToString()
-                    };
-                    new FindACEUser().User(newuser, out newuser);
-                    AppParameters.Users.AddOrUpdate(newuser.UserId, newuser,
-                        (key, old_user) =>
-                        {
-                            //log out user 
-                            if (!string.IsNullOrEmpty(old_user.ConnectionId))
-                            {
-                                Task.Run(() => new User_Log().LogoutUser(old_user));
-                            }
-                            //log of user logging in.
-                            Task.Run(() => new User_Log().LoginUser(newuser));
-                            string data = string.Concat("Client has Connected | User Name:", newuser.UserId, "(", newuser.FirstName, " ", newuser.SurName, ")", " | Connection ID: ", newuser.ConnectionId);
-                            new ErrorLogger().CustomLog(data, string.Concat((string)AppParameters.AppSettings.Property("APPLICATION_NAME").Value, "_Applogs"));
-                            firstTimeLogin = false;
-                            return newuser;
-                        });
-                    if (firstTimeLogin)
-                    {
-                        string data = string.Concat("Client has Connected | User Name:", newuser.UserId, "(", newuser.FirstName, " ", newuser.SurName, ")", " | Connection ID: ", newuser.ConnectionId);
-                        new ErrorLogger().CustomLog(data, string.Concat((string)AppParameters.AppSettings.Property("APPLICATION_NAME").Value, "_Applogs"));
-                        Task.Run(() => new User_Log().LoginUser(newuser));
-                    }
+                //if (Context.Request.Environment.TryGetValue("server.RemoteIpAddress", out object Ipaddress))
+                //{
+                //    AppParameters._connections.Add(Context.ConnectionId, Context.ConnectionId);
+                //    bool firstTimeLogin = true;
+                //    ADUser newuser = new ADUser
+                //    {
+                //        UserId = Regex.Replace(Context.User.Identity.Name, @"(USA\\|ENG\\)", "").Trim(),
+                //        NASSCode = AppParameters.AppSettings["FACILITY_NASS_CODE"].ToString(),
+                //        FDBID = AppParameters.AppSettings["FACILITY_ID"].ToString(),
+                //        FacilityName = !string.IsNullOrEmpty(AppParameters.AppSettings["FACILITY_NAME"].ToString()) ? AppParameters.AppSettings["FACILITY_NAME"].ToString() : "Site Not Configured",
+                //        FacilityTimeZone = AppParameters.AppSettings["FACILITY_TIMEZONE"].ToString(),
+                //        AppType = AppParameters.AppSettings["APPLICATION_NAME"].ToString(),
+                //        Domain = !string.IsNullOrEmpty(Context.User.Identity.Name) ? Context.User.Identity.Name.Split('\\')[0].ToLower() : "",
+                //        SessionID = Context.ConnectionId,
+                //        ConnectionId = Context.ConnectionId,
+                //        LoginDate = DateTime.Now,
+                //        Environment = AppParameters.ApplicationEnvironment,
+                //        IsAuthenticated = Context.User.Identity.IsAuthenticated,
+                //        SoftwareVersion = AppParameters.VersionInfo,
+                //        //BrowserType = HttpContext.Current.Request.Browser.Type,
+                //        //BrowserName = HttpContext.Current.Request.Browser.Browser,
+                //        //BrowserVersion = HttpContext.Current.Request.Browser.Version,
+                //        Role = GetUserRole(GetGroupNames(((WindowsIdentity)Context.User.Identity).Groups)),
+                //        IpAddress = Ipaddress.ToString().StartsWith("::") ? "127.0.0.1" : Ipaddress.ToString(),
+                //        ServerIpAddress = AppParameters.ServerIpAddress.ToString()
+                //    };
+                //    new FindACEUser().User(newuser, out newuser);
+                //    AppParameters.Users.AddOrUpdate(newuser.UserId, newuser,
+                //        (key, old_user) =>
+                //        {
+                //            //log out user 
+                //            if (!string.IsNullOrEmpty(old_user.ConnectionId))
+                //            {
+                //                Task.Run(() => new User_Log().LogoutUser(old_user));
+                //            }
+                //            //log of user logging in.
+                //            Task.Run(() => new User_Log().LoginUser(newuser));
+                //            string data = string.Concat("Client has Connected | User Name:", newuser.UserId, "(", newuser.FirstName, " ", newuser.SurName, ")", " | Connection ID: ", newuser.ConnectionId);
+                //            new ErrorLogger().CustomLog(data, string.Concat((string)AppParameters.AppSettings.Property("APPLICATION_NAME").Value, "_Applogs"));
+                //            firstTimeLogin = false;
+                //            return newuser;
+                //        });
+                //    if (firstTimeLogin)
+                //    {
+                //        string data = string.Concat("Client has Connected | User Name:", newuser.UserId, "(", newuser.FirstName, " ", newuser.SurName, ")", " | Connection ID: ", newuser.ConnectionId);
+                //        new ErrorLogger().CustomLog(data, string.Concat((string)AppParameters.AppSettings.Property("APPLICATION_NAME").Value, "_Applogs"));
+                //        Task.Run(() => new User_Log().LoginUser(newuser));
+                //    }
 
-                }
+                //}
             }
             catch (Exception e)
             {
@@ -2520,54 +2520,54 @@ namespace Factory_of_the_Future
             ADUser newuser = new ADUser();
             try
             {
-                if (Context.Request.Environment.TryGetValue("server.RemoteIpAddress", out object Ipaddress))
-                {
-                    AppParameters._connections.Add(Context.ConnectionId, Context.ConnectionId);
-                   string ACEId = Regex.Replace(Context.User.Identity.Name, @"(USA\\|ENG\\)", "").Trim();
-                    if (AppParameters.Users.TryGetValue(ACEId, out newuser))
-                    {
-                        newuser.ConnectionId = Context.ConnectionId;
-                        newuser.SessionID = Context.ConnectionId;
-                        newuser.LoginDate = DateTime.Now;
-                        newuser.IsAuthenticated = Context.User.Identity.IsAuthenticated;
-                        newuser.IpAddress = Ipaddress.ToString().StartsWith("::") ? "127.0.0.1" : Ipaddress.ToString();
-                        newuser.ServerIpAddress = AppParameters.ServerIpAddress.ToString();
-                        newuser.NASSCode = AppParameters.AppSettings["FACILITY_NASS_CODE"].ToString();
-                        newuser.FDBID = AppParameters.AppSettings["FACILITY_ID"].ToString();
-                        newuser.FacilityName = !string.IsNullOrEmpty(AppParameters.AppSettings["FACILITY_NAME"].ToString()) ? AppParameters.AppSettings["FACILITY_NAME"].ToString() : "Site Not Configured";
-                        newuser.FacilityTimeZone = AppParameters.AppSettings["FACILITY_TIMEZONE"].ToString();
-                        newuser.AppType = AppParameters.AppSettings["APPLICATION_NAME"].ToString();
-                        newuser.Role = GetUserRole(GetGroupNames(((WindowsIdentity)Context.User.Identity).Groups));
-                    }
-                    else
-                    {
-                        newuser = new ADUser
-                        {
-                            UserId = Regex.Replace(Context.User.Identity.Name, @"(USA\\|ENG\\)", "").Trim(),
-                            NASSCode = AppParameters.AppSettings["FACILITY_NASS_CODE"].ToString(),
-                            FDBID = AppParameters.AppSettings["FACILITY_ID"].ToString(),
-                            FacilityName = !string.IsNullOrEmpty(AppParameters.AppSettings["FACILITY_NAME"].ToString()) ? AppParameters.AppSettings["FACILITY_NAME"].ToString() : "Site Not Configured",
-                            FacilityTimeZone = AppParameters.AppSettings["FACILITY_TIMEZONE"].ToString(),
-                            AppType = AppParameters.AppSettings["APPLICATION_NAME"].ToString(),
-                            Domain = !string.IsNullOrEmpty(Context.User.Identity.Name) ? Context.User.Identity.Name.Split('\\')[0].ToLower() : "",
-                            SessionID = Context.ConnectionId,
-                            ConnectionId = Context.ConnectionId,
-                            LoginDate = DateTime.Now,
-                            Environment = AppParameters.ApplicationEnvironment,
-                            IsAuthenticated = Context.User.Identity.IsAuthenticated,
-                            SoftwareVersion = AppParameters.VersionInfo,
-                            //BrowserType = HttpContext.Current.Request.Browser.Type,
-                            //BrowserName = HttpContext.Current.Request.Browser.Browser,
-                            //BrowserVersion = HttpContext.Current.Request.Browser.Version,
-                            Role = GetUserRole(GetGroupNames(((WindowsIdentity)Context.User.Identity).Groups)),
-                            IpAddress = Ipaddress.ToString().StartsWith("::") ? "127.0.0.1" : Ipaddress.ToString(),
-                            ServerIpAddress = AppParameters.ServerIpAddress.ToString()
-                        };
-                    }
+                //if (Context.Request.Environment.TryGetValue("server.RemoteIpAddress", out object Ipaddress))
+                //{
+                //    AppParameters._connections.Add(Context.ConnectionId, Context.ConnectionId);
+                //   string ACEId = Regex.Replace(Context.User.Identity.Name, @"(USA\\|ENG\\)", "").Trim();
+                //    if (AppParameters.Users.TryGetValue(ACEId, out newuser))
+                //    {
+                //        newuser.ConnectionId = Context.ConnectionId;
+                //        newuser.SessionID = Context.ConnectionId;
+                //        newuser.LoginDate = DateTime.Now;
+                //        newuser.IsAuthenticated = Context.User.Identity.IsAuthenticated;
+                //        newuser.IpAddress = Ipaddress.ToString().StartsWith("::") ? "127.0.0.1" : Ipaddress.ToString();
+                //        newuser.ServerIpAddress = AppParameters.ServerIpAddress.ToString();
+                //        newuser.NASSCode = AppParameters.AppSettings["FACILITY_NASS_CODE"].ToString();
+                //        newuser.FDBID = AppParameters.AppSettings["FACILITY_ID"].ToString();
+                //        newuser.FacilityName = !string.IsNullOrEmpty(AppParameters.AppSettings["FACILITY_NAME"].ToString()) ? AppParameters.AppSettings["FACILITY_NAME"].ToString() : "Site Not Configured";
+                //        newuser.FacilityTimeZone = AppParameters.AppSettings["FACILITY_TIMEZONE"].ToString();
+                //        newuser.AppType = AppParameters.AppSettings["APPLICATION_NAME"].ToString();
+                //        newuser.Role = GetUserRole(GetGroupNames(((WindowsIdentity)Context.User.Identity).Groups));
+                //    }
+                //    else
+                //    {
+                //        newuser = new ADUser
+                //        {
+                //            UserId = Regex.Replace(Context.User.Identity.Name, @"(USA\\|ENG\\)", "").Trim(),
+                //            NASSCode = AppParameters.AppSettings["FACILITY_NASS_CODE"].ToString(),
+                //            FDBID = AppParameters.AppSettings["FACILITY_ID"].ToString(),
+                //            FacilityName = !string.IsNullOrEmpty(AppParameters.AppSettings["FACILITY_NAME"].ToString()) ? AppParameters.AppSettings["FACILITY_NAME"].ToString() : "Site Not Configured",
+                //            FacilityTimeZone = AppParameters.AppSettings["FACILITY_TIMEZONE"].ToString(),
+                //            AppType = AppParameters.AppSettings["APPLICATION_NAME"].ToString(),
+                //            Domain = !string.IsNullOrEmpty(Context.User.Identity.Name) ? Context.User.Identity.Name.Split('\\')[0].ToLower() : "",
+                //            SessionID = Context.ConnectionId,
+                //            ConnectionId = Context.ConnectionId,
+                //            LoginDate = DateTime.Now,
+                //            Environment = AppParameters.ApplicationEnvironment,
+                //            IsAuthenticated = Context.User.Identity.IsAuthenticated,
+                //            SoftwareVersion = AppParameters.VersionInfo,
+                //            //BrowserType = HttpContext.Current.Request.Browser.Type,
+                //            //BrowserName = HttpContext.Current.Request.Browser.Browser,
+                //            //BrowserVersion = HttpContext.Current.Request.Browser.Version,
+                //            Role = GetUserRole(GetGroupNames(((WindowsIdentity)Context.User.Identity).Groups)),
+                //            IpAddress = Ipaddress.ToString().StartsWith("::") ? "127.0.0.1" : Ipaddress.ToString(),
+                //            ServerIpAddress = AppParameters.ServerIpAddress.ToString()
+                //        };
+                //    }
                
-                    Task.Run(() => AddUserToList(newuser));
+                //    Task.Run(() => AddUserToList(newuser));
                     
-                }
+                //}
                 return newuser;
             }
             catch (Exception e)

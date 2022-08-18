@@ -175,6 +175,11 @@ namespace Factory_of_the_Future
             }
         }
 
+        internal void Login_User(ADUser adUser)
+        {
+            throw new NotImplementedException();
+        }
+
         public void LogoutUser(ADUser Ad_User)
         {
             try

@@ -87,7 +87,9 @@ $('#Zone_Modal').on('shown.bs.modal', function () {
     });
 });
 $.extend(fotfmanager.client, {
-    updateMachineStatus: async (updateMachine, id) => { updateMachineZone(updateMachine, id) }
+    updateMachineStatus: async (updateMachine, id) => {
+        updateMachineZone(updateMachine, id);
+    }
 });
 
 async function updateMachineZone(machineupdate, id) {

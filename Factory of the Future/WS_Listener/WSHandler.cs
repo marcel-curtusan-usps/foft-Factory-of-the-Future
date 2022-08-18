@@ -153,7 +153,7 @@ namespace Factory_of_the_Future
                 }
                 catch (Exception ex)
                 {
-
+                    new ErrorLogger().ExceptionLog(ex);
                 }
             };
 

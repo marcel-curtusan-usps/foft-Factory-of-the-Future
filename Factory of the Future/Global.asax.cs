@@ -1,8 +1,12 @@
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Net.Http.Headers;
 using System.Security.Principal;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading;
+using System.Threading.Tasks;
 using System.Web;
 using System.Web.Http;
 using System.Web.Security;
@@ -11,6 +15,8 @@ namespace Factory_of_the_Future
 {
     public class Global : HttpApplication
     {
+        public static List<ADUser> _sessions = new List<ADUser>();
+        private readonly static object padlock = new object();
         protected void Application_Start()
         {
             try
@@ -111,6 +117,182 @@ namespace Factory_of_the_Future
             {
                 // Credentials were not formatted correctly.
                 HttpContext.Current.Response.StatusCode = 401;
+            }
+        }
+        private void Session_OnEnd(object sender, EventArgs e)
+        {
+            lock (padlock)
+            {
+                if (HttpContext.Current != null)
+                {
+                    //Global._sessions.Remove(base.Session.SessionID);
+                    int itemindex = _sessions.FindIndex(r => r.Session_ID == HttpContext.Current.Session.SessionID);
+                    if (itemindex >= 0)
+                    {
+
+                       // new User_Log().LogoutUser(AppParameters.CodeBase.Parent.FullName.ToString(), _sessions[itemindex]);
+                        _sessions.Remove(_sessions[itemindex]);
+                    }
+                    Session["SessionID"] = null;
+                }
+            }
+        }
+        private void Session_Start(object sender, EventArgs e)
+        {
+            lock (padlock)
+            {
+                HttpCookie authCookie;
+                ADUser adUser = new ADUser
+                {
+                    UserId = Regex.Replace(HttpContext.Current.Request.LogonUserIdentity.Name, @"(USA\\|ENG\\)", "").Trim(),
+                    Session_ID = HttpContext.Current.Session.SessionID,
+                    NASSCode = AppParameters.AppSettings["FACILITY_NASS_CODE"].ToString(),
+                    FDBID = AppParameters.AppSettings["FACILITY_ID"].ToString(),
+                    FacilityName = !string.IsNullOrEmpty(AppParameters.AppSettings["FACILITY_NAME"].ToString()) ? AppParameters.AppSettings["FACILITY_NAME"].ToString() : "Site Not Configured",
+                    Server_IpAddress = AppParameters.ServerIpAddress,
+                    IsAuthenticated = HttpContext.Current.Request.IsAuthenticated,
+                    App_Type = AppParameters.ApplicationEnvironment,
+                    IpAddress = Request.ServerVariables["REMOTE_HOST"],
+                    Login_Date = DateTime.Now,
+                    Software_Version = AppParameters.VersionInfo,
+                    Browser_Type = HttpContext.Current.Request.Browser.Type,
+                    Browser_Name = HttpContext.Current.Request.Browser.Browser,
+                    Browser_Version = HttpContext.Current.Request.Browser.Version,
+                    Role = GetUserRole(GetGroupNames(((WindowsIdentity)HttpContext.Current.Request.LogonUserIdentity).Groups))
+                };
+
+                Session[SessionKey.AceId] = adUser.UserId;
+                Session[SessionKey.UserFirstName] = adUser.FirstName;
+                Session[SessionKey.UserLastName] = adUser.SurName;
+                Session[SessionKey.UserRole] = adUser.Role;
+                Session[SessionKey.IsAuthenticated] = HttpContext.Current.Request.IsAuthenticated;
+                authCookie = AuthenticationCookie.Create(adUser.UserId, Converter.ObjectToString(adUser), true);
+                //Task.Run(() => AddUserToList(adUser));
+           
+                Response.Cookies.Add(authCookie);
+
+            }
+        }
+        private void AddUserToList(ADUser adUser)
+        {
+            try
+            {
+                int itemindex = _sessions.FindIndex(r => r.Session_ID == adUser.Session_ID);
+                if (itemindex >= 0)
+                {
+                    //log out user 
+                    if (!string.IsNullOrEmpty(_sessions[itemindex].Session_ID))
+                    {
+                      //  Task.Run(() => new User_Log().Logout_User(_sessions[itemindex]));
+                    }
+                    _sessions[itemindex].Login_Date = adUser.Login_Date;
+                    _sessions[itemindex].Session_ID = adUser.Session_ID;
+                    //log of user logging in.
+                    Task.Run(() => new User_Log().Login_User(adUser));
+
+                }
+                else
+                {
+                    _sessions.Add(adUser);
+                    Task.Run(() => new User_Log().Login_User(adUser));
+                }
+            }
+            catch (Exception e)
+            {
+                new ErrorLogger().ExceptionLog(e);
+            }
+        }
+        private string GetUserRole(string groups)
+        {
+            try
+            {
+                if (!string.IsNullOrEmpty(groups))
+                {
+                    List<string> user_groups = groups.Split('|').ToList();
+
+                    //Check for Admin Access 
+
+                    string temp_list = AppParameters.AppSettings.ContainsKey("ROLES_ADMIN") ? AppParameters.AppSettings.Property("ROLES_ADMIN").Value.ToString().Trim() : "";
+                    if (!string.IsNullOrEmpty(temp_list))
+                    {
+                        List<string> Webconfig_roles = temp_list.Split(',').ToList();
+                        List<string> commonrolse = Webconfig_roles.Intersect(user_groups, StringComparer.OrdinalIgnoreCase).ToList();
+                        if ((commonrolse != null) && commonrolse.Count > 0)
+                        {
+                            return "Admin".ToUpper();
+                        }
+                    }
+                    //Check for OIE Access
+                    temp_list = AppParameters.AppSettings.ContainsKey("ROLES_OIE") ? AppParameters.AppSettings.Property("ROLES_OIE").Value.ToString().Trim() : "";
+                    if (!string.IsNullOrEmpty(temp_list))
+                    {
+                        List<string> Webconfig_roles = temp_list.Split(',').ToList();
+                        List<string> commonrolse = Webconfig_roles.Intersect(user_groups, StringComparer.OrdinalIgnoreCase).ToList();
+                        if ((commonrolse != null) && commonrolse.Count > 0)
+                        {
+                            return "OIE".ToUpper();
+                        }
+                    }
+                    //Check for Maintenance Access
+                    temp_list = AppParameters.AppSettings.ContainsKey("ROLES_MAINTENANCE") ? AppParameters.AppSettings.Property("ROLES_MAINTENANCE").Value.ToString().Trim() : "";
+                    if (!string.IsNullOrEmpty(temp_list))
+                    {
+                        List<string> Webconfig_roles = temp_list.Split(',').ToList();
+                        List<string> commonrolse = Webconfig_roles.Intersect(user_groups, StringComparer.OrdinalIgnoreCase).ToList();
+                        if ((commonrolse != null) && commonrolse.Count > 0)
+                        {
+                            return "MAINTENANCE".ToUpper();
+                        }
+                    }
+                    return "Operator".ToUpper();
+                }
+                else
+                {
+                    return "Operator".ToUpper();
+                }
+            }
+            catch (Exception ex)
+            {
+                new ErrorLogger().ExceptionLog(ex);
+                return "Operator".ToUpper();
+            }
+        }
+        private string GetGroupNames(IdentityReferenceCollection groups)
+        {
+            try
+            {
+                string item = string.Empty;
+                if (groups != null)
+                {
+                    int propertyCount = groups.Count;
+                    int propertyCounter;
+                    for (propertyCounter = 0; propertyCounter <= propertyCount - 1; propertyCounter++)
+                    {
+                        string dn = groups[propertyCounter].Translate(typeof(System.Security.Principal.NTAccount)).ToString();
+
+                        int equalsIndex = dn.IndexOf("\\", 1);
+                        if ((equalsIndex == -1))
+                        {
+                            continue;
+                        }
+
+                        var groupName = dn.Substring((equalsIndex + 1), (dn.Length - equalsIndex) - 1);
+                        if ((propertyCount - 1) == propertyCounter)
+                        {
+                            item += groupName;
+                        }
+                        else
+                        {
+                            item = item + groupName + "|";
+                        }
+                    }
+                }
+                return item;
+            }
+            catch (Exception e)
+            {
+                new ErrorLogger().ExceptionLog(e);
+                return "";
             }
         }
     }

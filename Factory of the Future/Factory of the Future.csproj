@@ -281,6 +281,7 @@
     <Content Include="Content\themes\base\tooltip.css" />
     <Content Include="Content\_base.css" />
     <Content Include="Content\_base.min.css" />
+    <Content Include="Default.aspx" />
     <Content Include="Default.html" />
     <Content Include="favicon.ico" />
     <Content Include="Global.asax" />
@@ -475,6 +476,7 @@
     <Content Include="Scripts\View\utils.js" />
     <Content Include="Scripts\View\vehicle.js" />
     <Content Include="Scripts\View\viewports_zone.js" />
+    <Content Include="Site.Master" />
     <Content Include="Web.config" />
     <Content Include="Scripts\moment.min.js.map" />
     <Content Include="Scripts\moment-with-locales.min.js.map" />
@@ -507,12 +509,26 @@
     <Compile Include="Database_Calls\SV_DB_Call.cs" />
     <Compile Include="Data_Retriever\Connection.cs" />
     <Compile Include="Data_Retriever\ConnectionContainer.cs" />
+    <Compile Include="Default.aspx.cs">
+      <DependentUpon>Default.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Default.aspx.designer.cs">
+      <DependentUpon>Default.aspx</DependentUpon>
+    </Compile>
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
     <Compile Include="HubManager\ConnectionMapping.cs" />
     <Compile Include="HubManager\HubManager.cs" />
     <Compile Include="HubManager\FOTFManager.cs" />
+    <Compile Include="Site.Master.cs">
+      <DependentUpon>Site.Master</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Site.Master.designer.cs">
+      <DependentUpon>Site.Master</DependentUpon>
+    </Compile>
     <Compile Include="Utilities\Graphics.cs" />
     <Compile Include="Utilities\ItineraryTrip_Update.cs" />
     <Compile Include="UDP_Listener\UdpServer.cs" />
