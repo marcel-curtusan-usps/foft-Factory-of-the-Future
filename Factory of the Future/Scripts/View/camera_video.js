@@ -1,6 +1,4 @@
-﻿
-
-/**
+﻿/**
 * this is use to setup a the camera information and other function
 *
 * **/
@@ -13,14 +11,10 @@ function drawAlertText(ctx, txt, font, viewWidth, viewHeight, x, y, txtBGColor, 
     let padding = 4;
     y = y - 10 - bgHeight;
     ctx.save();
-
     ctx.font = font;
-
     /// draw text from top
     ctx.textBaseline = 'top';
-
     ctx.fillStyle = txtBGColor;
-
     var width = ctx.measureText(txt).width;
     var totalWidth = width + (padding * 2);
     var totalHeight = bgHeight + (padding * 2);
@@ -37,64 +31,42 @@ function drawAlertText(ctx, txt, font, viewWidth, viewHeight, x, y, txtBGColor, 
         y = viewHeight - totalHeight - 5;
     }
     ctx.fillRect(x - padding, y - padding, totalWidth, totalHeight);
-
     ctx.fillStyle = txtColor;
-
     ctx.fillText(txt, x, y);
 }
-
 let cameraupdates = [];
-
 let flashRate = 3000;
 let flashCheckRate = 250;
 let lastAlertBlinkChange = 0;
 let lastAlertStatus = null;
 let alertTurnoffThreshold = 60 * 1000;
-
 let alertsOn = false; 
 let camerathumbnailsupdating = false;
 setInterval(() => {
     let thisTime = Date.now();
     let timeSinceLastUpdateBlink = thisTime - lastAlertBlinkChange;
-
     if (timeSinceLastUpdateBlink >= (flashRate - flashCheckRate)) {
         // keep waiting until update is done
         if (camerathumbnailsupdating) return;
-
         camerathumbnailsupdating = true;
         let timeSinceLastUpdate = thisTime - lastUpdateCamera;
-
         if (timeSinceLastUpdate >= alertTurnoffThreshold) {
             alertsOn = false;
         }
         else {
             alertsOn = true;
         }
-        
         updateAllCameras(thisTime);
         camerathumbnailsupdating = false;
     }
 }, flashCheckRate);
-
 let lastUpdateCamera = 0;
-
 function alertChanged(prevDarvisAlerts, darvisAlerts) {
     if (prevDarvisAlerts && !darvisAlerts) return true;
     if (!prevDarvisAlerts && darvisAlerts) return true;
     return JSON.stringify(prevDarvisAlerts) != JSON.stringify(darvisAlerts);
 }
 
-function logCameraUpdates() {
-    console.log("----------- NEW DATA ------------------");
-    console.log(Date.now());
-    console.log("------------ BEGIN ------------------");
-    for (var i = 0; i < cameraupdates.length; i++) {
-        
-        console.log(i + ": " + cameraupdates[i].properties.name + " " +
-            JSON.stringify(cameraupdates[i].properties.DarvisAlerts));
-    }
-    console.log("------------ END  --------------");
-}
 function addCameraUpdate(allcameras) {
     if (camerathumbnailsupdating) {
         // if the thumbnails are updating, ignore  this update to avoid flicker,
@@ -137,9 +109,6 @@ function addCameraUpdate(allcameras) {
     }
     cameraupdates = cameraupdatescopy;
 }
-
-
-
 async function getLayersAndIcons(datePassed) {
         
         let layersAndIconsUpdate = [];
@@ -160,10 +129,6 @@ async function getLayersAndIcons(datePassed) {
         return layersAndIconsUpdate;
        
 }
-
-
-
-
 function updateAllCameras(datePassed) {
     getLayersAndIcons(datePassed).then((layersAndIconsUpdate) => {
 
@@ -177,17 +142,9 @@ function updateAllCameras(datePassed) {
     }).catch((e) => {
         console.log(e.message);
     });
-   
-          
-        
-    
 }
-
-
 async function updateCameras(cameraupdate, id, datePassed) {
     return new Promise((resolve, reject) => {
-
-
         try {
             if (id == baselayerid) {
                 if (cameras.hasOwnProperty("_layers")) {
@@ -238,7 +195,6 @@ async function updateCameras(cameraupdate, id, datePassed) {
                                         iconAnchor: [0, 0], // point of the icon which will correspond to marker's location
                                         shadowAnchor: [0, 0],  // the same for the shadow
                                         popupAnchor: [0, 0] // point from which the popup should open relative to the iconAnchor
-
                                     });
                                     resolve([layer, locaterIcon]);
                                 }
@@ -256,28 +212,18 @@ async function updateCameras(cameraupdate, id, datePassed) {
         }
     });
 }
-
-
-
-
 //on close clear all inputs
 $('#Camera_Modal').on('hidden.bs.modal', function () {
     camera_modal_body = $('div[id=camera_modalbody]');
     camera_modal_body.empty();
 });
-
 // used to get alert boundaries
 var getAlertBoundingBox = async (Alerts, width, height) => {
-    
     return new Promise((resolve, reject) => {
-
-        
             var canvas = document.createElement('canvas');
             canvas.width = width;
             canvas.height = height;
-
         var context = canvas.getContext('2d');
-
         if (alertsOn && Alerts && Alerts.length > 0) {
             var alert = null;
             for (alert of Alerts) {
@@ -305,10 +251,7 @@ var getAlertBoundingBox = async (Alerts, width, height) => {
                     posY, "#fff", "#000", 18, 4);
             }
         }
-
-           
             resolve(canvas.toDataURL());
-        
     });
 }
 
@@ -322,8 +265,6 @@ var darkRedLoaded = false;
 brightRedExclamation.onload = function () {
     brightRedLoaded = true;
 }
-
-
 darkRedExclamation.onload = function () {
     darkRedLoaded = true;
 }
@@ -340,9 +281,7 @@ exclamation.onload = function () {
         let toCanvas = document.createElement('canvas');
         toCanvas.width = exclamationSize;
         toCanvas.height = exclamationSize;
-
         var context = canvas.getContext('2d');
-
         var toContext = toCanvas.getContext('2d');
         context.drawImage(exclamation, 0, 0, exclamationSize, exclamationSize);
     var imgData = context.getImageData(0, 0, exclamationSize, exclamationSize);
@@ -358,13 +297,10 @@ exclamation.onload = function () {
                 newImgData.data[pixelStartPosition + 3] = 255;
             }
             else {
-
                 newImgData.data[pixelStartPosition] = imgData.data[pixelStartPosition];
-
                 newImgData.data[pixelStartPosition + 1] = imgData.data[pixelStartPosition + 1];
                 newImgData.data[pixelStartPosition + 2] = imgData.data[pixelStartPosition + 2];
                 newImgData.data[pixelStartPosition + 3] = imgData.data[pixelStartPosition + 3];
-
             }
  }
         }
@@ -375,20 +311,14 @@ exclamation.onload = function () {
         else {
             darkRedExclamation.src = toCanvas.toDataURL();
         }
-
     }
     var done = true;
 }
-
-
 exclamation.src = "../../Content/images/warning-signal.png";
 var imageManipCanvas = document.createElement('canvas');
 var highlightCameraAlert = async (base64Image, r, g, b, borderWidth) => {
     return new Promise((resolve, reject) => {
-
-
         var image = new Image();
-       
         image.onerror = function () {
             reject("failed to load image");
         }
@@ -396,9 +326,7 @@ var highlightCameraAlert = async (base64Image, r, g, b, borderWidth) => {
             let canvas = imageManipCanvas;
             canvas.width = image.width;
             canvas.height = image.height;
-
             var context = canvas.getContext('2d');
-
             context.drawImage(image, 0, 0);
             var alertColor = "rgb(" + r + ", " + g + ", " + b + ")";
             context.strokeStyle = alertColor;
@@ -406,7 +334,6 @@ var highlightCameraAlert = async (base64Image, r, g, b, borderWidth) => {
             var warningHeight = "64px";
             context.strokeRect(borderWidth / 2, borderWidth / 2, image.width - 1 - borderWidth,
                 image.height - 1 - borderWidth);
-           
             if (r === brightRed && brightRedLoaded) {
                 context.drawImage(brightRedExclamation, (image.width * .667) -
                     (exclamationSize / 2), (image.height * .333) - (exclamationSize / 2));
@@ -421,9 +348,7 @@ var highlightCameraAlert = async (base64Image, r, g, b, borderWidth) => {
     });
 }
 var cameras = new L.GeoJSON(null, {
-
     pointToLayer: function (feature, latlng) {
-
         var 
             locaterIcon = L.icon({
                 iconUrl: feature.properties.base64Image === "" ? "../../Content/images/NoImage.png" : feature.properties.base64Image,
@@ -431,11 +356,7 @@ var cameras = new L.GeoJSON(null, {
                 iconAnchor: [0, 0], // point of the icon which will correspond to marker's location
                 shadowAnchor: [0, 0],  // the same for the shadow
                 popupAnchor: [0, 0] // point from which the popup should open relative to the iconAnchor
-               
             });
-       
-       
-
         return L.marker(latlng, {
             icon: locaterIcon,
             title: feature.properties.empName,
@@ -443,14 +364,12 @@ var cameras = new L.GeoJSON(null, {
             bubblingMouseEvents: true,
             popupOpen: true
         });
-
     },
     onEachFeature: function (feature, layer) {
         var cameraname = checkValue(feature.properties.empName) ? feature.properties.empName : feature.properties.name;
         layer.on('click', function (e) {
             View_Web_Camera(feature.properties);
         });
-
         layer.bindTooltip(cameraname, {
             permanent: true,
             interactive: true,
@@ -460,10 +379,6 @@ var cameras = new L.GeoJSON(null, {
         }).openTooltip();
     }
 })
-
-
-
-
 function formatCameralayout(camera) {
     return $.extend(camera, {
         base64Background: camera.base64Image,
@@ -472,24 +387,18 @@ function formatCameralayout(camera) {
         camera_model: getModel(camera.MODEL_NUM)
     });
 }
-
-
-
 let imageWidth = 1280;
 let imageHeight = 720;
 let scaleWidth = imageWidth / 1920;
 let scaleHeight = imageHeight / 1080;
 let extraOffset = 5;
 let verticalOffset = (-  (imageHeight + extraOffset)) + "px";
-
 let camera_Table , camera_modal_body;
-
 let camera_layout = '<div class="frameFlex">' +
     '<div style="overflow: scroll">' +
     '<div style="width: ' + imageWidth + '; height: ' + imageHeight + '; ">' +
     '<iframe id="cameraIframe" src="http://{camera_ip}/mjpg/video.mjpg?camera={camera_model}"' +
     ' scrolling="no" width= ' + imageWidth + ' height= ' + imageHeight + '>' +
-
     '</iframe> ' +
     '<div style="z-index: 10000000; margin-top: ' + verticalOffset + ' ">' +
     '<img id="openCameraOverlay" src={base64Background} width=' +
@@ -503,7 +412,6 @@ let camera_row_template = '<tr data-id="{camera_ip}" data-model="{camera_model}"
     '<button class="btn btn-light btn-sm mx-1 bi-camera-fill camera_view"></button>' +
     '</td>' +
     '</tr>';
-
 function getModel(MODEL_NUM) {
     let model = 1;
     switch (MODEL_NUM) {
@@ -530,7 +438,6 @@ function formatwebcameralayout(id, model, description, base64Image) {
 var webCameraViewData = null;
 function updateBoundingBox() {
     var Data = webCameraViewData;
-
     // uncommented until we understand how Darvis coordinates translate to the video stream coordinates
     getAlertBoundingBox(Data.DarvisAlerts, imageWidth, imageHeight).then((img) => {
     // getAlertBoundingBox(null, 1, 1).then((img) => {
@@ -553,11 +460,8 @@ function View_Web_Camera(Data) {
             boundingInterval = null;
         }
         boundingInterval = setInterval(() => { updateBoundingBox(); }, 1000);
-
         // to be uncommented later when Alert coordinates are able to match the video stream
         getAlertBoundingBox(Data.DarvisAlerts, imageWidth, imageHeight).then((img) => {
-
-
        //  getAlertBoundingBox(null, 1, 1).then((img) => {
             camera_modal_body.append(camera_layout.supplant(formatwebcameralayout(Data.name, Data.emptype, Data.empName,
                 img)));

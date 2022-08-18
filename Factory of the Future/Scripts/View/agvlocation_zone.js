@@ -106,17 +106,9 @@ async function updatelocation(layerindex) {
 async function LoadAGVLocationTables(dataproperties) {
     try {
         $zoneSelect[0].selectize.setValue(dataproperties.id, true);
+        hideSidebarLayerDivs();
         $('div[id=agvlocation_div]').attr("data-id", dataproperties.id);
         $('div[id=agvlocation_div]').css('display', 'block');
-        $('div[id=area_div]').css('display', 'none');
-        $('div[id=dockdoor_div]').css('display', 'none');
-        $('div[id=trailer_div]').css('display', 'none');
-        $('div[id=machine_div]').css('display', 'none');
-        $('div[id=staff_div]').css('display', 'none');
-        $('div[id=ctstabs_div]').css('display', 'none');
-        $('div[id=vehicle_div]').css('display', 'none');
-        $('div[id=dps_div]').css('display', 'none');
-        $('div[id=layer_div]').css('display', 'none');
         $zoneSelect[0].selectize.setValue(-1, true);
         $('span[name=locationid]').text(Get_location_Code(dataproperties.name));
 

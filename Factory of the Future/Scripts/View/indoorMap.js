@@ -1,13 +1,20 @@
-﻿
-//side bar setup
+﻿//side bar setup
 var sidebar = L.control.sidebar({
     container: 'sidebar', position: 'left', autopan: false
 });
 var mainfloorOverlays = L.layerGroup();
-var mainfloor = L.imageOverlay(null, [0, 0], { id:-1 ,zindex: -1 }).addTo(mainfloorOverlays);
+// define rectangle geographical bounds
+var greyOutBounds = [[-5000, -5000], [5000, 5000]];
+
+// create an orange rectangle
+var greyedOutRectangle = L.rectangle(greyOutBounds, { color: "#000000", weight: 1, fillOpacity: .65, stroke: false });
+
+var mainfloor = L.imageOverlay(null, [0, 0], { id:-1 ,zIndex: -1 }).addTo(mainfloorOverlays);
 var baseLayers = {
-  "Main Floor": mainfloor
+    "Main Floor": mainfloor
 };
+
+
 var overlayMaps = {
     "AGV Vehicles": agv_vehicles,
     "PIV Vehicles": piv_vehicles,
@@ -15,9 +22,11 @@ var overlayMaps = {
     "Badge": tagsMarkersGroup,
     "AGV Locations": agvLocations,
     "MPE Work Areas": polygonMachine,
+    "MPE Sparklines": machineSparklines,
     "MPE Bins": binzonepoly,
     "Dock Doors": dockDoors,
     "Staging Areas": stagingAreas,
+    "Staging Bullpen Areas": stagingBullpenAreas,
     "View-ports": viewPortsAreas,
     "EBR Areas": ebrAreas,
     "Exit Areas": exitAreas,
@@ -25,6 +34,64 @@ var overlayMaps = {
     "Polygon Holes": polyholesAreas,
     "Locators": locatorMarker
 };
+
+$.urlParam = function (name) {
+    var results = new RegExp('[\?&]' + name + '=([^&#]*)')
+        .exec(window.location.search);
+
+    return (results !== null) ? results[1] || 0 : false;
+}
+
+
+let layersSelected = [mainfloor];
+
+//mainfloor,
+// polygonMachine,
+//    piv_vehicles, agv_vehicles, agvLocations, container, stagingAreas, tagsMarkersGroup, dockDoors, binzonepoly
+if ($.urlParam('specifyLayers')) {
+    if ($.urlParam('agvVehicles')) layersSelected.push(agv_vehicles);
+    if ($.urlParam('pivVehicles')) layersSelected.push(piv_vehicles);
+    if ($.urlParam('cameras')) layersSelected.push(cameras);
+    if ($.urlParam('badge')) layersSelected.push(tagsMarkersGroup);
+    if ($.urlParam('agvLocations')) layersSelected.push(agvLocations);
+    if ($.urlParam('mpeWorkAreas')) layersSelected.push(polygonMachine);
+    if ($.urlParam('mpeSparklines')) layersSelected.push(machineSparklines);
+    if ($.urlParam('mpeBins')) layersSelected.push(binzonepoly);
+    if ($.urlParam('dockDoors')) layersSelected.push(dockDoors);
+
+    if ($.urlParam('stagingAreas')) layersSelected.push(stagingAreas);
+    if ($.urlParam('stagingBullpenAreas')) layersSelected.push(stagingBullpenAreas);
+    if ($.urlParam('viewPorts')) layersSelected.push(viewPortsAreas);
+    if ($.urlParam('ebrAreas')) layersSelected.push(ebrAreas);
+    if ($.urlParam('exitAreas')) layersSelected.push(exitAreas);
+    if ($.urlParam('workArea')) layersSelected.push(walkwayAreas);
+    if ($.urlParam('polygonHoles')) layersSelected.push(polyholesAreas);
+    if ($.urlParam('locators')) layersSelected.push(locatorMarker);
+
+}
+else {
+    layersSelected = [mainfloor,
+        polygonMachine,
+        piv_vehicles, agv_vehicles, agvLocations, container, stagingAreas, stagingBullpenAreas, tagsMarkersGroup, dockDoors, binzonepoly
+    ];
+
+}
+
+let mapView = {};
+function saveMapView() {
+    mapView.bounds = JSON.parse(JSON.stringify(map.getBounds()));
+    mapView.zoom = map.getZoom() + 0;
+}
+
+function restoreMapView() {
+    if (mapView.bounds) {
+        let centerLat = (mapView.bounds._southWest.lat + mapView.bounds._northEast.lat) / 2;
+        let centerLng = (mapView.bounds._southWest.lng + mapView.bounds._northEast.lng) / 2;
+        let center = [centerLat, centerLng];
+       map.setView(center, mapView.zoom);
+    }
+    mapView = {};
+}
 //setup map
 map = L.map('map', {
     crs: L.CRS.Simple,
@@ -37,8 +104,28 @@ map = L.map('map', {
     zoomControl: false,
     measureControl: true,
     tap: false,
-    layers: [mainfloor, polygonMachine, piv_vehicles, agv_vehicles, agvLocations, container, stagingAreas, tagsMarkersGroup, dockDoors, binzonepoly]
+    layers: layersSelected
 });
+
+let layerCheckboxIds = [];
+function setLayerCheckboxId(thisCheckBox, innerHTML) {
+    let name = innerHTML.replace(/ /g, '');
+    thisCheckBox.id = name;
+    layerCheckboxIds.push(thisCheckBox.id);
+}
+function assignIdsToLayerCheckboxes() {
+    var leafletSelectors
+        = document.getElementsByClassName("leaflet-control-layers-selector");
+    for (var selector of leafletSelectors) {
+        let sp = selector.nextElementSibling;
+        let keys = Object.keys(overlayMaps);
+        for (const key of keys) {
+            if (sp.innerHTML.trim() == key.trim()) {
+                setLayerCheckboxId(selector, sp.innerHTML);
+            }
+        }
+    }
+}
 
 map.on('baselayerchange', function (e) {
     baselayerid = e.layer.options.id;
@@ -54,6 +141,7 @@ map.on('baselayerchange', function (e) {
         polyholesAreas.clearLayers();
         dockDoors.clearLayers();
         polygonMachine.clearLayers();
+        machineSparklines.clearLayers();
         binzonepoly.clearLayers();
         agvLocations.clearLayers();
         viewPortsAreas.clearLayers();
@@ -66,7 +154,26 @@ map.on('baselayerchange', function (e) {
         locatorMarker.clearLayers();
         init_zones(data[0].zones, baselayerid);
         init_locators(data[0].locators, baselayerid);
+        assignIdsToLayerCheckboxes();
+        setLayerCheckUncheckEvents();
+        checkViewportLoad();
     });
+
+});
+function setLayerCheckUncheckEvents() {
+    $("#MPESparklines").click(function () {
+       
+        updateMPEZoneTooltipDirection();
+        updateSparklineTooltipDirection();
+    });
+    $("#MPEWorkAreas").click(function () {
+        updateMPEZoneTooltipDirection();
+        updateSparklineTooltipDirection();
+    })
+}
+var lastMapZoom = null;
+map.on('zoomend', function () {
+    setTimeout(checkSparklineVisibility, 100);
 });
 var timedisplay = L.Control.extend({
     options: {
@@ -124,6 +231,7 @@ var layersControl = L.control.layers(baseLayers, overlayMaps, {
     }, position: 'bottomright', collapsed: false }).addTo(map);
 //Add zoom button
 new L.Control.Zoom({ position: 'bottomright' }).addTo(map);
+
 //add View Ports
 L.easyButton({
     position: 'bottomright',
@@ -132,6 +240,7 @@ L.easyButton({
         icon: '<div id="viewportsToggle" data-toggle="popover"><i class="pi-iconViewport align-self-center" title="Viewports"></i></div>'
     }]
 }).addTo(map);
+
 // Add Layer Control Button
 L.easyButton({
     position: 'bottomright',
@@ -140,6 +249,9 @@ L.easyButton({
         icon: '<div id="layersToggle" data-toggle="layerPopover"><i class="pi-iconLayer align-self-center" title="Layer Controls"></i></div>'
     }]
 }).addTo(map);
+
+greyedOutRectangle.addTo(map);
+setGreyedOut();
 //Full-screen button only for Chrome
 if (window.chrome) {
     var fullscreentoggle = L.easyButton({
@@ -221,10 +333,8 @@ $('#layersToggle').on('click', function () {
     $('[data-toggle=popover]').popover('hide');
     $('#twentyfourmessage').popover('hide');
 });
-
 function init_mapSetup(MapData) {
     try {
-
         if (MapData.length > 0) {
             map.attributionControl.setPrefix("USPS " + MapData[0].backgroundImages.applicationFullName + " (" + MapData[0].backgroundImages.softwareVersion + ")");
             $('#fotf-site-facility-name').append(MapData[0].backgroundImages.facilityName);
@@ -253,14 +363,11 @@ function init_mapSetup(MapData) {
                     //init_zones(this.zones, this.id);
                     //init_locators(this.locators, this.id);
                 }
-             
             });
             init_arrive_depart_trips();
-           
             //init_agvtags();
             LoadNotification("routetrip");
             LoadNotification("vehicle");
-           
             //add user to the tag groups only for none PMCCUser
             if (!/(^PMCCUser$)/i.test(User.UserId)) {
                 fotfmanager.server.joinGroup("PeopleMarkers");
@@ -277,7 +384,6 @@ function init_mapSetup(MapData) {
                     });
                 }
             })
-
         }
         if ($.isEmptyObject(map)) {
             $('div[id=map]').css('display', 'none');
@@ -303,8 +409,6 @@ function init_mapSetup(MapData) {
             .insertBefore('div[id=map]');
     }
 }
-
-
 $('#fotf-sidebar-close').on('click', function () {
     // close the sidebar
     sidebar.close();
@@ -346,7 +450,6 @@ async function GetUserInfo() {
                                         craftName_id = feature.properties.name;
                                         nameId_id = "";
                                     }
-
                                     // var currenttime = moment().tz();  // 5am PDT
                                     let currenttime = moment().tz(timezone.Facility_TimeZone);
                                     let lastpositiontime = moment(feature.properties.positionTS);
@@ -402,7 +505,6 @@ async function GetUserInfo() {
                         instaff: inBuilding.length,
                         outstaff: outBuilding.length
                     });
-
                     $userstop_Table = $('table[id=userstoptable]');
                     $userstop_Table_Body = $userstop_Table.find('tbody');
                     $userstop_Table_Body.empty();
@@ -410,7 +512,6 @@ async function GetUserInfo() {
                         '<td>{staffName}</td>' +
                         '<td class="text-center">{instaff}</td>' +
                         '</tr>"';
-
                     function formatstafftoprow(properties) {
                         return $.extend(properties, {
                             staffName: properties.name,
@@ -523,7 +624,6 @@ async function GetUserProfile() {
 async function sortTable(table, order) {
     var asc = order === 'asc',
         tbody = table.find('tbody');
-
     tbody.find('tr').sort(function (a, b) {
         if (asc) {
             return $('td:first', a).text().localeCompare($('td:first', b).text());

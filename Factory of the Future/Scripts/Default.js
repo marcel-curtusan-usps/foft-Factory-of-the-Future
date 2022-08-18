@@ -9,6 +9,7 @@ if (!String.prototype.supplant) {
         );
     };
 }
+
 var baselayerid = "";
 var map = null;
 var bounds = [];
@@ -22,7 +23,6 @@ var condition = false;
 
 $(function () {
     $("form").submit(function () { return false; });
-  
     //setHeight();
     $(window).resize(function () {
         setHeight();
@@ -36,19 +36,6 @@ $(function () {
             event.preventDefault();
         }
     });
-
-    //on close clear all IDS inputs
-
-    //$('#CTS_Details_Modal').on('hidden.bs.modal', () => {
-    //    $CTSDetails_Table = $('table[id=ctsdetailstable]');
-    //    $CTSDetails_Table_Header = $CTSDetails_Table.find('thead');
-    //    $CTSDetails_Table_Header.empty();
-    //    $CTSDetails_Table_Body = $CTSDetails_Table.find('tbody')
-    //    $CTSDetails_Table_Body.empty();
-    //});
-    //$('#CTS_Details_Modal').on('shown.bs.modal', () => {
-    //    $("#modal-preloader").show();
-    //});
     $('#UserTag_Modal').on('hidden.bs.modal', function () {
         $(this)
             .find("input[type=text],textarea,select")
@@ -217,8 +204,6 @@ $(function () {
                         '</div>' +
                         '</div >' +
                         '</div></div>'
-
-                       
                 });
                 $('button[id=btnUpload]').on('click', function () {
                     $('button[id=btnUpload]').prop("disabled", true);
@@ -440,7 +425,7 @@ $(function () {
 
     // Start the connection
     $.connection.hub.qs = { 'page_type': "FOTF".toUpperCase() };
-    $.connection.hub.start({ withCredentials: true })
+    $.connection.hub.start({ withCredentials: true, waitForPageLoad: false})
         .done(function () {
             conntoggle.state('conn-on');
         }).catch(
@@ -600,8 +585,6 @@ $(function () {
         let description = tr.attr('data-description');
         View_Web_Camera(id, model, description);
     });
-
-
 });
 function Clear() {
     var progress = 0;
@@ -708,6 +691,11 @@ function SortByTagName(a, b) {
 function SortByName(a, b) {
     var aName = a.toLowerCase();
     var bName = b.toLowerCase();
+    return ((aName < bName) ? -1 : ((aName > bName) ? 1 : 0));
+}
+function SortByLocationName(a, b) {
+    var aName = a.locationName.toLowerCase();
+    var bName = b.locationName.toLowerCase();
     return ((aName < bName) ? -1 : ((aName > bName) ? 1 : 0));
 }
 function SortByNumber(a, b) {
@@ -1003,6 +991,7 @@ async function zonecurrentStaff() {
                 }
             });
         }
+
         // other zone
         if (stagingAreas.hasOwnProperty("_layers")) {
             $.map(stagingAreas._layers, function (stagelayer, i) {
@@ -1050,4 +1039,51 @@ async function zonecurrentStaff() {
     } catch (e) {
         console.log(e);
     }
+}
+
+function checkViewportLoad() {
+    if ($.urlParam('viewport')) {
+        viewportSelectedByName($.urlParam('viewport'));
+    }
+}
+
+function viewportSelectedByName(name) {
+
+    $('input[type=checkbox][name=followvehicle]').prop('checked', false).change();
+    let selcValue = null;
+    $('button').each(function () {
+        if ($(this).text() === name && $(this).hasClass('viewportszones')) {
+            selcValue = $(this).attr("id");
+        }
+    });
+    if (selcValue === null) return;
+    if (viewPortsAreas.hasOwnProperty("_layers")) {
+        $.map(viewPortsAreas._layers, function (layer, i) {
+            if (layer.hasOwnProperty("feature")) {
+                if (layer.feature.properties.id === selcValue) {
+                    var Center = new L.latLng(
+                        (layer._bounds._southWest.lat + layer._bounds._northEast.lat) / 2,
+                        (layer._bounds._southWest.lng + layer._bounds._northEast.lng) / 2);
+                    map.setView(Center, 3);
+                    Loadtable(layer.feature.properties.id, 'viewportstable');
+                    return false;
+                }
+            }
+        });
+    }
+}
+
+function hideSidebarLayerDivs() {
+
+    $('div[id=agvlocation_div]').css('display', 'none');
+    $('div[id=area_div]').css('display', 'none');
+    $('div[id=bullpen_div]').css('display', 'none');
+    $('div[id=dockdoor_div]').css('display', 'none');
+    $('div[id=trailer_div]').css('display', 'none');
+    $('div[id=machine_div]').css('display', 'none');
+    $('div[id=staff_div]').css('display', 'none');
+    $('div[id=ctstabs_div]').css('display', 'none');
+    $('div[id=vehicle_div]').css('display', 'none');
+    $('div[id=dps_div]').css('display', 'none');
+    $('div[id=layer_div]').css('display', 'none');
 }

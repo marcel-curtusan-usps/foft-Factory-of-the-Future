@@ -261,6 +261,8 @@ namespace Factory_of_the_Future
 
         [JsonProperty("MPE_Bins")]
         public List<string> MPEBins { get; set; } = new List<string>();
+        [JsonProperty("SV_Zone_Data")]
+        public SVZoneData SVZoneData { get; set; } = new SVZoneData();
 
         [JsonProperty("MPE_Number")]
         public int MPENumber { get; set; }
@@ -1088,6 +1090,27 @@ namespace Factory_of_the_Future
             _MemberInfo.SetValue(target, value);
         }
     }
+
+    /// sv zone data
+
+    public class SVZoneData
+    {
+        [JsonProperty("SQLTypeName")]
+        public string SQLTypeName {get; set;}
+        [JsonProperty("locationId")]
+        public int locationId { get; set; }
+        [JsonProperty("siteId")]
+        public string siteId { get; set; }
+        [JsonProperty("locationName")]
+        public string locationName { get; set; }
+        [JsonProperty("locationType")]
+        public string locationType { get; set; }
+        [JsonProperty("updtUserId")]
+        public string updtUserId { get; set; }
+        [JsonProperty("responseCode")]
+        public string responseCode { get; set; }
+
+    }
     //// trips
     public class RouteTrips
     {
@@ -1527,7 +1550,9 @@ namespace Factory_of_the_Future
         public DateTime Type_Time { get; set; }
 
     }
-    public class RPGPlan
+
+   
+        public class RPGPlan
     {
         public DateTime mods_date { get; set; }
         public string machine_num { get; set; } = "";

@@ -2,6 +2,8 @@
  * this is use to setup a the machine information and other function
  * 
  * **/
+
+const sparklineTooltipOpacity = .5;
 //on close clear all inputs
 $('#Zone_Modal').on('hidden.bs.modal', function () {
     $(this)
@@ -86,12 +88,29 @@ $('#Zone_Modal').on('shown.bs.modal', function () {
         }
     });
 });
+
+
+var lastMachineStatuses = "";
 $.extend(fotfmanager.client, {
-    updateMachineStatus: async (updateMachine, id) => {
-        updateMachineZone(updateMachine, id);
+    updateMachineStatus: async (machineStatuses) => {
+        let machineStatusesString = JSON.stringify(machineStatuses);
+        if (lastMachineStatuses != machineStatusesString) {
+            lastMachineStatuses = machineStatusesString;
+
+            let sparklineStatuses = convertToSparkline(machineStatusesString);
+            for (var tuple of machineStatuses) {
+
+                updateMachineZone(tuple.Item1, tuple.Item2);
+
+            }
+            // clears the sparkline graph cache if it is old data
+            clearSparklineCache();
+            updateAllMachineSparklines(sparklineStatuses, 0);
+        }
     }
 });
 
+var sparklineMinZoom = 2;
 async function updateMachineZone(machineupdate, id) {
     try {
         if (id == baselayerid) {
@@ -100,6 +119,7 @@ async function updateMachineZone(machineupdate, id) {
                 $.map(polygonMachine._layers, function (layer, i) {
                     if (layer.hasOwnProperty("feature")) {
                         if (layer.feature.properties.id === machineupdate.properties.id) {
+                            
                             if (layer.feature.properties.name != machineupdate.properties.name) {
                                 layer.setTooltipContent(machineupdate.properties.name + "<br/>" + "Staffing: " + machineupdate.properties.CurrentStaff);
                             }
@@ -134,63 +154,145 @@ $(function () {
         }
     });
 });
-var polygonMachine = new L.GeoJSON(null, {
-    style: function (feature) {
-        if (feature.properties.visible) {
-            var style = {};
-            var sortplan = feature.properties.hasOwnProperty("MPEWatchData") ? feature.properties.MPEWatchData.hasOwnProperty("cur_sortplan") ? feature.properties.MPEWatchData.cur_sortplan : "" : "";
-            var endofrun = feature.properties.hasOwnProperty("MPEWatchData") ? feature.properties.MPEWatchData.hasOwnProperty("current_run_end") ? feature.properties.MPEWatchData.current_run_end != "0" ? feature.properties.MPEWatchData.current_run_end : "" : "" : "";
-            var startofrun = feature.properties.hasOwnProperty("MPEWatchData") ? feature.properties.MPEWatchData.hasOwnProperty("current_run_start") ? feature.properties.MPEWatchData.current_run_start : "" : "";
-            if (checkValue(sortplan) && !checkValue(endofrun)) {
-                var thpCode = feature.properties.hasOwnProperty("MPEWatchData") ? feature.properties.MPEWatchData.hasOwnProperty("throughput_status") ? feature.properties.MPEWatchData.throughput_status : "0" : "0";
-                var fillColor = GetMacineBackground(feature.properties.MPEWatchData, startofrun);
-                style = {
-                    weight: 1,
-                    opacity: 1,
-                    color: '#3573b1',
-                    fillOpacity: 0.5,
-                    fillColor: fillColor
-                };
+
+function updateMPEZoneTooltipDirection() {
+
+    let mpeWorkAreasChecked = $("#MPEWorkAreas").prop("checked");
+    if (mpeWorkAreasChecked) {
+        let keys = Object.keys(polygonMachine._layers);
+        let tooltipDirection = getMPEZoneTooltipDirection();
+        for (const key of keys) {
+            let layer = polygonMachine._layers[key];
+            if (layer && layer._tooltip !== null) {
+
+                layer.getTooltip().options.direction = tooltipDirection;
+                layer.closeTooltip();
+                layer.openTooltip();
             }
-            else {
-                style = {
-                    weight: 1,
-                    opacity: 1,
-                    color: '#3573b1',
-                    fillOpacity: 0.2,
-                    fillColor: '#989ea4'
-                };
-            }
-            return style;
+
+
         }
+    }
+}
+function getMPEZoneTooltipDirection() {
+    let mpeSparklinesChecked = $("#MPESparklines").prop("checked");
+    if (Object.keys(machineSparklines._layers).length == 0 ||
+        !mpeSparklinesChecked) {
+        return "center";
+    }
+    return "left";
+}
+
+function updateSparklineTooltipDirection() {
+
+    let mpeSparklinesChecked = $("#MPESparklines").prop("checked");
+
+    if (mpeSparklinesChecked) {
+        let keys = Object.keys(machineSparklines._layers);
+
+        var tooltipDirection = getSparklineTooltipDirection();
+        for (const key of keys) {
+            let layer = machineSparklines._layers[key];
+            if (layer && layer._tooltip !== null) {
+                layer.getTooltip().options.direction = tooltipDirection;
+                layer.closeTooltip();
+                layer.openTooltip();
+            }
+
+
+        }
+    }
+}
+function getSparklineTooltipDirection() {
+
+    let mpeWorkAreasChecked = $("#MPEWorkAreas").prop("checked");
+    if (Object.keys(polygonMachine._layers).length == 0 ||
+        !mpeWorkAreasChecked) {
+        return "center";
+    }
+    return "right";
+}
+
+function getPolygonMachineStyle(feature) {
+
+    var style = {};
+    var sortplan = feature.properties.hasOwnProperty("MPEWatchData") ? feature.properties.MPEWatchData.hasOwnProperty("cur_sortplan") ? feature.properties.MPEWatchData.cur_sortplan : "" : "";
+    var endofrun = feature.properties.hasOwnProperty("MPEWatchData") ? feature.properties.MPEWatchData.hasOwnProperty("current_run_end") ? feature.properties.MPEWatchData.current_run_end != "0" ? feature.properties.MPEWatchData.current_run_end : "" : "" : "";
+    var startofrun = feature.properties.hasOwnProperty("MPEWatchData") ? feature.properties.MPEWatchData.hasOwnProperty("current_run_start") ? feature.properties.MPEWatchData.current_run_start : "" : "";
+    if (checkValue(sortplan) && !checkValue(endofrun)) {
+        var thpCode = feature.properties.hasOwnProperty("MPEWatchData") ? feature.properties.MPEWatchData.hasOwnProperty("throughput_status") ? feature.properties.MPEWatchData.throughput_status : "0" : "0";
+        var fillColor = GetMacineBackground
+            (feature.properties.MPEWatchData, startofrun);
+        style = {
+            weight: 1,
+            opacity: 1,
+            color: '#3573b1',
+            fillOpacity: 0.5,
+            fillColor: fillColor
+        };
+    }
+    else {
+        style = {
+            weight: 1,
+            opacity: 1,
+            color: '#3573b1',
+            fillOpacity: 0.2,
+            fillColor: '#989ea4'
+        };
+    }
+    return style;
+}
+const polyObj = {
+    style: function (feature) {
+        if (feature.properties.sparkline) {
+            return {
+                permanent: true,
+                interactive: true,
+                color: "transparent",
+                fillColor: "transparent",
+                fillOpacity: 0,
+                opacity: 0
+            };
+        }
+        if (feature.properties.visible) {
+            return getPolygonMachineStyle(feature);
+        
+        }
+            
     },
     onEachFeature: function (feature, layer) {
-        $zoneSelect[0].selectize.addOption({ value: feature.properties.id, text: feature.properties.name });
-        $zoneSelect[0].selectize.addItem(feature.properties.id);
-        $zoneSelect[0].selectize.setValue(-1, true);
-        layer.on('click', function (e) {
-            $('input[type=checkbox][name=followvehicle]').prop('checked', false).change();
-            map.setView(e.sourceTarget.getCenter(), 3);
-            if ((' ' + document.getElementById('sidebar').className + ' ').indexOf(' ' + 'collapsed' + ' ') <= -1) {
-                if ($('#zoneselect').val() == feature.properties.id) {
-                    sidebar.close('home');
+        
+        if (feature.properties.sparkline) {
+            updateMachineSparklineTooltip(feature, layer);
+        }
+        else {
+            $zoneSelect[0].selectize.addOption({ value: feature.properties.id, text: feature.properties.name });
+            $zoneSelect[0].selectize.addItem(feature.properties.id);
+            $zoneSelect[0].selectize.setValue(-1, true);
+            layer.on('click', function (e) {
+                $('input[type=checkbox][name=followvehicle]').prop('checked', false).change();
+                map.setView(e.sourceTarget.getCenter(), 3);
+                if ((' ' + document.getElementById('sidebar').className + ' ').indexOf(' ' + 'collapsed' + ' ') <= -1) {
+                    if ($('#zoneselect').val() == feature.properties.id) {
+                        sidebar.close('home');
+                    }
+                    else {
+                        sidebar.open('home');
+                    }
                 }
                 else {
                     sidebar.open('home');
                 }
-            }
-            else {
-                sidebar.open('home');
-            }
-            LoadMachineTables(feature.properties, 'machinetable');
-        });
-        layer.bindTooltip(feature.properties.name + "<br/>" + "Staffing: " + (feature.properties.hasOwnProperty("CurrentStaff") ? feature.properties.CurrentStaff : "0"), {
-            permanent: true,
-            interactive: true,
-            direction: 'center',
-            opacity: 1,
-            className: 'location'
-        }).openTooltip();
+                LoadMachineTables(feature.properties, 'machinetable');
+            });
+            layer.bindTooltip(feature.properties.name + "<br/>" + "Staffing: " + (feature.properties.hasOwnProperty("CurrentStaff") ? feature.properties.CurrentStaff : "0"), {
+                permanent: true,
+                interactive: true,
+                direction: getMPEZoneTooltipDirection(),
+                opacity: 1,
+                className: 'location'
+            }).openTooltip();
+        }
     },
     filter: function (feature, layer) {
         if (/(way)$/i.test(feature.properties.name)) {
@@ -200,18 +302,25 @@ var polygonMachine = new L.GeoJSON(null, {
             return feature.properties.visible;
         }
     }
-});
+};
+var polygonMachine = new L.GeoJSON(null, polyObj);
 async function updateMPEZone(properties, index) {
     var sortplan = properties.MPEWatchData.hasOwnProperty("cur_sortplan") ? properties.MPEWatchData.cur_sortplan : "";
     var endofrun = properties.MPEWatchData.hasOwnProperty("current_run_end") ? properties.MPEWatchData.current_run_end == "0" ? "" : properties.MPEWatchData.current_run_end : "";
     var startofrun = properties.MPEWatchData.hasOwnProperty("current_run_start") ? properties.MPEWatchData.current_run_start : "";
+    var opacityValue = 1;
+    var fillOpacityValue = .5;
+    if (properties.transparent) {
+        opacityValue = 0;
+        fillOpacityValue = 0;
+    }
     if (checkValue(sortplan) && !checkValue(endofrun)) {
         var thpCode = properties.MPEWatchData.hasOwnProperty("throughput_status") ? properties.MPEWatchData.throughput_status : "0";
         var fillColor = GetMacineBackground(properties.MPEWatchData, startofrun);
         polygonMachine._layers[index].setStyle({
             weight: 1,
-            opacity: 1,
-            fillOpacity: 0.5,
+            opacity: opacityValue,
+            fillOpacity: fillOpacityValue,
             fillColor: fillColor
         });
     }
@@ -230,16 +339,11 @@ async function LoadMachineTables(dataproperties, table) {
     try {
         if (!$.isEmptyObject(dataproperties)) {
             $('div[id=machine_div]').attr("data-id", dataproperties.id);
-            $('div[id=dockdoor_div]').css('display', 'none');
-            $('div[id=trailer_div]').css('display', 'none');
-            $('div[id=area_div]').css('display', 'none');
-            $('div[id=agvlocation_div]').css('display', 'none');
-            $('div[id=vehicle_div]').css('display', 'none');
-            $('div[id=layer_div]').css('display', 'none');
+            hideSidebarLayerDivs();
             $('div[id=machine_div]').css('display', 'block');
             $('div[id=ctstabs_div]').css('display', 'block');
             if (/machinetable/i.test(table)) {
-                
+
                 $zoneSelect[0].selectize.setValue(dataproperties.id, true);
                 $('button[name=machineinfoedit]').attr('id', dataproperties.id)
                 $('div[id=dps_div]').css('display', 'none');
@@ -305,7 +409,7 @@ async function LoadMachineTables(dataproperties, table) {
                         });
                     }
                 }
-                document.getElementById('machineChart_tr').style.backgroundColor = 'rgba(0,0,0,0)';	
+                document.getElementById('machineChart_tr').style.backgroundColor = 'rgba(0,0,0,0)';
                 if (dataproperties.MPEWatchData.hasOwnProperty("hourly_data")) {
                     GetMachinePerfGraph(dataproperties);
                 }
@@ -342,18 +446,18 @@ function formatmachinetoprow(properties) {
         zoneId: properties.id,
         zoneName: properties.name,
         zoneType: properties.Zone_Type,
-        sortPlan: checkValue(properties.MPEWatchData.cur_sortplan) ? properties.MPEWatchData.cur_sortplan : "N/A" ,
-        opNum:properties.MPEWatchData.cur_operation_id.padStart(3, "0"),
+        sortPlan: checkValue(properties.MPEWatchData.cur_sortplan) ? properties.MPEWatchData.cur_sortplan : "N/A",
+        opNum: properties.MPEWatchData.cur_operation_id.padStart(3, "0"),
         sortPlanStart: properties.MPEWatchData.current_run_start,
-        sortPlanEnd:  properties.MPEWatchData.current_run_end ,
-        peicesFed:  digits(properties.MPEWatchData.tot_sortplan_vol) ,
-        throughput: digits(properties.MPEWatchData.cur_thruput_ophr) ,
+        sortPlanEnd: properties.MPEWatchData.current_run_end,
+        peicesFed: digits(properties.MPEWatchData.tot_sortplan_vol),
+        throughput: digits(properties.MPEWatchData.cur_thruput_ophr),
         rpgVol: digits(properties.MPEWatchData.rpg_est_vol),
         stateBadge: getstatebadge(properties),
         stateText: getstateText(properties),
         estComp: checkValue(properties.MPEWatchData.rpg_est_comp_time) ? properties.MPEWatchData.rpg_est_comp_time : "Estimate Not Available",
-        rpgStart:moment(properties.MPEWatchData.rpg_start_dtm, "MM/DD/YYYY hh:mm:ss A").format("YYYY-MM-DD HH:mm:ss"),
-        rpgEnd:  moment(properties.MPEWatchData.rpg_end_dtm, "MM/DD/YYYY hh:mm:ss A").format("YYYY-MM-DD HH:mm:ss"),
+        rpgStart: moment(properties.MPEWatchData.rpg_start_dtm, "MM/DD/YYYY hh:mm:ss A").format("YYYY-MM-DD HH:mm:ss"),
+        rpgEnd: moment(properties.MPEWatchData.rpg_end_dtm, "MM/DD/YYYY hh:mm:ss A").format("YYYY-MM-DD HH:mm:ss"),
         expThroughput: digits(properties.MPEWatchData.expected_throughput),
         fullBins: properties.MPEWatchData.bin_full_bins,
         arsRecirc: properties.MPEWatchData.ars_recrej3,
@@ -375,17 +479,17 @@ let machinetop_row_template =
 
 function formatdpstoprow(properties) {
     return $.extend(properties, {
-        dpssortplans:  properties.sortplan_name_perf,
-        piecesfedfirstpass:  digits(properties.pieces_fed_1st_cnt),
-        piecesrejectedfirstpass:  digits(properties.pieces_rejected_1st_cnt),
-        piecestosecondpass:  digits(properties.pieces_to_2nd_pass),
-        piecesfedsecondpass:  digits(properties.pieces_fed_2nd_cnt),
-        piecesrejectedsecondpass: digits(properties.pieces_rejected_2nd_cnt) ,
+        dpssortplans: properties.sortplan_name_perf,
+        piecesfedfirstpass: digits(properties.pieces_fed_1st_cnt),
+        piecesrejectedfirstpass: digits(properties.pieces_rejected_1st_cnt),
+        piecestosecondpass: digits(properties.pieces_to_2nd_pass),
+        piecesfedsecondpass: digits(properties.pieces_fed_2nd_cnt),
+        piecesrejectedsecondpass: digits(properties.pieces_rejected_2nd_cnt),
         piecesremainingsecondpass: digits(properties.pieces_remaining),
         timetocompleteactual: digits(properties.time_to_comp_actual),
-        timeleftsecondpassactual:digits(properties.time_to_2nd_pass_actual),
+        timeleftsecondpassactual: digits(properties.time_to_2nd_pass_actual),
         recomendedstartactual: properties.rec_2nd_pass_start_actual,
-        completiondateTime:  properties.time_to_comp_actual_DateTime,
+        completiondateTime: properties.time_to_comp_actual_DateTime,
     });
 }
 let dpstop_row_template =
@@ -436,7 +540,7 @@ function getstatebadge(properties) {
         if (properties.MPEWatchData.hasOwnProperty("current_run_end")) {
             //var endtime = moment(properties.MPEWatchData.current_run_end);
             var endtime = properties.MPEWatchData.current_run_end == "0" ? "" : moment(properties.MPEWatchData.current_run_end);
-            
+
             var starttime = moment(properties.MPEWatchData.current_run_start);
             var sortPlan = properties.MPEWatchData.cur_sortplan;
 
@@ -525,11 +629,11 @@ async function Edit_Machine_Info(id) {
                         try {
                             $('button[id=machinesubmitBtn]').prop('disabled', true);
                             var jsonObject = {
-                            MPE_Type: $('input[type=text][name=machine_name]').val(),
-                            MPE_Number: $('input[type=text][name=machine_number]').val(),
-                            Zone_LDC: $('input[type=text][name=zone_ldc]').val(),
-                            floorId: baselayerid
-                           };
+                                MPE_Type: $('input[type=text][name=machine_name]').val(),
+                                MPE_Number: $('input[type=text][name=machine_number]').val(),
+                                Zone_LDC: $('input[type=text][name=zone_ldc]').val(),
+                                floorId: baselayerid
+                            };
 
                             if (!$.isEmptyObject(jsonObject)) {
                                 jsonObject.id = Data.id;
@@ -563,7 +667,7 @@ async function Edit_Machine_Info(id) {
 function enablezoneSubmit() {
     //AGV connections
     if ($('input[type=text][name=machine_name]').hasClass('is-valid') &&
-        $('input[type=text][name=machine_number]').hasClass('is-valid') 
+        $('input[type=text][name=machine_number]').hasClass('is-valid')
     ) {
         $('button[id=machinesubmitBtn]').prop('disabled', false);
     }
