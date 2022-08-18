@@ -15,7 +15,7 @@
     "Https": false,
     "Id": "2e8c2019-84b5-49be-a171-33b7ad2afc53",
     "IpAddress": "56.143.87.11",
-    "LasttimeApiConnected": "2022-07-07T14:34:51.5647232-04:00",
+    "LasttimeApiConnected": "2022-08-18T19:21:52.6560808-04:00",
     "LastupDate": "0001-01-01T00:00:00",
     "LastupdateByUsername": "FSVCD0",
     "MessageType": "dps_run_estm",
@@ -110,7 +110,7 @@
   {
     "ActiveConnection": true,
     "AdminEmailRecepient": "marcel.n.curtusan@usps.gov",
-    "ApiConnected": false,
+    "ApiConnected": true,
     "ConnectionName": "Quuppa",
     "CreatedByUsername": "FSVCD0",
     "CreatedDate": "2022-06-16T11:43:15.4165917-04:00",
@@ -135,7 +135,7 @@
     "Url": "http://56.143.125.154:8080/qpe/{0}?version=2"
   },
   {
-    "ActiveConnection": false,
+    "ActiveConnection": true,
     "AdminEmailRecepient": "marcel.n.curtusan@usps.gov",
     "ApiConnected": false,
     "ConnectionName": "Quuppa",
@@ -191,7 +191,7 @@
   {
     "ActiveConnection": true,
     "AdminEmailRecepient": "marcel.n.curtusan@usps.gov",
-    "ApiConnected": true,
+    "ApiConnected": false,
     "ConnectionName": "MPEWatch",
     "CreatedByUsername": "Default",
     "CreatedDate": "2022-05-24T12:52:26.6952868-04:00",
@@ -204,7 +204,7 @@
     "Https": false,
     "Id": "c3e77487-4534-4720-adf2-1c60d3ba82f5",
     "IpAddress": "56.143.87.11",
-    "LasttimeApiConnected": "2022-06-17T11:20:01.8598915-04:00",
+    "LasttimeApiConnected": "2022-08-18T19:21:52.7901123-04:00",
     "LastupDate": "0001-01-01T00:00:00",
     "LastupdateByUsername": "FSVCD0",
     "MessageType": "rpg_run_perf",
@@ -272,7 +272,7 @@
   {
     "ActiveConnection": true,
     "AdminEmailRecepient": "marcel.n.curtusan@usps.gov",
-    "ApiConnected": true,
+    "ApiConnected": false,
     "ConnectionName": "MPEWatch",
     "CreatedByUsername": "Default",
     "CreatedDate": "2022-05-24T12:58:30.3412734-04:00",
@@ -285,7 +285,7 @@
     "Https": false,
     "Id": "5b6fae0d-527f-4e15-980e-8b09ade8c013",
     "IpAddress": "56.143.87.11",
-    "LasttimeApiConnected": "2022-07-07T14:34:51.6546698-04:00",
+    "LasttimeApiConnected": "2022-08-18T19:21:52.8240894-04:00",
     "LastupDate": "0001-01-01T00:00:00",
     "LastupdateByUsername": "FSVCD0",
     "MessageType": "rpg_plan",

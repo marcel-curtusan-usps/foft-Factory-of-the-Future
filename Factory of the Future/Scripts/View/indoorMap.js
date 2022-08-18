@@ -152,8 +152,10 @@ map.on('baselayerchange', function (e) {
         agv_vehicles.clearLayers();
         cameras.clearLayers();
         locatorMarker.clearLayers();
-        init_zones(data[0].zones, baselayerid);
-        init_locators(data[0].locators, baselayerid);
+        if (data.length > 0) {
+            init_zones(data[0].zones, baselayerid);
+            init_locators(data[0].locators, baselayerid);
+        }
         assignIdsToLayerCheckboxes();
         setLayerCheckUncheckEvents();
         checkViewportLoad();

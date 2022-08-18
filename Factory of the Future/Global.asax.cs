@@ -165,9 +165,14 @@ namespace Factory_of_the_Future
                 Session[SessionKey.UserFirstName] = adUser.FirstName;
                 Session[SessionKey.UserLastName] = adUser.SurName;
                 Session[SessionKey.UserRole] = adUser.Role;
+                Session[SessionKey.Facility_NASS_CODE] = adUser.NASSCode;
+                Session[SessionKey.Facility_Id] = adUser.FDBID;
+                Session[SessionKey.Facility_Name] = adUser.FacilityName;
+                Session[SessionKey.Environment] = AppParameters.ApplicationEnvironment;
+                Session[SessionKey.FacilityTimeZone] = AppParameters.AppSettings["FACILITY_TIMEZONE"].ToString();
                 Session[SessionKey.IsAuthenticated] = HttpContext.Current.Request.IsAuthenticated;
                 authCookie = AuthenticationCookie.Create(adUser.UserId, Converter.ObjectToString(adUser), true);
-                //Task.Run(() => AddUserToList(adUser));
+                Task.Run(() => AddUserToList(adUser));
            
                 Response.Cookies.Add(authCookie);
 
@@ -183,18 +188,19 @@ namespace Factory_of_the_Future
                     //log out user 
                     if (!string.IsNullOrEmpty(_sessions[itemindex].Session_ID))
                     {
-                      //  Task.Run(() => new User_Log().Logout_User(_sessions[itemindex]));
+                        Task.Run(() => new User_Log().LogoutUser(_sessions[itemindex]));
+                        _sessions.Remove(_sessions[itemindex]);
                     }
                     _sessions[itemindex].Login_Date = adUser.Login_Date;
                     _sessions[itemindex].Session_ID = adUser.Session_ID;
                     //log of user logging in.
-                    Task.Run(() => new User_Log().Login_User(adUser));
+                    Task.Run(() => new User_Log().LoginUser(adUser));
 
                 }
                 else
                 {
                     _sessions.Add(adUser);
-                    Task.Run(() => new User_Log().Login_User(adUser));
+                    Task.Run(() => new User_Log().LoginUser(adUser));
                 }
             }
             catch (Exception e)

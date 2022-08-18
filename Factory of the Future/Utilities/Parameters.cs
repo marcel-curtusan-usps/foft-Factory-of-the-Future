@@ -1670,6 +1670,11 @@ namespace Factory_of_the_Future
         public const string UserRole = "UserRole";
         public const string UserFirstName = "UserFirstName";
         public const string UserLastName = "UserLastName";
+        public const string Facility_NASS_CODE = "Facility_NASS_CODE";
+        public const string Facility_Id = "Facility_Id";
+        public const string Facility_Name = "Facility_Name";
+        public const string Environment = "Environment";
+        public const string FacilityTimeZone = "FacilityTimeZone";
     }
     public class AuthenticationCookie
     {

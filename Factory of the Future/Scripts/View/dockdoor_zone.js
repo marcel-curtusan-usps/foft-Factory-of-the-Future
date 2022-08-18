@@ -209,6 +209,7 @@ async function updateDockDoorZone(dockdoorzoneupdate) {
                         if (layer.feature.properties.id === dockdoorzoneupdate.properties.id) {
                             layer.feature.properties = dockdoorzoneupdate.properties;
                             layerindex = layer._leaflet_id;
+                            layer.setTooltipContent(dockdoorzoneupdate.properties.doorNumber.toString() + (dockdoorzoneupdate.properties.dockdoorData.tripDirectionInd !== "" ? "-" + feature.properties.dockdoorData.tripDirectionInd : ""));
                             return false;
                         }
                     }
@@ -352,7 +353,7 @@ var dockDoors = new L.GeoJSON(null, {
             }
             LoadDockDoorTable(feature.properties);
         })
-        layer.bindTooltip(feature.properties.doorNumber.toString() + feature.properties.tripDirectionInd !== "" ? feature.properties.tripDirectionInd : "", {
+        layer.bindTooltip(feature.properties.doorNumber.toString() + (feature.properties.dockdoorData.tripDirectionInd !== "" ? "-" + feature.properties.dockdoorData.tripDirectionInd : ""), {
             permanent: true,
             interactive: true,
             direction: 'center',
