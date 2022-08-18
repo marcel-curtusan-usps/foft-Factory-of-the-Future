@@ -287,7 +287,7 @@ async function updateMachineSparklineTooltip(feature, layer) {
 
 
 function layerMachineIdMatch(layer, machineupdate) {
-    if (layer.findId === machineupdate.properties.id) {
+    if (layer.feature.properties.id === machineupdate.properties.id) {
         
         return true;
     }
@@ -303,7 +303,10 @@ function convertToSparkline(machineSparklineString) {
     for (var tuple of machineSparklinesNew) {
         tuple.Item1.properties.Zone_Type = "Sparkline";
         tuple.Item1.properties.sparkline = true;
-        tuple.Item1.properties.color = "#00000000";
+        tuple.Item1.properties.color = "transparent";
+        tuple.Item1.properties.fillColor = "transparent";
+        tuple.Item1.properties.opacity = 0;
+        tuple.Item1.properties.fillOpacity = 0;
         tuple.Item1.properties.id = tuple.Item1.properties.id + "-sp";
     }
     return machineSparklinesNew;
@@ -312,9 +315,6 @@ function convertToSparkline(machineSparklineString) {
 
 async function updateMachineSparkline(machineupdate, id) {
     if (id == baselayerid) {
-        machineupdate.properties.Zone_Type = "Sparkline";
-        machineupdate.properties.sparkline = true;
-        machineupdate.properties.color = "#00000000";
             if (machineupdate.properties.hasOwnProperty("MPEWatchData")) {
                 let foundLayer = null;
 
@@ -325,8 +325,8 @@ async function updateMachineSparkline(machineupdate, id) {
                 for (var key of machineSparklineKeys) {
                     let layer = machineSparklines._layers[key];
                     if (layer.hasOwnProperty("options")) {
-                        layer.options.fillColor = "#000000";
-                        layer.options.color = "#000000";
+                        layer.options.fillColor = "transparent";
+                        layer.options.color = "transparent";
                         layer.options.fillOpacity = 0;
                         layer.options.opacity = 0;
                         if (layerMachineIdMatch(layer, machineupdate))

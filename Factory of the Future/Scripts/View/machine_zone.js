@@ -246,6 +246,10 @@ const polyObj = {
     style: function (feature) {
         if (feature.properties.sparkline) {
             return {
+                permanent: true,
+                interactive: true,
+                color: "transparent",
+                fillColor: "transparent",
                 fillOpacity: 0,
                 opacity: 0
             };
@@ -257,8 +261,7 @@ const polyObj = {
             
     },
     onEachFeature: function (feature, layer) {
-        layer.findId = feature.properties.id;
-
+        
         if (feature.properties.sparkline) {
             updateMachineSparklineTooltip(feature, layer);
         }
