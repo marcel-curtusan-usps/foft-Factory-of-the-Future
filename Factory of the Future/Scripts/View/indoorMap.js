@@ -201,9 +201,14 @@ var layersControl = L.control.layers(baseLayers, overlayMaps, {
                 return nameA < nameB ? -1 : (nameB < nameA ? 1 : 0);
             }
         }
-    }, position: 'bottomright', collapsed: false }).addTo(map);
+    }, position: 'bottomright', collapsed: false
+}).addTo(map);
+
+
+
 //Add zoom button
 new L.Control.Zoom({ position: 'bottomright' }).addTo(map);
+
 //add View Ports
 L.easyButton({
     position: 'bottomright',
