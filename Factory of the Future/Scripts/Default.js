@@ -560,6 +560,7 @@ $(function () {
         try {
             $('input[type=checkbox][name=followvehicle]').prop('checked', false).change();
             var selcValue = this.id;
+            updateURIParametersForLayer($("#" + selcValue).html());
             if (viewPortsAreas.hasOwnProperty("_layers")) {
                 $.map(viewPortsAreas._layers, function (layer, i) {
                     if (layer.hasOwnProperty("feature")) {
@@ -972,20 +973,18 @@ async function zonecurrentStaff() {
                 var MachineCurrentStaff = [];
                 if (tagsMarkersGroup.hasOwnProperty("_layers")) {
                     $.map(tagsMarkersGroup._layers, function (layer, i) {
-                        if (/person/i.test(layer.feature.properties.Tag_Type) && layer.feature.properties.tagVisible === true && layer.feature.properties.zones != null) {
+                        if (/person/i.test(layer.feature.properties.Tag_Type) && layer.feature.properties.zones != null) {
+                            
                             $.map(layer.feature.properties.zones, function (p_zone) {
+
                                 if (p_zone.id == Machinelayer.feature.properties.id) {
-                                    if (layer.hasOwnProperty("_tooltip")) {
-                                        if (layer._tooltip.hasOwnProperty("_container")) {
-                                            if (!layer._tooltip._container.classList.contains('tooltip-hidden')) {
-                                                MachineCurrentStaff.push({
+                                    
+                                               MachineCurrentStaff.push({
                                                     name: checkValue(layer.feature.properties.craftName) ? layer.feature.properties.craftName : layer.feature.properties.id,
                                                     nameId: checkValue(layer.feature.properties.id) ? layer.feature.properties.id : layer.feature.properties.id,
                                                     id: layer.feature.properties.id
                                                 })
-                                            }
-                                        }
-                                    }
+                               
                                 }
                             });
                         }
@@ -1007,27 +1006,24 @@ async function zonecurrentStaff() {
 
         // other zone
         if (stagingAreas.hasOwnProperty("_layers")) {
-            $.map(stagingAreas._layers, function (stagelayer, i) {
+            $.map(stagingAreas._layers, function (stagelayer, i)
+            {
+                
                 var CurrentStaff = [];
                 if (tagsMarkersGroup.hasOwnProperty("_layers")) {
                     $.map(tagsMarkersGroup._layers, function (layer, i) {
-                        if (/person/i.test(layer.feature.properties.Tag_Type) && layer.feature.properties.tagVisible === true && layer.feature.properties.zones != null) {
+                       
+                        if (/person/i.test(layer.feature.properties.Tag_Type) && layer.feature.properties.zones != null) {
+                           
                             $.map(layer.feature.properties.zones, function (p_zone) {
                                 if (p_zone.id == stagelayer.feature.properties.id) {
-                                    if (layer.hasOwnProperty("_tooltip")) {
-                                        if (layer._tooltip.hasOwnProperty("_container")) {
-                                            if (!layer._tooltip._container.classList.contains('tooltip-hidden')) {
-                                                CurrentStaff.push({
+                                    
+                                              CurrentStaff.push({
                                                     name: checkValue(layer.feature.properties.craftName) ? layer.feature.properties.craftName : layer.feature.properties.id,
                                                     nameId: checkValue(layer.feature.properties.id) ? layer.feature.properties.id : layer.feature.properties.id,
                                                     id: layer.feature.properties.id
                                                 })
-                                                //CurrentStaff.push({
-                                                //    id: layer.feature.properties.id
-                                                //})
-                                            }
-                                        }
-                                    }
+                                       
                                 }
                             });
                         }
