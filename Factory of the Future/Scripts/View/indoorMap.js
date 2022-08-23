@@ -369,9 +369,12 @@ function init_mapSetup(MapData) {
             LoadNotification("routetrip");
             LoadNotification("vehicle");
             //add user to the tag groups only for none PMCCUser
-            if (!/(^PMCCUser$)/i.test(User.UserId)) {
-                fotfmanager.server.joinGroup("PeopleMarkers");
+            if (User.hasOwnProperty("UserId")) {
+                if (!/(^PMCCUser$)/i.test(User.UserId)) {
+                    fotfmanager.server.joinGroup("PeopleMarkers");
+                }
             }
+            
         }
         else {
             fotfmanager.server.GetIndoorMap().done(function (GetIndoorMap) {

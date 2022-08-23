@@ -487,6 +487,11 @@ namespace Factory_of_the_Future
           
         }
 
+        internal string GetFacilityTimeZone()
+        {
+            return AppParameters.AppSettings["FACILITY_TIMEZONE"].ToString();
+        }
+
         internal GeoMarker RemoveMarker(string data)
         {
             try

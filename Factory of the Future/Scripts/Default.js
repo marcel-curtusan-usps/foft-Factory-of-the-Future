@@ -63,6 +63,14 @@ $(function () {
                     timezone = { Facility_TimeZone: User.FacilityTimeZone }
                     cBlock();
                 }
+
+            }
+            else {
+                fotfmanager.server.getFacilityTimeZone().done(function (data) {
+                    timezone = { Facility_TimeZone: data.toString() }
+                    cBlock();
+                })
+                
             }
             if (User.hasOwnProperty("Environment")) {
                 //Environment Status Controls
@@ -94,209 +102,214 @@ $(function () {
                     }
                 }
             }
-            if (/^(Admin|OIE)/i.test(User.Role)) {
-                sidebar.addPanel({
-                    id: 'connections',
-                    tab: '<span class="iconCenter"><i class="pi-iconDiagramOutline"></i></span>',
-                    position: 'top',
-                    pane: '<div class="btn-toolbar" role="toolbar" id="connection_div">' +
-                        '<div id="div_agvnotification" class="container-fluid">' +
-                        '<h4 class="ml-p5rem" >Connections</h4>' +
-                        '<button type="button" class="btn btn-primary float-left mb-2 ml-p5rem" name="addconnection">Add</button>' +
-                        '<div class="card w-100 bg-white mt-2 pb-1">' +
-                        '<div class="card-body">' +
-                        '<div class="table-responsive">' +
-                        '<table class="table table-sm table-hover table-condensed mb-1" id="connectiontable" style="border-collapse:collapse;">' +
-                        '<thead class="thead-dark">' +
-                        '<tr>' +
-                        '<th class="row-connection-name"><span class="ml-p5rem">Name</span></th><th class="row-connection-type">Message Type</th>' +
-                        '<th class="row-connection-status">Status</th><th class="row-connection-action"><span class="ml-p25rem">Action</span></th>' +
-                        '</tr>' +
-                        '</thead>' +
-                        '<tbody></tbody>' +
-                        '</table>' +
-                        '</div>' +
-                        '</div>' +
-                        '</div >' +
-                        '</div></div>'
-                });
-                init_connection();
-                init_geometry_editing();
-                $('button[name=addconnection]').off().on('click', function () {
-                    /* close the sidebar */
-                    sidebar.close();
-                    Add_Connection();
-                });
-                $('button[name=machineinfoedit]').css('display', 'block');
-
-            }
-            if (/^Admin/i.test(User.Role)) {
-                sidebar.addPanel({
-                    id: 'setting',
-                    tab: '<span class="iconCenter"><i class="pi-iconGearFill"></i></span>',
-                    position: 'bottom',
-                    pane: '<div class="btn-toolbar" role="toolbar" id="app_setting">' +
-                        '<div id="div_app_settingtable" class="container-fluid">' +
-                        '<div class="card w-100">' +
-                        '<div class="card-header pl-1">' +
-                        '<h6 class="control-label sectionHeader ml-1 mb-1 d-flex justify-content-between">Workroom/Floor Image</h6>' +
-                        '</div>' +
-                        '<div class="card-body" id="img_card_body">' +
-                                '<div class="input-group mb-3">' +
-                                    '<div class="custom-file mr-p5rem" >' +
-                                        '<input type="file" class="custom-file-input" id="fupload" aria-describedby="btnUpload">' +
-                                        '<label class="custom-file-label" for="btnUpload">Choose file</label>' +
-                                    '</div>' +
-                                    '<div class="input-group-append mr-p5rem">' +
-                                        '<button class="btn btn-outline-secondary" type="button" id="btnUpload">Upload</button>' +
-                                    '</div>' +
-                                '</div>' +
-                                '<div class="form-row"> ' +
-                                    '<div class="form-group">' +
-                                    '<div class="col">' +
-                                        '<label class="control-label">Pixel Per Meters</label>'+
-                                            '<select id="metersPerPixel" class="form-control pb-1" name="metersPerPixel">' +
-                                                    '<option value=""></option>' +
-                                                    '<option value="0.0529166667">0.01 Pixel Per Meter</option>' +
-                                                    '<option value="0.0002645833">0.1 Pixel Per Meter</option>' +
-                                                    '<option value="0.0264583333">1 Pixel Per Meter</option>' +
-                                                    '<option value="0.0529166667">2 Pixel Per Meter</option>' +
-                                                    '<option value="0.079375">3 Pixel Per Meter</option>' +
-                                                    '<option value="0.1322916667">5 Pixel Per Meter</option>' +
-                                                    '<option value="0.2645833333">10 Pixel Per Meter</option>' +
-                                                    '<option value="0.5291666667">20 Pixel Per Meter</option>' +
-                                                    '<option value="1.3229166667">50 Pixel Per Meter</option>' +
-                                                    '<option value="2.6458333333">100 Pixel Per Meter</option>' +
-                                                    '<option value="26.4583333333">1000 Pixel Per Meter</option>' +
-                                            '</select>' +
-                                        '</div>' +
-                                    '</div>' +
-                                '</div>' +
-                            '<div class="form-row" style="padding-top: 10px; display: none;" id="progresbarrow"> ' +
-                                '<div class="col"> ' +
-                                    '<div class="progress">' +
-                                       ' <div id="file_upload_progressbar" class="progress-bar rogress-bar-striped bg-success" role="progressbar" style="width: 10%" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>  ' +
-                                   '</div> ' +
-                                '</div> ' +
-                            '</div > ' +
-                                '<div class= "form-row" style = "padding-top: 10px;"> ' +
-                                    '<div class= "col text-center"> ' +
-                                        '<span id = "error_btnUpload"></span > ' +
-                                '</div> ' +
+            if (User.hasOwnProperty("Role")) {
+                if (/^(Admin|OIE)/i.test(User.Role)) {
+                    sidebar.addPanel({
+                        id: 'connections',
+                        tab: '<span class="iconCenter"><i class="pi-iconDiagramOutline"></i></span>',
+                        position: 'top',
+                        pane: '<div class="btn-toolbar" role="toolbar" id="connection_div">' +
+                            '<div id="div_agvnotification" class="container-fluid">' +
+                            '<h4 class="ml-p5rem" >Connections</h4>' +
+                            '<button type="button" class="btn btn-primary float-left mb-2 ml-p5rem" name="addconnection">Add</button>' +
+                            '<div class="card w-100 bg-white mt-2 pb-1">' +
+                            '<div class="card-body">' +
+                            '<div class="table-responsive">' +
+                            '<table class="table table-sm table-hover table-condensed mb-1" id="connectiontable" style="border-collapse:collapse;">' +
+                            '<thead class="thead-dark">' +
+                            '<tr>' +
+                            '<th class="row-connection-name"><span class="ml-p5rem">Name</span></th><th class="row-connection-type">Message Type</th>' +
+                            '<th class="row-connection-status">Status</th><th class="row-connection-action"><span class="ml-p25rem">Action</span></th>' +
+                            '</tr>' +
+                            '</thead>' +
+                            '<tbody></tbody>' +
+                            '</table>' +
                             '</div>' +
-                        '</div>' +
-                        '</div>'+
-                        '<div class="card w-100">' +
-                        '<div class="card-header pl-1">' +
-                        '<h6 class="control-label sectionHeader ml-1 mb-1 d-flex justify-content-between">Application Setting</h6>' +
-                        '</div>' +
-                        '<div class="card-body">' +
-                        '<div class="table-responsive fixedHeader" style="max-height: calc(100vh - 100px); ">' +
-                        '<table class="table table-sm table-hover table-condensed" id="app_settingtable" style="border-collapse:collapse;">' +
-                        '<thead class="thead-dark">' +
-                        '<tr>' +
-                        '<th class="row-name"><span class="ml-p25rem">Name</span></th><th class="row-value">Value</th><th class="row-action">Action</th>' +
-                        '</tr>' +
-                        '</thead>' +
-                        '<tbody></tbody>' +
-                        '</table>' +
-                        '</div>' +
-                        '</div>' +
-                        '</div >' +
-                        '</div></div>'
-                });
-                $('button[id=btnUpload]').on('click', function () {
-                    $('button[id=btnUpload]').prop("disabled", true);
-                    var fileUpload = $("#fupload").get(0);
-                    var files = fileUpload.files;
-                    if (files.length > 0) {
-                        var data = new FormData();
-                        for (var i = 0; i < files.length; i++) {
-                            data.append(files[i].name, files[i]);
-                        }
-                        data.append("metersPerPixel", $("#metersPerPixel option:selected").val());
-                        $.ajax({
-                            url: "/api/UploadFiles",
-                            type: "POST",
-                            data: data,
-                            cache: false,
-                            contentType: false,
-                            processData: false,
-                            beforeSend: function () {
-                                $('button[id=btnUpload]').prop("disabled", true);
-                                $('#progresbarrow').css('display', 'block');
-                                $('span[id=error_btnUpload]').text("Loading File Please stand by");
-                                var progress = 10
-                                $('#file_upload_progressbar').css('width', progress + '%');
-                            },
-                            xhr: function () {
-                                var xhr = $.ajaxSettings.xhr();
-                                if (xhr.upload) {
-                                    xhr.upload.addEventListener("progress", function (evt) {
-                                        if (evt.lengthComputable) {
-                                            var percentComplete = evt.loaded / evt.total;
-                                            percentComplete = parseInt(percentComplete * 100);
-                                            $('#file_upload_progressbar').attr('aria-valuenow', percentComplete).css('width', percentComplete + '%');
-                                            if (percentComplete === 100) {
-                                                $('span[id=error_btnUpload]').text("File Transfer Complete -->> Processing File ");
-                                            }
-                                        }
-                                    }, false);
-                                }
-                                return xhr;
-                            },
-                            success: function (response) {
-                                if (response !== "") {
-                                    try {
-                                        $('span[id=error_btnUpload]').text("File Processing Completed");
-                                        setTimeout(function () { Clear(); }, 500);
-                                    }
-                                    catch (e) {
-                                        $('span[id=error_btnUpload]').text(e);
-                                    }
-                                }
-                            },
-                            error: function (response) {
-                                $('span[id=error_btnUpload]').text(response.statusText);
-                                $('#progresbarrow').css('display', 'none');
-                                setTimeout(function () { Clear(); }, 10000);
-                            },
-                            failure: function (response) {
-                                $('span[id=error_btnUpload]').text(response.statusText);
-                                $('#progresbarrow').css('display', 'none');
-                                setTimeout(function () { Clear(); }, 10000);
+                            '</div>' +
+                            '</div >' +
+                            '</div></div>'
+                    });
+                    init_connection();
+                    init_geometry_editing();
+                    $('button[name=addconnection]').off().on('click', function () {
+                        /* close the sidebar */
+                        sidebar.close();
+                        Add_Connection();
+                    });
+                    $('button[name=machineinfoedit]').css('display', 'block');
+
+                }
+                if (/^Admin/i.test(User.Role)) {
+                    sidebar.addPanel({
+                        id: 'setting',
+                        tab: '<span class="iconCenter"><i class="pi-iconGearFill"></i></span>',
+                        position: 'bottom',
+                        pane: '<div class="btn-toolbar" role="toolbar" id="app_setting">' +
+                            '<div id="div_app_settingtable" class="container-fluid">' +
+                            '<div class="card w-100">' +
+                            '<div class="card-header pl-1">' +
+                            '<h6 class="control-label sectionHeader ml-1 mb-1 d-flex justify-content-between">Workroom/Floor Image</h6>' +
+                            '</div>' +
+                            '<div class="card-body" id="img_card_body">' +
+                            '<div class="input-group mb-3">' +
+                            '<div class="custom-file mr-p5rem" >' +
+                            '<input type="file" class="custom-file-input" id="fupload" aria-describedby="btnUpload">' +
+                            '<label class="custom-file-label" for="btnUpload">Choose file</label>' +
+                            '</div>' +
+                            '<div class="input-group-append mr-p5rem">' +
+                            '<button class="btn btn-outline-secondary" type="button" id="btnUpload">Upload</button>' +
+                            '</div>' +
+                            '</div>' +
+                            '<div class="form-row"> ' +
+                            '<div class="form-group">' +
+                            '<div class="col">' +
+                            '<label class="control-label">Pixel Per Meters</label>' +
+                            '<select id="metersPerPixel" class="form-control pb-1" name="metersPerPixel">' +
+                            '<option value=""></option>' +
+                            '<option value="0.0529166667">0.01 Pixel Per Meter</option>' +
+                            '<option value="0.0002645833">0.1 Pixel Per Meter</option>' +
+                            '<option value="0.0264583333">1 Pixel Per Meter</option>' +
+                            '<option value="0.0529166667">2 Pixel Per Meter</option>' +
+                            '<option value="0.079375">3 Pixel Per Meter</option>' +
+                            '<option value="0.1322916667">5 Pixel Per Meter</option>' +
+                            '<option value="0.2645833333">10 Pixel Per Meter</option>' +
+                            '<option value="0.5291666667">20 Pixel Per Meter</option>' +
+                            '<option value="1.3229166667">50 Pixel Per Meter</option>' +
+                            '<option value="2.6458333333">100 Pixel Per Meter</option>' +
+                            '<option value="26.4583333333">1000 Pixel Per Meter</option>' +
+                            '</select>' +
+                            '</div>' +
+                            '</div>' +
+                            '</div>' +
+                            '<div class="form-row" style="padding-top: 10px; display: none;" id="progresbarrow"> ' +
+                            '<div class="col"> ' +
+                            '<div class="progress">' +
+                            ' <div id="file_upload_progressbar" class="progress-bar rogress-bar-striped bg-success" role="progressbar" style="width: 10%" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>  ' +
+                            '</div> ' +
+                            '</div> ' +
+                            '</div > ' +
+                            '<div class= "form-row" style = "padding-top: 10px;"> ' +
+                            '<div class= "col text-center"> ' +
+                            '<span id = "error_btnUpload"></span > ' +
+                            '</div> ' +
+                            '</div>' +
+                            '</div>' +
+                            '</div>' +
+                            '<div class="card w-100">' +
+                            '<div class="card-header pl-1">' +
+                            '<h6 class="control-label sectionHeader ml-1 mb-1 d-flex justify-content-between">Application Setting</h6>' +
+                            '</div>' +
+                            '<div class="card-body">' +
+                            '<div class="table-responsive fixedHeader" style="max-height: calc(100vh - 100px); ">' +
+                            '<table class="table table-sm table-hover table-condensed" id="app_settingtable" style="border-collapse:collapse;">' +
+                            '<thead class="thead-dark">' +
+                            '<tr>' +
+                            '<th class="row-name"><span class="ml-p25rem">Name</span></th><th class="row-value">Value</th><th class="row-action">Action</th>' +
+                            '</tr>' +
+                            '</thead>' +
+                            '<tbody></tbody>' +
+                            '</table>' +
+                            '</div>' +
+                            '</div>' +
+                            '</div >' +
+                            '</div></div>'
+                    });
+                    $('button[id=btnUpload]').on('click', function () {
+                        $('button[id=btnUpload]').prop("disabled", true);
+                        var fileUpload = $("#fupload").get(0);
+                        var files = fileUpload.files;
+                        if (files.length > 0) {
+                            var data = new FormData();
+                            for (var i = 0; i < files.length; i++) {
+                                data.append(files[i].name, files[i]);
                             }
-                        })
+                            data.append("metersPerPixel", $("#metersPerPixel option:selected").val());
+                            $.ajax({
+                                url: "/api/UploadFiles",
+                                type: "POST",
+                                data: data,
+                                cache: false,
+                                contentType: false,
+                                processData: false,
+                                beforeSend: function () {
+                                    $('button[id=btnUpload]').prop("disabled", true);
+                                    $('#progresbarrow').css('display', 'block');
+                                    $('span[id=error_btnUpload]').text("Loading File Please stand by");
+                                    var progress = 10
+                                    $('#file_upload_progressbar').css('width', progress + '%');
+                                },
+                                xhr: function () {
+                                    var xhr = $.ajaxSettings.xhr();
+                                    if (xhr.upload) {
+                                        xhr.upload.addEventListener("progress", function (evt) {
+                                            if (evt.lengthComputable) {
+                                                var percentComplete = evt.loaded / evt.total;
+                                                percentComplete = parseInt(percentComplete * 100);
+                                                $('#file_upload_progressbar').attr('aria-valuenow', percentComplete).css('width', percentComplete + '%');
+                                                if (percentComplete === 100) {
+                                                    $('span[id=error_btnUpload]').text("File Transfer Complete -->> Processing File ");
+                                                }
+                                            }
+                                        }, false);
+                                    }
+                                    return xhr;
+                                },
+                                success: function (response) {
+                                    if (response !== "") {
+                                        try {
+                                            $('span[id=error_btnUpload]').text("File Processing Completed");
+                                            setTimeout(function () { Clear(); }, 500);
+                                        }
+                                        catch (e) {
+                                            $('span[id=error_btnUpload]').text(e);
+                                        }
+                                    }
+                                },
+                                error: function (response) {
+                                    $('span[id=error_btnUpload]').text(response.statusText);
+                                    $('#progresbarrow').css('display', 'none');
+                                    setTimeout(function () { Clear(); }, 10000);
+                                },
+                                failure: function (response) {
+                                    $('span[id=error_btnUpload]').text(response.statusText);
+                                    $('#progresbarrow').css('display', 'none');
+                                    setTimeout(function () { Clear(); }, 10000);
+                                }
+                            })
 
-                    }
-                });
+                        }
+                    });
+                }
+                if (!/^(Admin|OIE)/i.test(User.Role)) {
+                    fotfmanager.server.leaveGroup("PeopleMarkers");
+                }
             }
-            if (!/^(Admin|OIE)/i.test(User.Role)) {
-                fotfmanager.server.leaveGroup("PeopleMarkers");
-            }
-            if (/(^PMCCUser$)/i.test(User.UserId)) {
-                //add QRCode
-                var QRCodedisplay = L.Control.extend({
-                    options: {
-                        position: 'topright'
-                    },
-                    onAdd: function () {
-                        var Domcntainer = L.DomUtil.create('div');
-                        Domcntainer.id = "qrcodeUrl";
-                        return Domcntainer;
-                    }
-                });
-                map.addControl(new QRCodedisplay());
+            if (User.hasOwnProperty("UserId")) {
+                if (/(^PMCCUser$)/i.test(User.UserId)) {
+                    //add QRCode
+                    var QRCodedisplay = L.Control.extend({
+                        options: {
+                            position: 'topright'
+                        },
+                        onAdd: function () {
+                            var Domcntainer = L.DomUtil.create('div');
+                            Domcntainer.id = "qrcodeUrl";
+                            return Domcntainer;
+                        }
+                    });
+                    map.addControl(new QRCodedisplay());
 
-                var qrcode = new QRCode("qrcodeUrl", {
-                    text: window.location.href,
-                    width: 128,
-                    height: 128,
-                    colorDark: "#000000",
-                    colorLight: "#ffffff",
-                    correctLevel: QRCode.CorrectLevel.H
-                });
+                    var qrcode = new QRCode("qrcodeUrl", {
+                        text: window.location.href,
+                        width: 128,
+                        height: 128,
+                        colorDark: "#000000",
+                        colorLight: "#ffffff",
+                        correctLevel: QRCode.CorrectLevel.H
+                    });
+                }
             }
+            
             //init_Map();
         },
         floorImage: async (MapData) => {init_mapSetup(MapData);}
