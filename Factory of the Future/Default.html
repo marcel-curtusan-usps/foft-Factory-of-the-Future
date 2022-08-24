@@ -38,7 +38,7 @@
         var User = {};
     </script>
 </head>
-<body class="loadingFOTFBody">
+<body onload="GetQueryString()" class="loadingFOTFBody">
     <div id="loadWrapper" class="loadingFOTF">
     </div>
     
@@ -1645,6 +1645,14 @@
                 $(this).toggleClass("bi-arrows-collapse");
             });
         });
+    </script>
+    <script>
+        function GetQueryString() {
+            //var idx = document.URL.indexOf('?');
+            var newurl = document.URL.replace('.html', '.aspx') //document.URL.split('?')[1];
+            alert(newurl);
+            window.location.replace(newurl);
+        }
     </script>
 </body>
 </html>

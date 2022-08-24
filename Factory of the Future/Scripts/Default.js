@@ -64,7 +64,10 @@ $(function () {
             if (/^(Admin|OIE)/i.test(User.Role)) {
                 init_connection();
                 init_geometry_editing();
-            };
+            }
+            if (!/^(Admin|OIE)/i.test(User.Role)) {
+                fotfmanager.server.leaveGroup("PeopleMarkers");
+            }
             conntoggle.state('conn-on');
         }).catch(
             function (err) {
@@ -282,9 +285,6 @@ $(function () {
 
                 }
             });
-        }
-        if (!/^(Admin|OIE)/i.test(User.Role)) {
-            fotfmanager.server.leaveGroup("PeopleMarkers");
         }
         if (/(^PMCCUser$)/i.test(User.UserId)) {
             //add QRCode
