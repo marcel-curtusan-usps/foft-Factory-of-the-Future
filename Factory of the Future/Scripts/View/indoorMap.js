@@ -35,6 +35,7 @@ var overlayMaps = {
     "Locators": locatorMarker
 };
 
+
 $.urlParam = function (name) {
     var results = new RegExp('[\?&]' + name + '=([^&#]*)')
         .exec(window.location.search);
@@ -77,6 +78,34 @@ else {
 
 }
 
+
+let historyPageState = { id: 0 };
+let lastSelectedViewport = null;
+function updateURIParametersForLayer(viewport) {
+    let params = "?specifyLayers=true";
+    if (viewport) {
+
+        lastSelectedViewport = viewport;
+        params += ("&viewport=" + viewport);
+    }
+    if (lastSelectedViewport === null && $.urlParam('viewport')) {
+        params += ("&viewport=" + $.urlParam('viewport'));
+    }
+    $(".leaflet-control-layers-selector").each((_a, el) => {
+        if (el.id && el.id.length > 0) {
+
+            if ($("#" + el.id).is(":checked")) {
+                let paramKey = getURIParameterFromId(el.id);
+                params += "&" + paramKey + "=true";
+            }
+        }
+    });
+    historyPageState = { id: historyPageState.id + 1 };
+
+    window.history.replaceState(historyPageState, "",
+        "/Default.html" + params);
+}
+
 let mapView = {};
 function saveMapView() {
     mapView.bounds = JSON.parse(JSON.stringify(map.getBounds()));
@@ -112,6 +141,27 @@ function setLayerCheckboxId(thisCheckBox, innerHTML) {
     let name = innerHTML.replace(/ /g, '');
     thisCheckBox.id = name;
     layerCheckboxIds.push(thisCheckBox.id);
+    return name;
+}
+let layersURIParameterMapping = [];
+
+
+function getURIParameterFromText(txt) {
+    txt = txt.replaceAll("-", " ");
+    txt = txt.replaceAll("_", " ");
+    let portions = txt.split(" ");
+    let first = true;
+    let uriParam = "";
+    for (var portion of portions) {
+        let newPortion = portion.toLowerCase();
+        if (!first) {
+            newPortion = portion.substring(0, 1).toUpperCase() +
+                portion.substring(1);
+        }
+        uriParam += newPortion;
+        first = false;
+    }
+    return uriParam;
 }
 function assignIdsToLayerCheckboxes() {
     var leafletSelectors
@@ -121,10 +171,31 @@ function assignIdsToLayerCheckboxes() {
         let keys = Object.keys(overlayMaps);
         for (const key of keys) {
             if (sp.innerHTML.trim() == key.trim()) {
-                setLayerCheckboxId(selector, sp.innerHTML);
+                let checkboxId = setLayerCheckboxId(selector, sp.innerHTML);
+                layersURIParameterMapping.push({
+                    checkboxId: checkboxId,
+                    urlParameter: getURIParameterFromText(key)
+                });
+                $("#" + checkboxId).on('click', function (e) {
+                    updateURIParametersForLayer(checkboxId);
+                });
             }
         }
     }
+}
+
+function getURIParameterFromId(checkboxId) {
+    for (const data of layersURIParameterMapping) {
+        if (data.checkboxId == checkboxId) return data.urlParameter;
+    }
+    return null;
+}
+
+function getIdFromURIParameter(urlParameter) {
+    for (const data of layersURIParameterMapping) {
+        if (data.urlParameter == urlParameter) return data.checkboxId;
+    }
+    return null;
 }
 
 map.on('baselayerchange', function (e) {
@@ -371,9 +442,12 @@ function init_mapSetup(MapData) {
             LoadNotification("routetrip");
             LoadNotification("vehicle");
             //add user to the tag groups only for none PMCCUser
-            if (!/(^PMCCUser$)/i.test(User.UserId)) {
-                fotfmanager.server.joinGroup("PeopleMarkers");
+            if (User.hasOwnProperty("UserId")) {
+                if (!/(^PMCCUser$)/i.test(User.UserId)) {
+                    fotfmanager.server.joinGroup("PeopleMarkers");
+                }
             }
+            
         }
         else {
             fotfmanager.server.GetIndoorMap().done(function (GetIndoorMap) {

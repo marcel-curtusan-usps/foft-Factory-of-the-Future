@@ -243,6 +243,11 @@ namespace Factory_of_the_Future
           return _managerHub.GetTimeZone();
             
         }
+
+        public string GetFacilityTimeZone()
+        {
+            return _managerHub.GetFacilityTimeZone();
+        }
         /// <summary>
         /// this is to handle connection after the App has started.
         /// </summary>
