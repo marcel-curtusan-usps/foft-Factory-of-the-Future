@@ -480,7 +480,7 @@ let trip_row_template =
   
     '<td><span class="ml-p25rem">{schd}</span></td>' +
     '<td>{duration}</td>' +
-    '<td>{direction}</td>' +
+    '<td style="text-align:center"">{direction}</td>' +
     '<td>' +
     '<button class="btn btn-outline-info btn-sm btn-block px-1 routetripdetails" data-routetrip="{routetripid}" style="font-size:12px;">{routedispaly}</button>' +
     '</td>' +

@@ -29,6 +29,16 @@
             overflow: hidden;
         }
     </style>
+    <link rel="preload" href="Content/bootstrap-icons.css" as="style"/>
+    <link rel="preload" as="style" href="Content/bootstrap.min.css" />
+    <link rel="preload" as="style" href="Content/selectize.bootstrap4.css" />
+    <link rel="preload" as="style" href="Content/easy-button.css" />
+    <link rel="preload" as="style" href="Content/_base.min.css" />
+    <link rel="preload" as="style" href="Content/leaflet.css" />
+    <link rel="preload" as="style" href="Content/leaflet-sidebar.css" />
+    <link rel="preload" as="style" href="Content/leaflet-geoman.css" />
+    <link rel="preload" as="style" href="Content/Site.min.css" />
+    <link rel="preload" as="style" href="Content/Filter.css" />
     <link rel="stylesheet" href="Content/bootstrap-icons.css" />
     <link rel="stylesheet" href="Content/bootstrap.min.css" />
     <link rel="stylesheet" href="Content/selectize.bootstrap4.css" />
@@ -39,8 +49,6 @@
     <link rel="stylesheet" href="Content/leaflet-geoman.css" />
     <link rel="stylesheet" href="Content/Site.min.css" />
     <link rel="stylesheet" href="Content/Filter.css" />
-
-
 </head>
 <body class="loadingFOTFBody">
       <div id="loadWrapper" class="loadingFOTF">
@@ -1180,7 +1188,7 @@
                                                 <tr>
                                                     <th class="row-cts-schd"><span class="ml-p25rem">Schd</span></th>
                                                     <th style="width:min-content">Duration</th>
-                                                    <th style="width:30px">Direc</th>
+                                                    <th style="width:30px">DIR</th>
                                                     <th style="width:min-content">Route-Trip</th>
                                                     <th style="width:min-content" colspan="2">Site Name</th>
                                                 </tr>
@@ -1579,7 +1587,8 @@
     <script src="Scripts/moment-timezone.min.js"></script>
     <script src="Scripts/moment-duration-format.js"></script>
     <script src="Scripts/moment-timezone-with-data-2012-2022.min.js"></script>
-    <script src="Scripts/selectize.min.js"></script>
+    <%--<script src="Scripts/selectize.min.js"></script>--%>
+    <script src="Scripts/selectize.js"></script>
     <script src="Scripts/jquery.signalR-2.4.2.min.js"></script>
     <!--<script src="Scripts/jquery.signalR-2.4.2.js"></script>-->
     <script src="signalr/hubs/"></script>

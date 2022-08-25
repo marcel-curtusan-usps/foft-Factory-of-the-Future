@@ -103,7 +103,7 @@ function updateURIParametersForLayer(viewport) {
     historyPageState = { id: historyPageState.id + 1 };
 
     window.history.replaceState(historyPageState, "",
-        "/Default.html" + params);
+        "/Default.aspx" + params);
 }
 
 let mapView = {};
