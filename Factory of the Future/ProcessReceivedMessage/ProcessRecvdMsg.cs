@@ -103,6 +103,10 @@ namespace Factory_of_the_Future
                             MPEWatch_DPSEst(data, connID);
                             break;
                         ///*MPEWatch Data End*/
+                        
+                        case "getSVZones":
+                            SVZones(data, connID);
+                            break;
                         default:
                             break;
                     }
@@ -558,6 +562,39 @@ namespace Factory_of_the_Future
                 return temp;
             }
         }
+        private static void SVZones(dynamic data, string conID)
+        {
+            try
+            {
+                if (data != null)
+                {
+                    JToken tempData = JToken.Parse(data);
+                    if (tempData != null && tempData.HasValues)
+                    {
+                        foreach (JObject item in tempData.Children())
+                        {
+                            string svzone_id = item.ContainsKey("locationId") ? item["locationId"].ToString() : "";
+                            string zoneName = item["locationName"].ToString();
+                            if (!string.IsNullOrEmpty(svzone_id))
+                            {
+                                
+                                AppParameters.SVZoneNameList.AddOrUpdate(svzone_id, zoneName,
+                                   (key, oldValue) =>
+                                   {
+                                       return zoneName;
+                                   });
+                            }
+                        }
+                    }
+                }
+            }
+
+            catch (Exception e)
+            {
+                Task.Run(() => updateConnection(conID, "error"));
+                new ErrorLogger().ExceptionLog(e);
+            }
+        }
         private static void Doors(dynamic data, string conID)
         {
             try
@@ -663,6 +700,36 @@ namespace Factory_of_the_Future
                 new ErrorLogger().ExceptionLog(e);
             }
         }
+
+
+        
+        
+         private static void UpdateSVZone(SVZoneData svZone)
+        {
+            try
+            {
+                string locationId = "SVZone-" + svZone.locationId;
+                foreach (CoordinateSystem cs in AppParameters.CoordinateSystem.Values)
+                {
+                    cs.Zones.Where(f => f.Value.Properties.ZoneType == "SVZone"
+                    && f.Value.Properties.Id == locationId
+                    ).Select(y => y.Value).ToList().ForEach(SVZone =>
+                    {
+                        SVZone.Properties.SVZoneData = svZone;
+                        SVZone.Properties.ZoneUpdate = true;
+                    });
+                }
+
+              
+            }
+            catch (Exception e)
+            {
+                new ErrorLogger().ExceptionLog(e);
+            }
+        }
+
+        
+
         //private static void TacsVsSelsLDCAnomaly(JArray data, string message_type)
         //{
         //    /**

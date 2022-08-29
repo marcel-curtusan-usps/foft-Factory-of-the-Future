@@ -3,9 +3,15 @@ var sidebar = L.control.sidebar({
     container: 'sidebar', position: 'left', autopan: false
 });
 var mainfloorOverlays = L.layerGroup();
-var mainfloor = L.imageOverlay(null, [0, 0], { id:-1 ,zindex: -1 }).addTo(mainfloorOverlays);
+// define rectangle geographical bounds
+var greyOutBounds = [[-5000, -5000], [5000, 5000]];
+
+// create an orange rectangle
+var greyedOutRectangle = L.rectangle(greyOutBounds, { color: "#000000", weight: 1, fillOpacity: .65, stroke: false });
+
+var mainfloor = L.imageOverlay(null, [0, 0], { id:-1 ,zIndex: -1 }).addTo(mainfloorOverlays);
 var baseLayers = {
-  "Main Floor": mainfloor
+    "Main Floor": mainfloor
 };
 
 
@@ -20,6 +26,7 @@ var overlayMaps = {
     "MPE Bins": binzonepoly,
     "Dock Doors": dockDoors,
     "Staging Areas": stagingAreas,
+    "Staging Bullpen Areas": stagingBullpenAreas,
     "View-ports": viewPortsAreas,
     "EBR Areas": ebrAreas,
     "Exit Areas": exitAreas,
@@ -53,6 +60,7 @@ if ($.urlParam('specifyLayers')) {
     if ($.urlParam('dockDoors')) layersSelected.push(dockDoors);
 
     if ($.urlParam('stagingAreas')) layersSelected.push(stagingAreas);
+    if ($.urlParam('stagingBullpenAreas')) layersSelected.push(stagingBullpenAreas);
     if ($.urlParam('viewPorts')) layersSelected.push(viewPortsAreas);
     if ($.urlParam('ebrAreas')) layersSelected.push(ebrAreas);
     if ($.urlParam('exitAreas')) layersSelected.push(exitAreas);
@@ -64,11 +72,26 @@ if ($.urlParam('specifyLayers')) {
 else {
     layersSelected = [mainfloor,
         polygonMachine,
-        piv_vehicles, agv_vehicles, agvLocations, container, stagingAreas, tagsMarkersGroup, dockDoors, binzonepoly
+        piv_vehicles, agv_vehicles, agvLocations, container, stagingAreas, stagingBullpenAreas, tagsMarkersGroup, dockDoors, binzonepoly
     ];
 
 }
 
+let mapView = {};
+function saveMapView() {
+    mapView.bounds = JSON.parse(JSON.stringify(map.getBounds()));
+    mapView.zoom = map.getZoom() + 0;
+}
+
+function restoreMapView() {
+    if (mapView.bounds) {
+        let centerLat = (mapView.bounds._southWest.lat + mapView.bounds._northEast.lat) / 2;
+        let centerLng = (mapView.bounds._southWest.lng + mapView.bounds._northEast.lng) / 2;
+        let center = [centerLat, centerLng];
+       map.setView(center, mapView.zoom);
+    }
+    mapView = {};
+}
 //setup map
 map = L.map('map', {
     crs: L.CRS.Simple,
@@ -84,9 +107,11 @@ map = L.map('map', {
     layers: layersSelected
 });
 
+let layerCheckboxIds = [];
 function setLayerCheckboxId(thisCheckBox, innerHTML) {
     let name = innerHTML.replace(/ /g, '');
     thisCheckBox.id = name;
+    layerCheckboxIds.push(thisCheckBox.id);
 }
 function assignIdsToLayerCheckboxes() {
     var leafletSelectors
@@ -101,6 +126,7 @@ function assignIdsToLayerCheckboxes() {
         }
     }
 }
+
 map.on('baselayerchange', function (e) {
     baselayerid = e.layer.options.id;
     console.log(baselayerid);
@@ -132,6 +158,7 @@ map.on('baselayerchange', function (e) {
         setLayerCheckUncheckEvents();
         checkViewportLoad();
     });
+
 });
 function setLayerCheckUncheckEvents() {
     $("#MPESparklines").click(function () {
@@ -217,6 +244,7 @@ L.easyButton({
         icon: '<div id="viewportsToggle" data-toggle="popover"><i class="pi-iconViewport align-self-center" title="Viewports"></i></div>'
     }]
 }).addTo(map);
+
 // Add Layer Control Button
 L.easyButton({
     position: 'bottomright',
@@ -225,6 +253,9 @@ L.easyButton({
         icon: '<div id="layersToggle" data-toggle="layerPopover"><i class="pi-iconLayer align-self-center" title="Layer Controls"></i></div>'
     }]
 }).addTo(map);
+
+greyedOutRectangle.addTo(map);
+setGreyedOut();
 //Full-screen button only for Chrome
 if (window.chrome) {
     var fullscreentoggle = L.easyButton({
