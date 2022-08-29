@@ -89,6 +89,7 @@ function init_geometry_editing() {
             $('<option/>').val("Machine").html("Machine Zone").appendTo('select[id=zone_type]');
             $('<option/>').val("Bullpen").html("Staging Bullpen Zone").appendTo('select[id=zone_type]');
             $('<option/>').val("ViewPorts").html("View Ports").appendTo('select[id=zone_type]');
+            $('<option/>').val("Bullpen").html("Bullpen Zone").appendTo('select[id=zone_type]');
             CreateZone(e);
             sidebar.open('home');
         }

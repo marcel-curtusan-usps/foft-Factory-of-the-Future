@@ -8,22 +8,14 @@ let greyedOut = false;
 
 let polygonMachineZIndex = null;
 
-function greyOutBG() {
-    /*
-    if (dockdoorloaddata.length > 0) {
-        var greyOut = false;
-        for (const dat of dockdoorloaddata) {
+function greyOutBGCheck() {
+   
 
-            if (checkZone(dat.zone_id)) {
-                greyOut = true;
-            }
-        }
-    }
-    */
-
+    if (!$("#sidebar").hasClass("collapsed")) {
         var obj = new L.Evented();
         obj.once('greyout', greyOutBGOnce);
         obj.fire('greyout');
+    }
 }
 function greyOutBGOnce() {
     greyedOut = true;
@@ -81,8 +73,8 @@ function addBullpenNotFoundIcon(zoneName) {
         }
     });
 }
+
 function setGreyedOut() {
-    var z = 0;
     if (greyedOut) {
         updateGreyedOut = true;
         if (checkboxStateBeforeGreyOut === null) {
@@ -106,13 +98,10 @@ function setGreyedOut() {
         popZonesToBack();
         greyedOutRectangle.bringToFront();
         if (dockdoorloaddata.length > 0) {
-            console.log(JSON.stringify(dockdoorloaddata));
             for (var dat of dockdoorloaddata) {
                 if (dat.constainerStatus !== "Loaded") {
-                    console.log(dat.location);
                     let foundZone = popZone(dat.location, "front");
                     if (!foundZone) {
-                        console.log("!foundzone");
                         addBullpenNotFoundIcon(dat.location);
                     }
                 }
@@ -182,9 +171,9 @@ function popZone(zoneName, frontOrBack) {
                     if (!layer.options.lastOpacity) {
                         layer.options.lastOpacity = layer.options.fillOpacity + 0;
                     }
-                    var tooltip = layer.getTooltip();
-                    layer.lastTooltipOpacity = tooltip.opacity + 0;
-                    tooltip.setOpacity(1);
+                    var tooltip1 = layer.getTooltip();
+                    layer.lastTooltipOpacity = tooltip1.opacity + 0;
+                    tooltip1.setOpacity(1);
                     style.fillOpacity = 1;
                     style.fillColor = "#ffffff"
                     layer.setStyle(style);
@@ -193,10 +182,10 @@ function popZone(zoneName, frontOrBack) {
                 }
                 else {
 
-                    var tooltip = layer.getTooltip();
+                    var tooltip2 = layer.getTooltip();
                     let style = layer.options.style;
-                    layer.lastTooltipOpacity = tooltip.opacity + 0;
-                    tooltip.setOpacity(0.2);
+                    layer.lastTooltipOpacity = tooltip2.opacity + 0;
+                    tooltip2.setOpacity(0.2);
                     style.fillOpacity = layer.options.lastOpacity + 0;
                     layer.setStyle(style);
                     layer.bringToBack();
@@ -220,6 +209,7 @@ async function updateDockDoorZone(dockdoorzoneupdate) {
                         if (layer.feature.properties.id === dockdoorzoneupdate.properties.id) {
                             layer.feature.properties = dockdoorzoneupdate.properties;
                             layerindex = layer._leaflet_id;
+                            layer.setTooltipContent(dockdoorzoneupdate.properties.doorNumber.toString() + (dockdoorzoneupdate.properties.dockdoorData.tripDirectionInd !== "" ? "-" + feature.properties.dockdoorData.tripDirectionInd : ""));
                             return false;
                         }
                     }
@@ -255,13 +245,11 @@ function zoneStatusClose(closeSidebar) {
 
 addToSidebarListenCollection(document.getElementById("sidebar"));
 document.getElementById("sidebar").addEventListener("sidebarclose", () => {
-    console.log("sidebarclose");
     zoneStatusClose(false);
 
 });
 
 document.addEventListener("layerscontentvisible", () => {
-    console.log("layerscontentvisible");
     zoneStatusClose(true);
     
 });
@@ -365,7 +353,7 @@ var dockDoors = new L.GeoJSON(null, {
             }
             LoadDockDoorTable(feature.properties);
         })
-        layer.bindTooltip(feature.properties.doorNumber.toString(), {
+        layer.bindTooltip(feature.properties.doorNumber.toString() + (feature.properties.dockdoorData.tripDirectionInd !== "" ? "-" + feature.properties.dockdoorData.tripDirectionInd : ""), {
             permanent: true,
             interactive: true,
             direction: 'center',
@@ -552,12 +540,7 @@ async function LoadDockDoorTable(dataproperties) {
                     value: checkValue(dataproperties.dockdoorData.loadPercent) ? dataproperties.dockdoorData.loadPercent : 0
                 })
             }
-        //if (dataproperties.dockdoorData.supplier !== null) {
-        //        tempdata.push({
-        //            name: "Mailer",
-        //            value: checkValue(dataproperties.dockdoorData.supplier) ? dataproperties.dockdoorData.supplier : 0
-        //        })
-        //    }
+       
             if (dataproperties.dockdoorData.tripDirectionInd !== "") {
                 tempdata.push({
                     name: "Direction",
@@ -634,8 +617,7 @@ async function LoadDockDoorTable(dataproperties) {
                     });
                     dockdoorloaddata = JSON.parse(JSON.stringify(loaddata));
                    
-                    
-                    greyOutBG();
+                    greyOutBGCheck();
 
                     $('button[name=container_counts]').text(loadedcount + "/" + unloadedcount);
                 }
@@ -643,7 +625,7 @@ async function LoadDockDoorTable(dataproperties) {
                     $('button[name=container_counts]').text(0 + "/" + 0);
                     container_Table_Body.empty();
 
-                    greyOutBG();
+                    greyOutBGCheck();
                 }
                 //});
 
@@ -652,7 +634,7 @@ async function LoadDockDoorTable(dataproperties) {
                 $('button[name=container_counts]').text(0 + "/" + 0);
                 container_Table_Body.empty();
 
-                greyOutBG();
+                greyOutBGCheck();
             }
 
             if (loadtriphisory) {
@@ -666,7 +648,7 @@ async function LoadDockDoorTable(dataproperties) {
             $.each(tempdata, function () {
                 dockdoortop_Table_Body.append(dockdoortop_row_template.supplant(formatdockdoortoprow(this, dataproperties.id)));
             });
-            greyOutBG();
+            greyOutBGCheck();
         }
     }
     catch (e) {
@@ -688,7 +670,10 @@ async function LoadDoorDetails(door) {
     }
 }
 function SortByind(a, b) {
-    return a.sortind < b.sortind ? -1 : a.sortind > b.sortind ? 1 : 0;
+    // sonar lint doesn't like nested ternary operations, 
+    // so this has been updated to two lines of code.
+    if (a.sortind < b.sortind) return -1;
+    return ((a.sortind > b.sortind) ? 1 : 0);
 }
 
 async function removeDockDoor(id)

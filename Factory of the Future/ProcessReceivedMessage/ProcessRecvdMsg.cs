@@ -564,10 +564,13 @@ namespace Factory_of_the_Future
         }
         private static void SVZones(dynamic data, string conID)
         {
+            Connection thisConnection = null;
             try
             {
+                thisConnection = AppParameters.ConnectionList[conID];
                 if (data != null)
                 {
+                    thisConnection.ApiConnected = true;
                     JToken tempData = JToken.Parse(data);
                     if (tempData != null && tempData.HasValues)
                     {
@@ -587,10 +590,18 @@ namespace Factory_of_the_Future
                         }
                     }
                 }
+                else
+                {
+                    thisConnection.ApiConnected = false;
+                }
             }
 
             catch (Exception e)
             {
+                if (thisConnection != null)
+                {
+                    thisConnection.ApiConnected = false;
+                }
                 Task.Run(() => updateConnection(conID, "error"));
                 new ErrorLogger().ExceptionLog(e);
             }

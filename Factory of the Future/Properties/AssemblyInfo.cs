@@ -11,7 +11,7 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyCompany("USPS")]
 [assembly: AssemblyProduct("Factory_of_the_Future")]
 [assembly: AssemblyCopyright("Copyright ©  2021")]
-[assembly: AssemblyTrademark("Marcel Curtusan")]
+[assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
 // Setting ComVisible to false makes the types in this assembly not visible 
@@ -31,5 +31,5 @@ using System.Runtime.InteropServices;
 //
 // You can specify all the values or you can default the Revision and Build Numbers 
 // by using the '*' as shown below:
-[assembly: AssemblyVersion("1.0.0.65")]
-[assembly: AssemblyFileVersion("1.0.0.65")]
+[assembly: AssemblyVersion("1.0.0.68")]
+[assembly: AssemblyFileVersion("1.0.0.68")]
