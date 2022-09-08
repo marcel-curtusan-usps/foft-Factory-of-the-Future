@@ -498,7 +498,7 @@ let trip_row_template =
             '<div class="collapse" id="collapse_{id}">' +
             '<div class="mt-1">' +
             '<ol class="pl-4 mb-0">' +
-            '<p class="pb-1">{warning_action_text}</p> ' +
+            '<p class="pb-1 text-wrap">{warning_action_text}</p> ' +
             '</ol>' +
             '</div>' +
             '</div>' +
@@ -570,7 +570,7 @@ let dockdoormissingclosedtable_row_template = '<tr data-id={id} style=background
     '<div class="collapse" id="collapse_{id}">' +
     '<div class="mt-1">' +
     '<ol class="pl-4 mb-0">' +
-    '<p class="pb-1">{action_text}</p> ' +
+    '<p class="pb-1 text-wrap">{action_text}</p> ' +
     '</ol>' +
     '</div>' +
     '</div>' +
@@ -611,7 +611,7 @@ let dockdoorloadafterdeparttable_row_template = '<tr data-id={id} style=backgrou
     '<div class="mt-1">' +
     '<ol class="pl-4 mb-0">' +
     '<p class="pb-1">Placard: {placard}</br>Load Scan: {loadscan}</br>Trailer: {trailer}</br>Depart Scan: {departscan}</p> ' +
-    '<p class="pb-1">{action_text}</p> ' +
+    '<p class="pb-1 text-wrap">{action_text}</p> ' +
     '</ol>' +
     '</div>' +
     '</div>' +
