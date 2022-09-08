@@ -2458,7 +2458,7 @@ namespace Factory_of_the_Future
                                     {
                                         AppParameters.AppSettings[item.Key] = AppParameters.Encrypt(kv.Value.ToString());
                                     }
-                                    if (kv.Name == "FACILITY_NASS_CODE")
+                                    else if (kv.Name == "FACILITY_NASS_CODE")
                                     {
                                         if (GetData.Get_Site_Info((string)kv.Value, out JObject SiteInfo))
                                         {
