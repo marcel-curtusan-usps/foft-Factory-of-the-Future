@@ -487,6 +487,11 @@ namespace Factory_of_the_Future
           
         }
 
+        internal string GetFacilityTimeZone()
+        {
+            return AppParameters.AppSettings["FACILITY_TIMEZONE"].ToString();
+        }
+
         internal GeoMarker RemoveMarker(string data)
         {
             try
@@ -1210,7 +1215,7 @@ namespace Factory_of_the_Future
                        noteification_id = conditions.Id + trip.RouteTripId + trip.RouteTripLegId + trip.TripDirectionInd;
 
                        Notification newNotifi = JsonConvert.DeserializeObject<Notification>(JsonConvert.SerializeObject(conditions, Formatting.None));
-                       newNotifi.Type_ID = trip.RouteTripId + trip.RouteTripLegId + trip.TripDirectionInd;
+                       newNotifi.Type_ID = trip.RouteTripId.ToString() + trip.RouteTripLegId.ToString() + trip.TripDirectionInd;
                        newNotifi.Type_Name = trip.Route + "-" + trip.Trip + "|" + trip.LegSiteName + "|" + trip.DoorNumber;
                        newNotifi.Type_Duration = trip.TripMin;
                        newNotifi.Type_Status = trip.State;
