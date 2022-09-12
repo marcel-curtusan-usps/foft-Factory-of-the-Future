@@ -301,6 +301,9 @@ async function updateDockDoorTables(updatenotification) {
     if (updatenotification.Name === "Missing Assigned Scan") {
         updatemissingassignedscantable(updatenotification);
     }
+    if (updatenotification.Name === "Missing Arrived Scan") {
+        updatemissingarrivedscantable(updatenotification);
+    }
     return null;
 }
 async function updatemissingassignedscantable(updatenotification) {
@@ -327,9 +330,6 @@ async function updatemissingassignedscantable(updatenotification) {
     }
     catch (e) {
         console.log(e);
-    }
-    if (updatenotification.Name === "Missing Arrived Scan") {
-        updatemissingarrivedscantable(updatenotification);
     }
     return null;
 }
