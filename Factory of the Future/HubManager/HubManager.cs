@@ -164,12 +164,20 @@ namespace Factory_of_the_Future
         {
             return _managerHub.GetDockDoorList();
         }
+        /// <summary>
+        /// Get SV Zones
+        /// </summary>
+        /// <returns></returns>
 
+        public IEnumerable<string> GetSVZoneNameList()
+        {
+            return _managerHub.GetSVZoneNameList();
+        }
         /// <summary>
         /// Get Machine Zones
         /// </summary>
         /// <returns></returns>
-      
+
         public IEnumerable<string> GetMPEList()
         {
             return _managerHub.GetMPEList();
@@ -234,6 +242,11 @@ namespace Factory_of_the_Future
         {
           return _managerHub.GetTimeZone();
             
+        }
+
+        public string GetFacilityTimeZone()
+        {
+            return _managerHub.GetFacilityTimeZone();
         }
         /// <summary>
         /// this is to handle connection after the App has started.

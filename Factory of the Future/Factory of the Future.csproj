@@ -284,6 +284,7 @@
     <Content Include="Default.html" />
     <Content Include="favicon.ico" />
     <Content Include="Global.asax" />
+    <Content Include="Default.aspx" />
     <Content Include="OracleQuery\Get_Tag_Dwell_Query.txt" />
     <Content Include="OracleQuery\Oracle.ManagedDataAccess.dll" />
     <Content Include="OracleQuery\UserSessionIN_Query.txt" />
@@ -459,8 +460,10 @@
     <Content Include="Scripts\View\agvlocation_zone.js" />
     <Content Include="Scripts\View\application_setting.js" />
     <Content Include="Scripts\View\bin_zone.js" />
+    <Content Include="Scripts\View\eventListener.js" />
     <Content Include="Scripts\View\indoorMap.js" />
     <Content Include="Scripts\View\machine_sparkline.js" />
+    <Content Include="Scripts\View\staging_bullpen.js" />
     <Content Include="Scripts\View\tag_search.js" />
     <Content Include="Scripts\View\trips.js" />
     <Content Include="Scripts\View\camera_video.js" />
@@ -514,6 +517,13 @@
     <Compile Include="HubManager\ConnectionMapping.cs" />
     <Compile Include="HubManager\HubManager.cs" />
     <Compile Include="HubManager\FOTFManager.cs" />
+    <Compile Include="Default.aspx.cs">
+      <DependentUpon>Default.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Default.aspx.designer.cs">
+      <DependentUpon>Default.aspx</DependentUpon>
+    </Compile>
     <Compile Include="Utilities\Graphics.cs" />
     <Compile Include="Utilities\ItineraryTrip_Update.cs" />
     <Compile Include="UDP_Listener\UdpServer.cs" />

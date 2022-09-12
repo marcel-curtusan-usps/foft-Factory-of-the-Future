@@ -20,7 +20,7 @@ using System.Drawing;
 
 namespace Factory_of_the_Future
 {
-  
+
     public class FOTFManager : IDisposable
     {
         private readonly static Lazy<FOTFManager> _instance = new Lazy<FOTFManager>(() => new FOTFManager(GlobalHost.ConnectionManager.GetHubContext<HubManager>().Clients));
@@ -38,7 +38,8 @@ namespace Factory_of_the_Future
         private readonly object updateNotificationStatuslock = new object();
         private readonly object updateBinZoneStatuslock = new object();
         private readonly object updateCameralock = new object();
-        
+        private readonly object updateSVZoneLock = new object();
+
         //timers
         private readonly Timer VehicleTag_timer;
         private readonly Timer PersonTag_timer;
@@ -51,6 +52,7 @@ namespace Factory_of_the_Future
         private readonly Timer Notification_timer;
         private readonly Timer BinZone_timer;
         private readonly Timer Camera_timer;
+        private readonly Timer SVZone_timer;
         //status
         private volatile bool _updatePersonTagStatus = false;
         private volatile bool _updateZoneStatus = false;
@@ -63,6 +65,7 @@ namespace Factory_of_the_Future
         private volatile bool _updateNotificationstatus = false;
         private volatile bool _updateBinZoneStatus = false;
         private volatile bool _updateCameraStatus = false;
+        private volatile bool _updateSVZone = false;
         private bool disposedValue;
 
         //250 Milliseconds
@@ -77,6 +80,7 @@ namespace Factory_of_the_Future
         private readonly TimeSpan _10000updateInterval = TimeSpan.FromMilliseconds(10000);
         //60 seconds
         private readonly TimeSpan _60000updateInterval = TimeSpan.FromMilliseconds(60000);
+
 
         //init timers
         private FOTFManager(IHubConnectionContext<dynamic> clients)
@@ -99,9 +103,9 @@ namespace Factory_of_the_Future
             QSM_timer = new Timer(UpdateQSM, null, _250updateInterval, _250updateInterval);
             //Camera update;
             Camera_timer = new Timer(UpdateCameraImages, null, _10000updateInterval, _60000updateInterval);
-
+            SVZone_timer = new Timer(UpdateSVZones, null, _250updateInterval, _30000updateInterval);
         }
-    public static FOTFManager Instance
+        public static FOTFManager Instance
         {
             get { return _instance.Value; }
         }
@@ -128,7 +132,7 @@ namespace Factory_of_the_Future
         {
             try
             {
-               
+
                 GeoZone newtempgZone = JsonConvert.DeserializeObject<GeoZone>(data);
                 newtempgZone.Properties.Id = Guid.NewGuid().ToString();
                 newtempgZone.Properties.RawData = "";
@@ -187,7 +191,19 @@ namespace Factory_of_the_Future
             }
         }
 
-
+        internal IEnumerable<string> GetSVZoneNameList()
+        {
+            try
+            {
+                return AppParameters.SVZoneNameList.
+                    Select(y => y.Value).ToList();
+            }
+            catch (Exception e)
+            {
+                new ErrorLogger().ExceptionLog(e);
+                return null;
+            }
+        }
         internal IEnumerable<string> GetDockDoorList()
         {
             try
@@ -227,6 +243,41 @@ namespace Factory_of_the_Future
         //    }
         //}
 
+
+
+        public void UpdateSVZones(object state)
+        {
+            try
+            {
+                lock (updateSVZoneLock)
+                {
+                    _updateSVZone = true;
+                    foreach (CoordinateSystem cs in AppParameters.CoordinateSystem.Values)
+                    {
+                        cs.Zones.Where(f => f.Value.Properties.ZoneType == "SV"
+                        && f.Value.Properties.ZoneUpdate
+                        && f.Value.Properties.Visible).Select(y => y.Value).ToList().ForEach(SV =>
+                        {
+                            if (TryUpdateSVZoneStatus(SV))
+                            {
+                                BroadcastSVZoneStatus(SV, cs.Id);
+                            }
+
+                        });
+                    }
+
+                    _updateSVZone = false;
+                }
+            }
+
+            catch (Exception e)
+            {
+                new ErrorLogger().ExceptionLog(e);
+
+                _updateSVZone = false;
+            }
+        }
+
         public void UpdateCameraImages(object state)
         {
             try
@@ -244,27 +295,27 @@ namespace Factory_of_the_Future
                             {
                                 if (TryUpdateCameraStatus(Camera))
                                 {
-                                        if (AppParameters.CameraInfoList[Camera.Properties.Name].Alerts == null)
-                                        {
-                                            Camera.Properties.DarvisAlerts = new List<DarvisCameraAlert>();
-                                        }
-                                        else
-                                        {
-                                            Camera.Properties.DarvisAlerts = AppParameters.CameraInfoList[Camera.Properties.Name].Alerts.ToList();
-                                        }
-                                        Tuple<GeoMarker, string> newData = new Tuple<GeoMarker, string>(Camera, cs.Id);
-                                        camerasToBroadcast.Add(newData);
-                                    
+                                    if (AppParameters.CameraInfoList[Camera.Properties.Name].Alerts == null)
+                                    {
+                                        Camera.Properties.DarvisAlerts = new List<DarvisCameraAlert>();
+                                    }
+                                    else
+                                    {
+                                        Camera.Properties.DarvisAlerts = AppParameters.CameraInfoList[Camera.Properties.Name].Alerts.ToList();
+                                    }
+                                    Tuple<GeoMarker, string> newData = new Tuple<GeoMarker, string>(Camera, cs.Id);
+                                    camerasToBroadcast.Add(newData);
+
                                 }
 
                             });
                         }
-                       
+
                         BroadcastCameraStatus(camerasToBroadcast);
                         _updateCameraStatus = false;
                     }
                 }
-               // UpdateCameraImages();
+                // UpdateCameraImages();
             }
             catch (Exception e)
             {
@@ -272,7 +323,7 @@ namespace Factory_of_the_Future
 
                 _updateCameraStatus = false;
             }
-          
+
         }
 
         public void BroadcastCameraStatus(List<Tuple<GeoMarker, string>> broadcastData)
@@ -397,7 +448,7 @@ namespace Factory_of_the_Future
                     newtempgMarker.Properties.EmpName = Camera.Description;
                     newtempgMarker.Properties.Emptype = Camera.ModelNum;
                     newtempgMarker.Properties.CameraData = Camera;
-                  
+
                 }
 
                 if (AppParameters.CoordinateSystem.ContainsKey(newtempgMarker.Properties.FloorId))
@@ -433,7 +484,12 @@ namespace Factory_of_the_Future
                 new ErrorLogger().ExceptionLog(e);
                 return null;
             }
-          
+
+        }
+
+        internal string GetFacilityTimeZone()
+        {
+            return AppParameters.AppSettings["FACILITY_TIMEZONE"].ToString();
         }
 
         internal GeoMarker RemoveMarker(string data)
@@ -507,7 +563,7 @@ namespace Factory_of_the_Future
                         }
                     }
                 }
-                
+
                 return ZoneInfo;
             }
             catch (Exception e)
@@ -517,7 +573,7 @@ namespace Factory_of_the_Future
             }
         }
 
-        
+
         internal IEnumerable<Notification> GetNotification(string data)
         {
             try
@@ -600,7 +656,7 @@ namespace Factory_of_the_Future
                 }
 
                 notification.Notification_Update = false;
-             
+
                 if (notification.Delete)
                 {
                     if (AppParameters.NotificationList.TryRemove(notification.Notification_ID, out Notification notifi))
@@ -609,7 +665,7 @@ namespace Factory_of_the_Future
                     }
                 }
                 int duration = AppParameters.Get_NotificationTTL(notification.Type_Time, DateTime.Now);
-                
+
                 if (duration > notification.Type_Duration)
                 {
                     notification.Type_Duration = duration;
@@ -748,7 +804,7 @@ namespace Factory_of_the_Future
                                     //    }
                                     //    item.Merge(updatenotification, new JsonMergeSettings { MergeArrayHandling = MergeArrayHandling.Union });
                                     //}
-                                   new FileIO().Write(string.Concat(AppParameters.CodeBase.Parent.FullName.ToString(), AppParameters.Appsetting), "Notification.json", JsonConvert.SerializeObject(AppParameters.NotificationConditionsList.Select(x => x.Value).ToList(), Formatting.Indented));
+                                    new FileIO().Write(string.Concat(AppParameters.CodeBase.Parent.FullName.ToString(), AppParameters.Appsetting), "Notification.json", JsonConvert.SerializeObject(AppParameters.NotificationConditionsList.Select(x => x.Value).ToList(), Formatting.Indented));
                                 }
                             }
                         }
@@ -874,7 +930,7 @@ namespace Factory_of_the_Future
                 if (!_updateZoneStatus)
                 {
                     _updateZoneStatus = true;
-                   
+
                     foreach (CoordinateSystem cs in AppParameters.CoordinateSystem.Values)
                     {
                         cs.Zones.Where(f => f.Value.Properties.ZoneType == "Area"
@@ -894,7 +950,7 @@ namespace Factory_of_the_Future
             }
         }
 
-        private void BroadcastZoneStatus(GeoZone zoneitem, string id )
+        private void BroadcastZoneStatus(GeoZone zoneitem, string id)
         {
             Clients.Group("Zones").updateZoneStatus(zoneitem, id);
         }
@@ -931,9 +987,26 @@ namespace Factory_of_the_Future
 
                         });
                     }
-                  
+
                     _updateBinZoneStatus = false;
                 }
+            }
+        }
+
+
+        private bool TryUpdateSVZoneStatus(GeoZone svZone)
+        {
+            try
+            {
+
+                svZone.Properties.ZoneUpdate = false;
+                return true;
+
+            }
+            catch (Exception e)
+            {
+                new ErrorLogger().ExceptionLog(e);
+                return false;
             }
         }
 
@@ -958,6 +1031,10 @@ namespace Factory_of_the_Future
             Clients.Group("BinZones").updateBinZoneStatus(binZone, id);
         }
 
+        private void BroadcastSVZoneStatus(GeoZone svZone, string id)
+        {
+            Clients.Group("SVZones").updateSVZoneStatus(svZone, id);
+        }
         private void UpdateSVTripsStatus(object state)
         {
             lock (updateSVTripsStatuslock)
@@ -1051,7 +1128,7 @@ namespace Factory_of_the_Future
             IEnumerable<Container> AllContainer = null;
             try
             {
-                
+
 
                 IEnumerable<Container> TripContainer = AppParameters.Containers.Where(r => !string.IsNullOrEmpty(r.Value.Dest)
                && Regex.IsMatch(r.Value.Dest, destSites, RegexOptions.IgnoreCase)
@@ -1099,7 +1176,7 @@ namespace Factory_of_the_Future
                 new ErrorLogger().ExceptionLog(e);
                 return null;
             }
-            finally 
+            finally
             {
                 AllContainer = null;
             }
@@ -1138,7 +1215,7 @@ namespace Factory_of_the_Future
                        noteification_id = conditions.Id + trip.RouteTripId + trip.RouteTripLegId + trip.TripDirectionInd;
 
                        Notification newNotifi = JsonConvert.DeserializeObject<Notification>(JsonConvert.SerializeObject(conditions, Formatting.None));
-                       newNotifi.Type_ID = trip.RouteTripId + trip.RouteTripLegId + trip.TripDirectionInd;
+                       newNotifi.Type_ID = trip.RouteTripId.ToString() + trip.RouteTripLegId.ToString() + trip.TripDirectionInd;
                        newNotifi.Type_Name = trip.Route + "-" + trip.Trip + "|" + trip.LegSiteName + "|" + trip.DoorNumber;
                        newNotifi.Type_Duration = trip.TripMin;
                        newNotifi.Type_Status = trip.State;
@@ -1494,14 +1571,14 @@ namespace Factory_of_the_Future
 
                                 machineStatuses.Add(new Tuple<GeoZone, string>(Machine, cs.Id));
                             }
-                     
+
                         });
                     }
                     if (machineStatuses.Count > 0)
                     {
                         BroadcastMachineStatus(machineStatuses);
                     }
-                   
+
                     _updateMachineStatus = false;
                 }
             }
@@ -1599,14 +1676,14 @@ namespace Factory_of_the_Future
         private void BroadcastMachineStatus(List<Tuple<GeoZone, string>> machineStatuses)
         {
             Clients.Group("MachineZones").updateMachineStatus(machineStatuses);
-            
+
         }
 
         internal IEnumerable<CoordinateSystem> GetIndoorMapFloor(string id)
         {
             try
             {
-                return AppParameters.CoordinateSystem.Where(r => r.Key == id ).Select(y => y.Value).ToList();
+                return AppParameters.CoordinateSystem.Where(r => r.Key == id).Select(y => y.Value).ToList();
             }
             catch (Exception e)
             {
@@ -1621,8 +1698,8 @@ namespace Factory_of_the_Future
                 if (AppParameters.CoordinateSystem.Keys.Count == 0)
                 {
                     ConcurrentDictionary<string, CoordinateSystem> CoordinateSystem = new ConcurrentDictionary<string, CoordinateSystem>();
-                 
-                   CoordinateSystem temp = new CoordinateSystem
+
+                    CoordinateSystem temp = new CoordinateSystem
                     {
                         Id = "temp",
                         BackgroundImage = new BackgroundImage
@@ -1635,7 +1712,7 @@ namespace Factory_of_the_Future
                         }
                     };
                     CoordinateSystem.TryAdd(temp.Id, temp);
-                    return CoordinateSystem.Select(y => y.Value).ToList();   
+                    return CoordinateSystem.Select(y => y.Value).ToList();
                 }
                 return AppParameters.CoordinateSystem.Select(y => y.Value).ToList();
             }
@@ -1645,7 +1722,7 @@ namespace Factory_of_the_Future
                 return null;
             }
         }
-      
+
         internal IEnumerable<Cameras> GetCameraList()
         {
             try
@@ -1933,7 +2010,7 @@ namespace Factory_of_the_Future
                     _updateDockDoorStatus = true;
                     foreach (CoordinateSystem cs in AppParameters.CoordinateSystem.Values)
                     {
-                        cs.Zones.Where(f => f.Value.Properties.ZoneType == "DockDoor" 
+                        cs.Zones.Where(f => f.Value.Properties.ZoneType == "DockDoor"
                         && f.Value.Properties.ZoneUpdate
                         && f.Value.Properties.Visible
                         ).Select(y => y.Value).ToList().ForEach(DockDoor =>
@@ -1951,7 +2028,7 @@ namespace Factory_of_the_Future
 
         private void BroadcastDockDoorStatus(GeoZone dockDoor, string id)
         {
-            Clients.Group("DockDoorZones").updateDockDoorStatus(dockDoor,id);
+            Clients.Group("DockDoorZones").updateDockDoorStatus(dockDoor, id);
         }
 
         private bool TryUpdateDockDoorStatus(GeoZone dockDoor)
@@ -2004,7 +2081,7 @@ namespace Factory_of_the_Future
             Clients.Group("VehiclsMarkers").updateVehicleTagStatus(marker, id);
         }
 
-        
+
         private void UpdatePersonTagStatus(object state)
         {
             lock (updatePersonTagStatuslock)
@@ -2071,10 +2148,10 @@ namespace Factory_of_the_Future
                 return false;
             }
         }
-       
+
         private void BroadcastPersonTagStatus(GeoMarker Marker, string id)
         {
-            Clients.Group("PeopleMarkers").updatePersonTagStatus(Marker,id);
+            Clients.Group("PeopleMarkers").updatePersonTagStatus(Marker, id);
         }
         internal IEnumerable<Connection> GetAPIList(string id)
         {
@@ -2155,58 +2232,58 @@ namespace Factory_of_the_Future
                     if (AppParameters.ConnectionList.ContainsKey(updateConndata.Id))
                     {
                         AppParameters.ConnectionList.AddOrUpdate(updateConndata.Id, updateConndata, (key, oldConndata) =>
-                         {
-                             fileUpdate = true;
-                             updateConndata.CreatedByUsername = oldConndata.CreatedByUsername;
-                             updateConndata.CreatedDate = oldConndata.CreatedDate;
-                             updateConndata.ApiConnected = oldConndata.ApiConnected;
+                        {
+                            fileUpdate = true;
+                            updateConndata.CreatedByUsername = oldConndata.CreatedByUsername;
+                            updateConndata.CreatedDate = oldConndata.CreatedDate;
+                            updateConndata.ApiConnected = oldConndata.ApiConnected;
 
-                             updateConndata.UpdateStatus = true;
-                             foreach (Api_Connection Connection_item in AppParameters.RunningConnection.Connection)
-                             {
-                                 if (Connection_item.ID == updateConndata.Id)
-                                 {
-                                     if (!updateConndata.ActiveConnection)
-                                     {
-                                         if (updateConndata.UdpConnection)
-                                         {
-                                             Connection_item._StopUDPListener();
-                                         }
-                                         else if (updateConndata.WsConnection)
-                                         {
-                                             Connection_item.WSStop();
-                                         }
-                                         else
-                                         {
-                                             Connection_item.ConstantRefresh = false;
-                                             Connection_item.Stop();
-                                         }
+                            updateConndata.UpdateStatus = true;
+                            foreach (Api_Connection Connection_item in AppParameters.RunningConnection.Connection)
+                            {
+                                if (Connection_item.ID == updateConndata.Id)
+                                {
+                                    if (!updateConndata.ActiveConnection)
+                                    {
+                                        if (updateConndata.UdpConnection)
+                                        {
+                                            Connection_item._StopUDPListener();
+                                        }
+                                        else if (updateConndata.WsConnection)
+                                        {
+                                            Connection_item.WSStop();
+                                        }
+                                        else
+                                        {
+                                            Connection_item.ConstantRefresh = false;
+                                            Connection_item.Stop();
+                                        }
 
-                                     }
-                                     else if (updateConndata.ActiveConnection)
-                                     {
-                                         if (updateConndata.UdpConnection)
-                                         {
-                                             Connection_item._StartUDPListener();
-                                         }
-                                         else if (updateConndata.WsConnection)
-                                         {
-                                             Connection_item._WSThreadListener();
-                                         }
-                                         else
-                                         {
-                                             Connection_item.ConstantRefresh = true;
-                                             Connection_item._ThreadDownload();
-                                             Connection_item._ThreadRefresh();
-                                         }
-                                     }
+                                    }
+                                    else if (updateConndata.ActiveConnection)
+                                    {
+                                        if (updateConndata.UdpConnection)
+                                        {
+                                            Connection_item._StartUDPListener();
+                                        }
+                                        else if (updateConndata.WsConnection)
+                                        {
+                                            Connection_item._WSThreadListener();
+                                        }
+                                        else
+                                        {
+                                            Connection_item.ConstantRefresh = true;
+                                            Connection_item._ThreadDownload();
+                                            Connection_item._ThreadRefresh();
+                                        }
+                                    }
 
-                                     Connection_item.ConnectionInfo = updateConndata;
+                                    Connection_item.ConnectionInfo = updateConndata;
 
-                                 }
-                             }
-                             return updateConndata;
-                         });
+                                }
+                            }
+                            return updateConndata;
+                        });
                     }
                 }
 
@@ -2259,7 +2336,7 @@ namespace Factory_of_the_Future
                                         Connection_item.Stop_Delete();
                                         AppParameters.RunningConnection.Connection.Remove(Connection_item);
                                         new FileIO().Write(string.Concat(AppParameters.CodeBase.Parent.FullName.ToString(), AppParameters.Appsetting), "Connection.json", JsonConvert.SerializeObject(AppParameters.ConnectionList.Select(x => x.Value).ToList(), Formatting.Indented, new JsonSerializerSettings() { ContractResolver = new NullToEmptyStringResolver() }));
-                                       return AppParameters.ConnectionList.Select(e => e.Value).ToList();
+                                        return AppParameters.ConnectionList.Select(e => e.Value).ToList();
                                     }
                                 }
 
@@ -2297,7 +2374,7 @@ namespace Factory_of_the_Future
                         JObject objectdata = JObject.Parse(data);
                         if (objectdata.HasValues)
                         {
-                            if(objectdata.ContainsKey("floorId") && objectdata.ContainsKey("id"))
+                            if (objectdata.ContainsKey("floorId") && objectdata.ContainsKey("id"))
                             {
                                 floorID = objectdata["floorId"].ToString();
                                 id = objectdata["id"].ToString();
@@ -2321,10 +2398,10 @@ namespace Factory_of_the_Future
                                         }
 
                                     }
-                                   
+
                                 }
                             }
-                            
+
                         }
 
                     }
@@ -2334,7 +2411,7 @@ namespace Factory_of_the_Future
                 {
                     new FileIO().Write(string.Concat(AppParameters.Logdirpath, AppParameters.ConfigurationFloder), "Project_Data.json", AppParameters.ZoneOutPutdata(AppParameters.CoordinateSystem.Select(x => x.Value).ToList()));
                 }
-           
+
                 return AppParameters.CoordinateSystem[floorID].Zones.Where(w => w.Key == id).Select(s => s.Value).ToList();
             }
             catch (Exception e)
@@ -2465,56 +2542,56 @@ namespace Factory_of_the_Future
         {
             try
             {
-                if (Context.Request.Environment.TryGetValue("server.RemoteIpAddress", out object Ipaddress))
-                {
-                    AppParameters._connections.Add(Context.ConnectionId, Context.ConnectionId);
-                    bool firstTimeLogin = true;
-                    ADUser newuser = new ADUser
-                    {
-                        UserId = Regex.Replace(Context.User.Identity.Name, @"(USA\\|ENG\\)", "").Trim(),
-                        NASSCode = AppParameters.AppSettings["FACILITY_NASS_CODE"].ToString(),
-                        FDBID = AppParameters.AppSettings["FACILITY_ID"].ToString(),
-                        FacilityName = !string.IsNullOrEmpty(AppParameters.AppSettings["FACILITY_NAME"].ToString()) ? AppParameters.AppSettings["FACILITY_NAME"].ToString() : "Site Not Configured",
-                        FacilityTimeZone = AppParameters.AppSettings["FACILITY_TIMEZONE"].ToString(),
-                        AppType = AppParameters.AppSettings["APPLICATION_NAME"].ToString(),
-                        Domain = !string.IsNullOrEmpty(Context.User.Identity.Name) ? Context.User.Identity.Name.Split('\\')[0].ToLower() : "",
-                        SessionID = Context.ConnectionId,
-                        ConnectionId = Context.ConnectionId,
-                        LoginDate = DateTime.Now,
-                        Environment = AppParameters.ApplicationEnvironment,
-                        IsAuthenticated = Context.User.Identity.IsAuthenticated,
-                        SoftwareVersion = AppParameters.VersionInfo,
-                        //BrowserType = HttpContext.Current.Request.Browser.Type,
-                        //BrowserName = HttpContext.Current.Request.Browser.Browser,
-                        //BrowserVersion = HttpContext.Current.Request.Browser.Version,
-                        Role = GetUserRole(GetGroupNames(((WindowsIdentity)Context.User.Identity).Groups)),
-                        IpAddress = Ipaddress.ToString().StartsWith("::") ? "127.0.0.1" : Ipaddress.ToString(),
-                        ServerIpAddress = AppParameters.ServerIpAddress.ToString()
-                    };
-                    new FindACEUser().User(newuser, out newuser);
-                    AppParameters.Users.AddOrUpdate(newuser.UserId, newuser,
-                        (key, old_user) =>
-                        {
-                            //log out user 
-                            if (!string.IsNullOrEmpty(old_user.ConnectionId))
-                            {
-                                Task.Run(() => new User_Log().LogoutUser(old_user));
-                            }
-                            //log of user logging in.
-                            Task.Run(() => new User_Log().LoginUser(newuser));
-                            string data = string.Concat("Client has Connected | User Name:", newuser.UserId, "(", newuser.FirstName, " ", newuser.SurName, ")", " | Connection ID: ", newuser.ConnectionId);
-                            new ErrorLogger().CustomLog(data, string.Concat((string)AppParameters.AppSettings.Property("APPLICATION_NAME").Value, "_Applogs"));
-                            firstTimeLogin = false;
-                            return newuser;
-                        });
-                    if (firstTimeLogin)
-                    {
-                        string data = string.Concat("Client has Connected | User Name:", newuser.UserId, "(", newuser.FirstName, " ", newuser.SurName, ")", " | Connection ID: ", newuser.ConnectionId);
-                        new ErrorLogger().CustomLog(data, string.Concat((string)AppParameters.AppSettings.Property("APPLICATION_NAME").Value, "_Applogs"));
-                        Task.Run(() => new User_Log().LoginUser(newuser));
-                    }
+                //if (Context.Request.Environment.TryGetValue("server.RemoteIpAddress", out object Ipaddress))
+                //{
+                //    AppParameters._connections.Add(Context.ConnectionId, Context.ConnectionId);
+                //    bool firstTimeLogin = true;
+                //    ADUser newuser = new ADUser
+                //    {
+                //        UserId = Regex.Replace(Context.User.Identity.Name, @"(USA\\|ENG\\)", "").Trim(),
+                //        NASSCode = AppParameters.AppSettings["FACILITY_NASS_CODE"].ToString(),
+                //        FDBID = AppParameters.AppSettings["FACILITY_ID"].ToString(),
+                //        FacilityName = !string.IsNullOrEmpty(AppParameters.AppSettings["FACILITY_NAME"].ToString()) ? AppParameters.AppSettings["FACILITY_NAME"].ToString() : "Site Not Configured",
+                //        FacilityTimeZone = AppParameters.AppSettings["FACILITY_TIMEZONE"].ToString(),
+                //        AppType = AppParameters.AppSettings["APPLICATION_NAME"].ToString(),
+                //        Domain = !string.IsNullOrEmpty(Context.User.Identity.Name) ? Context.User.Identity.Name.Split('\\')[0].ToLower() : "",
+                //        SessionID = Context.ConnectionId,
+                //        ConnectionId = Context.ConnectionId,
+                //        LoginDate = DateTime.Now,
+                //        Environment = AppParameters.ApplicationEnvironment,
+                //        IsAuthenticated = Context.User.Identity.IsAuthenticated,
+                //        SoftwareVersion = AppParameters.VersionInfo,
+                //        //BrowserType = HttpContext.Current.Request.Browser.Type,
+                //        //BrowserName = HttpContext.Current.Request.Browser.Browser,
+                //        //BrowserVersion = HttpContext.Current.Request.Browser.Version,
+                //        Role = GetUserRole(GetGroupNames(((WindowsIdentity)Context.User.Identity).Groups)),
+                //        IpAddress = Ipaddress.ToString().StartsWith("::") ? "127.0.0.1" : Ipaddress.ToString(),
+                //        ServerIpAddress = AppParameters.ServerIpAddress.ToString()
+                //    };
+                //    new FindACEUser().User(newuser, out newuser);
+                //    AppParameters.Users.AddOrUpdate(newuser.UserId, newuser,
+                //        (key, old_user) =>
+                //        {
+                //            //log out user 
+                //            if (!string.IsNullOrEmpty(old_user.ConnectionId))
+                //            {
+                //                Task.Run(() => new User_Log().LogoutUser(old_user));
+                //            }
+                //            //log of user logging in.
+                //            Task.Run(() => new User_Log().LoginUser(newuser));
+                //            string data = string.Concat("Client has Connected | User Name:", newuser.UserId, "(", newuser.FirstName, " ", newuser.SurName, ")", " | Connection ID: ", newuser.ConnectionId);
+                //            new ErrorLogger().CustomLog(data, string.Concat((string)AppParameters.AppSettings.Property("APPLICATION_NAME").Value, "_Applogs"));
+                //            firstTimeLogin = false;
+                //            return newuser;
+                //        });
+                //    if (firstTimeLogin)
+                //    {
+                //        string data = string.Concat("Client has Connected | User Name:", newuser.UserId, "(", newuser.FirstName, " ", newuser.SurName, ")", " | Connection ID: ", newuser.ConnectionId);
+                //        new ErrorLogger().CustomLog(data, string.Concat((string)AppParameters.AppSettings.Property("APPLICATION_NAME").Value, "_Applogs"));
+                //        Task.Run(() => new User_Log().LoginUser(newuser));
+                //    }
 
-                }
+                //}
             }
             catch (Exception e)
             {
@@ -2527,54 +2604,54 @@ namespace Factory_of_the_Future
             ADUser newuser = new ADUser();
             try
             {
-                if (Context.Request.Environment.TryGetValue("server.RemoteIpAddress", out object Ipaddress))
-                {
-                    AppParameters._connections.Add(Context.ConnectionId, Context.ConnectionId);
-                   string ACEId = Regex.Replace(Context.User.Identity.Name, @"(USA\\|ENG\\)", "").Trim();
-                    if (AppParameters.Users.TryGetValue(ACEId, out newuser))
-                    {
-                        newuser.ConnectionId = Context.ConnectionId;
-                        newuser.SessionID = Context.ConnectionId;
-                        newuser.LoginDate = DateTime.Now;
-                        newuser.IsAuthenticated = Context.User.Identity.IsAuthenticated;
-                        newuser.IpAddress = Ipaddress.ToString().StartsWith("::") ? "127.0.0.1" : Ipaddress.ToString();
-                        newuser.ServerIpAddress = AppParameters.ServerIpAddress.ToString();
-                        newuser.NASSCode = AppParameters.AppSettings["FACILITY_NASS_CODE"].ToString();
-                        newuser.FDBID = AppParameters.AppSettings["FACILITY_ID"].ToString();
-                        newuser.FacilityName = !string.IsNullOrEmpty(AppParameters.AppSettings["FACILITY_NAME"].ToString()) ? AppParameters.AppSettings["FACILITY_NAME"].ToString() : "Site Not Configured";
-                        newuser.FacilityTimeZone = AppParameters.AppSettings["FACILITY_TIMEZONE"].ToString();
-                        newuser.AppType = AppParameters.AppSettings["APPLICATION_NAME"].ToString();
-                        newuser.Role = GetUserRole(GetGroupNames(((WindowsIdentity)Context.User.Identity).Groups));
-                    }
-                    else
-                    {
-                        newuser = new ADUser
-                        {
-                            UserId = Regex.Replace(Context.User.Identity.Name, @"(USA\\|ENG\\)", "").Trim(),
-                            NASSCode = AppParameters.AppSettings["FACILITY_NASS_CODE"].ToString(),
-                            FDBID = AppParameters.AppSettings["FACILITY_ID"].ToString(),
-                            FacilityName = !string.IsNullOrEmpty(AppParameters.AppSettings["FACILITY_NAME"].ToString()) ? AppParameters.AppSettings["FACILITY_NAME"].ToString() : "Site Not Configured",
-                            FacilityTimeZone = AppParameters.AppSettings["FACILITY_TIMEZONE"].ToString(),
-                            AppType = AppParameters.AppSettings["APPLICATION_NAME"].ToString(),
-                            Domain = !string.IsNullOrEmpty(Context.User.Identity.Name) ? Context.User.Identity.Name.Split('\\')[0].ToLower() : "",
-                            SessionID = Context.ConnectionId,
-                            ConnectionId = Context.ConnectionId,
-                            LoginDate = DateTime.Now,
-                            Environment = AppParameters.ApplicationEnvironment,
-                            IsAuthenticated = Context.User.Identity.IsAuthenticated,
-                            SoftwareVersion = AppParameters.VersionInfo,
-                            //BrowserType = HttpContext.Current.Request.Browser.Type,
-                            //BrowserName = HttpContext.Current.Request.Browser.Browser,
-                            //BrowserVersion = HttpContext.Current.Request.Browser.Version,
-                            Role = GetUserRole(GetGroupNames(((WindowsIdentity)Context.User.Identity).Groups)),
-                            IpAddress = Ipaddress.ToString().StartsWith("::") ? "127.0.0.1" : Ipaddress.ToString(),
-                            ServerIpAddress = AppParameters.ServerIpAddress.ToString()
-                        };
-                    }
-               
-                    Task.Run(() => AddUserToList(newuser));
-                    
-                }
+                //if (Context.Request.Environment.TryGetValue("server.RemoteIpAddress", out object Ipaddress))
+                //{
+                //    AppParameters._connections.Add(Context.ConnectionId, Context.ConnectionId);
+                //   string ACEId = Regex.Replace(Context.User.Identity.Name, @"(USA\\|ENG\\)", "").Trim();
+                //    if (AppParameters.Users.TryGetValue(ACEId, out newuser))
+                //    {
+                //        newuser.ConnectionId = Context.ConnectionId;
+                //        newuser.SessionID = Context.ConnectionId;
+                //        newuser.LoginDate = DateTime.Now;
+                //        newuser.IsAuthenticated = Context.User.Identity.IsAuthenticated;
+                //        newuser.IpAddress = Ipaddress.ToString().StartsWith("::") ? "127.0.0.1" : Ipaddress.ToString();
+                //        newuser.ServerIpAddress = AppParameters.ServerIpAddress.ToString();
+                //        newuser.NASSCode = AppParameters.AppSettings["FACILITY_NASS_CODE"].ToString();
+                //        newuser.FDBID = AppParameters.AppSettings["FACILITY_ID"].ToString();
+                //        newuser.FacilityName = !string.IsNullOrEmpty(AppParameters.AppSettings["FACILITY_NAME"].ToString()) ? AppParameters.AppSettings["FACILITY_NAME"].ToString() : "Site Not Configured";
+                //        newuser.FacilityTimeZone = AppParameters.AppSettings["FACILITY_TIMEZONE"].ToString();
+                //        newuser.AppType = AppParameters.AppSettings["APPLICATION_NAME"].ToString();
+                //        newuser.Role = GetUserRole(GetGroupNames(((WindowsIdentity)Context.User.Identity).Groups));
+                //    }
+                //    else
+                //    {
+                //        newuser = new ADUser
+                //        {
+                //            UserId = Regex.Replace(Context.User.Identity.Name, @"(USA\\|ENG\\)", "").Trim(),
+                //            NASSCode = AppParameters.AppSettings["FACILITY_NASS_CODE"].ToString(),
+                //            FDBID = AppParameters.AppSettings["FACILITY_ID"].ToString(),
+                //            FacilityName = !string.IsNullOrEmpty(AppParameters.AppSettings["FACILITY_NAME"].ToString()) ? AppParameters.AppSettings["FACILITY_NAME"].ToString() : "Site Not Configured",
+                //            FacilityTimeZone = AppParameters.AppSettings["FACILITY_TIMEZONE"].ToString(),
+                //            AppType = AppParameters.AppSettings["APPLICATION_NAME"].ToString(),
+                //            Domain = !string.IsNullOrEmpty(Context.User.Identity.Name) ? Context.User.Identity.Name.Split('\\')[0].ToLower() : "",
+                //            SessionID = Context.ConnectionId,
+                //            ConnectionId = Context.ConnectionId,
+                //            LoginDate = DateTime.Now,
+                //            Environment = AppParameters.ApplicationEnvironment,
+                //            IsAuthenticated = Context.User.Identity.IsAuthenticated,
+                //            SoftwareVersion = AppParameters.VersionInfo,
+                //            //BrowserType = HttpContext.Current.Request.Browser.Type,
+                //            //BrowserName = HttpContext.Current.Request.Browser.Browser,
+                //            //BrowserVersion = HttpContext.Current.Request.Browser.Version,
+                //            Role = GetUserRole(GetGroupNames(((WindowsIdentity)Context.User.Identity).Groups)),
+                //            IpAddress = Ipaddress.ToString().StartsWith("::") ? "127.0.0.1" : Ipaddress.ToString(),
+                //            ServerIpAddress = AppParameters.ServerIpAddress.ToString()
+                //        };
+                //    }
+
+                //    Task.Run(() => AddUserToList(newuser));
+
+                //}
                 return newuser;
             }
             catch (Exception e)
@@ -2594,13 +2671,13 @@ namespace Factory_of_the_Future
                     AppParameters.Users.AddOrUpdate(newuser.UserId, newuser,
                       (key, old_user) =>
                       {
-                      //log out user 
-                      if (!string.IsNullOrEmpty(old_user.ConnectionId))
+                          //log out user 
+                          if (!string.IsNullOrEmpty(old_user.ConnectionId))
                           {
                               Task.Run(() => new User_Log().LogoutUser(old_user));
                           }
-                      //log of user logging in.
-                      Task.Run(() => new User_Log().LoginUser(newuser));
+                          //log of user logging in.
+                          Task.Run(() => new User_Log().LoginUser(newuser));
                           string data = string.Concat("Client has Connected | User Name:", newuser.UserId, "(", newuser.FirstName, " ", newuser.SurName, ")", " | Connection ID: ", newuser.ConnectionId);
                           new ErrorLogger().CustomLog(data, string.Concat((string)AppParameters.AppSettings.Property("APPLICATION_NAME").Value, "_Applogs"));
                           firstTimeLogin = false;

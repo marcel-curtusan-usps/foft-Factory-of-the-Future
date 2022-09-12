@@ -85,6 +85,7 @@ function checkSparklineVisibility(forceUpdate) {
                     });
             }
 
+
     }
     lastMapZoom = zoom;
 }
@@ -248,65 +249,7 @@ function GetSparklineGraph(dataproperties, id) {
     }
 }
 
-async function  createSparkline(dataproperties, id) {
-    return new Promise((resolve, reject) => {
-
-
-        let dataURLFound = GetSparklineGraph(dataproperties);
-        resolve(dataURLFound);
-       
-
-    });
-}
-
-const onSparklineClick = (e) => {
-
-    $.map(polygonMachine._layers, function (pmObj, i) {
-
-        if (pmObj.findId === e.target.options.id) {
-
-            $('input[type=checkbox][name=followvehicle]').prop('checked', false).change();
-            try {
-                map.setView(pmObj.getCenter(), 3);
-            }
-            catch (e_) {
-
-                map.setView(e.target._latlng);
-            }
-            if ((' ' + document.getElementById('sidebar').className + ' ').indexOf(' ' + 'collapsed' + ' ') <= -1) {
-                if ($('#zoneselect').val() == pmObj.findId) {
-                    sidebar.close('home');
-                }
-                else {
-                    sidebar.open('home');
-                }
-            }
-            else {
-                sidebar.open('home');
-            }
-            LoadMachineTables(pmObj.feature.properties, 'machinetable');
-        }
-
-    });
-};
 var machineSparklines = new L.GeoJSON(null, polyObj);
-
-function getSparklineCoords(coordinates) {
-    var minLat = 10000000000000;
-    var maxLat = -10000000000000;
-    var minLng = 10000000000000;
-    var maxLng = -10000000000000;
-    for (const c of coordinates) {
-        if (c[1] < minLat) minLat = c[1];
-        if (c[1] > maxLat) maxLat = c[1];
-        if (c[0] < minLng) minLng = c[0];
-        if (c[0] > maxLng) maxLng = c[0];
-
-    }
-    let centerLat = (minLat + maxLat) / 2;
-    let centerLng = (minLng + maxLng) / 2;
-    return [centerLat, centerLng];
-}
 
 const sparklineWidthNormal = 40;
 const sparklineHeightNormal = 20;
@@ -324,9 +267,13 @@ async function updateMachineSparklineTooltip(feature, layer) {
         "' style='width: " + sparklineWidth + "px; height: " + sparklineHeight +
         "px; ' />")
         ;
-    if (layer._tooltip !== null) {
-        layer.unbindTooltip();
+    if (layer._tooltip) {
+        try {
+            layer.unbindTooltip();
+        }
+        catch (e_) {
 
+        }
     }
         layer.bindTooltip(htmlData, {
             permanent: true,
@@ -340,7 +287,7 @@ async function updateMachineSparklineTooltip(feature, layer) {
 
 
 function layerMachineIdMatch(layer, machineupdate) {
-    if (layer.findId === machineupdate.properties.id) {
+    if (layer.feature.properties.id === machineupdate.properties.id) {
         
         return true;
     }
@@ -349,23 +296,25 @@ function layerMachineIdMatch(layer, machineupdate) {
 
 let lastSparklineUpdate = 0;
 
-async function getSparklineLayerFromId(id) {
-    return new Promise((resolve, reject) => {
 
-        $.map(machineSparklines._layers, function (layer, i) {
+function convertToSparkline(machineSparklineString) {
+    let machineSparklinesNew = JSON.parse(machineSparklineString);
 
-            if (layer.hasOwnProperty("feature") && layer.feature.properties.id == id) {
-                resolve(layer);
-            }
-        });
-            resolve(null);
-    });
+    for (var tuple of machineSparklinesNew) {
+        tuple.Item1.properties.Zone_Type = "Sparkline";
+        tuple.Item1.properties.sparkline = true;
+        tuple.Item1.properties.color = "transparent";
+        tuple.Item1.properties.fillColor = "transparent";
+        tuple.Item1.properties.opacity = 0;
+        tuple.Item1.properties.fillOpacity = 0;
+        tuple.Item1.properties.id = tuple.Item1.properties.id + "-sp";
+    }
+    return machineSparklinesNew;
+
 }
-async function updateMachineSparkline(machineupdate, id) {
-    machineupdate.properties.transparent = true;
-    machineupdate.properties.sparkline = true;
-        if (id == baselayerid) {
 
+async function updateMachineSparkline(machineupdate, id) {
+    if (id == baselayerid) {
             if (machineupdate.properties.hasOwnProperty("MPEWatchData")) {
                 let foundLayer = null;
 
@@ -376,8 +325,13 @@ async function updateMachineSparkline(machineupdate, id) {
                 for (var key of machineSparklineKeys) {
                     let layer = machineSparklines._layers[key];
                     if (layer.hasOwnProperty("options")) {
+                        layer.options.fillColor = "transparent";
+                        layer.options.color = "transparent";
+                        layer.options.fillOpacity = 0;
+                        layer.options.opacity = 0;
                         if (layerMachineIdMatch(layer, machineupdate))
                         {
+                           
                             foundLayer = layer;
                         }
 

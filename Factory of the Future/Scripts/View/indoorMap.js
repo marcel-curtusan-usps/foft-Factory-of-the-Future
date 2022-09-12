@@ -3,9 +3,15 @@ var sidebar = L.control.sidebar({
     container: 'sidebar', position: 'left', autopan: false
 });
 var mainfloorOverlays = L.layerGroup();
-var mainfloor = L.imageOverlay(null, [0, 0], { id:-1 ,zindex: -1 }).addTo(mainfloorOverlays);
+// define rectangle geographical bounds
+var greyOutBounds = [[-5000, -5000], [5000, 5000]];
+
+// create an orange rectangle
+var greyedOutRectangle = L.rectangle(greyOutBounds, { color: "#000000", weight: 1, fillOpacity: .65, stroke: false });
+
+var mainfloor = L.imageOverlay(null, [0, 0], { id:-1 ,zIndex: -1 }).addTo(mainfloorOverlays);
 var baseLayers = {
-  "Main Floor": mainfloor
+    "Main Floor": mainfloor
 };
 
 
@@ -20,6 +26,7 @@ var overlayMaps = {
     "MPE Bins": binzonepoly,
     "Dock Doors": dockDoors,
     "Staging Areas": stagingAreas,
+    "Staging Bullpen Areas": stagingBullpenAreas,
     "View-ports": viewPortsAreas,
     "EBR Areas": ebrAreas,
     "Exit Areas": exitAreas,
@@ -27,6 +34,7 @@ var overlayMaps = {
     "Polygon Holes": polyholesAreas,
     "Locators": locatorMarker
 };
+
 
 $.urlParam = function (name) {
     var results = new RegExp('[\?&]' + name + '=([^&#]*)')
@@ -53,6 +61,7 @@ if ($.urlParam('specifyLayers')) {
     if ($.urlParam('dockDoors')) layersSelected.push(dockDoors);
 
     if ($.urlParam('stagingAreas')) layersSelected.push(stagingAreas);
+    if ($.urlParam('stagingBullpenAreas')) layersSelected.push(stagingBullpenAreas);
     if ($.urlParam('viewPorts')) layersSelected.push(viewPortsAreas);
     if ($.urlParam('ebrAreas')) layersSelected.push(ebrAreas);
     if ($.urlParam('exitAreas')) layersSelected.push(exitAreas);
@@ -64,11 +73,54 @@ if ($.urlParam('specifyLayers')) {
 else {
     layersSelected = [mainfloor,
         polygonMachine,
-        piv_vehicles, agv_vehicles, agvLocations, container, stagingAreas, tagsMarkersGroup, dockDoors, binzonepoly
+        piv_vehicles, agv_vehicles, agvLocations, container, stagingAreas, stagingBullpenAreas, tagsMarkersGroup, dockDoors, binzonepoly
     ];
 
 }
 
+
+let historyPageState = { id: 0 };
+let lastSelectedViewport = null;
+function updateURIParametersForLayer(viewport) {
+    let params = "?specifyLayers=true";
+    if (viewport) {
+
+        lastSelectedViewport = viewport;
+        params += ("&viewport=" + viewport);
+    }
+    if (lastSelectedViewport === null && $.urlParam('viewport')) {
+        params += ("&viewport=" + $.urlParam('viewport'));
+    }
+    $(".leaflet-control-layers-selector").each((_a, el) => {
+        if (el.id && el.id.length > 0) {
+
+            if ($("#" + el.id).is(":checked")) {
+                let paramKey = getURIParameterFromId(el.id);
+                params += "&" + paramKey + "=true";
+            }
+        }
+    });
+    historyPageState = { id: historyPageState.id + 1 };
+
+    window.history.replaceState(historyPageState, "",
+        "/Default.aspx" + params);
+}
+
+let mapView = {};
+function saveMapView() {
+    mapView.bounds = JSON.parse(JSON.stringify(map.getBounds()));
+    mapView.zoom = map.getZoom() + 0;
+}
+
+function restoreMapView() {
+    if (mapView.bounds) {
+        let centerLat = (mapView.bounds._southWest.lat + mapView.bounds._northEast.lat) / 2;
+        let centerLng = (mapView.bounds._southWest.lng + mapView.bounds._northEast.lng) / 2;
+        let center = [centerLat, centerLng];
+       map.setView(center, mapView.zoom);
+    }
+    mapView = {};
+}
 //setup map
 map = L.map('map', {
     crs: L.CRS.Simple,
@@ -84,9 +136,32 @@ map = L.map('map', {
     layers: layersSelected
 });
 
+let layerCheckboxIds = [];
 function setLayerCheckboxId(thisCheckBox, innerHTML) {
     let name = innerHTML.replace(/ /g, '');
     thisCheckBox.id = name;
+    layerCheckboxIds.push(thisCheckBox.id);
+    return name;
+}
+let layersURIParameterMapping = [];
+
+
+function getURIParameterFromText(txt) {
+    txt = txt.replaceAll("-", " ");
+    txt = txt.replaceAll("_", " ");
+    let portions = txt.split(" ");
+    let first = true;
+    let uriParam = "";
+    for (var portion of portions) {
+        let newPortion = portion.toLowerCase();
+        if (!first) {
+            newPortion = portion.substring(0, 1).toUpperCase() +
+                portion.substring(1);
+        }
+        uriParam += newPortion;
+        first = false;
+    }
+    return uriParam;
 }
 function assignIdsToLayerCheckboxes() {
     var leafletSelectors
@@ -96,11 +171,33 @@ function assignIdsToLayerCheckboxes() {
         let keys = Object.keys(overlayMaps);
         for (const key of keys) {
             if (sp.innerHTML.trim() == key.trim()) {
-                setLayerCheckboxId(selector, sp.innerHTML);
+                let checkboxId = setLayerCheckboxId(selector, sp.innerHTML);
+                layersURIParameterMapping.push({
+                    checkboxId: checkboxId,
+                    urlParameter: getURIParameterFromText(key)
+                });
+                $("#" + checkboxId).on('click', function (e) {
+                    updateURIParametersForLayer(checkboxId);
+                });
             }
         }
     }
 }
+
+function getURIParameterFromId(checkboxId) {
+    for (const data of layersURIParameterMapping) {
+        if (data.checkboxId == checkboxId) return data.urlParameter;
+    }
+    return null;
+}
+
+function getIdFromURIParameter(urlParameter) {
+    for (const data of layersURIParameterMapping) {
+        if (data.urlParameter == urlParameter) return data.checkboxId;
+    }
+    return null;
+}
+
 map.on('baselayerchange', function (e) {
     baselayerid = e.layer.options.id;
     console.log(baselayerid);
@@ -126,12 +223,15 @@ map.on('baselayerchange', function (e) {
         agv_vehicles.clearLayers();
         cameras.clearLayers();
         locatorMarker.clearLayers();
-        init_zones(data[0].zones, baselayerid);
-        init_locators(data[0].locators, baselayerid);
+        if (data.length > 0) {
+            init_zones(data[0].zones, baselayerid);
+            init_locators(data[0].locators, baselayerid);
+        }
         assignIdsToLayerCheckboxes();
         setLayerCheckUncheckEvents();
         checkViewportLoad();
     });
+
 });
 function setLayerCheckUncheckEvents() {
     $("#MPESparklines").click(function () {
@@ -201,9 +301,14 @@ var layersControl = L.control.layers(baseLayers, overlayMaps, {
                 return nameA < nameB ? -1 : (nameB < nameA ? 1 : 0);
             }
         }
-    }, position: 'bottomright', collapsed: false }).addTo(map);
+    }, position: 'bottomright', collapsed: false
+}).addTo(map);
+
+
+
 //Add zoom button
 new L.Control.Zoom({ position: 'bottomright' }).addTo(map);
+
 //add View Ports
 L.easyButton({
     position: 'bottomright',
@@ -212,6 +317,7 @@ L.easyButton({
         icon: '<div id="viewportsToggle" data-toggle="popover"><i class="pi-iconViewport align-self-center" title="Viewports"></i></div>'
     }]
 }).addTo(map);
+
 // Add Layer Control Button
 L.easyButton({
     position: 'bottomright',
@@ -220,6 +326,9 @@ L.easyButton({
         icon: '<div id="layersToggle" data-toggle="layerPopover"><i class="pi-iconLayer align-self-center" title="Layer Controls"></i></div>'
     }]
 }).addTo(map);
+
+greyedOutRectangle.addTo(map);
+setGreyedOut();
 //Full-screen button only for Chrome
 if (window.chrome) {
     var fullscreentoggle = L.easyButton({
@@ -337,9 +446,12 @@ function init_mapSetup(MapData) {
             LoadNotification("routetrip");
             LoadNotification("vehicle");
             //add user to the tag groups only for none PMCCUser
-            if (!/(^PMCCUser$)/i.test(User.UserId)) {
-                fotfmanager.server.joinGroup("PeopleMarkers");
+            if (User.hasOwnProperty("UserId")) {
+                if (!/(^PMCCUser$)/i.test(User.UserId)) {
+                    fotfmanager.server.joinGroup("PeopleMarkers");
+                }
             }
+            
         }
         else {
             fotfmanager.server.GetIndoorMap().done(function (GetIndoorMap) {

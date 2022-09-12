@@ -6,9 +6,16 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Web;
+using System.Web.Security;
 
 namespace Factory_of_the_Future
 {
+    public static class BoolFlag
+    {
+        public const string Yes = "Y";
+        public const string No = "N";
+    }
     public static class ADProperties
     {
         public const string ContainerName = "cn";
@@ -40,17 +47,17 @@ namespace Factory_of_the_Future
         public string Environment { get; set; }
         public string PageType { get; set; }
         public string Role { get; set; } = "Operator".ToUpper();
-        public string ZipCode { get; set; }
-        public string BrowserType { get; set; }
-        public string BrowserName { get; set; }
-        public string BrowserVersion { get; set; }
+        public string ZipCode { get; set; } = "";
+        public string Browser_Type { get; set; } = "";
+        public string Browser_Name { get; set; } = "";
+        public string Browser_Version { get; set; }
         public string FirstName { get; set; } = "";
         public string SurName { get; set; } = "";
-        public string IpAddress { get; set; }
+        public string IpAddress { get; set; } = "";
         public string ServerIpAddress { get; set; }
         public string MiddleName { get; set; } = "";
-        public string Error { get; set; }
-        public string AppType { get; set; }
+        public string Error { get; set; } = "";
+        public string App_Type { get; set; } = "";
         public string SoftwareVersion { get; set; }
         public string Domain { get; set; }
         public string NASSCode { get; set; }
@@ -59,12 +66,16 @@ namespace Factory_of_the_Future
         public string SessionID { get; set; }
         public bool IsAuthenticated { get; set; }
         public string GroupNames { get; set; }
-        public string ConnectionId { get; set; }
+        public string ConnectionId { get; set; } = "";
         public string VoiceTelephoneNumber { get; set; }
         public string EmailAddress { get; set; } = "";
         public string Phone { get; set; } = "";
         public string EIN { get; set; } = "";
         public string TAGID { get; set; } = "";
+        public object Login_Date { get; internal set; } = "";
+        public string Session_ID { get; internal set; } = "";
+        public string Server_IpAddress { get; internal set; } = "";
+        public string Software_Version { get; internal set; } = "";
     }
     public class Locator
     {
@@ -250,6 +261,8 @@ namespace Factory_of_the_Future
 
         [JsonProperty("MPE_Bins")]
         public List<string> MPEBins { get; set; } = new List<string>();
+        [JsonProperty("SV_Zone_Data")]
+        public SVZoneData SVZoneData { get; set; } = new SVZoneData();
 
         [JsonProperty("MPE_Number")]
         public int MPENumber { get; set; }
@@ -1077,6 +1090,27 @@ namespace Factory_of_the_Future
             _MemberInfo.SetValue(target, value);
         }
     }
+
+    /// sv zone data
+
+    public class SVZoneData
+    {
+        [JsonProperty("SQLTypeName")]
+        public string SQLTypeName {get; set;}
+        [JsonProperty("locationId")]
+        public int locationId { get; set; }
+        [JsonProperty("siteId")]
+        public string siteId { get; set; }
+        [JsonProperty("locationName")]
+        public string locationName { get; set; }
+        [JsonProperty("locationType")]
+        public string locationType { get; set; }
+        [JsonProperty("updtUserId")]
+        public string updtUserId { get; set; }
+        [JsonProperty("responseCode")]
+        public string responseCode { get; set; }
+
+    }
     //// trips
     public class RouteTrips
     {
@@ -1516,7 +1550,9 @@ namespace Factory_of_the_Future
         public DateTime Type_Time { get; set; }
 
     }
-    public class RPGPlan
+
+   
+        public class RPGPlan
     {
         public DateTime mods_date { get; set; }
         public string machine_num { get; set; } = "";
@@ -1624,6 +1660,145 @@ namespace Factory_of_the_Future
             }
 
             return true;
+        }
+    }
+    public static class SessionKey
+    {
+        public const string ADUser = "ADUser";
+        public const string IsAuthenticated = "IsAuthenticated";
+        public const string AceId = "ACEID";
+        public const string UserRole = "UserRole";
+        public const string UserFirstName = "UserFirstName";
+        public const string UserLastName = "UserLastName";
+        public const string Facility_NASS_CODE = "Facility_NASS_CODE";
+        public const string Facility_Id = "Facility_Id";
+        public const string Facility_Name = "Facility_Name";
+        public const string Environment = "Environment";
+        public const string FacilityTimeZone = "FacilityTimeZone";
+    }
+    public class AuthenticationCookie
+    {
+        private static readonly string Name = FormsAuthentication.FormsCookieName;
+
+        public static HttpCookie Create(string userId, string userData, bool isCookiePersistent)
+        {
+            FormsAuthenticationTicket authTicket = new FormsAuthenticationTicket(
+                1, // Version
+                userId, // ACE User
+                DateTime.Now, // Created
+                DateTime.Now.AddMinutes(FormsAuthentication.Timeout.Minutes), // Expires ( can be defined in web.config )
+                isCookiePersistent, // Persistent
+                userData); // User Role
+
+            return CreateCookie(authTicket);
+        }
+
+        public static string GetData(HttpRequest request)
+        {
+            var authTicket = GetAuthTicket(request);
+            return authTicket == null ? string.Empty : authTicket.UserData;
+        }
+
+        public static string GetAuthTicketName(HttpRequest request)
+        {
+            var authTicket = GetAuthTicket(request);
+            return authTicket == null ? string.Empty : authTicket.Name;
+        }
+
+        public static HttpCookie OverrideUserData(string userData, HttpRequest request)
+        {
+            var authTicket = GetAuthTicket(request);
+
+            var encryptedTicket = new FormsAuthenticationTicket(
+                authTicket.Version,
+                authTicket.Name,
+                authTicket.IssueDate,
+                authTicket.Expiration,
+                authTicket.IsPersistent,
+                userData);
+
+            return CreateCookie(encryptedTicket);
+        }
+
+        private static HttpCookie CreateCookie(FormsAuthenticationTicket authTicket)
+        {
+            var encryptedAuthTicket = FormsAuthentication.Encrypt(authTicket);
+            HttpCookie authCookie = new HttpCookie(Name, encryptedAuthTicket)
+            {
+                Secure = true,
+                HttpOnly = true
+            };
+            if (authTicket.IsPersistent)
+            {
+                authCookie.Expires = authTicket.Expiration;
+            }
+
+            return authCookie;
+        }
+
+        private static FormsAuthenticationTicket GetAuthTicket(HttpRequest request)
+        {
+            HttpCookie authCookie = request.Cookies[Name];
+
+            if (authCookie != null)
+            {
+                return FormsAuthentication.Decrypt(authCookie.Value);
+            }
+
+            return null;
+        }
+    }
+    public class Converter
+    {
+        public static string ObjectToString<T>(T obj)
+        {
+            return JsonConvert.SerializeObject(obj);
+        }
+
+        public static T StringToObject<T>(string obj)
+        {
+            return JsonConvert.DeserializeObject<T>(obj);
+        }
+
+        public static Nullable<T> GetValueOrNull<T>(string value)
+            where T : struct
+        {
+            if (string.IsNullOrWhiteSpace(value))
+            {
+                return null;
+            }
+            return (T)Convert.ChangeType(value, typeof(T));
+        }
+
+        public static T ToEnum<T>(string value, bool ignoreCase = false)
+        {
+            return (T)Enum.Parse(typeof(T), value, ignoreCase);
+        }
+
+        public static bool GetBoolean(string boolFlag)
+        {
+            if (boolFlag == null)
+            {
+                throw new ArgumentNullException("boolFlag");
+            }
+
+            if (boolFlag == BoolFlag.Yes || boolFlag.ToLower() == "yes")
+            {
+                return true;
+            }
+            else if (boolFlag == BoolFlag.No || boolFlag.ToLower() == "no")
+            {
+                return false;
+            }
+            else
+            {
+                throw new FormatException("Input string was not in a BoolFlag Format");
+            }
+        }
+
+        public static string GetBoolFlag(bool value)
+        {
+            return value ? BoolFlag.Yes : BoolFlag.No;
         }
     }
 }

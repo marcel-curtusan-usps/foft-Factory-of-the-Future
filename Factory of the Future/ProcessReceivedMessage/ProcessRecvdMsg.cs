@@ -103,6 +103,10 @@ namespace Factory_of_the_Future
                             MPEWatch_DPSEst(data, connID);
                             break;
                         ///*MPEWatch Data End*/
+                        
+                        case "getSVZones":
+                            SVZones(data, connID);
+                            break;
                         default:
                             break;
                     }
@@ -558,6 +562,50 @@ namespace Factory_of_the_Future
                 return temp;
             }
         }
+        private static void SVZones(dynamic data, string conID)
+        {
+            Connection thisConnection = null;
+            try
+            {
+                thisConnection = AppParameters.ConnectionList[conID];
+                if (data != null)
+                {
+                    thisConnection.ApiConnected = true;
+                    JToken tempData = JToken.Parse(data);
+                    if (tempData != null && tempData.HasValues)
+                    {
+                        foreach (JObject item in tempData.Children())
+                        {
+                            string svzone_id = item.ContainsKey("locationId") ? item["locationId"].ToString() : "";
+                            string zoneName = item["locationName"].ToString();
+                            if (!string.IsNullOrEmpty(svzone_id))
+                            {
+                                
+                                AppParameters.SVZoneNameList.AddOrUpdate(svzone_id, zoneName,
+                                   (key, oldValue) =>
+                                   {
+                                       return zoneName;
+                                   });
+                            }
+                        }
+                    }
+                }
+                else
+                {
+                    thisConnection.ApiConnected = false;
+                }
+            }
+
+            catch (Exception e)
+            {
+                if (thisConnection != null)
+                {
+                    thisConnection.ApiConnected = false;
+                }
+                Task.Run(() => updateConnection(conID, "error"));
+                new ErrorLogger().ExceptionLog(e);
+            }
+        }
         private static void Doors(dynamic data, string conID)
         {
             try
@@ -663,6 +711,36 @@ namespace Factory_of_the_Future
                 new ErrorLogger().ExceptionLog(e);
             }
         }
+
+
+        
+        
+         private static void UpdateSVZone(SVZoneData svZone)
+        {
+            try
+            {
+                string locationId = "SVZone-" + svZone.locationId;
+                foreach (CoordinateSystem cs in AppParameters.CoordinateSystem.Values)
+                {
+                    cs.Zones.Where(f => f.Value.Properties.ZoneType == "SVZone"
+                    && f.Value.Properties.Id == locationId
+                    ).Select(y => y.Value).ToList().ForEach(SVZone =>
+                    {
+                        SVZone.Properties.SVZoneData = svZone;
+                        SVZone.Properties.ZoneUpdate = true;
+                    });
+                }
+
+              
+            }
+            catch (Exception e)
+            {
+                new ErrorLogger().ExceptionLog(e);
+            }
+        }
+
+        
+
         //private static void TacsVsSelsLDCAnomaly(JArray data, string message_type)
         //{
         //    /**
@@ -2974,10 +3052,12 @@ namespace Factory_of_the_Future
         {
             string loadAfterDepartTypeName = "Load After Depart";
             string missingLoadTypeName = "Missing Closed Scan";
+            string missingAssignedTypeName = "Missing Assigned Scan";
             string missingArrived = "Missing Arrived Scan";
 
             RemoveOldScanNotification(loadAfterDepartTypeName);
             RemoveOldScanNotification(missingLoadTypeName);
+            RemoveOldScanNotification(missingAssignedTypeName);
             RemoveOldScanNotification(missingArrived);
             try
             {
@@ -2990,6 +3070,19 @@ namespace Factory_of_the_Future
                         if (!_container.hasCloseScans)
                         {
                             AddScanNotification(missingLoadTypeName, notification_id, _container.PlacardBarcode, notification_name, 0);
+                        }
+                        else
+                        {
+                            RemoveScanNotification(notification_id);
+                        }
+                    }
+                    if(_container.hasCloseScans && _container.hasLoadScans)
+                    {
+                        var notification_id = _container.PlacardBarcode + "_MissingAssigned";
+                        var notification_name = _container.PlacardBarcode;
+                        if (!_container.hasAssignScans)
+                        {
+                            AddScanNotification(missingAssignedTypeName, notification_id, _container.PlacardBarcode, notification_name, 0);
                         }
                         else
                         {

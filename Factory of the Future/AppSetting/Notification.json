@@ -136,6 +136,23 @@
     "CriticalColor": ""
   },
   {
+    "Id": "325db59e-8181-4abe-919e-278d79adbe22",
+    "ActiveCondition": true,
+    "CreatedDate": "2022-08-10T11:30:31.0240856-04:00",
+    "CreatedByUsername": "D7VQ00",
+    "LastupdateByUsername": "D7VQ00",
+    "LastupdateDate": "0001-01-01T00:00:00",
+    "Name": "Missing Assigned Scan",
+    "Type": "dockdoor",
+    "Conditions": "Missing Assigned Scan",
+    "Warning": 0,
+    "WarningAction": "",
+    "WarningColor": "",
+    "Critical": 0,
+    "CriticalAction": "",
+    "CriticalColor": ""
+  },
+  {
     "Id": "196e2804-a207-4dfb-9788-1d60e87beb31",
     "ActiveCondition": true,
     "CreatedDate": "2022-05-04T13:45:19.4866386-04:00",

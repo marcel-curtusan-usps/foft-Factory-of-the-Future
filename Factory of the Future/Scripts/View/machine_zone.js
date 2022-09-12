@@ -4,7 +4,6 @@
  * **/
 
 const sparklineTooltipOpacity = .5;
-
 //on close clear all inputs
 $('#Zone_Modal').on('hidden.bs.modal', function () {
     $(this)
@@ -98,7 +97,7 @@ $.extend(fotfmanager.client, {
         if (lastMachineStatuses != machineStatusesString) {
             lastMachineStatuses = machineStatusesString;
 
-            let sparklineStatuses = JSON.parse(machineStatusesString);
+            let sparklineStatuses = convertToSparkline(machineStatusesString);
             for (var tuple of machineStatuses) {
 
                 updateMachineZone(tuple.Item1, tuple.Item2);
@@ -120,6 +119,7 @@ async function updateMachineZone(machineupdate, id) {
                 $.map(polygonMachine._layers, function (layer, i) {
                     if (layer.hasOwnProperty("feature")) {
                         if (layer.feature.properties.id === machineupdate.properties.id) {
+                            
                             if (layer.feature.properties.name != machineupdate.properties.name) {
                                 layer.setTooltipContent(machineupdate.properties.name + "<br/>" + "Staffing: " + machineupdate.properties.CurrentStaff);
                             }
@@ -212,52 +212,56 @@ function getSparklineTooltipDirection() {
     }
     return "right";
 }
+
+function getPolygonMachineStyle(feature) {
+
+    var style = {};
+    var sortplan = feature.properties.hasOwnProperty("MPEWatchData") ? feature.properties.MPEWatchData.hasOwnProperty("cur_sortplan") ? feature.properties.MPEWatchData.cur_sortplan : "" : "";
+    var endofrun = feature.properties.hasOwnProperty("MPEWatchData") ? feature.properties.MPEWatchData.hasOwnProperty("current_run_end") ? feature.properties.MPEWatchData.current_run_end != "0" ? feature.properties.MPEWatchData.current_run_end : "" : "" : "";
+    var startofrun = feature.properties.hasOwnProperty("MPEWatchData") ? feature.properties.MPEWatchData.hasOwnProperty("current_run_start") ? feature.properties.MPEWatchData.current_run_start : "" : "";
+    if (checkValue(sortplan) && !checkValue(endofrun)) {
+        var thpCode = feature.properties.hasOwnProperty("MPEWatchData") ? feature.properties.MPEWatchData.hasOwnProperty("throughput_status") ? feature.properties.MPEWatchData.throughput_status : "0" : "0";
+        var fillColor = GetMacineBackground
+            (feature.properties.MPEWatchData, startofrun);
+        style = {
+            weight: 1,
+            opacity: 1,
+            color: '#3573b1',
+            fillOpacity: 0.5,
+            fillColor: fillColor
+        };
+    }
+    else {
+        style = {
+            weight: 1,
+            opacity: 1,
+            color: '#3573b1',
+            fillOpacity: 0.2,
+            fillColor: '#989ea4'
+        };
+    }
+    return style;
+}
 const polyObj = {
     style: function (feature) {
-        if (feature.properties.visible) {
-            if (!feature.properties.sparkline) {
-
-
-                var style = {};
-                var sortplan = feature.properties.hasOwnProperty("MPEWatchData") ? feature.properties.MPEWatchData.hasOwnProperty("cur_sortplan") ? feature.properties.MPEWatchData.cur_sortplan : "" : "";
-                var endofrun = feature.properties.hasOwnProperty("MPEWatchData") ? feature.properties.MPEWatchData.hasOwnProperty("current_run_end") ? feature.properties.MPEWatchData.current_run_end != "0" ? feature.properties.MPEWatchData.current_run_end : "" : "" : "";
-                var startofrun = feature.properties.hasOwnProperty("MPEWatchData") ? feature.properties.MPEWatchData.hasOwnProperty("current_run_start") ? feature.properties.MPEWatchData.current_run_start : "" : "";
-                if (checkValue(sortplan) && !checkValue(endofrun)) {
-                    var thpCode = feature.properties.hasOwnProperty("MPEWatchData") ? feature.properties.MPEWatchData.hasOwnProperty("throughput_status") ? feature.properties.MPEWatchData.throughput_status : "0" : "0";
-                    var fillColor = GetMacineBackground(feature.properties.MPEWatchData, startofrun);
-                    style = {
-                        weight: 1,
-                        opacity: 1,
-                        color: '#3573b1',
-                        fillOpacity: 0.5,
-                        fillColor: fillColor
-                    };
-                }
-                else {
-                    style = {
-                        weight: 1,
-                        opacity: 1,
-                        color: '#3573b1',
-                        fillOpacity: 0.2,
-                        fillColor: '#989ea4'
-                    };
-                }
-                return style;
-            }
-            else {
-
-
-
-                return {
-                    fillOpacity: 0,
-                    opacity: 0
-                };
-            }
+        if (feature.properties.sparkline) {
+            return {
+                permanent: true,
+                interactive: true,
+                color: "transparent",
+                fillColor: "transparent",
+                fillOpacity: 0,
+                opacity: 0
+            };
         }
+        if (feature.properties.visible) {
+            return getPolygonMachineStyle(feature);
+        
+        }
+            
     },
     onEachFeature: function (feature, layer) {
-        layer.findId = feature.properties.id;
-
+        
         if (feature.properties.sparkline) {
             updateMachineSparklineTooltip(feature, layer);
         }
@@ -335,12 +339,7 @@ async function LoadMachineTables(dataproperties, table) {
     try {
         if (!$.isEmptyObject(dataproperties)) {
             $('div[id=machine_div]').attr("data-id", dataproperties.id);
-            $('div[id=dockdoor_div]').css('display', 'none');
-            $('div[id=trailer_div]').css('display', 'none');
-            $('div[id=area_div]').css('display', 'none');
-            $('div[id=agvlocation_div]').css('display', 'none');
-            $('div[id=vehicle_div]').css('display', 'none');
-            $('div[id=layer_div]').css('display', 'none');
+            hideSidebarLayerDivs();
             $('div[id=machine_div]').css('display', 'block');
             $('div[id=ctstabs_div]').css('display', 'block');
             if (/machinetable/i.test(table)) {

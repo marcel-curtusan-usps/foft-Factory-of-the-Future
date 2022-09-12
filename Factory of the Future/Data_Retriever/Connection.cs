@@ -123,7 +123,6 @@ class MulticastUdpServer : UdpServer
         public UdpClient client;
         public UdpServer server;
         public WebSocketInstanceHandler webSocketIntanceHandler;
-        private Thread reconnectThread;
         internal Connection ConnectionInfo;
         public string StatusInfo = "";
 
@@ -263,79 +262,79 @@ class MulticastUdpServer : UdpServer
                 }
         }
 
-       
-        
-        public async Task ProcessAlerts(string message)
+
+
+        public void ProcessAlerts(string message)
         {
-            
 
-                if (message.Contains("IG_") || message.Contains("DT_"))
+
+            if (message.Contains("IG_") || message.Contains("DT_"))
+            {
+                try
                 {
-                    try
+                    lock (AppParameters.darvisWSCameraLock)
                     {
-                        lock (AppParameters.darvisWSCameraLock)
+
+                        JArray msgJson = (JArray)JsonConvert.DeserializeObject(message);
+                        if (msgJson[0].ToString() == "detections")
                         {
-
-                            JArray msgJson = (JArray)JsonConvert.DeserializeObject(message);
-                            if (msgJson[0].ToString() == "detections")
+                            JArray cameraData = (JArray)msgJson[1]["data"];
+                            foreach (JObject jo in cameraData)
                             {
-                                JArray cameraData = (JArray)msgJson[1]["data"];
-                                foreach (JObject jo in cameraData)
+                                string camera_id = jo["camera_id"].ToString();
+
+                                string ip = AppParameters.CameraMapping[camera_id];
+                                List<DarvisCameraAlert> alertList = new List<DarvisCameraAlert>();
+
+                                JArray newDetections = (JArray)jo["detections"]["new"];
+                                JArray removedDetections = (JArray)jo["detections"]["removed"];
+                                JArray updatedDetections = (JArray)jo["detections"]["updated"];
+                                foreach (JObject newObject in newDetections)
                                 {
-                                    string camera_id = jo["camera_id"].ToString();
 
-                                    string ip = AppParameters.CameraMapping[camera_id];
-                                    List<DarvisCameraAlert> alertList = new List<DarvisCameraAlert>();
-
-                                    JArray newDetections = (JArray)jo["detections"]["new"];
-                                    JArray removedDetections = (JArray)jo["detections"]["removed"];
-                                    JArray updatedDetections = (JArray)jo["detections"]["updated"];
-                                    foreach (JObject newObject in newDetections)
-                                    {
-
-                                        ProcessNewOrExistingCameraData(newObject, ref alertList,
-                                            camera_id, true);
-                                    }
-                                    foreach (JToken object_id in removedDetections)
-                                    {
-
-                                    }
-                                    foreach (JObject updatedObject in updatedDetections)
-                                    {
-                                        ProcessNewOrExistingCameraData(updatedObject, ref alertList,
-                                            camera_id, false);
-                                    }
-                                    Cameras newCameraData = AppParameters.CameraInfoList[ip];
-                                    List<DarvisCameraAlert> newAlerts = alertList.ToArray<DarvisCameraAlert>().ToList<DarvisCameraAlert>();
-
-                                    newCameraData.Alerts = newAlerts;
-                                    AppParameters.CameraInfoList[ip] = newCameraData;
-
-                                    List<Tuple<GeoMarker, string>> camerasToBroadcast = new List<Tuple<GeoMarker, string>>();
-                                    foreach (CoordinateSystem cs in AppParameters.CoordinateSystem.Values)
-                                    {
-                                        cs.Locators.Where(f => f.Value.Properties.TagType == "Camera" &&
-                                        f.Value.Properties.Name == ip).Select(y => y.Value).
-                                        ToList().ForEach(Camera =>
-                                        {
-                                            Camera.Properties.DarvisAlerts = AppParameters.CameraInfoList[ip].Alerts.ToList();
-                                            Tuple<GeoMarker, string> thisCameraData = new Tuple<GeoMarker, string>(Camera, cs.Id);
-                                            camerasToBroadcast.Add(thisCameraData);
-                                        });
-
-                                    }
-
-                                    FOTFManager.Instance.BroadcastCameraStatus(camerasToBroadcast);
+                                    ProcessNewOrExistingCameraData(newObject, ref alertList,
+                                        camera_id, true);
+                                }
+                                foreach (JToken object_id in removedDetections)
+                                {
 
                                 }
+                                foreach (JObject updatedObject in updatedDetections)
+                                {
+                                    ProcessNewOrExistingCameraData(updatedObject, ref alertList,
+                                        camera_id, false);
+                                }
+                                Cameras newCameraData = AppParameters.CameraInfoList[ip];
+                                List<DarvisCameraAlert> newAlerts = alertList.ToArray<DarvisCameraAlert>().ToList<DarvisCameraAlert>();
+
+                                newCameraData.Alerts = newAlerts;
+                                AppParameters.CameraInfoList[ip] = newCameraData;
+
+                                List<Tuple<GeoMarker, string>> camerasToBroadcast = new List<Tuple<GeoMarker, string>>();
+                                foreach (CoordinateSystem cs in AppParameters.CoordinateSystem.Values)
+                                {
+                                    cs.Locators.Where(f => f.Value.Properties.TagType == "Camera" &&
+                                    f.Value.Properties.Name == ip).Select(y => y.Value).
+                                    ToList().ForEach(Camera =>
+                                    {
+                                        Camera.Properties.DarvisAlerts = AppParameters.CameraInfoList[ip].Alerts.ToList();
+                                        Tuple<GeoMarker, string> thisCameraData = new Tuple<GeoMarker, string>(Camera, cs.Id);
+                                        camerasToBroadcast.Add(thisCameraData);
+                                    });
+
+                                }
+
+                                FOTFManager.Instance.BroadcastCameraStatus(camerasToBroadcast);
+
                             }
                         }
                     }
-                    catch (Exception ex)
-                    {
-
-                    }
                 }
+                catch (Exception ex)
+                {
+                    new ErrorLogger().ExceptionLog(ex);
+                }
+            }
         }
        
         public void DarvisWSMessage(string message)
@@ -345,8 +344,8 @@ class MulticastUdpServer : UdpServer
             if (message.StartsWith("42"))
             {
                 message = message.Substring(2);
-                
-                ProcessAlerts(message);
+
+               Task.Run(() => ProcessAlerts(message));
             }
 
         }
