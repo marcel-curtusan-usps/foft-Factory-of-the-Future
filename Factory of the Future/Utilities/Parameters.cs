@@ -53,25 +53,20 @@ namespace Factory_of_the_Future
         public string Browser_Version { get; set; }
         public string FirstName { get; set; } = "";
         public string SurName { get; set; } = "";
+        public string Domain { get; set; } = "";
         public string IpAddress { get; set; } = "";
-        public string ServerIpAddress { get; set; }
         public string MiddleName { get; set; } = "";
         public string Error { get; set; } = "";
         public string App_Type { get; set; } = "";
-        public string SoftwareVersion { get; set; }
-        public string Domain { get; set; }
         public string NASSCode { get; set; }
         public string FDBID { get; set; }
         public DateTime LoginDate { get; set; }
-        public string SessionID { get; set; }
         public bool IsAuthenticated { get; set; }
-        public string GroupNames { get; set; }
         public string ConnectionId { get; set; } = "";
         public string VoiceTelephoneNumber { get; set; }
         public string EmailAddress { get; set; } = "";
         public string Phone { get; set; } = "";
         public string EIN { get; set; } = "";
-        public string TAGID { get; set; } = "";
         public object Login_Date { get; internal set; } = "";
         public string Session_ID { get; internal set; } = "";
         public string Server_IpAddress { get; internal set; } = "";

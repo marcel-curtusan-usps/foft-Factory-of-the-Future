@@ -148,16 +148,19 @@ namespace Factory_of_the_Future
                     Session_ID = HttpContext.Current.Session.SessionID,
                     NASSCode = AppParameters.AppSettings["FACILITY_NASS_CODE"].ToString(),
                     FDBID = AppParameters.AppSettings["FACILITY_ID"].ToString(),
+                    FacilityTimeZone = AppParameters.AppSettings["FACILITY_TIMEZONE"].ToString(),
+                    App_Type = AppParameters.AppSettings["APPLICATION_NAME"].ToString(),
                     FacilityName = !string.IsNullOrEmpty(AppParameters.AppSettings["FACILITY_NAME"].ToString()) ? AppParameters.AppSettings["FACILITY_NAME"].ToString() : "Site Not Configured",
                     Server_IpAddress = AppParameters.ServerIpAddress,
                     IsAuthenticated = HttpContext.Current.Request.IsAuthenticated,
-                    App_Type = AppParameters.ApplicationEnvironment,
                     IpAddress = Request.ServerVariables["REMOTE_HOST"],
                     Login_Date = DateTime.Now,
                     Software_Version = AppParameters.VersionInfo,
                     Browser_Type = HttpContext.Current.Request.Browser.Type,
                     Browser_Name = HttpContext.Current.Request.Browser.Browser,
                     Browser_Version = HttpContext.Current.Request.Browser.Version,
+                    Domain = HttpContext.Current.Request.LogonUserIdentity.Name.ToString().Split('\\')[0].ToUpper(),
+                    Environment = AppParameters.ApplicationEnvironment,
                     Role = GetUserRole(GetGroupNames(((WindowsIdentity)HttpContext.Current.Request.LogonUserIdentity).Groups))
                 };
 
@@ -169,7 +172,7 @@ namespace Factory_of_the_Future
                 Session[SessionKey.Facility_Id] = adUser.FDBID;
                 Session[SessionKey.Facility_Name] = adUser.FacilityName;
                 Session[SessionKey.Environment] = AppParameters.ApplicationEnvironment;
-                Session[SessionKey.FacilityTimeZone] = AppParameters.AppSettings["FACILITY_TIMEZONE"].ToString();
+                Session[SessionKey.FacilityTimeZone] = adUser.FacilityTimeZone;
                 Session[SessionKey.IsAuthenticated] = HttpContext.Current.Request.IsAuthenticated;
                 authCookie = AuthenticationCookie.Create(adUser.UserId, Converter.ObjectToString(adUser), true);
                 Task.Run(() => AddUserToList(adUser));
