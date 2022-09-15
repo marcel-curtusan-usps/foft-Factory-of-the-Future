@@ -1,6 +1,37 @@
 ﻿<!DOCTYPE html>
 <html>
-<body onload="GetQueryString()">
+<head>
+    <title>USPS</title>
+    <meta charset="utf-8" />
+    <meta http-equiv="Cache-control" content="public">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <style>
+        .loadingFOTF {
+            position: fixed;
+            margin-left: -5%;
+            margin-right: auto;
+            width: 110%;
+            top: -50px;
+            height: 10000px;
+            display: block;
+            z-index: 2000000001;
+            background-color: #f9f9f9;
+        }
+        .loadingFOTFBody {
+            overflow: hidden;
+        }
+
+    </style>
+    <link rel="preload" href="Content/bootstrap-icons.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <link rel="preload" href="Content/bootstrap.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <link rel="preload" href="Content/selectize.bootstrap4.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <link rel="preload" href="Content/easy-button.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <link rel="preload" href="Content/_base.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <link rel="preload" href="Content/leaflet.css" as="style" onload="this.onload = null; this.rel = 'stylesheet'">
+    <link rel="preload" href="Content/leaflet-sidebar.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <link rel="preload" href="Content/leaflet-geoman.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <link rel="preload" href="Content/Site.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <link rel="preload" href="Content/Filter.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
     <script>
         function GetQueryString() {
             var newurl = document.URL.replace('.html', '.aspx');

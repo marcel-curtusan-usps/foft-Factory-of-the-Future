@@ -287,6 +287,7 @@ $(function () {
             });
         }
         if (/(^PMCCUser$)/i.test(User.UserId)) {
+            fotfmanager.server.leaveGroup("PeopleMarkers");
             //add QRCode
             var QRCodedisplay = L.Control.extend({
                 options: {
