@@ -463,9 +463,7 @@ function init_mapSetup(MapData) {
             LoadNotification("vehicle");
             //add user to the tag groups only for none PMCCUser
             if (User.hasOwnProperty("UserId")) {
-                if (!/(^PMCCUser$)/i.test(User.UserId)) {
-                    fotfmanager.server.joinGroup("PeopleMarkers");
-                }
+                fotfmanager.server.joinGroup("PeopleMarkers");
             }
             
         }
