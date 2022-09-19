@@ -308,6 +308,7 @@ function convertToSparkline(machineSparklineString) {
         tuple.Item1.properties.opacity = 0;
         tuple.Item1.properties.fillOpacity = 0;
         tuple.Item1.properties.id = tuple.Item1.properties.id + "-sp";
+        tuple.Item1.properties.interactive = false;
     }
     return machineSparklinesNew;
 
@@ -329,6 +330,7 @@ async function updateMachineSparkline(machineupdate, id) {
                         layer.options.color = "transparent";
                         layer.options.fillOpacity = 0;
                         layer.options.opacity = 0;
+                        layer.options.interactive = false;
                         if (layerMachineIdMatch(layer, machineupdate))
                         {
                            
