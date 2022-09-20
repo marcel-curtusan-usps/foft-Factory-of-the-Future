@@ -898,47 +898,80 @@ namespace Factory_of_the_Future
             {
                 if (data != null)
                 {
+                    TacsTags tag = JsonConvert.DeserializeObject<TacsTags>(data);
+                    if (tag.MissedSels != null)
+                    {
+                        foreach (var MissedSelitem in tag.MissedSels)
+                        {
+                            foreach (CoordinateSystem cs in AppParameters.CoordinateSystem.Values)
+                            {
+                                List<string> tagID = cs.Locators.Where(x => x.Value.Properties.TagType.EndsWith("Person")
+                                && x.Value.Properties.Id.Trim().ToUpper() == MissedSelitem.TagId.Trim().ToUpper()).Select(y => y.Key).ToList();
+                                if(tagID.Count > 0)
+                                {
+                                    for (int i = 0; i < tagID.Count; i++)
+                                    {
+                                        cs.Locators.Where(f => f.Key == tagID[i]).Select(y => y.Value).ToList().ForEach(existingValue =>
+                                        {
+                                         
+                                            if(existingValue.Properties.Tacs != null)
+                                            {
+                                                if(existingValue.Properties.Tacs.IsOvertime != MissedSelitem.Tacs.IsOvertime || existingValue.Properties.Tacs.IsOvertimeAuth != MissedSelitem.Tacs.IsOvertimeAuth)
+                                                {
+                                                    existingValue.Properties.TagUpdate = true;
+                                                }
+                                            }
+                                            existingValue.Properties.Tacs = MissedSelitem.Tacs;
+                                            existingValue.Properties.Tacs.IsOvertime = true;
+                                            //existingValue.Properties.Tacs.Ldc = MissedSelitem.Tacs.Ldc;
+                                            
+                                        });
+                                    }
+                                }
 
-                    //TacsTags tag = JsonConvert.DeserializeObject<TacsTags>(data);
-                    //if (tag.MissedSels != null)
-                    //{
-                    //    foreach (var MissedSelitem in tag.MissedSels)
-                    //    {
-                    //        if (AppParameters.TagsList.TryGetValue(MissedSelitem.TagId, out GeoMarker geoLmarker))
-                    //        {
-                    //            geoLmarker.Properties.Tacs = JsonConvert.SerializeObject(MissedSelitem.Tacs, Formatting.None);
-                    //            geoLmarker.Properties.IsWearingTag = false;
-                    //            geoLmarker.Properties.EmpId = MissedSelitem.EmpId;
-                    //            geoLmarker.Properties.CraftName = GetCraftName(MissedSelitem.TagName);
-                    //            geoLmarker.Properties.BadgeId = GetBadgeId(MissedSelitem.TagName);
-                    //            geoLmarker.Properties.TagUpdate = true;
-                    //        }
-                    //        else
-                    //        {
-                    //            GeoMarker Lmarker = new GeoMarker();
-                    //            Lmarker.Geometry.Coordinates = new List<double> { 0, 0 };
-                    //            Lmarker.Properties.Id = MissedSelitem.TagId;
-                    //            Lmarker.Properties.Name = MissedSelitem.TagName;
-                    //            Lmarker.Properties.EmpId = MissedSelitem.EmpId;
-                    //            Lmarker.Properties.TagType = "Person";
-                    //            Lmarker.Properties.CraftName = GetCraftName(MissedSelitem.TagName);
-                    //            Lmarker.Properties.BadgeId = GetBadgeId(MissedSelitem.TagName);
-                    //            Lmarker.Properties.PositionTS = AppParameters.UnixTimeStampToDateTime((long)MissedSelitem.ProcessedTs);
-                    //            Lmarker.Properties.TagVisible = false;
-                    //            Lmarker.Properties.IsWearingTag = false;
-                    //            Lmarker.Properties.TagUpdate = true;
-                    //            if (!AppParameters.TagsList.TryAdd(MissedSelitem.TagId, Lmarker))
-                    //            {
-                    //                new ErrorLogger().CustomLog("Unable to Add Marker" + MissedSelitem.TagId, string.Concat((string)AppParameters.AppSettings.Property("APPLICATION_NAME").Value, "_Applogs"));
-                    //            }
-                    //        }
-                    //    }
-                    //    Task.Run(() => updateConnection(conID, "good"));
-                    //}
-                    //else
-                    //{
-                    //    Task.Run(() => updateConnection(conID, "error"));
-                    //}
+                            }
+                                
+
+
+
+
+
+
+                        //    if (AppParameters.TagsList.TryGetValue(MissedSelitem.TagId, out GeoMarker geoLmarker))
+                        //    {
+                        //        geoLmarker.Properties.Tacs = JsonConvert.SerializeObject(MissedSelitem.Tacs, Formatting.None);
+                        //        geoLmarker.Properties.IsWearingTag = false;
+                        //        geoLmarker.Properties.EmpId = MissedSelitem.EmpId;
+                        //        geoLmarker.Properties.CraftName = GetCraftName(MissedSelitem.TagName);
+                        //        geoLmarker.Properties.BadgeId = GetBadgeId(MissedSelitem.TagName);
+                        //        geoLmarker.Properties.TagUpdate = true;
+                        //    }
+                        //    else
+                        //    {
+                        //        GeoMarker Lmarker = new GeoMarker();
+                        //        Lmarker.Geometry.Coordinates = new List<double> { 0, 0 };
+                        //        Lmarker.Properties.Id = MissedSelitem.TagId;
+                        //        Lmarker.Properties.Name = MissedSelitem.TagName;
+                        //        Lmarker.Properties.EmpId = MissedSelitem.EmpId;
+                        //        Lmarker.Properties.TagType = "Person";
+                        //        Lmarker.Properties.CraftName = GetCraftName(MissedSelitem.TagName);
+                        //        Lmarker.Properties.BadgeId = GetBadgeId(MissedSelitem.TagName);
+                        //        Lmarker.Properties.PositionTS = AppParameters.UnixTimeStampToDateTime((long)MissedSelitem.ProcessedTs);
+                        //        Lmarker.Properties.TagVisible = false;
+                        //        Lmarker.Properties.IsWearingTag = false;
+                        //        Lmarker.Properties.TagUpdate = true;
+                        //        if (!AppParameters.TagsList.TryAdd(MissedSelitem.TagId, Lmarker))
+                        //        {
+                        //            new ErrorLogger().CustomLog("Unable to Add Marker" + MissedSelitem.TagId, string.Concat((string)AppParameters.AppSettings.Property("APPLICATION_NAME").Value, "_Applogs"));
+                        //        }
+                        //    }
+                        }
+                        Task.Run(() => updateConnection(conID, "good"));
+                    }
+                    else
+                    {
+                        Task.Run(() => updateConnection(conID, "error"));
+                    }
                 }
 
               

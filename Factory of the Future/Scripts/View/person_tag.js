@@ -8,15 +8,26 @@ async function updatePersonTag(tagpositionupdate,id) {
     try {
         if (id == baselayerid) {
             if (tagsMarkersGroup.hasOwnProperty("_layers")) {
+
+
                 var layerindex = -0;
                 $.map(tagsMarkersGroup._layers, function (layer) {
+
                     if (layer.hasOwnProperty("feature")) {
                         if (layer.feature.properties.id === tagpositionupdate.properties.id) {
                             layer.feature.properties = tagpositionupdate.properties;
                             layer.feature.geometry = tagpositionupdate.geometry.coordinates;
                             layerindex = layer._leaflet_id;
-                            Promise.all([updateTagLocation(layerindex)]);
 
+                            if (layer.feature.properties.tacs != null) {
+                                if (tagpositionupdate.properties.tacs != null) {
+                                    layer.feature.properties.tacs.isOvertime = true;
+                                }
+                            }
+
+
+                            Promise.all([updateTagLocation(layerindex)]);
+                            
 
                             return false;
                         }
@@ -43,12 +54,27 @@ var tagsMarkersGroup = new L.GeoJSON(null, {
     },
     onEachFeature: function (feature, layer) {
         var VisiblefillOpacity = feature.properties.tagVisibleMils < 80000 ? "" : "tooltip-hidden";
+        var isOT = false;
+        var isOTAuth = false;
+        var classname = 'persontag ' + VisiblefillOpacity;
+        if (feature.properties.tacs != null) {
+            isOT = feature.properties.tacs.isOvertime;
+            isOTAuth = feature.properties.tacs.isOvertimeAuth
+            if (isOT && isOTAuth) {
+                classname = 'persontag_otAuth ' + VisiblefillOpacity;
+            }
+            else if (isOT && !isOTAuth) {
+                classname = 'persontag_otNotAuth ' + VisiblefillOpacity;
+            }
+        }
+        
         layer.bindTooltip("", {
             permanent: true,
             interactive: true,
             direction: 'center',
             opacity: 1,
-            className: 'persontag ' + VisiblefillOpacity
+            //className: 'persontag ' + VisiblefillOpacity
+            className: classname
         }).openTooltip();
     },
     filter: function (feature, layer) {
@@ -58,6 +84,36 @@ var tagsMarkersGroup = new L.GeoJSON(null, {
 async function updateTagLocation(layerindex)
 {
     try {
+        if (tagsMarkersGroup._layers[layerindex].feature.properties.tacs != null) {
+            if (tagsMarkersGroup._layers[layerindex].feature.properties.tacs.isOvertime
+                && tagsMarkersGroup._layers[layerindex].feature.properties.tacs.isOvertimeAuth
+                && !tagsMarkersGroup._layers[layerindex]._tooltip._container.classList.contains('persontag_otAuth')) {
+                if (tagsMarkersGroup._layers[layerindex]._tooltip._container.classList.contains('persontag')) { tagsMarkersGroup._layers[layerindex]._tooltip._container.classList.remove('persontag'); }
+                if (tagsMarkersGroup._layers[layerindex]._tooltip._container.classList.contains('persontag_otNotAuth')) { tagsMarkersGroup._layers[layerindex]._tooltip._container.classList.remove('persontag_otNotAuth'); }
+                tagsMarkersGroup._layers[layerindex]._tooltip._container.classList.add('persontag_otAuth');
+            }
+            else if (tagsMarkersGroup._layers[layerindex].feature.properties.tacs.isOvertime
+                && !tagsMarkersGroup._layers[layerindex].feature.properties.tacs.isOvertimeAuth
+                && !tagsMarkersGroup._layers[layerindex]._tooltip._container.classList.contains('persontag_otNotAuth')) {
+                if (tagsMarkersGroup._layers[layerindex]._tooltip._container.classList.contains('persontag')) { tagsMarkersGroup._layers[layerindex]._tooltip._container.classList.remove('persontag'); }
+                if (tagsMarkersGroup._layers[layerindex]._tooltip._container.classList.contains('persontag_otAuth')) { tagsMarkersGroup._layers[layerindex]._tooltip._container.classList.remove('persontag_otAuth'); }
+                tagsMarkersGroup._layers[layerindex]._tooltip._container.classList.add('persontag_otNotAuth');
+            }
+            else if (!tagsMarkersGroup._layers[layerindex].feature.properties.tacs.isOvertime
+                && !tagsMarkersGroup._layers[layerindex].feature.properties.tacs.isOvertimeAuth){
+                if (tagsMarkersGroup._layers[layerindex]._tooltip._container.classList.contains('persontag_otNotAuth')) { tagsMarkersGroup._layers[layerindex]._tooltip._container.classList.remove('persontag'); }
+                if (tagsMarkersGroup._layers[layerindex]._tooltip._container.classList.contains('persontag_otAuth')) { tagsMarkersGroup._layers[layerindex]._tooltip._container.classList.remove('persontag_otAuth'); }
+                tagsMarkersGroup._layers[layerindex]._tooltip._container.classList.add('persontag');
+            }
+
+        }
+        else {
+            if (!tagsMarkersGroup._layers[layerindex]._tooltip._container.classList.contains('persontag')) {
+                if (tagsMarkersGroup._layers[layerindex]._tooltip._container.classList.contains('persontag_otNotAuth')) { tagsMarkersGroup._layers[layerindex]._tooltip._container.classList.remove('persontag'); }
+                if (tagsMarkersGroup._layers[layerindex]._tooltip._container.classList.contains('persontag_otAuth')) { tagsMarkersGroup._layers[layerindex]._tooltip._container.classList.remove('persontag_otAuth'); }
+                tagsMarkersGroup._layers[layerindex]._tooltip._container.classList.add('persontag');
+            }
+        }
                 //circleMarker._layers[layerindex].feature
         if (tagsMarkersGroup._layers[layerindex].feature.properties.tagVisibleMils > 80000) {
             if (tagsMarkersGroup._layers[layerindex].hasOwnProperty("_tooltip") && tagsMarkersGroup._layers[layerindex]._tooltip.hasOwnProperty("_container") &&
