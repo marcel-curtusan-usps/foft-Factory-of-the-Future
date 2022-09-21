@@ -47,6 +47,9 @@ namespace Factory_of_the_Future
                         case "getTacsVsSels":
                             TacsVsSels(data, Message_type, connID);
                             break;
+                        case "getTacsVsSels_Summary":
+                            TacsVsSels(data, Message_type, connID);
+                            break;
                         //case "TacsVsSelsAnomaly":
                         //    TacsVsSelsLDCAnomaly(data, Message_type);
                         //    break;
@@ -898,83 +901,109 @@ namespace Factory_of_the_Future
             {
                 if (data != null)
                 {
-                    TacsTags tag = JsonConvert.DeserializeObject<TacsTags>(data);
-                    if (tag.MissedSels != null)
+                    if(message_type == "getTacsVsSels_Summary")
                     {
-                        foreach (var MissedSelitem in tag.MissedSels)
+                        JToken tempData = JToken.Parse(data);
+                        //JArray ja = JArray.Parse(data);
+                        foreach(JObject item in tempData)
                         {
-                            foreach (CoordinateSystem cs in AppParameters.CoordinateSystem.Values)
+                            string badgeID = !string.IsNullOrEmpty(item["tagId"].ToString()) ? item["tagId"].ToString() : "";
+
+                            string ldc = !string.IsNullOrEmpty(item["tacs"]["ldc"].ToString()) ? item["tacs"]["ldc"].ToString() : "";
+                            string finance = !string.IsNullOrEmpty(item["tacs"]["finance"].ToString()) ? item["tacs"]["finance"].ToString() : "";
+                            string fnAlert = !string.IsNullOrEmpty(item["tacs"]["fnAlert"].ToString()) ? item["tacs"]["fnAlert"].ToString() : "";
+                            int totalTime = !string.IsNullOrEmpty(item["tacs"]["totalTime"].ToString()) ? (Int32)item["tacs"]["totalTime"] : 0;
+                            string operationId = !string.IsNullOrEmpty(item["tacs"]["operationId"].ToString()) ? item["tacs"]["operationId"].ToString() : "";
+                            string payLocation = !string.IsNullOrEmpty(item["tacs"]["payLocation"].ToString()) ? item["tacs"]["payLocation"].ToString() : "";
+                            int overtimeHours = !string.IsNullOrEmpty(item["tacs"]["overtimeHours"].ToString()) ? (Int32)item["tacs"]["overtimeHours"] : 0;
+                            bool isOverTime = !string.IsNullOrEmpty(item["tacs"]["isOvertime"].ToString()) ? (bool)item["tacs"]["isOvertime"] : false;
+                            bool isOverTimeAuth = !string.IsNullOrEmpty(item["tacs"]["isOvertimeAuth"].ToString()) ? (bool)item["tacs"]["isOvertimeAuth"] : false;
+                            if (!string.IsNullOrEmpty(badgeID))
                             {
-                                List<string> tagID = cs.Locators.Where(x => x.Value.Properties.TagType.EndsWith("Person")
-                                && x.Value.Properties.Id.Trim().ToUpper() == MissedSelitem.TagId.Trim().ToUpper()).Select(y => y.Key).ToList();
-                                if(tagID.Count > 0)
+                                foreach (CoordinateSystem cs in AppParameters.CoordinateSystem.Values)
                                 {
-                                    for (int i = 0; i < tagID.Count; i++)
+                                    List<string> tagID = cs.Locators.Where(x => x.Value.Properties.TagType.EndsWith("Person")
+                                    && x.Value.Properties.Id.Trim().ToUpper() == badgeID.Trim().ToUpper()).Select(y => y.Key).ToList();
+                                    if (tagID.Count > 0)
                                     {
-                                        cs.Locators.Where(f => f.Key == tagID[i]).Select(y => y.Value).ToList().ForEach(existingValue =>
+                                        for (int i = 0; i < tagID.Count; i++)
                                         {
-                                         
-                                            if(existingValue.Properties.Tacs != null)
+                                            cs.Locators.Where(f => f.Key == tagID[i]).Select(y => y.Value).ToList().ForEach(existingValue =>
                                             {
-                                                if(existingValue.Properties.Tacs.IsOvertime != MissedSelitem.Tacs.IsOvertime || existingValue.Properties.Tacs.IsOvertimeAuth != MissedSelitem.Tacs.IsOvertimeAuth)
+
+                                                if (existingValue.Properties.Tacs != null)
                                                 {
-                                                    existingValue.Properties.TagUpdate = true;
+                                                    //Update if used for more that OT
+                                                    if (existingValue.Properties.Tacs.IsOvertime != isOverTime || existingValue.Properties.Tacs.IsOvertimeAuth != isOverTimeAuth)
+                                                    {
+                                                        existingValue.Properties.TagUpdate = true;
+                                                    }
                                                 }
-                                            }
-                                            existingValue.Properties.Tacs = MissedSelitem.Tacs;
-                                            existingValue.Properties.Tacs.IsOvertime = true;
-                                            //existingValue.Properties.Tacs.Ldc = MissedSelitem.Tacs.Ldc;
-                                            
-                                        });
+                                                Tacs tc = new Tacs
+                                                {
+                                                    Ldc = ldc,
+                                                    Finance = finance,
+                                                    FnAlert = fnAlert,
+                                                    TotalTime = totalTime,
+                                                    OperationId = operationId,
+                                                    PayLocation = payLocation,
+                                                    IsOvertimeAuth = isOverTimeAuth,
+                                                    OvertimeHours = overtimeHours,
+                                                    IsOvertime = isOverTime,
+                                                    StartTs = null,
+                                                    StartTxt = "",
+                                                    Ts = null,
+                                                    OpenRingCode = ""
+                                                };
+                                                existingValue.Properties.Tacs = tc;
+                                            });
+                                        }
                                     }
                                 }
-
                             }
-                                
-
-
-
-
-
-
-                        //    if (AppParameters.TagsList.TryGetValue(MissedSelitem.TagId, out GeoMarker geoLmarker))
-                        //    {
-                        //        geoLmarker.Properties.Tacs = JsonConvert.SerializeObject(MissedSelitem.Tacs, Formatting.None);
-                        //        geoLmarker.Properties.IsWearingTag = false;
-                        //        geoLmarker.Properties.EmpId = MissedSelitem.EmpId;
-                        //        geoLmarker.Properties.CraftName = GetCraftName(MissedSelitem.TagName);
-                        //        geoLmarker.Properties.BadgeId = GetBadgeId(MissedSelitem.TagName);
-                        //        geoLmarker.Properties.TagUpdate = true;
-                        //    }
-                        //    else
-                        //    {
-                        //        GeoMarker Lmarker = new GeoMarker();
-                        //        Lmarker.Geometry.Coordinates = new List<double> { 0, 0 };
-                        //        Lmarker.Properties.Id = MissedSelitem.TagId;
-                        //        Lmarker.Properties.Name = MissedSelitem.TagName;
-                        //        Lmarker.Properties.EmpId = MissedSelitem.EmpId;
-                        //        Lmarker.Properties.TagType = "Person";
-                        //        Lmarker.Properties.CraftName = GetCraftName(MissedSelitem.TagName);
-                        //        Lmarker.Properties.BadgeId = GetBadgeId(MissedSelitem.TagName);
-                        //        Lmarker.Properties.PositionTS = AppParameters.UnixTimeStampToDateTime((long)MissedSelitem.ProcessedTs);
-                        //        Lmarker.Properties.TagVisible = false;
-                        //        Lmarker.Properties.IsWearingTag = false;
-                        //        Lmarker.Properties.TagUpdate = true;
-                        //        if (!AppParameters.TagsList.TryAdd(MissedSelitem.TagId, Lmarker))
-                        //        {
-                        //            new ErrorLogger().CustomLog("Unable to Add Marker" + MissedSelitem.TagId, string.Concat((string)AppParameters.AppSettings.Property("APPLICATION_NAME").Value, "_Applogs"));
-                        //        }
-                        //    }
                         }
+                    }
+
+
+
+                            //    if (AppParameters.TagsList.TryGetValue(MissedSelitem.TagId, out GeoMarker geoLmarker))
+                            //    {
+                            //        geoLmarker.Properties.Tacs = JsonConvert.SerializeObject(MissedSelitem.Tacs, Formatting.None);
+                            //        geoLmarker.Properties.IsWearingTag = false;
+                            //        geoLmarker.Properties.EmpId = MissedSelitem.EmpId;
+                            //        geoLmarker.Properties.CraftName = GetCraftName(MissedSelitem.TagName);
+                            //        geoLmarker.Properties.BadgeId = GetBadgeId(MissedSelitem.TagName);
+                            //        geoLmarker.Properties.TagUpdate = true;
+                            //    }
+                            //    else
+                            //    {
+                            //        GeoMarker Lmarker = new GeoMarker();
+                            //        Lmarker.Geometry.Coordinates = new List<double> { 0, 0 };
+                            //        Lmarker.Properties.Id = MissedSelitem.TagId;
+                            //        Lmarker.Properties.Name = MissedSelitem.TagName;
+                            //        Lmarker.Properties.EmpId = MissedSelitem.EmpId;
+                            //        Lmarker.Properties.TagType = "Person";
+                            //        Lmarker.Properties.CraftName = GetCraftName(MissedSelitem.TagName);
+                            //        Lmarker.Properties.BadgeId = GetBadgeId(MissedSelitem.TagName);
+                            //        Lmarker.Properties.PositionTS = AppParameters.UnixTimeStampToDateTime((long)MissedSelitem.ProcessedTs);
+                            //        Lmarker.Properties.TagVisible = false;
+                            //        Lmarker.Properties.IsWearingTag = false;
+                            //        Lmarker.Properties.TagUpdate = true;
+                            //        if (!AppParameters.TagsList.TryAdd(MissedSelitem.TagId, Lmarker))
+                            //        {
+                            //            new ErrorLogger().CustomLog("Unable to Add Marker" + MissedSelitem.TagId, string.Concat((string)AppParameters.AppSettings.Property("APPLICATION_NAME").Value, "_Applogs"));
+                            //        }
+                            //    }
+                        //}
                         Task.Run(() => updateConnection(conID, "good"));
-                    }
-                    else
-                    {
-                        Task.Run(() => updateConnection(conID, "error"));
-                    }
+                    //}
+                    
+                }
+                else
+                {
+                    Task.Run(() => updateConnection(conID, "error"));
                 }
 
-              
             }
             catch (Exception e)
             {

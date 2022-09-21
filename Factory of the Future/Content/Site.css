@@ -131,7 +131,7 @@
 .leaflet-tooltip.persontag_otNotAuth {
   width: 20px;
   height: 20px;
-  background-color: #FFA500;
+  background-color: #ff6500;
   clip-path: polygon(50% 0%, 0% 100%, 100% 100%); }
 
 .leaflet-tooltip.locator {
