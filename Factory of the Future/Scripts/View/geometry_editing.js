@@ -460,6 +460,7 @@ function VaildateForm(FormType)
             if (mpedata.length > 0) {
                 //sort 
                 mpedata.sort(SortByName);
+                mpedata.push('**Machine Not Listed');
                 $('input[id=zone_name]').css('display', 'none');
                 $('select[id=zone_select_name]').css('display', 'block');
                 $('select[id=zone_select_name]').empty();
