@@ -176,9 +176,16 @@ async function updateCameras(cameraupdate, id, datePassed) {
                                         cameraupdate.properties.base64Image);
 
                                     let img = await highlightCameraAlert(base64Image, red, 0, 0, 20);
+                                    var mapsize = map.getZoom();
+                                    var iconsizeh = 64;
+                                    var iconsizew = 48
+                                    if (mapsize > 2) {
+                                        iconsizeh = 64 * mapsize;
+                                        iconsizew = 48 * mapsize;
+                                    }
                                     var locaterIcon = L.icon({
                                         iconUrl: img,
-                                        iconSize: [64, 48], // size of the icon
+                                        iconSize: [iconsizeh, iconsizew], // size of the icon
                                         iconAnchor: [0, 0], // point of the icon which will correspond to marker's location
                                         shadowAnchor: [0, 0],  // the same for the shadow
                                         popupAnchor: [0, 0] // point from which the popup should open relative to the iconAnchor
@@ -189,9 +196,16 @@ async function updateCameras(cameraupdate, id, datePassed) {
                                 else {
                                     var base64Image = (cameraupdate.properties.base64Image ===
                                         "" ? "../../Content/images/NoImage.png" : cameraupdate.properties.base64Image);
+                                    var mapsize = map.getZoom();
+                                    var iconsizeh = 64;
+                                    var iconsizew = 48
+                                    if (mapsize > 2) {
+                                        iconsizeh = 64 * mapsize;
+                                        iconsizew = 48 * mapsize;
+                                    }
                                     var locaterIcon = L.icon({
                                         iconUrl: base64Image,
-                                        iconSize: [64, 48], // size of the icon
+                                        iconSize: [iconsizeh, iconsizew], // size of the icon
                                         iconAnchor: [0, 0], // point of the icon which will correspond to marker's location
                                         shadowAnchor: [0, 0],  // the same for the shadow
                                         popupAnchor: [0, 0] // point from which the popup should open relative to the iconAnchor
