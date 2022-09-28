@@ -147,10 +147,10 @@
                         </div>
                     </div>
                     <div class="row mb-3">
-                        <div class="form-group col-3">
+                        <div class="form-group col">
                             <label class="control-label">Message Type</label><input id="message_type" type="text" class="form-control" name="message_type"><span id="error_message_type" class="text-danger"></span>
                         </div>
-                        <div class="form-group col-3">
+                        <div class="form-group col">
                             <label class="control-label">Retrieve Occurrences</label>
                             <select id="data_retrieve" class="form-control pb-1" name="data_retrieve">
                                 <option value=""></option>
@@ -168,9 +168,6 @@
                                 <option value="86400000">1 Day</option>
                             </select>
                             <span id="error_data_retrieve" class="text-danger"></span>
-                        </div>
-                        <div class="form-group col-6">
-                            <label class="control-label">Administrator Email</label><input id="admin_email_recepient" type="text" class="form-control" name="admin_email_recepient"><span id="error_admin_email_recepient" class="text-danger"></span>
                         </div>
                     </div>
                 </div>

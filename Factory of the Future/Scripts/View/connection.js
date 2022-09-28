@@ -25,7 +25,6 @@ function enablewsSubmit() {
         $('input[type=text][name=url]').hasClass('is-valid') &&
         $('input[type=text][name=message_type]').hasClass('is-valid') &&
         $('input[type=text][name=port_number]').hasClass('is-valid') &&
-        $('input[type=text][name=admin_email_recepient]').hasClass('is-valid') &&
         $('input[type=text][name=connection_name]').hasClass('is-valid')
     ) {
         $('button[id=apisubmitBtn]').prop('disabled', false);
@@ -65,14 +64,7 @@ function onUpdateWS() {
             $('input[type=text][name=connection_name]').css("border-color", "#2eb82e").removeClass('is-invalid').addClass('is-valid');
             $('span[id=error_connection_name]').text("");
         }
-        if (!checkValue($('input[type=text][name=admin_email_recepient]').val())) {
-            $('input[type=text][name=admin_email_recepient]').css("border-color", "#FF0000").removeClass('is-valid').addClass('is-invalid');
-            $('span[id=error_admin_email_recepient]').text("Please Enter Administrator Email Address");
-        }
-        else {
-            $('input[type=text][name=admin_email_recepient]').css("border-color", "#2eb82e").removeClass('is-invalid').addClass('is-valid');
-            $('span[id=error_admin_email_recepient]').text("");
-        }
+        
         if (!checkValue($('input[type=text][name=port_number]').val())) {
             $('input[type=text][name=port_number]').css({ "border-color": "#FF0000" }).removeClass('is-valid').addClass('is-invalid');
             $('span[id=error_port_number]').text("Please Enter Port Number");
@@ -415,27 +407,7 @@ $('#API_Connection_Modal').on('shown.bs.modal', function () {
         $('input[type=text][name=admin_email_recepient]').css("border-color", "#2eb82e").removeClass('is-invalid').addClass('is-valid');
         $('span[id=error_admin_email_recepient]').text("");
     }
-    //Admin Email Key-up
-    $('input[type=text][name=admin_email_recepient]').keyup(function () {
-        if (!checkValue($('input[type=text][name=admin_email_recepient]').val())) {
-            $('input[type=text][name=admin_email_recepient]').css("border-color", "#FF0000").removeClass('is-valid').addClass('is-invalid');
-            $('span[id=error_admin_email_recepient]').text("Please Enter Administrator Email Address");
-        }
-        else {
-            $('input[type=text][name=admin_email_recepient]').css("border-color", "#2eb82e").removeClass('is-invalid').addClass('is-valid');
-            $('span[id=error_admin_email_recepient]').text("");
-        }
-        if ($('input[type=checkbox][name=udp_connection]').is(':checked')) {
-            enableudpSubmit();
-        }
-        else if ($('input[type=checkbox][name=ws_connection]').is(':checked'))
-        {
-         enablewsSubmit();
-        }
-        else {
-            enableConnectionSubmit();
-        }
-    });
+ 
     ////outapikey Validation
     //if (!checkValue($('input[type=text][name=outgoingapikey]').val())) {
     //    $('input[type=text][name=outgoingapikey]').css("border-color", "#FF0000").removeClass('is-valid').addClass('is-invalid');
@@ -828,7 +800,6 @@ function enableConnectionSubmit() {
         $('input[type=text][name=url]').hasClass('is-valid') &&
         $('input[type=text][name=message_type]').hasClass('is-valid') &&
         $('select[name=data_retrieve]').hasClass('is-valid') &&
-        $('input[type=text][name=admin_email_recepient]').hasClass('is-valid') &&
         $('input[type=text][name=connection_name]').hasClass('is-valid')
     ) {
         $('button[id=apisubmitBtn]').prop('disabled', false);

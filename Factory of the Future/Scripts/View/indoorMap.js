@@ -419,7 +419,7 @@ function init_mapSetup(MapData) {
                 //load Base64 image
                 img.src = this.backgroundImages.base64;
                 //create he bound of the image.
-                bounds = [[this.backgroundImages.yMeter, this.backgroundImages.yMeter], [this.backgroundImages.heightMeter + this.backgroundImages.yMeter, this.backgroundImages.widthMeter + this.backgroundImages.xMeter]];
+                bounds = [[this.backgroundImages.yMeter, this.backgroundImages.xMeter], [this.backgroundImages.heightMeter + this.backgroundImages.yMeter, this.backgroundImages.widthMeter + this.backgroundImages.xMeter]];
                 var trackingarea = L.polygon(bounds, {});
                 if (index === 0) {
                     mainfloor.options.id = this.id;         
