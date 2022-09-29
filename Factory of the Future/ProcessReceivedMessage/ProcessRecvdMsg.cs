@@ -644,6 +644,7 @@ namespace Factory_of_the_Future
                                 {
                                     trip.DoorId = item["doorId"].ToString();
                                     trip.DoorNumber = item["doorNumber"].ToString();
+                                    trip.RawData = JsonConvert.SerializeObject(item, Formatting.None);
                                     //dooritem = JsonConvert.SerializeObject(trip, Formatting.None);
                                     Task.Run(() => UpdateDoorZone(trip));
 
@@ -661,6 +662,7 @@ namespace Factory_of_the_Future
                             }
                             else
                             {
+                                item["rawData"] = JsonConvert.SerializeObject(item, Formatting.None);
                                 Task.Run(() => UpdateDoorZone(item.ToObject<RouteTrips>()));
                             }
                         }
@@ -694,8 +696,12 @@ namespace Factory_of_the_Future
                     && f.Value.Properties.DoorNumber == trip.DoorNumber
                     ).Select(y => y.Value).ToList().ForEach(DockDoor =>
                     {
+                        if(DockDoor.Properties.DockDoorData.RawData != trip.RawData)
+                        {
+                            DockDoor.Properties.ZoneUpdate = true;
+                        }
                         DockDoor.Properties.DockDoorData = trip;
-                        DockDoor.Properties.ZoneUpdate = true;
+                        
                     });
                 }
 
@@ -2670,8 +2676,14 @@ namespace Factory_of_the_Future
             {
                if(AppParameters.ConnectionList.TryGetValue(conId, out Connection m ))
                 {
-                    m.ApiConnected = type == "error" ? false : true;
-                    m.UpdateStatus = true;
+                    var newConStatus = type == "error" ? false : true;
+                    if(m.ApiConnected != newConStatus)
+                    {
+                        m.ApiConnected = newConStatus;
+                        m.UpdateStatus = true;
+                    }
+                    //m.ApiConnected = type == "error" ? false : true;
+                    
                 }
             }
             catch (Exception e)
@@ -3074,7 +3086,7 @@ namespace Factory_of_the_Future
                             }
                             else
                             {
-                                ojbMerge.Notification_Update = true;
+                                ojbMerge.Notification_Update = false;
                             }
                         }
                     }
@@ -3228,6 +3240,7 @@ namespace Factory_of_the_Future
 
         private static void AddScanNotification(string notificationType, string notificationID, string scanID, string typeName, int minutes)
         {
+            
             foreach (NotificationConditions newCondition in AppParameters.NotificationConditionsList.Where(r => Regex.IsMatch(notificationType, r.Value.Conditions, RegexOptions.IgnoreCase)
                             && r.Value.Type.ToLower() == "dockdoor".ToLower()
                             && (bool)r.Value.ActiveCondition).Select(x => x.Value).ToList())
@@ -3244,23 +3257,39 @@ namespace Factory_of_the_Future
                     status = "Warning";
                 }
 
-                Notification _notification = new Notification
+                if (AppParameters.NotificationList.TryGetValue(notificationID, out Notification ojbMerge))
                 {
-                    ActiveCondition = newCondition.ActiveCondition,
-                    Type = newCondition.Type,
-                    Name = newCondition.Name,
-                    Type_ID = scanID,
-                    Notification_ID = notificationID,
-                    Notification_Update = true,
-                    Type_Status = status,
-                    Type_Name = typeName,
-                    Warning = newCondition.Warning,
-                    Critical = newCondition.Critical,
-                    WarningAction = newCondition.WarningAction,
-                    CriticalAction = newCondition.CriticalAction,
-                    Type_Duration = 0
-                };
-                AppParameters.NotificationList.TryAdd(notificationID, _notification);
+                    string prev_status = ojbMerge.Type_Status.ToString().Trim();
+                    if(prev_status != status)
+                    {
+                        ojbMerge.Type_Status = status;
+                        ojbMerge.Notification_Update = true;
+                    }
+                    else
+                    {
+                        ojbMerge.Notification_Update = false;
+                    }
+                }
+                else
+                {
+                    Notification _notification = new Notification
+                    {
+                        ActiveCondition = newCondition.ActiveCondition,
+                        Type = newCondition.Type,
+                        Name = newCondition.Name,
+                        Type_ID = scanID,
+                        Notification_ID = notificationID,
+                        Notification_Update = true,
+                        Type_Status = status,
+                        Type_Name = typeName,
+                        Warning = newCondition.Warning,
+                        Critical = newCondition.Critical,
+                        WarningAction = newCondition.WarningAction,
+                        CriticalAction = newCondition.CriticalAction,
+                        Type_Duration = 0
+                    };
+                    AppParameters.NotificationList.TryAdd(notificationID, _notification);
+                }
             }
         }
 
