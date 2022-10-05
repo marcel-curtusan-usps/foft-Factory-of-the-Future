@@ -400,7 +400,8 @@ namespace Factory_of_the_Future
         public string CurrentLDCs { get; set; } = "";
 
         [JsonProperty("tacs")]
-        public string Tacs { get; set; } = "";
+        //public string Tacs { get; set; } = "";
+        public Tacs Tacs { get; set; }
 
         [JsonProperty("sels")]
         public string Sels { get; set; } = "";

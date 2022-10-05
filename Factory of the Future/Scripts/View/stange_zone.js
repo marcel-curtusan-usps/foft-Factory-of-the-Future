@@ -286,7 +286,10 @@ $('#zoneselect').change(function (e) {
 
 });
  function init_zones(zoneData, id) {
-    //Get Zones list
+     //Get Zones list
+     var hasDockDoorZone = false;
+     var hasMachineZone = false;
+     var hasBinZone = false;
     $.each(zoneData, function () {
         if (/^ebr/i.test(this.properties.name)) {
           
@@ -310,17 +313,20 @@ $('#zoneselect').change(function (e) {
         }
         else if (/^(DockDoor)/i.test(this.properties.Zone_Type)) {
             dockDoors.addData(this);
-            fotfmanager.server.joinGroup("DockDoorZones");
+            hasDockDoorZone = true;
+            //fotfmanager.server.joinGroup("DockDoorZones");
         }
         else if (/^(Machine)/i.test(this.properties.Zone_Type)) {
       
             polygonMachine.addData(this);
-            fotfmanager.server.joinGroup("MachineZones");
+            hasMachineZone = true;
+            //fotfmanager.server.joinGroup("MachineZones");
         }
         else if (/^(Bin)/i.test(this.properties.Zone_Type)) {
          
             binzonepoly.addData(this);
-            fotfmanager.server.joinGroup("BinZones");
+            hasBinZone = true;
+            //fotfmanager.server.joinGroup("BinZones");
         }
         else if (/^(AGVLocation)/i.test(this.properties.Zone_Type)) {
         
@@ -339,7 +345,9 @@ $('#zoneselect').change(function (e) {
             stagingAreas.addData(this);
         }
     })
-
+     if (hasDockDoorZone) { fotfmanager.server.joinGroup("DockDoorZones"); }
+     if (hasMachineZone) { fotfmanager.server.joinGroup("MachineZones"); }
+     if (hasBinZone) { fotfmanager.server.joinGroup("BinZones");}
     // setGreyedOut();
     fotfmanager.server.joinGroup("Zones");
 }

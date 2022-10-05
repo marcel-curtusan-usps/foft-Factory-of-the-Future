@@ -638,6 +638,7 @@ namespace Factory_of_the_Future
                                                  select notification)
                     {
                         BroadcastNotificationStatus(notification);
+                        notification.Notification_Update = false;
                     }
 
                     _updateNotificationstatus = false;
@@ -654,7 +655,10 @@ namespace Factory_of_the_Future
                 {
                     return notification.Notification_Update;
                 }
-
+                if(notification.Type == "dockdoor" && !notification.Delete && notification.Type_Duration == 0)
+                {
+                    return notification.Notification_Update;
+                }
                 notification.Notification_Update = false;
 
                 if (notification.Delete)

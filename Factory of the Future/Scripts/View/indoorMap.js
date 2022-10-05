@@ -247,6 +247,7 @@ function setLayerCheckUncheckEvents() {
 var lastMapZoom = null;
 map.on('zoomend', function () {
     setTimeout(checkSparklineVisibility, 100);
+    updateAllCameras(Date.now());
     if (map.getZoom() != 2) {
         btnZoomReset.button.removeAttribute("style", "display:none;");
     }
@@ -439,7 +440,7 @@ function init_mapSetup(MapData) {
                 //load Base64 image
                 img.src = this.backgroundImages.base64;
                 //create he bound of the image.
-                bounds = [[this.backgroundImages.yMeter, this.backgroundImages.yMeter], [this.backgroundImages.heightMeter + this.backgroundImages.yMeter, this.backgroundImages.widthMeter + this.backgroundImages.xMeter]];
+                bounds = [[this.backgroundImages.yMeter, this.backgroundImages.xMeter], [this.backgroundImages.heightMeter + this.backgroundImages.yMeter, this.backgroundImages.widthMeter + this.backgroundImages.xMeter]];
                 var trackingarea = L.polygon(bounds, {});
                 if (index === 0) {
                     mainfloor.options.id = this.id;         
