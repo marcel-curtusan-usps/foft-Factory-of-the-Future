@@ -638,6 +638,7 @@ namespace Factory_of_the_Future
                                                  select notification)
                     {
                         BroadcastNotificationStatus(notification);
+                        notification.Notification_Update = false;
                     }
 
                     _updateNotificationstatus = false;

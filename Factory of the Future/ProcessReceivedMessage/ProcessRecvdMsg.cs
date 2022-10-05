@@ -2920,8 +2920,11 @@ namespace Factory_of_the_Future
                 }
                 else
                 {
+                    if(ojbMerge.Type_Duration != Convert.ToInt32(timerValue))
+                    {
+                        ojbMerge.Notification_Update = true;
+                    }
                     ojbMerge.Type_Duration = Convert.ToInt32(timerValue);
-                    ojbMerge.Notification_Update = true;
                 }
             }
         }
