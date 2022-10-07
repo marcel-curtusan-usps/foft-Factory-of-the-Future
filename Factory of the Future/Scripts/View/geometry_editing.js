@@ -231,6 +231,29 @@ function init_geometry_editing() {
         }
         enableCameraSubmit();
     });
+    //machine name
+    $('input[type=text][name=new_machine_name]').keyup(function () {
+        if (!checkValue($('input[type=text][name=new_machine_name]').val())) {
+            $('input[type=text][name=new_machine_name]').css("border-color", "#FF0000").removeClass('is-valid').addClass('is-invalid');
+            $('span[id=error_new_machine_name]').text("Please Enter Machine Name");
+        }
+        else {
+            $('input[type=text][name=new_machine_name]').css("border-color", "#2eb82e").removeClass('is-invalid').addClass('is-valid');
+            $('span[id=error_new_machine_name]').text("");
+        }
+        enableZoneSubmit();
+    });
+    $('input[type=text][name=new_machine_number]').keyup(function () {
+        if (!checkValue($('input[type=text][name=new_machine_number]').val())) {
+            $('input[type=text][name=new_machine_number]').css("border-color", "#FF0000").removeClass('is-valid').addClass('is-invalid');
+            $('span[id=error_new_machine_number]').text("Please Enter Machine Name");
+        }
+        else {
+            $('input[type=text][name=new_machine_number]').css("border-color", "#2eb82e").removeClass('is-invalid').addClass('is-valid');
+            $('span[id=error_new_machine_number]').text("");
+        }
+        enableZoneSubmit();
+    });
 }
 function enableBinZoneSubmit() {
     if ($('select[name=zone_type]').hasClass('is-valid') &&
@@ -266,7 +289,12 @@ function enableCameraSubmit() {
     }
 }
 function enableZoneSubmit() {
-    if ($('select[name=zone_type]').hasClass('is-valid') &&
+    if ($('select[name=zone_select_name] option:selected').val() == '**Machine Not Listed' &&
+        !$('input[type=text][name=new_machine_name]').hasClass('is-valid') &&
+        !$('input[type=text][name=new_machine_number]').hasClass('is-valid')) {
+        $('button[id=zonesubmitBtn]').prop('disabled', true);
+    }
+    else if ($('select[name=zone_type]').hasClass('is-valid') &&
         $('input[type=text][name=zone_name]').hasClass('is-valid')
     ) {
         $('button[id=zonesubmitBtn]').prop('disabled', false);
@@ -291,7 +319,15 @@ function CreateZone(newlayer)
         $('button[id=zonesubmitBtn][type=button]').off().on('click', function () {
             togeo.properties = geoProp;
             togeo.properties.Zone_Type = $('select[name=zone_type] option:selected').val();
-            togeo.properties.name = $('input[id=zone_name]').is(':visible') ? $('input[id=zone_name]').val() : $('select[name=zone_select_name] option:selected').val();
+            //togeo.properties.name = $('input[id=zone_name]').is(':visible') ? $('input[id=zone_name]').val() : $('select[name=zone_select_name] option:selected').val();
+
+
+            togeo.properties.name = $('input[id=zone_name]').is(':visible')
+                ? $('input[id=zone_name]').val()
+                : $('select[name=zone_select_name] option:selected').val() == "**Machine Not Listed"
+                    ? $('input[id=new_machine_name]').val() + "-" + $('input[id=new_machine_number]').val().padStart(3, '0')
+                    : $('select[name=zone_select_name] option:selected').val();
+
 
             $.connection.FOTFManager.server.addZone(JSON.stringify(togeo)).done(function (Data) {
                 if (!$.isEmptyObject(Data)) {
@@ -303,6 +339,8 @@ function CreateZone(newlayer)
                     newlayer.layer.remove();
                 }
             });
+            $('input[id=new_machine_name]').val('');
+            $('input[id=new_machine_number]').val('');
         });
 
     } catch (e) {
@@ -438,6 +476,7 @@ function VaildateForm(FormType)
     $('select[name=cameraLocation]').val("");
     $('#camerainfo').css("display", "none");
     $('#binzoneinfo').css("display", "none");
+    $('#new_machine_manual_row').css('display', 'none');
     if (!checkValue($('select[name=zone_type]').val())) {
         $('select[name=zone_type]').removeClass('is-valid').addClass('is-invalid');
         $('span[id=error_zone_type]').text("Please Select Zone Type");
@@ -469,8 +508,43 @@ function VaildateForm(FormType)
                 $.each(mpedata, function () {
                     $('<option/>').val(this).html(this).appendTo('#zone_select_name');
                 })
+                $('select[name=zone_select_name]').removeClass('is-valid').addClass('is-invalid');
             }
         });
+
+        $('select[id=zone_select_name]').change(function () {
+            if ($('select[name=zone_select_name] option:selected').val() == '**Machine Not Listed') {
+                $('#new_machine_manual_row').css('display', '');
+                if (!checkValue($('input[type=text][name=new_machine_name]').val())) {
+                    $('input[type=text][name=new_machine_name]').css("border-color", "#FF0000").removeClass('is-valid').addClass('is-invalid');
+                    $('span[id=error_new_machine_name]').text("Please Enter Machine Name");
+                }
+                else {
+                    $('input[type=text][name=new_machine_name]').css("border-color", "#2eb82e").removeClass('is-invalid').addClass('is-valid');
+                    $('span[id=error_new_machine_name]').text("");
+                }
+                if (!checkValue($('input[type=text][name=new_machine_number]').val())) {
+                    $('input[type=text][name=new_machine_number]').css("border-color", "#FF0000").removeClass('is-valid').addClass('is-invalid');
+                    $('span[id=error_new_machine_number]').text("Please Enter Machine Name");
+                }
+                else {
+                    $('input[type=text][name=new_machine_number]').css("border-color", "#2eb82e").removeClass('is-invalid').addClass('is-valid');
+                    $('span[id=error_new_machine_number]').text("");
+                }
+            }
+            else {
+                $('#new_machine_manual_row').css('display', 'none');
+            }
+            if ($('select[name=zone_select_name] option:selected').val() == '') {
+                $('button[id=zonesubmitBtn]').prop('disabled', true);
+            }
+            else {
+                $('button[id=zonesubmitBtn]').prop('disabled', false);
+            }
+            enableZoneSubmit();
+        });
+
+        
     }
     if (/DockDoor/i.test(FormType)) {
         $('input[name=zone_name]').val("");

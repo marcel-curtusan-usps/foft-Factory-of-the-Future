@@ -578,10 +578,10 @@
                     </div>
                     <div class="row mr-0 ml-0" id="machine_manual_row">
                         <div class="form-group col">
-                            <label class="control-label">Name</label><input id="machine_name" type="text" class="form-control" name="machine_name"><span id="errormachine_name" class="text-danger"></span>
+                            <label class="control-label">Name</label><input id="machine_name" type="text" class="form-control" name="machine_name"/><span id="errormachine_name" class="text-danger"></span>
                         </div>
                         <div class="form-group col-4">
-                            <label class="control-label">Number</label><input id="machine_number" type="text" class="form-control" name="machine_number"><span id="error_machine_number" class="text-danger"></span>
+                            <label class="control-label">Number</label><input id="machine_number" type="text" class="form-control" name="machine_number"/><span id="error_machine_number" class="text-danger"></span>
                         </div>
                     </div>
                     <div class="row mr-0 ml-0">
@@ -752,6 +752,14 @@
                                                 <option value=""></option>
                                             </select>
                                             <span id="error_zone_name" class="text-danger"></span>
+                                        </div>
+                                        <div class="row mr-0 ml-0" id="new_machine_manual_row" style="display:none;">
+                                            <div class="form-group col">
+                                                <label class="control-label">Name</label><input id="new_machine_name" type="text" class="form-control" name="new_machine_name"/><span id="error_new_machine_name" class="text-danger"></span>
+                                            </div>
+                                            <div class="form-group col-4">
+                                                <label class="control-label">Number</label><input id="new_machine_number" type="text" class="form-control" name="new_machine_number"/><span id="error_new_machine_number" class="text-danger"></span>
+                                            </div>
                                         </div>
 
                                     </div>

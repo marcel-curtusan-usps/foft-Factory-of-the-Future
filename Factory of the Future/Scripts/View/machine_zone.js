@@ -633,6 +633,7 @@ async function Edit_Machine_Info(id) {
                             $.each(mpedata, function () {
                                 $('<option/>').val(this).html(this).appendTo('#machine_zone_select_name');
                             })
+                            $('select[id=machine_zone_select_name]').val(Data.name.toString());
                         }
                         else {
                             $('#machine_manual_row').css('display', '');
