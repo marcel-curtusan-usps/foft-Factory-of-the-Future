@@ -542,7 +542,20 @@ async function Edit_Tag_Name(tagId, tagName) {
     $('#TagName_Modal').modal();
     $('#modal_tag_id').html(tagId);
     $('#edit_tag_name').val(tagName);
+    $('#edittagsubmitBtn').off().on("click", function () {
+        Edit_Tag_Name_Submit();
+    });
 }
+async function Edit_Tag_Name_Submit() {
+    let tagId = $('#modal_tag_id').html();
+    let tagName = $('#edit_tag_name').val();
+    fotfmanager.server.updateTagName(tagId, tagName).done(function (data) {
+        if (data.status == "updated") {
+            $('#TagName_Modal').modal("hide");
+        }
+    });
+}
+
 
 $(function () {
     if ( ! /^Admin/i.test(User.Role) ) {

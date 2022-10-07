@@ -594,7 +594,8 @@
         </div>
     </div>
     
-    <div class="modal fade" id="TagName_Modal" tabindex="-1" role="dialog" data-backdrop="static" aria-labelledby="TagName_Modal_Label">
+    <div class="modal fade" id="TagName_Modal" tabindex="-1" role="dialog" 
+        data-backdrop="static" aria-labelledby="TagName_Modal_Label">
         <div class="modal-dialog modal-xl">
             <div class="modal-content bg-white">
                 <div class="modal-header1">

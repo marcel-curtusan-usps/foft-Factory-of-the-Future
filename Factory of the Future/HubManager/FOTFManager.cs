@@ -67,7 +67,7 @@ namespace Factory_of_the_Future
         private volatile bool _updateCameraStatus = false;
         private volatile bool _updateSVZone = false;
         private bool disposedValue;
-
+        private HttpClient httpClient = new HttpClient();
         //250 Milliseconds
         private readonly TimeSpan _250updateInterval = TimeSpan.FromMilliseconds(250);
         //1 seconds
@@ -1678,7 +1678,59 @@ namespace Factory_of_the_Future
             Clients.Group("MachineZones").updateMachineStatus(machineStatuses);
             
         }
+        /* updates tag name after end user clicks on a vehicle, selects edit, and enters
+           a new tag name and submits
+        */
+        private string GetQuuppaTagChangeFilename(string tagId, DateTime thisTime)
+        {
+            return thisTime.Year + "-" + thisTime.Month.ToString("00") + "-" +
+                thisTime.Day.ToString("00") + "_" + tagId;
+        }
+        internal async Task<bool> UpdateTagName(string tagId, string tagName)
+        {
+            try
+            {
 
+                DateTime thisTime = DateTime.Now;
+                // update the tag name
+                HttpResponseMessage response = await
+                    httpClient.GetAsync(AppParameters.QuuppaBaseUrl +
+                    @"modifyTag?tag=" + tagId + "&name=" + tagName).ConfigureAwait(false);
+                if (response.StatusCode != HttpStatusCode.OK)
+                {
+                    return false;
+                }
+                string content = await response.Content.ReadAsStringAsync();
+                string fileName = GetQuuppaTagChangeFilename(tagId, thisTime);
+                // export the tag name change to a file
+                HttpResponseMessage response2 =
+                   await httpClient.GetAsync(AppParameters.QuuppaBaseUrl +
+                   @"exportTags?tag=" + tagId + "&name=" + tagName +
+                   "&filename=" + fileName).ConfigureAwait(false);
+                content = await response2.Content.ReadAsStringAsync();
+                if (response2.StatusCode != HttpStatusCode.OK)
+                {
+                    return false;
+                }
+
+                // import the tag name change for a permanent update
+                HttpResponseMessage response3 =
+                   await httpClient.GetAsync(AppParameters.QuuppaBaseUrl +
+                   @"importTags?filename=" + fileName).ConfigureAwait(false);
+
+                content = await response3.Content.ReadAsStringAsync();
+                if (response3.StatusCode != HttpStatusCode.OK)
+                {
+                    return false;
+                }
+                return true;
+            }
+            catch (Exception e)
+            {
+                new ErrorLogger().ExceptionLog(e);
+                return false;
+            }
+        }
         internal IEnumerable<CoordinateSystem> GetIndoorMapFloor(string id)
         {
             try
