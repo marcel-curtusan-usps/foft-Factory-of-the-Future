@@ -314,17 +314,17 @@ async function LoadVehicleTable(dataproperties) {
     }
 }
 let pivrow_template = '<tr data-id="{TagId}" id="vehicletagid">' +
-    '<td>Vehicle Name:</td>' +
-    '<td class="text-left">{name}</td>' +
+    '<td >Vehicle Name:</td>' +
+    '<td class="text-left" id="vehicletag_name">{name}</td>' +
     '<td>Tag ID:</td>' +
-    '<td>{TagId}</td>' +
+    '<td  id="vehicletag_tagid">{TagId}</td>' +
     '</tr>' +
     '</td>' +
     '</tr>"';
 let vehicletop_Table = $('table[id=vehicletable]');
 let vehicletop_Table_Body = vehicletop_Table.find('tbody');
 
-let agvrow_template = '<tr data-id="{TagId}" id="vehicletagid"><td>Vehicle Name:</td><td class="text-left">{name}</td><td>Tag ID:</td><td>{TagId}</td></tr>' +
+let agvrow_template = '<tr data-id="{TagId}" id="vehicletagid"><td>Vehicle Name:</td><td id="vehicletag_name" class="text-left">{name}</td><td  >Tag ID:</td><td  id="vehicletag_tagid">{TagId}</td></tr>' +
     '<tr><td>State:</td><td colspan="3"><button id="{name}" name="vehicle" class="btn btn-block btn-sm {vehiclestateCategory} vehiclehistory" style="margin-bottom: 2px;" value="{vehiclestate}">{vehiclestate}</button></td></tr>"' +
     '<tr><td>Battery:</td><td colspan="3">' +
     '<div class="progress">' +
@@ -535,3 +535,32 @@ function get_pi_icon(name, type) {
 //        }
 //    });
 //}
+
+async function Edit_Tag_Name(tagId, tagName) {
+    $('#TagName_Modal_Header_ID').text('Edit Tag Name');
+    sidebar.close('connections');
+    $('#TagName_Modal').modal();
+    $('#modal_tag_id').html(tagId);
+    $('#edit_tag_name').val(tagName);
+}
+
+$(function () {
+    if ( ! /^Admin/i.test(User.Role) ) {
+        $("#vehicle-info-edit-row").remove();
+    }
+    $('button[name=vehicleinfoedit]').off().on('click', function () {
+        if (/^Admin/i.test(User.Role)) {
+            /* close the sidebar */
+            let tagId = $("#vehicletag_tagid").html().trim();
+            let tagName = $("#vehicletag_name").html().trim();
+            sidebar.close();
+            if (checkValue(tagId)) {
+                Edit_Tag_Name(tagId, tagName);
+            }
+        }
+    });
+});
+
+$(function () {
+
+})

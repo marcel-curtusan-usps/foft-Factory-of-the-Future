@@ -598,6 +598,8 @@ function getstateText(properties) {
         return "No Data";
     }
 }
+
+
 async function Edit_Machine_Info(id) {
     $('#modalZoneHeader_ID').text('Edit Machine Info');
 

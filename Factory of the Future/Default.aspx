@@ -593,7 +593,41 @@
             </div>
         </div>
     </div>
+    
+    <div class="modal fade" id="TagName_Modal" tabindex="-1" role="dialog" data-backdrop="static" aria-labelledby="TagName_Modal_Label">
+        <div class="modal-dialog modal-xl">
+            <div class="modal-content bg-white">
+                <div class="modal-header1">
+                    <div class="col-11">
+                        <h4 class="modal-title1" id="TagName_Modal_Header_ID"><span aria-hidden="true"></span></h4>
+                    </div>
+                    <button class="col-1 close" type="button" data-dismiss="modal" aria-label="Close"><i class="pi-iconExit float-right mt-2 mr-2"></i></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row mr-0 ml-0">
+                        <div class="form-group col">
+                            <label class="control-label">Tag ID</label><span id="modal_tag_id" class="form-control" name="tag_id"></span>
+                        </div>
+                    </div>
+                    <div class="row mr-0 ml-0">
+                        <div class="form-group col">
+                            <label class="control-label">Tag Name</label><input id="edit_tag_name" type="text" class="form-control" name="tag_name" val="" />
+                        </div>
+                    </div>
 
+                </div>
+                <div class="modal-footer1">
+                    <div class="col">
+                        <button class="btn btn-outline-secondary float-left" type="button" data-dismiss="modal">Close</button>
+                    </div>
+                    <div class="col text-center"><span class="text-info" id="error_edittagsubmitBtn"></span></div>
+                    <div class="col">
+                        <button class="btn btn-primary float-right" type="button" id="edittagsubmitBtn">Save</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
     <div class="modal fade" id="ContainerDetails_Modal" tabindex="-1" style="z-index: 12000;" role="dialog" data-backdrop="static" aria-labelledby="ContainerDetails_Modal_Label">
         <div class="modal-dialog" style="max-width: 85%;">
             <div class="modal-content bg-white">
@@ -855,9 +889,12 @@
                             <div class="custom-control custom-switch ml-3">
                                 <input id="followvehicle" type="checkbox" class="custom-control-input" name="followvehicle">
                                 <label class="vehicleInfo custom-control-label" for="followvehicle">Follow Vehicle</label>
+                                
+                            </div>
+                            <div>
                             </div>
                         </div>
-
+                               
                         <div id="div_vehicle">
                             <div class="table-responsive">
                                 <table class="table table-sm table-hover mb-0 border-bottom" id="vehicletable">
@@ -865,6 +902,13 @@
                                     <tbody></tbody>
                                 </table>
                             </div>
+                        </div>
+                        <div class="card-header pl-1 d-flex flex-row" id="vehicle-info-edit-row">
+                                <h6 class="control-label sectionHeader ml-1 mb-1 d-flex justify-content-between">
+                              
+                                <button type="button" class="btn btn-secondary border-0 badge-info badge vehicleinfoedit" name="vehicleinfoedit"  data-id="0" data-toggle="tooltip" data-container="body" data-placement="top">Edit</button>
+
+                            </h6> 
                         </div>
                         <div id="div_vehicle_mission">
                             <div class="table-responsive">

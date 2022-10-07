@@ -138,7 +138,7 @@ let agvlocation_row_inmission_template = '<tr class="text-center" id={RequestId}
             '</span>'+
         '</h6 >'+
     '</td>' +
-    '<tr id=pickupLocation_{RequestId}><td>Vehicle Name:</td><td>{VehicleName}</td></tr>' +
+    '<tr id=pickupLocation_{RequestId}><td>Vehicle Name:</td><td >{VehicleName}</td></tr>' +
     '<tr id=pickupLocation_{RequestId}><td>Pickup Location:</td><td>{PickupLocation}</td></tr>' +
     '<tr id=pickupLocationEta_{RequestId}><td>ETA to Pickup:</td><td>{PickupLocationEta}</td></tr>' +
     '<tr id=dropoffLocation_{RequestId}><td>Drop-Off Location:</td><td>{DropoffLocation}</td></tr>' +
