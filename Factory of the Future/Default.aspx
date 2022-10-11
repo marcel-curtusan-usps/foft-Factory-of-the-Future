@@ -594,7 +594,7 @@
         </div>
     </div>
     
-    <div class="modal fade" id="TagName_Modal" tabindex="-1" role="dialog" 
+    <div class="modal fade" id="TagName_Modal" tabindex="-1" role="dialog"  style="z-index: 12000;" 
         data-backdrop="static" aria-labelledby="TagName_Modal_Label">
         <div class="modal-dialog modal-xl">
             <div class="modal-content bg-white">
@@ -625,6 +625,7 @@
                     <div class="col">
                         <button class="btn btn-primary float-right" type="button" id="edittagsubmitBtn">Save</button>
                     </div>
+                    
                 </div>
             </div>
         </div>

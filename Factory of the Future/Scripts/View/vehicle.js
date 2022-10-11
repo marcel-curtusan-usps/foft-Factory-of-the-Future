@@ -550,8 +550,9 @@ async function Edit_Tag_Name_Submit() {
     let tagId = $('#modal_tag_id').html();
     let tagName = $('#edit_tag_name').val();
     fotfmanager.server.updateTagName(tagId, tagName).done(function (data) {
-        if (data.status == "updated") {
-            $('#TagName_Modal').modal("hide");
+        let response = JSON.parse(data);
+        if (response.status == "updated") {
+            $("#TagName_Modal").modal("toggle");
         }
     });
 }

@@ -1723,6 +1723,18 @@ namespace Factory_of_the_Future
                 {
                     return false;
                 }
+
+                string projectDataString = new FileIO().Read(string.Concat(AppParameters.Logdirpath, AppParameters.ConfigurationFloder), "Project_Data.json");
+                JArray projectData = JArray.Parse(projectDataString);
+                foreach (JObject obj in projectData)
+                {
+                    JObject tag = (JObject)obj["locators"][tagId];
+                    tag["properties"]["name"] = tagName;
+                }
+                projectDataString = projectData.ToString();
+                new FileIO().Write(string.Concat(AppParameters.Logdirpath, AppParameters.ConfigurationFloder),
+                    "Project_Data.json", projectDataString);
+                AppParameters.ProjectData = projectDataString;
                 return true;
             }
             catch (Exception e)
