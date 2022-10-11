@@ -552,7 +552,11 @@ async function Edit_Tag_Name_Submit() {
     fotfmanager.server.updateTagName(tagId, tagName).done(function (data) {
         let response = JSON.parse(data);
         if (response.status == "updated") {
+            $("#error_edittagsubmitBtn").html("");
             $("#TagName_Modal").modal("toggle");
+        }
+        else {
+            $("#error_edittagsubmitBtn").html("Error updating tag.");
         }
     });
 }

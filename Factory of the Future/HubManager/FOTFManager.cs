@@ -1700,14 +1700,14 @@ namespace Factory_of_the_Future
                 {
                     return false;
                 }
-                string content = await response.Content.ReadAsStringAsync();
+                string content = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
                 string fileName = GetQuuppaTagChangeFilename(tagId, thisTime);
                 // export the tag name change to a file
                 HttpResponseMessage response2 =
                    await httpClient.GetAsync(AppParameters.QuuppaBaseUrl +
                    @"exportTags?tag=" + tagId + "&name=" + tagName +
                    "&filename=" + fileName).ConfigureAwait(false);
-                content = await response2.Content.ReadAsStringAsync();
+                content = await response2.Content.ReadAsStringAsync().ConfigureAwait(false);
                 if (response2.StatusCode != HttpStatusCode.OK)
                 {
                     return false;
@@ -1718,7 +1718,7 @@ namespace Factory_of_the_Future
                    await httpClient.GetAsync(AppParameters.QuuppaBaseUrl +
                    @"importTags?filename=" + fileName).ConfigureAwait(false);
 
-                content = await response3.Content.ReadAsStringAsync();
+                content = await response3.Content.ReadAsStringAsync().ConfigureAwait(false);
                 if (response3.StatusCode != HttpStatusCode.OK)
                 {
                     return false;
