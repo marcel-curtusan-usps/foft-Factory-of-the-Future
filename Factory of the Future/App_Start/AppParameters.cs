@@ -28,6 +28,7 @@ namespace Factory_of_the_Future
         public static JObject AppSettings { get; set; } = new JObject();
         public static string ApplicationEnvironment { get; set; } = string.Empty;
         public static string HWSerialNumber { get; set; } = string.Empty;
+        public static string ProjectData { get; set; }
         public static string VersionInfo { get; set; } = string.Empty;
         public static string ServerHostname { get; set; } = string.Empty;
         public static string ServerIpAddress { get; set; } = string.Empty;
@@ -398,10 +399,11 @@ namespace Factory_of_the_Future
         {
             try
             {
-                string ProjectData = new FileIO().Read(string.Concat(Logdirpath, ConfigurationFloder), fileName);
+                string ProjectDataString = new FileIO().Read(string.Concat(Logdirpath, ConfigurationFloder), fileName);
 
-                if (!string.IsNullOrEmpty(ProjectData))
+                if (!string.IsNullOrEmpty(ProjectDataString))
                 {
+                    AppParameters.ProjectData = ProjectDataString;
                     Task.Run(() => new ProcessRecvdMsg().StartProcess(ProjectData, "getProjectInfo", ""));
                 }
                 //else
