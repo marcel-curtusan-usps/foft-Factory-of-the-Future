@@ -247,6 +247,10 @@ function setLayerCheckUncheckEvents() {
 var lastMapZoom = null;
 map.on('zoomend', function () {
     setTimeout(checkSparklineVisibility, 100);
+    updateAllCameras(Date.now());
+    if (map.getZoom() != 2) {
+        btnZoomReset.button.removeAttribute("style", "display:none;");
+    }
 });
 var timedisplay = L.Control.extend({
     options: {
@@ -301,7 +305,24 @@ var layersControl = L.control.layers(baseLayers, overlayMaps, {
                 return nameA < nameB ? -1 : (nameB < nameA ? 1 : 0);
             }
         }
-    }, position: 'bottomright', collapsed: false }).addTo(map);
+    }, position: 'bottomright', collapsed: false
+}).addTo(map);
+//Add zoom reset button
+var btnZoomReset = L.easyButton({
+    position: 'bottomright',
+    states: [{
+        stateName: 'viewreset',
+        icon: '<div id="resetZoom"><i class="pi-iconZoomAll align-self-center" style="padding-bottom: 3px; padding-left: 1px; display: inline-flex; vertical-align: middle;" title="Reset Zoom"></i></div>',
+        onClick: function () {
+            var trackingarea = L.polygon(bounds, {});
+            map.setView(trackingarea.getBounds().getCenter(), 1.5);
+            btnZoomReset.button.setAttribute("style", "display:none;");
+            sidebar.close();
+        }
+    }]
+});
+btnZoomReset.addTo(map);
+btnZoomReset.button.setAttribute("style", "display:none;");
 //Add zoom button
 new L.Control.Zoom({ position: 'bottomright' }).addTo(map);
 
@@ -443,9 +464,7 @@ function init_mapSetup(MapData) {
             LoadNotification("vehicle");
             //add user to the tag groups only for none PMCCUser
             if (User.hasOwnProperty("UserId")) {
-                if (!/(^PMCCUser$)/i.test(User.UserId)) {
-                    fotfmanager.server.joinGroup("PeopleMarkers");
-                }
+                fotfmanager.server.joinGroup("PeopleMarkers");
             }
             
         }

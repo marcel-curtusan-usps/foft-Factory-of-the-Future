@@ -122,6 +122,18 @@
   line-height: 1;
   text-align: center; }
 
+.leaflet-tooltip.persontag_otAuth {
+  width: 20px;
+  height: 20px;
+  background-color: #3573b1;
+  clip-path: polygon(50% 0%, 0% 100%, 100% 100%); }
+
+.leaflet-tooltip.persontag_otNotAuth {
+  width: 20px;
+  height: 20px;
+  background-color: #ff6500;
+  clip-path: polygon(50% 0%, 0% 100%, 100% 100%); }
+
 .leaflet-tooltip.locator {
   background-color: yellow;
   padding: 2px;

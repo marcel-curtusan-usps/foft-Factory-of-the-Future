@@ -620,6 +620,41 @@ async function Edit_Machine_Info(id) {
             if (layerindex !== -0) {
 
                 if (!$.isEmptyObject(Data)) {
+                    fotfmanager.server.getMPEList().done(function (mpedata) {
+                        if (mpedata.length > 0) {
+                            mpedata.sort(SortByName);
+                            mpedata.push('**Machine Not Listed');
+                            //$('input[id=machine_zone_name]').css('display', 'none');
+                            $('#machine_manual_row').css('display', 'none');
+                            $('select[id=machine_zone_select_name]').css('display', '');
+                            $('select[id=machine_zone_select_name]').empty();
+                            $('<option/>').val("").html("").appendTo('select[id=machine_zone_select_name]');
+                            $('select[id=machine_zone_select_name]').val("");
+                            $.each(mpedata, function () {
+                                $('<option/>').val(this).html(this).appendTo('#machine_zone_select_name');
+                            })
+                            $('select[id=machine_zone_select_name]').val(Data.name.toString());
+                        }
+                        else {
+                            $('#machine_manual_row').css('display', '');
+                            $('select[id=machine_zone_select_name]').css('display', 'none');
+                        }
+                    });
+                    $('select[id=machine_zone_select_name]').change(function () {
+                        if ($('select[name=machine_zone_select_name] option:selected').val() == '**Machine Not Listed') {
+                            $('#machine_manual_row').css('display', '');
+                        }
+                        else {
+                            $('#machine_manual_row').css('display', 'none');
+                        }
+                        if ($('select[name=machine_zone_select_name] option:selected').val() == '') {
+                            $('button[id=machinesubmitBtn]').prop('disabled', true);
+                        }
+                        else {
+                            $('button[id=machinesubmitBtn]').prop('disabled', false);
+                        }
+                    });
+                    
                     $('input[type=text][name=machine_name]').val(Data.MPE_Type);
                     $('input[type=text][name=machine_number]').val(Data.MPE_Number);
                     $('input[type=text][name=zone_ldc]').val(Data.Zone_LDC);
@@ -627,10 +662,22 @@ async function Edit_Machine_Info(id) {
 
                     $('button[id=machinesubmitBtn]').off().on('click', function () {
                         try {
+                            var machineName = "";
+                            var machineNumber = "";
                             $('button[id=machinesubmitBtn]').prop('disabled', true);
+                            if ($('select[name=machine_zone_select_name] option:selected').val() != '**Machine Not Listed') {
+                                var selectedMachine = $('select[name=machine_zone_select_name] option:selected').val().split("-");
+                                machineName = selectedMachine[0];
+                                machineNumber = selectedMachine[1];
+                            }
+                            else {
+                                machineName = $('input[type=text][name=machine_name]').val();
+                                machineNumber = $('input[type=text][name=machine_number]').val();
+                            }
+
                             var jsonObject = {
-                                MPE_Type: $('input[type=text][name=machine_name]').val(),
-                                MPE_Number: $('input[type=text][name=machine_number]').val(),
+                                MPE_Type: machineName,//$('input[type=text][name=machine_name]').val(),
+                                MPE_Number: machineNumber,//$('input[type=text][name=machine_number]').val(),
                                 Zone_LDC: $('input[type=text][name=zone_ldc]').val(),
                                 floorId: baselayerid
                             };

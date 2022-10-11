@@ -563,15 +563,25 @@
                 <div class="modal-body">
                     <div class="row mr-0 ml-0">
                         <div class="form-group col">
-                            <label class="control-label">Machine ID</label><input id="machine_id" type="text" class="form-control" name="machine_id" disabled><span id="error_machine_id" class="text-danger"></span>
+                            <label class="control-label">Zone ID</label><input id="machine_id" type="text" class="form-control" name="machine_id" disabled><span id="error_machine_id" class="text-danger"></span>
                         </div>
                     </div>
                     <div class="row mr-0 ml-0">
+                        <div class="form-group col-4">
+                            <label class="control-label">Name</label>
+                            <%--<input id="machine_zone_name" type="text" class="form-control" name="machine_zone_name" style="display:block;">--%>
+                            <select id="machine_zone_select_name" title="Zone Select Name" class="form-control" name="machine_zone_select_name">
+                                <option value=""></option>
+                            </select>
+                            <span id="error_machine_zone_name" class="text-danger"></span>
+                        </div>
+                    </div>
+                    <div class="row mr-0 ml-0" id="machine_manual_row">
                         <div class="form-group col">
-                            <label class="control-label">Name</label><input id="machine_name" type="text" class="form-control" name="machine_name"><span id="errormachine_name" class="text-danger"></span>
+                            <label class="control-label">Name</label><input id="machine_name" type="text" class="form-control" name="machine_name"/><span id="errormachine_name" class="text-danger"></span>
                         </div>
                         <div class="form-group col-4">
-                            <label class="control-label">Number</label><input id="machine_number" type="text" class="form-control" name="machine_number"><span id="error_machine_number" class="text-danger"></span>
+                            <label class="control-label">Number</label><input id="machine_number" type="text" class="form-control" name="machine_number"/><span id="error_machine_number" class="text-danger"></span>
                         </div>
                     </div>
                     <div class="row mr-0 ml-0">
@@ -742,6 +752,14 @@
                                                 <option value=""></option>
                                             </select>
                                             <span id="error_zone_name" class="text-danger"></span>
+                                        </div>
+                                        <div class="row mr-0 ml-0" id="new_machine_manual_row" style="display:none;">
+                                            <div class="form-group col">
+                                                <label class="control-label">Name</label><input id="new_machine_name" type="text" class="form-control" name="new_machine_name"/><span id="error_new_machine_name" class="text-danger"></span>
+                                            </div>
+                                            <div class="form-group col-4">
+                                                <label class="control-label">Number</label><input id="new_machine_number" type="text" class="form-control" name="new_machine_number"/><span id="error_new_machine_number" class="text-danger"></span>
+                                            </div>
                                         </div>
 
                                     </div>
@@ -1244,9 +1262,52 @@
                                     </div>
                                 </div>
                             </div>
-
+                            <div class="card w-100">
+                                <div class="card-header pl-1">
+                                    <h6 class="sectionHeader ml-1 mb-1">
+                                        Missing Assigned Scan
+                                        <button class="btn btn-link" data-toggle="collapse" data-target="#missingassigned">
+                                            <i class="bi bi-arrows-collapse"></i>
+                                        </button>
+                                    </h6>
+                                </div>
+                                <div class="card-body collapse show" id="missingassigned">
+                                    <div class="table-responsive fixedHeader">
+                                        <table class="table table-sm table-hover table-condensed mb-1 border-bottom" id="missingassignedtable">
+                                            <thead class="thead-dark">
+                                                <tr>
+                                                    <th colspan="8">Placard</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody></tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="card w-100">
+                                <div class="card-header pl-1">
+                                    <h6 class="sectionHeader ml-1 mb-1">
+                                        Missing Arrival Scan
+                                        <button class="btn btn-link" data-toggle="collapse" data-target="#missingarrival">
+                                            <i class="bi bi-arrows-collapse"></i>
+                                        </button>
+                                    </h6>
+                                </div>
+                                <div class="card-body collapse show" id="missingarrival">
+                                    <div class="table-responsive fixedHeader">
+                                        <table class="table table-sm table-hover table-condensed mb-1 border-bottom" id="missingarrivaltable">
+                                            <thead class="thead-dark">
+                                                <tr>
+                                                    <th colspan="2">Dock Door</th>
+                                                    <th colspan="7">Trailer</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody></tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
-
                     </div>
                 </div>
             </div>
