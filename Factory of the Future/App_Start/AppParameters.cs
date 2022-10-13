@@ -32,12 +32,12 @@ namespace Factory_of_the_Future
         public static string ServerIpAddress { get; set; } = string.Empty;
         public static DirectoryInfo CodeBase { get; set; } = null;
         public static DirectoryInfo Logdirpath { get; set; } = null;
-        public static readonly object darvisWSCameraLock = new object();
+        //public static readonly object darvisWSCameraLock = new object();
         private static readonly string PdHash = "P@@Sw0rd";
         private static readonly string SaltKey = "S@LT&KEY";
         private static readonly string VIKey = "@1B2c3D4e5F6g7H8";
 
-        public static Dictionary<string, string> CameraMapping { get; set; }
+        //public static Dictionary<string, string> CameraMapping { get; set; }
         public static ConcurrentDictionary<string, MachData> MPEWatchData { get; set; } = new ConcurrentDictionary<string, MachData>();
         public static ConcurrentDictionary<string, CoordinateSystem> CoordinateSystem { get; set; } = new ConcurrentDictionary<string, CoordinateSystem>();  
         public static ConcurrentDictionary<string, Cameras> CameraInfoList { get; set; } = new ConcurrentDictionary<string, Cameras>();
@@ -49,14 +49,14 @@ namespace Factory_of_the_Future
         public static ConcurrentDictionary<string, string> MPEPerformanceList { get; set; } = new ConcurrentDictionary<string, string>();
         public static ConcurrentDictionary<string, RPGPlan> MPEPRPGList { get; set; } = new ConcurrentDictionary<string, RPGPlan>();
         public static ConcurrentDictionary<string, string> DockdoorList { get; set; } = new ConcurrentDictionary<string, string>();
-        public static ConcurrentDictionary<string, string> SVZoneNameList { get; set; } = new ConcurrentDictionary<string, string>();
+        public static ConcurrentDictionary<int, SV_Bullpen> SVZoneNameList { get; set; } = new ConcurrentDictionary<int, SV_Bullpen>();
         public static ConcurrentDictionary<string, string> StaffingSortplansList { get; set; } = new ConcurrentDictionary<string, string>();
         public static ConcurrentDictionary<string, RouteTrips> RouteTripsList { get; set; } = new ConcurrentDictionary<string, RouteTrips>();
         public static ConcurrentDictionary<string, Container> Containers { get; set; } = new ConcurrentDictionary<string, Container>();
         public static ConcurrentDictionary<string, Mission> MissionList { get; set; } = new ConcurrentDictionary<string, Mission>();
         public static ConcurrentDictionary<string, Notification> NotificationList { get; set; } = new ConcurrentDictionary<string, Notification>();
         public static ConcurrentDictionary<string, NotificationConditions> NotificationConditionsList { get; set; } = new ConcurrentDictionary<string, NotificationConditions>();
-        public static ConcurrentDictionary<string, ADUser> Users { get; set; } = new ConcurrentDictionary<string, ADUser>();
+        //public static ConcurrentDictionary<string, ADUser> Users { get; set; } = new ConcurrentDictionary<string, ADUser>();
 
         public static readonly ConnectionMapping<string> _connections = new ConnectionMapping<string>();
         public static ConnectionContainer RunningConnection { get; set; } = new ConnectionContainer();
@@ -69,37 +69,37 @@ namespace Factory_of_the_Future
             { "America/New_York", "Eastern Standard Time" },
             { "Pacific/Honolulu", "Hawaiian Standard Time" }
         };
-        public static void SetCameraMapping()
-        {
-            CameraMapping = new Dictionary<string, string>();
-            try
-            {
-                using (StreamReader reader = new StreamReader(@"D:\CameraMapping\PortlandCameraMapping.csv"))
-                {
-                    string line;
-                    while ((line = reader.ReadLine()) != null)
-                    {
-                        line = line.Trim();
-                        string[] parts = line.Split(',');
-                        CameraMapping.Add(parts[0], parts[2]);
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                new ErrorLogger().ExceptionLog(ex);
-            }
-        }
+        //public static void SetCameraMapping()
+        //{
+        //    CameraMapping = new Dictionary<string, string>();
+        //    try
+        //    {
+        //        using (StreamReader reader = new StreamReader(@"D:\CameraMapping\PortlandCameraMapping.csv"))
+        //        {
+        //            string line;
+        //            while ((line = reader.ReadLine()) != null)
+        //            {
+        //                line = line.Trim();
+        //                string[] parts = line.Split(',');
+        //                CameraMapping.Add(parts[0], parts[2]);
+        //            }
+        //        }
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        new ErrorLogger().ExceptionLog(ex);
+        //    }
+        //}
         internal static void Start()
         {
             try
             {
                 System.Reflection.Assembly assembly = System.Reflection.Assembly.GetExecutingAssembly();
                 CodeBase = new DirectoryInfo(new Uri(assembly.CodeBase).LocalPath).Parent;
-                ///load app settings
-                GetAppSettings();
+               
+                
 
-                SetCameraMapping();
+                //SetCameraMapping();
                 //get version
                 FileVersionInfo fvi = FileVersionInfo.GetVersionInfo(assembly.Location);
                 VersionInfo = string.Concat(fvi.FileMajorPart.ToString() + ".", fvi.FileMinorPart.ToString() + ".", fvi.FileBuildPart.ToString() + ".", fvi.FilePrivatePart.ToString());
@@ -155,14 +155,18 @@ namespace Factory_of_the_Future
                         ApplicationEnvironment = "PROD";
                     }
                 }
-                //load MpeWatch Site Info
-                GetMPEWatchSite();
-                ///load default connection setting.
-                GetConnectionDefault();
-                ///load Default Notification settings
-                GetNotificationDefault();
-                //loadtemp
-                LoadTempIndoorapData("Project_Data.json");
+                ///load app settings
+                if (GetAppSettings())
+                {
+                    //load MpeWatch Site Info
+                    GetMPEWatchSite();
+                    ///load default connection setting.
+                    GetConnectionDefault();
+                    ///load Default Notification settings
+                    GetNotificationDefault();
+                    //loadtemp
+                    LoadTempIndoorapData("Project_Data.json");
+                }
 
             }
             catch (Exception ex)
@@ -205,7 +209,7 @@ namespace Factory_of_the_Future
             }
         }
 
-        private static void GetAppSettings()
+        private static bool GetAppSettings()
         {
             try
             {
@@ -225,13 +229,20 @@ namespace Factory_of_the_Future
                     if (AppSettings.HasValues && AppSettings.ContainsKey("LOG_LOCATION"))
                     {
                         LoglocationSetup();
+                       
                     }
-                    
+                    return true;
                 }
+                else
+                {
+                    return false;
+                }
+               
             }
             catch (Exception e)
             {
                 new ErrorLogger().ExceptionLog(e);
+                return false;
             }
         }
         private static void GetNotificationDefault()
@@ -385,16 +396,19 @@ namespace Factory_of_the_Future
         {
             try
             {
-                string ProjectData = new FileIO().Read(string.Concat(Logdirpath, ConfigurationFloder), fileName);
-
-                if (!string.IsNullOrEmpty(ProjectData))
+                if (Logdirpath != null)
                 {
-                    Task.Run(() => new ProcessRecvdMsg().StartProcess(ProjectData, "getProjectInfo", ""));
+                    string ProjectData = new FileIO().Read(string.Concat(Logdirpath, ConfigurationFloder), fileName);
+
+                    if (!string.IsNullOrEmpty(ProjectData))
+                    {
+                        Task.Run(() => new ProcessRecvdMsg().StartProcess(ProjectData, "getProjectInfo", ""));
+                    }
+                    //else
+                    //{
+                    //    LoadTempIndoorapData("ProjectData.json");
+                    //}
                 }
-                //else
-                //{
-                //    LoadTempIndoorapData("ProjectData.json");
-                //}
             }
             catch (Exception e)
             {
@@ -718,7 +732,7 @@ namespace Factory_of_the_Future
             {
                 StaffingSortplansList = new ConcurrentDictionary<string, string>();
                 DockdoorList = new ConcurrentDictionary<string, string>();
-                SVZoneNameList = new ConcurrentDictionary<string, string>();
+                SVZoneNameList = new ConcurrentDictionary<int, SV_Bullpen>();
                 DPSList = new ConcurrentDictionary<string, string>();
                 MPEPerformanceList = new ConcurrentDictionary<string, string>();
 

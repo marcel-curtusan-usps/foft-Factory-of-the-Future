@@ -191,9 +191,6 @@ namespace Factory_of_the_Future
                 new ErrorLogger().ExceptionLog(e);
             }
         }
-
-      
-
         private void CameraData(dynamic data, string conID)
         {
             try
@@ -245,7 +242,6 @@ namespace Factory_of_the_Future
                 new ErrorLogger().ExceptionLog(e);
             }
         }
-
         private string GetImgae(Cameras camera_item)
         {
             try
@@ -564,44 +560,52 @@ namespace Factory_of_the_Future
         }
         private static void SVZones(dynamic data, string conID)
         {
-            Connection thisConnection = null;
+
             try
             {
-                thisConnection = AppParameters.ConnectionList[conID];
                 if (data != null)
                 {
-                    thisConnection.ApiConnected = true;
-                    JToken tempData = JToken.Parse(data);
-                    if (tempData != null && tempData.HasValues)
+                    List<SV_Bullpen> SV_Bullpen = JsonConvert.DeserializeObject<List<SV_Bullpen>>(data);
+                    if (SV_Bullpen.Count > 0)
                     {
-                        foreach (JObject item in tempData.Children())
+                        foreach (SV_Bullpen Bullpen_item in SV_Bullpen)
                         {
-                            string svzone_id = item.ContainsKey("locationId") ? item["locationId"].ToString() : "";
-                            string zoneName = item["locationName"].ToString();
-                            if (!string.IsNullOrEmpty(svzone_id))
-                            {
-                                
-                                AppParameters.SVZoneNameList.AddOrUpdate(svzone_id, zoneName,
-                                   (key, oldValue) =>
-                                   {
-                                       return zoneName;
-                                   });
-                            }
+
+                            AppParameters.SVZoneNameList.AddOrUpdate(Bullpen_item.LocationId, Bullpen_item,
+                               (key, oldValue) =>
+                               {
+                                   return Bullpen_item;
+                               });
                         }
+                        //JToken tempData = JToken.Parse(data);
+                        //if (tempData != null && tempData.HasValues)
+                        //{
+                        //    foreach (JObject item in tempData.Children())
+                        //    {
+                        //        string svzone_id = item.ContainsKey("locationId") ? item["locationId"].ToString() : "";
+                        //        string zoneName = item["locationName"].ToString();
+                        //        if (!string.IsNullOrEmpty(svzone_id))
+                        //        {
+
+                        //            AppParameters.SVZoneNameList.AddOrUpdate(svzone_id, zoneName,
+                        //               (key, oldValue) =>
+                        //               {
+                        //                   return zoneName;
+                        //               });
+                        //        }
+                        //    }
+                        //}
+                        Task.Run(() => updateConnection(conID, "good"));
                     }
-                }
-                else
-                {
-                    thisConnection.ApiConnected = false;
+                    else
+                    {
+                        Task.Run(() => updateConnection(conID, "error"));
+                    }
                 }
             }
 
             catch (Exception e)
             {
-                if (thisConnection != null)
-                {
-                    thisConnection.ApiConnected = false;
-                }
                 Task.Run(() => updateConnection(conID, "error"));
                 new ErrorLogger().ExceptionLog(e);
             }
@@ -711,169 +715,6 @@ namespace Factory_of_the_Future
                 new ErrorLogger().ExceptionLog(e);
             }
         }
-
-
-        
-        
-         private static void UpdateSVZone(SVZoneData svZone)
-        {
-            try
-            {
-                string locationId = "SVZone-" + svZone.locationId;
-                foreach (CoordinateSystem cs in AppParameters.CoordinateSystem.Values)
-                {
-                    cs.Zones.Where(f => f.Value.Properties.ZoneType == "SVZone"
-                    && f.Value.Properties.Id == locationId
-                    ).Select(y => y.Value).ToList().ForEach(SVZone =>
-                    {
-                        SVZone.Properties.SVZoneData = svZone;
-                        SVZone.Properties.ZoneUpdate = true;
-                    });
-                }
-
-              
-            }
-            catch (Exception e)
-            {
-                new ErrorLogger().ExceptionLog(e);
-            }
-        }
-
-        
-
-        //private static void TacsVsSelsLDCAnomaly(JArray data, string message_type)
-        //{
-        //    /**
-        //* {
-        //    "empId": "04692142",
-        //    "tagId": "ca0800004878",
-        //    "tagName": "Transportation_0086",
-        //    "processed": "21-08-13 09:21:20",
-        //    "hasTACS": true,
-        //    "currentZones": [
-        //        {
-        //            "id": "da09be6b-ac97-49d5-924d-1c6eae24e430",
-        //            "name": "Dock"
-        //        }
-        //    ],
-        //    "selsToTacsTotalTime": 212,
-        //    "isLdcAlert": true,
-        //    "tacs": {
-        //        "ldc": "34",
-        //        "totalTime": 7991,
-        //        "operationId": "766",
-        //        "payLocation": "n/a",
-        //        "isOvertimeAuth": false,
-        //        "overtimeHours": 0,
-        //        "isOvertime": false
-        //    },
-        //    "sels": {
-        //        "totalTime": 16975,
-        //        "currentLDCs": [
-        //            "17"
-        //        ],
-        //        "timeByLDC": {
-        //            "17": {
-        //                "ldc": 17,
-        //                "time": 16551,
-        //                "ldcToSelsTotalTime": 98,
-        //                "ldcToTacsTotalTime": 207
-        //            },
-        //            "19": {
-        //                "ldc": 19,
-        //                "time": 424,
-        //                "ldcToSelsTotalTime": 2,
-        //                "ldcToTacsTotalTime": 5
-        //            }
-        //        }
-        //    }
-        //}
-        //*/
-        //    try
-        //    {
-        //        if (data.HasValues)
-        //        {
-
-        //            foreach (JObject item in data)
-        //            {
-        //                if (AppParameters.Tag.ContainsKey((string)item["tagId"]))
-        //                {
-        //                   foreach(JObject m in AppParameters.Tag.Where(r => r.Key == (string)item["tagId"]).Select(y => y.Value))
-        //                    {
-        //                        //tag.Merge(item, new JsonMergeSettings { MergeArrayHandling = MergeArrayHandling.Replace });
-        //                        //tag["properties"]["Tag_Update"] = true;
-
-        //                        if (m["properties"]["empId"] != item["empId"])
-        //                        {
-        //                            m["properties"]["empId"] = item["empId"];
-
-        //                        }
-        //                        if (m["properties"]["tacs"].ToString() != item["tacs"].ToString())
-        //                        {
-        //                            m["properties"]["tacs"] = item["tacs"];
-
-        //                        }
-        //                        if (m["properties"]["sels"].ToString() != item["sels"].ToString())
-        //                        {
-        //                            m["properties"]["sels"] = item["sels"];
-
-        //                        }
-        //                        if (m["properties"]["isLdcAlert"].ToString() != item["isLdcAlert"].ToString())
-        //                        {
-        //                            m["properties"]["isLdcAlert"] = item["isLdcAlert"];
-
-        //                        }
-        //                    }
-        //                }
-        //                else
-        //                {
-        //                    JObject GeoJsonType = new JObject_List().GeoJSON_Tag;
-        //                    JArray temp_zone = new JArray(new JObject(new JProperty("name", "NOTINZONE"), new JProperty("id", "NOTINZONE")));
-        //                    ((JObject)GeoJsonType["geometry"])["type"] = "Point";
-        //                    GeoJsonType["geometry"]["coordinates"] = new JArray(0, 0);
-        //                    //((JObject)GeoJsonType["properties"]).Merge(item, new JsonMergeSettings { MergeArrayHandling = MergeArrayHandling.Replace });
-
-        //                    GeoJsonType["properties"]["id"] = (string)item["tagId"];
-        //                    GeoJsonType["properties"]["zones"] = temp_zone;
-        //                    GeoJsonType["properties"]["name"] = item["tagName"];
-        //                    GeoJsonType["properties"]["Tag_Type"] = "Person";
-        //                    GeoJsonType["properties"]["isLdcAlert"] = item["isLdcAlert"];
-        //                    GeoJsonType["properties"]["empId"] = item["empId"];
-        //                    GeoJsonType["properties"]["tacs"] = item["tacs"];
-        //                    GeoJsonType["properties"]["sels"] = item["sels"];
-        //                    GeoJsonType["properties"]["positionTS"] = DateTime.Now.AddDays(-10).ToUniversalTime();
-        //                    //add to the tags
-        //                    if (!AppParameters.Tag.ContainsKey((string)item["tagId"]))
-        //                    {
-        //                        AppParameters.Tag.TryAdd((string)item["tagId"], GeoJsonType);
-        //                    }
-        //                }
-        //            }
-
-        //            if (AppParameters.Tag.Count() > 0)
-        //            {
-        //                foreach(JObject m in AppParameters.Tag.Where(u => u.Value["properties"]["Tag_Type"].ToString().EndsWith("Person")).Select(x => x.Value))
-        //                {
-        //                    if (data.SelectTokens("[?(@.tagId)]").Where(i => (string)i["tagId"] == (string)m["properties"]["id"]).ToList().Count == 0)
-        //                    {
-        //                        if (((JObject)m["properties"]).ContainsKey("isLdcAlert") && (bool)m["properties"]["isLdcAlert"])
-        //                        {
-        //                            m["properties"]["isLdcAlert"] = false;
-        //                        }
-        //                    }
-        //                }
-        //            }
-        //        }
-        //    }
-        //    catch (Exception e)
-        //    {
-        //        new ErrorLogger().ExceptionLog(e);
-        //    }
-        //    finally
-        //    {
-        //        data = null;
-        //    }
-        //}
         private static void TacsVsSels(dynamic data, string message_type, string conID)
         {
             // "processedSince": "21-08-12 09:08:42",
@@ -2032,7 +1873,6 @@ namespace Factory_of_the_Future
                 new ErrorLogger().ExceptionLog(e);
             }
         }
-
         private static MarkerGeometry GetVehicleGeometry(string x, string y)
         {
             try
@@ -2058,7 +1898,6 @@ namespace Factory_of_the_Future
                 return null;
             }
         }
-
         private static string CheckNotification(string currentState, string NewState, string type, Marker properties, string noteification_Id)
         {
             string noteification_id = "";
@@ -2105,7 +1944,6 @@ namespace Factory_of_the_Future
                 return noteification_id;
             }
         }
-
         private static void ProjectData(dynamic jsonObject, string conID)
         {
             bool saveToFile = false;
@@ -2221,7 +2059,6 @@ namespace Factory_of_the_Future
             }
             
         }
-
         private static void LoadlocalLocators(JToken locatorlist, string csid, out bool saveToFile)
         {
             saveToFile = false;
@@ -2301,9 +2138,9 @@ namespace Factory_of_the_Future
                     foreach (JObject bgItem in backgroundImages.Children())
                     {
                         BackgroundImage newbckimg = bgItem.ToObject<BackgroundImage>();
-                        newbckimg.FacilityName = !string.IsNullOrEmpty(AppParameters.AppSettings["FACILITY_NAME"].ToString()) ? AppParameters.AppSettings["FACILITY_NAME"].ToString() : "Site Not Configured";
-                        newbckimg.ApplicationFullName = AppParameters.AppSettings["APPLICATION_FULLNAME"].ToString();
-                        newbckimg.ApplicationAbbr = AppParameters.AppSettings["APPLICATION_NAME"].ToString();
+                        //newbckimg.FacilityName = !string.IsNullOrEmpty(AppParameters.AppSettings["FACILITY_NAME"].ToString()) ? AppParameters.AppSettings["FACILITY_NAME"].ToString() : "Site Not Configured";
+                        //newbckimg.ApplicationFullName = AppParameters.AppSettings["APPLICATION_FULLNAME"].ToString();
+                        //newbckimg.ApplicationAbbr = AppParameters.AppSettings["APPLICATION_NAME"].ToString();
                         newbckimg.Name = csname;
                         AppParameters.CoordinateSystem[csid].BackgroundImage = newbckimg;
                         newbckimg.UpdateStatus = true;
@@ -3177,6 +3014,90 @@ namespace Factory_of_the_Future
                     {
                         ojbMerge.Delete = true;
                         ojbMerge.Notification_Update = true;
+                    }
+                }
+            }
+        }
+
+        internal void ProcessDarvisAlert42(string message)
+        {
+
+            if (message.Contains("IG_") || message.Contains("DT_"))
+            {
+                try
+                {
+                    JArray msgJson = (JArray)JsonConvert.DeserializeObject(message);
+                    if (msgJson[0].ToString() == "detections")
+                    {
+                        JArray cameraData = (JArray)msgJson[1]["data"];
+                        foreach (JObject jo in cameraData)
+                        {
+                            string camera_id = jo["camera_id"].ToString();
+
+
+                            List<DarvisCameraAlert> alertList = new List<DarvisCameraAlert>();
+
+                            JArray newDetections = (JArray)jo["detections"]["new"];
+                            JArray removedDetections = (JArray)jo["detections"]["removed"];
+                            JArray updatedDetections = (JArray)jo["detections"]["updated"];
+                            foreach (JObject newObject in newDetections)
+                            {
+
+                                ProcessNewOrExistingCameraData(newObject, ref alertList, camera_id, true);
+                            }
+                            foreach (JToken object_id in removedDetections)
+                            {
+
+                            }
+                            foreach (JObject updatedObject in updatedDetections)
+                            {
+                                ProcessNewOrExistingCameraData(updatedObject, ref alertList, camera_id, false);
+                            }
+                            foreach (CoordinateSystem cs in AppParameters.CoordinateSystem.Values)
+                            {
+                                cs.Locators.Where(f => f.Value.Properties.TagType == "Camera" &&
+                                f.Value.Properties.Name == camera_id).Select(y => y.Value).
+                                ToList().ForEach(Camera =>
+                                {
+                                    Camera.Properties.DarvisAlerts = alertList.ToArray<DarvisCameraAlert>().ToList<DarvisCameraAlert>();
+                                    FOTFManager.Instance.BroadcastCameraStatus(Camera, cs.Id);
+                                });
+
+                            }
+
+                        }
+                    }
+
+                }
+                catch (Exception ex)
+                {
+                    new ErrorLogger().ExceptionLog(ex);
+                }
+            }
+        }
+        public void ProcessNewOrExistingCameraData(JObject thisObject, ref List<DarvisCameraAlert> alertList,string camera_id, bool isNew)
+        {
+            if (thisObject.ContainsKey("zones"))
+            {
+                JArray zones = (JArray)thisObject["zones"];
+                foreach (JObject zo in zones)
+                {
+                    string zoName = zo["name"].ToString();
+
+                    if (zoName.StartsWith("IG_") || zoName.StartsWith("DT_"))
+                    {
+                        float dwelltime = (float)Convert.ToDouble(zo["dwell_time"].ToString());
+                        DarvisCameraAlert alert = new DarvisCameraAlert();
+                        alert.DwellTime = dwelltime;
+                        alert.Type = zoName.StartsWith("IG_") ? "IG" : "DT";
+                        alert.object_class = thisObject["clazz"].ToString();
+                        alert.object_id = thisObject["object_id"].ToString();
+                        alert.Top = Convert.ToInt32(thisObject["top"].ToString());
+                        alert.Bottom = Convert.ToInt32(thisObject["bottom"].ToString());
+                        alert.Left = Convert.ToInt32(thisObject["left"].ToString());
+
+                        alert.Right = Convert.ToInt32(thisObject["right"].ToString());
+                        alertList.Add(alert);
                     }
                 }
             }

@@ -179,17 +179,17 @@ namespace Factory_of_the_Future
         [JsonProperty("rawData")]
         public string RawData { get; set; } = "";
 
-        [JsonProperty("facilityName")]
-        public string FacilityName { get; set; } = "Site Not Configured";
+        //[JsonProperty("facilityName")]
+        //public string FacilityName { get; set; } = "Site Not Configured";
 
-        [JsonProperty("softwareVersion")]
-        public string SoftwareVersion { get; set; } = AppParameters.VersionInfo;
+        //[JsonProperty("softwareVersion")]
+        //public string SoftwareVersion { get; set; } = AppParameters.VersionInfo;
 
-        [JsonProperty("applicationFullName")]
-        public string ApplicationFullName { get; set; } = "";
+        //[JsonProperty("applicationFullName")]
+        //public string ApplicationFullName { get; set; } = "";
 
-        [JsonProperty("applicationAbbr")]
-        public string ApplicationAbbr { get; set; } = "";
+        //[JsonProperty("applicationAbbr")]
+        //public string ApplicationAbbr { get; set; } = "";
     }
     public class ZoneGeometry
     {
@@ -256,8 +256,8 @@ namespace Factory_of_the_Future
 
         [JsonProperty("MPE_Bins")]
         public List<string> MPEBins { get; set; } = new List<string>();
-        [JsonProperty("SV_Zone_Data")]
-        public SVZoneData SVZoneData { get; set; } = new SVZoneData();
+        //[JsonProperty("SV_Zone_Data")]
+        //public SVZoneData SVZoneData { get; set; } = new SVZoneData();
 
         [JsonProperty("MPE_Number")]
         public int MPENumber { get; set; }
@@ -1592,6 +1592,124 @@ namespace Factory_of_the_Future
         [JsonProperty("url")]
         public string URL { get; set; } = "";
     }
+    public class SV_Site_Info
+    {
+        [JsonProperty("siteId")]
+        public string SiteId;
+
+        [JsonProperty("type")]
+        public string Type;
+
+        [JsonProperty("name")]
+        public string Name;
+
+        [JsonProperty("displayName")]
+        public string DisplayName;
+
+        [JsonProperty("timeZoneAbbr")]
+        public string TimeZoneAbbr;
+
+        [JsonProperty("financeNumber")]
+        public string FinanceNumber;
+
+        [JsonProperty("zipCode")]
+        public string ZipCode;
+
+        [JsonProperty("areaCode")]
+        public string AreaCode;
+
+        [JsonProperty("areaName")]
+        public string AreaName;
+
+        [JsonProperty("districtCode")]
+        public string DistrictCode;
+
+        [JsonProperty("districtName")]
+        public string DistrictName;
+
+        [JsonProperty("localeKey")]
+        public string LocaleKey;
+
+        [JsonProperty("fdbId")]
+        public string FdbId;
+
+        [JsonProperty("updtUserId")]
+        public string UpdtUserId;
+
+        [JsonProperty("tours")]
+        public SV_Tours Tours;
+
+        [JsonProperty("facilityId")]
+        public string FacilityId;
+
+        [JsonProperty("agvInd")]
+        public string AgvInd;
+    }
+
+    public class SV_Tours
+    {
+        [JsonProperty("siteId")]
+        public string SiteId;
+
+        [JsonProperty("tour1Start")]
+        public string Tour1Start;
+
+        [JsonProperty("tour1End")]
+        public string Tour1End;
+
+        [JsonProperty("tour2Start")]
+        public string Tour2Start;
+
+        [JsonProperty("tour2End")]
+        public string Tour2End;
+
+        [JsonProperty("tour3Start")]
+        public string Tour3Start;
+
+        [JsonProperty("tour3End")]
+        public string Tour3End;
+
+        [JsonProperty("startingTour")]
+        public int StartingTour;
+
+        [JsonProperty("updtUserId")]
+        public string UpdtUserId;
+    }
+    public class SV_Bullpen
+    {
+        [JsonProperty("SQLTypeName")]
+        public string SQLTypeName;
+
+        [JsonProperty("locationId")]
+        public int LocationId;
+
+        [JsonProperty("siteId")]
+        public string SiteId;
+
+        [JsonProperty("locationName")]
+        public string LocationName;
+
+        [JsonProperty("locationType")]
+        public string LocationType;
+
+        [JsonProperty("updtUserId")]
+        public string UpdtUserId;
+
+        [JsonProperty("bullpenType")]
+        public string BullpenType;
+
+        [JsonProperty("responseCode")]
+        public int ResponseCode;
+
+        [JsonProperty("mpeName")]
+        public string MpeName;
+
+        [JsonProperty("binStart")]
+        public int? BinStart;
+
+        [JsonProperty("binEnd")]
+        public int? BinEnd;
+    }
     public class PropertyRenameAndIgnoreSerializerContractResolver : DefaultContractResolver
     {
         private readonly Dictionary<Type, HashSet<string>> _ignores;
@@ -1670,7 +1788,11 @@ namespace Factory_of_the_Future
         public const string Facility_Name = "Facility_Name";
         public const string Environment = "Environment";
         public const string FacilityTimeZone = "FacilityTimeZone";
+        public const string SoftwareVersion = "SoftwareVersion";
+        public const string ApplicationFullName = "ApplicationFullName";
+        public const string ApplicationAbbr = "ApplicationAbbr";
     }
+
     public class AuthenticationCookie
     {
         private static readonly string Name = FormsAuthentication.FormsCookieName;

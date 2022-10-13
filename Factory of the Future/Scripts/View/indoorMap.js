@@ -1,4 +1,5 @@
-﻿//side bar setup
+﻿User = $.parseJSON(localStorage.getItem('User'));
+//side bar setup
 var sidebar = L.control.sidebar({
     container: 'sidebar', position: 'left', autopan: false
 });
@@ -135,7 +136,7 @@ map = L.map('map', {
     tap: false,
     layers: layersSelected
 });
-
+map.attributionControl.setPrefix("USPS " + User.ApplicationFullName + " (" + User.SoftwareVersion + ") | " + User.Facility_Name);
 let layerCheckboxIds = [];
 function setLayerCheckboxId(thisCheckBox, innerHTML) {
     let name = innerHTML.replace(/ /g, '');
@@ -269,7 +270,7 @@ sidebar.on('content', function (ev) {
             Edit_AppSetting("app_settingtable");
             break;
         case 'reports':
-            GetUserInfo();
+            //GetUserInfo();
             break;
         case 'userprofile':
             GetUserProfile();
@@ -409,10 +410,10 @@ $('#layersToggle').on('click', function () {
 function init_mapSetup(MapData) {
     try {
         if (MapData.length > 0) {
-            map.attributionControl.setPrefix("USPS " + MapData[0].backgroundImages.applicationFullName + " (" + MapData[0].backgroundImages.softwareVersion + ")");
-            $('#fotf-site-facility-name').append(MapData[0].backgroundImages.facilityName);
-            map.attributionControl.addAttribution(MapData[0].backgroundImages.facilityName);
-            $(document).prop('title', MapData[0].backgroundImages.facilityName + ' ' + MapData[0].backgroundImages.applicationAbbr);
+            //map.attributionControl.setPrefix("USPS " + MapData[0].backgroundImages.applicationFullName + " (" + MapData[0].backgroundImages.softwareVersion + ")");
+            //$('#fotf-site-facility-name').append(MapData[0].backgroundImages.facilityName);
+            //map.attributionControl.addAttribution(MapData[0].backgroundImages.facilityName);
+            //$(document).prop('title', MapData[0].backgroundImages.facilityName + ' ' + MapData[0].backgroundImages.applicationAbbr);
             $.each(MapData, function (index) {
                 //set new image
                 var img = new Image();
@@ -449,18 +450,18 @@ function init_mapSetup(MapData) {
             }
             
         }
-        else {
-            fotfmanager.server.GetIndoorMap().done(function (GetIndoorMap) {
-                if (GetIndoorMap.length > 0) {
-                    $.each(GetIndoorMap, function () {
-                        map.attributionControl.setPrefix("USPS " + this.backgroundImages.applicationFullName + " (" + this.backgroundImages.softwareVersion + ")");
-                        $('#fotf-site-facility-name').append(this.backgroundImages.facilityName);
-                        map.attributionControl.addAttribution(this.backgroundImages.facilityName);
-                        $(document).prop('title', this.backgroundImages.facilityName + ' ' + this.backgroundImages.applicationAbbr);
-                    });
-                }
-            })
-        }
+        //else {
+        //    fotfmanager.server.GetIndoorMap().done(function (GetIndoorMap) {
+        //        if (GetIndoorMap.length > 0) {
+        //            $.each(GetIndoorMap, function () {
+        //                map.attributionControl.setPrefix("USPS " + this.backgroundImages.applicationFullName + " (" + this.backgroundImages.softwareVersion + ")");
+        //                $('#fotf-site-facility-name').append(this.backgroundImages.facilityName);
+        //                map.attributionControl.addAttribution(this.backgroundImages.facilityName);
+        //                $(document).prop('title', this.backgroundImages.facilityName + ' ' + this.backgroundImages.applicationAbbr);
+        //            });
+        //        }
+        //    })
+        //}
         if ($.isEmptyObject(map)) {
             $('div[id=map]').css('display', 'none');
             $('<div/>', { class: 'jumbotron text-center' })

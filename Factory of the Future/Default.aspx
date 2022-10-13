@@ -51,9 +51,9 @@
     <link rel="stylesheet" href="Content/Filter.css" />
 </head>
 <body class="loadingFOTFBody">
-      <div id="loadWrapper" class="loadingFOTF">
+    <div id="loadWrapper" class="loadingFOTF">
     </div>
-    
+
     <div id="sparkline-message">
         <div id="sparkline-message-fixed">
             <div id="sparkline-message-inner">
@@ -61,9 +61,9 @@
             </div>
         </div>
     </div>
-    <canvas id="sparkline-canvas" width="300" height="150" style="width: 300px; height: 150px; position: absolute; margin-top: -1000000px; "></canvas>
+    <canvas id="sparkline-canvas" width="300" height="150" style="width: 300px; height: 150px; position: absolute; margin-top: -1000000px;"></canvas>
     <div id="map"></div>
-      <!-- Modal Section -->
+    <!-- Modal Section -->
     <div class="modal fade" id="API_Connection_Modal" tabindex="-1" role="dialog" data-backdrop="static" aria-labelledby="API_Connection_Modal_Label">
         <div class="modal-dialog modal-xl">
             <div class="modal-content bg-white">
@@ -77,32 +77,31 @@
                     <div class="row mb-3">
                         <div class="col">
                             <label class="control-label">Connection Name</label>
-                            <input id="connection_name" type="text" class="form-control" name="connection_name">
+                            <input id="connection_name" type="text" class="form-control" name="connection_name" />
                             <span id="error_connection_name" class="text-danger"></span>
                         </div>
                         <div class="col">
                             <label class="control-label">Connection Options</label>
                             <div class="custom-control custom-switch">
                                 <div class="custom-control custom-switch">
-                                    <input id="active_connection" type="checkbox" class="custom-control-input" name="active_connection">
+                                    <input id="active_connection" type="checkbox" class="custom-control-input" name="active_connection" />
                                     <label class="custom-control-label" for="active_connection">Active Connection</label>
                                 </div>
                             </div>
                             <div class="custom-control custom-switch">
-
                             </div>
                         </div>
                         <div class="col mt-3">
                             <div class="custom-control custom-switch">
-                                <input id="udp_connection" type="checkbox" class="custom-control-input" name="udp_connection">
+                                <input id="udp_connection" type="checkbox" class="custom-control-input" name="udp_connection" />
                                 <label class="custom-control-label" for="udp_connection">UDP Connection</label>
                             </div>
                             <div class="custom-control custom-switch">
-                                <input id="ws_connection" type="checkbox" class="custom-control-input" name="ws_connection">
+                                <input id="ws_connection" type="checkbox" class="custom-control-input" name="ws_connection" />
                                 <label class="custom-control-label" for="ws_connection">WS Connection</label>
                             </div>
                             <div class="custom-control custom-switch">
-                                <input id="hour_range" type="checkbox" class="custom-control-input" name="hour_range">
+                                <input id="hour_range" type="checkbox" class="custom-control-input" name="hour_range" />
                                 <label class="custom-control-label" for="hour_range">Hour Range</label>
 
                             </div>
@@ -110,29 +109,37 @@
                     </div>
                     <div class="row mb-3">
                         <div class="form-group col-4">
-                            <label class="control-label">Host Name</label><input id="hostanme" type="text" class="form-control" name="hostanme"><span id="error_hostanme" class="text-danger"></span>
+                            <label class="control-label">Host Name</label>
+                            <input id="hostanme" type="text" class="form-control" name="hostanme" />
+                            <span id="error_hostanme" class="text-danger"></span>
                         </div>
                         <div class="form-group col-4">
-                            <label class="control-label">IP Address</label><input id="ip_address" type="text" class="form-control" name="ip_address"><span id="error_ip_address" class="text-danger"></span>
+                            <label class="control-label">IP Address</label>
+                            <input id="ip_address" type="text" class="form-control" name="ip_address" />
+                            <span id="error_ip_address" class="text-danger"></span>
                         </div>
                         <div class="form-group col-4">
-                            <label class="control-label">Port Number</label><input id="port_number" type="text" class="form-control" name="port_number"><span id="error_port_number" class="text-danger"></span>
+                            <label class="control-label">Port Number</label>
+                            <input id="port_number" type="text" class="form-control" name="port_number" />
+                            <span id="error_port_number" class="text-danger"></span>
                         </div>
                     </div>
                     <div class="row mb-3">
                         <div class="form-group col">
-                            <label class="control-label">URL</label><input id="url" type="text" class="form-control" name="url"><span id="error_url" class="text-danger"></span>
+                            <label class="control-label">URL</label>
+                            <input id="url" type="text" class="form-control" name="url" />
+                            <span id="error_url" class="text-danger"></span>
                         </div>
                         <!--<div class="form-group col-6">
                             <label class="control-label">API Key</label><input id="outgoingapikey" type="text" class="form-control" name="outgoingapikey"><span id="error_outgoingapikey" class="text-danger"></span>
                         </div>-->
                     </div>
-                    <div class="row hours_range_row" style="display:none">
+                    <div class="row hours_range_row" style="display: none">
                         <div class="col-6">
                             <div class="d-flex justify-content-center my-2">
                                 <div class="w-100">
                                     <label class="control-label">Hours Backwards: <span class="font-weight-bold text-primary ml-2 hoursbackvalue"></span></label>
-                                    <input type="range" class="custom-range" id="hoursback_range" min="0" max="60" value="0">
+                                    <input type="range" class="custom-range" id="hoursback_range" min="0" max="60" value="0"/>
                                 </div>
                             </div>
                         </div>
@@ -141,14 +148,16 @@
                             <div class="d-flex justify-content-center my-2">
                                 <div class="w-100">
                                     <label class="control-label">Hours Forward: <span class="font-weight-bold text-primary ml-2 hoursforwardvalue"></span></label>
-                                    <input type="range" class="custom-range" id="hoursforward_range" min="0" max="60" value="0">
+                                    <input type="range" class="custom-range" id="hoursforward_range" min="0" max="60" value="0"/>
                                 </div>
                             </div>
                         </div>
                     </div>
                     <div class="row mb-3">
                         <div class="form-group col">
-                            <label class="control-label">Message Type</label><input id="message_type" type="text" class="form-control" name="message_type"><span id="error_message_type" class="text-danger"></span>
+                            <label class="control-label">Message Type</label>
+                            <input id="message_type" type="text" class="form-control" name="message_type" />
+                            <span id="error_message_type" class="text-danger"></span>
                         </div>
                         <div class="form-group col">
                             <label class="control-label">Retrieve Occurrences</label>
@@ -191,18 +200,20 @@
                     <div class="col-11">
                         <h4 class="modal-title1" id="notification_SetupHeader">Add New Notification</h4>
                     </div>
-                    <button class="col-1 close" type="button" data-dismiss="modal" aria-label="Close"><i class="pi-iconExit float-right mt-2 mr-2"></i></button>
+                    <button class="col-1 close" type="button" data-dismiss="modal" aria-label="Close">
+                        <i class="pi-iconExit float-right mt-2 mr-2"></i></button>
                 </div>
                 <div class="modal-body1">
                     <div class="row mb-3">
                         <div class="col-6">
                             <label class="control-label">Name</label>
-                            <input id="condition_name" type="text" class="form-control" name="condition_name"><span id="error_condition_name" class="text-danger"></span>
+                            <input id="condition_name" type="text" class="form-control" name="condition_name"/>
+                            <span id="error_condition_name" class="text-danger"></span>
                         </div>
                         <div class="col-6">
                             <label class="control-label">Condition Options</label><div class="custom-control custom-switch">
                                 <div class="custom-control custom-switch">
-                                    <input id="condition_active" type="checkbox" class="custom-control-input" name="condition_active">
+                                    <input id="condition_active" type="checkbox" class="custom-control-input" name="condition_active"/>
                                     <label class="custom-control-label" for="condition_active">Active Condition</label>
                                 </div>
                             </div>
@@ -210,7 +221,9 @@
                     </div>
                     <div class="row mb-3">
                         <div class="form-group col-6">
-                            <label class="control-label">Condition</label><input id="condition" type="text" class="form-control" name="condition"><span id="error_condition" class="text-danger"></span>
+                            <label class="control-label">Condition</label>
+                            <input id="condition" type="text" class="form-control" name="condition" />
+                            <span id="error_condition" class="text-danger"></span>
                         </div>
                         <div class="form-group col-6">
                             <label class="control-label">Condition Type</label>
@@ -231,7 +244,7 @@
                             <div class="d-flex justify-content-center my-2">
                                 <div class="w-75">
                                     <label class="control-label">Warning Condition: <span class="font-weight-bold text-primary ml-2 warning_conditionpickvalue"></span></label>
-                                    <input type="range" class="custom-range" id="warning_condition" min="0" max="60" value="0">
+                                    <input type="range" class="custom-range" id="warning_condition" min="0" max="60" value="0"/>
                                 </div>
                             </div>
 
@@ -244,7 +257,7 @@
                             <div class="d-flex justify-content-center my-2">
                                 <div class="w-75">
                                     <label class="control-label">Critical Condition: <span class="font-weight-bold text-primary ml-2 critical_conditionpickvalue"></span></label>
-                                    <input type="range" class="custom-range" id="critical_condition" min="0" max="60" value="0">
+                                    <input type="range" class="custom-range" id="critical_condition" min="0" max="60" value="0" />
                                 </div>
                             </div>
                             <div class="col">
@@ -311,15 +324,18 @@
                         <div class="card-body">
                             <div class="form-group row">
                                 <div class="col">
-                                    <label class="col-form-label">Attribute:</label><input class="form-control" disabled="disabled" id="modalKeyID">
+                                    <label class="col-form-label">Attribute:</label>
+                                    <input class="form-control" disabled="disabled" id="modalKeyID"/>
                                 </div>
                             </div>
-                            <div class="form-group row valuediv" style="display:block">
+                            <div class="form-group row valuediv" style="display: block">
                                 <div class="col">
-                                    <label class="col-form-label">Value:</label><input class="form-control" id="modalValueID"><span class="text-info" id="error_modalValueID"></span>
+                                    <label class="col-form-label">Value:</label>
+                                    <input class="form-control" id="modalValueID"/>
+                                    <span class="text-info" id="error_modalValueID"></span>
                                 </div>
                             </div>
-                            <div class="form-group row timezonediv" style="display:none">
+                            <div class="form-group row timezonediv" style="display: none">
                                 <div class="col">
                                     <label class="col-form-label">Value:</label>
                                     <select class="form-control" id="timezoneValueID"></select>
@@ -481,19 +497,19 @@
                     <div class="row mb-3">
                         <div class="form-group col-4">
                             <label class="control-label">Camera Name</label>
-                            <input id="camera_name" type="text" class="form-control" name="camera_name">
+                            <input id="camera_name" type="text" class="form-control" name="camera_name" />
                             <span id="error_camera_name" class="text-danger"></span>
                         </div>
                         <div class="form-group col-8">
                             <label class="control-label">Description</label>
-                            <input id="camera_description" type="text" class="form-control" name="camera_description">
+                            <input id="camera_description" type="text" class="form-control" name="camera_description" />
                             <span id="error_camera_description" class="text-danger"></span>
                         </div>
                     </div>
                     <div class="row mb-3">
                         <div class="form-group col-4">
                             <label class="control-label">Camera Model</label>
-                            <input id="camera_model" type="text" class="form-control" name="camera_model">
+                            <input id="camera_model" type="text" class="form-control" name="camera_model" />
                             <span id="error_camera_model" class="text-danger"></span>
                         </div>
                     </div>
@@ -523,18 +539,26 @@
                 <div class="modal-body">
                     <div class="row mr-0 ml-0">
                         <div class="form-group col-3">
-                            <label class="control-label">Name</label><input id="employee" type="text" class="form-control" name="employee_name"><span id="error_employee_name" class="text-danger"></span>
+                            <label class="control-label">Name</label>
+                            <input id="employee" type="text" class="form-control" name="employee_name" />
+                            <span id="error_employee_name" class="text-danger"></span>
                         </div>
                         <div class="form-group col-3">
-                            <label class="control-label">EIN</label><input id="employee_ein" type="text" class="form-control" name="employee_ein"><span id="error_employee_ein" class="text-danger"></span>
+                            <label class="control-label">EIN</label>
+                            <input id="employee_ein" type="text" class="form-control" name="employee_ein" />
+                            <span id="error_employee_ein" class="text-danger"></span>
                         </div>
                         <div class="form-group col-4">
-                            <label class="control-label">TAG Name</label><input id="tag_name" type="text" class="form-control" name="tag_name" disabled><span id="error_tag_name" class="text-danger"></span>
+                            <label class="control-label">TAG Name</label>
+                            <input id="tag_name" type="text" class="form-control" name="tag_name" disabled ="disabled"/>
+                            <span id="error_tag_name" class="text-danger"></span>
                         </div>
                     </div>
                     <div class="row mr-0 ml-0">
                         <div class="form-group col-6">
-                            <label class="control-label">Tag MAC</label><input id="tag_id" type="text" class="form-control" name="tag_id" disabled><span id="error_tag_id" class="text-danger"></span>
+                            <label class="control-label">Tag MAC</label>
+                            <input id="tag_id" type="text" class="form-control" name="tag_id" disabled ="disabled" />
+                            <span id="error_tag_id" class="text-danger"></span>
                         </div>
                     </div>
                 </div>
@@ -616,7 +640,7 @@
                                         <th style="width: 15%;">Event Time</th>
                                         <th style="width: 10%;">Location</th>
                                         <th style="width: 5%;">Bin</th>
-                                        <th style="width: 10%; ">Trailer</th>
+                                        <th style="width: 10%;">Trailer</th>
                                         <th style="width: 5%;">Route</th>
                                         <th style="width: 5%;">Trip</th>
                                         <th style="width: 10%;">Source</th>
@@ -644,11 +668,10 @@
                     <div class="col-11">
                         <h3 class="modal-title1" id="modalRouteTripDetailsHeader_ID"><span aria-hidden="true"></span></h3>
                     </div>
-                    <button  class="col-1 close" type="button" data-dismiss="modal" aria-label="Close"><i  class="pi-iconExit float-right mt-2 mr-2"></i></button>
+                    <button class="col-1 close" type="button" data-dismiss="modal" aria-label="Close"><i class="pi-iconExit float-right mt-2 mr-2"></i></button>
                 </div>
                 <div class="modal-body" id="RouteTripDetailscard">
                     <div class="card-body pb-0">
-
                     </div>
                 </div>
                 <div class="modal-footer1">
@@ -737,15 +760,15 @@
                                         </div>
                                         <div class="col-6">
                                             <label class="control-label">Name</label>
-                                            <input id="zone_name" type="text" class="form-control" name="zone_name" style="display:block;">
-                                            <select id="zone_select_name" type="text" title="Zone Select Name" class="form-control" name="zone_select_name" style="display:none;">
+                                            <input id="zone_name" type="text" class="form-control" name="zone_name" style="display: block;">
+                                            <select id="zone_select_name" type="text" title="Zone Select Name" class="form-control" name="zone_select_name" style="display: none;">
                                                 <option value=""></option>
                                             </select>
                                             <span id="error_zone_name" class="text-danger"></span>
                                         </div>
 
                                     </div>
-                                    <div id="camerainfo" style="display:none;">
+                                    <div id="camerainfo" style="display: none;">
                                         <div class="row mb-3">
                                             <div class="form-group col">
                                                 <label class="control-label">Camera URL</label>
@@ -756,7 +779,7 @@
                                             </div>
                                         </div>
                                     </div>
-                                    <div id="binzoneinfo" style="display:none;">
+                                    <div id="binzoneinfo" style="display: none;">
                                         <div class="row mb-3">
                                             <div class="col">
                                                 <label class="control-label">Bins</label>
@@ -778,11 +801,10 @@
                             </div>
                         </div>
                     </div>
-                    <div id="machine_div" data-id="" class="card bg-white mt-2 pb-1" style="display: none; ">
+                    <div id="machine_div" data-id="" class="card bg-white mt-2 pb-1" style="display: none;">
                         <div class="card-header pl-1">
-                            <h6 class="control-label sectionHeader ml-1 mb-1 d-flex justify-content-between">
-                                Machine Info
-                                <button type="button" class="btn btn-secondary border-0 badge-info badge machineinfoedit" name="machineinfoedit" style="display:none" data-id="0" data-toggle="tooltip" data-container="body" data-placement="top">Edit</button>
+                            <h6 class="control-label sectionHeader ml-1 mb-1 d-flex justify-content-between">Machine Info
+                                <button type="button" class="btn btn-secondary border-0 badge-info badge machineinfoedit" name="machineinfoedit" style="display: none" data-id="0" data-toggle="tooltip" data-container="body" data-placement="top">Edit</button>
                             </h6>
                         </div>
                         <div id="div_machine">
@@ -796,7 +818,7 @@
                         </div>
                     </div>
 
-                    <div id="dps_div" class="card bg-white mt-2 pb-1" style="display: none; ">
+                    <div id="dps_div" class="card bg-white mt-2 pb-1" style="display: none;">
                         <div class="card-header pl-1">
                             <h6 class="control-label sectionHeader ml-1 mb-1">DPS Info</h6>
                         </div>
@@ -811,10 +833,9 @@
                         </div>
                     </div>
 
-                    <div id="agvlocation_div" data-id="" class="card bg-white mt-2 pb-1" style="display: none; ">
+                    <div id="agvlocation_div" data-id="" class="card bg-white mt-2 pb-1" style="display: none;">
                         <div class="card-header pl-1 border-bottom">
-                            <h6 class="control-label sectionHeader ml-1 mb-1 d-flex justify-content-between">
-                                AGV Location Info
+                            <h6 class="control-label sectionHeader ml-1 mb-1 d-flex justify-content-between">AGV Location Info
                                 <span class="btn btn-secondary border-0 badge-info badge" name="locationid"></span>
                             </h6>
                         </div>
@@ -828,13 +849,11 @@
                         </div>
                     </div>
 
-                    <div id="dockdoor_div" data-id="" class="card bg-white mt-2 pb-1" style="display: none; ">
+                    <div id="dockdoor_div" data-id="" class="card bg-white mt-2 pb-1" style="display: none;">
                         <div class="card-header pl-1 border-bottom">
-                            <h6 class="control-label sectionHeader ml-1 mb-1 d-flex justify-content-between">
-                                Dock Door
+                            <h6 class="control-label sectionHeader ml-1 mb-1 d-flex justify-content-between">Dock Door
                                 <span class="btn btn-secondary border-0 badge-info badge" name="doornumberid"></span>
-                                <span class="d-flex justify-content-between">
-                                    Status:
+                                <span class="d-flex justify-content-between">Status:
                                     <span class="btn btn-secondary border-0 badge-info badge" name="doorstatus"></span>
                                 </span>
                             </h6>
@@ -849,7 +868,7 @@
                         </div>
                     </div>
 
-                    <div id="vehicle_div" data-id="" class="card bg-white mt-2 pb-1" style="display: none; ">
+                    <div id="vehicle_div" data-id="" class="card bg-white mt-2 pb-1" style="display: none;">
                         <div class="card-header pl-1 d-flex flex-row">
                             <h6 class="control-label sectionHeader ml-1">Vehicle Info</h6>
                             <div class="custom-control custom-switch ml-3">
@@ -877,10 +896,9 @@
                     </div>
 
                     <!-- Trailer Content table template -->
-                    <div id="trailer_div" class="card bg-white mt-2 pb-1" style="display: block; ">
+                    <div id="trailer_div" class="card bg-white mt-2 pb-1" style="display: block;">
                         <div class="card-header pl-1">
-                            <h6 class="control-label sectionHeader ml-1 mb-1 d-flex justify-content-between">
-                                Trailer Content
+                            <h6 class="control-label sectionHeader ml-1 mb-1 d-flex justify-content-between">Trailer Content
                                 <button type="button" class="btn btn-secondary border-0 badge-info badge" data-toggle="tooltip" data-container="body" data-placement="top" title="Loaded vs. Not Loaded" name="container_counts">0/0</button>
                             </h6>
                         </div>
@@ -890,18 +908,22 @@
                                     <table class="table table-striped table-sm table-hover mb-0 border-bottom" id="containertable">
                                         <thead class="thead-dark">
                                             <tr>
-                                                <th style="width: 15%; "><span class="ml-p25rem">Dest</span></th>
-                                                <th style="width: 20%; ">Location</th>
-                                                <th style="width: 5%; "></th>
-                                                <th style="width: 47%; ">Placard</th>
-                                                <th style="width: 12%; ">Status</th>
+                                                <th style="width: 15%;"><span class="ml-p25rem">Dest</span></th>
+                                                <th style="width: 20%;">Location</th>
+                                                <th style="width: 5%;"></th>
+                                                <th style="width: 47%;">Placard</th>
+                                                <th style="width: 12%;">Status</th>
                                             </tr>
                                             <tr class="filters">
-                                                <td><input class="frow-comp-1" id="dest" type="text" placeholder="Dest"></td>
-                                                <td><input class="frow-comp-2" id="location" type="text" placeholder="Location"></td>
+                                                <td>
+                                                    <input class="frow-comp-1" id="dest" type="text" placeholder="Dest" /></td>
+                                                <td>
+                                                    <input class="frow-comp-2" id="location" type="text" placeholder="Location" /></td>
                                                 <td></td>
-                                                <td><input class="frow-comp-3" id="placard" type="text" placeholder="Placard"></td>
-                                                <td><input class="frow-comp-4" id="status" type="text" placeholder="Status"></td>
+                                                <td>
+                                                    <input class="frow-comp-3" id="placard" type="text" placeholder="Placard" /></td>
+                                                <td>
+                                                    <input class="frow-comp-4" id="status" type="text" placeholder="Status" /></td>
                                             </tr>
                                         </thead>
                                         <tbody></tbody>
@@ -912,7 +934,7 @@
                     </div>
                     <!-- END -->
 
-                    <div id="staff_div" class="card bg-white mt-2 pb-1" style="display: none; ">
+                    <div id="staff_div" class="card bg-white mt-2 pb-1" style="display: none;">
                         <div class="card-header pl-1">
                             <h6 class="control-label sectionHeader ml-1 mb-1">Staffing Info</h6>
                         </div>
@@ -1061,7 +1083,10 @@
                                 <div class="table-responsive">
                                     <table class="table table-sm table-hover mb-1 border-bottom" id="userstoptable">
                                         <thead class="thead-dark">
-                                            <tr><th><span class="ml-p25rem">F1 Craft</span></th><th>In Work Zone</th></tr>
+                                            <tr>
+                                                <th><span class="ml-p25rem">F1 Craft</span></th>
+                                                <th>In Work Zone</th>
+                                            </tr>
                                         </thead>
                                         <tbody></tbody>
                                     </table>
@@ -1086,8 +1111,10 @@
                                                 <th class="row-comp-2">Overtime</th>
                                             </tr>
                                             <tr class="filters">
-                                                <td><input class="frow-comp-1" id="badge" type="text" placeholder="Badge"></td>
-                                                <td><input class="frow-comp-2" id="overtimebage_time" type="text" placeholder="Overtime"></td>
+                                                <td>
+                                                    <input class="frow-comp-1" id="badge" type="text" placeholder="Badge" /></td>
+                                                <td>
+                                                    <input class="frow-comp-2" id="overtimebage_time" type="text" placeholder="Overtime" /></td>
                                             </tr>
                                         </thead>
                                         <tbody></tbody>
@@ -1113,10 +1140,14 @@
                                                 <th class="row-comp-4">Pay Location</th>
                                             </tr>
                                             <tr class="filters">
-                                                <td><input class="frow-comp-1" id="badge" type="text" placeholder="Badge"></td>
-                                                <td><input class="frow-comp-2" id="ldc" type="text" placeholder="LDC"></td>
-                                                <td><input class="frow-comp-3" id="opcode" type="text" placeholder="Op Code"></td>
-                                                <td><input class="frow-comp-4" id="paylocation" type="text" placeholder="Pay Location"></td>
+                                                <td>
+                                                    <input class="frow-comp-1" id="badge" type="text" placeholder="Badge" /></td>
+                                                <td>
+                                                    <input class="frow-comp-2" id="ldc" type="text" placeholder="LDC" /></td>
+                                                <td>
+                                                    <input class="frow-comp-3" id="opcode" type="text" placeholder="Op Code" /></td>
+                                                <td>
+                                                    <input class="frow-comp-4" id="paylocation" type="text" placeholder="Pay Location" /></td>
                                             </tr>
                                         </thead>
                                         <tbody></tbody>
@@ -1144,11 +1175,16 @@
                                                 <th class="row-comp-2">P/L</th>
                                             </tr>
                                             <tr class="filters">
-                                                <td><input class="frow-comp-1" id="badge" type="text" placeholder="Badge"></td>
-                                                <td><input class="frow-comp-2" id="ldc" type="text" placeholder="LDC"></td>
-                                                <td><input class="frow-comp-3" id="tacsldc" type="text" placeholder="TACS LDC"></td>
-                                                <td><input class="frow-comp-3" id="opcode" type="text" placeholder="Op Code"></td>
-                                                <td><input class="frow-comp-4" id="paylocation" type="text" placeholder="P/L"></td>
+                                                <td>
+                                                    <input class="frow-comp-1" id="badge" type="text" placeholder="Badge" /></td>
+                                                <td>
+                                                    <input class="frow-comp-2" id="ldc" type="text" placeholder="LDC" /></td>
+                                                <td>
+                                                    <input class="frow-comp-3" id="tacsldc" type="text" placeholder="TACS LDC" /></td>
+                                                <td>
+                                                    <input class="frow-comp-3" id="opcode" type="text" placeholder="Op Code" /></td>
+                                                <td>
+                                                    <input class="frow-comp-4" id="paylocation" type="text" placeholder="P/L" /></td>
                                             </tr>
                                         </thead>
                                         <tbody></tbody>
@@ -1169,8 +1205,7 @@
 
                             <div class="card w-100">
                                 <div class="card-header pl-1">
-                                    <h6 class="sectionHeader ml-1 mb-1">
-                                        Late Trips
+                                    <h6 class="sectionHeader ml-1 mb-1">Late Trips
                                         <button class="btn btn-link" data-toggle="collapse" data-target="#latetrips" onclick="">
                                             <i class="bi bi-arrows-collapse"></i>
                                         </button>
@@ -1184,10 +1219,10 @@
                                             <thead class="thead-dark">
                                                 <tr>
                                                     <th class="row-cts-schd"><span class="ml-p25rem">Schd</span></th>
-                                                    <th style="width:min-content">Duration</th>
-                                                    <th style="width:30px">DIR</th>
-                                                    <th style="width:min-content">Route-Trip</th>
-                                                    <th style="width:min-content" colspan="2">Site Name</th>
+                                                    <th style="width: min-content">Duration</th>
+                                                    <th style="width: 30px">DIR</th>
+                                                    <th style="width: min-content">Route-Trip</th>
+                                                    <th style="width: min-content" colspan="2">Site Name</th>
                                                 </tr>
                                             </thead>
                                             <tbody></tbody>
@@ -1198,8 +1233,7 @@
 
                             <div class="card w-100">
                                 <div class="card-header pl-1">
-                                    <h6 class="sectionHeader ml-1 mb-1">
-                                        Load Scan After Departure
+                                    <h6 class="sectionHeader ml-1 mb-1">Load Scan After Departure
                                         <button class="btn btn-link" data-toggle="collapse" data-target="#loadafterdepart">
                                             <i class="bi bi-arrows-collapse"></i>
                                         </button>
@@ -1224,8 +1258,7 @@
 
                             <div class="card w-100">
                                 <div class="card-header pl-1">
-                                    <h6 class="sectionHeader ml-1 mb-1">
-                                        Missing Closed Scan
+                                    <h6 class="sectionHeader ml-1 mb-1">Missing Closed Scan
                                         <button class="btn btn-link" data-toggle="collapse" data-target="#missingclosed">
                                             <i class="bi bi-arrows-collapse"></i>
                                         </button>
@@ -1316,7 +1349,7 @@
                                         <h6 class="pt-2" id="userfullname"></h6>
                                         <div id="usertitel" class="pb-2"></div>
                                     </div>
-                                    <div class="col" style="display: none; ">
+                                    <div class="col" style="display: none;">
                                         <button class="btn btn-sm btn-outline-light btn-block" type="button" id="export_useage_report">Report</button>
                                     </div>
                                 </div>
@@ -1339,8 +1372,7 @@
                         </div>
                     </div>
                     <div class="card w-100 mb-3">
-                        <h6 class="card-header sectionHeader ml-2 mb-1 px-0">
-                            User Survey
+                        <h6 class="card-header sectionHeader ml-2 mb-1 px-0">User Survey
                         </h6>
                         <div class="card-body ml-np5rem">
                             <div class="input-group mb-2 mx-3">
@@ -1353,8 +1385,7 @@
                         </div>
                     </div>
                     <div class="card w-100 mb-3">
-                        <h6 class="card-header sectionHeader ml-2 mb-1 px-0">
-                            User Guide
+                        <h6 class="card-header sectionHeader ml-2 mb-1 px-0">User Guide
                         </h6>
                         <div class="card-body mr-np5rem">
                             <div class="input-group mb-2 mx-3">
@@ -1370,7 +1401,7 @@
                         <div class="row mx-0 mb-2">
                             <h6 class="card-header sectionHeader ml-2 px-0 py-0 mt-3">Badge / Equipment Search</h6>
                             <div class="input-group flex-fill px-0 mt-2 mx-3 mr-p5rem">
-                                <input type="text" id="inputsearchbtn" class="form-control input-border-light" placeholder="Enter badge or equipment ID" aria-label="Tag / Equipment Name" aria-describedby="searchbtn" style="font-size: 14px; ">
+                                <input type="text" id="inputsearchbtn" class="form-control input-border-light" placeholder="Enter badge or equipment ID" aria-label="Tag / Equipment Name" aria-describedby="searchbtn" style="font-size: 14px;" />
                                 <!--<div class="input-group-append">
                                     <button class="btn btn-outline-secondary" type="button" id="searchbtn">Search</button>
                                 </div>-->
@@ -1381,7 +1412,10 @@
                             <div class="table-responsive fixedHeader variableHeight">
                                 <table class="table table-sm table-hover mb-1 border-bottom" id="tagresulttable">
                                     <thead class="thead-dark">
-                                        <tr><th><span class="ml-p25rem">Badge / Equipment Name</span></th><th>Action</th></tr>
+                                        <tr>
+                                            <th><span class="ml-p25rem">Badge / Equipment Name</span></th>
+                                            <th>Action</th>
+                                        </tr>
                                     </thead>
                                     <tbody></tbody>
                                 </table>
@@ -1448,13 +1482,13 @@
                     <h4 class="popover-subheader mb-2 ml-p25rem">Vehicles</h4>
                     <ul class="noBullets">
                         <!-- PIV icons -->
-                        <li class="mb-3"><i class="pi-iconLoader_forklift iconMedium pl-2 mr-4 pr-2"><span class="path1"></span><span class="path2"></span><span class="path3"></span><span class="path4"></span><span class="path5"></span><span class="path6"></span></i> PIV Forklift</li>
+                        <li class="mb-3"><i class="pi-iconLoader_forklift iconMedium pl-2 mr-4 pr-2"><span class="path1"></span><span class="path2"></span><span class="path3"></span><span class="path4"></span><span class="path5"></span><span class="path6"></span></i>PIV Forklift</li>
                         <li class="mb-3"><i class="pi-iconLoader_tugger iconMedium ml-3 mr-4 pr-2"><span class="path1"></span><span class="path2"></span><span class="path3"></span><span class="path4"></span></i>PIV Tugger</li>
                         <li class="mb-3"><i class="pi-iconLoader_wr iconMedium mr-4 pr-2"><span class="path1"></span><span class="path2"></span><span class="path3"></span><span class="path4"></span><span class="path5"></span></i>PIV Walking Rider</li>
                         <li class="mb-3"><i class="pi-iconSurfboard iconSmall mr-2"><span class="path1"></span><span class="path2"></span><span class="path3"></span><span class="path4"></span><span class="path5"></span><span class="path6"></span><span class="path7"></span><span class="path8"></span></i>PIV Surfboard</li>
                         <li class="mb-3"><i class="pi-iconVh_bss iconMedium mr-4 pr-2"><span class="path1"></span><span class="path2"></span><span class="path3"></span><span class="path4"></span><span class="path5"></span></i>PIV Cart</li>
                         <li class="mb-3"><i class="pi-iconMule iconMedium mr-4 pr-2"><span class="path1"></span><span class="path2"></span><span class="path3"></span><span class="path4"></span><span class="path5"></span><span class="path6"></span><span class="path7"></span></i>PIV Mule</li>
-                        <li class="mb-3"><i class="pi-iconTricycle iconMedium mr-4 pr-2"> <span class="path1"></span><span class="path2"></span><span class="path3"></span><span class="path4"></span><span class="path5"></span></i>PIV Tricycle</li>
+                        <li class="mb-3"><i class="pi-iconTricycle iconMedium mr-4 pr-2"><span class="path1"></span><span class="path2"></span><span class="path3"></span><span class="path4"></span><span class="path5"></span></i>PIV Tricycle</li>
                         <!-- AGV icons -->
                         <li class="mb-3"><i class="pi-iconLoader_avg_pj iconMedium ml-2 mr-4 pr-2"><span class="path1"></span><span class="path2"></span><span class="path3"></span><span class="path4"></span><span class="path5"></span><span class="path6"></span><span class="path7"></span><span class="path8"></span><span class="path9"></span><span class="path10"></span></i>AGV Pallet Jack</li>
                         <li class="mb-3"><i class="pi-iconLoader_avg_t iconMedium ml-3 mr-4 pr-3"><span class="path1"></span><span class="path2"></span><span class="path3"></span><span class="path4"></span></i>AGV Tugger</li>
@@ -1540,7 +1574,10 @@
                         <tr>
                             <td class="">How do I expand my view to Full Screen?</td>
                             <td class="">Click the Expand Screen icon to view the screen in full screen mode.  Clicking the icon again will return to original view.</td>
-                            <td class="text-center bg-USPSPurple text-white border-bottom px-0"><div class="border-bottom pb-2 mb-2"><i class="pi-iconFullScreen"></i></div><div><i class="pi-iconFullScreenExit"></i></div></td>
+                            <td class="text-center bg-USPSPurple text-white border-bottom px-0">
+                                <div class="border-bottom pb-2 mb-2"><i class="pi-iconFullScreen"></i></div>
+                                <div><i class="pi-iconFullScreenExit"></i></div>
+                            </td>
                         </tr>
                         <tr>
                             <td class="">What is the difference between the Feedback and Suggestions options on the right navigation?  </td>

@@ -27,6 +27,8 @@ $(function () {
         setHeight();
     });
     User = $.parseJSON(localStorage.getItem('User'));
+    $('#fotf-site-facility-name').val(User.Facility_Name);
+    $(document).prop('title', User.Facility_Name + ' ' + User.ApplicationAbbr);
     // Search Tag Name
     $('input[id=inputsearchbtn').keyup(function () {
         startSearch(this.value)
@@ -61,6 +63,7 @@ $(function () {
     $.connection.hub.qs = { 'page_type': "FOTF".toUpperCase() };
     $.connection.hub.start({ withCredentials: true, waitForPageLoad: false })
         .done(function () {
+
             if (/^(Admin|OIE)/i.test(User.Role)) {
                 init_connection();
                 init_geometry_editing();
@@ -591,6 +594,13 @@ $(function () {
         View_Web_Camera(id, model, description);
     });
 });
+function Page_Update(data) {
+    $('#fotf-site-facility-name').text(data.FACILITY_NAME);
+    $(document).prop('title', data.FACILITY_NAME + ' ' + data.APPLICATION_NAME);
+}
+function Map_Update(data) {
+    map.attributionControl.setPrefix("USPS " + data.APPLICATION_FULLNAME + " (" + User.SoftwareVersion + ") | " + data.FACILITY_NAME);
+}
 function Clear() {
     var progress = 0;
     $('#progresbarrow').css('display', 'none');
