@@ -277,7 +277,7 @@ async function updateMachineSparklineTooltip(feature, layer) {
     }
         layer.bindTooltip(htmlData, {
             permanent: true,
-            interactive: true,
+            interactive: false,
             direction: getSparklineTooltipDirection(),
             className: sparklineClass
         }).openTooltip();

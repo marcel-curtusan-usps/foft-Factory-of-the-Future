@@ -228,7 +228,8 @@ function getPolygonMachineStyle(feature) {
             opacity: 1,
             color: '#3573b1',
             fillOpacity: 0.5,
-            fillColor: fillColor
+            fillColor: fillColor,
+            lastOpacity: 0.5
         };
     }
     else {
@@ -237,7 +238,8 @@ function getPolygonMachineStyle(feature) {
             opacity: 1,
             color: '#3573b1',
             fillOpacity: 0.2,
-            fillColor: '#989ea4'
+            fillColor: '#989ea4',
+            lastOpacity: 0.2
         };
     }
     return style;
@@ -251,7 +253,8 @@ const polyObj = {
                 color: "transparent",
                 fillColor: "transparent",
                 fillOpacity: 0,
-                opacity: 0
+                opacity: 0,
+                lastOpacity: 0
             };
         }
         if (feature.properties.visible) {
@@ -321,7 +324,8 @@ async function updateMPEZone(properties, index) {
             weight: 1,
             opacity: opacityValue,
             fillOpacity: fillOpacityValue,
-            fillColor: fillColor
+            fillColor: fillColor,
+            lastOpacity: fillOpacityValue
         });
     }
     else {
@@ -330,7 +334,8 @@ async function updateMPEZone(properties, index) {
                 weight: 1,
                 opacity: 1,
                 fillOpacity: 0.2,
-                fillColor: '#989ea4'//'gray'
+                fillColor: '#989ea4',//'gray'
+                lastOpacity: 0.2
             });
         }
     }
