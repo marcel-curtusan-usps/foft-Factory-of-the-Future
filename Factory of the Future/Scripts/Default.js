@@ -9,20 +9,20 @@ if (!String.prototype.supplant) {
         );
     };
 }
-var User = {};
-var baselayerid = "";
-var map = null;
-var bounds = [];
-var container = new L.FeatureGroup();
-var connectattp = 0;
-var connecttimer;
+let User = {};
+let baselayerid = "";
+let map = null;
+let bounds = [];
+let container = new L.FeatureGroup();
+let connectattp = 0;
+let connecttimer;
 let fotfmanager = $.connection.FOTFManager;
-var timezone = {};
-var condition = false;
+let timezone = {};
+let condition = false;
 
 $(function () {
     $("form").submit(function () { return false; });
-    //setHeight();
+    
     $(window).resize(function () {
         setHeight();
     });
@@ -86,12 +86,12 @@ $(function () {
         if (User.hasOwnProperty("Environment")) {
             //Environment Status Controls
             if (/(DEV|SIT|CAT)/i.test(User.Environment)) {
-                var Environment = L.Control.extend({
+                let Environment = L.Control.extend({
                     options: {
                         position: 'topright'
                     },
                     onAdd: function () {
-                        var Domcntainer = L.DomUtil.create('input');
+                        let Domcntainer = L.DomUtil.create('input');
                         Domcntainer.type = "button";
                         Domcntainer.id = "environment";
                         Domcntainer.className = getEnv(User.Environment);
@@ -225,11 +225,11 @@ $(function () {
             });
             $('button[id=btnUpload]').on('click', function () {
                 $('button[id=btnUpload]').prop("disabled", true);
-                var fileUpload = $("#fupload").get(0);
-                var files = fileUpload.files;
+                let fileUpload = $("#fupload").get(0);
+                let files = fileUpload.files;
                 if (files.length > 0) {
-                    var data = new FormData();
-                    for (var i = 0; i < files.length; i++) {
+                    let data = new FormData();
+                    for (let i = 0; i < files.length; i++) {
                         data.append(files[i].name, files[i]);
                     }
                     data.append("metersPerPixel", $("#metersPerPixel option:selected").val());
@@ -244,15 +244,15 @@ $(function () {
                             $('button[id=btnUpload]').prop("disabled", true);
                             $('#progresbarrow').css('display', 'block');
                             $('span[id=error_btnUpload]').text("Loading File Please stand by");
-                            var progress = 10
+                            let progress = 10
                             $('#file_upload_progressbar').css('width', progress + '%');
                         },
                         xhr: function () {
-                            var xhr = $.ajaxSettings.xhr();
+                            let xhr = $.ajaxSettings.xhr();
                             if (xhr.upload) {
                                 xhr.upload.addEventListener("progress", function (evt) {
                                     if (evt.lengthComputable) {
-                                        var percentComplete = evt.loaded / evt.total;
+                                        let percentComplete = evt.loaded / evt.total;
                                         percentComplete = parseInt(percentComplete * 100);
                                         $('#file_upload_progressbar').attr('aria-valuenow', percentComplete).css('width', percentComplete + '%');
                                         if (percentComplete === 100) {
@@ -292,19 +292,19 @@ $(function () {
         if (/(^PMCCUser$)/i.test(User.UserId)) {
             fotfmanager.server.leaveGroup("PeopleMarkers");
             //add QRCode
-            var QRCodedisplay = L.Control.extend({
+            let QRCodedisplay = L.Control.extend({
                 options: {
                     position: 'topright'
                 },
                 onAdd: function () {
-                    var Domcntainer = L.DomUtil.create('div');
+                    let Domcntainer = L.DomUtil.create('div');
                     Domcntainer.id = "qrcodeUrl";
                     return Domcntainer;
                 }
             });
             map.addControl(new QRCodedisplay());
 
-            var qrcode = new QRCode("qrcodeUrl", {
+            let qrcode = new QRCode("qrcodeUrl", {
                 text: window.location.href,
                 width: 128,
                 height: 128,
@@ -319,7 +319,7 @@ $(function () {
 
     Initiate24HourClock();
     //add connection status
-    var conntoggle = L.easyButton({
+    let conntoggle = L.easyButton({
         position: 'topright',
         states: [
             {
@@ -380,7 +380,7 @@ $(function () {
         sidebar.close();
     });
     // SelectizeJs Init for searching select boxes.
-    var options = {
+    let options = {
         create: false,
         sortField: "text",
     }
@@ -406,7 +406,7 @@ $(function () {
                     $('button[id=usertagsubmitBtn]').off().on('click', function () {
                         try {
                             $('button[id=usertagsubmitBtn]').prop('disabled', true);
-                            var jsonObject = {};
+                            let jsonObject = {};
                             $('input[type=text][name=empId]').val() !== map._layers[layerindex].feature.properties.Employee_EIN ? jsonObject.Employee_EIN = $('input[type=text][name=employee_ein]').val() : "";
                             $('input[type=text][name=empName]').val() !== map._layers[layerindex].feature.properties.Employee_Name ? jsonObject.Employee_Name = $('input[type=text][name=employee_name]').val() : "";
                             if (!$.isEmptyObject(jsonObject)) {
@@ -586,8 +586,8 @@ $(function () {
         Remove_Connection(id);
     });
     $(document).on('click', '.camera_view', function () {
-        var td = $(this);
-        var tr = $(td).closest('tr');
+        let td = $(this);
+        let tr = $(td).closest('tr');
         let id = tr.attr('data-id');
         let model = tr.attr('data-model');
         let description = tr.attr('data-description');
@@ -602,7 +602,7 @@ function Map_Update(data) {
     map.attributionControl.setPrefix("USPS " + data.APPLICATION_FULLNAME + " (" + User.SoftwareVersion + ") | " + data.FACILITY_NAME);
 }
 function Clear() {
-    var progress = 0;
+    let progress = 0;
     $('#progresbarrow').css('display', 'none');
     $('#file_upload_progressbar').css('width', progress + '%');
     $("#metersPerPixel").val("");
@@ -638,7 +638,7 @@ $('th').click(function () {
     return false;
 });
 function setHeight() {
-    var height = (this.window.innerHeight > 0 ? this.window.innerHeight : this.screen.height) - 1;
+    let height = (this.window.innerHeight > 0 ? this.window.innerHeight : this.screen.height) - 1;
     $('div[id=map]').css("min-height", height + "px");
 }
 function SortByVehicleName(a, b) {
@@ -648,7 +648,7 @@ function formatTime(value_time) {
     try {
         if (!$.isEmptyObject(timezone)) {
             if (timezone.hasOwnProperty("Facility_TimeZone")) {
-                var time = moment(value_time);
+                let time = moment(value_time);
                 if (time._isValid) {
                     return time.format("HH:mm");
                 }
@@ -661,7 +661,7 @@ function formatTime(value_time) {
 function formatDateTime(value_time) {
     try {
 
-        var time = moment(value_time);
+        let time = moment(value_time);
         if (time._isValid) {
             return time.format("M/D/YYYY h:mm a");
         }
@@ -676,8 +676,8 @@ function capitalize_Words(str) {
     });
 }
 function IPAddress_validator(value) {
-    var ipPattern = /^(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})$/;
-    var ipArray = value.match(ipPattern);
+    let ipPattern = /^(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})$/;
+    let ipArray = value.match(ipPattern);
     if (value === "0.0.0.0" || value === "255.255.255.255" || ipArray === null)
         return "Invalid IP Address";
     else {
@@ -704,13 +704,13 @@ function SortByTagName(a, b) {
     return a.name < b.name ? -1 : a.name > b.name ? 1 : 0;
 }
 function SortByName(a, b) {
-    var aName = a.toLowerCase();
-    var bName = b.toLowerCase();
+    let aName = a.toLowerCase();
+    let bName = b.toLowerCase();
     return ((aName < bName) ? -1 : ((aName > bName) ? 1 : 0));
 }
 function SortByLocationName(a, b) {
-    var aName = a.locationName.toLowerCase();
-    var bName = b.locationName.toLowerCase();
+    let aName = a.locationName.toLowerCase();
+    let bName = b.locationName.toLowerCase();
     return ((aName < bName) ? -1 : ((aName > bName) ? 1 : 0));
 }
 function SortByNumber(a, b) {
@@ -718,11 +718,11 @@ function SortByNumber(a, b) {
 }
 function GetPeopleInZone(zone, P2Pdata, staffarray) {
     //staffing
-    var planstaffarray = [];
-    var planstaffCounts = [];
-    var plansumstaffCounts = {};
-    var staffCounts = [];
-    var sumstaffCounts = {};
+    let planstaffarray = [];
+    let planstaffCounts = [];
+    let plansumstaffCounts = {};
+    let staffCounts = [];
+    let sumstaffCounts = {};
     try {
         if (staffarray.length === 0) {
             if (tagsMarkersGroup.hasOwnProperty("_layers")) {
@@ -755,7 +755,7 @@ function GetPeopleInZone(zone, P2Pdata, staffarray) {
         if (checkValue(P2Pdata)) {
             if (P2Pdata.hasOwnProperty("clerk")) {
                 if (P2Pdata.clerk >= 1) {
-                    for (var i = 0; i < P2Pdata.clerk; i++) {
+                    for (let i = 0; i < P2Pdata.clerk; i++) {
                         planstaffarray.push({
                             name: "Clerk",
                             value: i
@@ -769,7 +769,7 @@ function GetPeopleInZone(zone, P2Pdata, staffarray) {
             }
             if (P2Pdata.hasOwnProperty("mh")) {
                 if (P2Pdata.mh >= 1) {
-                    for (var r = 0; r < P2Pdata.mh; r++) {
+                    for (let r = 0; r < P2Pdata.mh; r++) {
                         planstaffarray.push({
                             name: "MailHandler",
                             value: r
@@ -802,7 +802,7 @@ function GetPeopleInZone(zone, P2Pdata, staffarray) {
                 planstaff: value
             });
         });
-        var staffing = $.extend(true, staffCounts, planstaffCounts);
+        let staffing = $.extend(true, staffCounts, planstaffCounts);
         staffing.sort(SortByTagName);
 
         $('div[id=staff_div]').css('display', 'block');
@@ -841,8 +841,8 @@ function formatstafftoprow(properties) {
     });
 }
 function GetStaffRowStyle(currStaff, planStaff) {
-    var rowAlertColor = ' style="background-color:rgba(220, 53, 69, 0.5);"';
-    var rowWarningColor = ' style="background-color:rgba(255, 193, 7, 0.5);"';
+    let rowAlertColor = ' style="background-color:rgba(220, 53, 69, 0.5);"';
+    let rowWarningColor = ' style="background-color:rgba(255, 193, 7, 0.5);"';
     if (planStaff > 4) {
         if (currStaff < planStaff) {
             if ((currStaff / planStaff) * 100 > 95) {
@@ -874,7 +874,7 @@ function pad(str, max) {
 function objSVTime(t) {
     try {
         if (t !== null) {
-            var time = moment().set({ 'year': t.year, 'month': t.month + 1, 'date': t.dayOfMonth, 'hour': t.hourOfDay, 'minute': t.minute, 'second': t.second });
+            let time = moment().set({ 'year': t.year, 'month': t.month + 1, 'date': t.dayOfMonth, 'hour': t.hourOfDay, 'minute': t.minute, 'second': t.second });
             if (time._isValid) {
                 if (time.year() === 1) {
                     return "";
@@ -895,7 +895,7 @@ async function updateTime(t) {
 function formatSVmonthdayTime(t) {
     try {
         if (checkValue(t)) {
-            var time = moment().set({ 'year': t.year, 'month': t.month, 'date': t.dayOfMonth, 'hour': t.hourOfDay, 'minute': t.minute, 'second': t.second });
+            let time = moment().set({ 'year': t.year, 'month': t.month, 'date': t.dayOfMonth, 'hour': t.hourOfDay, 'minute': t.minute, 'second': t.second });
             if (time._isValid) {
                 if (time.year() === 1) {
                     return "";
@@ -915,14 +915,14 @@ function formatSVmonthdayTime(t) {
     }
 }
 function cBlock() {
-    var t = moment().tz(timezone.Facility_TimeZone)
+    let t = moment().tz(timezone.Facility_TimeZone)
     $('#localTime').val(moment(t).format('H:mm:ss'));
     $('#twentyfourmessage').text(GetTwentyFourMessage(t));
    
     if ($("#tfhcContent").length > 0) {
         SetClockHands(t);
     }
-    var visible = sidebar._getTab("reports");
+    let visible = sidebar._getTab("reports");
     if (visible) {
         if (visible.classList.length) {
             if (visible.classList.contains('active')) {
@@ -944,9 +944,9 @@ async function zonecurrentStaff() {
                 if (/person/i.test(layer.feature.properties.Tag_Type)) {
                     if (layer.feature.properties.tagVisible === true) {
                         if (layer.feature.properties.hasOwnProperty("positionTS")) {
-                            var startTime = moment(layer.feature.properties.positionTS);
-                            var endTime = moment();
-                            var diffmillsec = endTime.diff(startTime, "milliseconds");
+                            let startTime = moment(layer.feature.properties.positionTS);
+                            let endTime = moment();
+                            let diffmillsec = endTime.diff(startTime, "milliseconds");
 
                             if (diffmillsec > layer.feature.properties.tagVisibleMils) {
                                 layer.feature.properties.tagVisibleMils = diffmillsec;
@@ -971,7 +971,7 @@ async function zonecurrentStaff() {
         // Machine zone
         if (polygonMachine.hasOwnProperty("_layers")) {
             $.map(polygonMachine._layers, function (Machinelayer, i) {
-                var MachineCurrentStaff = [];
+                let MachineCurrentStaff = [];
                 if (tagsMarkersGroup.hasOwnProperty("_layers")) {
                     $.map(tagsMarkersGroup._layers, function (layer, i) {
                         if (/person/i.test(layer.feature.properties.Tag_Type) && layer.feature.properties.zones != null) {
@@ -997,7 +997,7 @@ async function zonecurrentStaff() {
                         Machinelayer.setTooltipContent(Machinelayer.feature.properties.name + "<br/>" + "Staffing: " + MachineCurrentStaff.length);
                         Machinelayer.feature.properties.CurrentStaff = MachineCurrentStaff.length;
                         if ($('select[id=zoneselect] option:selected').val() === Machinelayer.feature.properties.id) {
-                            var p2pdata = Machinelayer.feature.properties.hasOwnProperty("P2PData") ? Machinelayer.feature.properties.P2PData : "";
+                            let p2pdata = Machinelayer.feature.properties.hasOwnProperty("P2PData") ? Machinelayer.feature.properties.P2PData : "";
                             GetPeopleInZone(Machinelayer.feature.properties.id, p2pdata, MachineCurrentStaff);
                         }
                     }
@@ -1010,7 +1010,7 @@ async function zonecurrentStaff() {
             $.map(stagingAreas._layers, function (stagelayer, i)
             {
                 
-                var CurrentStaff = [];
+                let CurrentStaff = [];
                 if (tagsMarkersGroup.hasOwnProperty("_layers")) {
                     $.map(tagsMarkersGroup._layers, function (layer, i) {
                        
@@ -1038,7 +1038,6 @@ async function zonecurrentStaff() {
                         stagelayer.feature.properties.CurrentStaff = CurrentStaff.length;
                         if (stagingAreas.hasOwnProperty("feature")) {
                             if ($('select[id=zoneselect] option:selected').val() === stagingAreas.feature.properties.id) {
-                                var p2pdata = stagelayer.feature.properties.hasOwnProperty("P2PData") ? stagelayer.feature.properties.P2PData : "";
                                 GetPeopleInZone(stagelayer.feature.properties.idp2pdata, CurrentStaff);
                             }
                         }
@@ -1071,7 +1070,7 @@ function viewportSelectedByName(name) {
         $.map(viewPortsAreas._layers, function (layer, i) {
             if (layer.hasOwnProperty("feature")) {
                 if (layer.feature.properties.id === selcValue) {
-                    var Center = new L.latLng(
+                    let Center = new L.latLng(
                         (layer._bounds._southWest.lat + layer._bounds._northEast.lat) / 2,
                         (layer._bounds._southWest.lng + layer._bounds._northEast.lng) / 2);
                     map.setView(Center, 3);
