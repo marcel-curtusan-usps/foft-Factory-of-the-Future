@@ -15,19 +15,16 @@ namespace Factory_of_the_Future
     public class WebSocketInstanceHandler
     {
         
-       public ConcurrentDictionary<string, WebSocketInstance> instances =
-            new ConcurrentDictionary<string, WebSocketInstance>();
+       public ConcurrentDictionary<string, WebSocketInstance> instances = new ConcurrentDictionary<string, WebSocketInstance>();
         public void CreateWSInstance(string name, string uri,
             OnWsMessage socketIOMessageEvent, OnWsEvent closeEvent, OnWsEvent openEvent)
         {
-            WebSocketInstance newInstance = new
-                WebSocketInstance(name, uri, socketIOMessageEvent, closeEvent, openEvent);
+            WebSocketInstance newInstance = new WebSocketInstance(name, uri, socketIOMessageEvent, closeEvent, openEvent);
             instances[name] = newInstance;
         }
         private WebSocketInstance GetWSInstance(string name)
         {
-            bool found = 
-                instances.TryGetValue(name, out WebSocketInstance value);
+            bool found = instances.TryGetValue(name, out WebSocketInstance value);
             if (found)
             {
                 return value;

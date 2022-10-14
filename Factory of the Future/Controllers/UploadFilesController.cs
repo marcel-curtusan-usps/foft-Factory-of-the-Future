@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
+using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
@@ -18,6 +19,10 @@ namespace Factory_of_the_Future.Controllers
         [HttpPost]
         public HttpResponseMessage UploadFiles()
         {
+            try
+            {
+
+            
             string path = string.Concat(AppParameters.Logdirpath, AppParameters.Images);
             if (!Directory.Exists(path))
             {
@@ -51,49 +56,58 @@ namespace Factory_of_the_Future.Controllers
             CoordinateSystem CSystem = new CoordinateSystem();
             CSystem.Name = Path.GetFileNameWithoutExtension(postedFile.FileName);
             CSystem.Id = Guid.NewGuid().ToString();
-            using (Image OSLImage = Image.FromStream(postedFile.InputStream))
-            {
-                byte[] input = AppParameters.ImageToByteArray(OSLImage);
-                string imageBase64 = Convert.ToBase64String(input);
-                BackgroundImage temp = new BackgroundImage()
+                using (Image OSLImage = Image.FromStream(postedFile.InputStream))
                 {
-                    Id = Path.GetFileNameWithoutExtension(postedFile.FileName),
-                    Name = string.IsNullOrEmpty(name) ? "Main Floor" : name,
-                    OrigoX = OSLImage.Width,
-                    OrigoY = OSLImage.Height,
-                    MetersPerPixelX = metersPerPixelX,
-                    MetersPerPixelY = metersPerPixelY,
-                    WidthMeter = OSLImage.Width * metersPerPixelY,
-                    HeightMeter = OSLImage.Height * metersPerPixelX,
-                    Base64 = string.Concat("data:image/png;base64,", imageBase64) ,
-                    FacilityName = !string.IsNullOrEmpty(AppParameters.AppSettings["FACILITY_NAME"].ToString()) ? AppParameters.AppSettings["FACILITY_NAME"].ToString() : "Site Not Configured",
-                    ApplicationFullName = AppParameters.AppSettings["APPLICATION_FULLNAME"].ToString(),
-                    ApplicationAbbr = AppParameters.AppSettings["APPLICATION_NAME"].ToString(),
-                };
-                CSystem.BackgroundImage = temp;
-                AppParameters.CoordinateSystem.TryAdd(CSystem.Id, CSystem);
-            }
+                    byte[] input = AppParameters.ImageToByteArray(OSLImage);
+                    string imageBase64 = Convert.ToBase64String(input);
+                    BackgroundImage temp = new BackgroundImage()
+                    {
+                        Id = Path.GetFileNameWithoutExtension(postedFile.FileName),
+                        Name = string.IsNullOrEmpty(name) ? "Main Floor" : name,
+                        OrigoX = OSLImage.Width,
+                        OrigoY = OSLImage.Height,
+                        MetersPerPixelX = metersPerPixelX,
+                        MetersPerPixelY = metersPerPixelY,
+                        WidthMeter = OSLImage.Width * metersPerPixelY,
+                        HeightMeter = OSLImage.Height * metersPerPixelX,
+                        Base64 = string.Concat("data:image/png;base64,", imageBase64),
+                        //FacilityName = !string.IsNullOrEmpty(AppParameters.AppSettings["FACILITY_NAME"].ToString()) ? AppParameters.AppSettings["FACILITY_NAME"].ToString() : "Site Not Configured",
+                        //ApplicationFullName = AppParameters.AppSettings["APPLICATION_FULLNAME"].ToString(),
+                        //ApplicationAbbr = AppParameters.AppSettings["APPLICATION_NAME"].ToString(),
+                    };
+                    CSystem.BackgroundImage = temp;
+                    AppParameters.CoordinateSystem.TryAdd(CSystem.Id, CSystem);
+
+                    new FileIO().Write(string.Concat(AppParameters.Logdirpath, AppParameters.ConfigurationFloder), "Project_Data.json", AppParameters.ZoneOutPutdata(AppParameters.CoordinateSystem.Select(x => x.Value).ToList()));
+
+                }
             ////Fetch the File Name.
             string fileName = postedFile.FileName;
-            //string fullFilePath = string.Concat(path, @"\", fileName);
-            //FileInfo fileToupload = new FileInfo(fullFilePath);
-            //if (fileToupload.Exists)
-            //{
-            //    //move old image to archive
-            //    File.Move(fileToupload.FullName, fileToupload.DirectoryName + "\\" + Path.GetFileNameWithoutExtension(fileToupload.Name) + "_" + fileToupload.LastWriteTime.ToString("yyyy_MM_dd_HH_mm_ss_fff") + fileToupload.Extension);
-            //    postedFile.SaveAs(fullFilePath);
+                //string fullFilePath = string.Concat(path, @"\", fileName);
+                //FileInfo fileToupload = new FileInfo(fullFilePath);
+                //if (fileToupload.Exists)
+                //{
+                //    //move old image to archive
+                //    File.Move(fileToupload.FullName, fileToupload.DirectoryName + "\\" + Path.GetFileNameWithoutExtension(fileToupload.Name) + "_" + fileToupload.LastWriteTime.ToString("yyyy_MM_dd_HH_mm_ss_fff") + fileToupload.Extension);
+                //    postedFile.SaveAs(fullFilePath);
 
-            //    //Task.Run(() => new ProcessRecvdMsg().StartProcess(JsonConvert.SerializeObject(temp1, Formatting.None), "getProjectInfo", "0"));
-            //}
-            //else
-            //{
-            //    //Save the image.
-            //    postedFile.SaveAs(fullFilePath);
-            //    //Task.Run(() => new ProcessRecvdMsg().StartProcess(JsonConvert.SerializeObject(temp1, Formatting.None), "getProjectInfo", "0"));
-            //}
-
-            //Send OK Response to Client.
-            return Request.CreateResponse(HttpStatusCode.OK, fileName);
+                //    //Task.Run(() => new ProcessRecvdMsg().StartProcess(JsonConvert.SerializeObject(temp1, Formatting.None), "getProjectInfo", "0"));
+                //}
+                //else
+                //{
+                //    //Save the image.
+                //    postedFile.SaveAs(fullFilePath);
+                //    //Task.Run(() => new ProcessRecvdMsg().StartProcess(JsonConvert.SerializeObject(temp1, Formatting.None), "getProjectInfo", "0"));
+                //}
+                //Send OK Response to Client.
+                return Request.CreateResponse(HttpStatusCode.OK, fileName);
+            }
+            catch (Exception e)
+            {
+                new ErrorLogger().ExceptionLog(e);
+                return Request.CreateResponse(HttpStatusCode.InternalServerError, "");
+            }
+           
         }
     }
    

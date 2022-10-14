@@ -10,8 +10,6 @@ using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using WebSocket4Net;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 
 namespace Factory_of_the_Future
@@ -108,8 +106,6 @@ class MulticastUdpServer : UdpServer
             }
         }
     }
-
-
     public class Api_Connection
     {
         public string ID;
@@ -201,7 +197,6 @@ class MulticastUdpServer : UdpServer
             StopListenerThread.IsBackground = true;
             StopListenerThread.Start();
         }
-
         public void _StartUDPListener()
         {
             Thread StartListenerThread = new Thread(new ThreadStart(UDPStart));
@@ -215,7 +210,6 @@ class MulticastUdpServer : UdpServer
             DeleteThread.Start();
 
         }
-
         private void UDPStart()
         {
             //Start UDP server
@@ -232,124 +226,16 @@ class MulticastUdpServer : UdpServer
             this.Status = 1;
 
         }
-        public void ProcessNewOrExistingCameraData(JObject thisObject, ref List<DarvisCameraAlert> alertList, 
-            string camera_id,  bool isNew )
-        {
-                if (thisObject.ContainsKey("zones"))
-                {
-                    JArray zones = (JArray)thisObject["zones"];
-                    foreach (JObject zo in zones)
-                    {
-                        string zoName = zo["name"].ToString();
-
-                        if (zoName.StartsWith("IG_") ||
-                            zoName.StartsWith("DT_"))
-                        {
-                            float dwelltime = (float)Convert.ToDouble(zo["dwell_time"].ToString());
-                            DarvisCameraAlert alert = new DarvisCameraAlert();
-                            alert.DwellTime = dwelltime;
-                            alert.Type = zoName.StartsWith("IG_") ? "IG" : "DT";
-                        alert.object_class = thisObject["clazz"].ToString();
-                        alert.object_id = thisObject["object_id"].ToString();
-                            alert.Top = Convert.ToInt32(thisObject["top"].ToString());
-                            alert.Bottom = Convert.ToInt32(thisObject["bottom"].ToString());
-                            alert.Left = Convert.ToInt32(thisObject["left"].ToString());
-                        
-                            alert.Right = Convert.ToInt32(thisObject["right"].ToString());
-                            alertList.Add(alert);
-                        }
-                    }
-                }
-        }
-
-
-
-        public void ProcessAlerts(string message)
-        {
-
-
-            if (message.Contains("IG_") || message.Contains("DT_"))
-            {
-                try
-                {
-                    lock (AppParameters.darvisWSCameraLock)
-                    {
-
-                        JArray msgJson = (JArray)JsonConvert.DeserializeObject(message);
-                        if (msgJson[0].ToString() == "detections")
-                        {
-                            JArray cameraData = (JArray)msgJson[1]["data"];
-                            foreach (JObject jo in cameraData)
-                            {
-                                string camera_id = jo["camera_id"].ToString();
-
-                                string ip = AppParameters.CameraMapping[camera_id];
-                                List<DarvisCameraAlert> alertList = new List<DarvisCameraAlert>();
-
-                                JArray newDetections = (JArray)jo["detections"]["new"];
-                                JArray removedDetections = (JArray)jo["detections"]["removed"];
-                                JArray updatedDetections = (JArray)jo["detections"]["updated"];
-                                foreach (JObject newObject in newDetections)
-                                {
-
-                                    ProcessNewOrExistingCameraData(newObject, ref alertList,
-                                        camera_id, true);
-                                }
-                                foreach (JToken object_id in removedDetections)
-                                {
-
-                                }
-                                foreach (JObject updatedObject in updatedDetections)
-                                {
-                                    ProcessNewOrExistingCameraData(updatedObject, ref alertList,
-                                        camera_id, false);
-                                }
-                                Cameras newCameraData = AppParameters.CameraInfoList[ip];
-                                List<DarvisCameraAlert> newAlerts = alertList.ToArray<DarvisCameraAlert>().ToList<DarvisCameraAlert>();
-
-                                newCameraData.Alerts = newAlerts;
-                                AppParameters.CameraInfoList[ip] = newCameraData;
-
-                                List<Tuple<GeoMarker, string>> camerasToBroadcast = new List<Tuple<GeoMarker, string>>();
-                                foreach (CoordinateSystem cs in AppParameters.CoordinateSystem.Values)
-                                {
-                                    cs.Locators.Where(f => f.Value.Properties.TagType == "Camera" &&
-                                    f.Value.Properties.Name == ip).Select(y => y.Value).
-                                    ToList().ForEach(Camera =>
-                                    {
-                                        Camera.Properties.DarvisAlerts = AppParameters.CameraInfoList[ip].Alerts.ToList();
-                                        Tuple<GeoMarker, string> thisCameraData = new Tuple<GeoMarker, string>(Camera, cs.Id);
-                                        camerasToBroadcast.Add(thisCameraData);
-                                    });
-
-                                }
-
-                                FOTFManager.Instance.BroadcastCameraStatus(camerasToBroadcast);
-
-                            }
-                        }
-                    }
-                }
-                catch (Exception ex)
-                {
-                    new ErrorLogger().ExceptionLog(ex);
-                }
-            }
-        }
-       
         public void DarvisWSMessage(string message)
         {
             // temporary workaround for socket io without a socket io library
             
             if (message.StartsWith("42"))
             {
-                message = message.Substring(2);
-
-               Task.Run(() => ProcessAlerts(message));
+                Task.Run(() => new ProcessRecvdMsg().ProcessDarvisAlert42(message.Substring(2))).Dispose();
             }
 
         }
-       
         public void DarvisClose()
         {
             this.Connected = false;
@@ -362,11 +248,11 @@ class MulticastUdpServer : UdpServer
         }
         private void WSInit()
         {
-            OnWsMessage messageEvent = null;
             webSocketIntanceHandler = new WebSocketInstanceHandler();
+            OnWsMessage messageEvent = null;
             OnWsEvent closeEvent = null;
-
             OnWsEvent openEvent = null;
+
             switch (ConnectionInfo.MessageType.ToUpper())
             {
                 case "WSDARVIS":
@@ -379,9 +265,7 @@ class MulticastUdpServer : UdpServer
             {
                 if (!String.IsNullOrEmpty(ConnectionInfo.Url) && messageEvent != null)
                 {
-
-                    webSocketIntanceHandler.CreateWSInstance(ConnectionInfo.ConnectionName, ConnectionInfo.Url,
-                        messageEvent, closeEvent, openEvent);
+                    webSocketIntanceHandler.CreateWSInstance(ConnectionInfo.ConnectionName, ConnectionInfo.Url, messageEvent, closeEvent, openEvent);
                     webSocketIntanceHandler.Connect(ConnectionInfo.ConnectionName);
                     this.Stopping = false;
                     if (webSocketIntanceHandler.Connected(ConnectionInfo.ConnectionName))
@@ -398,8 +282,6 @@ class MulticastUdpServer : UdpServer
             }
 
         }
-       
-       
         public void UDPStop()
         {
             //stop UDP server
@@ -456,7 +338,6 @@ class MulticastUdpServer : UdpServer
             DeleteThread.Start();
 
         }
-
         public void Download()
         {
 

@@ -169,7 +169,7 @@ namespace Factory_of_the_Future
         /// </summary>
         /// <returns></returns>
 
-        public IEnumerable<string> GetSVZoneNameList()
+        public IEnumerable<SV_Bullpen> GetSVZoneNameList()
         {
             return _managerHub.GetSVZoneNameList();
         }
@@ -228,12 +228,12 @@ namespace Factory_of_the_Future
         ///// Get user Info section
         ///// </summary>
         /////
-        public ADUser GetUserProfile()
-        {
-            string user_id = Regex.Replace(Context.User.Identity.Name, @"(USA\\|ENG\\)", "").Trim();
+        //public ADUser GetUserProfile()
+        //{
+        //    string user_id = Regex.Replace(Context.User.Identity.Name, @"(USA\\|ENG\\)", "").Trim();
             
-            return _managerHub.GetUserProfile(user_id);
-        }
+        //    return _managerHub.GetUserProfile(user_id);
+        //}
         ///// <summary>
         ///// Connection handling section
         ///// </summary>
@@ -254,17 +254,17 @@ namespace Factory_of_the_Future
         /// <returns></returns>
         public override Task OnConnected()
         {
-            Clients.Caller.userInfo(_managerHub.AddUserProfile(Context));
+            //Clients.Caller.userInfo(_managerHub.AddUserProfile(Context));
             Clients.Caller.floorImage(_managerHub.GetIndoorMap());
             return base.OnConnected(); 
         }
 
-        private object GetAuthInfo()
-        {
-            string userId = Regex.Replace(Context.User.Identity.Name, @"(USA\\|ENG\\)", "").Trim();
-            AppParameters.Users.TryGetValue(userId, out ADUser user);
-            return JsonConvert.SerializeObject(user, Formatting.Indented) ;
-        }
+        //private object GetAuthInfo()
+        //{
+        //    string userId = Regex.Replace(Context.User.Identity.Name, @"(USA\\|ENG\\)", "").Trim();
+        //    AppParameters.Users.TryGetValue(userId, out ADUser user);
+        //    return JsonConvert.SerializeObject(user, Formatting.Indented) ;
+        //}
 
         public Task JoinGroup(string groupName)
         {

@@ -45,7 +45,7 @@ namespace Factory_of_the_Future
                         else
                         {
                             Task.Run(() => AppParameters.ResetParameters());
-                            AppParameters.Users = new ConcurrentDictionary<string, ADUser>();
+                            //AppParameters.Users = new ConcurrentDictionary<string, ADUser>();
 
                         }
                     }
