@@ -93,7 +93,7 @@ function setGreyedOut() {
 
             }
         }
-        greyedOutRectangle.setStyle({ color: "#000000", weight: 1, fillOpacity: .65, stroke: false, zIndex: 5000 });
+        greyedOutRectangle.setStyle({ color: "#000000", weight: 1, fillOpacity: .65, stroke: false, zIndex: 5000, lastOpacity: .65 });
     
         popZonesToBack();
         greyedOutRectangle.bringToFront();
@@ -121,7 +121,7 @@ function setGreyedOut() {
         checkboxStateBeforeGreyOut = null;
 
         popZonesToBack();
-        greyedOutRectangle.setStyle({ color: "#000000", weight: 1, fillOpacity: 0, stroke: false });
+        greyedOutRectangle.setStyle({ color: "#000000", weight: 1, fillOpacity: 0, stroke: false, lastOpacity: 0 });
     }
 
     return true;
@@ -266,7 +266,8 @@ var dockDoors = new L.GeoJSON(null, {
                                 color: '#3573b1',       // Blue
                                 fillColor: '#dc3545',   // Red. ff0af7 is Purple
                                 fillOpacity: 0.5,
-                                label: feature.properties.doorNumber.toString()
+                                label: feature.properties.doorNumber.toString(),
+                                lastOpacity: 0.5
                             };
                         }
                         else {
@@ -276,7 +277,8 @@ var dockDoors = new L.GeoJSON(null, {
                                 color: '#3573b1',       // Blue
                                 fillColor: '#3573b1',   // Blue. #98c9fa is lighter blue.
                                 fillOpacity: 0.5,
-                                label: feature.properties.doorNumber.toString()
+                                label: feature.properties.doorNumber.toString(),
+                                lastOpacity: 0.5
                             };
                         }
                     }
@@ -287,7 +289,8 @@ var dockDoors = new L.GeoJSON(null, {
                             color: '#3573b1',       // Blue
                             fillColor: '#3573b1',   // Blue. #98c9fa is lighter blue.
                             fillOpacity: 0.5,
-                            label: feature.properties.doorNumber.toString()
+                            label: feature.properties.doorNumber.toString(),
+                            lastOpacity: 0.5
                         };
                     }
 
@@ -299,7 +302,8 @@ var dockDoors = new L.GeoJSON(null, {
                         color: '#3573b1',
                         fillColor: '#989ea4',
                         fillOpacity: 0.2,
-                        label: feature.properties.doorNumber.toString()
+                        label: feature.properties.doorNumber.toString(),
+                        lastOpacity: 0.2
                     };
                 }
             }
@@ -310,7 +314,8 @@ var dockDoors = new L.GeoJSON(null, {
                     color: '#3573b1',
                     fillColor: '#989ea4',
                     fillOpacity: 0.2 ,
-                    label: feature.properties.doorNumber.toString()
+                    label: feature.properties.doorNumber.toString(),
+                    lastOpacity: 0.2
                 };
             }
         } catch (e) {
@@ -415,7 +420,8 @@ async function updatedockdoor(layerindex) {
                         opacity: 1,
                         color: '#3573b1',
                         fillColor: '#dc3545',   // Red. ff0af7 is Purple
-                        fillOpacity: 0.5
+                        fillOpacity: 0.5,
+                        lastOpacity: 0.5
                     });
                     if (map._layers[layerindex].feature.properties.dockdoorData.Notloadedcontainers > 0) {
                         if (map._layers[layerindex].hasOwnProperty("_tooltip")) {
@@ -443,7 +449,8 @@ async function updatedockdoor(layerindex) {
                         opacity: 1,
                         color: '#3573b1',
                         fillColor: '#3573b1',
-                        fillOpacity: 0.5
+                        fillOpacity: 0.5,
+                        lastOpacity: 0.5
                     });
                     if (map._layers[layerindex].hasOwnProperty("_tooltip")) {
                         if (map._layers[layerindex]._tooltip.hasOwnProperty("_container")) {
@@ -460,7 +467,8 @@ async function updatedockdoor(layerindex) {
                     opacity: 1,
                     color: '#3573b1',
                     fillColor: '#3573b1',
-                    fillOpacity: 0.2
+                    fillOpacity: 0.2,
+                    lastOpacity: 0.2
                 });
             }
         }
@@ -470,7 +478,8 @@ async function updatedockdoor(layerindex) {
                 opacity: 1,
                 color: '#3573b1',
                 fillColor: '#989ea4',
-                fillOpacity: 0.2
+                fillOpacity: 0.2,
+                lastOpacity: 0.2
             });
             if (map._layers[layerindex].hasOwnProperty("_tooltip")) {
                 if (map._layers[layerindex]._tooltip.hasOwnProperty("_container")) {

@@ -18,7 +18,8 @@ var exitAreas = new L.GeoJSON(null, {
             opacity: 1,
             color: '#3573b1',
             fillOpacity: 0.2,
-            fillColor: '#989ea4'//'gray'
+            fillColor: '#989ea4',//'gray'
+            lastOpacity: 0.2
         };
     },
     onEachFeature: function (feature, layer) {
@@ -61,7 +62,8 @@ var polyholesAreas = new L.GeoJSON(null, {
             opacity: 0,
             color: '#3573b1',
             fillOpacity: 0.0,
-            fillColor: '#989ea4'//'gray'
+            fillColor: '#989ea4',
+            lastOpacity: 0.0//'gray'
         };
     },
     onEachFeature: function (feature, layer) {
@@ -103,7 +105,8 @@ var ebrAreas = new L.GeoJSON(null, {
             opacity: 1,
             color: '#3573b1',
             fillOpacity: 0.2,
-            fillColor: '#989ea4'//'gray'
+            fillColor: '#989ea4',//'gray'
+            lastOpacity: 0.2
         };
     },
     onEachFeature: function (feature, layer) {
@@ -145,7 +148,8 @@ var walkwayAreas = new L.GeoJSON(null, {
             opacity: 1,
             color: '#3573b1',
             fillOpacity: 0.2,
-            fillColor: '#989ea4'//'gray'
+            fillColor: '#989ea4',//'gray'
+            lastOpacity: 0.2
         };
     },
     onEachFeature: function (feature, layer) {
@@ -187,7 +191,8 @@ var stagingAreas = new L.GeoJSON(null, {
             opacity: 1,
             color: '#3573b1',
             fillOpacity: 0.2,
-            fillColor: '#989ea4'//'gray'
+            fillColor: '#989ea4',//'gray'
+            lastOpacity: 0.2
         };
     },
     onEachFeature: function (feature, layer) {

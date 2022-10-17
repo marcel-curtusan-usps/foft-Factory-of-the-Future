@@ -8,7 +8,8 @@ var stagingBullpenAreas = new L.GeoJSON(null, {
             opacity: 1,
             color: '#3573b1',
             fillOpacity: 0.2,
-            fillColor: '#989ea4'//'gray'
+            fillColor: '#989ea4',//'gray'
+            lastOpacity: 0.2
         };
     },
     onEachFeature: function (feature, layer) {

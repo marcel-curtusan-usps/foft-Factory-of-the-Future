@@ -10,7 +10,8 @@ var binzonepoly = new L.GeoJSON(null, {
             color: '#3573b1',
             fillOpacity: 0.2,
             fillColor: '#989ea4',
-            label: feature.properties.name
+            label: feature.properties.name,
+            lastOpacity: 0.2
         };
     },
     onEachFeature: function (feature, layer) {
@@ -121,7 +122,8 @@ async function updatebin(layerindex) {
             weight: 1,
             opacity: 1,
             fillOpacity: 0.5,
-            fillColor: "#ff8855"
+            fillColor: "#ff8855",
+            lastOpacity: 0.5
         });
     }
     else {
@@ -136,7 +138,8 @@ async function updatebin(layerindex) {
             weight: 1,
             opacity: 1,
             fillOpacity: 0.2,
-            fillColor: "#989ea4"
+            fillColor: "#989ea4",
+            lastOpacity: 0.2
         });
     }
     return true;

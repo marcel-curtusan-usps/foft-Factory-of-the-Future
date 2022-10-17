@@ -19,7 +19,8 @@ var agvLocations = new L.GeoJSON(null, {
                 opacity: 1,
                 color: '#3573b1',
                 fillOpacity: 0.2,
-                fillColor: inmission
+                fillColor: inmission,
+                lastOpacity: 0.2
             };
         }
     },
@@ -90,7 +91,8 @@ async function updatelocation(layerindex) {
             opacity: 1,
             color: '#3573b1',
             fillColor: '#28a745',
-            fillOpacity: 0.5
+            fillOpacity: 0.5,
+            lastOpacity: 0.5
         });
     }
     else {
@@ -99,7 +101,8 @@ async function updatelocation(layerindex) {
             opacity: 1,
             color: '#3573b1',
             fillColor: '#989ea4',
-            fillOpacity: 0.2
+            fillOpacity: 0.2,
+            lastOpacity: 0.2
         });
     }
 }
