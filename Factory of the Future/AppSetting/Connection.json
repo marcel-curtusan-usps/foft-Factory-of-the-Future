@@ -270,7 +270,7 @@
     "Url": "wss://mxl02947qm.usa.dce.usps.gov:3002/socket.io/?EIO=3&transport=websocket"
   },
   {
-    "ActiveConnection": false,
+    "ActiveConnection": true,
     "AdminEmailRecepient": "james.i.walker@usps.gov",
     "ApiConnected": true,
     "ConnectionName": "UDP",

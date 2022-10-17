@@ -259,6 +259,7 @@ namespace Factory_of_the_Future
                 new ErrorLogger().ExceptionLog(e);
             }
         }
+
         public static void GetConnectionDefault()
         {
             try

@@ -219,11 +219,9 @@ namespace Factory_of_the_Future
 
         public async Task<string> UpdateTagName(string tagId, string tagName)
         {
-
                 bool result = await _managerHub.UpdateTagName(tagId, tagName).ConfigureAwait(false);
                 string updatedString = result ? "updated" : "error";
                 return @"{""status"":""" + updatedString + @"""}";
-           
         }
 
         /// <summary>

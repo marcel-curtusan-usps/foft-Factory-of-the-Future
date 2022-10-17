@@ -1686,13 +1686,17 @@ namespace Factory_of_the_Future
             return thisTime.Year + "-" + thisTime.Month.ToString("00") + "-" +
                 thisTime.Day.ToString("00") + "_" + tagId;
         }
+
+        
         internal async Task<bool> UpdateTagName(string tagId, string tagName)
         {
             try
             {
-
                 DateTime thisTime = DateTime.Now;
-                // update the tag name
+                // update the tag name using quuppa api
+
+                // [IP:port]/qpe/modifyTag?&tag=<tag_id>&name=<NEW name>
+                 
                 HttpResponseMessage response = await
                     httpClient.GetAsync(AppParameters.QuuppaBaseUrl +
                     @"modifyTag?tag=" + tagId + "&name=" + tagName).ConfigureAwait(false);
@@ -1703,6 +1707,8 @@ namespace Factory_of_the_Future
                 string content = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
                 string fileName = GetQuuppaTagChangeFilename(tagId, thisTime);
                 // export the tag name change to a file
+
+                // [IP:port]/qpe/exportTags?tag=<tag_id>&filename=<YYYY-MM-DD_TAGID>
                 HttpResponseMessage response2 =
                    await httpClient.GetAsync(AppParameters.QuuppaBaseUrl +
                    @"exportTags?tag=" + tagId + "&name=" + tagName +
@@ -1714,6 +1720,8 @@ namespace Factory_of_the_Future
                 }
 
                 // import the tag name change for a permanent update
+
+                // [IP:port]/qpe/importTags?&filename=<YYYY-MM-DD_TAGID>
                 HttpResponseMessage response3 =
                    await httpClient.GetAsync(AppParameters.QuuppaBaseUrl +
                    @"importTags?filename=" + fileName).ConfigureAwait(false);
@@ -1724,18 +1732,135 @@ namespace Factory_of_the_Future
                     return false;
                 }
 
-                string projectDataString = new FileIO().Read(string.Concat(AppParameters.Logdirpath, AppParameters.ConfigurationFloder), "Project_Data.json");
-                JArray projectData = JArray.Parse(projectDataString);
-                foreach (JObject obj in projectData)
+                
+
+                // update the project data for the stored json file, which includes the new update
+                bool result = await UpdateProjectData().ConfigureAwait(false);
+
+                // now update so the changes appear on the map
+                foreach (CoordinateSystem cs in AppParameters.CoordinateSystem.Values)
                 {
-                    JObject tag = (JObject)obj["locators"][tagId];
-                    tag["properties"]["name"] = tagName;
+                    List<GeoMarker> vehicles = cs.Locators.Where
+                        (f => f.Value.Properties.TagType.EndsWith("Vehicle") &&
+                    f.Key == tagId
+                    ).Select(y => y.Value).ToList<GeoMarker>();
+                   
+                    BroadcastVehiclesUpdate(vehicles, cs.Id);
                 }
-                projectDataString = projectData.ToString();
+                return result;
+            }
+            catch (Exception e)
+            {
+                new ErrorLogger().ExceptionLog(e);
+                return false;
+            }
+        }
+
+
+
+        /*
+         *  code added, but not a feature in the app yet, no GUI for this yet
+         */
+                internal async Task<bool> UpdateTagGroupName(string tagId, string tagGroupName)
+        {
+            try
+            {
+
+                DateTime thisTime = DateTime.Now;
+                // update the tag group name using api call to quuppa
+
+                // [IP:port]/qpe/setTagGroup?tag=<tag_id>&targetGroup=<TargetTagGroup>&createNew=true
+                HttpResponseMessage response = await
+                    httpClient.GetAsync(AppParameters.QuuppaBaseUrl +
+                 @"setTagGroup?tag=" + tagId +
+                 @"&targetGroup=" + tagGroupName +
+                 @"&createNew=true").ConfigureAwait(false);
+                if (response.StatusCode != HttpStatusCode.OK)
+                {
+                    return false;
+                }
+                string content = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
+                string fileName = GetQuuppaTagChangeFilename(tagId, thisTime);
+                // export the tag group name change to a file
+
+                // [IP:port]/qpe/exportTags?tag=<tag_id>&filename=<YYYY-MM-DD_TAGID>
+                HttpResponseMessage response2 =
+                   await httpClient.GetAsync(AppParameters.QuuppaBaseUrl +
+                   @"exportTags?tag=" + tagId + 
+                   "&filename=" + fileName).ConfigureAwait(false);
+                content = await response2.Content.ReadAsStringAsync().ConfigureAwait(false);
+                if (response2.StatusCode != HttpStatusCode.OK)
+                {
+                    return false;
+                }
+
+                // import the tag group name change for a permanent update
+
+                // [IP:port]/qpe/importTags?&filename=<YYYY-MM-DD_TAGID>
+                HttpResponseMessage response3 =
+                   await httpClient.GetAsync(AppParameters.QuuppaBaseUrl +
+                   @"importTags?filename=" + fileName).ConfigureAwait(false);
+
+                content = await response3.Content.ReadAsStringAsync().ConfigureAwait(false);
+                if (response3.StatusCode != HttpStatusCode.OK)
+                {
+                    return false;
+                }
+                bool result = await UpdateProjectData().ConfigureAwait(false);
+
+                // now update so the changes appear on the map
+                foreach (CoordinateSystem cs in AppParameters.CoordinateSystem.Values)
+                {
+                    List<GeoMarker> vehicles = new List<GeoMarker>();
+                    GeoMarker vehicle = cs.Locators.Where(f => f.Value.Properties.TagType.EndsWith("Vehicle")
+                    && f.Key == tagId).Select(y => y.Value).FirstOrDefault<GeoMarker>();
+
+                    vehicles.Add(vehicle);
+
+                    BroadcastVehiclesUpdate(vehicles, cs.Id);
+                }
+                return result;
+            }
+            catch (Exception e)
+            {
+                new ErrorLogger().ExceptionLog(e);
+                return false;
+            }
+        }
+        internal string GetProjectInfoConnection()
+        {
+            Connection conn = AppParameters.ConnectionList.Where(x => x.Value.MessageType
+            == "getProjectInfo").Select(y => y.Value).FirstOrDefault<Connection>();
+            return string.Format(conn.Url, "getProjectInfo");
+        }
+        internal async Task<bool> UpdateProjectData()
+        {
+
+            try
+            {
+
+            
+                string projectInfoConnectionString = GetProjectInfoConnection();
+                HttpResponseMessage response = await
+                    httpClient.GetAsync(projectInfoConnectionString).ConfigureAwait(false);
+                if (response.StatusCode != HttpStatusCode.OK)
+                {
+                    return false;
+                }
+
+                string content = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
+                JObject jo = JObject.Parse(content);
+                JArray coordinateSystems = (JArray)jo["coordinateSystems"];
+                string projectDataString = coordinateSystems.ToString();
+
+           
                 new FileIO().Write(string.Concat(AppParameters.Logdirpath, AppParameters.ConfigurationFloder),
-                    "Project_Data.json", projectDataString);
+                   "Project_Data.json", projectDataString);
+
+                ProcessRecvdMsg.ProjectData(projectDataString, "");
                 AppParameters.ProjectData = projectDataString;
                 return true;
+
             }
             catch (Exception e)
             {
@@ -1744,6 +1869,7 @@ namespace Factory_of_the_Future
             }
         }
         internal IEnumerable<CoordinateSystem> GetIndoorMapFloor(string id)
+            
         {
             try
             {
@@ -2090,6 +2216,11 @@ namespace Factory_of_the_Future
             }
         }
 
+        private void BroadcastVehiclesUpdate(List<GeoMarker> vehicles, string id)
+        {
+            Clients.Group("VehiclsMarkers").updateVehicles(vehicles, id);
+        }
+
         private void BroadcastDockDoorStatus(GeoZone dockDoor, string id)
         {
             Clients.Group("DockDoorZones").updateDockDoorStatus(dockDoor,id);
@@ -2145,6 +2276,7 @@ namespace Factory_of_the_Future
             Clients.Group("VehiclsMarkers").updateVehicleTagStatus(marker, id);
         }
 
+       
         
         private void UpdatePersonTagStatus(object state)
         {

@@ -2106,7 +2106,7 @@ namespace Factory_of_the_Future
             }
         }
 
-        private static void ProjectData(dynamic jsonObject, string conID)
+        internal static void ProjectData(dynamic jsonObject, string conID)
         {
             bool saveToFile = false;
             try
@@ -2443,7 +2443,8 @@ namespace Factory_of_the_Future
                                     locatorupdate = true;
                                     saveToFile = true;
                                 }
-                                if (geoLmarker.Properties.TagType == "Person")
+                                if (geoLmarker.Properties.TagType == "Person" ||
+                                    geoLmarker.Properties.TagType == "Vehicle")
                                 {
                                     geoLmarker.Properties.CraftName = GetCraftName(geoLmarker.Properties.Name);
                                     geoLmarker.Properties.BadgeId = GetBadgeId(geoLmarker.Properties.Name);
@@ -2539,7 +2540,8 @@ namespace Factory_of_the_Future
                                                        geoLmarker.Properties.TagType = tempTagype;
                                                        update = true;
                                                    }
-                                                   if (geoLmarker.Properties.TagType == "Person")
+                                                   if (geoLmarker.Properties.TagType == "Person" ||
+                                                   geoLmarker.Properties.TagType == "Vehicle")
                                                    {
                                                        geoLmarker.Properties.CraftName = GetCraftName(geoLmarker.Properties.Name);
                                                        geoLmarker.Properties.BadgeId = GetBadgeId(geoLmarker.Properties.Name);
@@ -2561,12 +2563,12 @@ namespace Factory_of_the_Future
                                         Lmarker.Properties.Name = tagitem.ContainsKey("name") ? tagitem["name"].ToString() : tagitem["tagName"].ToString();
                                         Lmarker.Properties.Color = tagitem["color"].ToString();
                                         Lmarker.Properties.TagType = GetTagType(Lmarker.Properties.Name);
-                                        if (Lmarker.Properties.TagType == "Person")
+                                        if (Lmarker.Properties.TagType == "Person" ||
+                                            Lmarker.Properties.TagType == "Vehicle")
                                         {
                                             Lmarker.Properties.CraftName = GetCraftName(Lmarker.Properties.Name);
                                             Lmarker.Properties.BadgeId = GetBadgeId(Lmarker.Properties.Name);
                                         }
-
                                         Lmarker.Properties.TagTS = responseTS;
                                         JToken positionTs = tagitem.ContainsKey("positionTS") ? tagitem["positionTS"] : tagitem["locationTS"];
                                         Lmarker.Properties.PositionTS = AppParameters.UnixTimeStampToDateTime((long)positionTs);
