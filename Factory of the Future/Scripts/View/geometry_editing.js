@@ -609,14 +609,14 @@ function VaildateForm(FormType)
 
             if (svdata.length > 0) {
                 //sort 
-                svdata.sort(SortByName);
+                svdata.sort(SortByLocationName);
                 $('input[id=zone_name]').css('display', 'none');
                 $('select[id=zone_select_name]').css('display', 'block');
                 $('select[id=zone_select_name]').empty();
                 $('<option/>').val("").html("").appendTo('select[id=zone_select_name]');
                 $('select[id=zone_select_name]').val("");
                 $.each(svdata, function () {
-                    $('<option/>').val(this).html(this).appendTo('select[id=zone_select_name]');
+                    $('<option/>').val(this.locationName).html(this.locationName).appendTo('select[id=zone_select_name]');
                 })
             }
             $('select[name=zone_type]').prop('disabled', true);

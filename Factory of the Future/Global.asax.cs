@@ -128,9 +128,8 @@ namespace Factory_of_the_Future
                 {
                     //Global._sessions.Remove(base.Session.SessionID);
                     int itemindex = _sessions.FindIndex(r => r.Session_ID == HttpContext.Current.Session.SessionID);
-                    if (itemindex >= 0)
+                    if (itemindex != -1)
                     {
-
                        // new User_Log().LogoutUser(AppParameters.CodeBase.Parent.FullName.ToString(), _sessions[itemindex]);
                         _sessions.Remove(_sessions[itemindex]);
                     }
@@ -169,11 +168,10 @@ namespace Factory_of_the_Future
                 Session[SessionKey.UserFirstName] = adUser.FirstName;
                 Session[SessionKey.UserLastName] = adUser.SurName;
                 Session[SessionKey.UserRole] = adUser.Role;
-                Session[SessionKey.Facility_NASS_CODE] = adUser.NASSCode;
-                Session[SessionKey.Facility_Id] = adUser.FDBID;
-                Session[SessionKey.Facility_Name] = adUser.FacilityName;
                 Session[SessionKey.Environment] = AppParameters.ApplicationEnvironment;
-                Session[SessionKey.FacilityTimeZone] = adUser.FacilityTimeZone;
+                Session[SessionKey.SoftwareVersion] = adUser.Software_Version;
+                Session[SessionKey.ApplicationFullName] = AppParameters.AppSettings["APPLICATION_FULLNAME"].ToString();
+                Session[SessionKey.ApplicationAbbr] = AppParameters.AppSettings["APPLICATION_NAME"].ToString();
                 Session[SessionKey.IsAuthenticated] = HttpContext.Current.Request.IsAuthenticated;
                 authCookie = AuthenticationCookie.Create(adUser.UserId, Converter.ObjectToString(adUser), true);
                 Task.Run(() => AddUserToList(adUser));
@@ -186,25 +184,33 @@ namespace Factory_of_the_Future
         {
             try
             {
-                int itemindex = _sessions.FindIndex(r => r.Session_ID == adUser.Session_ID);
-                if (itemindex >= 0)
-                {
-                    //log out user 
-                    if (!string.IsNullOrEmpty(_sessions[itemindex].Session_ID))
-                    {
-                        Task.Run(() => new User_Log().LogoutUser(_sessions[itemindex]));
-                        _sessions.Remove(_sessions[itemindex]);
-                    }
-                    _sessions[itemindex].Login_Date = adUser.Login_Date;
-                    _sessions[itemindex].Session_ID = adUser.Session_ID;
-                    //log of user logging in.
-                    Task.Run(() => new User_Log().LoginUser(adUser));
-
-                }
-                else
+                if (_sessions.Count == 0)
                 {
                     _sessions.Add(adUser);
                     Task.Run(() => new User_Log().LoginUser(adUser));
+                }
+                else
+                {
+                    int itemindex = _sessions.FindIndex(r => r.Session_ID == adUser.Session_ID);
+                    if (itemindex != -1)
+                    {
+                        //log out user 
+                        if (!string.IsNullOrEmpty(_sessions[itemindex].Session_ID))
+                        {
+                            Task.Run(() => new User_Log().LogoutUser(_sessions[itemindex]));
+                            _sessions.Remove(_sessions[itemindex]);
+                        }
+                        _sessions[itemindex].Login_Date = adUser.Login_Date;
+                        _sessions[itemindex].Session_ID = adUser.Session_ID;
+                        //log of user logging in.
+                        Task.Run(() => new User_Log().LoginUser(adUser));
+
+                    }
+                    else
+                    {
+                        _sessions.Add(adUser);
+                        Task.Run(() => new User_Log().LoginUser(adUser));
+                    }
                 }
             }
             catch (Exception e)

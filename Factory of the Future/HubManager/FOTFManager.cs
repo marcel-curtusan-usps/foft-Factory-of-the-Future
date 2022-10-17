@@ -38,8 +38,7 @@ namespace Factory_of_the_Future
         private readonly object updateNotificationStatuslock = new object();
         private readonly object updateBinZoneStatuslock = new object();
         private readonly object updateCameralock = new object();
-        private readonly object updateSVZoneLock = new object();
-
+        
         //timers
         private readonly Timer VehicleTag_timer;
         private readonly Timer PersonTag_timer;
@@ -65,7 +64,6 @@ namespace Factory_of_the_Future
         private volatile bool _updateNotificationstatus = false;
         private volatile bool _updateBinZoneStatus = false;
         private volatile bool _updateCameraStatus = false;
-        private volatile bool _updateSVZone = false;
         private bool disposedValue;
 
         //250 Milliseconds
@@ -103,7 +101,6 @@ namespace Factory_of_the_Future
             QSM_timer = new Timer(UpdateQSM, null, _250updateInterval, _250updateInterval);
             //Camera update;
             Camera_timer = new Timer(UpdateCameraImages, null, _10000updateInterval, _60000updateInterval);
-            SVZone_timer = new Timer(UpdateSVZones, null, _250updateInterval, _30000updateInterval);
         }
         public static FOTFManager Instance
         {
@@ -191,12 +188,11 @@ namespace Factory_of_the_Future
             }
         }
 
-        internal IEnumerable<string> GetSVZoneNameList()
+        internal IEnumerable<SV_Bullpen> GetSVZoneNameList()
         {
             try
             {
-                return AppParameters.SVZoneNameList.
-                    Select(y => y.Value).ToList();
+                return AppParameters.SVZoneNameList.Select(y =>  y.Value).ToList();
             }
             catch (Exception e)
             {
@@ -229,55 +225,6 @@ namespace Factory_of_the_Future
                 return null;
             }
         }
-
-        //internal IEnumerable<GeoZone> GetBinZonesList()
-        //{
-        //    try
-        //    {
-        //        return AppParameters.ZoneList.Where(r => r.Value.Properties.ZoneType.ToString() == "Bin").Select(x => x.Value).ToList();
-        //    }
-        //    catch (Exception e)
-        //    {
-        //        new ErrorLogger().ExceptionLog(e);
-        //        return null;
-        //    }
-        //}
-
-
-
-        public void UpdateSVZones(object state)
-        {
-            try
-            {
-                lock (updateSVZoneLock)
-                {
-                    _updateSVZone = true;
-                    foreach (CoordinateSystem cs in AppParameters.CoordinateSystem.Values)
-                    {
-                        cs.Zones.Where(f => f.Value.Properties.ZoneType == "SV"
-                        && f.Value.Properties.ZoneUpdate
-                        && f.Value.Properties.Visible).Select(y => y.Value).ToList().ForEach(SV =>
-                        {
-                            if (TryUpdateSVZoneStatus(SV))
-                            {
-                                BroadcastSVZoneStatus(SV, cs.Id);
-                            }
-
-                        });
-                    }
-
-                    _updateSVZone = false;
-                }
-            }
-
-            catch (Exception e)
-            {
-                new ErrorLogger().ExceptionLog(e);
-
-                _updateSVZone = false;
-            }
-        }
-
         public void UpdateCameraImages(object state)
         {
             try
@@ -330,6 +277,54 @@ namespace Factory_of_the_Future
         {
             Clients.Group("CameraMarkers").updateCameraStatus(broadcastData);
         }
+        //public void UpdateCameraImages(object state)
+        //{
+        //    try
+        //    {
+        //        lock (updateCameralock)
+        //        {
+
+        //            if (!_updateCameraStatus)
+        //            {
+        //                foreach (CoordinateSystem cs in AppParameters.CoordinateSystem.Values)
+        //                {
+        //                    cs.Locators.Where(f => f.Value.Properties.TagType != null &&
+        //                    f.Value.Properties.TagType == "Camera").Select(y => y.Value).ToList().ForEach(Camera =>
+        //                    {
+        //                        if (TryUpdateCameraStatus(Camera))
+        //                        {
+        //                            if (AppParameters.CameraInfoList[Camera.Properties.Name].Alerts == null)
+        //                            {
+        //                                Camera.Properties.DarvisAlerts = new List<DarvisCameraAlert>();
+        //                            }
+        //                            else
+        //                            {
+        //                                Camera.Properties.DarvisAlerts = AppParameters.CameraInfoList[Camera.Properties.Name].Alerts.ToList();
+        //                            }
+        //                            BroadcastCameraStatus(Camera, cs.Id);
+
+        //                        }
+
+        //                    });
+        //                }
+        //                _updateCameraStatus = false;
+        //            }
+        //        }
+        //        // UpdateCameraImages();
+        //    }
+        //    catch (Exception e)
+        //    {
+        //        new ErrorLogger().ExceptionLog(e);
+
+        //        _updateCameraStatus = false;
+        //    }
+
+        //}
+
+        //public void BroadcastCameraStatus(GeoMarker CameraZone, string id)
+        //{
+        //    Clients.Group("CameraMarkers").updateCameraStatus(CameraZone, id);
+        //}
 
         private bool TryUpdateCameraStatus(GeoMarker camera)
         {
@@ -602,29 +597,29 @@ namespace Factory_of_the_Future
             }
         }
 
-        internal ADUser GetUserProfile(string conID)
-        {
-            try
-            {
-                if (!string.IsNullOrEmpty(conID))
-                {
-                    if (AppParameters.Users.ContainsKey(conID))
-                    {
-                        if (AppParameters.Users.TryGetValue(conID, out ADUser user))
-                        {
-                            return user;
-                        }
-                    }
+        //internal ADUser GetUserProfile(string conID)
+        //{
+        //    try
+        //    {
+        //        if (!string.IsNullOrEmpty(conID))
+        //        {
+        //            if (AppParameters.Users.ContainsKey(conID))
+        //            {
+        //                if (AppParameters.Users.TryGetValue(conID, out ADUser user))
+        //                {
+        //                    return user;
+        //                }
+        //            }
 
-                }
-                return null;
-            }
-            catch (Exception e)
-            {
-                new ErrorLogger().ExceptionLog(e);
-                return null;
-            }
-        }
+        //        }
+        //        return null;
+        //    }
+        //    catch (Exception e)
+        //    {
+        //        new ErrorLogger().ExceptionLog(e);
+        //        return null;
+        //    }
+        //}
 
         private void UpdateNotificationtatus(object state)
         {
@@ -1709,9 +1704,9 @@ namespace Factory_of_the_Future
                         BackgroundImage = new BackgroundImage
                         {
                             Id = "temp",
-                            FacilityName = !string.IsNullOrEmpty(AppParameters.AppSettings["FACILITY_NAME"].ToString()) ? AppParameters.AppSettings["FACILITY_NAME"].ToString() : "Site Not Configured",
-                            ApplicationFullName = AppParameters.AppSettings["APPLICATION_FULLNAME"].ToString(),
-                            ApplicationAbbr = AppParameters.AppSettings["APPLICATION_NAME"].ToString(),
+                            //FacilityName = !string.IsNullOrEmpty(AppParameters.AppSettings["FACILITY_NAME"].ToString()) ? AppParameters.AppSettings["FACILITY_NAME"].ToString() : "Site Not Configured",
+                            //ApplicationFullName = AppParameters.AppSettings["APPLICATION_FULLNAME"].ToString(),
+                            //ApplicationAbbr = AppParameters.AppSettings["APPLICATION_NAME"].ToString(),
 
                         }
                     };
@@ -2469,17 +2464,24 @@ namespace Factory_of_the_Future
                                     }
                                     else if (kv.Name == "FACILITY_NASS_CODE")
                                     {
-                                        if (GetData.Get_Site_Info((string)kv.Value, out JObject SiteInfo))
+                                        if (GetData.Get_Site_Info((string)kv.Value, out SV_Site_Info SiteInfo))
                                         {
-                                            if (SiteInfo.HasValues)
+                                            if (SiteInfo != null)
                                             {
                                                 AppParameters.AppSettings[kv.Name] = kv.Value.ToString();
-                                                AppParameters.AppSettings["FACILITY_NAME"] = SiteInfo.ContainsKey("displayName") ? SiteInfo["displayName"] : "Site Not Configured";
-                                                AppParameters.AppSettings["FACILITY_ID"] = SiteInfo.ContainsKey("fdbId") ? SiteInfo["fdbId"] : "";
-                                                AppParameters.AppSettings["FACILITY_ZIP"] = SiteInfo.ContainsKey("zipCode") ? SiteInfo["zipCode"] : "";
-                                                AppParameters.AppSettings["FACILITY_LKEY"] = SiteInfo.ContainsKey("localeKey") ? SiteInfo["localeKey"] : "";
+                                                AppParameters.AppSettings["FACILITY_NAME"] = SiteInfo.DisplayName;// .ContainsKey("displayName") ? SiteInfo["displayName"] : "Site Not Configured";
+                                                AppParameters.AppSettings["FACILITY_ID"] = SiteInfo.FdbId; //.ContainsKey("fdbId") ? SiteInfo["fdbId"] : "";
+                                                AppParameters.AppSettings["FACILITY_ZIP"] = SiteInfo.ZipCode; //.ContainsKey("zipCode") ? SiteInfo["zipCode"] : "";
+                                                AppParameters.AppSettings["FACILITY_LKEY"] = SiteInfo.LocaleKey;//.ContainsKey("localeKey") ? SiteInfo["localeKey"] : "";
                                                 Task.Run(() => AppParameters.LoglocationSetup());
                                                 Task.Run(() => AppParameters.ResetParameters());
+                                            }
+                                            else
+                                            {
+                                                AppParameters.AppSettings["FACILITY_NAME"] = "Site Not Configured";
+                                                AppParameters.AppSettings["FACILITY_ID"] = "";
+                                                AppParameters.AppSettings["FACILITY_ZIP"] = "";
+                                                AppParameters.AppSettings["FACILITY_LKEY"] = "";
                                             }
                                         }
                                     }
@@ -2527,14 +2529,14 @@ namespace Factory_of_the_Future
                 new ErrorLogger().CustomLog(data, string.Concat((string)AppParameters.AppSettings.Property("APPLICATION_NAME").Value, "_Applogs"));
 
                 //remove users 
-                foreach (string user in AppParameters.Users.Where(r => r.Value.LoginDate.Subtract(DateTime.Now).TotalDays > 2).Select(y => y.Key))
-                {
-                    if (!AppParameters.Users.TryRemove(user, out ADUser ur))
-                    {
-                        new ErrorLogger().CustomLog("Unable to remove User" + ur.UserId, string.Concat((string)AppParameters.AppSettings.Property("APPLICATION_NAME").Value, "_Applogs"));
-                    }
+                //foreach (string user in AppParameters.Users.Where(r => r.Value.LoginDate.Subtract(DateTime.Now).TotalDays > 2).Select(y => y.Key))
+                //{
+                //    if (!AppParameters.Users.TryRemove(user, out ADUser ur))
+                //    {
+                //        new ErrorLogger().CustomLog("Unable to remove User" + ur.UserId, string.Concat((string)AppParameters.AppSettings.Property("APPLICATION_NAME").Value, "_Applogs"));
+                //    }
 
-                }
+                //}
             }
             catch (Exception e)
             {
@@ -2665,41 +2667,41 @@ namespace Factory_of_the_Future
             }
         }
 
-        private void AddUserToList(ADUser newuser)
-        {
-            try
-            {
-                bool firstTimeLogin = true;
-                if (FindACEUser(newuser, out newuser))
-                {
-                    AppParameters.Users.AddOrUpdate(newuser.UserId, newuser,
-                      (key, old_user) =>
-                      {
-                          //log out user 
-                          if (!string.IsNullOrEmpty(old_user.ConnectionId))
-                          {
-                              Task.Run(() => new User_Log().LogoutUser(old_user));
-                          }
-                          //log of user logging in.
-                          Task.Run(() => new User_Log().LoginUser(newuser));
-                          string data = string.Concat("Client has Connected | User Name:", newuser.UserId, "(", newuser.FirstName, " ", newuser.SurName, ")", " | Connection ID: ", newuser.ConnectionId);
-                          new ErrorLogger().CustomLog(data, string.Concat((string)AppParameters.AppSettings.Property("APPLICATION_NAME").Value, "_Applogs"));
-                          firstTimeLogin = false;
-                          return newuser;
-                      });
-                    if (firstTimeLogin)
-                    {
-                        string data = string.Concat("Client has Connected | User Name:", newuser.UserId, "(", newuser.FirstName, " ", newuser.SurName, ")", " | Connection ID: ", newuser.ConnectionId);
-                        new ErrorLogger().CustomLog(data, string.Concat((string)AppParameters.AppSettings.Property("APPLICATION_NAME").Value, "_Applogs"));
-                        Task.Run(() => new User_Log().LoginUser(newuser));
-                    }
-                }
-            }
-            catch (Exception e)
-            {
-                new ErrorLogger().ExceptionLog(e);
-            }
-        }
+        //private void AddUserToList(ADUser newuser)
+        //{
+        //    try
+        //    {
+        //        bool firstTimeLogin = true;
+        //        if (FindACEUser(newuser, out newuser))
+        //        {
+        //            AppParameters.Users.AddOrUpdate(newuser.UserId, newuser,
+        //              (key, old_user) =>
+        //              {
+        //              //log out user 
+        //              if (!string.IsNullOrEmpty(old_user.ConnectionId))
+        //                  {
+        //                      Task.Run(() => new User_Log().LogoutUser(old_user));
+        //                  }
+        //              //log of user logging in.
+        //              Task.Run(() => new User_Log().LoginUser(newuser));
+        //                  string data = string.Concat("Client has Connected | User Name:", newuser.UserId, "(", newuser.FirstName, " ", newuser.SurName, ")", " | Connection ID: ", newuser.ConnectionId);
+        //                  new ErrorLogger().CustomLog(data, string.Concat((string)AppParameters.AppSettings.Property("APPLICATION_NAME").Value, "_Applogs"));
+        //                  firstTimeLogin = false;
+        //                  return newuser;
+        //              });
+        //            if (firstTimeLogin)
+        //            {
+        //                string data = string.Concat("Client has Connected | User Name:", newuser.UserId, "(", newuser.FirstName, " ", newuser.SurName, ")", " | Connection ID: ", newuser.ConnectionId);
+        //                new ErrorLogger().CustomLog(data, string.Concat((string)AppParameters.AppSettings.Property("APPLICATION_NAME").Value, "_Applogs"));
+        //                Task.Run(() => new User_Log().LoginUser(newuser));
+        //            }
+        //        }
+        //    }
+        //    catch (Exception e)
+        //    {
+        //        new ErrorLogger().ExceptionLog(e);
+        //    }
+        //}
 
         private bool FindACEUser(ADUser ACEUser, out ADUser user)
         {

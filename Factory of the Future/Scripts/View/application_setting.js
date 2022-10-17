@@ -33,7 +33,10 @@ $('#AppSetting_value_Modal').on('shown.bs.modal', function () {
 function Edit_AppSetting(table) {
     fotfmanager.server.getAppSettingdata().done(function (AppsettingData) {
         if (AppsettingData) {
+          
             LoadappSettingTable(AppsettingData, table);
+            Page_Update(AppsettingData);
+            Map_Update(AppsettingData);
         }
     });
 }
