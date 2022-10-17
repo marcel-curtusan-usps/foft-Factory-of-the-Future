@@ -225,13 +225,13 @@ namespace Factory_of_the_Future
                 return null;
             }
         }
-
         public void UpdateCameraImages(object state)
         {
             try
             {
                 lock (updateCameralock)
                 {
+                    List<Tuple<GeoMarker, string>> camerasToBroadcast = new List<Tuple<GeoMarker, string>>();
 
                     if (!_updateCameraStatus)
                     {
@@ -250,12 +250,15 @@ namespace Factory_of_the_Future
                                     {
                                         Camera.Properties.DarvisAlerts = AppParameters.CameraInfoList[Camera.Properties.Name].Alerts.ToList();
                                     }
-                                    BroadcastCameraStatus(Camera, cs.Id);
+                                    Tuple<GeoMarker, string> newData = new Tuple<GeoMarker, string>(Camera, cs.Id);
+                                    camerasToBroadcast.Add(newData);
 
                                 }
 
                             });
                         }
+
+                        BroadcastCameraStatus(camerasToBroadcast);
                         _updateCameraStatus = false;
                     }
                 }
@@ -270,10 +273,58 @@ namespace Factory_of_the_Future
 
         }
 
-        public void BroadcastCameraStatus(GeoMarker CameraZone, string id)
+        public void BroadcastCameraStatus(List<Tuple<GeoMarker, string>> broadcastData)
         {
-            Clients.Group("CameraMarkers").updateCameraStatus(CameraZone, id);
+            Clients.Group("CameraMarkers").updateCameraStatus(broadcastData);
         }
+        //public void UpdateCameraImages(object state)
+        //{
+        //    try
+        //    {
+        //        lock (updateCameralock)
+        //        {
+
+        //            if (!_updateCameraStatus)
+        //            {
+        //                foreach (CoordinateSystem cs in AppParameters.CoordinateSystem.Values)
+        //                {
+        //                    cs.Locators.Where(f => f.Value.Properties.TagType != null &&
+        //                    f.Value.Properties.TagType == "Camera").Select(y => y.Value).ToList().ForEach(Camera =>
+        //                    {
+        //                        if (TryUpdateCameraStatus(Camera))
+        //                        {
+        //                            if (AppParameters.CameraInfoList[Camera.Properties.Name].Alerts == null)
+        //                            {
+        //                                Camera.Properties.DarvisAlerts = new List<DarvisCameraAlert>();
+        //                            }
+        //                            else
+        //                            {
+        //                                Camera.Properties.DarvisAlerts = AppParameters.CameraInfoList[Camera.Properties.Name].Alerts.ToList();
+        //                            }
+        //                            BroadcastCameraStatus(Camera, cs.Id);
+
+        //                        }
+
+        //                    });
+        //                }
+        //                _updateCameraStatus = false;
+        //            }
+        //        }
+        //        // UpdateCameraImages();
+        //    }
+        //    catch (Exception e)
+        //    {
+        //        new ErrorLogger().ExceptionLog(e);
+
+        //        _updateCameraStatus = false;
+        //    }
+
+        //}
+
+        //public void BroadcastCameraStatus(GeoMarker CameraZone, string id)
+        //{
+        //    Clients.Group("CameraMarkers").updateCameraStatus(CameraZone, id);
+        //}
 
         private bool TryUpdateCameraStatus(GeoMarker camera)
         {

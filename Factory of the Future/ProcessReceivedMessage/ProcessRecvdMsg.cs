@@ -3217,6 +3217,7 @@ namespace Factory_of_the_Future
                             {
                                 ProcessNewOrExistingCameraData(updatedObject, ref alertList, camera_id, false);
                             }
+                            List<Tuple<GeoMarker, string>> camerasToBroadcast = new List<Tuple<GeoMarker, string>>();
                             foreach (CoordinateSystem cs in AppParameters.CoordinateSystem.Values)
                             {
                                 cs.Locators.Where(f => f.Value.Properties.TagType == "Camera" &&
@@ -3224,10 +3225,13 @@ namespace Factory_of_the_Future
                                 ToList().ForEach(Camera =>
                                 {
                                     Camera.Properties.DarvisAlerts = alertList.ToArray<DarvisCameraAlert>().ToList<DarvisCameraAlert>();
-                                    FOTFManager.Instance.BroadcastCameraStatus(Camera, cs.Id);
+                                    //FOTFManager.Instance.BroadcastCameraStatus(Camera, cs.Id);
+                                    Tuple<GeoMarker, string> newData = new Tuple<GeoMarker, string>(Camera, cs.Id);
+                                    camerasToBroadcast.Add(newData);
                                 });
 
                             }
+                            FOTFManager.Instance.BroadcastCameraStatus(camerasToBroadcast);
 
                         }
                     }
