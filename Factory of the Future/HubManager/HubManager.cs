@@ -33,6 +33,7 @@ namespace Factory_of_the_Future
             return _managerHub.GetAppSettingdata();
         }
 
+        
         public IEnumerable<JToken> EditAppSettingdata(string data)
         {
             return _managerHub.EditAppSettingdata(data);
@@ -215,7 +216,14 @@ namespace Factory_of_the_Future
         {
             return _managerHub.GetIndoorMapFloor(id);
         }
-        
+
+        public async Task<string> UpdateTagName(string tagId, string tagName)
+        {
+                bool result = await _managerHub.UpdateTagName(tagId, tagName).ConfigureAwait(false);
+                string updatedString = result ? "updated" : "error";
+                return @"{""status"":""" + updatedString + @"""}";
+        }
+
         /// <summary>
         /// Get Vehicle tags
         /// </summary>

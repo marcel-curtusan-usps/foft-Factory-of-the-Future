@@ -6,6 +6,11 @@ $.extend(fotfmanager.client, {
     updateVehicleTagStatus: async (vehicleupdate,id) => { updateVehicleTag(vehicleupdate, id) }
 });
 
+async function updateVehicles(vehicleupadtes, id) {
+    for (const vehicle of vehicleupdates) {
+        updateVehicleTag(vehicleupdate, id);
+    }
+}
 async function updateVehicleTag(vehicleupdate, id) {
     try {
         if (id == baselayerid) {
@@ -43,9 +48,9 @@ async function updateVehicleTag(vehicleupdate, id) {
         console.log(e);
     }
 }
-var piv_vehicles = new L.GeoJSON(null, {
+let piv_vehicles = new L.GeoJSON(null, {
     pointToLayer: function (feature, latlng) {
-        var vehicleIcon = L.divIcon({
+        let vehicleIcon = L.divIcon({
             id: feature.properties.id,
             className: get_pi_icon(feature.properties.name, feature.properties.Tag_Type) + ' iconXSmall',
             html: '<i>' +
@@ -70,28 +75,13 @@ var piv_vehicles = new L.GeoJSON(null, {
         })
     },
     onEachFeature: function (feature, layer) {
-        var obstructedState = '';
+        let obstructedState = '';
         $zoneSelect[0].selectize.addOption({ value: feature.properties.id, text: feature.properties.name });
         $zoneSelect[0].selectize.addItem(feature.properties.id);
         $zoneSelect[0].selectize.setValue(-1, true);
-        layer.on('click', function (e) {
-            $('input[type=checkbox][name=followvehicle]').prop('checked', false).change();
-            map.setView(e.latlng, 4);
-            if ((' ' + document.getElementById('sidebar').className + ' ').indexOf(' ' + 'collapsed' + ' ') <= -1) {
-                if ($('#zoneselect').val() == feature.properties.id) {
-                    sidebar.close('home');
-                }
-                else {
-                    sidebar.open('home');
-                }
-            }
-            else {
-                sidebar.open('home');
-            }
-            LoadVehicleTable(feature.properties);
-        })
+        updateVehicleDropdownClick(feature, layer, false);
         if (feature.properties.hasOwnProperty('state')) {
-            var new_state = Get_Vehicle_Status(feature.properties.Vehicle_Status_Data.STATE.replace(/VState/ig, ""));
+            let new_state = Get_Vehicle_Status(feature.properties.Vehicle_Status_Data.STATE.replace(/VState/ig, ""));
             if (/Obstructed|(Error)$/i.test(new_state)) {
                 obstructedState = 'obstructedflash';
             }
@@ -105,9 +95,10 @@ var piv_vehicles = new L.GeoJSON(null, {
         }).openTooltip();
     }
 });
-var agv_vehicles = new L.GeoJSON(null, {
+
+let agv_vehicles = new L.GeoJSON(null, {
     pointToLayer: function (feature, latlng) {
-        var vehicleIcon = L.divIcon({
+        let vehicleIcon = L.divIcon({
             id: feature.properties.id,
             className: get_pi_icon(feature.properties.name, feature.properties.Tag_Type) + ' iconXSmall',
             html: '<i>' +
@@ -136,22 +127,7 @@ var agv_vehicles = new L.GeoJSON(null, {
         $zoneSelect[0].selectize.addOption({ value: feature.properties.id, text: feature.properties.name });
         $zoneSelect[0].selectize.addItem(feature.properties.id);
         $zoneSelect[0].selectize.setValue(-1, true);
-        layer.on('click', function (e) {
-            $('input[type=checkbox][name=followvehicle]').prop('checked', false).change();
-            map.setView(e.latlng, 4);
-            if ((' ' + document.getElementById('sidebar').className + ' ').indexOf(' ' + 'collapsed' + ' ') <= -1) {
-                if ($('#zoneselect').val() == feature.properties.id) {
-                    sidebar.close('home');
-                }
-                else {
-                    sidebar.open('home');
-                }
-            }
-            else {
-                sidebar.open('home');
-            }
-            LoadVehicleTable(feature.properties);
-        })
+        updateVehicleDropdownClick(feature, layer, false);
         if (feature.properties.Vehicle_Status_Data !== null) {
             var new_state = Get_Vehicle_Status(feature.properties.Vehicle_Status_Data.STATE.replace(/VState/ig, ""));
             if (/Obstructed|(Error)$/i.test(new_state)) {
@@ -286,7 +262,7 @@ async function AGVStausUpdate(layerindex)
         console.log(e);
     }
 }
-async function LoadVehicleTable(dataproperties) {
+async function LoadVehicleTable(dataproperties, updateTagName) {
     try {
         $zoneSelect[0].selectize.setValue(-1, true);
         vehicletop_Table_Body.empty();
@@ -309,22 +285,25 @@ async function LoadVehicleTable(dataproperties) {
 
             }
         }
+        if (updateTagName) {
+            $zoneSelect[0].selectize.updateOption(dataproperties.id, { value: dataproperties.id, text: dataproperties.name });
+        }
     } catch (e) {
         console.log(e);
     }
 }
 let pivrow_template = '<tr data-id="{TagId}" id="vehicletagid">' +
-    '<td>Vehicle Name:</td>' +
-    '<td class="text-left">{name}</td>' +
+    '<td >Vehicle Name:</td>' +
+    '<td class="text-left" id="vehicletag_name">{name}</td>' +
     '<td>Tag ID:</td>' +
-    '<td>{TagId}</td>' +
+    '<td  id="vehicletag_tagid">{TagId}</td>' +
     '</tr>' +
     '</td>' +
     '</tr>"';
 let vehicletop_Table = $('table[id=vehicletable]');
 let vehicletop_Table_Body = vehicletop_Table.find('tbody');
 
-let agvrow_template = '<tr data-id="{TagId}" id="vehicletagid"><td>Vehicle Name:</td><td class="text-left">{name}</td><td>Tag ID:</td><td>{TagId}</td></tr>' +
+let agvrow_template = '<tr data-id="{TagId}" id="vehicletagid"><td>Vehicle Name:</td><td id="vehicletag_name" class="text-left">{name}</td><td  >Tag ID:</td><td  id="vehicletag_tagid">{TagId}</td></tr>' +
     '<tr><td>State:</td><td colspan="3"><button id="{name}" name="vehicle" class="btn btn-block btn-sm {vehiclestateCategory} vehiclehistory" style="margin-bottom: 2px;" value="{vehiclestate}">{vehiclestate}</button></td></tr>"' +
     '<tr><td>Battery:</td><td colspan="3">' +
     '<div class="progress">' +
@@ -535,3 +514,105 @@ function get_pi_icon(name, type) {
 //        }
 //    });
 //}
+
+async function Edit_Tag_Name(tagId, tagName) {
+    $('#TagName_Modal_Header_ID').text('Edit Tag Name');
+    sidebar.close('connections');
+    $('#TagName_Modal').modal();
+    $('#modal_tag_id').html(tagId);
+    $('#edit_tag_name').val(tagName);
+
+    $('#edittagsubmitBtn').off().on("click", function () {
+        Edit_Tag_Name_Submit();
+    });
+}
+async function Edit_Tag_Name_Submit() {
+    let tagId = $('#modal_tag_id').html();
+    let tagName = $('#edit_tag_name').val();
+
+    fotfmanager.server.updateTagName(tagId, tagName).done(function (data) {
+        let response = JSON.parse(data);
+        if (response.status == "updated") {
+            $("#error_edittagsubmitBtn").html("");
+            $("#TagName_Modal").modal("toggle");
+
+            updateVehicleDropdownForTagChange(tagId, tagName);
+        }
+        else {
+            $("#error_edittagsubmitBtn").html("Error updating tag.");
+        }
+    });
+}
+
+
+$(function () {
+    if ( ! /^Admin/i.test(User.Role) ) {
+        $("#vehicle-info-edit-row").remove();
+    }
+    $('button[name=vehicleinfoedit]').off().on('click', function () {
+        if (/^Admin/i.test(User.Role)) {
+            /* close the sidebar */
+            let tagId = $("#vehicletag_tagid").html().trim();
+            let tagName = $("#vehicletag_name").html().trim();
+            sidebar.close();
+            if (checkValue(tagId)) {
+                Edit_Tag_Name(tagId, tagName);
+            }
+        }
+    });
+});
+
+$(function () {
+
+})
+
+function updateVehicleDropdownForTagChange(tagId, tagName) {
+    $.map(agv_vehicles._layers, (mappedLayer, i) => {
+        if (mappedLayer.feature.properties.id == tagId) {
+
+            
+            let layer = agv_vehicles._layers[i];
+            updateVehicleDropdownClick(layer.feature, layer,
+                true);
+            layer.feature.properties.name = tagName;
+
+        }
+    });
+
+    $.map(piv_vehicles._layers, (mappedLayer, i) => {
+        if (mappedLayer.feature.properties.id == tagId) {
+
+            let layer = piv_vehicles._layers[i];
+
+            updateVehicleDropdownClick(layer.feature, layer,
+                true);
+            layer.feature.properties.name = tagName;
+        }
+    });
+}
+
+function updateVehicleDropdownClick(feature, layer, updateTagName) {
+
+    
+    
+    layer.off().on('click', async function (e) {
+        $('input[type=checkbox][name=followvehicle]').prop('checked', false).change();
+        map.setView(e.latlng, 4);
+
+        if ((' ' + document.getElementById('sidebar').className + ' ').indexOf(' ' + 'collapsed' + ' ') <= -1) {
+            if ($('#zoneselect').val() == feature.properties.id) {
+                sidebar.close('home');
+            }
+            else {
+                sidebar.open('home');
+                
+            }
+        }
+        else {
+            sidebar.open('home');
+            
+        }
+        LoadVehicleTable(feature.properties, updateTagName);
+        
+    })
+}

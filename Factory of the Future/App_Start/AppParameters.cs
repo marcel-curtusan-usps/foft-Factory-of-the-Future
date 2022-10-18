@@ -12,6 +12,7 @@ using System.Net.Sockets;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
+using System.Text.RegularExpressions;
 
 namespace Factory_of_the_Future
 {
@@ -27,6 +28,7 @@ namespace Factory_of_the_Future
         public static JObject AppSettings { get; set; } = new JObject();
         public static string ApplicationEnvironment { get; set; } = string.Empty;
         public static string HWSerialNumber { get; set; } = string.Empty;
+        public static string ProjectData { get; set; }
         public static string VersionInfo { get; set; } = string.Empty;
         public static string ServerHostname { get; set; } = string.Empty;
         public static string ServerIpAddress { get; set; } = string.Empty;
@@ -56,8 +58,8 @@ namespace Factory_of_the_Future
         public static ConcurrentDictionary<string, Mission> MissionList { get; set; } = new ConcurrentDictionary<string, Mission>();
         public static ConcurrentDictionary<string, Notification> NotificationList { get; set; } = new ConcurrentDictionary<string, Notification>();
         public static ConcurrentDictionary<string, NotificationConditions> NotificationConditionsList { get; set; } = new ConcurrentDictionary<string, NotificationConditions>();
-        //public static ConcurrentDictionary<string, ADUser> Users { get; set; } = new ConcurrentDictionary<string, ADUser>();
-
+        public static ConcurrentDictionary<string, ADUser> Users { get; set; } = new ConcurrentDictionary<string, ADUser>();
+        public static string QuuppaBaseUrl { get; set; }
         public static readonly ConnectionMapping<string> _connections = new ConnectionMapping<string>();
         public static ConnectionContainer RunningConnection { get; set; } = new ConnectionContainer();
         public static Dictionary<string, string> TimeZoneConvert { get; set; } = new Dictionary<string, string>()
@@ -268,6 +270,7 @@ namespace Factory_of_the_Future
                 new ErrorLogger().ExceptionLog(e);
             }
         }
+
         public static void GetConnectionDefault()
         {
             try
@@ -301,6 +304,18 @@ namespace Factory_of_the_Future
                         if (ConnectionList.TryAdd(tempcon[i].Id, tempcon[i]))
                         {
                             RunningConnection.Add(tempcon[i]);
+                        }
+                        if (tempcon[i].ConnectionName == "Quuppa" &&
+                            String.IsNullOrEmpty(QuuppaBaseUrl))
+                        {
+                            int slashBeforeQpeIndex =
+                                    tempcon[i].Url.IndexOf(@"/qpe/");
+                            if (slashBeforeQpeIndex != -1)
+                            {
+                                QuuppaBaseUrl = 
+                                    tempcon[i].Url.Substring(0, 
+                                    slashBeforeQpeIndex + 5);
+                            }
                         }
                     }
                     //write to file
@@ -396,19 +411,17 @@ namespace Factory_of_the_Future
         {
             try
             {
-                if (Logdirpath != null)
-                {
-                    string ProjectData = new FileIO().Read(string.Concat(Logdirpath, ConfigurationFloder), fileName);
+                string ProjectDataString = new FileIO().Read(string.Concat(Logdirpath, ConfigurationFloder), fileName);
 
-                    if (!string.IsNullOrEmpty(ProjectData))
-                    {
-                        Task.Run(() => new ProcessRecvdMsg().StartProcess(ProjectData, "getProjectInfo", ""));
-                    }
-                    //else
-                    //{
-                    //    LoadTempIndoorapData("ProjectData.json");
-                    //}
+                if (!string.IsNullOrEmpty(ProjectDataString))
+                {
+                    AppParameters.ProjectData = ProjectDataString;
+                    Task.Run(() => new ProcessRecvdMsg().StartProcess(ProjectData, "getProjectInfo", ""));
                 }
+                //else
+                //{
+                //    LoadTempIndoorapData("ProjectData.json");
+                //}
             }
             catch (Exception e)
             {
