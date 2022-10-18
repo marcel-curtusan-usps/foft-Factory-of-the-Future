@@ -58,7 +58,7 @@ namespace Factory_of_the_Future
         public static ConcurrentDictionary<string, Mission> MissionList { get; set; } = new ConcurrentDictionary<string, Mission>();
         public static ConcurrentDictionary<string, Notification> NotificationList { get; set; } = new ConcurrentDictionary<string, Notification>();
         public static ConcurrentDictionary<string, NotificationConditions> NotificationConditionsList { get; set; } = new ConcurrentDictionary<string, NotificationConditions>();
-        public static ConcurrentDictionary<string, ADUser> Users { get; set; } = new ConcurrentDictionary<string, ADUser>();
+        //public static ConcurrentDictionary<string, ADUser> Users { get; set; } = new ConcurrentDictionary<string, ADUser>();
         public static string QuuppaBaseUrl { get; set; }
         public static readonly ConnectionMapping<string> _connections = new ConnectionMapping<string>();
         public static ConnectionContainer RunningConnection { get; set; } = new ConnectionContainer();
@@ -411,17 +411,20 @@ namespace Factory_of_the_Future
         {
             try
             {
-                string ProjectDataString = new FileIO().Read(string.Concat(Logdirpath, ConfigurationFloder), fileName);
-
-                if (!string.IsNullOrEmpty(ProjectDataString))
+                if (Logdirpath != null)
                 {
-                    AppParameters.ProjectData = ProjectDataString;
-                    Task.Run(() => new ProcessRecvdMsg().StartProcess(ProjectData, "getProjectInfo", ""));
+                    string ProjectDataString = new FileIO().Read(string.Concat(Logdirpath, ConfigurationFloder), fileName);
+
+                    if (!string.IsNullOrEmpty(ProjectDataString))
+                    {
+                        AppParameters.ProjectData = ProjectDataString;
+                        Task.Run(() => new ProcessRecvdMsg().StartProcess(ProjectData, "getProjectInfo", ""));
+                    }
+                    //else
+                    //{
+                    //    LoadTempIndoorapData("ProjectData.json");
+                    //}
                 }
-                //else
-                //{
-                //    LoadTempIndoorapData("ProjectData.json");
-                //}
             }
             catch (Exception e)
             {
