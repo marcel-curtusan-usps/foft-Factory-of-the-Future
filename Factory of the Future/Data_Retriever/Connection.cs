@@ -232,7 +232,7 @@ class MulticastUdpServer : UdpServer
             
             if (message.StartsWith("42"))
             {
-                Task.Run(() => new ProcessRecvdMsg().ProcessDarvisAlert42(message.Substring(2))).Dispose();
+                Task.Run(() => new ProcessRecvdMsg().ProcessDarvisAlert42(message.Substring(2)));
             }
 
         }

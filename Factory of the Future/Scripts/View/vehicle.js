@@ -526,6 +526,13 @@ async function Edit_Tag_Name(tagId, tagName) {
         Edit_Tag_Name_Submit();
     });
 }
+
+/* known defects in tag rename - 
+ * renaming no battery tag needs a page reload to update name
+ * renaming a moving tag with an _ after (possibly other invalid names)
+ * causes the circular tag marker to stop in its place, and the vehicle
+ * continues to move without its circular marker
+ */
 async function Edit_Tag_Name_Submit() {
     let tagId = $('#modal_tag_id').html();
     let tagName = $('#edit_tag_name').val();
