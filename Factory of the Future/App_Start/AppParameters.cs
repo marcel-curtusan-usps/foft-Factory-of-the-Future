@@ -16,6 +16,21 @@ using System.Text.RegularExpressions;
 
 namespace Factory_of_the_Future
 {
+    public class ThroughputValues
+    {
+
+        public ThroughputValues(string mpeType, int? max, int? averagePerHour, int? averagePerHour25)
+        {
+            MpeType = mpeType;
+            MaxThroughput = max;
+            AverageThroughputPerHour = averagePerHour;
+            AverageThroughputPerHour25 = averagePerHour25;
+        }
+        public string MpeType { get; set; }
+        public int? MaxThroughput { get; set; }
+        public int? AverageThroughputPerHour { get; set; }
+        public int? AverageThroughputPerHour25 { get; set; }
+    }
     internal class AppParameters
     {
         public static TimeZone localZone = TimeZone.CurrentTimeZone;
@@ -38,6 +53,7 @@ namespace Factory_of_the_Future
         private static readonly string PdHash = "P@@Sw0rd";
         private static readonly string SaltKey = "S@LT&KEY";
         private static readonly string VIKey = "@1B2c3D4e5F6g7H8";
+        public static List<ThroughputValues> MachineThroughputMax {get; set; } 
 
         //public static Dictionary<string, string> CameraMapping { get; set; }
         public static ConcurrentDictionary<string, MachData> MPEWatchData { get; set; } = new ConcurrentDictionary<string, MachData>();
@@ -168,6 +184,8 @@ namespace Factory_of_the_Future
                     GetNotificationDefault();
                     //loadtemp
                     LoadTempIndoorapData("Project_Data.json");
+                    // load max (y-axis) values for machines
+                    GetMachineThroughputMax("MachineThroughputMax.csv");
                 }
 
             }
@@ -211,6 +229,52 @@ namespace Factory_of_the_Future
             }
         }
 
+        private static void GetMachineThroughputMax(string filename)
+        {
+            try
+            {
+                string file_content = new FileIO().Read(string.Concat(Logdirpath, ConfigurationFloder), filename);
+                string[] lines = file_content.Split('\r');
+                bool first = true;
+                List<ThroughputValues> throughputMaximums = new List<ThroughputValues>();
+                foreach (string line in lines) {
+                    if (!first)
+                    {
+                        string thisLine = line.Trim();
+                        if (!String.IsNullOrEmpty(thisLine))
+                        {
+
+                            string[] vals = thisLine.Split(',');
+                            string mpeType = vals[0];
+                            int? max = null;
+                            if (!String.IsNullOrEmpty(vals[1]))
+                            {
+                                max = Convert.ToInt32(vals[1]);
+                            }
+                            int? avg = null;
+                            if (!String.IsNullOrEmpty(vals[2]))
+                            {
+                                avg = Convert.ToInt32(vals[2]);
+                            }
+                            int? avg25 = null;
+                            if (!String.IsNullOrEmpty(vals[3]))
+                            {
+                                Convert.ToInt32(vals[3]);
+                            }
+                            ThroughputValues values = new ThroughputValues(mpeType, max, avg, avg25);
+                            throughputMaximums.Add(values);
+                        }
+                    }
+                    first = false;
+
+                }
+                MachineThroughputMax = throughputMaximums;
+            }
+            catch (Exception e)
+            {
+                new ErrorLogger().ExceptionLog(e);
+            }
+        }
         private static bool GetAppSettings()
         {
             try
