@@ -4,16 +4,13 @@
 
 function getMaxThroughput(machineType) {
     if (sparklineMaximums) {
-        console.log(sparklineMaximums);
         for (let dat of sparklineMaximums) {
             if (dat["MpeType"] == machineType) {
-                console.log(machineType + ": " + dat["MaxThroughput"]);
                 return dat["MaxThroughput"];
 
             }
         }
     }
-    console.log("max not found: " + machineType);
 }
 
 async function getSparklineMaximums() {
