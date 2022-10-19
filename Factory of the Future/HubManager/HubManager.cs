@@ -53,6 +53,10 @@ namespace Factory_of_the_Future
             return _managerHub.AddAPI(data);
         }
 
+        public List<ThroughputValues> GetMachineThroughputMaximums()
+        {
+            return _managerHub.GetMachineThroughputMaximums();
+        }
         public IEnumerable<Connection> EditAPI(string data)
         {
             return _managerHub.EditAPI(data);

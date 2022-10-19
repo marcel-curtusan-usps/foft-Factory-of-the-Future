@@ -544,6 +544,7 @@ async function init_connection() {
     try {
         connection_Table = $('table[id=connectiontable]');
         connection_Table_Body = connection_Table.find('tbody');
+        getSparklineMaximums();
         fotfmanager.server.getAPIList("").done(function (connectiondata) {
             if (connectiondata.length > 0) {
                 connectiondata.sort(SortByConnectionName);

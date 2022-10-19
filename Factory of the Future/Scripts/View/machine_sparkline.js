@@ -1,5 +1,30 @@
-﻿
-function updateAllMachineSparklinesDone(machineStatuses) {
+﻿let sparklineMaximums = null;
+
+
+
+function getMaxThroughput(machineType) {
+    if (sparklineMaximums) {
+        console.log(sparklineMaximums);
+        for (let dat of sparklineMaximums) {
+            if (dat["MpeType"] == machineType) {
+                console.log(machineType + ": " + dat["MaxThroughput"]);
+                return dat["MaxThroughput"];
+
+            }
+        }
+    }
+    console.log("max not found: " + machineType);
+}
+
+async function getSparklineMaximums() {
+    fotfmanager.server.getMachineThroughputMaximums().done(function (data) {
+
+        sparklineMaximums = data;
+
+    });
+}
+async function updateAllMachineSparklinesDone(machineStatuses) {
+
     for (const machineStatus of machineStatuses) {
         updateSparklineCheck(machineStatus);
 
@@ -98,7 +123,7 @@ var firstMachineSparklines = true;
 async function waitWithoutBlocking(ms) {
     return new Promise(resolve => setTimeout(resolve, ms));
 }
-async function updateAllMachineSparklines(machineStatuses, i) {
+function updateAllMachineSparklines(machineStatuses, i) {
     if (i === machineStatuses.length) {
 
         updateAllMachineSparklinesDone(machineStatuses);
@@ -106,9 +131,11 @@ async function updateAllMachineSparklines(machineStatuses, i) {
     else {
         GetSparklineGraph(machineStatuses[i].Item1.properties,
             machineStatuses[i].Item1.properties.id);
-        waitWithoutBlocking(100).then(() => {
-            updateAllMachineSparklines(machineStatuses, i + 1)
-        });
+        setTimeout(() => {
+            updateAllMachineSparklines(machineStatuses, i + 1);
+        }, 100)
+            
+       
     }
 }
 
@@ -180,6 +207,7 @@ function GetSparklineGraph(dataproperties, id) {
     var total = dataproperties.MPEWatchData.hourly_data.length;
     
     if (total > 0) {
+       
         let hourlyArrays = getHourlyArrayMPESparkline(dataproperties.MPEWatchData.hourly_data, sparklineLength);
       
         let labels = getLabelsMPESparkline(sparklineLength);
@@ -191,6 +219,8 @@ function GetSparklineGraph(dataproperties, id) {
         }
         if (sparklineChart === null) {
 
+
+            let maxThroughput = getMaxThroughput(dataproperties.MPEWatchData.mpe_type);
 
             sparklineChart = new Chart("sparkline-canvas", {
                 type: 'line',
@@ -227,9 +257,22 @@ function GetSparklineGraph(dataproperties, id) {
                         duration: 0
                     },
                     scales: {
-                        y: {
-                            beginAtZero: true
-                        }
+                        xAxes: [{
+                            gridLines: {
+                                display: false
+                            }
+
+                        }],
+                        yAxes: [{
+                            gridLines: {
+                                display: false
+                            },
+                            ticks: {
+                                beginAtZero: true,
+                                min: 0,
+                                max: maxThroughput
+                            }
+                        }]
                     }
                 }
             });
@@ -242,6 +285,7 @@ function GetSparklineGraph(dataproperties, id) {
 
         let b64 = sparklineChart.toBase64Image();
         addSparklineCache(dataproperties.MPEWatchData.hourly_data, b64);
+        sparklineChart = null;
         return true;
     }
     else {

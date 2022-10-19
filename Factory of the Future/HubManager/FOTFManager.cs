@@ -2368,6 +2368,10 @@ namespace Factory_of_the_Future
             }
         }
 
+        public List<ThroughputValues> GetMachineThroughputMaximums()
+        {
+            return AppParameters.MachineThroughputMax;
+        }
         internal IEnumerable<Connection> AddAPI(string data)
         {
             string id = string.Empty;
