@@ -193,6 +193,64 @@
         </div>
     </div>
 
+     <div class="modal fade" id="FloorPlan_Modal" tabindex="-1" role="dialog" data-backdrop="static" aria-labelledby="FloorPlan_Modal_Label">
+        <div class="modal-dialog modal-xl">
+            <div class="modal-content bg-white">
+                <div class="modal-header1">
+                    <div class="col-11">
+                        <h4 class="modal-title1" id="floormodalHeader_ID"><span aria-hidden="true"></span></h4>
+                    </div>
+                    <button class="col-1 close" type="button" data-dismiss="modal" aria-label="Close"><i class="pi-iconExit float-right mt-2 mr-2"></i></button>
+                </div>
+                <div class="modal-body1">
+                    <div class="form-row">
+                        <div class="col">
+                            <div class="input-group">
+                                <div class="custom-file">
+                                    <input type="file" class="custom-file-input" id="fupload" aria-describedby="fupload" />
+                                    <label class="custom-file-label" for="fupload">Choose file</label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <div class="col">
+                                <label class="control-label">Pixel Per Meters</label>
+                                <select id="metersPerPixel" class="form-control pb-1" name="metersPerPixel">
+                                    <option value=""></option>
+                                    <option value="0.0529166667">0.01 Pixel Per Meter</option>
+                                    <option value="0.0002645833">0.1 Pixel Per Meter</option>
+                                    <option value="0.0264583333">1 Pixel Per Meter</option>
+                                    <option value="0.0529166667">2 Pixel Per Meter</option>
+                                    <option value="0.079375">3 Pixel Per Meter</option>
+                                    <option value="0.1322916667">5 Pixel Per Meter</option>
+                                    <option value="0.2645833333">10 Pixel Per Meter</option>
+                                    <option value="0.5291666667">20 Pixel Per Meter</option>
+                                    <option value="1.3229166667">50 Pixel Per Meter</option>
+                                    <option value="2.6458333333">100 Pixel Per Meter</option>
+                                    <option value="26.4583333333">1000 Pixel Per Meter</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-row" style="padding-top: 10px; display: none;" id="progresbarrow">
+                        <div class="col">
+                            <div class="progress">
+                                <div id="file_upload_progressbar" class="progress-bar rogress-bar-striped bg-success" role="progressbar" style="width: 10%" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer1">
+                    <div class="col"><button class="btn btn-outline-secondary float-left" type="button" data-dismiss="modal">Close</button></div>
+                    <div class="col text-center"><span class="text-info" id="error_btnUpload"></span></div>
+                    <div class="col"><button class="btn btn-outline-success float-right" type="button" id="btnUpload">Upload</button></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <div class="modal fade" id="Notification_Setup_Modal" tabindex="-1" role="dialog" data-backdrop="static" aria-labelledby="Notification_Setup_Modal_Label">
         <div class="modal-dialog modal-xl">
             <div class="modal-content bg-white">
@@ -1745,6 +1803,8 @@
     <script src="Scripts/Default.js"></script>
     <!--Load application settings for the site-->
     <script src="Scripts/View/application_setting.js"></script>
+     <!--Load Image Upload for the site-->
+    <script src="Scripts/View/floorplan.js"></script>
     <!--Notification-->
     <script src="Scripts/View/notification.js"></script>
     <!--Views for API Connection-->
@@ -1789,8 +1849,8 @@
     <!--Load Indoor Map settings for the site-->
     <script src="Scripts/View/indoorMap.js"></script>
     <!--24 Hour Clock js-->
-    <script defer src="Scripts/View/twenty_four_hour_clock.js"></script>
-    <script defer src="Scripts/Chart.min.js"></script>
+    <script defer="defer" src="Scripts/View/twenty_four_hour_clock.js"></script>
+    <script defer="defer" src="Scripts/Chart.min.js"></script>
 
     <script>
         $(document).ready(function () {

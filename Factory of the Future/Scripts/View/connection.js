@@ -416,37 +416,6 @@ $('#API_Connection_Modal').on('shown.bs.modal', function () {
             enableConnectionSubmit();
         }
     });
-    //Administrator Email Address
-    //if (!checkValue($('input[type=text][name=admin_email_recepient]').val())) {
-    //    $('input[type=text][name=admin_email_recepient]').css("border-color", "#FF0000").removeClass('is-valid').addClass('is-invalid');
-    //    $('span[id=error_admin_email_recepient]').text("Please Enter Administrator Email Address");
-    //}
-    //else {
-    //    $('input[type=text][name=admin_email_recepient]').css("border-color", "#2eb82e").removeClass('is-invalid').addClass('is-valid');
-    //    $('span[id=error_admin_email_recepient]').text("");
-    //}
-
-    ////outapikey Validation
-    //if (!checkValue($('input[type=text][name=outgoingapikey]').val())) {
-    //    $('input[type=text][name=outgoingapikey]').css("border-color", "#FF0000").removeClass('is-valid').addClass('is-invalid');
-    //    $('span[id=error_outgoingapikey]').text("Please Enter API Key");
-    //}
-    //else {
-    //    $('input[type=text][name=outgoingapikey]').css("border-color", "#2eb82e").removeClass('is-invalid').addClass('is-valid');
-    //    $('span[id=error_outgoingapikey]').text("");
-    //}
-    ////Admin Email Keyup
-    //$('input[type=text][name=outgoingapikey]').keyup(function () {
-    //    if (!checkValue($('input[type=text][name=outgoingapikey]').val())) {
-    //        $('input[type=text][name=outgoingapikey]').css("border-color", "#FF0000").removeClass('is-valid').addClass('is-invalid');
-    //        $('span[id=error_outgoingapikey]').text("Please Enter API Key");
-    //    }
-    //    else {
-    //        $('input[type=text][name=outgoingapikey]').css("border-color", "#2eb82e").removeClass('is-invalid').addClass('is-valid');
-    //        $('span[id=error_outgoingapikey]').text("");
-    //    }
-    //    enableConnectionSubmit();
-    //});
 
     //Hour 
     $('input[type=checkbox][name=hour_range]').change(() => {
@@ -527,7 +496,7 @@ async function updateConnection(Connectionupdate) {
     try {
         if (/^Admin/i.test(User.Role)) {
             if (!$.isEmptyObject(Connectionupdate)) {
-                var connectionNode = document.querySelector("[id=api_" + Connectionupdate.Id + "]");
+                let connectionNode = document.querySelector("[id=api_" + Connectionupdate.Id + "]");
                 if (connectionNode) {
                     connection_Table_Body.find("tr[id=api_" + Connectionupdate.Id + "]").replaceWith(connection_row_template.supplant(formatQSMlayout(Connectionupdate)))
                 }
@@ -540,20 +509,17 @@ async function updateConnection(Connectionupdate) {
         console.log(e);
     }
 }
-async function init_connection() {
+async function init_connection(ConnectionList) {
     try {
         connection_Table = $('table[id=connectiontable]');
         connection_Table_Body = connection_Table.find('tbody');
-        getSparklineMaximums();
-        fotfmanager.server.getAPIList("").done(function (connectiondata) {
-            if (connectiondata.length > 0) {
-                connectiondata.sort(SortByConnectionName);
-                connection_Table_Body.empty();
-                $.each(connectiondata, function () {
-                    connection_Table_Body.append(connection_row_template.supplant(formatQSMlayout(this)));
-                });
-            }
-        });
+        if (ConnectionList.length > 0) {
+            ConnectionList.sort(SortByConnectionName);
+            connection_Table_Body.empty();
+            $.each(ConnectionList, function (index, element) {
+                connection_Table_Body.append(connection_row_template.supplant(formatQSMlayout(element)));
+            });
+        }
     } catch (e) {
         console.log(e);
     }
@@ -585,7 +551,7 @@ function Add_Connection() {
 
         $('input[type=checkbox][name=ws_connection]').prop('disabled', false);
         $('input[type=checkbox][name=udp_connection]').prop('disabled', false);
-        var jsonObject = {
+        let jsonObject = {
             ActiveConnection: $('input[type=checkbox][name=active_connection]').is(':checked'),
             UdpConnection: $('input[type=checkbox][name=udp_connection]').is(':checked'),
             WsConnection: $('input[type=checkbox][name=ws_connection]').is(':checked'),
@@ -696,7 +662,7 @@ function Edit_Connection(id) {
                 $('button[id=apisubmitBtn]').off().on('click', function () {
                     try {
                         $('button[id=apisubmitBtn]').prop('disabled', true);
-                        var jsonObject = {
+                        let jsonObject = {
                             ActiveConnection: $('input[type=checkbox][name=active_connection]').is(':checked'),
                             UdpConnection: $('input[type=checkbox][name=udp_connection]').is(':checked'),
                             WsConnection: $('input[type=checkbox][name=ws_connection]').is(':checked'),
