@@ -12,9 +12,25 @@ using System.Net.Sockets;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
+using System.Text.RegularExpressions;
 
 namespace Factory_of_the_Future
 {
+    public class ThroughputValues
+    {
+
+        public ThroughputValues(string mpeType, int? max, int? averagePerHour, int? averagePerHour25)
+        {
+            MpeType = mpeType;
+            MaxThroughput = max;
+            AverageThroughputPerHour = averagePerHour;
+            AverageThroughputPerHour25 = averagePerHour25;
+        }
+        public string MpeType { get; set; }
+        public int? MaxThroughput { get; set; }
+        public int? AverageThroughputPerHour { get; set; }
+        public int? AverageThroughputPerHour25 { get; set; }
+    }
     internal class AppParameters
     {
         public static TimeZone localZone = TimeZone.CurrentTimeZone;
@@ -27,6 +43,7 @@ namespace Factory_of_the_Future
         public static JObject AppSettings { get; set; } = new JObject();
         public static string ApplicationEnvironment { get; set; } = string.Empty;
         public static string HWSerialNumber { get; set; } = string.Empty;
+        public static string ProjectData { get; set; }
         public static string VersionInfo { get; set; } = string.Empty;
         public static string ServerHostname { get; set; } = string.Empty;
         public static string ServerIpAddress { get; set; } = string.Empty;
@@ -36,6 +53,7 @@ namespace Factory_of_the_Future
         private static readonly string PdHash = "P@@Sw0rd";
         private static readonly string SaltKey = "S@LT&KEY";
         private static readonly string VIKey = "@1B2c3D4e5F6g7H8";
+        public static List<ThroughputValues> MachineThroughputMax {get; set; } 
 
         //public static Dictionary<string, string> CameraMapping { get; set; }
         public static ConcurrentDictionary<string, MachData> MPEWatchData { get; set; } = new ConcurrentDictionary<string, MachData>();
@@ -57,7 +75,7 @@ namespace Factory_of_the_Future
         public static ConcurrentDictionary<string, Notification> NotificationList { get; set; } = new ConcurrentDictionary<string, Notification>();
         public static ConcurrentDictionary<string, NotificationConditions> NotificationConditionsList { get; set; } = new ConcurrentDictionary<string, NotificationConditions>();
         //public static ConcurrentDictionary<string, ADUser> Users { get; set; } = new ConcurrentDictionary<string, ADUser>();
-
+        public static string QuuppaBaseUrl { get; set; }
         public static readonly ConnectionMapping<string> _connections = new ConnectionMapping<string>();
         public static ConnectionContainer RunningConnection { get; set; } = new ConnectionContainer();
         public static Dictionary<string, string> TimeZoneConvert { get; set; } = new Dictionary<string, string>()
@@ -166,6 +184,8 @@ namespace Factory_of_the_Future
                     GetNotificationDefault();
                     //loadtemp
                     LoadTempIndoorapData("Project_Data.json");
+                    // load max (y-axis) values for machines
+                    GetMachineThroughputMax("MachineThroughputMax.csv");
                 }
 
             }
@@ -209,6 +229,52 @@ namespace Factory_of_the_Future
             }
         }
 
+        private static void GetMachineThroughputMax(string filename)
+        {
+            try
+            {
+                string file_content = new FileIO().Read(string.Concat(Logdirpath, ConfigurationFloder), filename);
+                string[] lines = file_content.Split('\r');
+                bool first = true;
+                List<ThroughputValues> throughputMaximums = new List<ThroughputValues>();
+                foreach (string line in lines) {
+                    if (!first)
+                    {
+                        string thisLine = line.Trim();
+                        if (!String.IsNullOrEmpty(thisLine))
+                        {
+
+                            string[] vals = thisLine.Split(',');
+                            string mpeType = vals[0];
+                            int? max = null;
+                            if (!String.IsNullOrEmpty(vals[1]))
+                            {
+                                max = Convert.ToInt32(vals[1]);
+                            }
+                            int? avg = null;
+                            if (!String.IsNullOrEmpty(vals[2]))
+                            {
+                                avg = Convert.ToInt32(vals[2]);
+                            }
+                            int? avg25 = null;
+                            if (!String.IsNullOrEmpty(vals[3]))
+                            {
+                                Convert.ToInt32(vals[3]);
+                            }
+                            ThroughputValues values = new ThroughputValues(mpeType, max, avg, avg25);
+                            throughputMaximums.Add(values);
+                        }
+                    }
+                    first = false;
+
+                }
+                MachineThroughputMax = throughputMaximums;
+            }
+            catch (Exception e)
+            {
+                new ErrorLogger().ExceptionLog(e);
+            }
+        }
         private static bool GetAppSettings()
         {
             try
@@ -268,6 +334,7 @@ namespace Factory_of_the_Future
                 new ErrorLogger().ExceptionLog(e);
             }
         }
+
         public static void GetConnectionDefault()
         {
             try
@@ -301,6 +368,18 @@ namespace Factory_of_the_Future
                         if (ConnectionList.TryAdd(tempcon[i].Id, tempcon[i]))
                         {
                             RunningConnection.Add(tempcon[i]);
+                        }
+                        if (tempcon[i].ConnectionName == "Quuppa" &&
+                            String.IsNullOrEmpty(QuuppaBaseUrl))
+                        {
+                            int slashBeforeQpeIndex =
+                                    tempcon[i].Url.IndexOf(@"/qpe/");
+                            if (slashBeforeQpeIndex != -1)
+                            {
+                                QuuppaBaseUrl = 
+                                    tempcon[i].Url.Substring(0, 
+                                    slashBeforeQpeIndex + 5);
+                            }
                         }
                     }
                     //write to file
@@ -398,10 +477,11 @@ namespace Factory_of_the_Future
             {
                 if (Logdirpath != null)
                 {
-                    string ProjectData = new FileIO().Read(string.Concat(Logdirpath, ConfigurationFloder), fileName);
+                    string ProjectDataString = new FileIO().Read(string.Concat(Logdirpath, ConfigurationFloder), fileName);
 
-                    if (!string.IsNullOrEmpty(ProjectData))
+                    if (!string.IsNullOrEmpty(ProjectDataString))
                     {
+                        AppParameters.ProjectData = ProjectDataString;
                         Task.Run(() => new ProcessRecvdMsg().StartProcess(ProjectData, "getProjectInfo", ""));
                     }
                     //else
