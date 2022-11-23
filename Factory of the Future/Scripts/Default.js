@@ -127,7 +127,6 @@ $(function () {
                                     '</div>' +
                                 '</div>' +
                             '</div>' +
-                        
                     '<div class="card w-100">' +
                         '<div class="card-header pl-1">' +
                         '<h6 class="control-label sectionHeader ml-1 mb-1 d-flex justify-content-between">Application Setting</h6>' +

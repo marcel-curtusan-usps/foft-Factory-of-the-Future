@@ -1,22 +1,21 @@
-﻿User = $.parseJSON(localStorage.getItem('User'));
-//side bar setup
-var sidebar = L.control.sidebar({
+﻿//side bar setup
+let sidebar = L.control.sidebar({
     container: 'sidebar', position: 'left', autopan: false
 });
-var mainfloorOverlays = L.layerGroup();
+let mainfloorOverlays = L.layerGroup();
 // define rectangle geographical bounds
-var greyOutBounds = [[-5000, -5000], [5000, 5000]];
+let greyOutBounds = [[-5000, -5000], [5000, 5000]];
 
 // create an orange rectangle
-var greyedOutRectangle = L.rectangle(greyOutBounds, { color: "#000000", weight: 1, fillOpacity: .65, stroke: false });
+let greyedOutRectangle = L.rectangle(greyOutBounds, { color: "#000000", weight: 1, fillOpacity: .65, stroke: false });
 
-var mainfloor = L.imageOverlay(null, [0, 0], { id:-1 ,zIndex: -1 }).addTo(mainfloorOverlays);
-var baseLayers = {
+let mainfloor = L.imageOverlay(null, [0, 0], { id:-1 ,zIndex: -1 }).addTo(mainfloorOverlays);
+let baseLayers = {
     "Main Floor": mainfloor
 };
 
 
-var overlayMaps = {
+let overlayMaps = {
     "AGV Vehicles": agv_vehicles,
     "PIV Vehicles": piv_vehicles,
     "Cameras": cameras,
@@ -255,12 +254,12 @@ map.on('zoomend', function () {
         btnZoomReset.button.removeAttribute("style", "display:none;");
     }
 });
-var timedisplay = L.Control.extend({
+let timedisplay = L.Control.extend({
     options: {
         position: 'topright'
     },
     onAdd: function () {
-        var Domcntainer = L.DomUtil.create('input');
+        let Domcntainer = L.DomUtil.create('input');
         Domcntainer.id = "localTime";
         Domcntainer.type = "button";
         Domcntainer.className = "btn btn-secondary btn-sm";
@@ -274,6 +273,7 @@ sidebar.on('content', function (ev) {
             break;
         case 'setting':
             Edit_AppSetting("app_settingtable");
+            Load_Floorplan_Table("floorplantable");
             break;
         case 'reports':
             //GetUserInfo();
@@ -439,7 +439,7 @@ function init_mapSetup(MapData) {
             //$(document).prop('title', MapData[0].backgroundImages.facilityName + ' ' + MapData[0].backgroundImages.applicationAbbr);
             $.each(MapData, function (index) {
                 //set new image
-                var img = new Image();
+                let img = new Image();
                 //load Base64 image
                 img.src = this.backgroundImages.base64;
                 //create he bound of the image.

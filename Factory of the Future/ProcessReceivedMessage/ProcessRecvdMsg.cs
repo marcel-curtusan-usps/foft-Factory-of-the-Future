@@ -3,6 +3,7 @@ using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -220,13 +221,14 @@ namespace Factory_of_the_Future
                                 existingValue.LocaleKey = camera_item.LocaleKey;
                                 existingValue.ModelNum = camera_item.ModelNum;
                                 existingValue.Reachable = camera_item.Reachable;
+                                existingValue.Base64Image = AppParameters.NoImage;
+                                existingValue.Alerts = null;
                             }
                             else
                             {
                                 if (!AppParameters.CameraInfoList.TryAdd(camera_item.CameraName, camera_item))
                                 {
                                     new ErrorLogger().CustomLog("Unable to Able to add Camera" + camera_item.CameraName, string.Concat((string)AppParameters.AppSettings.Property("APPLICATION_NAME").Value, "_Applogs"));
-
                                 }
                             }
                         }
@@ -245,6 +247,8 @@ namespace Factory_of_the_Future
                 new ErrorLogger().ExceptionLog(e);
             }
         }
+ 
+
         private string GetImgae(Cameras camera_item)
         {
             try
@@ -2211,6 +2215,7 @@ namespace Factory_of_the_Future
                         //newbckimg.ApplicationFullName = AppParameters.AppSettings["APPLICATION_FULLNAME"].ToString();
                         //newbckimg.ApplicationAbbr = AppParameters.AppSettings["APPLICATION_NAME"].ToString();
                         newbckimg.Name = csname;
+                        newbckimg.CoordinateSystemId = csid;
                         AppParameters.CoordinateSystem[csid].BackgroundImage = newbckimg;
                         newbckimg.UpdateStatus = true;
                         saveToFile = true;
@@ -3228,13 +3233,13 @@ namespace Factory_of_the_Future
                                 ToList().ForEach(Camera =>
                                 {
                                     Camera.Properties.DarvisAlerts = alertList.ToArray<DarvisCameraAlert>().ToList<DarvisCameraAlert>();
-                                    //FOTFManager.Instance.BroadcastCameraStatus(Camera, cs.Id);
-                                    Tuple<GeoMarker, string> newData = new Tuple<GeoMarker, string>(Camera, cs.Id);
-                                    camerasToBroadcast.Add(newData);
+                                    
+                                    FOTFManager.Instance.BroadcastCameraStatus(Camera, cs.Id);
+                                 
                                 });
 
                             }
-                            FOTFManager.Instance.BroadcastCameraStatus(camerasToBroadcast);
+                     
 
                         }
                     }

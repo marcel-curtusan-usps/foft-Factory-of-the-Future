@@ -179,6 +179,9 @@ namespace Factory_of_the_Future
         [JsonProperty("rawData")]
         public string RawData { get; set; } = "";
 
+        [JsonProperty("coordinateSystemId")]
+        public string CoordinateSystemId { get; set; } = "";
+        //coordinateSystemId
         //[JsonProperty("facilityName")]
         //public string FacilityName { get; set; } = "Site Not Configured";
 
@@ -414,9 +417,6 @@ namespace Factory_of_the_Future
 
         [JsonProperty("Camera_Data")]
         public Cameras CameraData { get; set; }
-
-        [JsonProperty("base64Image")]
-        public string Base64Image { get; set; } = "";
 
         [JsonProperty("Vehicle_Status_Data")]
         public VehicleStatus Vehicle_Status_Data { get; set; }
@@ -730,8 +730,9 @@ namespace Factory_of_the_Future
         public Int32 Port { get; set; } = 0;
         [JsonProperty("UdpConnection")]
         public bool UdpConnection { get; set; } = false;
+        [JsonProperty("TcpConnection")]
+        public bool TcpConnection { get; set; } = false;
         [JsonProperty("WsConnection")]
-
         public bool WsConnection { get; set; } = false;
         [JsonIgnore]
         public bool UpdateStatus { get; set; } = false;
@@ -990,10 +991,11 @@ namespace Factory_of_the_Future
         public string FacilityDisplayName { get; set; }
 
         [JsonProperty("base64Image")]
-        public string Base64Image { get; set; } = "";
+        public string Base64Image { get; set; } = AppParameters.NoImage;
         
         [JsonProperty("CAMERA_ALERTS")]
         public List<DarvisCameraAlert> Alerts { get; set; }
+
         [JsonProperty("LAST_ALERT_UPDATE")]
         public long LastAlertUpdate { get; set; }
 

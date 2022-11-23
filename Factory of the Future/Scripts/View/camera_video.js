@@ -3,7 +3,7 @@
 *
 * **/
 $.extend(fotfmanager.client, {
-    updateCameraStatus: async (cameraupdatesnew) => { addCameraUpdate(cameraupdatesnew);  }
+    updateCameraStatus: async (cameraupdatesnew, id) => { CameraDataUpdate(cameraupdatesnew, id);  }
 });
 var brightRed = 255;
 var darkRed = 200;
@@ -66,7 +66,35 @@ function alertChanged(prevDarvisAlerts, darvisAlerts) {
     if (!prevDarvisAlerts && darvisAlerts) return true;
     return JSON.stringify(prevDarvisAlerts) != JSON.stringify(darvisAlerts);
 }
-
+function CameraDataUpdate(cameradataUpdate, id) {
+    try {
+        if (id == baselayerid) {
+            map.whenReady(() => {
+                if (map.hasOwnProperty("_layers")) {
+                    $.map(map._layers, function (layer, i) {
+                        if (layer.hasOwnProperty("feature") && layer.feature.properties.id === cameradataUpdate.properties.id) {
+                            let img = new Image();
+                            //load Base64 image
+                            img.src = cameradataUpdate.properties.Camera_Data.base64Image;
+                            let thumbnailsReplc = L.icon({
+                                    iconUrl: img.src,
+                                    iconSize: [64, 48], // size of the icon
+                                    iconAnchor: [0, 0], // point of the icon which will correspond to marker's location
+                                    shadowAnchor: [0, 0],  // the same for the shadow
+                                    popupAnchor: [0, 0] // point from which the popup should open relative to the iconAnchor
+                                
+                            });
+                            layer.setIcon(thumbnailsReplc);
+                            return false;
+                        }
+                    });
+                }
+            });
+        }
+    } catch (e) {
+        console.log(e);
+    }
+}
 function addCameraUpdate(allcameras) {
     if (camerathumbnailsupdating) {
         // if the thumbnails are updating, ignore  this update to avoid flicker,
@@ -361,11 +389,13 @@ var highlightCameraAlert = async (base64Image, r, g, b, borderWidth) => {
         image.src = base64Image;
     });
 }
-var cameras = new L.GeoJSON(null, {
+let cameras = new L.GeoJSON(null, {
     pointToLayer: function (feature, latlng) {
-        var 
-            locaterIcon = L.icon({
-                iconUrl: feature.properties.base64Image === "" ? "../../Content/images/NoImage.png" : feature.properties.base64Image,
+        let img = new Image();
+        //load Base64 image
+        img.src = feature.properties.Camera_Data.base64Image;
+        let locaterIcon = L.icon({
+                iconUrl: img.src,
                 iconSize: [64, 48], // size of the icon
                 iconAnchor: [0, 0], // point of the icon which will correspond to marker's location
                 shadowAnchor: [0, 0],  // the same for the shadow
@@ -380,11 +410,10 @@ var cameras = new L.GeoJSON(null, {
         });
     },
     onEachFeature: function (feature, layer) {
-        var cameraname = checkValue(feature.properties.empName) ? feature.properties.empName : feature.properties.name;
         layer.on('click', function (e) {
             View_Web_Camera(feature.properties);
         });
-        layer.bindTooltip(cameraname, {
+        layer.bindTooltip(feature.properties.empName, {
             permanent: true,
             interactive: true,
             direction: 'top',
@@ -453,10 +482,10 @@ var webCameraViewData = null;
 function updateBoundingBox() {
     var Data = webCameraViewData;
     // uncommented until we understand how Darvis coordinates translate to the video stream coordinates
-    getAlertBoundingBox(Data.DarvisAlerts, imageWidth, imageHeight).then((img) => {
-    // getAlertBoundingBox(null, 1, 1).then((img) => {
-        document.getElementById("openCameraOverlay").src = img;
-    });
+    //getAlertBoundingBox(Data.DarvisAlerts, imageWidth, imageHeight).then((img) => {
+    //// getAlertBoundingBox(null, 1, 1).then((img) => {
+    //    document.getElementById("openCameraOverlay").src = img;
+    //});
 }
 var boundingInterval = null;
 var openCameraId = null;

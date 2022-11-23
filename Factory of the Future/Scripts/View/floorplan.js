@@ -11,6 +11,7 @@ $(function () {
 
     });
     $('button[id=btnUpload]').on('click', function () {
+        let progress = 10;
         $('button[id=btnUpload]').prop("disabled", true);
         let fileUpload = $("#fupload").get(0);
         let files = fileUpload.files;
@@ -18,7 +19,9 @@ $(function () {
             let data = new FormData();
             for (const element of files) {
                 data.append(element.name, element);
+             
             }
+            data.append("name", $('input[type=text][id=floorname]').val());
             data.append("metersPerPixel", $("#metersPerPixel option:selected").val());
             $.ajax({
                 url: "/api/UploadFiles",
@@ -31,7 +34,7 @@ $(function () {
                     $('button[id=btnUpload]').prop("disabled", true);
                     $('#progresbarrow').css('display', 'block');
                     $('span[id=error_btnUpload]').text("Loading File Please stand by");
-                    let progress = 10
+              
                     $('#file_upload_progressbar').css('width', progress + '%');
                 },
                 xhr: function () {
@@ -138,4 +141,42 @@ $('#FloorPlan_Modal').on('hidden.bs.modal', function () {
 function Add_Floorplan() {
     $('#floormodalHeader_ID').text('Add New Floor Plan');
     $('#FloorPlan_Modal').modal();
+}
+function Load_Floorplan_Table(table) {
+    let FloorplanTable = $('table[id=' + table + ']');
+    let FloorplanTable_Body = FloorplanTable.find('tbody');
+    let FloorplanTable_row_template = '<tr data-id="{id}" data-value="{value}">' +
+        '<td ><span class="ml-p25rem">{id}</span></td>' +
+        '<td >{value}</td>' +
+        '<td>{action}</td>' +
+        '</tr>';
+
+    FloorplanTable_Body.empty();
+    fotfmanager.server.getFloorPlanData().done(function (FloorplanData) {
+        if (FloorplanData) {
+            $.each(FloorplanData, function () {
+                FloorplanTable_Body.append(FloorplanTable_row_template.supplant(formatFloorplan(this)));
+            });
+        }
+    });
+  
+}
+function formatFloorplan(data) {
+    return $.extend(data, {
+        number: data.id,
+        id: data.name,
+        value: data.id,
+        action: Get_Floor_Action_State()
+    });
+}
+function Get_Floor_Action_State() {
+    if (/^Admin/i.test(User.Role)) {
+        return '<div class="btn-toolbar" role="toolbar">' +
+            '<div class="btn-group mr-2" role="group" >' +
+            '<button class="btn btn-light btn-sm mx-1 pi-iconEdit" name="removeFloorplan"></button>' +
+            '</div>';
+    }
+    else {
+        return '';
+    }
 }

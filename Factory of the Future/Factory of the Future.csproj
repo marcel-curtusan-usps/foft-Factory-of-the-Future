@@ -219,6 +219,7 @@
     <Content Include="Content\images\marker-icon.png" />
     <Content Include="Content\images\marker-shadow.png" />
     <Content Include="Content\images\NoImage.png" />
+    <Content Include="Content\images\NoImageFeed.jpg" />
     <Content Include="Content\images\supervisor.png" />
     <Content Include="Content\images\tag.png" />
     <Content Include="Content\images\tag1.png" />
@@ -526,6 +527,8 @@
     <Compile Include="Default.aspx.designer.cs">
       <DependentUpon>Default.aspx</DependentUpon>
     </Compile>
+    <Compile Include="TCPIP_Listener\TcpServer.cs" />
+    <Compile Include="TCPIP_Listener\TcpSession.cs" />
     <Compile Include="Utilities\Graphics.cs" />
     <Compile Include="Utilities\ItineraryTrip_Update.cs" />
     <Compile Include="UDP_Listener\UdpServer.cs" />

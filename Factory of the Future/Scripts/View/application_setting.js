@@ -102,7 +102,7 @@ async function LoadappSettingTable(AppsettingData, table) {
         '</tr>';
 
     AppSettingTable_Body.empty();
-    var index = 0;
+    let index = 0;
     function formatAppSetting(key, value, index) {
         return $.extend(key, value, index, {
             number: index,
@@ -117,8 +117,8 @@ async function LoadappSettingTable(AppsettingData, table) {
         }
     });
     $('button[name=editappsetting]').on('click', function () {
-        var td = $(this);
-        var tr = $(td).closest('tr'),
+        let td = $(this);
+        let tr = $(td).closest('tr'),
             id = tr.attr('data-id'),
             value = tr.attr('data-value');
         Edit_AppSetting_Value(id, value, table);

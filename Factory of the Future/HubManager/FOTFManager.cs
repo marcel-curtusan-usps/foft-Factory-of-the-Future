@@ -109,8 +109,6 @@ namespace Factory_of_the_Future
 
         private IHubConnectionContext<dynamic> Clients { get; set; }
 
-
-
         internal void GetConnections(string connectionId)
         {
             try
@@ -231,8 +229,6 @@ namespace Factory_of_the_Future
             {
                 lock (updateCameralock)
                 {
-                    List<Tuple<GeoMarker, string>> camerasToBroadcast = new List<Tuple<GeoMarker, string>>();
-
                     if (!_updateCameraStatus)
                     {
                         foreach (CoordinateSystem cs in AppParameters.CoordinateSystem.Values)
@@ -240,25 +236,15 @@ namespace Factory_of_the_Future
                             cs.Locators.Where(f => f.Value.Properties.TagType != null &&
                             f.Value.Properties.TagType == "Camera").Select(y => y.Value).ToList().ForEach(Camera =>
                             {
-                                if (TryUpdateCameraStatus(Camera))
+                                if (Camera.Properties.CameraData.Base64Image != TryUpdateCameraStatus(Camera.Properties.CameraData.CameraName, out string Base64Img))
                                 {
-                                    if (AppParameters.CameraInfoList[Camera.Properties.Name].Alerts == null)
-                                    {
-                                        Camera.Properties.DarvisAlerts = new List<DarvisCameraAlert>();
-                                    }
-                                    else
-                                    {
-                                        Camera.Properties.DarvisAlerts = AppParameters.CameraInfoList[Camera.Properties.Name].Alerts.ToList();
-                                    }
-                                    Tuple<GeoMarker, string> newData = new Tuple<GeoMarker, string>(Camera, cs.Id);
-                                    camerasToBroadcast.Add(newData);
-
+                                    Camera.Properties.CameraData.Base64Image = Base64Img;
+                                    BroadcastCameraStatus(Camera, cs.Id);
                                 }
-
+                                
+                                
                             });
                         }
-
-                        BroadcastCameraStatus(camerasToBroadcast);
                         _updateCameraStatus = false;
                     }
                 }
@@ -273,9 +259,9 @@ namespace Factory_of_the_Future
 
         }
 
-        public void BroadcastCameraStatus(List<Tuple<GeoMarker, string>> broadcastData)
+        public void BroadcastCameraStatus(GeoMarker Cameras, string id)
         {
-            Clients.Group("CameraMarkers").updateCameraStatus(broadcastData);
+            Clients.Group("CameraMarkers").updateCameraStatus(Cameras,id);
         }
         //public void UpdateCameraImages(object state)
         //{
@@ -326,35 +312,52 @@ namespace Factory_of_the_Future
         //    Clients.Group("CameraMarkers").updateCameraStatus(CameraZone, id);
         //}
 
-        private bool TryUpdateCameraStatus(GeoMarker camera)
+        private static string TryUpdateCameraStatus(string camera, out string imageBase64)
         {
-            bool updateImage = false;
+            imageBase64 = AppParameters.NoImage;
             try
             {
-                camera.Properties.TagUpdate = false;
-                string url = @"http://" + camera.Properties.Name + @"/axis-cgi/jpg/image.cgi?resolution=320x240";
+
+                string url = @"http://" + camera + @"/axis-cgi/jpg/image.cgi?resolution=320x240";
                 Uri thisUri = new Uri(url);
 
                 using (WebClient client = new WebClient())
                 {
-                    client.Headers.Add(HttpRequestHeader.ContentType, "application/octet-stream");
-                    //add header
-                    byte[] result = client.DownloadData(url);
-                    string imageBase64 = "data:image/jpeg;base64," + Convert.ToBase64String(result);
-                    //if (camera.Properties.Base64Image != imageBase64)
-                    //{
-                    camera.Properties.Base64Image = imageBase64;
-                    updateImage = true;
-                    //}
+                    try
+                    {
+                     
+                        client.Headers.Add(HttpRequestHeader.ContentType, "application/octet-stream");
 
+                        //add header
+                        byte[] result = client.DownloadData(url);
+                        imageBase64 = "data:image/jpeg;base64," + Convert.ToBase64String(result);
+                        //if (camera.Properties.Base64Image != imageBase64)
+                        //{
+                        return imageBase64;
+                        //}
+                      
+
+                    }
+                    catch (ArgumentException ae) {
+                        new ErrorLogger().ExceptionLog(ae);
+                        return AppParameters.NoImage;
+                    }
+                    catch (WebException we) {
+                        new ErrorLogger().ExceptionLog(we);
+                        return AppParameters.NoImage;
+                    }
+                   
                 }
-
-                return updateImage;
+            }
+    
+            catch (WebException we) {
+                new ErrorLogger().ExceptionLog(we);
+                return AppParameters.NoImage;
             }
             catch (Exception e)
             {
                 new ErrorLogger().ExceptionLog(e);
-                return false;
+                return AppParameters.NoImage;
             }
         }
 
@@ -2448,6 +2451,10 @@ namespace Factory_of_the_Future
                                         {
                                             Connection_item._StopUDPListener();
                                         }
+                                        if (updateConndata.TcpConnection)
+                                        {
+                                            Connection_item._StopTCPListener();
+                                        }
                                         else if (updateConndata.WsConnection)
                                         {
                                             Connection_item.WSStop();
@@ -2464,6 +2471,10 @@ namespace Factory_of_the_Future
                                         if (updateConndata.UdpConnection)
                                         {
                                             Connection_item._StartUDPListener();
+                                        }
+                                        if (updateConndata.TcpConnection)
+                                        {
+                                            Connection_item._StartTCPListener();
                                         }
                                         else if (updateConndata.WsConnection)
                                         {
@@ -2719,7 +2730,23 @@ namespace Factory_of_the_Future
                 return AppParameters.AppSettings;
             }
         }
-
+        internal IEnumerable<BackgroundImage> GetFloorPlanData()
+        {
+            try
+            {
+                List<BackgroundImage> temp = new List<BackgroundImage>();
+                foreach (CoordinateSystem cs in AppParameters.CoordinateSystem.Values)
+                {
+                    temp.Add(cs.BackgroundImage); 
+                };
+                return temp;
+            }
+            catch (Exception e)
+            {
+                new ErrorLogger().ExceptionLog(e);
+                return null;
+            }
+        }
         internal void Removeuser(string connectionId)
         {
             try
@@ -3084,5 +3111,7 @@ namespace Factory_of_the_Future
             Dispose(disposing: true);
             GC.SuppressFinalize(this);
         }
+
+      
     }
 }

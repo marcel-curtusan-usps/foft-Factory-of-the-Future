@@ -23,6 +23,10 @@ namespace Factory_of_the_Future
                 {
                     NewConnection._UDPThreadListener();
                 }
+                if (con.UdpConnection)
+                {
+                    NewConnection._TCPThreadListener();
+                }
                 else if (con.WsConnection)
                 {
                     NewConnection._WSThreadListener();

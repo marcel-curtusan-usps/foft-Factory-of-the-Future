@@ -13,6 +13,9 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 using System.Text.RegularExpressions;
+using System.Net.Security;
+using System.Security.Cryptography.X509Certificates;
+using System.Web.Http.Results;
 
 namespace Factory_of_the_Future
 {
@@ -53,6 +56,7 @@ namespace Factory_of_the_Future
         private static readonly string PdHash = "P@@Sw0rd";
         private static readonly string SaltKey = "S@LT&KEY";
         private static readonly string VIKey = "@1B2c3D4e5F6g7H8";
+        public static string NoImage { get; set; } = "";
         public static List<ThroughputValues> MachineThroughputMax {get; set; } 
 
         //public static Dictionary<string, string> CameraMapping { get; set; }
@@ -187,6 +191,7 @@ namespace Factory_of_the_Future
                     // load max (y-axis) values for machines
                     GetMachineThroughputMax("MachineThroughputMax.csv");
                 }
+                NoImage = "data:image/jpeg;base64," + ImageToByteArray("NoImageFeed.jpg");
 
             }
             catch (Exception ex)
@@ -874,7 +879,7 @@ namespace Factory_of_the_Future
                 jsonResolver.IgnoreProperty(typeof(Properties), "Zone_Update");
                 jsonResolver.IgnoreProperty(typeof(Properties), "MissionList");
                 jsonResolver.IgnoreProperty(typeof(Properties), "rawData");
-                jsonResolver.IgnoreProperty(typeof(Marker), "CameraData");
+                //jsonResolver.IgnoreProperty(typeof(Marker), "CameraData");
                 jsonResolver.IgnoreProperty(typeof(Marker), "zones");
                 jsonResolver.IgnoreProperty(typeof(Marker), "isWearingTag");
                 jsonResolver.IgnoreProperty(typeof(Marker), "tagVisibleMils");
@@ -884,7 +889,7 @@ namespace Factory_of_the_Future
                 jsonResolver.IgnoreProperty(typeof(Marker), "Tag_TS");
                 jsonResolver.IgnoreProperty(typeof(Marker), "Tag_Update");
                 jsonResolver.IgnoreProperty(typeof(Marker), "Raw_Data");
-                jsonResolver.IgnoreProperty(typeof(Marker), "Camera_Data");
+                //jsonResolver.IgnoreProperty(typeof(Marker), "Camera_Data");
                 jsonResolver.IgnoreProperty(typeof(Marker), "Vehicle_Status_Data");
                 jsonResolver.IgnoreProperty(typeof(Marker), "positionTS");
                 jsonResolver.IgnoreProperty(typeof(Marker), "tacs");
@@ -903,6 +908,29 @@ namespace Factory_of_the_Future
                 return "";
             }
         }
+        public static bool AcceptAllCertifications(object sender, X509Certificate certificate, X509Chain chain, SslPolicyErrors sslPolicyErrors)
+        {
+            if (sslPolicyErrors == SslPolicyErrors.None)
+            {
+                return true;
+            }
 
+            return false;
+        }
+        public static string ImageToByteArray(string Image)
+        {
+            try
+            {
+                Bitmap noimage = (Bitmap)System.Drawing.Image.FromFile(string.Concat(AppParameters.CodeBase.Parent.FullName.ToString(), "/Content/images/", Image));
+                byte[] input = AppParameters.ImageToByteArray(noimage);
+                return Convert.ToBase64String(input);
+            }
+            catch (Exception e)
+            {
+                new ErrorLogger().ExceptionLog(e);
+                return "";
+            }
+
+        }
     }
 }

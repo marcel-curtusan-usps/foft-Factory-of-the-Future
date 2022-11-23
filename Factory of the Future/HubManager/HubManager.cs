@@ -39,6 +39,10 @@ namespace Factory_of_the_Future
             return _managerHub.EditAppSettingdata(data);
         }
 
+        public IEnumerable<BackgroundImage> GetFloorPlanData()
+        {
+            return _managerHub.GetFloorPlanData();
+        }
         /// <summary>
         /// /API section
         /// </summary>

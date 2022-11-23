@@ -11,13 +11,15 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Collections.Generic;
+using System.Reactive;
+using System.Web.Http;
 
 namespace Factory_of_the_Future
 {
-    public delegate void OnWsMessage (string msg);
+    public delegate void OnWsMessage(string msg);
     public delegate void OnWsEvent();
     public delegate void ThreadListenerCall();
-class MulticastUdpServer : UdpServer
+    class MulticastUdpServer : UdpServer
     {
         public MulticastUdpServer(IPAddress address, int port, string conid) : base(address, port, conid) { }
 
@@ -106,6 +108,49 @@ class MulticastUdpServer : UdpServer
             }
         }
     }
+    class TCPSession : TcpSession
+    {
+        public TCPSession(TcpServer server) : base(server) { }
+
+        protected override void OnConnected()
+        {
+            Console.WriteLine($"Chat TCP session with Id {Id} connected!");
+
+            // Send invite message
+            string message = "Hello from TCP chat! Please send a message or '!' to disconnect the client!";
+           // SendAsync(message);
+        }
+
+        protected override void OnDisconnected()
+        {
+            Console.WriteLine($"Chat TCP session with Id {Id} disconnected!");
+        }
+
+        protected override void OnReceived(byte[] buffer, long offset, long size)
+        {
+            string message = Encoding.UTF8.GetString(buffer, (int)offset, (int)size);
+            Console.WriteLine("Incoming: " + message);
+
+        }
+
+        protected override void OnError(SocketError error)
+        {
+            Console.WriteLine($"Chat TCP session caught an error with code {error}");
+        }
+    }
+    class TCPServer : TcpServer
+    {
+        public TCPServer(IPAddress address, int port, string conid) : base(address, port, conid) { }
+
+        protected override TcpSession CreateSession() { return new TCPSession(this); }
+
+        protected override void OnError(SocketError error)
+        {
+            Console.WriteLine($"Chat TCP server caught an error with code {error}");
+        }
+    }
+
+
     public class Api_Connection
     {
         public string ID;
@@ -118,6 +163,7 @@ class MulticastUdpServer : UdpServer
         public bool Connected;
         public UdpClient client;
         public UdpServer server;
+        public TcpServer tcpServer;
         public WebSocketInstanceHandler webSocketIntanceHandler;
         internal Connection ConnectionInfo;
         public string StatusInfo = "";
@@ -179,6 +225,12 @@ class MulticastUdpServer : UdpServer
             DownloadThread.IsBackground = true;
             DownloadThread.Start();
         }
+        internal void _TCPThreadListener()
+        {
+            Thread ListenerThread = new Thread(new ThreadStart(TCPInit));
+            ListenerThread.IsBackground = true;
+            ListenerThread.Start();
+        }
         public void _UDPThreadListener()
         {
             Thread ListenerThread = new Thread(new ThreadStart(UDPInit));
@@ -200,6 +252,18 @@ class MulticastUdpServer : UdpServer
         public void _StartUDPListener()
         {
             Thread StartListenerThread = new Thread(new ThreadStart(UDPStart));
+            StartListenerThread.IsBackground = true;
+            StartListenerThread.Start();
+        }
+        public void _StopTCPListener()
+        {
+            Thread StopListenerThread = new Thread(new ThreadStart(TCPStop));
+            StopListenerThread.IsBackground = true;
+            StopListenerThread.Start();
+        }
+        public void _StartTCPListener()
+        {
+            Thread StartListenerThread = new Thread(new ThreadStart(TCPStart));
             StartListenerThread.IsBackground = true;
             StartListenerThread.Start();
         }
@@ -226,10 +290,26 @@ class MulticastUdpServer : UdpServer
             this.Status = 1;
 
         }
+        private void TCPStart()
+        {
+            //Start TCP server
+            if (this.tcpServer != null)
+            {
+                this.tcpServer.Start();
+            }
+            else
+            {
+                this._TCPThreadListener();
+            }
+
+            this.Stopping = false;
+            this.Status = 1;
+
+        }
         public void DarvisWSMessage(string message)
         {
             // temporary workaround for socket io without a socket io library
-            
+
             if (message.StartsWith("42"))
             {
                 Task.Run(() => new ProcessRecvdMsg().ProcessDarvisAlert42(message.Substring(2)));
@@ -292,6 +372,16 @@ class MulticastUdpServer : UdpServer
                 this.Status = 2;
             }
         }
+        public void TCPStop()
+        {
+            //stop UDP server
+            if (this.tcpServer != null)
+            {
+                this.tcpServer.Stop();
+                this.Stopping = true;
+                this.Status = 2;
+            }
+        }
         public void WSStop()
         {
             //stop WS instance
@@ -302,7 +392,7 @@ class MulticastUdpServer : UdpServer
 
                     webSocketIntanceHandler.Close(ConnectionInfo.ConnectionName);
                     this.Status = 2;
-                    
+
                 }
             }
             catch (Exception ex)
@@ -322,11 +412,32 @@ class MulticastUdpServer : UdpServer
                     this.Status = 1;
                 }
             }
-            
+
+        }
+        private void TCPInit()
+        {
+            // start UDP Server
+            if (!string.IsNullOrEmpty(ConnectionInfo.Port.ToString()))
+            {
+                if (ConnectionInfo.Port > 0)
+                {
+                    this.tcpServer = new TcpServer(IPAddress.Any, (int)ConnectionInfo.Port, ID);
+                    this.tcpServer.Start();
+                    this.Status = 1;
+                }
+            }
+
         }
         public void UDPDelete()
         {
             Thread DeleteThread = new Thread(new ThreadStart(UDPStop));
+            DeleteThread.IsBackground = true;
+            DeleteThread.Start();
+
+        }
+        public void TCPDelete()
+        {
+            Thread DeleteThread = new Thread(new ThreadStart(TCPStop));
             DeleteThread.IsBackground = true;
             DeleteThread.Start();
 
@@ -471,6 +582,7 @@ class MulticastUdpServer : UdpServer
                 if (!string.IsNullOrEmpty(fdb))
                 {
                     formatUrl = string.Format(ConnectionInfo.Url, fdb);
+                  
                 }
             }
             else if (ConnectionInfo.ConnectionName.ToUpper().StartsWith("IV".ToUpper()))
@@ -496,7 +608,7 @@ class MulticastUdpServer : UdpServer
             {
                 formatUrl = string.Format(ConnectionInfo.Url, ConnectionInfo.MessageType);
             }
-           
+
             if (!string.IsNullOrEmpty(formatUrl))
             {
                 try
@@ -536,7 +648,7 @@ class MulticastUdpServer : UdpServer
                                     {
                                         Connected = true;
                                     }
-                                    
+
                                     string responseData = reader.ReadToEnd();
                                     if (!string.IsNullOrEmpty(responseData))
                                     {
@@ -566,19 +678,19 @@ class MulticastUdpServer : UdpServer
                     {
                         // Page not found, thread has 404'd
                         //HttpWebResponse Resp = (HttpWebResponse)ex.Response;
-                       
-                            this.Status = 3;
-                            this.ConstantRefresh = false;
-                            this.Connected = false;
-                            Task.Run(() => updateConnection(this));
-                            return;
-                        
+
+                        this.Status = 3;
+                        this.ConstantRefresh = false;
+                        this.Connected = false;
+                        Task.Run(() => updateConnection(this));
+                        return;
+
                     }
                 }
                 catch (Exception e)
                 {
                     new ErrorLogger().ExceptionLog(e);
-                    
+
                     this.Connected = false;
                     Task.Run(() => updateConnection(this));
                 }
@@ -596,9 +708,9 @@ class MulticastUdpServer : UdpServer
             {
                 foreach (Connection m in AppParameters.ConnectionList.Where(x => x.Value.Id == api_Connection.ID).Select(y => y.Value))
                 {
-                  
+
                     m.ApiConnected = api_Connection.Connected;
-                    m.LasttimeApiConnected= api_Connection.DownloadDatetime;
+                    m.LasttimeApiConnected = api_Connection.DownloadDatetime;
                     m.UpdateStatus = true;
                 }
             }
@@ -649,6 +761,7 @@ class MulticastUdpServer : UdpServer
             DeleteThread.Start();
 
         }
-      
+
+
     }
 }

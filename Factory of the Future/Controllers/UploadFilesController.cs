@@ -62,7 +62,7 @@ namespace Factory_of_the_Future.Controllers
                     string imageBase64 = Convert.ToBase64String(input);
                     BackgroundImage temp = new BackgroundImage()
                     {
-                        Id = Path.GetFileNameWithoutExtension(postedFile.FileName),
+                        Id = Guid.NewGuid().ToString(), //Path.GetFileNameWithoutExtension(postedFile.FileName),
                         Name = string.IsNullOrEmpty(name) ? "Main Floor" : name,
                         OrigoX = OSLImage.Width,
                         OrigoY = OSLImage.Height,
@@ -71,6 +71,7 @@ namespace Factory_of_the_Future.Controllers
                         WidthMeter = OSLImage.Width * metersPerPixelY,
                         HeightMeter = OSLImage.Height * metersPerPixelX,
                         Base64 = string.Concat("data:image/png;base64,", imageBase64),
+                        CoordinateSystemId = CSystem.Id,
                         //FacilityName = !string.IsNullOrEmpty(AppParameters.AppSettings["FACILITY_NAME"].ToString()) ? AppParameters.AppSettings["FACILITY_NAME"].ToString() : "Site Not Configured",
                         //ApplicationFullName = AppParameters.AppSettings["APPLICATION_FULLNAME"].ToString(),
                         //ApplicationAbbr = AppParameters.AppSettings["APPLICATION_NAME"].ToString(),

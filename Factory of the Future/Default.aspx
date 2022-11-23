@@ -204,7 +204,8 @@
                 </div>
                 <div class="modal-body1">
                     <div class="form-row">
-                        <div class="col">
+                        <div class="col-6">   
+                            <label class="control-label" for="floorname">Image</label>
                             <div class="input-group">
                                 <div class="custom-file">
                                     <input type="file" class="custom-file-input" id="fupload" aria-describedby="fupload" />
@@ -212,26 +213,28 @@
                                 </div>
                             </div>
                         </div>
+                        <div class="col-4">
+                            <label class="control-label" for="floorname">Name</label>
+                            <input type="text" class="form-control" id="floorname" aria-describedby="floorname" />
+                        </div>
                     </div>
                     <div class="form-row">
-                        <div class="form-group">
-                            <div class="col">
-                                <label class="control-label">Pixel Per Meters</label>
-                                <select id="metersPerPixel" class="form-control pb-1" name="metersPerPixel">
-                                    <option value=""></option>
-                                    <option value="0.0529166667">0.01 Pixel Per Meter</option>
-                                    <option value="0.0002645833">0.1 Pixel Per Meter</option>
-                                    <option value="0.0264583333">1 Pixel Per Meter</option>
-                                    <option value="0.0529166667">2 Pixel Per Meter</option>
-                                    <option value="0.079375">3 Pixel Per Meter</option>
-                                    <option value="0.1322916667">5 Pixel Per Meter</option>
-                                    <option value="0.2645833333">10 Pixel Per Meter</option>
-                                    <option value="0.5291666667">20 Pixel Per Meter</option>
-                                    <option value="1.3229166667">50 Pixel Per Meter</option>
-                                    <option value="2.6458333333">100 Pixel Per Meter</option>
-                                    <option value="26.4583333333">1000 Pixel Per Meter</option>
-                                </select>
-                            </div>
+                        <div class="col-4">
+                            <label class="control-label">Pixel Per Meters</label>
+                            <select id="metersPerPixel" class="form-control pb-1" name="metersPerPixel">
+                                <option value=""></option>
+                                <option value="0.0529166667">0.01 Pixel Per Meter</option>
+                                <option value="0.0002645833">0.1 Pixel Per Meter</option>
+                                <option value="0.0264583333">1 Pixel Per Meter</option>
+                                <option value="0.0529166667">2 Pixel Per Meter</option>
+                                <option value="0.079375">3 Pixel Per Meter</option>
+                                <option value="0.1322916667">5 Pixel Per Meter</option>
+                                <option value="0.2645833333">10 Pixel Per Meter</option>
+                                <option value="0.5291666667">20 Pixel Per Meter</option>
+                                <option value="1.3229166667">50 Pixel Per Meter</option>
+                                <option value="2.6458333333">100 Pixel Per Meter</option>
+                                <option value="26.4583333333">1000 Pixel Per Meter</option>
+                            </select>
                         </div>
                     </div>
                     <div class="form-row" style="padding-top: 10px; display: none;" id="progresbarrow">
@@ -828,7 +831,7 @@
                         <div class="card-header pl-1">
                             <h6 class="control-label sectionHeader mb-1">Staging Bullpen Area</h6>
                         </div>
-                        <div id="div_area">
+                        <div id="div_bull_area">
                             <div class="card-body pb-0">
                                 <div class="table-responsive">
                                     <table class="table table-striped table-sm table-hover mb-0 border-bottom" id="bullpenzonetoptable">
