@@ -934,12 +934,11 @@ async function RemoveNotification(id, table) {
     $('button[id=removeNotification]').off().on('click', function () {
         var jsonObject = { Id: id };
         $.connection.FOTFManager.server.deleteNotification_Conditions(JSON.stringify(jsonObject)).done(function (Data) {
+            $('span[id=error_notificationsubmitBtn]').text("Condition has been Edited");
             if (Data.length === 0) {
-                $('span[id=error_notificationsubmitBtn]').text("Unable to loaded Condition");
-                setTimeout(function () { $("#Notification_Setup_Modal").modal('hide'); }, 3000);
+                setTimeout(function () { $("#RemoveNotificationModal").modal('hide'); }, 3000);
             }
             else {
-                $('span[id=error_notificationsubmitBtn]').text("Condition has been Edited");
                 LoadNotificationsetup(Data, table);
                 setTimeout(function () { $("#RemoveNotificationModal").modal('hide'); sidebar.open('notificationsetup'); }, 1000);
          
