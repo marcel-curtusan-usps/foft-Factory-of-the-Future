@@ -35,7 +35,7 @@ function drawAlertText(ctx, txt, font, viewWidth, viewHeight, x, y, txtBGColor, 
     ctx.fillText(txt, x, y);
 }
 let cameraupdates = [];
-let allcameras = [];
+let allcameraslist = [];
 let flashRate = 3000;
 let flashCheckRate = 250;
 let lastAlertBlinkChange = 0;
@@ -92,7 +92,10 @@ function CameraDataUpdate(cameradataUpdate, id) {
                                     popupAnchor: [0, 0] // point from which the popup should open relative to the iconAnchor
                             });
                             layer.setIcon(thumbnailsReplc);
-                            return false;
+                           const index = allcameraslist.findIndex(object => object.properties.id === cameradataUpdate.properties.id);
+                           if (index === -1) {allcameraslist.push(cameradataUpdate);}
+                           else {allcameraslist[index].properties.Camera_Data.base64Image = cameradataUpdate.properties.Camera_Data.base64Image;}
+                           return false;
                         }
                     });
                 }
@@ -101,6 +104,15 @@ function CameraDataUpdate(cameradataUpdate, id) {
     } catch (e) {
         console.log(e);
     }
+}
+function UpdateCameraZoom() {
+    for (var i = 0, l = allcameraslist.length; i < l; i++) {
+        CameraDataUpdate(allcameraslist[i], allcameraslist[i].properties.floorId);
+    }
+}
+function removecamfromalllist(markerID) {
+    const index = allcameraslist.findIndex(object => object.properties.id === markerID);
+    allcameraslist.splice(index, 1);
 }
 function addCameraUpdate(allcameras) {
     if (camerathumbnailsupdating) {
@@ -414,7 +426,9 @@ let cameras = new L.GeoJSON(null, {
                 iconAnchor: [0, 0], // point of the icon which will correspond to marker's location
                 shadowAnchor: [0, 0],  // the same for the shadow
                 popupAnchor: [0, 0] // point from which the popup should open relative to the iconAnchor
-            });
+        });
+        const index = allcameraslist.findIndex(object => object.properties.id === feature.properties.id);
+        if (index === -1) { allcameraslist.push(feature); }
         return L.marker(latlng, {
             icon: locaterIcon,
             title: feature.properties.empName,

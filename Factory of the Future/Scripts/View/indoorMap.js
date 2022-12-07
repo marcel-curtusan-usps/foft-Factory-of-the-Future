@@ -249,7 +249,8 @@ function setLayerCheckUncheckEvents() {
 var lastMapZoom = null;
 map.on('zoomend', function () {
     setTimeout(checkSparklineVisibility, 100);
-    updateAllCameras(Date.now());
+    //updateAllCameras(Date.now());
+    UpdateCameraZoom();
     if (map.getZoom() != 2) {
         btnZoomReset.button.removeAttribute("style", "display:none;");
     }
