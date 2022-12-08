@@ -236,13 +236,42 @@ namespace Factory_of_the_Future
                             cs.Locators.Where(f => f.Value.Properties.TagType != null &&
                             f.Value.Properties.TagType == "Camera").Select(y => y.Value).ToList().ForEach(Camera =>
                             {
-                                if (Camera.Properties.CameraData.Base64Image != TryUpdateCameraStatus(Camera.Properties.CameraData.CameraName, out string Base64Img))
+                                if (Camera.Properties.CameraData == null)
                                 {
-                                    Camera.Properties.CameraData.Base64Image = Base64Img;
-                                    BroadcastCameraStatus(Camera, cs.Id);
+                                    Cameras cam = new Cameras();
+                                    if (AppParameters.CameraInfoList.TryGetValue(Camera.Properties.Name, out Cameras existingValue))
+                                    {
+                                    
+                                        cam.FacilitySubtypeDesc = existingValue.FacilitySubtypeDesc;
+                                        cam.AuthKey = existingValue.AuthKey;
+                                        cam.Description = existingValue.Description;
+                                        cam.FacilitiyLatitudeNum = existingValue.FacilitiyLatitudeNum;
+                                        cam.FacilitiyLongitudeNum = existingValue.FacilitiyLongitudeNum;
+                                        cam.FacilityDisplayName = existingValue.FacilityDisplayName;
+                                        cam.FacilityPhysAddrTxt = existingValue.FacilityPhysAddrTxt;
+                                        cam.GeoProcDivisionNm = existingValue.GeoProcDivisionNm;
+                                        cam.GeoProcRegionNm = existingValue.GeoProcRegionNm;
+                                        cam.LocaleKey = existingValue.LocaleKey;
+                                        cam.ModelNum = existingValue.ModelNum;
+                                        cam.Reachable = existingValue.Reachable;
+                                        cam.CameraName = existingValue.CameraName;
+                                        cam.Base64Image = AppParameters.NoImage;
+                                        cam.Alerts = null;
+                                    }
+                                    else
+                                    {
+                                        cam.Base64Image = AppParameters.NoImage;
+                                        cam.CameraName = Camera.Properties.Name;
+                                    }
+                                    Camera.Properties.CameraData = cam;
+                                    new FileIO().Write(string.Concat(AppParameters.Logdirpath, AppParameters.ConfigurationFloder), "Project_Data.json", AppParameters.ZoneOutPutdata(AppParameters.CoordinateSystem.Select(x => x.Value).ToList()));
+
                                 }
-                                
-                                
+                            if (Camera.Properties.CameraData.Base64Image != TryUpdateCameraStatus(Camera.Properties.CameraData.CameraName, out string Base64Img))
+                            {
+                                Camera.Properties.CameraData.Base64Image = Base64Img;
+                                BroadcastCameraStatus(Camera, cs.Id);
+                            }
                             });
                         }
                         _updateCameraStatus = false;

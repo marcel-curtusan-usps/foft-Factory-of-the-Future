@@ -1,8 +1,6 @@
 ﻿/* use this for locater data */
 
 async function init_locators(marker, id) {
-    fotfmanager.server.joinGroup("VehiclsMarkers");
-    fotfmanager.server.joinGroup("CameraMarkers");
     $.each(marker, function () {
         if (this.properties.Tag_Type === "Vehicle") {
             piv_vehicles.addData(this);
@@ -18,6 +16,8 @@ async function init_locators(marker, id) {
             locatorMarker.addData(this)
         }
     });
+    fotfmanager.server.joinGroup("VehiclsMarkers");
+    fotfmanager.server.joinGroup("CameraMarkers");
 }
 
 var locatorMarker = new L.GeoJSON(null, {
