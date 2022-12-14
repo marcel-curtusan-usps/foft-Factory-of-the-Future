@@ -27,6 +27,9 @@ namespace Factory_of_the_Future
                         case "Cameras":
                             CameraData(data, connID);
                             break;
+                        case "getCameraStills":
+                            CameraStillsData(data, connID);
+                            break;
                         /*Quuppa Data Start*/
                         case "getTagPosition":
                             TagPosition(data,connID);
@@ -275,7 +278,42 @@ namespace Factory_of_the_Future
                 new ErrorLogger().ExceptionLog(e);
             }
         }
- 
+
+        private void CameraStillsData(dynamic data, string conID)
+        {
+            if (data != null)
+            {
+                try
+                {
+                    foreach (CoordinateSystem cs in AppParameters.CoordinateSystem.Values)
+                    {
+                        cs.Locators.Where(f => f.Value.Properties.TagType != null &&
+                        f.Value.Properties.TagType == "Camera").Select(y => y.Value).ToList().ForEach(Camera =>
+                        {
+                            if (data.TryGetValue(Camera.Properties.Name, out string camImage))
+                            {
+                                if (Camera.Properties.CameraData.Base64Image != camImage)
+                                {
+                                    Camera.Properties.CameraData.Base64Image = camImage;
+                                    Camera.Properties.TagUpdate = true;
+                                }
+                            }
+                        });
+                    }
+                    Task.Run(() => updateConnection(conID, "good"));
+                }
+                catch (Exception ex)
+                {
+                    Task.Run(() => updateConnection(conID, "error"));
+                    new ErrorLogger().ExceptionLog(ex);
+                }
+            }
+            else
+            {
+                Task.Run(() => updateConnection(conID, "error"));
+            }
+        }
+
 
         private string GetImgae(Cameras camera_item)
         {
