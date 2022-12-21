@@ -108,48 +108,6 @@ namespace Factory_of_the_Future
             }
         }
     }
-    class TCPSession : TcpSession
-    {
-        public TCPSession(TcpServer server) : base(server) { }
-
-        protected override void OnConnected()
-        {
-            Console.WriteLine($"Chat TCP session with Id {Id} connected!");
-
-            // Send invite message
-            string message = "Hello from TCP chat! Please send a message or '!' to disconnect the client!";
-           // SendAsync(message);
-        }
-
-        protected override void OnDisconnected()
-        {
-            Console.WriteLine($"Chat TCP session with Id {Id} disconnected!");
-        }
-
-        protected override void OnReceived(byte[] buffer, long offset, long size)
-        {
-            string message = Encoding.UTF8.GetString(buffer, (int)offset, (int)size);
-            Console.WriteLine("Incoming: " + message);
-
-        }
-
-        protected override void OnError(SocketError error)
-        {
-            Console.WriteLine($"Chat TCP session caught an error with code {error}");
-        }
-    }
-    class TCPServer : TcpServer
-    {
-        public TCPServer(IPAddress address, int port, string conid) : base(address, port, conid) { }
-
-        protected override TcpSession CreateSession() { return new TCPSession(this); }
-
-        protected override void OnError(SocketError error)
-        {
-            Console.WriteLine($"Chat TCP server caught an error with code {error}");
-        }
-    }
-
 
     public class Api_Connection
     {

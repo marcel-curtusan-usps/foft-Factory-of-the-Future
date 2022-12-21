@@ -839,6 +839,10 @@ namespace Factory_of_the_Future
                     {
                         conn.UDPStop();
                     }
+                    else if (conn.ConnectionInfo.TcpIpConnection)
+                    {
+                        conn.TCPStop();
+                    }
                     else
                     {
                         conn.Stop();

@@ -7,13 +7,13 @@ $.extend(fotfmanager.client, {
 });
 
 async function updateVehicles(vehicleupadtes, id) {
-    for (const vehicle of vehicleupdates) {
+    for (const _vehicle of vehicleupdates) {
         updateVehicleTag(vehicleupdate, id);
     }
 }
 async function updateVehicleTag(vehicleupdate, id) {
     try {
-        if (id == baselayerid) {
+        if (id === baselayerid) {
             var layerindex = -0;
             map.whenReady(() => {
                 if (map.hasOwnProperty("_layers")) {
@@ -145,7 +145,7 @@ let agv_vehicles = new L.GeoJSON(null, {
 });
 function updateVehicleLocation(layerindex) {
     if (map._layers[layerindex].feature.geometry.length > 0) {
-        var newLatLng = new L.latLng(map._layers[layerindex].feature.geometry[1], map._layers[layerindex].feature.geometry[0]);
+        var newLatLng = new L.latLng(map._layers[layerindex].feature.geometry[1] * .000793750, map._layers[layerindex].feature.geometry[0] * 0.000793750);
         var distanceTo = (newLatLng.distanceTo(map._layers[layerindex].getLatLng()).toFixed(0) / 1000);
         if (Math.round(distanceTo) > 4000) {
             map._layers[layerindex].setLatLng(newLatLng);

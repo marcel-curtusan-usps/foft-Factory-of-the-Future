@@ -4,7 +4,7 @@
 
 <html lang="en" xmlns="http://www.w3.org/1999/xhtml" >
 <head runat="server">
-    <title>USPS FOTF</title>
+    <title>USPS CF</title>
     <meta charset="utf-8" />
     <meta http-equiv="Cache-control" content="public" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -95,6 +95,10 @@
                             <div class="custom-control custom-switch">
                                 <input id="udp_connection" type="checkbox" class="custom-control-input" name="udp_connection" />
                                 <label class="custom-control-label" for="udp_connection">UDP Connection</label>
+                            </div>
+                             <div class="custom-control custom-switch">
+                                <input id="tcpip_connection" type="checkbox" class="custom-control-input" name="tcpip_connection" />
+                                <label class="custom-control-label" for="tcpip_connection">TCP/IP Server</label>
                             </div>
                             <div class="custom-control custom-switch">
                                 <input id="ws_connection" type="checkbox" class="custom-control-input" name="ws_connection" />
@@ -671,7 +675,12 @@
                     </div>
                     <div class="row mr-0 ml-0">
                         <div class="form-group col-4">
-                            <label class="control-label">Zone LDC</label><input id="zone_ldc" type="text" class="form-control" name="zone_ldc"><span id="errorzone_ldc" class="text-danger"></span>
+                            <label class="control-label">Zone LDC</label><input id="zone_ldc" type="text" class="form-control" name="zone_ldc"/><span id="errorzone_ldc" class="text-danger"></span>
+                        </div>
+                    </div>
+                     <div class="row mr-0 ml-0">
+                        <div class="form-group col-4">
+                            <label class="control-label">GPIO Number</label><input id="gpio" type="text" class="form-control" name="GPIO"/><span id="errorgpio" class="text-danger"></span>
                         </div>
                     </div>
 
@@ -1331,7 +1340,7 @@
                             <div class="card w-100">
                                 <div class="card-header pl-1">
                                     <h6 class="sectionHeader ml-1 mb-1">Late Trips
-                                        <button class="btn btn-link" data-toggle="collapse" data-target="#latetrips" onclick="">
+                                        <button class="btn btn-link" data-toggle="collapse" data-target="#latetrips">
                                             <i class="bi bi-arrows-collapse"></i>
                                         </button>
                                         <!--<a href="#latetrips" data-toggle="collapse" class="bi-arrows-collapse"></a>-->
@@ -1800,8 +1809,7 @@
     <script src="Scripts/leaflet/Plugins/leaflet-marker-slideto.js"></script>
     <script src="Scripts/leaflet/Plugins/leaflet-indoor.js"></script>
     <script src="Scripts/Filter.min.js"></script>
-    <!--custom coded event listeners -->
-    <script src="Scripts/View/eventListener.js"></script>
+
     <!--Load default settings for the site-->
     <script src="Scripts/Default.js"></script>
     <!--Load application settings for the site-->

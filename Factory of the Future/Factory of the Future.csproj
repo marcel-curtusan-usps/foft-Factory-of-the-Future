@@ -284,6 +284,10 @@
     <Content Include="Content\themes\base\tooltip.css" />
     <Content Include="Content\_base.css" />
     <Content Include="Content\_base.min.css" />
+    <Content Include="ET_Board\ET_Board.aspx" />
+    <Content Include="ET_Board\Scritps\ET_Board.js" />
+    <Content Include="DockDoor\DockDoor.aspx" />
+    <Content Include="DockDoor\Scripts\DigitalDockDoor.js" />
     <Content Include="favicon.ico" />
     <Content Include="Global.asax" />
     <Content Include="Default.aspx" />
@@ -462,7 +466,6 @@
     <Content Include="Scripts\View\agvlocation_zone.js" />
     <Content Include="Scripts\View\application_setting.js" />
     <Content Include="Scripts\View\bin_zone.js" />
-    <Content Include="Scripts\View\eventListener.js" />
     <Content Include="Scripts\View\floorplan.js" />
     <Content Include="Scripts\View\indoorMap.js" />
     <Content Include="Scripts\View\machine_sparkline.js" />
@@ -503,6 +506,7 @@
   <ItemGroup>
     <Compile Include="App_Start\AppParameters.cs" />
     <Compile Include="App_Start\BackgroundThread.cs" />
+    <Compile Include="Controllers\DockDoorController.cs" />
     <Compile Include="Data_Retention\DataRetentionProcess.cs" />
     <Compile Include="App_Start\WebApiConfig.cs" />
     <Compile Include="Controllers\IncomingDataController.cs" />
@@ -514,6 +518,20 @@
     <Compile Include="Database_Calls\SV_DB_Call.cs" />
     <Compile Include="Data_Retriever\Connection.cs" />
     <Compile Include="Data_Retriever\ConnectionContainer.cs" />
+    <Compile Include="ET_Board\ET_Board.aspx.cs">
+      <DependentUpon>ET_Board.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="ET_Board\ET_Board.aspx.designer.cs">
+      <DependentUpon>ET_Board.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="DockDoor\DockDoor.aspx.cs">
+      <DependentUpon>DockDoor.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="DockDoor\DockDoor.aspx.designer.cs">
+      <DependentUpon>DockDoor.aspx</DependentUpon>
+    </Compile>
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
@@ -527,6 +545,8 @@
     <Compile Include="Default.aspx.designer.cs">
       <DependentUpon>Default.aspx</DependentUpon>
     </Compile>
+    <Compile Include="Transaction_Concentrator\ProcessorMessage.cs" />
+    <Compile Include="Transaction_Concentrator\TC.cs" />
     <Compile Include="TCPIP_Listener\TcpServer.cs" />
     <Compile Include="TCPIP_Listener\TcpSession.cs" />
     <Compile Include="Utilities\Graphics.cs" />

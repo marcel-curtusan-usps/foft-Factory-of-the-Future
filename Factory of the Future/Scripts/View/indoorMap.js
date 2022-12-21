@@ -3,11 +3,7 @@ let sidebar = L.control.sidebar({
     container: 'sidebar', position: 'left', autopan: false
 });
 let mainfloorOverlays = L.layerGroup();
-// define rectangle geographical bounds
-let greyOutBounds = [[-5000, -5000], [5000, 5000]];
 
-// create an orange rectangle
-let greyedOutRectangle = L.rectangle(greyOutBounds, { color: "#000000", weight: 1, fillOpacity: .65, stroke: false });
 
 let mainfloor = L.imageOverlay(null, [0, 0], { id:-1 ,zIndex: -1 }).addTo(mainfloorOverlays);
 let baseLayers = {
@@ -128,14 +124,14 @@ map = L.map('map', {
     preferCanvas: true,
     pmIgnore: false,
     markerZoomAnimation: false,
-    minZoom: 1,
-    maxZoom: 7,
+    minZoom: 0,
+    maxZoom: 18,
     zoomControl: false,
     measureControl: true,
     tap: false,
     layers: layersSelected
 });
-map.attributionControl.setPrefix("USPS " + User.ApplicationFullName + " (" + User.SoftwareVersion + ") | " + User.Facility_Name);
+//map.attributionControl.setPrefix("USPS " + User.ApplicationFullName + " (" + User.SoftwareVersion + ") | " + User.Facility_Name);
 let layerCheckboxIds = [];
 function setLayerCheckboxId(thisCheckBox, innerHTML) {
     let name = innerHTML.replace(/ /g, '');
@@ -347,8 +343,6 @@ L.easyButton({
     }]
 }).addTo(map);
 
-greyedOutRectangle.addTo(map);
-setGreyedOut();
 //Full-screen button only for Chrome
 if (window.chrome) {
     var fullscreentoggle = L.easyButton({
@@ -443,7 +437,7 @@ function init_mapSetup(MapData) {
                 //load Base64 image
                 img.src = this.backgroundImages.base64;
                 //create he bound of the image.
-                bounds = [[this.backgroundImages.yMeter, this.backgroundImages.xMeter], [this.backgroundImages.heightMeter + this.backgroundImages.yMeter, this.backgroundImages.widthMeter + this.backgroundImages.xMeter]];
+                let bounds = [[this.backgroundImages.yMeter, this.backgroundImages.xMeter], [this.backgroundImages.heightMeter + this.backgroundImages.yMeter, this.backgroundImages.widthMeter + this.backgroundImages.xMeter]];
                 var trackingarea = L.polygon(bounds, {});
                 if (index === 0) {
                     mainfloor.options.id = this.id;         
@@ -466,7 +460,7 @@ function init_mapSetup(MapData) {
             LoadNotification("routetrip");
             LoadNotification("vehicle");
             //add user to the tag groups only for none PMCCUser
-            if (User.hasOwnProperty("UserId")) {
+            if (User.hasOwnProperty("UserId") && /^(Admin|OIE)/i.test(User.Role)) {
                 fotfmanager.server.joinGroup("PeopleMarkers");
             }
             

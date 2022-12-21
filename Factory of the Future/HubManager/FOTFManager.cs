@@ -34,6 +34,9 @@ namespace Factory_of_the_Future
         private readonly object updateQSMlock = new object();
         private readonly object updateMachineStatuslock = new object();
         private readonly object updateAGVLocationStatuslock = new object();
+
+     
+
         private readonly object updateSVTripsStatuslock = new object();
         private readonly object updateNotificationStatuslock = new object();
         private readonly object updateBinZoneStatuslock = new object();
@@ -43,7 +46,6 @@ namespace Factory_of_the_Future
         private readonly Timer VehicleTag_timer;
         private readonly Timer PersonTag_timer;
         private readonly Timer Zone_timer;
-        private readonly Timer DockDoor_timer;
         private readonly Timer QSM_timer;
         private readonly Timer Machine_timer;
         private readonly Timer AGVLocation_timer;
@@ -51,12 +53,10 @@ namespace Factory_of_the_Future
         private readonly Timer Notification_timer;
         private readonly Timer BinZone_timer;
         private readonly Timer Camera_timer;
-        private readonly Timer SVZone_timer;
         //status
         private volatile bool _updatePersonTagStatus = false;
         private volatile bool _updateZoneStatus = false;
         private volatile bool _updateTagStatus = false;
-        private volatile bool _updateDockDoorStatus = false;
         private volatile bool _updatingQSMStatus = false;
         private volatile bool _updateMachineStatus = false;
         private volatile bool _updateAGVLocationStatus = false;
@@ -65,7 +65,7 @@ namespace Factory_of_the_Future
         private volatile bool _updateBinZoneStatus = false;
         private volatile bool _updateCameraStatus = false;
         private bool disposedValue;
-        private HttpClient httpClient = new HttpClient();
+        private readonly HttpClient httpClient = new HttpClient();
         //250 Milliseconds
         private readonly TimeSpan _250updateInterval = TimeSpan.FromMilliseconds(250);
         //1 seconds
@@ -88,7 +88,7 @@ namespace Factory_of_the_Future
             PersonTag_timer = new Timer(UpdatePersonTagStatus, null, _250updateInterval, _250updateInterval);
             /////Zone status.
             Zone_timer = new Timer(UpdateZoneStatus, null, _2000updateInterval, _2000updateInterval);
-            DockDoor_timer = new Timer(UpdateDockDoorStatus, null, _250updateInterval, _250updateInterval);
+            //DockDoor_timer = new Timer(UpdateDockDoorStatus, null, _250updateInterval, _250updateInterval);
             Machine_timer = new Timer(UpdateMachineStatus, null, _2000updateInterval, _2000updateInterval);
             AGVLocation_timer = new Timer(UpdateAGVLocationStatus, null, _250updateInterval, _250updateInterval);
             BinZone_timer = new Timer(UpdateBinZoneStatus, null, _2000updateInterval, _2000updateInterval);
@@ -123,6 +123,29 @@ namespace Factory_of_the_Future
                 new ErrorLogger().ExceptionLog(e);
             }
         }
+
+        internal RouteTrips GetDigitalDockDoorList(string id)
+        {
+            try
+            {
+                RouteTrips doors = new RouteTrips();
+                foreach (CoordinateSystem cs in AppParameters.CoordinateSystem.Values)
+                {
+                    cs.Zones.Where(f => f.Value.Properties.ZoneType == "DockDoor" && f.Value.Properties.DoorNumber.ToLower() == id.ToLower()
+                    ).Select(y => y.Value).ToList().ForEach(DockDoor =>
+                    {
+                        doors=DockDoor.Properties.DockDoorData;
+                    });
+                }
+                return doors;
+            }
+            catch (Exception e)
+            {
+                new ErrorLogger().ExceptionLog(e);
+                return null;
+            }
+        }
+
         internal GeoZone AddZone(string data)
         {
             try
@@ -132,6 +155,12 @@ namespace Factory_of_the_Future
                 newtempgZone.Properties.Id = Guid.NewGuid().ToString();
                 newtempgZone.Properties.RawData = "";
                 newtempgZone.Properties.Source = "user";
+                newtempgZone.Properties.MPEWatchData = null;
+                newtempgZone.Properties.MissionList = null;
+                newtempgZone.Properties.DockDoorData = null;
+                newtempgZone.Properties.StaffingData = null;
+                newtempgZone.Properties.DPSData = null;
+                newtempgZone.Properties.ZoneUpdate = true;
                 if (newtempgZone.Properties.ZoneType == "Bin")
                 {
                     newtempgZone.Properties.MPEBins = new List<string>();
@@ -157,14 +186,9 @@ namespace Factory_of_the_Future
                     {
                         newtempgZone.Properties.DoorNumber = n.ToString();
                     }
-
+                    newtempgZone.Properties.DockDoorData = new RouteTrips();
                 }
-                newtempgZone.Properties.MPEWatchData = null;
-                newtempgZone.Properties.MissionList = null;
-                newtempgZone.Properties.DockDoorData = null;
-                newtempgZone.Properties.StaffingData = null;
-                newtempgZone.Properties.DPSData = null;
-                newtempgZone.Properties.ZoneUpdate = true;
+               
 
                 if (AppParameters.CoordinateSystem.ContainsKey(newtempgZone.Properties.FloorId))
                 {
@@ -1033,10 +1057,11 @@ namespace Factory_of_the_Future
             Clients.Group("BinZones").updateBinZoneStatus(binZone, id);
         }
 
-        private void BroadcastSVZoneStatus(GeoZone svZone, string id)
+        public void BroadcastDockdoorZoneStatus(RouteTrips dockdoortrips, string id)
         {
-            Clients.Group("SVZones").updateSVZoneStatus(svZone, id);
+            Clients.Group("DockDoor_"+ dockdoortrips.DoorNumber).updateDigitalDockDoorStatus(dockdoortrips, id);
         }
+       
         private void UpdateSVTripsStatus(object state)
         {
             lock (updateSVTripsStatuslock)
@@ -2193,37 +2218,37 @@ namespace Factory_of_the_Future
                 return false;
             }
         }
-        private void UpdateDockDoorStatus(object state)
-        {
-            lock (updateDockDoorStatuslock)
-            {
-                if (!_updateDockDoorStatus)
-                {
-                    _updateDockDoorStatus = true;
-                    foreach (CoordinateSystem cs in AppParameters.CoordinateSystem.Values)
-                    {
-                        cs.Zones.Where(f => f.Value.Properties.ZoneType == "DockDoor"
-                        && f.Value.Properties.ZoneUpdate
-                        && f.Value.Properties.Visible
-                        ).Select(y => y.Value).ToList().ForEach(DockDoor =>
-                        {
-                            if (TryUpdateDockDoorStatus(DockDoor))
-                            {
-                                BroadcastDockDoorStatus(DockDoor, cs.Id);
-                            }
-                        });
-                    }
-                    _updateDockDoorStatus = false;
-                }
-            }
-        }
+        //private void UpdateDockDoorStatus(object state)
+        //{
+        //    lock (updateDockDoorStatuslock)
+        //    {
+        //        if (!_updateDockDoorStatus)
+        //        {
+        //            _updateDockDoorStatus = true;
+        //            foreach (CoordinateSystem cs in AppParameters.CoordinateSystem.Values)
+        //            {
+        //                cs.Zones.Where(f => f.Value.Properties.ZoneType == "DockDoor"
+        //                && f.Value.Properties.ZoneUpdate
+        //                && f.Value.Properties.Visible
+        //                ).Select(y => y.Value).ToList().ForEach(DockDoor =>
+        //                {
+        //                    if (TryUpdateDockDoorStatus(DockDoor))
+        //                    {
+        //                        BroadcastDockDoorStatus(DockDoor, cs.Id);
+        //                    }
+        //                });
+        //            }
+        //            _updateDockDoorStatus = false;
+        //        }
+        //    }
+        //}
 
         private void BroadcastVehiclesUpdate(List<GeoMarker> vehicles, string id)
         {
             Clients.Group("VehiclsMarkers").updateVehicles(vehicles, id);
         }
 
-        private void BroadcastDockDoorStatus(GeoZone dockDoor, string id)
+        public void BroadcastDockDoorStatus(GeoZone dockDoor, string id)
         {
             Clients.Group("DockDoorZones").updateDockDoorStatus(dockDoor, id);
         }
@@ -2273,7 +2298,7 @@ namespace Factory_of_the_Future
                 }
             }
         }
-        private void BroadcastVehicleTagStatus(GeoMarker marker, string id)
+        public void BroadcastVehicleTagStatus(GeoMarker marker, string id)
         {
             Clients.Group("VehiclsMarkers").updateVehicleTagStatus(marker, id);
         }
@@ -2451,7 +2476,7 @@ namespace Factory_of_the_Future
                                         {
                                             Connection_item._StopUDPListener();
                                         }
-                                        if (updateConndata.TcpConnection)
+                                        if (updateConndata.TcpIpConnection)
                                         {
                                             Connection_item._StopTCPListener();
                                         }
@@ -2472,7 +2497,7 @@ namespace Factory_of_the_Future
                                         {
                                             Connection_item._StartUDPListener();
                                         }
-                                        if (updateConndata.TcpConnection)
+                                        if (updateConndata.TcpIpConnection)
                                         {
                                             Connection_item._StartTCPListener();
                                         }
@@ -2530,6 +2555,13 @@ namespace Factory_of_the_Future
                                     if (Connection_item.ConnectionInfo.UdpConnection)
                                     {
                                         Connection_item.UDPDelete();
+                                        AppParameters.RunningConnection.Connection.Remove(Connection_item);
+                                        new FileIO().Write(string.Concat(AppParameters.CodeBase.Parent.FullName.ToString(), AppParameters.Appsetting), "Connection.json", JsonConvert.SerializeObject(AppParameters.ConnectionList.Select(x => x.Value).ToList(), Formatting.Indented, new JsonSerializerSettings() { ContractResolver = new NullToEmptyStringResolver() }));
+                                        return AppParameters.ConnectionList.Select(e => e.Value).ToList();
+                                    }
+                                    else if (Connection_item.ConnectionInfo.TcpIpConnection)
+                                    {
+                                        Connection_item.TCPDelete();
                                         AppParameters.RunningConnection.Connection.Remove(Connection_item);
                                         new FileIO().Write(string.Concat(AppParameters.CodeBase.Parent.FullName.ToString(), AppParameters.Appsetting), "Connection.json", JsonConvert.SerializeObject(AppParameters.ConnectionList.Select(x => x.Value).ToList(), Formatting.Indented, new JsonSerializerSettings() { ContractResolver = new NullToEmptyStringResolver() }));
                                         return AppParameters.ConnectionList.Select(e => e.Value).ToList();
@@ -2740,6 +2772,25 @@ namespace Factory_of_the_Future
                     temp.Add(cs.BackgroundImage); 
                 };
                 return temp;
+            }
+            catch (Exception e)
+            {
+                new ErrorLogger().ExceptionLog(e);
+                return null;
+            }
+        }
+        internal IEnumerable<BackgroundImage> RemoveFloorPlanData(dynamic data)
+        {
+            try
+            {
+                List<BackgroundImage> temp = new List<BackgroundImage>();
+                foreach (CoordinateSystem cs in AppParameters.CoordinateSystem.Values)
+                {
+                    if (cs.BackgroundImage.Id == data["id"])
+                    { 
+                    }
+                };
+                return GetFloorPlanData();
             }
             catch (Exception e)
             {

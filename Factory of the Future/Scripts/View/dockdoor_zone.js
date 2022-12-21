@@ -4,200 +4,6 @@
 $.extend(fotfmanager.client, {
     updateDockDoorStatus: async (dockdoorupdate) => { updateDockDoorZone(dockdoorupdate) }
 });
-let greyedOut = false;
-
-let polygonMachineZIndex = null;
-
-function greyOutBGCheck() {
-   
-
-    if (!$("#sidebar").hasClass("collapsed")) {
-        var obj = new L.Evented();
-        obj.once('greyout', greyOutBGOnce);
-        obj.fire('greyout');
-    }
-}
-function greyOutBGOnce() {
-    greyedOut = true;
-    $("#layersContent").hide();
-    setGreyedOut();
-}
-
-function unGreyOutBG() {
-    greyedOut = false;
-    var obj = new L.Evented();
-    obj.once('ungreyout', unGreyOutBGOnce);
-    obj.fire('ungreyout');
-}
-function unGreyOutBGOnce() {
-    greyedOut = false;
-    setGreyedOut();
-    var mapLayerKeys = Object.keys(map._layers);
-
-    for (var key of mapLayerKeys) {
-        let layer = map._layers[key];
-        if (layer.hasOwnProperty("feature")) {
-            let tt = layer.getTooltip();
-            if (tt) {
-                tt.setOpacity(tt.options.lastOpacity);
-                tt.options.lastOpacity = null;
-
-            }
-            if (layer.setStyle) {
-                let style = layer.options.style;
-
-                if (!layer.options.lastOpacity) {
-                    layer.options.lastOpacity = layer.options.fillOpacity;
-                }
-                else {
-                    style.fillOpacity = layer.options.lastOpacity;
-                }
-                layer.setStyle(style);
-            }
-        }
-    }
-
-    $.map(stagingBullpenAreas._layers, function (layer, i) {
-        layer.bringToBack();
-    });
-    map.invalidateSize();
-}
-
-let checkboxStateBeforeGreyOut = null;
-let updateGreyedOut = true;
-
-function addBullpenNotFoundIcon(zoneName) {
-    $("td[data-input='location']").each((i_, locationElement) => {
-        if ($(locationElement).html() === zoneName) {
-            $(locationElement).next().html("<span class='bi-question-lg biIconXSmall'></span>");
-        }
-    });
-}
-
-function setGreyedOut() {
-    if (greyedOut) {
-        updateGreyedOut = true;
-        if (checkboxStateBeforeGreyOut === null) {
-            checkboxStateBeforeGreyOut = {};
-            for (const id of layerCheckboxIds) {
-
-                checkboxStateBeforeGreyOut[id] = $("#" + id).is(":checked");
-                if (id !== "MainFloor" && id !== "AGVVehicles" &&
-
-                    id !== "PIVVehicles" && id !== "StagingBullpenAreas" &&
-                    id !== "Badge" && id !== "DockDoors") {
-                    if (checkboxStateBeforeGreyOut[id] !== false) {
-                        $("#" + id).trigger("click");
-                    }
-                }
-
-            }
-        }
-        greyedOutRectangle.setStyle({ color: "#000000", weight: 1, fillOpacity: .65, stroke: false, zIndex: 5000, lastOpacity: .65 });
-    
-        popZonesToBack();
-        greyedOutRectangle.bringToFront();
-        if (dockdoorloaddata.length > 0) {
-            for (var dat of dockdoorloaddata) {
-                if (dat.constainerStatus !== "Loaded") {
-                    let foundZone = popZone(dat.location, "front");
-                    if (!foundZone) {
-                        addBullpenNotFoundIcon(dat.location);
-                    }
-                }
-            }
-        }
-    }
-    if (!greyedOut && updateGreyedOut) {
-        updateGreyedOut = false;
-       
-        for (const id of layerCheckboxIds) {
-
-                if (checkboxStateBeforeGreyOut[id] !== $("#" + id).is(":checked")) {
-                    $("#" + id).trigger("click");
-                }
-
-            }
-        checkboxStateBeforeGreyOut = null;
-
-        popZonesToBack();
-        greyedOutRectangle.setStyle({ color: "#000000", weight: 1, fillOpacity: 0, stroke: false, lastOpacity: 0 });
-    }
-
-    return true;
-}
-
-function popZonesToBack() {
-    var bullpenObjKeys = Object.keys(stagingBullpenAreas._layers);
-
-    for (var key of bullpenObjKeys) {
-        let layer = stagingBullpenAreas._layers[key];
-
-        let style = layer.options.style;
-        if (!layer.options.lastOpacity) {
-            layer.options.lastOpacity = layer.options.fillOpacity + 0;
-        }
-        var tooltip = layer.getTooltip();
-        layer.lastTooltipOpacity = tooltip.opacity + 0;
-        tooltip.setOpacity(0);
-        style.fillColor = "#c0c0c0";
-        style.fillOpacity = 0;
-        layer.setStyle(style);
-    }
-}
-
-function checkZone(zoneId) {
-
-    var bullpenObjKeys = Object.keys(stagingBullpenAreas._layers);
-
-    for (var key of bullpenObjKeys) {
-        let layer = stagingBullpenAreas._layers[key];
-        if (layer.hasOwnProperty("feature")) {
-            if (zoneId === layer.feature.properties.id) {
-                return true;
-            }
-        }
-    }
-    return false;
-}
-function popZone(zoneName, frontOrBack) {
-    var foundZone = false;
-    $.map(stagingBullpenAreas._layers, function (layer, i) {
-        if (layer.hasOwnProperty("feature")) {
-            if (layer.feature.properties.name === zoneName) {
-                if (frontOrBack === "front") {
-
-                    let style = layer.options.style;
-                    if (!layer.options.lastOpacity) {
-                        layer.options.lastOpacity = layer.options.fillOpacity + 0;
-                    }
-                    var tooltip1 = layer.getTooltip();
-                    layer.lastTooltipOpacity = tooltip1.opacity + 0;
-                    tooltip1.setOpacity(1);
-                    style.fillOpacity = 1;
-                    style.fillColor = "#ffffff"
-                    layer.setStyle(style);
-                    layer.bringToFront();
-                    foundZone = true;
-                }
-                else {
-
-                    var tooltip2 = layer.getTooltip();
-                    let style = layer.options.style;
-                    layer.lastTooltipOpacity = tooltip2.opacity + 0;
-                    tooltip2.setOpacity(0.2);
-                    style.fillOpacity = layer.options.lastOpacity + 0;
-                    layer.setStyle(style);
-                    layer.bringToBack();
-
-                }
-
-            }
-        }
-    });
-    return foundZone;
-}
-
 
 async function updateDockDoorZone(dockdoorzoneupdate) {
     try {
@@ -231,23 +37,6 @@ async function updateDockDoorZone(dockdoorzoneupdate) {
         console.log(e);
     }
 }
-
-
-let rtdm = document.getElementById("RouteTripDetails_Modal");
-function zoneStatusClose(closeSidebar) {
-    if (closeSidebar) {
-        sidebar.close("home");
-    }
-    unGreyOutBG();
-    restoreMapView();
-}
-
-
-addToSidebarListenCollection(document.getElementById("sidebar"));
-document.getElementById("sidebar").addEventListener("sidebarclose", () => {
-    zoneStatusClose(false);
-
-});
 
 document.addEventListener("layerscontentvisible", () => {
     zoneStatusClose(true);
@@ -323,8 +112,10 @@ var dockDoors = new L.GeoJSON(null, {
         }
     },
     onEachFeature: function (feature, layer) {
-        var dockdookflash = "";
+        let dockdookflash = "";
+        let doorNumberdisplay = "";
         if (feature.properties.dockdoorData !== null) {
+            doorNumberdisplay = feature.properties.doorNumber.toString() + (feature.properties.dockdoorData.tripDirectionInd !== "" ? "-" + feature.properties.dockdoorData.tripDirectionInd : "")
             if (feature.properties.dockdoorData.tripDirectionInd === "O") {
                 if (feature.properties.dockdoorData.tripMin <= 30 && feature.properties.dockdoorData.Notloadedcontainers > 0) {
                     dockdookflash = "doorflash"
@@ -335,16 +126,8 @@ var dockDoors = new L.GeoJSON(null, {
         $zoneSelect[0].selectize.addItem(feature.properties.id);
         $zoneSelect[0].selectize.setValue(-1, true);
        
-        layer.on('click', function (e) {
+        layer.on('click', function () {
             $('input[type=checkbox][name=followvehicle]').prop('checked', false).change();
-            saveMapView();
-            let bounds = mainfloor.getBounds();
-            let latNorth = bounds._northEast.lat;
-            let latSouth = bounds._southWest.lat;
-            let lngWest = bounds._southWest.lng;
-            let latMiddle = (latNorth + latSouth) / 2;
-            let centerLeft = [latMiddle, lngWest];
-            map.setView(centerLeft, 0);
             if ((' ' + document.getElementById('sidebar').className + ' ').indexOf(' ' + 'collapsed' + ' ') <= -1) {
                 if ($('#zoneselect').val() == feature.properties.id) {
                     sidebar.close('home');
@@ -358,7 +141,7 @@ var dockDoors = new L.GeoJSON(null, {
             }
             LoadDockDoorTable(feature.properties);
         })
-        layer.bindTooltip(feature.properties.doorNumber.toString() + (feature.properties.dockdoorData.tripDirectionInd !== "" ? "-" + feature.properties.dockdoorData.tripDirectionInd : ""), {
+        layer.bindTooltip(doorNumberdisplay, {
             permanent: true,
             interactive: true,
             direction: 'center',
@@ -625,16 +408,12 @@ async function LoadDockDoorTable(dataproperties) {
                         container_Table_Body.append(container_row_template.supplant(formatctscontainerrow(this, dataproperties.id)));
                     });
                     dockdoorloaddata = JSON.parse(JSON.stringify(loaddata));
-                   
-                    greyOutBGCheck();
 
                     $('button[name=container_counts]').text(loadedcount + "/" + unloadedcount);
                 }
                 else {
                     $('button[name=container_counts]').text(0 + "/" + 0);
                     container_Table_Body.empty();
-
-                    greyOutBGCheck();
                 }
                 //});
 
@@ -643,7 +422,6 @@ async function LoadDockDoorTable(dataproperties) {
                 $('button[name=container_counts]').text(0 + "/" + 0);
                 container_Table_Body.empty();
 
-                greyOutBGCheck();
             }
 
             if (loadtriphisory) {
@@ -657,7 +435,6 @@ async function LoadDockDoorTable(dataproperties) {
             $.each(tempdata, function () {
                 dockdoortop_Table_Body.append(dockdoortop_row_template.supplant(formatdockdoortoprow(this, dataproperties.id)));
             });
-            greyOutBGCheck();
         }
     }
     catch (e) {
@@ -701,7 +478,7 @@ async function removeDockDoor(id)
 }
 async function LoadContainerDetails(id, placardid) {
     try {
-        var d = {};
+        let d = {};
        
             if (dockDoors.hasOwnProperty("_layers")) {
                 $.map(dockDoors._layers, function (layer, i) {

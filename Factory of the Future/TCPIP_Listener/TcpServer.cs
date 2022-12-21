@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Diagnostics;
+using System.Linq;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace Factory_of_the_Future
 {
@@ -48,7 +50,7 @@ namespace Factory_of_the_Future
             Address = address;
             Port = port;
             Endpoint = endpoint;
-            conid = id;
+            Conid = id;
         }
 
         /// <summary>
@@ -58,7 +60,7 @@ namespace Factory_of_the_Future
         /// <summary>
         /// Connection Id
         /// </summary>
-        public string conid { get; }
+        public string Conid { get; }
         /// <summary>
         /// TCP server address
         /// </summary>
@@ -246,6 +248,7 @@ namespace Factory_of_the_Future
 
             // Perform the first server accept
             IsAccepting = true;
+            Task.Run(() => updateConnection());
             StartAccept(_acceptorEventArg);
 
             return true;
@@ -263,7 +266,7 @@ namespace Factory_of_the_Future
 
             // Stop accepting new clients
             IsAccepting = false;
-
+            Task.Run(() => updateConnection());
             // Reset acceptor event arg
             _acceptorEventArg.Completed -= OnAsyncCompleted;
 
@@ -324,10 +327,30 @@ namespace Factory_of_the_Future
         {
             // Socket must be cleared since the context object is being reused
             e.AcceptSocket = null;
-
+            
             // Async accept a new client connection
             if (!_acceptorSocket.AcceptAsync(e))
+            {
+             
                 ProcessAccept(e);
+            }
+        }
+        private void updateConnection()
+        {
+            try
+            {
+                foreach (Connection m in AppParameters.ConnectionList.Where(x => x.Value.Id ==this.Conid).Select(y => y.Value))
+                {
+
+                    m.ApiConnected = IsAccepting;
+                    m.LasttimeApiConnected = DateTime.Now;
+                    m.UpdateStatus = true;
+                }
+            }
+            catch (Exception e)
+            {
+                new ErrorLogger().ExceptionLog(e);
+            }
         }
 
         /// <summary>

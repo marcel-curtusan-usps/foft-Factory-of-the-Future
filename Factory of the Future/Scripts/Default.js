@@ -26,10 +26,12 @@ $(function () {
     $(window).resize(function () {
         setHeight();
     });
-    User = $.parseJSON(localStorage.getItem('User'));
-    $('#fotf-site-facility-name').val(User.Facility_Name);
-    $(document).prop('title', User.Facility_Name + ' ' + User.ApplicationAbbr);
+    User = $.parseJSON(localStorage.getItem('User'));  
     if (!$.isEmptyObject(User)) {
+        $(document).prop('title', User.Facility_Name + ' ' + User.ApplicationAbbr);
+        $('#fotf-site-facility-name').text(User.Facility_Name);
+        $(document).prop('title', User.Facility_Name + ' ' + User.ApplicationFullName);
+        map.attributionControl.setPrefix("USPS " + User.ApplicationFullName + " (" + User.SoftwareVersion + ") | " + User.Facility_Name);
         //add Connection list if user is Admin or OIE
         if (/^(Admin|OIE)/i.test(User.Role)) {
             sidebar.addPanel({
@@ -47,7 +49,9 @@ $(function () {
                     '<thead class="thead-dark">' +
                     '<tr>' +
                     '<th class="row-connection-name"><span class="ml-p5rem">Name</span></th><th class="row-connection-type">Message Type</th>' +
-                    '<th class="row-connection-status">Status</th><th class="row-connection-action"><span class="ml-p25rem">Action</span></th>' +
+                    '<th class="row-connection-port">Port</th>' +
+                    '<th class="row-connection-status">Status</th>' +
+                    '<th class="row-connection-action"><span class="ml-p25rem">Action</span></th>' +
                     '</tr>' +
                     '</thead>' +
                     '<tbody></tbody>' +
@@ -136,7 +140,7 @@ $(function () {
                                         '<table class="table table-sm table-hover table-condensed" id="app_settingtable" style="border-collapse:collapse;">' +
                                         '<thead class="thead-dark">' +
                                         '<tr>' +
-                                        '<th class="row-name"><span class="ml-p25rem">Name</span></th><th class="row-value">Value</th><th class="row-action">Action</th>' +
+                                        '<th class="row-name"><span class="ml-p25rem">Name</span></th><th class="row-value">ID</th><th class="row-action">Action</th>' +
                                         '</tr>' +
                                         '</thead>' +
                                         '<tbody></tbody>' +

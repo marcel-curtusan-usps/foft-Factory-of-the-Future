@@ -46,6 +46,7 @@ function onUpdateWS() {
         $('select[name=data_retrieve]').prop("disabled", true);
 
         $('input[type=checkbox][name=udp_connection]').prop("checked", false);
+        $('input[type=checkbox][name=tcpip_connection]').prop("checked", false);
 
         $('input[type=text][name=ip_address]').prop("disabled", false);
         $('input[type=text][name=url]').prop("disabled", false);
@@ -107,9 +108,13 @@ function onUpdateWS() {
     if ($('input[type=checkbox][name=udp_connection]').is(':checked')) {
         enableudpSubmit();
     }
+    if ($('input[type=checkbox][name=tcpip_connection]').is(':checked')) {
+        enabletcpipSubmit();
+    }
 
     if (!$('input[type=checkbox][name=udp_connection]').is(':checked') &&
-        !$('input[type=checkbox][name=ws_connection]').is(':checked')) {
+        !$('input[type=checkbox][name=ws_connection]').is(':checked') &&
+        !$('input[type=checkbox][name=tcpip_connection]').is(':checked')) {
         onRegularConnection();
     }
 }
@@ -117,6 +122,17 @@ function enableudpSubmit() {
     if ($('input[type=text][name=message_type]').hasClass('is-valid') &&
         $('input[type=text][name=port_number]').hasClass('is-valid') &&
        /* $('input[type=text][name=admin_email_recepient]').hasClass('is-valid') &&*/
+        $('input[type=text][name=connection_name]').hasClass('is-valid')
+    ) {
+        $('button[id=apisubmitBtn]').prop('disabled', false);
+    }
+    else {
+        $('button[id=apisubmitBtn]').prop('disabled', true);
+    }
+}
+function enabletcpipSubmit() {
+    if ($('input[type=text][name=message_type]').hasClass('is-valid') &&
+        $('input[type=text][name=port_number]').hasClass('is-valid') &&
         $('input[type=text][name=connection_name]').hasClass('is-valid')
     ) {
         $('button[id=apisubmitBtn]').prop('disabled', false);
@@ -191,7 +207,7 @@ $('#API_Connection_Modal').on('shown.bs.modal', function () {
         $('input[type=text][name=connection_name]').css("border-color", "#2eb82e").removeClass('is-invalid').addClass('is-valid');
         $('span[id=error_connection_name]').text("");
     }
-    //Connection name Keyup
+    //ip address Keyup
     $('input[type=text][name=ip_address]').keyup(function () {
         if (IPAddress_validator($('input[type=text][name=ip_address]').val()) ===
             "Invalid IP Address") {
@@ -205,6 +221,10 @@ $('#API_Connection_Modal').on('shown.bs.modal', function () {
         if ($('input[type=checkbox][name=udp_connection]').is(':checked')) {
 
             enableudpSubmit();
+        }
+        else if ($('input[type=checkbox][name=tcpip_connection]').is(':checked')) {
+
+            enabletcpipSubmit();
         }
         else if ($('input[type=checkbox][name=ws_connection]').is(':checked')) {
             enablewsSubmit();
@@ -226,6 +246,9 @@ $('#API_Connection_Modal').on('shown.bs.modal', function () {
         if ($('input[type=checkbox][name=udp_connection]').is(':checked')) {
 
             enableudpSubmit();
+        } else if ($('input[type=checkbox][name=tcpip_connection]').is(':checked')) {
+
+            enabletcpipSubmit();
         }
         else if ($('input[type=checkbox][name=ws_connection]').is(':checked')) {
             enablewsSubmit();
@@ -235,7 +258,7 @@ $('#API_Connection_Modal').on('shown.bs.modal', function () {
         }
     });
 
-    //Request Type Validation
+    //message Type Validation
     if (!checkValue($('input[type=text][name=message_type]').val())) {
         $('input[type=text][name=message_type]').css("border-color", "#FF0000").removeClass('is-valid').addClass('is-invalid');
         $('span[id=error_message_type]').text("Please Enter Message Type");
@@ -244,7 +267,7 @@ $('#API_Connection_Modal').on('shown.bs.modal', function () {
         $('input[type=text][name=message_type]').css("border-color", "#2eb82e").removeClass('is-invalid').addClass('is-valid');
         $('span[id=error_message_type]').text("");
     }
-    //Request Type Keyup
+    //message Type Keyup
     $('input[type=text][name=message_type]').keyup(function () {
         if (!checkValue($('input[type=text][name=message_type]').val())) {
             $('input[type=text][name=message_type]').css("border-color", "#FF0000").removeClass('is-valid').addClass('is-invalid');
@@ -256,6 +279,9 @@ $('#API_Connection_Modal').on('shown.bs.modal', function () {
         }
         if ($('input[type=checkbox][name=udp_connection]').is(':checked')) {
             enableudpSubmit();
+        } else if ($('input[type=checkbox][name=tcpip_connection]').is(':checked')) {
+
+            enabletcpipSubmit();
         }
         else if ($('input[type=checkbox][name=ws_connection]').is(':checked')) {
 
@@ -276,6 +302,9 @@ $('#API_Connection_Modal').on('shown.bs.modal', function () {
         }
         if ($('input[type=checkbox][name=udp_connection]').is(':checked')) {
             enableudpSubmit();
+        } else if ($('input[type=checkbox][name=tcpip_connection]').is(':checked')) {
+
+            enabletcpipSubmit();
         }
         else if ($('input[type=checkbox][name=ws_connection]').is(':checked')) {
 
@@ -289,7 +318,7 @@ $('#API_Connection_Modal').on('shown.bs.modal', function () {
     if ($('input[type=checkbox][name=ws_connection]').is(':checked')) {
 
     }
-    else if (!checkValue($('select[name=data_retrieve] option:selected').val())) {
+    if (!checkValue($('select[name=data_retrieve] option:selected').val())) {
         $('select[name=data_retrieve]').css("border-color", "#FF0000").removeClass('is-valid').addClass('is-invalid');
         $('span[id=error_data_retrieve]').text("Select Data Retrieve Occurrences");
     }
@@ -302,7 +331,7 @@ $('#API_Connection_Modal').on('shown.bs.modal', function () {
         if ($('input[type=checkbox][name=ws_connection]').is(':checked')) {
 
         }
-        else if (!checkValue($('select[name=data_retrieve] option:selected').val())) {
+        if (!checkValue($('select[name=data_retrieve] option:selected').val())) {
             $('select[name=data_retrieve]').css("border-color", "#FF0000").removeClass('is-valid').addClass('is-invalid');
             $('span[id=error_data_retrieve]').text("Select Data Retrieve Occurrences");
         }
@@ -312,6 +341,9 @@ $('#API_Connection_Modal').on('shown.bs.modal', function () {
         }
         if ($('input[type=checkbox][name=udp_connection]').is(':checked')) {
             enableudpSubmit();
+        } else if ($('input[type=checkbox][name=tcpip_connection]').is(':checked')) {
+
+            enabletcpipSubmit();
         }
         else if ($('input[type=checkbox][name=ws_connection]').is(':checked')) {
             enablewsSubmit();
@@ -341,6 +373,9 @@ $('#API_Connection_Modal').on('shown.bs.modal', function () {
         }
         if ($('input[type=checkbox][name=udp_connection]').is(":checked")) {
             enableudpSubmit();
+        } else if ($('input[type=checkbox][name=tcpip_connection]').is(':checked')) {
+
+            enabletcpipSubmit();
         }
         else if ($('input[type=checkbox][name=ws_connection]').is(":checked")) {
             enablewsSubmit();
@@ -380,6 +415,9 @@ $('#API_Connection_Modal').on('shown.bs.modal', function () {
         }
         if ($('input[type=checkbox][name=udp_connection]').is(':checked')) {
             enableudpSubmit();
+        } else if ($('input[type=checkbox][name=tcpip_connection]').is(':checked')) {
+
+            enabletcpipSubmit();
         }
         else if ($('input[type=checkbox][name=ws_connection]').is(':checked')) {
             enablewsSubmit();
@@ -408,6 +446,9 @@ $('#API_Connection_Modal').on('shown.bs.modal', function () {
         }
         if ($('input[type=checkbox][name=udp_connection]').is(':checked')) {
             enableudpSubmit();
+        } else if ($('input[type=checkbox][name=tcpip_connection]').is(':checked')) {
+
+            enabletcpipSubmit();
         }
         else if ($('input[type=checkbox][name=ws_connection]').is(':checked')) {
             enablewsSubmit();
@@ -448,12 +489,30 @@ $('#API_Connection_Modal').on('shown.bs.modal', function () {
         $('select[name=data_retrieve]').css("border-color", "#D3D3D3").removeClass('is-valid').removeClass('is-invalid');
         $('span[id=error_data_retrieve]').text("");
     }
+    if ($('input[type=checkbox][name=tcpip_connection]').is(':checked')) {
+        $('input[type=text][name=url]').prop("disabled", true);
+        $('input[type=text][name=url]').val('');
+        $('input[type=text][name=url]').css("border-color", "#D3D3D3").removeClass('is-valid').removeClass('is-invalid');
+        $('span[id=error_url]').text("");
+        $('input[type=text][name=ip_address]').prop("disabled", true);
+        $('input[type=text][name=ip_address]').val('');
+        $('input[type=text][name=ip_address]').css("border-color", "#D3D3D3").removeClass('is-valid').removeClass('is-invalid');
+        $('span[id=error_ip_address]').text("");
+        $('input[type=text][name=hostanme]').prop("disabled", true);
+        $('input[type=text][name=hostanme]').val('');
+        $('input[type=text][name=hostanme]').css("border-color", "#D3D3D3").removeClass('is-valid').removeClass('is-invalid');
+        $('span[id=error_hostanme]').text("");
+        $('select[name=data_retrieve]').prop("disabled", true);
+        $('select[name=data_retrieve]').val(' ');
+        $('select[name=data_retrieve]').css("border-color", "#D3D3D3").removeClass('is-valid').removeClass('is-invalid');
+        $('span[id=error_data_retrieve]').text("");
+    }
     $('input[type=checkbox][name=udp_connection]').change(() => {
         if (!$('input[type=checkbox][name=udp_connection]').is(':checked')) {
             onRegularConnection();
         }
         else {
-
+            $('input[type=checkbox][name=tcpip_connection]').prop("checked", false);
             $('input[type=checkbox][name=ws_connection]').prop("checked", false);
             $('input[type=text][name=url]').prop("disabled", true);
             $('input[type=text][name=url]').val('');
@@ -478,9 +537,41 @@ $('#API_Connection_Modal').on('shown.bs.modal', function () {
            // enableUdpSubmit();
         }
     });
-
+    $('input[type=checkbox][name=tcpip_connection]').change(() => {
+        if (!$('input[type=checkbox][name=tcpip_connection]').is(':checked')) {
+            onRegularConnection();
+        }
+        else {
+            $('input[type=checkbox][name=udp_connection]').prop("checked", false);
+            $('input[type=checkbox][name=ws_connection]').prop("checked", false);
+            $('input[type=text][name=url]').prop("disabled", true);
+            $('input[type=text][name=url]').val('');
+            $('input[type=text][name=url]').css("border-color", "#D3D3D3").removeClass('is-valid').removeClass('is-invalid');
+            $('span[id=error_url]').text("");
+            //$('input[type=text][name=outgoingapikey]').prop("disabled", true);
+            //$('input[type=text][name=outgoingapikey]').val('');
+            //$('input[type=text][name=outgoingapikey]').css("border-color", "#D3D3D3").removeClass('is-valid').removeClass('is-invalid');
+            //$('span[id=error_outgoingapikey]').text("");
+            $('input[type=text][name=ip_address]').prop("disabled", true);
+            $('input[type=text][name=ip_address]').val('');
+            $('input[type=text][name=ip_address]').css("border-color", "#D3D3D3").removeClass('is-valid').removeClass('is-invalid');
+            $('span[id=error_ip_address]').text("");
+            $('input[type=text][name=hostanme]').prop("disabled", true);
+            $('input[type=text][name=hostanme]').val('');
+            $('input[type=text][name=hostanme]').css("border-color", "#D3D3D3").removeClass('is-valid').removeClass('is-invalid');
+            $('span[id=error_hostanme]').text("");
+            $('select[name=data_retrieve]').prop("disabled", true);
+            $('select[name=data_retrieve]').val(' ');
+            $('select[name=data_retrieve]').css("border-color", "#D3D3D3").removeClass('is-valid').removeClass('is-invalid');
+            $('span[id=error_data_retrieve]').text("");
+            enabletcpipSubmit();
+        }
+    });
     if ($('input[type=checkbox][name=udp_connection]').is(':checked')) {
         enableudpSubmit();
+    }
+    else if ($('input[type=checkbox][name=tcpip_connection]').is(':checked')) {
+        enabletcpipSubmit();
     }
     else if ($('input[type=checkbox][name=ws_connection]').is(':checked')) {
         enablewsSubmit();
@@ -529,6 +620,7 @@ async function init_connection(ConnectionList) {
 let connection_row_template = '<tr data-id="{id}" class="{button_color}" id="api_{id}">' +
     '<td><span class="ml-p5rem">{name}</span></td>' +
     '<td>{messagetype}</td>' +
+    '<td id="port_{id}">{port}</td>' +
     '<td class="font-weight-bold" id="apistatus_{id}">{connected}</td>' +
     '<td class="d-flex">' +
     '<button class="btn btn-light btn-sm mx-1 pi-iconEdit connectionedit"></button>' +
@@ -540,6 +632,7 @@ function formatQSMlayout(conn_status) {
         id: conn_status.Id,
         name: conn_status.ConnectionName,
         messagetype: conn_status.MessageType,
+        port: conn_status.Port,
         connected: GetConnectionStatus(conn_status),
         button_color: Get_Color(conn_status)
     });
@@ -551,9 +644,11 @@ function Add_Connection() {
 
         $('input[type=checkbox][name=ws_connection]').prop('disabled', false);
         $('input[type=checkbox][name=udp_connection]').prop('disabled', false);
+        $('input[type=checkbox][name=tcpip_connection]').prop('disabled', false);
         let jsonObject = {
             ActiveConnection: $('input[type=checkbox][name=active_connection]').is(':checked'),
             UdpConnection: $('input[type=checkbox][name=udp_connection]').is(':checked'),
+            TcpIpConnection: $('input[type=checkbox][name=tcpip_connection]').is(':checked'),
             WsConnection: $('input[type=checkbox][name=ws_connection]').is(':checked'),
             HoursBack: parseInt($('input[id=hoursback_range]').val()),
             HoursForward: parseInt($('input[id=hoursforward_range]').val()),
@@ -636,17 +731,28 @@ function Edit_Connection(id) {
                 }
                 if (Data.UdpConnection) {
                     $('input[type=checkbox][name=hour_range]').prop('disabled', true);
-                    $('input[type=checkbox][name=udp_connection]').prop('disabled', false);
+                    $('input[type=checkbox][name=udp_connection]').prop('disabled', true);
+                    $('input[type=checkbox][name=tcpip_connection]').prop('disabled', true);
                     $('input[type=checkbox][name=ws_connection]').prop('disabled', true);
                     $('input[type=checkbox][name=udp_connection]').prop('checked', true).change();
                 }
                 else {
                     $('input[type=checkbox][name=udp_connection]').prop('disabled', true);
                 }
+                if (Data.TcpIpConnection) {
+                    $('input[type=checkbox][name=hour_range]').prop('disabled', true);
+                    $('input[type=checkbox][name=udp_connection]').prop('disabled', true);
+                    $('input[type=checkbox][name=tcpip_connection]').prop('disabled', true);
+                    $('input[type=checkbox][name=ws_connection]').prop('disabled', true);
+                    $('input[type=checkbox][name=tcpip_connection]').prop('checked', true).change();
+                }
+                else {
+                    $('input[type=checkbox][name=tcpip_connection]').prop('disabled', true);
+                }
 
                 if (Data.WsConnection) {
                     $('input[type=checkbox][name=hour_range]').prop('disabled', true);
-                    $('input[type=checkbox][name=udp_connection]').prop('disabled', false);
+                    $('input[type=checkbox][name=udp_connection]').prop('disabled', true);
                     $('input[type=checkbox][name=ws_connection]').prop('checked', true);
                     onUpdateWS();
 
@@ -665,6 +771,7 @@ function Edit_Connection(id) {
                         let jsonObject = {
                             ActiveConnection: $('input[type=checkbox][name=active_connection]').is(':checked'),
                             UdpConnection: $('input[type=checkbox][name=udp_connection]').is(':checked'),
+                            TcpIpConnection: $('input[type=checkbox][name=tcpip_connection]').is(':checked'),
                             WsConnection: $('input[type=checkbox][name=ws_connection]').is(':checked'),
                             HoursBack: $('input[type=checkbox][name=hour_range]').is(':checked') ? parseInt($('input[id=hoursback_range]').val()) : 0,
                             HoursForward: $('input[type=checkbox][name=hour_range]').is(':checked') ? parseInt($('input[id=hoursforward_range]').val()) : 0,

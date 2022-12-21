@@ -17,22 +17,18 @@ namespace Factory_of_the_Future
         /// Is the buffer empty?
         /// </summary>
         public bool IsEmpty => (_data == null) || (_size == 0);
-
         /// <summary>
         /// Bytes memory buffer
         /// </summary>
         public byte[] Data => _data;
-
         /// <summary>
         /// Bytes memory buffer capacity
         /// </summary>
         public long Capacity => _data.Length;
-
         /// <summary>
         /// Bytes memory buffer size
         /// </summary>
         public long Size => _size;
-
         /// <summary>
         /// Bytes memory buffer offset
         /// </summary>
@@ -41,18 +37,16 @@ namespace Factory_of_the_Future
         /// <summary>
         /// Buffer indexer operator
         /// </summary>
-        public byte this[int index] => _data[index];
+        public byte this[long index] => _data[index];
 
         /// <summary>
         /// Initialize a new expandable buffer with zero capacity
         /// </summary>
         public Buffer() { _data = new byte[0]; _size = 0; _offset = 0; }
-
         /// <summary>
         /// Initialize a new expandable buffer with the given capacity
         /// </summary>
         public Buffer(long capacity) { _data = new byte[capacity]; _size = 0; _offset = 0; }
-
         /// <summary>
         /// Initialize a new expandable buffer with the given data
         /// </summary>
@@ -61,7 +55,15 @@ namespace Factory_of_the_Future
         #region Memory buffer methods
 
         /// <summary>
-        /// Get string from the current buffer
+        /// Get a span of bytes from the current buffer
+        /// </summary>
+        public Span<byte> AsSpan()
+        {
+            return new Span<byte>(_data, (int)_offset, (int)_size);
+        }
+
+        /// <summary>
+        /// Get a string from the current buffer
         /// </summary>
         public override string ToString()
         {
@@ -136,13 +138,25 @@ namespace Factory_of_the_Future
 
         // Shift the current buffer offset
         public void Shift(long offset) { _offset += offset; }
-
         // Unshift the current buffer offset
         public void Unshift(long offset) { _offset -= offset; }
 
-        #endregion Memory buffer methods
+        #endregion
 
         #region Buffer I/O methods
+
+        /// <summary>
+        /// Append the single byte
+        /// </summary>
+        /// <param name="value">Byte value to append</param>
+        /// <returns>Count of append bytes</returns>
+        public long Append(byte value)
+        {
+            Reserve(_size + 1);
+            _data[_size] = value;
+            _size += 1;
+            return 1;
+        }
 
         /// <summary>
         /// Append the given buffer
@@ -173,18 +187,53 @@ namespace Factory_of_the_Future
         }
 
         /// <summary>
+        /// Append the given span of bytes
+        /// </summary>
+        /// <param name="buffer">Buffer to append as a span of bytes</param>
+        /// <returns>Count of append bytes</returns>
+        public long Append(ReadOnlySpan<byte> buffer)
+        {
+            Reserve(_size + buffer.Length);
+            buffer.CopyTo(new Span<byte>(_data, (int)_size, buffer.Length));
+            _size += buffer.Length;
+            return buffer.Length;
+        }
+
+        /// <summary>
+        /// Append the given buffer
+        /// </summary>
+        /// <param name="buffer">Buffer to append</param>
+        /// <returns>Count of append bytes</returns>
+        public long Append(Buffer buffer) => Append(buffer.AsSpan());
+
+        /// <summary>
         /// Append the given text in UTF-8 encoding
         /// </summary>
         /// <param name="text">Text to append</param>
         /// <returns>Count of append bytes</returns>
         public long Append(string text)
         {
-            Reserve(_size + Encoding.UTF8.GetMaxByteCount(text.Length));
+            int length = Encoding.UTF8.GetMaxByteCount(text.Length);
+            Reserve(_size + length);
             long result = Encoding.UTF8.GetBytes(text, 0, text.Length, _data, (int)_size);
             _size += result;
             return result;
         }
 
-        #endregion Buffer I/O methods
+        /// <summary>
+        /// Append the given text in UTF-8 encoding
+        /// </summary>
+        /// <param name="text">Text to append as a span of characters</param>
+        /// <returns>Count of append bytes</returns>
+        public long Append(char[] text)
+        {
+            int length = Encoding.UTF8.GetMaxByteCount(text.Length);
+            Reserve(_size + length);
+            long result = Encoding.UTF8.GetBytes(text, 0 , length).Length;
+            _size += result;
+            return result;
+        }
+
+        #endregion
     }
 }

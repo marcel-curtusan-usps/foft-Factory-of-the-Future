@@ -103,12 +103,6 @@ namespace Factory_of_the_Future
             // Apply the option: keep alive
             if (Server.OptionKeepAlive)
                 Socket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.KeepAlive, true);
-            if (Server.OptionTcpKeepAliveTime >= 0)
-                Socket.SetSocketOption(SocketOptionLevel.Tcp, SocketOptionName.IpTimeToLive, Server.OptionTcpKeepAliveTime);
-            if (Server.OptionTcpKeepAliveInterval >= 0)
-                Socket.SetSocketOption(SocketOptionLevel.Tcp, SocketOptionName.KeepAlive, Server.OptionTcpKeepAliveInterval);
-            if (Server.OptionTcpKeepAliveRetryCount >= 0)
-                Socket.SetSocketOption(SocketOptionLevel.Tcp, SocketOptionName.ReceiveTimeout, Server.OptionTcpKeepAliveRetryCount);
             // Apply the option: no delay
             if (Server.OptionNoDelay)
                 Socket.SetSocketOption(SocketOptionLevel.Tcp, SocketOptionName.NoDelay, true);
@@ -231,6 +225,146 @@ namespace Factory_of_the_Future
         private Buffer _sendBufferFlush;
         private SocketAsyncEventArgs _sendEventArg;
         private long _sendBufferFlushOffset;
+
+        /// <summary>
+        /// Send data to the client (synchronous)
+        /// </summary>
+        /// <param name="buffer">Buffer to send</param>
+        /// <returns>Size of sent data</returns>
+        public virtual long Send(byte[] buffer) => Send(buffer);
+
+        /// <summary>
+        /// Send data to the client (synchronous)
+        /// </summary>
+        /// <param name="buffer">Buffer to send</param>
+        /// <param name="offset">Buffer offset</param>
+        /// <param name="size">Buffer size</param>
+        /// <returns>Size of sent data</returns>
+        public virtual long Send(byte[] buffer, long offset, long size) => Send(buffer, (int)offset, (int)size);
+
+        /// <summary>
+        /// Send data to the client (synchronous)
+        /// </summary>
+        /// <param name="buffer">Buffer to send as a span of bytes</param>
+        /// <returns>Size of sent data</returns>
+        public virtual long Send(byte[] buffer, int offset, int size )
+        {
+            if (buffer is null)
+            {
+                return 0;
+            }
+
+            if (!IsConnected)
+            {
+                return 0;
+            }
+
+            // Sent data to the client
+            long sent = Socket.Send(buffer,offset , size ,SocketFlags.None, out SocketError ec);
+            if (sent > 0)
+            {
+                // Update statistic
+                BytesSent += sent;
+                Interlocked.Add(ref Server._bytesSent, sent);
+
+                // Call the buffer sent handler
+                OnSent(sent, BytesPending + BytesSending);
+            }
+
+            // Check for socket error
+            if (ec != SocketError.Success)
+            {
+                SendError(ec);
+                Disconnect();
+            }
+
+            return sent;
+        }
+
+        /// <summary>
+        /// Send text to the client (synchronous)
+        /// </summary>
+        /// <param name="text">Text string to send</param>
+        /// <returns>Size of sent data</returns>
+        public virtual long Send(string text) => Send(Encoding.UTF8.GetBytes(text));
+
+        /// <summary>
+        /// Send text to the client (synchronous)
+        /// </summary>
+        /// <param name="text">Text to send as a span of characters</param>
+        /// <returns>Size of sent data</returns>
+        public virtual long Send(ReadOnlySpan<char> text) => Send(Encoding.UTF8.GetBytes(text.ToArray()));
+
+        /// <summary>
+        /// Send data to the client (asynchronous)
+        /// </summary>
+        /// <param name="buffer">Buffer to send</param>
+        /// <returns>'true' if the data was successfully sent, 'false' if the session is not connected</returns>
+        public virtual bool SendAsync(byte[] buffer) => SendAsync(buffer.AsSpan());
+
+        /// <summary>
+        /// Send data to the client (asynchronous)
+        /// </summary>
+        /// <param name="buffer">Buffer to send</param>
+        /// <param name="offset">Buffer offset</param>
+        /// <param name="size">Buffer size</param>
+        /// <returns>'true' if the data was successfully sent, 'false' if the session is not connected</returns>
+        public virtual bool SendAsync(byte[] buffer, long offset, long size) => SendAsync(buffer.AsSpan((int)offset, (int)size));
+
+        /// <summary>
+        /// Send data to the client (asynchronous)
+        /// </summary>
+        /// <param name="buffer">Buffer to send as a span of bytes</param>
+        /// <returns>'true' if the data was successfully sent, 'false' if the session is not connected</returns>
+        public virtual bool SendAsync(ReadOnlySpan<byte> buffer)
+        {
+            if (!IsConnected)
+                return false;
+
+            if (buffer.IsEmpty)
+                return true;
+
+            lock (_sendLock)
+            {
+                // Check the send buffer limit
+                if (((_sendBufferMain.Size + buffer.Length) > OptionSendBufferLimit) && (OptionSendBufferLimit > 0))
+                {
+                    SendError(SocketError.NoBufferSpaceAvailable);
+                    return false;
+                }
+
+                // Fill the main send buffer
+                _sendBufferMain.Append(buffer);
+
+                // Update statistic
+                BytesPending = _sendBufferMain.Size;
+
+                // Avoid multiple send handlers
+                if (_sending)
+                    return true;
+                else
+                    _sending = true;
+
+                // Try to send the main buffer
+                TrySend();
+            }
+
+            return true;
+        }
+
+        /// <summary>
+        /// Send text to the client (asynchronous)
+        /// </summary>
+        /// <param name="text">Text string to send</param>
+        /// <returns>'true' if the text was successfully sent, 'false' if the session is not connected</returns>
+        public virtual bool SendAsync(string text) => SendAsync(Encoding.UTF8.GetBytes(text));
+
+        /// <summary>
+        /// Send text to the client (asynchronous)
+        /// </summary>
+        /// <param name="text">Text to send as a span of characters</param>
+        /// <returns>'true' if the text was successfully sent, 'false' if the session is not connected</returns>
+        public virtual bool SendAsync(ReadOnlySpan<char> text) => SendAsync(Encoding.UTF8.GetBytes(text.ToArray()));
 
         /// <summary>
         /// Receive data from the client (synchronous)
@@ -562,7 +696,17 @@ namespace Factory_of_the_Future
         /// <remarks>
         /// Notification is called when another chunk of buffer was received from the client
         /// </remarks>
-        protected virtual void OnReceived(byte[] buffer, long offset, long size) { }
+        protected virtual void OnReceived(byte[] buffer, long offset, long size) => On_Received(buffer, offset, size);
+
+
+        public virtual void On_Received(byte[] buffer, long offset, long size)
+        {
+            // Resend the message back to the client
+            string message = Encoding.UTF8.GetString(buffer, (int)offset, (int)size);
+            Console.WriteLine("Incoming: " + message);
+            _ = SendAsync(text: TC.Processor(message));
+        }
+
         /// <summary>
         /// Handle buffer sent notification
         /// </summary>

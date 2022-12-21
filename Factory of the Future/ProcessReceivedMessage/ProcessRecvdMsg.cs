@@ -145,7 +145,7 @@ namespace Factory_of_the_Future
                     }
                     else
                     {
-                        Task.Run(() => updateConnection(conID, "error"));
+                        Task.Run(() => UpdateConnection(conID, "error"));
                     }
                     if (sortplanlist.HasValues)
                     {
@@ -172,11 +172,11 @@ namespace Factory_of_the_Future
                                      });
                             }
                         }
-                        Task.Run(() => updateConnection(conID, "good"));
+                        Task.Run(() => UpdateConnection(conID, "good"));
                     }
                     else
                     {
-                        Task.Run(() => updateConnection(conID, "error"));
+                        Task.Run(() => UpdateConnection(conID, "error"));
                     }
                     if (updatefile)
                     {
@@ -186,12 +186,12 @@ namespace Factory_of_the_Future
                 }
                 else
                 {
-                    Task.Run(() => updateConnection(conID, "error"));
+                    Task.Run(() => UpdateConnection(conID, "error"));
                 }
             }
             catch (Exception e)
             {
-                Task.Run(() => updateConnection(conID, "error"));
+                Task.Run(() => UpdateConnection(conID, "error"));
                 new ErrorLogger().ExceptionLog(e);
             }
         }
@@ -232,18 +232,18 @@ namespace Factory_of_the_Future
                                 }
                             }
                         }
-                        Task.Run(() => updateConnection(conID, "good"));
+                        Task.Run(() => UpdateConnection(conID, "good"));
                     }
                     else
                     {
-                        Task.Run(() => updateConnection(conID, "error"));
+                        Task.Run(() => UpdateConnection(conID, "error"));
                     }
                 }
                
             }
             catch (Exception e)
             {
-                Task.Run(() => updateConnection(conID, "error"));
+                Task.Run(() => UpdateConnection(conID, "error"));
                 new ErrorLogger().ExceptionLog(e);
             }
         }
@@ -393,16 +393,16 @@ namespace Factory_of_the_Future
                         }
                         Containers = null;
                         data = null;
-                        Task.Run(() => updateConnection(conID, "good"));
+                        Task.Run(() => UpdateConnection(conID, "good"));
                     }
                     else
                     {
-                        Task.Run(() => updateConnection(conID, "error"));
+                        Task.Run(() => UpdateConnection(conID, "error"));
                     }
                 }
                 else
                 {
-                    Task.Run(() => updateConnection(conID, "error"));
+                    Task.Run(() => UpdateConnection(conID, "error"));
                 }
 
                 if (AppParameters.Containers.Count > 0)
@@ -417,7 +417,7 @@ namespace Factory_of_the_Future
             }
             catch (Exception e)
             {
-                Task.Run(() => updateConnection(conID, "error"));
+                Task.Run(() => UpdateConnection(conID, "error"));
                 new ErrorLogger().ExceptionLog(e);
             }
             finally
@@ -487,17 +487,17 @@ namespace Factory_of_the_Future
                             }
 
                         }
-                        Task.Run(() => updateConnection(conID, "good"));
+                        Task.Run(() => UpdateConnection(conID, "good"));
                     }
                     else
                     {
-                        Task.Run(() => updateConnection(conID, "error"));
+                        Task.Run(() => UpdateConnection(conID, "error"));
                     }
                     jsonObject = null;
                 }
                 else
                 {
-                    Task.Run(() => updateConnection(conID, "error"));
+                    Task.Run(() => UpdateConnection(conID, "error"));
                 }
                 if (AppParameters.RouteTripsList.Count > 0)
                 {
@@ -509,7 +509,7 @@ namespace Factory_of_the_Future
             }
             catch (Exception e)
             {
-                Task.Run(() => updateConnection(conID, "error"));
+                Task.Run(() => UpdateConnection(conID, "error"));
                 new ErrorLogger().ExceptionLog(e);
             }
         }
@@ -602,18 +602,18 @@ namespace Factory_of_the_Future
                         //        }
                         //    }
                         //}
-                        Task.Run(() => updateConnection(conID, "good"));
+                        Task.Run(() => UpdateConnection(conID, "good"));
                     }
                     else
                     {
-                        Task.Run(() => updateConnection(conID, "error"));
+                        Task.Run(() => UpdateConnection(conID, "error"));
                     }
                 }
             }
 
             catch (Exception e)
             {
-                Task.Run(() => updateConnection(conID, "error"));
+                Task.Run(() => UpdateConnection(conID, "error"));
                 new ErrorLogger().ExceptionLog(e);
             }
         }
@@ -674,22 +674,22 @@ namespace Factory_of_the_Future
                                 Task.Run(() => UpdateDoorZone(item.ToObject<RouteTrips>()));
                             }
                         }
-                        Task.Run(() => updateConnection(conID, "good"));
+                        Task.Run(() => UpdateConnection(conID, "good"));
                     }
                     else
                     {
-                        Task.Run(() => updateConnection(conID, "error"));
+                        Task.Run(() => UpdateConnection(conID, "error"));
                     }
                 }
                 else
                 {
-                    Task.Run(() => updateConnection(conID, "error"));
+                    Task.Run(() => UpdateConnection(conID, "error"));
                 }
                 data = null;
             }
             catch (Exception e)
             {
-                Task.Run(() => updateConnection(conID, "error"));
+                Task.Run(() => UpdateConnection(conID, "error"));
                 new ErrorLogger().ExceptionLog(e);
             }
         }
@@ -706,10 +706,11 @@ namespace Factory_of_the_Future
                     {
                         if(DockDoor.Properties.DockDoorData.RawData != trip.RawData)
                         {
-                            DockDoor.Properties.ZoneUpdate = true;
+                           // DockDoor.Properties.ZoneUpdate = true;
+                            FOTFManager.Instance.BroadcastDockdoorZoneStatus(trip, cs.Id);
                         }
                         DockDoor.Properties.DockDoorData = trip;
-                        
+                        FOTFManager.Instance.BroadcastDockDoorStatus(DockDoor, cs.Id);
                     });
                 }
 
@@ -767,8 +768,8 @@ namespace Factory_of_the_Future
                             string operationId = !string.IsNullOrEmpty(item["tacs"]["operationId"].ToString()) ? item["tacs"]["operationId"].ToString() : "";
                             string payLocation = !string.IsNullOrEmpty(item["tacs"]["payLocation"].ToString()) ? item["tacs"]["payLocation"].ToString() : "";
                             int overtimeHours = !string.IsNullOrEmpty(item["tacs"]["overtimeHours"].ToString()) ? (Int32)item["tacs"]["overtimeHours"] : 0;
-                            bool isOverTime = !string.IsNullOrEmpty(item["tacs"]["isOvertime"].ToString()) ? (bool)item["tacs"]["isOvertime"] : false;
-                            bool isOverTimeAuth = !string.IsNullOrEmpty(item["tacs"]["isOvertimeAuth"].ToString()) ? (bool)item["tacs"]["isOvertimeAuth"] : false;
+                            bool isOverTime = !string.IsNullOrEmpty(item["tacs"]["isOvertime"].ToString()) && (bool)item["tacs"]["isOvertime"];
+                            bool isOverTimeAuth = !string.IsNullOrEmpty(item["tacs"]["isOvertimeAuth"].ToString()) && (bool)item["tacs"]["isOvertimeAuth"];
                             if (!string.IsNullOrEmpty(badgeID))
                             {
                                 foreach (CoordinateSystem cs in AppParameters.CoordinateSystem.Values)
@@ -846,20 +847,20 @@ namespace Factory_of_the_Future
                             //        }
                             //    }
                         //}
-                        Task.Run(() => updateConnection(conID, "good"));
+                        Task.Run(() => UpdateConnection(conID, "good"));
                     //}
                     
                 }
                 else
                 {
-                    Task.Run(() => updateConnection(conID, "error"));
+                    Task.Run(() => UpdateConnection(conID, "error"));
                 }
 
             }
             catch (Exception e)
             {
                 new ErrorLogger().ExceptionLog(e);
-                Task.Run(() => updateConnection(conID, "error"));
+                Task.Run(() => UpdateConnection(conID, "error"));
             }
              finally
             {
@@ -1039,11 +1040,11 @@ namespace Factory_of_the_Future
                              //});
 
                         }
-                        Task.Run(() => updateConnection(conID, "good"));
+                        Task.Run(() => UpdateConnection(conID, "good"));
                     }
                     else
                     {
-                        Task.Run(() => updateConnection(conID, "error"));
+                        Task.Run(() => UpdateConnection(conID, "error"));
                     }
                     machineInfo = null;
                     data = null;
@@ -1051,12 +1052,12 @@ namespace Factory_of_the_Future
                 }
                 else
                 {
-                    Task.Run(() => updateConnection(conID, "error"));
+                    Task.Run(() => UpdateConnection(conID, "error"));
                 }
             }
             catch (Exception ex)
             {
-                Task.Run(() => updateConnection(conID, "error"));
+                Task.Run(() => UpdateConnection(conID, "error"));
                 new ErrorLogger().ExceptionLog(ex);
             }
 
@@ -1216,11 +1217,11 @@ namespace Factory_of_the_Future
 
                             }
                         }
-                        Task.Run(() => updateConnection(conID, "good"));
+                        Task.Run(() => UpdateConnection(conID, "good"));
                     }
                     else
                     {
-                        Task.Run(() => updateConnection(conID, "error"));
+                        Task.Run(() => UpdateConnection(conID, "error"));
                     }
                     planInfo = null;
                     data = null;
@@ -1229,7 +1230,7 @@ namespace Factory_of_the_Future
                 }
                 else
                 {
-                    Task.Run(() => updateConnection(conID, "error"));
+                    Task.Run(() => UpdateConnection(conID, "error"));
                 }
                 //remove old data
                 if (AppParameters.MPEPRPGList.Keys.Count > 0)
@@ -1298,11 +1299,11 @@ namespace Factory_of_the_Future
                             
                         }
 
-                        Task.Run(() => updateConnection(conID, "good"));
+                        Task.Run(() => UpdateConnection(conID, "good"));
                     }
                     else
                     {
-                        Task.Run(() => updateConnection(conID, "error"));
+                        Task.Run(() => UpdateConnection(conID, "error"));
                     }
                     tempData = null;
                     dpsInfo = null;
@@ -1310,14 +1311,14 @@ namespace Factory_of_the_Future
                 }
                 else
                 {
-                    Task.Run(() => updateConnection(conID, "error"));
+                    Task.Run(() => UpdateConnection(conID, "error"));
                 }
 
             }
             catch (Exception ex)
             {
                 new ErrorLogger().ExceptionLog(ex);
-                Task.Run(() => updateConnection(conID, "error"));
+                Task.Run(() => UpdateConnection(conID, "error"));
             }
         }
         private static void ERRORWITHWORK(JObject data)
@@ -1871,7 +1872,7 @@ namespace Factory_of_the_Future
 
                                             if (update)
                                             {
-                                                existingValue.Properties.TagUpdate = true;
+                                                FOTFManager.Instance.BroadcastVehicleTagStatus(existingValue, cs.Id);
                                             }
                                         }
                                         else
@@ -1896,7 +1897,7 @@ namespace Factory_of_the_Future
                                 Lmarker.Properties.NotificationId = CheckNotification("", newVehicleStatus.STATE, "vehicle".ToLower(), Lmarker.Properties, Lmarker.Properties.NotificationId);
 
                                 Lmarker.Properties.TagVisible = true;
-                                Lmarker.Properties.TagUpdate = true;
+                                FOTFManager.Instance.BroadcastVehicleTagStatus(Lmarker, cs.Id);
                                 if (!cs.Locators.TryAdd(Lmarker.Properties.Id, Lmarker))
                                 {
                                     new ErrorLogger().CustomLog("Unable to Add Marker " + newVehicleStatus.VEHICLE_MAC_ADDRESS, string.Concat((string)AppParameters.AppSettings.Property("APPLICATION_NAME").Value, "_Applogs"));
@@ -2054,9 +2055,11 @@ namespace Factory_of_the_Future
                                     }
                                     else
                                     {
-                                        CoordinateSystem CSystem = new CoordinateSystem();
-                                        CSystem.Name = CoordinateSystem[i]["name"].ToString();
-                                        CSystem.Id = CoordinateSystem[i]["id"].ToString();
+                                        CoordinateSystem CSystem = new CoordinateSystem
+                                        {
+                                            Name = CoordinateSystem[i]["name"].ToString(),
+                                            Id = CoordinateSystem[i]["id"].ToString()
+                                        };
                                         ///this is used to add new Coordinate System images
                                         if (AppParameters.CoordinateSystem.TryAdd(CSystem.Id, CSystem))
                                         {
@@ -2073,7 +2076,7 @@ namespace Factory_of_the_Future
                                         }
                                     }
                                 }
-                                Task.Run(() => updateConnection(conID, "good"));
+                                Task.Run(() => UpdateConnection(conID, "good"));
                             }
                         }
                         else
@@ -2095,9 +2098,11 @@ namespace Factory_of_the_Future
                                 }
                                 else
                                 {
-                                    CoordinateSystem CSystem = new CoordinateSystem();
-                                    CSystem.Name = tempData[i]["name"].ToString();
-                                    CSystem.Id = tempData[i]["id"].ToString();
+                                    CoordinateSystem CSystem = new CoordinateSystem
+                                    {
+                                        Name = tempData[i]["name"].ToString(),
+                                        Id = tempData[i]["id"].ToString()
+                                    };
                                     ///this is used to add new Coordinate System images
                                     if (AppParameters.CoordinateSystem.TryAdd(CSystem.Id, CSystem))
                                     {
@@ -2127,7 +2132,7 @@ namespace Factory_of_the_Future
             }
             catch (Exception e)
             {
-                Task.Run(() => updateConnection(conID, "error"));
+                Task.Run(() => UpdateConnection(conID, "error"));
                 new ErrorLogger().ExceptionLog(e);
             }
             
@@ -2274,8 +2279,10 @@ namespace Factory_of_the_Future
                         }
                         else
                         {
-                            GeoZone newGZone = new GeoZone();
-                            newGZone.Geometry = GetQuuppaZoneGeometry(zoneitem["polygonData"]);
+                            GeoZone newGZone = new GeoZone
+                            {
+                                Geometry = GetQuuppaZoneGeometry(zoneitem["polygonData"])
+                            };
                             newGZone.Properties.FloorId = csid;
                             newGZone.Properties.Id = zoneitem["id"].ToString();
                             newGZone.Properties.Name = zoneitem["name"].ToString();
@@ -2374,8 +2381,10 @@ namespace Factory_of_the_Future
                         }
                         else
                         {
-                            GeoMarker Lmarker = new GeoMarker();
-                            Lmarker.Type = "Feature";
+                            GeoMarker Lmarker = new GeoMarker
+                            {
+                                Type = "Feature"
+                            };
                             Lmarker.Properties.Id = locatorsitem["id"].ToString();
                             Lmarker.Properties.Name = locatorsitem.ContainsKey("name") ? locatorsitem["name"].ToString() : "Locator";
                             Lmarker.Properties.Color = locatorsitem.ContainsKey("color") ? locatorsitem["color"].ToString() : "";
@@ -2486,7 +2495,7 @@ namespace Factory_of_the_Future
                                         JToken position = tagitem.ContainsKey("smoothedPosition") ? tagitem["smoothedPosition"] : tagitem["location"];
                                         Lmarker.Geometry = GetQuuppaTagGeometry(position);
                                         Lmarker.Properties.RawData = tagitem["rawData"].ToString();
-                                        Lmarker.Properties.TagVisible = tagitem.ContainsKey("locationMovementStatus") ? tagitem["locationMovementStatus"].ToString() == "noData" ? false : true : false;
+                                        Lmarker.Properties.TagVisible = tagitem.ContainsKey("locationMovementStatus") && (tagitem["locationMovementStatus"].ToString() != "noData");
                                         Lmarker.Properties.TagUpdate = true;
                                         if (!cs.Locators.TryAdd(Lmarker.Properties.Id, Lmarker))
                                         {
@@ -2496,14 +2505,14 @@ namespace Factory_of_the_Future
                                 }
 
                             }    
-                            Task.Run(() => updateConnection(conID, "good"));
+                            Task.Run(() => UpdateConnection(conID, "good"));
                         }
                     }
                     if (!((JObject)tempData).ContainsKey("tags") && ((JObject)tempData).ContainsKey("status"))
                     {
                         if (tempData["status"].ToString() == "GeneralFailure")
                         {
-                            Task.Run(() => updateConnection(conID, "error"));
+                            Task.Run(() => UpdateConnection(conID, "error"));
                         } 
                     }
                
@@ -2511,17 +2520,17 @@ namespace Factory_of_the_Future
             }
             catch (Exception e)
             {
-                Task.Run(() => updateConnection(conID, "error"));
+                Task.Run(() => UpdateConnection(conID, "error"));
                 new ErrorLogger().ExceptionLog(e);
             }
         }
-        internal static void updateConnection(string conId,string type)
+        internal static void UpdateConnection(string conId,string type)
         {
             try
             {
                if(AppParameters.ConnectionList.TryGetValue(conId, out Connection m ))
                 {
-                    var newConStatus = type == "error" ? false : true;
+                    var newConStatus = type != "error";
                     if(m.ApiConnected != newConStatus)
                     {
                         m.ApiConnected = newConStatus;
@@ -2785,8 +2794,7 @@ namespace Factory_of_the_Future
                 {
                     if (!AppParameters.NotificationList.ContainsKey(notificationID))
                     {
-                        int intStr = 0;
-                        int.TryParse(durationTime, out intStr);
+                        int.TryParse(durationTime, out int intStr);
                         string machineName = machineData["mpe_type"].ToString().Trim() + "-" + machineData["mpe_number"].ToString().Trim().PadLeft(3, '0');
                         Notification ojbMerge = new Notification
                         {
@@ -3263,16 +3271,17 @@ namespace Factory_of_the_Future
                     if (zoName.StartsWith("IG_") || zoName.StartsWith("DT_"))
                     {
                         float dwelltime = (float)Convert.ToDouble(zo["dwell_time"].ToString());
-                        DarvisCameraAlert alert = new DarvisCameraAlert();
-                        alert.DwellTime = dwelltime;
-                        alert.Type = zoName.StartsWith("IG_") ? "IG" : "DT";
-                        alert.object_class = thisObject["clazz"].ToString();
-                        alert.object_id = thisObject["object_id"].ToString();
-                        alert.Top = Convert.ToInt32(thisObject["top"].ToString());
-                        alert.Bottom = Convert.ToInt32(thisObject["bottom"].ToString());
-                        alert.Left = Convert.ToInt32(thisObject["left"].ToString());
-
-                        alert.Right = Convert.ToInt32(thisObject["right"].ToString());
+                        DarvisCameraAlert alert = new DarvisCameraAlert
+                        {
+                            DwellTime = dwelltime,
+                            Type = zoName.StartsWith("IG_") ? "IG" : "DT",
+                            object_class = thisObject["clazz"].ToString(),
+                            object_id = thisObject["object_id"].ToString(),
+                            Top = Convert.ToInt32(thisObject["top"].ToString()),
+                            Bottom = Convert.ToInt32(thisObject["bottom"].ToString()),
+                            Left = Convert.ToInt32(thisObject["left"].ToString()),
+                            Right = Convert.ToInt32(thisObject["right"].ToString())
+                        };
                         alertList.Add(alert);
                     }
                 }

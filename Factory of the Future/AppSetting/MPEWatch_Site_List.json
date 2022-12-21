@@ -1066,6 +1066,13 @@
       "rnum": "152"
     },
     {
+      "site_name_local": "MEMPHIS_TN_MPA",
+      "area_name": "Southeast",
+      "district": "Tennessee",
+      "local_link": "http://56.181.218.11:7777/pls/mpewatch/",
+      "rnum": "155"
+    },
+    {
       "site_name_local": "MIAMI",
       "area_name": "Gulf Atlantic",
       "district": "Florida 3",
@@ -1563,7 +1570,7 @@
       "rnum": "223"
     },
     {
-      "site_name_local": "RICHMOND",
+      "site_name_local": "RICHMOND_VA_PDC",
       "area_name": "South Atlantic",
       "district": "Virginia",
       "local_link": "http://56.85.198.11:7777/pls/mpewatch/",

@@ -43,6 +43,10 @@ namespace Factory_of_the_Future
         {
             return _managerHub.GetFloorPlanData();
         }
+        public IEnumerable<BackgroundImage> RemoveFloorPlanData(dynamic Data)
+        {
+            return _managerHub.RemoveFloorPlanData(Data);
+        }
         /// <summary>
         /// /API section
         /// </summary>
@@ -172,6 +176,10 @@ namespace Factory_of_the_Future
         public IEnumerable<string> GetDockDoorList()
         {
             return _managerHub.GetDockDoorList();
+        }
+        public RouteTrips GetDigitalDockDoorList(string id)
+        {
+            return _managerHub.GetDigitalDockDoorList(id);
         }
         /// <summary>
         /// Get SV Zones

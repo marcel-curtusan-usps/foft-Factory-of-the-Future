@@ -277,6 +277,12 @@ namespace Factory_of_the_Future
         [JsonProperty("doorNumber")]
         public string DoorNumber { get; set; }  = "";
 
+        [JsonProperty("GpioNumber")]
+        public int GpioNumber { get; set; } = -1;
+
+        [JsonProperty("GpioValue")]
+        public int GpioValue { get; set; } = -1;
+
         [JsonProperty("dockdoorData")]
         public RouteTrips DockDoorData { get; set; } = new RouteTrips();
 
@@ -730,8 +736,9 @@ namespace Factory_of_the_Future
         public Int32 Port { get; set; } = 0;
         [JsonProperty("UdpConnection")]
         public bool UdpConnection { get; set; } = false;
-        [JsonProperty("TcpConnection")]
-        public bool TcpConnection { get; set; } = false;
+        [JsonProperty("TcpIpConnection")]
+        public bool TcpIpConnection { get; set; } = false;
+
         [JsonProperty("WsConnection")]
         public bool WsConnection { get; set; } = false;
         [JsonIgnore]

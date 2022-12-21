@@ -23,7 +23,7 @@ namespace Factory_of_the_Future
                 {
                     NewConnection._UDPThreadListener();
                 }
-                if (con.UdpConnection)
+                if (con.TcpIpConnection)
                 {
                     NewConnection._TCPThreadListener();
                 }
@@ -35,7 +35,7 @@ namespace Factory_of_the_Future
                 {
                     NewConnection._ThreadDownload();
 
-                    if (!con.UdpConnection)
+                    if (!con.TcpIpConnection || !con.TcpIpConnection || !con.WsConnection)
                     {
                         NewConnection._ThreadRefresh();
                         NewConnection.ConstantRefresh = true;

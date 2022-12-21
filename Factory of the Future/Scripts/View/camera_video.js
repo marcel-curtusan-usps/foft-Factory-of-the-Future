@@ -356,7 +356,7 @@ exclamation.onload = function () {
     }
     var done = true;
 }
-exclamation.src = "../../Content/images/warning-signal.png";
+/*exclamation.src = "../../Content/images/warning-signal.png";*/
 var imageManipCanvas = document.createElement('canvas');
 var highlightCameraAlert = async (base64Image, r, g, b, borderWidth) => {
     return new Promise((resolve, reject) => {

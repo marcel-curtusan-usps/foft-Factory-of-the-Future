@@ -142,7 +142,21 @@ function Add_Floorplan() {
     $('#floormodalHeader_ID').text('Add New Floor Plan');
     $('#FloorPlan_Modal').modal();
 }
-function Load_Floorplan_Table(table) {
+function RemoveFloorPlan(id, value, table) {
+    var jsonObject = {
+        Id: value
+    };
+    if (!$.isEmptyObject(jsonObject)) {
+        fotfmanager.server.removeFloorplan(JSON.stringify(jsonObject)).done(function () {
+
+            $('span[id=error_appsettingvalue]').text("Data has been updated");
+            setTimeout(function () { $("#AppSetting_value_Modal").modal('hide'); }, 1500);
+            Edit_AppSetting(table);
+
+        });
+    }
+}
+async function Load_Floorplan_Table(table) {
     let FloorplanTable = $('table[id=' + table + ']');
     let FloorplanTable_Body = FloorplanTable.find('tbody');
     let FloorplanTable_row_template = '<tr data-id="{id}" data-value="{value}">' +
@@ -159,7 +173,13 @@ function Load_Floorplan_Table(table) {
             });
         }
     });
-  
+    $('button[name=removeFloorplan]').on('click', function () {
+        let td = $(this);
+        let tr = $(td).closest('tr'),
+            id = tr.attr('data-id'),
+            value = tr.attr('data-value');
+        RemoveFloorPlan(id, value, table);
+    });
 }
 function formatFloorplan(data) {
     return $.extend(data, {
@@ -173,7 +193,7 @@ function Get_Floor_Action_State() {
     if (/^Admin/i.test(User.Role)) {
         return '<div class="btn-toolbar" role="toolbar">' +
             '<div class="btn-group mr-2" role="group" >' +
-            '<button class="btn btn-light btn-sm mx-1 pi-iconEdit" name="removeFloorplan"></button>' +
+            '<button class="btn btn-light btn-sm mx-1 pi-trashFill" name="removeFloorplan" onclick="RemoveFloorPlan($(this))"></button>' +
             '</div>';
     }
     else {
