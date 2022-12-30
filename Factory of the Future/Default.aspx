@@ -973,30 +973,50 @@
                         </div>
                     </div>
 
-                    <div id="dockdoor_div" data-id="" class="card bg-white mt-2 pb-1" style="display: none;">
-                        <div class="card-header pl-1 border-bottom">
-                            <h6 class="control-label sectionHeader ml-1 mb-1 d-flex justify-content-between">Dock Door
+                    <div id="dockdoor_div" data-id="" style="display: none;">
+                        <div class="card bg-white mt-2 pb-1">
+                            <div class="card-header pl-1 border-bottom">
+                                <h6 class="control-label sectionHeader ml-1 mb-1 d-flex justify-content-between">Dock Door
                                 <span class="btn btn-secondary border-0 badge-info badge" name="doornumberid"></span>
-                                <span class="d-flex justify-content-between">Status:
+                                    <span class="d-flex justify-content-between">Status:
                                     <span class="btn btn-secondary border-0 badge-info badge" name="doorstatus"></span>
-                                </span>
-                            </h6>
+                                    </span>
+                                </h6>
+                            </div>
+                            <div class="card-body pb-0" id="div_dockdoor">
+                                <div class="table-responsive">
+                                    <table class="table table-sm table-hover mb-0 border-bottom" id="dockdoortable">
+                                        <thead class="thead-dark"></thead>
+                                        <tbody></tbody>
+                                    </table>
+                                </div>
+                            </div>
                         </div>
-                        <div class="card-body pb-0" id="div_dockdoor">
-                            <div class="table-responsive">
-                                <table class="table table-sm table-hover mb-0 border-bottom" id="dockdoortable">
-                                    <thead class="thead-dark"></thead>
-                                    <tbody></tbody>
-                                </table>
+                        <div id="dockdoor_tripdiv" class="card bg-white mt-2 pb-1" style="display: none;">
+                            <div class="card-header pl-1 border-bottom">
+                                <h6 class="control-label sectionHeader ml-1 mb-1 d-flex justify-content-between">Trip Selector
+                                <span class="btn btn-secondary border-0 badge-info badge" name="doornumbertripid"></span>
+
+                                </h6>
+                            </div>
+                            <div class="card-body pb-0">
+                                <div class="form-group col">
+                                    <select id="tripSelector" title="Trip Selector" class="form-control pb-1" name="tripSelector">
+                                        <option value=""></option>
+                                    </select>
+                                    <span id="error_tripSelector" class="text-danger"></span>
+                                </div>
+                                <div class="form-group col">
+                                      <button type="button" class="btn btn-success" id="tripSelectorbtn" name="tripSelectorbtn">Submit</button>
+                                </div>
                             </div>
                         </div>
                     </div>
-
                     <div id="vehicle_div" data-id="" class="card bg-white mt-2 pb-1" style="display: none;">
                         <div class="card-header pl-1 d-flex flex-row">
                             <h6 class="control-label sectionHeader ml-1">Vehicle Info</h6>
                             <div class="custom-control custom-switch ml-3">
-                                <input id="followvehicle" type="checkbox" class="custom-control-input" name="followvehicle">
+                                <input id="followvehicle" type="checkbox" class="custom-control-input" name="followvehicle"/>
                                 <label class="vehicleInfo custom-control-label" for="followvehicle">Follow Vehicle</label>
                                 
                             </div>

@@ -70,6 +70,7 @@ $(function () {
             $('button[name=machineinfoedit]').css('display', 'block');
             //setup connection list
             init_connection($.parseJSON(User.ConnectionList));
+         
         }
         if (User.hasOwnProperty("FacilityTimeZone")) {
             if (checkValue(User.FacilityTimeZone)) {
@@ -215,7 +216,7 @@ $(function () {
         floorImage: async (MapData) => { init_mapSetup(MapData); }
     });
     // Start the connection
-    $.connection.hub.qs = { 'page_type': "FOTF".toUpperCase() };
+    $.connection.hub.qs = { 'page_type': "CF".toUpperCase() };
     $.connection.hub.start({ withCredentials: true, waitForPageLoad: false })
         .done(function () {
 
@@ -503,6 +504,15 @@ $(function () {
         Remove_Connection(id);
     });
     $(document).on('click', '.camera_view', function () {
+        let td = $(this);
+        let tr = $(td).closest('tr');
+        let id = tr.attr('data-id');
+        let model = tr.attr('data-model');
+        let description = tr.attr('data-description');
+        View_Web_Camera(id, model, description);
+    });
+    //set the trip to a door
+    $(document).on('click', '.tripSelectorbtn', function () {
         let td = $(this);
         let tr = $(td).closest('tr');
         let id = tr.attr('data-id');

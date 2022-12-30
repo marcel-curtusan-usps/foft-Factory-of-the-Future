@@ -4,7 +4,12 @@
 $.extend(fotfmanager.client, {
     updateDockDoorStatus: async (dockdoorupdate) => { updateDockDoorZone(dockdoorupdate) }
 });
+$(function () {
+    $('button[name=tripSelectorbtn]').off().on('click', function () {
 
+
+    });
+});
 async function updateDockDoorZone(dockdoorzoneupdate) {
     try {
         let layerindex = -0;
@@ -291,14 +296,14 @@ async function LoadDockDoorTable(dataproperties) {
         $('div[id=dockdoor_div]').attr("data-id", dataproperties.id);
         $('div[id=dockdoor_div]').css('display', 'block');
         $('div[id=trailer_div]').css('display', 'block');
-
+        $('div[id=dockdoor_tripdiv]').css('display', 'block');
         $zoneSelect[0].selectize.setValue(-1, true);
         $zoneSelect[0].selectize.setValue(dataproperties.id, true);
         dockdoortop_Table_Body.empty();
         $('button[name=container_counts]').text(0 + "/" + 0);
         container_Table_Body.empty();
         if (checkValue(dataproperties.dockdoorData.legSiteName)) {
-
+            $('select[id=tripSelector]').val(dataproperties.dockdoorData.id);
             $('span[name=doornumberid]').text(dataproperties.doorNumber);
             if (dataproperties.dockdoorData.legSiteName !== "") {
                 tempdata.push({
@@ -430,6 +435,7 @@ async function LoadDockDoorTable(dataproperties) {
         }
         else {
             $('div[id=trailer_div]').css('display', 'none');
+            $('select[id=tripSelector]').val("");
             $('span[name=doornumberid]').text(dataproperties.doorNumber.toString());
             $('span[name=doorstatus]').text(getDoorStatus(dataproperties.dockdoorData.status));
             $.each(tempdata, function () {
@@ -448,7 +454,9 @@ async function LoadDoorDetails(door) {
                 if (layer.feature.properties.doorNumber === door) {
                     map.invalidateSize();
                     map.setZoom(1);
+                 //$('<option/>').val(this.id).html(this.route + " - " + this.trip + " | " + this.destSiteName).appendTo;
                     LoadDockDoorTable(layer.feature.properties);
+
                     return false;
                 }
             }

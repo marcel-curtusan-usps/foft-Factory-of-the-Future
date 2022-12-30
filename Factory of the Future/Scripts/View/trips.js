@@ -22,6 +22,7 @@ async function init_arrive_depart_trips() {
                 });
                 $.each(trips, function () {
                     process_trips(this);
+                    $('<option/>').val(this.id).html(this.route + " - " + this.trip + " | " + this.legSiteName + " -- " + tripDirectiontext(this)).appendTo('select[id=tripSelector]');
                 });
             }
         });
@@ -248,6 +249,9 @@ function Load_btn_door(properties) {
     else {
         return '';
     }
+}
+function tripDirectiontext(data) {
+    return data.tripDirectionInd === "O" ? "Out-bound" : "In-bound"
 }
 $(document).on('click', '.doordetails', function () {
     var button = $(this);

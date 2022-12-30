@@ -192,7 +192,7 @@ namespace Factory_of_the_Future
                 else
                 {
                     int itemindex = _sessions.FindIndex(r => r.Session_ID == adUser.Session_ID);
-                    if (itemindex != -1)
+                    if (itemindex != -1 && _sessions.Count > 0)
                     {
                         //log out user 
                         if (!string.IsNullOrEmpty(_sessions[itemindex].Session_ID))

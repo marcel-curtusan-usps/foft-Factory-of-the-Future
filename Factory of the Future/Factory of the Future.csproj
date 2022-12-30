@@ -284,6 +284,7 @@
     <Content Include="Content\themes\base\tooltip.css" />
     <Content Include="Content\_base.css" />
     <Content Include="Content\_base.min.css" />
+    <Content Include="DockDoor\Content\dockdoor.css" />
     <Content Include="ET_Board\ET_Board.aspx" />
     <Content Include="ET_Board\Scritps\ET_Board.js" />
     <Content Include="DockDoor\DockDoor.aspx" />
@@ -353,6 +354,8 @@
     <Content Include="Scripts\jquery-3.6.0.slim.min.js" />
     <Content Include="Scripts\jquery-ui-1.13.1.js" />
     <Content Include="Scripts\jquery-ui-1.13.1.min.js" />
+    <Content Include="Scripts\jquery.dataTables.js" />
+    <Content Include="Scripts\jquery.dataTables.min.js" />
     <Content Include="Scripts\jquery.signalR-2.4.2.js" />
     <Content Include="Scripts\jquery.signalR-2.4.2.min.js" />
     <Content Include="Scripts\leaflet\images\layers-2x.png" />
@@ -504,9 +507,11 @@
     <Content Include="Scripts\leaflet\leaflet.js.map" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AGV\Models\EITS_Messages.cs" />
     <Compile Include="App_Start\AppParameters.cs" />
     <Compile Include="App_Start\BackgroundThread.cs" />
     <Compile Include="Controllers\DockDoorController.cs" />
+    <Compile Include="AGV\Controllers\EITSController.cs" />
     <Compile Include="Data_Retention\DataRetentionProcess.cs" />
     <Compile Include="App_Start\WebApiConfig.cs" />
     <Compile Include="Controllers\IncomingDataController.cs" />
@@ -545,6 +550,7 @@
     <Compile Include="Default.aspx.designer.cs">
       <DependentUpon>Default.aspx</DependentUpon>
     </Compile>
+    <Compile Include="Transaction_Concentrator\ClientMessages.cs" />
     <Compile Include="Transaction_Concentrator\ProcessorMessage.cs" />
     <Compile Include="Transaction_Concentrator\TC.cs" />
     <Compile Include="TCPIP_Listener\TcpServer.cs" />
@@ -581,6 +587,7 @@
     </None>
   </ItemGroup>
   <ItemGroup>
+    <Folder Include="AGV\Mobile\" />
     <Folder Include="App_Data\" />
     <Folder Include="Models\" />
   </ItemGroup>

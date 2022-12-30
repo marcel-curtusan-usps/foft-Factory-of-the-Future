@@ -33,8 +33,7 @@ let overlayMaps = {
 
 
 $.urlParam = function (name) {
-    var results = new RegExp('[\?&]' + name + '=([^&#]*)')
-        .exec(window.location.search);
+    var results = new RegExp('[\?&]' + name + '=([^&#]*)', 'i').exec(window.location.search);
 
     return (results !== null) ? results[1] || 0 : false;
 }
@@ -456,12 +455,17 @@ function init_mapSetup(MapData) {
                 }
             });
             init_arrive_depart_trips();
+            fotfmanager.server.joinGroup("Trips");
             //init_agvtags();
             LoadNotification("routetrip");
             LoadNotification("vehicle");
+            fotfmanager.server.joinGroup("Notification");
             //add user to the tag groups only for none PMCCUser
             if (User.hasOwnProperty("UserId") && /^(Admin|OIE)/i.test(User.Role)) {
                 fotfmanager.server.joinGroup("PeopleMarkers");
+            }
+            if (/(^PMCCUser$)/i.test(User.UserId)) {
+                fotfmanager.server.leaveGroup("PeopleMarkers");
             }
             
         }

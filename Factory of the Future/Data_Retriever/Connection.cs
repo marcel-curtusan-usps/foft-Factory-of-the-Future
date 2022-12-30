@@ -379,7 +379,7 @@ namespace Factory_of_the_Future
             {
                 if (ConnectionInfo.Port > 0)
                 {
-                    this.tcpServer = new TcpServer(IPAddress.Any, (int)ConnectionInfo.Port, ID);
+                    this.tcpServer = new TcpServer(AppParameters.ServerIpAddress, (int)ConnectionInfo.Port, ID);
                     this.tcpServer.Start();
                     this.Status = 1;
                 }

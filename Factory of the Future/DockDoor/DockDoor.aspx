@@ -9,45 +9,71 @@
     <link rel="preload" as="style" href="../Content/bootstrap.min.css" />
     <link rel="stylesheet" href="../Content/bootstrap-icons.css" />
     <link rel="stylesheet" href="../Content/bootstrap.min.css" />
+    <link rel="stylesheet" href="Content/dockdoor.css" />
 
 </head>
 <body>
-    <div class="card">
-        <div class="card-header">   
-            <div class="row">
-                    <div class="col text-center">
-                       <label class="control-label" style="font-size: 8rem;font-weight: bolder;margin-top: -64px;margin-bottom: -36px;">DockDoor <button class="btn btn-lg btn-dark" id="dockdoorNumber" style="font-size: 4rem;font-weight: bolder;margin-bottom: -20px;margin-top: -36px;"></button> </label>
+    <div class="doorcontainer-fluid">
+        <div style="display: flex">
+            <div class="card w-25" style="background-color: #0067F4">
+                <div class="text-center align-middle">
+                    <br/><br/>
+                    <label class="control-label" style="font-size: 6.5rem; color: white; font-weight: bolder;">
+                        DOOR NUMBER <br/><br/>
+                        <label style="font-size: 12rem; color: white; font-weight: bolder;" id="dockdoorNumber"></label>
+                    </label>
+                </div>
+            </div>
+            <div class="card w-50">
+                <div class="card-header" style="padding: 0rem;">
+                    <label class="control-label" style="font-size: 3rem; font-weight: bolder;">Current Trip</label>
+                    <div class="table-responsive">
+                        <table class="table table-bordered table-hover table-striped" id="currentTripTable">
+                            <tbody>
+                            </tbody>
+                        </table>
                     </div>
-                  <div class="col text-center">
-                         <label class="control-label" style="font-size: 4rem; font-weight: bolder;margin-bottom: -7px;margin-top: -37px">Trip Direction</label>
-                        <button class="btn btn-lg btn-block btn-light" id="tripDirectionInd" style="margin-bottom: -12px;"></button>
+                </div>
+                <div class="card-body" style="padding: 0rem;">
+                    <div class="table-responsive">
+                        <table class="table table-bordered table-hover table-striped" id="containerLocationtable">
+                            <tbody>
+                            </tbody>
+                        </table>
                     </div>
+                </div>
+                <div class="card-footer" style="padding: 0rem;">
+                    <label class="control-label" style="font-size: 3rem; font-weight: bolder;">Next Trip</label>
+                    <div class="table-responsive">
+                        <table class="table table-bordered table-hover table-striped" id="nextTriptable">
+                            <tbody>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <div class="card w-25">
+                <div class="card-heade text-center" style="padding: 0rem;">
+                    <div class="col ml-0">
+                        <label class="control-label" style="font-size: 3rem; font-weight: bolder;" id="totalIndc">Total Loaded</label>
+                    </div>
+                    <div class="col ml-0" style="background-color: purple;">
+                        <label class="control-label flex-fill" style="font-size: 4rem; color: white; font-weight: bolder;" id="containerLoaded"></label>
+                    </div>
+                </div>
+                <div class="card-body text-center" style="padding: 0rem; background-color: yellow" id="countdowndiv">
+                    <label class="control-label" style="font-size: 4rem; font-weight: bolder;">
+                        Countdown to Scheduled Departure <br/><br/>
+                        <label class="control-label text-center" style="font-size: 6rem; font-weight: bolder;" id="timeCount">00:00</label>
+                    </label>
+                </div>
+
             </div>
         </div>
-        <div class="card-body">
-                  <div class="row">
-                    <div class="col">
-                        1 of 3
-                    </div>
-                    <div class="col">
-                      <label class="container-lable" id="destSiteId"></label>
-                    </div>
-                   
-                </div>
-                <div class="row">
-                    <div class="col">
-                        1 of 3
-                    </div>
-                    <div class="col">
-                        2 of 3
-                    </div>
-                    <div class="col">
-                        3 of 3
-                    </div>
-                </div>
-        </div>
-</div>
+    </div>
     <script src="../Scripts/jquery-3.6.0.min.js"></script>
+    <script src="../Scripts/jquery.dataTables.js"></script>
+    <script src="../Scripts/moment.js"></script>
     <script src="../Scripts/jquery.signalR-2.4.2.js"></script>
     <script src="../signalr/hubs/"></script>
     <script src="Scripts/DigitalDockDoor.js"></script>

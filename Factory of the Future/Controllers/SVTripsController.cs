@@ -44,14 +44,14 @@ namespace Factory_of_the_Future.Controllers
             return CreatedAtRoute("DefaultApi", new { id = "0" }, 0);
         }
 
-        // PUT: api/SVTrips/5
-        public void Put(int id, [FromBody]string value)
-        {
-        }
+        //// PUT: api/SVTrips/5
+        //public void Put(int id, [FromBody]string value)
+        //{
+        //}
 
-        // DELETE: api/SVTrips/5
-        public void Delete(int id)
-        {
-        }
+        //// DELETE: api/SVTrips/5
+        //public void Delete(int id)
+        //{
+        //}
     }
 }

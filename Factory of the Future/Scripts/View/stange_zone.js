@@ -355,4 +355,5 @@ function init_zones(zoneData, id) {
     if (hasBinZone) { fotfmanager.server.joinGroup("BinZones"); }
     // setGreyedOut();
     fotfmanager.server.joinGroup("Zones");
+    fotfmanager.server.joinGroup("QSM");
 }

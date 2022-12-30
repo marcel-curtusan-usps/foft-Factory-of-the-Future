@@ -35,13 +35,13 @@ namespace Factory_of_the_Future
         private readonly object updateMachineStatuslock = new object();
         private readonly object updateAGVLocationStatuslock = new object();
 
-     
+
 
         private readonly object updateSVTripsStatuslock = new object();
         private readonly object updateNotificationStatuslock = new object();
         private readonly object updateBinZoneStatuslock = new object();
         private readonly object updateCameralock = new object();
-        
+
         //timers
         private readonly Timer VehicleTag_timer;
         private readonly Timer PersonTag_timer;
@@ -134,7 +134,7 @@ namespace Factory_of_the_Future
                     cs.Zones.Where(f => f.Value.Properties.ZoneType == "DockDoor" && f.Value.Properties.DoorNumber.ToLower() == id.ToLower()
                     ).Select(y => y.Value).ToList().ForEach(DockDoor =>
                     {
-                        doors=DockDoor.Properties.DockDoorData;
+                        doors = DockDoor.Properties.DockDoorData;
                     });
                 }
                 return doors;
@@ -188,7 +188,7 @@ namespace Factory_of_the_Future
                     }
                     newtempgZone.Properties.DockDoorData = new RouteTrips();
                 }
-               
+
 
                 if (AppParameters.CoordinateSystem.ContainsKey(newtempgZone.Properties.FloorId))
                 {
@@ -214,7 +214,7 @@ namespace Factory_of_the_Future
         {
             try
             {
-                return AppParameters.SVZoneNameList.Select(y =>  y.Value).ToList();
+                return AppParameters.SVZoneNameList.Select(y => y.Value).ToList();
             }
             catch (Exception e)
             {
@@ -265,8 +265,8 @@ namespace Factory_of_the_Future
                                     Camera.Properties.CameraData.Base64Image = Base64Img;
                                     BroadcastCameraStatus(Camera, cs.Id);
                                 }
-                                
-                                
+
+
                             });
                         }
                         _updateCameraStatus = false;
@@ -285,7 +285,7 @@ namespace Factory_of_the_Future
 
         public void BroadcastCameraStatus(GeoMarker Cameras, string id)
         {
-            Clients.Group("CameraMarkers").updateCameraStatus(Cameras,id);
+            Clients.Group("CameraMarkers").updateCameraStatus(Cameras, id);
         }
         //public void UpdateCameraImages(object state)
         //{
@@ -349,7 +349,7 @@ namespace Factory_of_the_Future
                 {
                     try
                     {
-                     
+
                         client.Headers.Add(HttpRequestHeader.ContentType, "application/octet-stream");
 
                         //add header
@@ -359,22 +359,25 @@ namespace Factory_of_the_Future
                         //{
                         return imageBase64;
                         //}
-                      
+
 
                     }
-                    catch (ArgumentException ae) {
+                    catch (ArgumentException ae)
+                    {
                         new ErrorLogger().ExceptionLog(ae);
                         return AppParameters.NoImage;
                     }
-                    catch (WebException we) {
+                    catch (WebException we)
+                    {
                         new ErrorLogger().ExceptionLog(we);
                         return AppParameters.NoImage;
                     }
-                   
+
                 }
             }
-    
-            catch (WebException we) {
+
+            catch (WebException we)
+            {
                 new ErrorLogger().ExceptionLog(we);
                 return AppParameters.NoImage;
             }
@@ -607,7 +610,7 @@ namespace Factory_of_the_Future
                 }
                 else
                 {
-                    if (AppParameters.NotificationList.Count() > 0)
+                    if (AppParameters.NotificationList.Any())
                     {
                         return AppParameters.NotificationList.Select(x => x.Value).ToList();
                     }
@@ -677,7 +680,7 @@ namespace Factory_of_the_Future
                 {
                     return notification.Notification_Update;
                 }
-                if(notification.Type == "dockdoor" && !notification.Delete && notification.Type_Duration == 0)
+                if (notification.Type == "dockdoor" && !notification.Delete && notification.Type_Duration == 0)
                 {
                     return notification.Notification_Update;
                 }
@@ -743,7 +746,7 @@ namespace Factory_of_the_Future
 
         private void BroadcastNotificationStatus(Notification notification)
         {
-            Clients.All.updateNotification(notification);
+            Clients.Group("Notification").updateNotification(notification);
         }
 
         internal IEnumerable<NotificationConditions> GetNotification_ConditionsList()
@@ -1059,9 +1062,9 @@ namespace Factory_of_the_Future
 
         public void BroadcastDockdoorZoneStatus(RouteTrips dockdoortrips, string id)
         {
-            Clients.Group("DockDoor_"+ dockdoortrips.DoorNumber).updateDigitalDockDoorStatus(dockdoortrips, id);
+            Clients.Group("DockDoor_" + dockdoortrips.DoorNumber).updateDigitalDockDoorStatus(dockdoortrips, id);
         }
-       
+
         private void UpdateSVTripsStatus(object state)
         {
             lock (updateSVTripsStatuslock)
@@ -1131,6 +1134,7 @@ namespace Factory_of_the_Future
                         trip.NotloadedContainers = NotloadedContainers;
                     }
                     trip.State = state;
+                   
                 }
                 else
                 {
@@ -1211,9 +1215,8 @@ namespace Factory_of_the_Future
 
         private void BroadcastSVTripsStatus(RouteTrips trip)
         {
-            Clients.All.updateSVTripsStatus(trip);
+            Clients.Group("Trips").updateSVTripsStatus(trip);
         }
-
         private string CheckNotification(string currentState, string NewState, string type, RouteTrips trip, string noteifi_id)
         {
             string noteification_id = "";
@@ -1437,7 +1440,7 @@ namespace Factory_of_the_Future
         }
         private void BroadcastQSMUpdate(Connection qSMitem)
         {
-            Clients.All.UpdateQSMStatus(qSMitem);
+            Clients.Group("QSM").UpdateQSMStatus(qSMitem);
         }
 
         //internal IEnumerable<GeoZone> GetMachineZonesList()
@@ -1703,7 +1706,7 @@ namespace Factory_of_the_Future
         private void BroadcastMachineStatus(List<Tuple<GeoZone, string>> machineStatuses)
         {
             Clients.Group("MachineZones").updateMachineStatus(machineStatuses);
-            
+
         }
         /* updates tag name after end user clicks on a vehicle, selects edit, and enters
            a new tag name and submits
@@ -1714,7 +1717,7 @@ namespace Factory_of_the_Future
                 thisTime.Day.ToString("00") + "_" + tagId;
         }
 
-        
+
         internal async Task<bool> UpdateTagName(string tagId, string tagName)
         {
             try
@@ -1723,7 +1726,7 @@ namespace Factory_of_the_Future
                 // update the tag name using quuppa api
 
                 // [IP:port]/qpe/modifyTag?&tag=<tag_id>&name=<NEW name>
-                 
+
                 HttpResponseMessage response = await
                     httpClient.GetAsync(AppParameters.QuuppaBaseUrl +
                     @"modifyTag?tag=" + tagId + "&name=" + tagName).ConfigureAwait(false);
@@ -1759,7 +1762,7 @@ namespace Factory_of_the_Future
                     return false;
                 }
 
-                
+
 
                 // update the project data for the stored json file, which includes the new update
                 bool result = await UpdateProjectData().ConfigureAwait(false);
@@ -1771,7 +1774,7 @@ namespace Factory_of_the_Future
                         (f => f.Value.Properties.TagType.EndsWith("Vehicle") &&
                     f.Key == tagId
                     ).Select(y => y.Value).ToList<GeoMarker>();
-                   
+
                     BroadcastVehiclesUpdate(vehicles, cs.Id);
                 }
                 return result;
@@ -1788,7 +1791,7 @@ namespace Factory_of_the_Future
         /*
          *  code added, but not a feature in the app yet, no GUI for this yet
          */
-                internal async Task<bool> UpdateTagGroupName(string tagId, string tagGroupName)
+        internal async Task<bool> UpdateTagGroupName(string tagId, string tagGroupName)
         {
             try
             {
@@ -1813,7 +1816,7 @@ namespace Factory_of_the_Future
                 // [IP:port]/qpe/exportTags?tag=<tag_id>&filename=<YYYY-MM-DD_TAGID>
                 HttpResponseMessage response2 =
                    await httpClient.GetAsync(AppParameters.QuuppaBaseUrl +
-                   @"exportTags?tag=" + tagId + 
+                   @"exportTags?tag=" + tagId +
                    "&filename=" + fileName).ConfigureAwait(false);
                 content = await response2.Content.ReadAsStringAsync().ConfigureAwait(false);
                 if (response2.StatusCode != HttpStatusCode.OK)
@@ -1866,7 +1869,7 @@ namespace Factory_of_the_Future
             try
             {
 
-            
+
                 string projectInfoConnectionString = GetProjectInfoConnection();
                 HttpResponseMessage response = await
                     httpClient.GetAsync(projectInfoConnectionString).ConfigureAwait(false);
@@ -1880,7 +1883,7 @@ namespace Factory_of_the_Future
                 JArray coordinateSystems = (JArray)jo["coordinateSystems"];
                 string projectDataString = coordinateSystems.ToString();
 
-           
+
                 new FileIO().Write(string.Concat(AppParameters.Logdirpath, AppParameters.ConfigurationFloder),
                    "Project_Data.json", projectDataString);
 
@@ -1896,7 +1899,7 @@ namespace Factory_of_the_Future
             }
         }
         internal IEnumerable<CoordinateSystem> GetIndoorMapFloor(string id)
-            
+
         {
             try
             {
@@ -2303,8 +2306,8 @@ namespace Factory_of_the_Future
             Clients.Group("VehiclsMarkers").updateVehicleTagStatus(marker, id);
         }
 
-       
-        
+
+
         private void UpdatePersonTagStatus(object state)
         {
             lock (updatePersonTagStatuslock)
@@ -2419,7 +2422,8 @@ namespace Factory_of_the_Future
                         newConndata.Port = 0;
                         newConndata.Url = "";
                         string sitename = AppParameters.AppSettings["FACILITY_NAME"].ToString().ToLower().Replace(" ", "_").Replace("&", "").Replace("(", "").Replace(")", "");
-                        AppParameters.MPEWatchData.Where(r => r.Value.SiteNameLocal.ToLower() == sitename).Select(y => y.Value).ToList().ForEach(m => {
+                        AppParameters.MPEWatchData.Where(r => r.Value.SiteNameLocal.ToLower() == sitename).Select(y => y.Value).ToList().ForEach(m =>
+                        {
                             newConndata.IpAddress = m.Host;
                             newConndata.Port = m.Port;
                             newConndata.Url = m.URL;
@@ -2769,7 +2773,7 @@ namespace Factory_of_the_Future
                 List<BackgroundImage> temp = new List<BackgroundImage>();
                 foreach (CoordinateSystem cs in AppParameters.CoordinateSystem.Values)
                 {
-                    temp.Add(cs.BackgroundImage); 
+                    temp.Add(cs.BackgroundImage);
                 };
                 return temp;
             }
@@ -2787,7 +2791,8 @@ namespace Factory_of_the_Future
                 foreach (CoordinateSystem cs in AppParameters.CoordinateSystem.Values)
                 {
                     if (cs.BackgroundImage.Id == data["id"])
-                    { 
+                    {
+                        //remove image
                     }
                 };
                 return GetFloorPlanData();
@@ -3163,6 +3168,6 @@ namespace Factory_of_the_Future
             GC.SuppressFinalize(this);
         }
 
-      
+
     }
 }

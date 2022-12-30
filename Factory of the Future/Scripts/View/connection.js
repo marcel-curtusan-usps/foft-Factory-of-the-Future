@@ -602,6 +602,7 @@ async function updateConnection(Connectionupdate) {
 }
 async function init_connection(ConnectionList) {
     try {
+ 
         connection_Table = $('table[id=connectiontable]');
         connection_Table_Body = connection_Table.find('tbody');
         if (ConnectionList.length > 0) {

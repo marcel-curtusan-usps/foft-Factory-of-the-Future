@@ -1,4 +1,7 @@
-﻿namespace Factory_of_the_Future
+﻿using Factory_of_the_Future.Transaction_Concentrator;
+using System.Text.RegularExpressions;
+
+namespace Factory_of_the_Future
 {
     internal class ProcessorMessage
     {
@@ -12,9 +15,13 @@
             try
             {
 
-                if (message[0] == 'B')
+                if (Regex.IsMatch(message[0].ToString(), "(b|B)", RegexOptions.ExplicitCapture))
                 {
-                    return "";
+                    return new InitializationMessageResponse(new Initialization_Message(data)).Message_format;
+                }
+                else if (Regex.IsMatch(message[0].ToString(), "(W)", RegexOptions.ExplicitCapture))
+                {
+                    return new Host_Status_Response(new Host_Status(data)).Message_format;
                 }
                 else
                 {

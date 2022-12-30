@@ -11,7 +11,7 @@ namespace Factory_of_the_Future.DockDoor
     {
         protected void Page_Load(object sender, EventArgs e)
         {
-
+            // Method intentionally left empty.
         }
     }
 }

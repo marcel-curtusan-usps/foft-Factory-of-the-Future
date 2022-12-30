@@ -1,0 +1,28 @@
+﻿.doorcontainer-fluid {
+    width: 100%;
+    padding-right: 0px;
+    padding-left: 0px;
+    margin-right: auto;
+    margin-left: auto;
+}
+#currentTripTable > thead > tr > th {
+    background-color: #0067F4 !important;
+    color: #FFFFFF !important;
+    font-size: 1.5rem;
+    text-align: center;
+}
+#currentTripTable > tbody > tr > td {
+    
+    font-size: 2rem;
+    text-align: center;
+}
+#containerLocationtable > thead > tr > th {
+    background-color: #0067F4 !important;
+    color: #FFFFFF !important;
+    font-size: 2rem;
+}
+#nextTriptable > thead > tr > th {
+    background-color: #0067F4 !important;
+    color: #FFFFFF !important;
+    font-size: 2rem;
+}

@@ -1734,16 +1734,22 @@ namespace Factory_of_the_Future
         public void IgnoreProperty(Type type, params string[] jsonPropertyNames)
         {
             if (!_ignores.ContainsKey(type))
+            {
                 _ignores[type] = new HashSet<string>();
+            }
 
             foreach (var prop in jsonPropertyNames)
+            {
                 _ignores[type].Add(prop);
+            }
         }
 
         public void RenameProperty(Type type, string propertyName, string newJsonPropertyName)
         {
             if (!_renames.ContainsKey(type))
+            {
                 _renames[type] = new Dictionary<string, string>();
+            }
 
             _renames[type][propertyName] = newJsonPropertyName;
         }
@@ -1759,7 +1765,9 @@ namespace Factory_of_the_Future
             }
 
             if (IsRenamed(property.DeclaringType, property.PropertyName, out var newJsonPropertyName))
+            {
                 property.PropertyName = newJsonPropertyName;
+            }
 
             return property;
         }
@@ -1767,7 +1775,9 @@ namespace Factory_of_the_Future
         private bool IsIgnored(Type type, string jsonPropertyName)
         {
             if (!_ignores.ContainsKey(type))
+            {
                 return false;
+            }
 
             return _ignores[type].Contains(jsonPropertyName);
         }
