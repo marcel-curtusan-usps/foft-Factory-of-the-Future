@@ -35,6 +35,7 @@ function drawAlertText(ctx, txt, font, viewWidth, viewHeight, x, y, txtBGColor, 
     ctx.fillText(txt, x, y);
 }
 let cameraupdates = [];
+let allcameraslist = [];
 let flashRate = 3000;
 let flashCheckRate = 250;
 let lastAlertBlinkChange = 0;
@@ -76,16 +77,25 @@ function CameraDataUpdate(cameradataUpdate, id) {
                             let img = new Image();
                             //load Base64 image
                             img.src = cameradataUpdate.properties.Camera_Data.base64Image;
+                            var mapsize = map.getZoom();
+                            var iconsizeh = 64;
+                            var iconsizew = 48
+                            if (mapsize > 2) {
+                                iconsizeh = 64 * mapsize;
+                                iconsizew = 48 * mapsize;
+                            }
                             let thumbnailsReplc = L.icon({
                                     iconUrl: img.src,
-                                    iconSize: [64, 48], // size of the icon
+                                    iconSize: [iconsizeh, iconsizew], // size of the icon
                                     iconAnchor: [0, 0], // point of the icon which will correspond to marker's location
                                     shadowAnchor: [0, 0],  // the same for the shadow
                                     popupAnchor: [0, 0] // point from which the popup should open relative to the iconAnchor
-                                
                             });
                             layer.setIcon(thumbnailsReplc);
-                            return false;
+                           const index = allcameraslist.findIndex(object => object.properties.id === cameradataUpdate.properties.id);
+                           if (index === -1) {allcameraslist.push(cameradataUpdate);}
+                           else {allcameraslist[index].properties.Camera_Data.base64Image = cameradataUpdate.properties.Camera_Data.base64Image;}
+                           return false;
                         }
                     });
                 }
@@ -94,6 +104,15 @@ function CameraDataUpdate(cameradataUpdate, id) {
     } catch (e) {
         console.log(e);
     }
+}
+function UpdateCameraZoom() {
+    for (var i = 0, l = allcameraslist.length; i < l; i++) {
+        CameraDataUpdate(allcameraslist[i], allcameraslist[i].properties.floorId);
+    }
+}
+function removecamfromalllist(markerID) {
+    const index = allcameraslist.findIndex(object => object.properties.id === markerID);
+    allcameraslist.splice(index, 1);
 }
 function addCameraUpdate(allcameras) {
     if (camerathumbnailsupdating) {
@@ -394,13 +413,22 @@ let cameras = new L.GeoJSON(null, {
         let img = new Image();
         //load Base64 image
         img.src = feature.properties.Camera_Data.base64Image;
+        var mapsize = map.getZoom();
+        var iconsizeh = 64;
+        var iconsizew = 48
+        if (mapsize > 2) {
+            iconsizeh = 64 * mapsize;
+            iconsizew = 48 * mapsize;
+        }
         let locaterIcon = L.icon({
                 iconUrl: img.src,
-                iconSize: [64, 48], // size of the icon
+                iconSize: [iconsizeh, iconsizew], // size of the icon
                 iconAnchor: [0, 0], // point of the icon which will correspond to marker's location
                 shadowAnchor: [0, 0],  // the same for the shadow
                 popupAnchor: [0, 0] // point from which the popup should open relative to the iconAnchor
-            });
+        });
+        const index = allcameraslist.findIndex(object => object.properties.id === feature.properties.id);
+        if (index === -1) { allcameraslist.push(feature); }
         return L.marker(latlng, {
             icon: locaterIcon,
             title: feature.properties.empName,

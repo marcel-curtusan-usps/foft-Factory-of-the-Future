@@ -27,6 +27,9 @@ namespace Factory_of_the_Future
                         case "Cameras":
                             CameraData(data, connID);
                             break;
+                        case "getCameraStills":
+                            CameraStillsData(data, connID);
+                            break;
                         /*Quuppa Data Start*/
                         case "getTagPosition":
                             TagPosition(data,connID);
@@ -223,6 +226,34 @@ namespace Factory_of_the_Future
                                 existingValue.Reachable = camera_item.Reachable;
                                 existingValue.Base64Image = AppParameters.NoImage;
                                 existingValue.Alerts = null;
+
+                                foreach (CoordinateSystem cs in AppParameters.CoordinateSystem.Values)
+                                {
+                                    cs.Locators.Where(f => f.Value.Properties.TagType != null &&
+                                    f.Value.Properties.TagType == "Camera").Select(y => y.Value).ToList().ForEach(Camera =>
+                                    {
+                                        if (Camera.Properties.Name == camera_item.CameraName)
+                                        {
+                                            Camera.Properties.CameraData.FacilitySubtypeDesc = camera_item.FacilitySubtypeDesc;
+                                            Camera.Properties.CameraData.AuthKey = camera_item.AuthKey;
+                                            Camera.Properties.CameraData.Description = camera_item.Description;
+                                            Camera.Properties.CameraData.FacilitiyLatitudeNum = camera_item.FacilitiyLatitudeNum;
+                                            Camera.Properties.CameraData.FacilitiyLongitudeNum = camera_item.FacilitiyLongitudeNum;
+                                            Camera.Properties.CameraData.FacilityDisplayName = camera_item.FacilityDisplayName;
+                                            Camera.Properties.CameraData.FacilityPhysAddrTxt = camera_item.FacilityPhysAddrTxt;
+                                            Camera.Properties.CameraData.GeoProcDivisionNm = camera_item.GeoProcDivisionNm;
+                                            Camera.Properties.CameraData.GeoProcRegionNm = camera_item.GeoProcRegionNm;
+                                            Camera.Properties.CameraData.LocaleKey = camera_item.LocaleKey;
+                                            Camera.Properties.CameraData.ModelNum = camera_item.ModelNum;
+                                            Camera.Properties.CameraData.Reachable = camera_item.Reachable;
+                                            if (Camera.Properties.CameraData.Base64Image == null)
+                                            {
+                                                Camera.Properties.CameraData.Base64Image = AppParameters.NoImage;
+                                            }
+                                            Camera.Properties.CameraData.Alerts = null;
+                                        }
+                                    });
+                                }
                             }
                             else
                             {
@@ -247,7 +278,42 @@ namespace Factory_of_the_Future
                 new ErrorLogger().ExceptionLog(e);
             }
         }
- 
+
+        private void CameraStillsData(dynamic data, string conID)
+        {
+            if (data != null)
+            {
+                try
+                {
+                    foreach (CoordinateSystem cs in AppParameters.CoordinateSystem.Values)
+                    {
+                        cs.Locators.Where(f => f.Value.Properties.TagType != null &&
+                        f.Value.Properties.TagType == "Camera").Select(y => y.Value).ToList().ForEach(Camera =>
+                        {
+                            if (data.TryGetValue(Camera.Properties.Name, out string camImage))
+                            {
+                                if (Camera.Properties.CameraData.Base64Image != camImage)
+                                {
+                                    Camera.Properties.CameraData.Base64Image = camImage;
+                                    Camera.Properties.TagUpdate = true;
+                                }
+                            }
+                        });
+                    }
+                    Task.Run(() => updateConnection(conID, "good"));
+                }
+                catch (Exception ex)
+                {
+                    Task.Run(() => updateConnection(conID, "error"));
+                    new ErrorLogger().ExceptionLog(ex);
+                }
+            }
+            else
+            {
+                Task.Run(() => updateConnection(conID, "error"));
+            }
+        }
+
 
         private string GetImgae(Cameras camera_item)
         {

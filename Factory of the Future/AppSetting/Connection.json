@@ -56,7 +56,7 @@
     "Url": "https://svweb.usps.gov/svx/reports/containerInfoByEventDate?siteId={0}&eventDate={1}"
   },
   {
-    "ActiveConnection": true,
+    "ActiveConnection": false,
     "AdminEmailRecepient": "",
     "ApiConnected": true,
     "ConnectionName": "Web_Camera",
@@ -141,7 +141,7 @@
   },
   {
     "ActiveConnection": false,
-    "AdminEmailRecepient": "",
+    "AdminEmailRecepient": "marcel.n.curtusan@usps.gov",
     "ApiConnected": false,
     "ConnectionName": "Quuppa",
     "CreatedByUsername": "FSVCD0",
@@ -150,8 +150,8 @@
     "DeactivatedByUsername": "",
     "DeactivatedDate": "0001-01-01T00:00:00",
     "Hostname": "",
-    "HoursBack": 0,
-    "HoursForward": 0,
+    "HoursBack": 20,
+    "HoursForward": 1,
     "Https": false,
     "Id": "757fbcf0-4f4a-4b9a-afb6-053980ac606d",
     "IpAddress": "1.1.1.1",
@@ -189,7 +189,7 @@
     "MessageType": "trips",
     "NassCode": "",
     "OutgoingApikey": "",
-    "Port": 0,
+    "Port": 7777,
     "UdpConnection": false,
     "TcpIpConnection": false,
     "WsConnection": false,

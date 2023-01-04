@@ -274,13 +274,46 @@ namespace Factory_of_the_Future
                             cs.Locators.Where(f => f.Value.Properties.TagType != null &&
                             f.Value.Properties.TagType == "Camera").Select(y => y.Value).ToList().ForEach(Camera =>
                             {
-                                if (Camera.Properties.CameraData.Base64Image != TryUpdateCameraStatus(Camera.Properties.CameraData.CameraName, out string Base64Img))
+                                if (Camera.Properties.CameraData == null)
                                 {
-                                    Camera.Properties.CameraData.Base64Image = Base64Img;
+                                    Cameras cam = new Cameras();
+                                    if (AppParameters.CameraInfoList.TryGetValue(Camera.Properties.Name, out Cameras existingValue))
+                                    {
+                                    
+                                        cam.FacilitySubtypeDesc = existingValue.FacilitySubtypeDesc;
+                                        cam.AuthKey = existingValue.AuthKey;
+                                        cam.Description = existingValue.Description;
+                                        cam.FacilitiyLatitudeNum = existingValue.FacilitiyLatitudeNum;
+                                        cam.FacilitiyLongitudeNum = existingValue.FacilitiyLongitudeNum;
+                                        cam.FacilityDisplayName = existingValue.FacilityDisplayName;
+                                        cam.FacilityPhysAddrTxt = existingValue.FacilityPhysAddrTxt;
+                                        cam.GeoProcDivisionNm = existingValue.GeoProcDivisionNm;
+                                        cam.GeoProcRegionNm = existingValue.GeoProcRegionNm;
+                                        cam.LocaleKey = existingValue.LocaleKey;
+                                        cam.ModelNum = existingValue.ModelNum;
+                                        cam.Reachable = existingValue.Reachable;
+                                        cam.CameraName = existingValue.CameraName;
+                                        cam.Base64Image = AppParameters.NoImage;
+                                        cam.Alerts = null;
+                                    }
+                                    else
+                                    {
+                                        cam.Base64Image = AppParameters.NoImage;
+                                        cam.CameraName = Camera.Properties.Name;
+                                    }
+                                    Camera.Properties.CameraData = cam;
+                                    new FileIO().Write(string.Concat(AppParameters.Logdirpath, AppParameters.ConfigurationFloder), "Project_Data.json", AppParameters.ZoneOutPutdata(AppParameters.CoordinateSystem.Select(x => x.Value).ToList()));
+
+                                }
+                            //if (Camera.Properties.CameraData.Base64Image != TryUpdateCameraStatus(Camera.Properties.CameraData.CameraName, out string Base64Img))
+                            //{
+                            //    Camera.Properties.CameraData.Base64Image = Base64Img;
+                            //    BroadcastCameraStatus(Camera, cs.Id);
+                            //}
+                                if(TryUpdateCameraStatus(Camera))
+                                {
                                     BroadcastCameraStatus(Camera, cs.Id);
                                 }
-
-
                             });
                         }
                         _updateCameraStatus = false;
@@ -350,57 +383,68 @@ namespace Factory_of_the_Future
         //    Clients.Group("CameraMarkers").updateCameraStatus(CameraZone, id);
         //}
 
-        private static string TryUpdateCameraStatus(string camera, out string imageBase64)
+        private bool TryUpdateCameraStatus(GeoMarker camera)
         {
-            imageBase64 = AppParameters.NoImage;
-            try
+            bool updateImage = false;
+            if(!string.IsNullOrEmpty(AppParameters.ConnectionList.Where(x => x.Value.MessageType.ToUpper() == "getCameraStills".ToUpper() && x.Value.ActiveConnection).Select(y => y.Value.Id).FirstOrDefault()))
             {
-
-                string url = @"http://" + camera + @"/axis-cgi/jpg/image.cgi?resolution=320x240";
-                Uri thisUri = new Uri(url);
-
-                using (WebClient client = new WebClient())
-                {
-                    try
-                    {
-
-                        client.Headers.Add(HttpRequestHeader.ContentType, "application/octet-stream");
-
-                        //add header
-                        byte[] result = client.DownloadData(url);
-                        imageBase64 = "data:image/jpeg;base64," + Convert.ToBase64String(result);
-                        //if (camera.Properties.Base64Image != imageBase64)
-                        //{
-                        return imageBase64;
-                        //}
-
-
-                    }
-                    catch (ArgumentException ae)
-                    {
-                        new ErrorLogger().ExceptionLog(ae);
-                        return AppParameters.NoImage;
-                    }
-                    catch (WebException we)
-                    {
-                        new ErrorLogger().ExceptionLog(we);
-                        return AppParameters.NoImage;
-                    }
-
-                }
+                updateImage = camera.Properties.TagUpdate;
             }
-
-            catch (WebException we)
+            else if(camera.Properties.CameraData.Base64Image != AppParameters.NoImage)
             {
-                new ErrorLogger().ExceptionLog(we);
-                return AppParameters.NoImage;
+                camera.Properties.CameraData.Base64Image = AppParameters.NoImage;
+                updateImage = true;
             }
-            catch (Exception e)
-            {
-                new ErrorLogger().ExceptionLog(e);
-                return AppParameters.NoImage;
-            }
+            camera.Properties.TagUpdate = false;
+            return updateImage;
         }
+        //private static string TryUpdateCameraStatus(string camera, out string imageBase64)
+        //{
+        //    imageBase64 = AppParameters.NoImage;
+        //    try
+        //    {
+        //        string url = @"http://" + camera + @"/axis-cgi/jpg/image.cgi?resolution=320x240";
+        //        Uri thisUri = new Uri(url);
+
+        //        using (WebClient client = new WebClient())
+        //        {
+        //            try
+        //            {
+
+        //                client.Headers.Add(HttpRequestHeader.ContentType, "application/octet-stream");
+
+        //                //add header
+        //                byte[] result = client.DownloadData(url);
+        //                imageBase64 = "data:image/jpeg;base64," + Convert.ToBase64String(result);
+        //                //if (camera.Properties.Base64Image != imageBase64)
+        //                //{
+        //                return imageBase64;
+        //                //}
+
+
+        //            }
+        //            catch (ArgumentException ae) {
+        //                new ErrorLogger().ExceptionLog(ae);
+        //                return AppParameters.NoImage;
+        //            }
+        //            catch (WebException we) {
+        //                new ErrorLogger().ExceptionLog(we);
+        //                return AppParameters.NoImage;
+        //            }
+
+        //        }
+        //    }
+
+        //    catch (WebException we) {
+        //        new ErrorLogger().ExceptionLog(we);
+        //        return AppParameters.NoImage;
+        //    }
+        //    catch (Exception e)
+        //    {
+        //        new ErrorLogger().ExceptionLog(e);
+        //        return AppParameters.NoImage;
+        //    }
+        //}
 
         //public void UpdateCameraImages()
         //{

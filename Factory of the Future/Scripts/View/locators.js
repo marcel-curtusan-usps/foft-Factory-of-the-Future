@@ -1,6 +1,6 @@
 ﻿/* use this for locater data */
 
-async function init_locators(marker,id) {
+async function init_locators(marker, id) {
     $.each(marker, function () {
         if (this.properties.Tag_Type === "Vehicle") {
             piv_vehicles.addData(this);
@@ -14,7 +14,7 @@ async function init_locators(marker,id) {
         }
         else {
             locatorMarker.addData(this)
-        };
+        }
     });
     fotfmanager.server.joinGroup("VehiclsMarkers");
     fotfmanager.server.joinGroup("CameraMarkers");

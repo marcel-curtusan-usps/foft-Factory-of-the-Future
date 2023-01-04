@@ -448,6 +448,7 @@ function RemoveMarkerItem(removeLayer) {
             if (!$.isEmptyObject(Data)) {
                 setTimeout(function () { $("#Remove_Layer_Modal").modal('hide'); }, 500);
                 removeFromMapView(removeLayer.layer.id);
+                removecamfromalllist(removeLayer.layer.id);
             }
         });
     } catch (e) {
