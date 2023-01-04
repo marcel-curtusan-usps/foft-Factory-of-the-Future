@@ -312,8 +312,7 @@ var btnZoomReset = L.easyButton({
         stateName: 'viewreset',
         icon: '<div id="resetZoom"><i class="pi-iconZoomAll align-self-center" style="padding-bottom: 3px; padding-left: 1px; display: inline-flex; vertical-align: middle;" title="Reset Zoom"></i></div>',
         onClick: function () {
-            var trackingarea = L.polygon(bounds, {});
-            map.setView(trackingarea.getBounds().getCenter(), 1.5);
+            map.setView(map.getBounds().getCenter(), 1.5);
             btnZoomReset.button.setAttribute("style", "display:none;");
             sidebar.close();
         }

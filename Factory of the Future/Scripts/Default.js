@@ -29,7 +29,7 @@ $(function () {
     User = $.parseJSON(localStorage.getItem('User'));  
     if (!$.isEmptyObject(User)) {
         $(document).prop('title', User.Facility_Name + ' ' + User.ApplicationAbbr);
-        $('#fotf-site-facility-name').text(User.Facility_Name);
+        $('#fotf-site-facility-name').append(User.Facility_Name);
         $(document).prop('title', User.Facility_Name + ' ' + User.ApplicationFullName);
         map.attributionControl.setPrefix("USPS " + User.ApplicationFullName + " (" + User.SoftwareVersion + ") | " + User.Facility_Name);
         //add Connection list if user is Admin or OIE
@@ -522,7 +522,7 @@ $(function () {
     });
 });
 function Page_Update(data) {
-    $('#fotf-site-facility-name').text(data.FACILITY_NAME);
+    $('#fotf-site-facility-name').append(data.FACILITY_NAME);
     $(document).prop('title', data.FACILITY_NAME + ' ' + data.APPLICATION_NAME);
 }
 function Map_Update(data) {
@@ -598,9 +598,14 @@ function formatDateTime(value_time) {
     }
 }
 function capitalize_Words(str) {
-    return str.replace(/\w\S*/g, function (txt) {
-        return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();
-    });
+    try {
+        return str.replace(/\w\S*/g, function (txt) {
+            return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();
+        });
+    } catch (e) {
+        console.log(e);
+    }
+  
 }
 function IPAddress_validator(value) {
     let ipPattern = /^(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})$/;
@@ -1022,4 +1027,6 @@ function hideSidebarLayerDivs() {
     $('div[id=vehicle_div]').css('display', 'none');
     $('div[id=dps_div]').css('display', 'none');
     $('div[id=layer_div]').css('display', 'none');
+    $('div[id=dockdoor_tripdiv]').css('display', 'none');
+
 }

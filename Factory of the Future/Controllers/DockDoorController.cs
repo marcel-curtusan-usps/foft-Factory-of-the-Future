@@ -21,7 +21,7 @@ namespace Factory_of_the_Future.Controllers
                 cs.Zones.Where(f => f.Value.Properties.ZoneType == "DockDoor"
                 ).Select(y => y.Value).ToList().ForEach(DockDoor =>
                 {
-                    doors.Add(DockDoor.Properties.DockDoorData);
+                    doors= DockDoor.Properties.DockDoorData;
                 });
             }
             if (doors.Count() > 0)
@@ -43,7 +43,7 @@ namespace Factory_of_the_Future.Controllers
                 cs.Zones.Where(f => f.Value.Properties.ZoneType == "DockDoor" && f.Value.Properties.DoorNumber.ToLower() == id.ToLower()
                 ).Select(y => y.Value).ToList().ForEach(DockDoor =>
                 {
-                    doors.Add(DockDoor.Properties.DockDoorData);
+                    doors = DockDoor.Properties.DockDoorData;
                 });
             }
             if (doors.Count() > 0)

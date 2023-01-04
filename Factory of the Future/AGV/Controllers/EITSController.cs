@@ -36,9 +36,11 @@ namespace Factory_of_the_Future.Controllers
                 case "HEARTBEATSTATUS":
                   return CreatedAtRoute("DefaultApi", new { id = "0" }, new EITS_Messages.HeartbeatResponse());
                 case "MOVEREQUEST":
-                    return CreatedAtRoute("DefaultApi", new { id = "0" }, new EITS_Messages.MoveResponse());
+                    return CreatedAtRoute("DefaultApi", new { id = "0" }, new EITS_Messages.MessageResponse(request_data.ToObject<EITS_Messages.RequestMission>()));
+                case "CANCEL_JOB":
+                    return CreatedAtRoute("DefaultApi", new { id = "0" }, new EITS_Messages.MessageResponse(request_data.ToObject<EITS_Messages.CancelMission>()));
                 case "LOCATIONSTATUS":
-                    return CreatedAtRoute("DefaultApi", new { id = "0" }, request_data);
+                    return CreatedAtRoute("DefaultApi", new { id = "0" }, new EITS_Messages.MessageResponse(request_data.ToObject<EITS_Messages.LocationStatus>()));
                 default:
                     break;
             }

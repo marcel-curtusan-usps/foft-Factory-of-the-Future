@@ -5,9 +5,14 @@ $.extend(fotfmanager.client, {
     updateDockDoorStatus: async (dockdoorupdate) => { updateDockDoorZone(dockdoorupdate) }
 });
 $(function () {
+
+    createAssignedTripDatatable("doortriptable");
     $('button[name=tripSelectorbtn]').off().on('click', function () {
-
-
+        let jsonObject = {
+            RouteTrip: $('select[name=tripSelector] option:selected').val(),
+            DoorNumber: $('span[name=doornumberid]').text(),
+        };
+        fotfmanager.server.updateRouteTripDoorAssigment(jsonObject).done();
     });
 });
 async function updateDockDoorZone(dockdoorzoneupdate) {
@@ -50,7 +55,7 @@ document.addEventListener("layerscontentvisible", () => {
 var dockDoors = new L.GeoJSON(null, {
     style: function (feature) {
         try {
-            if (feature.properties.dockdoorData !== null) {
+            if (feature.properties.dockdoorData.length > 0 ) {
                 if (feature.properties.dockdoorData.tripDirectionInd !== "") {
                     if (feature.properties.dockdoorData.tripDirectionInd === "O") {
                         if (feature.properties.dockdoorData.tripMin <= 30) {
@@ -118,11 +123,12 @@ var dockDoors = new L.GeoJSON(null, {
     },
     onEachFeature: function (feature, layer) {
         let dockdookflash = "";
-        let doorNumberdisplay = "";
-        if (feature.properties.dockdoorData !== null) {
-            doorNumberdisplay = feature.properties.doorNumber.toString() + (feature.properties.dockdoorData.tripDirectionInd !== "" ? "-" + feature.properties.dockdoorData.tripDirectionInd : "")
-            if (feature.properties.dockdoorData.tripDirectionInd === "O") {
-                if (feature.properties.dockdoorData.tripMin <= 30 && feature.properties.dockdoorData.Notloadedcontainers > 0) {
+        let doorNumberdisplay = feature.properties.doorNumber.toString();
+
+        if (feature.properties.dockdoorData.length > 0 ) {
+            doorNumberdisplay = feature.properties.doorNumber.toString() + (feature.properties.dockdoorData[0].tripDirectionInd !== "" ? "-" + feature.properties.dockdoorData[0].tripDirectionInd : "")
+            if (feature.properties.dockdoorData[0].tripDirectionInd === "O") {
+                if (feature.properties.dockdoorData[0].tripMin <= 30 && feature.properties.dockdoorData[0].Notloadedcontainers > 0) {
                     dockdookflash = "doorflash"
                 }
             }
@@ -146,7 +152,7 @@ var dockDoors = new L.GeoJSON(null, {
             }
             LoadDockDoorTable(feature.properties);
         })
-        layer.bindTooltip(doorNumberdisplay, {
+        layer.bindTooltip(feature.properties.doorNumber, {
             permanent: true,
             interactive: true,
             direction: 'center',
@@ -287,160 +293,171 @@ async function updatedockdoor(layerindex) {
 }
 
 let dockdoorloaddata = [];
-async function LoadDockDoorTable(dataproperties) {
+async function LoadDockDoorTable(data) {
     try {
         dockdoorloaddata = [];
-        let loadtriphisory = false;
-        let tempdata = [];
         hideSidebarLayerDivs();
-        $('div[id=dockdoor_div]').attr("data-id", dataproperties.id);
+        $('div[id=dockdoor_div]').attr("data-id", data.id);
         $('div[id=dockdoor_div]').css('display', 'block');
-        $('div[id=trailer_div]').css('display', 'block');
         $('div[id=dockdoor_tripdiv]').css('display', 'block');
-        $zoneSelect[0].selectize.setValue(-1, true);
-        $zoneSelect[0].selectize.setValue(dataproperties.id, true);
-        dockdoortop_Table_Body.empty();
+        $('div[id=ctstabs_div]').css('display', 'none');
+        $('div[id=trailer_div]').css('display', 'block');
         $('button[name=container_counts]').text(0 + "/" + 0);
-        container_Table_Body.empty();
-        if (checkValue(dataproperties.dockdoorData.legSiteName)) {
-            $('select[id=tripSelector]').val(dataproperties.dockdoorData.id);
-            $('span[name=doornumberid]').text(dataproperties.doorNumber);
-            if (dataproperties.dockdoorData.legSiteName !== "") {
-                tempdata.push({
-                    name: "Site Name",
-                    value: "(" + dataproperties.dockdoorData.legSiteId + ") " + dataproperties.dockdoorData.legSiteName
-                })
-            }
-            if (dataproperties.dockdoorData.route !== "") {
-                tempdata.push({
-                    name: "Route-Trip",
-                    value: dataproperties.dockdoorData.route + "-" + dataproperties.dockdoorData.trip
-                })
-            }
-            if (dataproperties.dockdoorData.trailerBarcode !== "") {
-                tempdata.push({
-                    name: "Trailer Barcode",
-                    value: dataproperties.dockdoorData.trailerBarcode
-                })
-            }
-            if (dataproperties.dockdoorData.status !== "") {
-                if (checkValue(dataproperties.dockdoorData.status)) {
-                    $('span[name=doorstatus]').text(capitalize_Words(dataproperties.dockdoorData.status));
-                }
-            }
-            else {
-                $('span[name=doorstatus]').text("Occupied");
-            }
-            if (dataproperties.dockdoorData.loadPercent !== null) {
-                tempdata.push({
-                    name: "Load Percent",
-                    value: checkValue(dataproperties.dockdoorData.loadPercent) ? dataproperties.dockdoorData.loadPercent : 0
-                })
-            }
-       
-            if (dataproperties.dockdoorData.tripDirectionInd !== "") {
-                tempdata.push({
-                    name: "Direction",
-                    value: dataproperties.dockdoorData.tripDirectionInd === "O" ? "Out-bound" : "In-bound"
-                })
-            }
-            if (dataproperties.dockdoorData.scheduledDtm !== null) {
-                tempdata.push({
-                    name: dataproperties.dockdoorData.tripDirectionInd === "O" ? "Scheduled To Depart" : "Scheduled Arrive Time",
-                    value: formatSVmonthdayTime(dataproperties.dockdoorData.scheduledDtm)
-                })
-            }
-            if (dataproperties.dockdoorData.tripDirectionInd === "I") {
-                if (dataproperties.dockdoorData.actualDtm !== null) {
+        $('span[name=doornumberid]').text(data.doorNumber);
+        $zoneSelect[0].selectize.setValue(-1, true);
+        $zoneSelect[0].selectize.setValue(data.id, true);
+        dockdoortop_Table_Body.empty();
+
+        if (data.dockdoorData.length > 0) {
+            loadAssignedTripDataTable(data.dockdoorData,"doortriptable")
+            let dataproperties = data.dockdoorData[0];
+            let loadtriphisory = false;
+            let tempdata = [];          
+            container_Table_Body.empty();
+/*            if (checkValue(dataproperties.legSiteName)) {*/
+                $('select[id=tripSelector]').val(dataproperties.id);
+            
+                if (dataproperties.legSiteName !== "") {
                     tempdata.push({
-                        name: "Actual Arrive Time",
-                        value: formatSVmonthdayTime(dataproperties.dockdoorData.actualDtm)
+                        name: "Site Name",
+                        value: "(" + dataproperties.legSiteId + ") " + dataproperties.legSiteName
                     })
                 }
-            }
-            $.each(tempdata, function () {
-                dockdoortop_Table_Body.append(dockdoortop_row_template.supplant(formatdockdoortoprow(this, dataproperties.id)));
-            });
+                if (dataproperties.route !== "") {
+                    tempdata.push({
+                        name: "Route-Trip",
+                        value: dataproperties.route + "-" + dataproperties.trip
+                    })
+                }
+                if (dataproperties.trailerBarcode !== "") {
+                    tempdata.push({
+                        name: "Trailer Barcode",
+                        value: dataproperties.trailerBarcode
+                    })
+                }
+                if (dataproperties.status !== "") {
+                    if (checkValue(dataproperties.status)) {
+                        $('span[name=doorstatus]').text(capitalize_Words(dataproperties.status));
+                    }
+                }
+                else {
+                    $('span[name=doorstatus]').text("Occupied");
+                }
+                if (dataproperties.loadPercent !== null) {
+                    tempdata.push({
+                        name: "Load Percent",
+                        value: checkValue(dataproperties.loadPercent) ? dataproperties.loadPercent : 0
+                    })
+                }
 
-            $('button[name=container_counts]').text(0 + "/" + 0);
-            if (dataproperties.dockdoorData.tripDirectionInd) {
-                //var legSite = dataproperties.dockdoorData.tripDirectionInd === "I" ? User.NASS_Code : dataproperties.dockdoorData.legSiteId;
-                //$.connection.FOTFManager.server.getContainer(legSite, dataproperties.dockdoorData.tripDirectionInd, dataproperties.dockdoorData.route, dataproperties.dockdoorData.trip).done(function (Data) {
+                if (dataproperties.tripDirectionInd !== "") {
+                    tempdata.push({
+                        name: "Direction",
+                        value: dataproperties.tripDirectionInd === "O" ? "Out-bound" : "In-bound"
+                    })
+                }
+                if (dataproperties.scheduledDtm !== null) {
+                    tempdata.push({
+                        name: dataproperties.tripDirectionInd === "O" ? "Scheduled To Depart" : "Scheduled Arrive Time",
+                        value: formatSVmonthdayTime(dataproperties.scheduledDtm)
+                    })
+                }
+                if (dataproperties.tripDirectionInd === "I") {
+                    if (dataproperties.actualDtm !== null) {
+                        tempdata.push({
+                            name: "Actual Arrive Time",
+                            value: formatSVmonthdayTime(dataproperties.actualDtm)
+                        })
+                    }
+                }
+                $.each(tempdata, function () {
+                    dockdoortop_Table_Body.append(dockdoortop_row_template.supplant(formatdockdoortoprow(this, dataproperties.id)));
+                });
 
-                if (dataproperties.dockdoorData.containerScans !== null && dataproperties.dockdoorData.containerScans.length > 0) {
-                    var loadedcount = 0;
-                    var unloadedcount = 0;
-                    var loaddata = [];
-                    container_Table_Body.empty();
-                    $.each(dataproperties.dockdoorData.containerScans, function (index, d) {
-                        if (!d.containerTerminate) {
-                            if (dataproperties.dockdoorData.tripDirectionInd === "O") {
-                                if (d.containerAtDest === false) {
-                                    if (d.hasUnloadScans === true) {
+                $('button[name=container_counts]').text(0 + "/" + 0);
+                if (dataproperties.tripDirectionInd) {
+                    //var legSite = dataproperties.dockdoorData.tripDirectionInd === "I" ? User.NASS_Code : dataproperties.dockdoorData.legSiteId;
+                    //$.connection.FOTFManager.server.getContainer(legSite, dataproperties.dockdoorData.tripDirectionInd, dataproperties.dockdoorData.route, dataproperties.dockdoorData.trip).done(function (Data) {
+
+                    if (dataproperties.containerScans !== null && dataproperties.containerScans.length > 0) {
+                        var loadedcount = 0;
+                        var unloadedcount = 0;
+                        var loaddata = [];
+                        container_Table_Body.empty();
+                        $.each(dataproperties.containerScans, function (index, d) {
+                            if (!d.containerTerminate) {
+                                if (dataproperties.tripDirectionInd === "O") {
+                                    if (d.containerAtDest === false) {
+                                        if (d.hasUnloadScans === true) {
+                                            unloadedcount++
+                                            d.constainerStatus = "Unloaded";
+                                            d.sortind = 1;
+                                            loaddata.push(d);
+                                        }
+
+                                        if (d.hasLoadScans === true) {
+                                            loadedcount++
+                                            d.constainerStatus = "Loaded";
+                                            d.sortind = 2;
+                                            loaddata.push(d);
+                                        }
+                                        if (d.hasLoadScans === false && d.hasAssignScans === true && d.hasCloseScans === true) {
+                                            unloadedcount++;
+                                            d.constainerStatus = "Close";
+                                            d.sortind = 0;
+                                            loaddata.push(d);
+                                        }
+
+                                    }
+                                }
+                                if (dataproperties.tripDirectionInd === "I") {
+                                    if (d.hasUnloadScans === true && d.Itrailer === dataproperties.trailerBarcode) {
                                         unloadedcount++
                                         d.constainerStatus = "Unloaded";
                                         d.sortind = 1;
-                                        loaddata.push(d);
+                                        loaddata.push(this);
                                     }
-
-                                    if (d.hasLoadScans === true) {
-                                        loadedcount++
-                                        d.constainerStatus = "Loaded";
-                                        d.sortind = 2;
-                                        loaddata.push(d);
-                                    }
-                                    if (d.hasLoadScans === false && d.hasAssignScans === true && d.hasCloseScans === true) {
-                                        unloadedcount++;
-                                        d.constainerStatus = "Close";
-                                        d.sortind = 0;
-                                        loaddata.push(d);
-                                    }
-
                                 }
                             }
-                            if (dataproperties.dockdoorData.tripDirectionInd === "I") {
-                                if (d.hasUnloadScans === true && d.Itrailer === dataproperties.dockdoorData.trailerBarcode) {
-                                    unloadedcount++
-                                    d.constainerStatus = "Unloaded";
-                                    d.sortind = 1;
-                                    loaddata.push(this);
-                                }
-                            }
-                        }
-                    });
-                    loaddata.sort(SortByind);
-                    $.each(loaddata, function () {
-                        container_Table_Body.append(container_row_template.supplant(formatctscontainerrow(this, dataproperties.id)));
-                    });
-                    dockdoorloaddata = JSON.parse(JSON.stringify(loaddata));
+                        });
+                        loaddata.sort(SortByind);
+                        $.each(loaddata, function () {
+                            container_Table_Body.append(container_row_template.supplant(formatctscontainerrow(this, dataproperties.id)));
+                        });
+                        dockdoorloaddata = JSON.parse(JSON.stringify(loaddata));
 
-                    $('button[name=container_counts]').text(loadedcount + "/" + unloadedcount);
+                        $('button[name=container_counts]').text(loadedcount + "/" + unloadedcount);
+                    }
+                    else {
+                        $('button[name=container_counts]').text(0 + "/" + 0);
+                        container_Table_Body.empty();
+                    }
+                    //});
+
                 }
                 else {
                     $('button[name=container_counts]').text(0 + "/" + 0);
                     container_Table_Body.empty();
+
                 }
-                //});
 
-            }
-            else {
-                $('button[name=container_counts]').text(0 + "/" + 0);
-                container_Table_Body.empty();
-
-            }
-
-            if (loadtriphisory) {
-                $('div[id=trailer_div]').css('display', 'none');
-            }
+                if (loadtriphisory) {
+                    $('div[id=trailer_div]').css('display', 'none');
+                }
+            //}
+            //else {
+            //    $('div[id=trailer_div]').css('display', 'none');
+            //    $('select[id=tripSelector]').val("");
+            //    $('span[name=doornumberid]').text(data.doorNumber);
+            //    $('span[name=doorstatus]').text(getDoorStatus(dataproperties.status));
+            //    $.each(tempdata, function () {
+            //        dockdoortop_Table_Body.append(dockdoortop_row_template.supplant(formatdockdoortoprow(this, dataproperties.id)));
+            //    });
+            //}
         }
         else {
-            $('div[id=trailer_div]').css('display', 'none');
             $('select[id=tripSelector]').val("");
-            $('span[name=doornumberid]').text(dataproperties.doorNumber.toString());
-            $('span[name=doorstatus]').text(getDoorStatus(dataproperties.dockdoorData.status));
-            $.each(tempdata, function () {
-                dockdoortop_Table_Body.append(dockdoortop_row_template.supplant(formatdockdoortoprow(this, dataproperties.id)));
-            });
+            $('span[name=doornumberid]').text(data.doorNumber);
         }
     }
     catch (e) {
@@ -575,4 +592,65 @@ function formatcontainerdetailsrow(properties)
         source: properties.source,
         user: properties.updtUserId
     });
+}
+//assigend trips to dock doors table setup and load
+async function createAssignedTripDatatable(table)
+{
+    if ($.fn.dataTable.isDataTable("#" + table)) {
+        let arrayColums = [{
+            "Location": "",
+            "Assigned": "",
+            "Close": "",
+            "Stage": "",
+            "Xdk": "",
+            "Loaded": ""
+        }]
+        var columns = [];
+        var tempc = {};
+        $.each(arrayColums[0], function (key, value) {
+            tempc = {};
+            tempc = {
+                "title": capitalize_Words(key.replace(/\_/, ' ')),
+                "mDataProp": key
+            }
+            columns.push(tempc);
+        });
+        $('#' + table).DataTable({
+            dom: 'Bfrtip',
+            bFilter: false,
+            bdeferRender: true,
+            paging: false,
+            bPaginate: false,
+            bAutoWidth: true,
+            bInfo: false,
+            destroy: true,
+            language: {
+                zeroRecords: "No Trips Found ",
+                processing: "<div class='overlay custom-loader-background'><i class='fa fa-cog fa-spin custom-loader-color'></i></div>"
+            },
+            aoColumns: columns,
+            columnDefs: []
+        });
+    }
+}
+function loadAssignedTripDataTable(data, table) {
+    if ($.fn.dataTable.isDataTable("#" + table)) {
+            $('#' + table).DataTable().rows.add(data).draw();
+    }
+}
+function removeAssignedTripDataTable(table) {
+    if ($.fn.dataTable.isDataTable("#" + table)) {
+        $('#' + table).DataTable().rows(function (idx, data, node) {
+            $('#' + table).DataTable().row(node).remove().draw();
+        })
+    }
+}
+function updateAssignedTripDataTable(ldata, table) {
+    if ($.fn.dataTable.isDataTable("#" + table)) {
+        $('#' + table).DataTable().rows(function (idx, data, node) {
+            if (data.doorNumber === ldata.doorNumber) {
+                $('#' + table).DataTable().row(node).data(ldata).draw().invalidate();
+            }
+        })
+    }
 }

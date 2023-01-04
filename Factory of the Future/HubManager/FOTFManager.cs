@@ -102,6 +102,9 @@ namespace Factory_of_the_Future
             //Camera update;
             Camera_timer = new Timer(UpdateCameraImages, null, _10000updateInterval, _60000updateInterval);
         }
+
+
+
         public static FOTFManager Instance
         {
             get { return _instance.Value; }
@@ -124,26 +127,37 @@ namespace Factory_of_the_Future
             }
         }
 
-        internal RouteTrips GetDigitalDockDoorList(string id)
+        public List<RouteTrips> GetDigitalDockDoorList(string id)
         {
             try
             {
-                RouteTrips doors = new RouteTrips();
-                foreach (CoordinateSystem cs in AppParameters.CoordinateSystem.Values)
-                {
-                    cs.Zones.Where(f => f.Value.Properties.ZoneType == "DockDoor" && f.Value.Properties.DoorNumber.ToLower() == id.ToLower()
-                    ).Select(y => y.Value).ToList().ForEach(DockDoor =>
-                    {
-                        doors = DockDoor.Properties.DockDoorData;
-                    });
-                }
-                return doors;
+                List<RouteTrips> doorTrips = new List<RouteTrips>();
+                doorTrips = AppParameters.RouteTripsList.Where(x => !Regex.IsMatch(x.Value.State, "(CANCELED|DEPARTED|OMITTED|COMPLETE)", RegexOptions.IgnoreCase) && x.Value.DoorNumber == id).Select(y => y.Value).OrderBy(o => o.ScheduledDtm).ToList();
+                return doorTrips;
             }
             catch (Exception e)
             {
                 new ErrorLogger().ExceptionLog(e);
                 return null;
             }
+            //try
+            //{
+            //    List<RouteTrips> doorData = new List<RouteTrips>();
+            //    foreach (CoordinateSystem cs in AppParameters.CoordinateSystem.Values)
+            //    {
+            //        cs.Zones.Where(f => f.Value.Properties.ZoneType == "DockDoor" && f.Value.Properties.DoorNumber.ToLower() == id.ToLower()
+            //        ).Select(y => y.Value).ToList().ForEach(DockDoor =>
+            //        {
+            //            doorData.Add(DockDoor.Properties.DockDoorData);
+            //        });
+            //    }
+            //    return doorData;
+            //}
+            //catch (Exception e)
+            //{
+            //    new ErrorLogger().ExceptionLog(e);
+            //    return null;
+            //}
         }
 
         internal GeoZone AddZone(string data)
@@ -186,7 +200,7 @@ namespace Factory_of_the_Future
                     {
                         newtempgZone.Properties.DoorNumber = n.ToString();
                     }
-                    newtempgZone.Properties.DockDoorData = new RouteTrips();
+                    newtempgZone.Properties.DockDoorData = GetDigitalDockDoorList(newtempgZone.Properties.DoorNumber);
                 }
 
 
@@ -1343,6 +1357,22 @@ namespace Factory_of_the_Future
             {
                 new ErrorLogger().ExceptionLog(e);
                 return null;
+            }
+        }
+        internal void UpdateRouteTripDoorAssigment(JToken data)
+        {
+            try
+            {
+
+                if (AppParameters.RouteTripsList.TryGetValue(data["RouteTrip"].ToString(), out RouteTrips trip))
+                {
+                    trip.DoorId = string.Concat("99D", data["DoorNumber"].ToString().PadLeft(4,'-'));//data["DoorNumber"];
+                    trip.DoorNumber = data["DoorNumber"].ToString();
+                }
+            }
+            catch (Exception e)
+            {
+                new ErrorLogger().ExceptionLog(e);
             }
         }
         internal IEnumerable<RouteTrips> GetRouteTripsInfo(string id)

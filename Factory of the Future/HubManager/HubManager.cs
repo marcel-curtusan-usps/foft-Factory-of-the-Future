@@ -124,13 +124,18 @@ namespace Factory_of_the_Future
         //}
 
         /// <summary>
-        /// Get Trips Data
+        /// Trips Data
         /// </summary>
         /// <returns></returns>
         public IEnumerable<RouteTrips> GetTripsList()
         {
             return _managerHub.GetTripsList();
         }
+        public void UpdateRouteTripDoorAssigment(JToken data)
+        {
+            _managerHub.UpdateRouteTripDoorAssigment(data);
+        }
+
         /// <summary>
         /// Get Specific Trips Data
         /// </summary>
@@ -178,7 +183,7 @@ namespace Factory_of_the_Future
         {
             return _managerHub.GetDockDoorList();
         }
-        public RouteTrips GetDigitalDockDoorList(string id)
+        public List<RouteTrips> GetDigitalDockDoorList(string id)
         {
             return _managerHub.GetDigitalDockDoorList(id);
         }

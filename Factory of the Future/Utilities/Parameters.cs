@@ -284,7 +284,7 @@ namespace Factory_of_the_Future
         public int GpioValue { get; set; } = -1;
 
         [JsonProperty("dockdoorData")]
-        public RouteTrips DockDoorData { get; set; } = new RouteTrips();
+        public List<RouteTrips> DockDoorData { get; set; } = new List<RouteTrips>();
 
         [JsonProperty("rawData")]
         public string RawData { get; set; } = "";

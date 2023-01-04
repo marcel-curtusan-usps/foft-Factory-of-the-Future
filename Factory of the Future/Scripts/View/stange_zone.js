@@ -295,6 +295,8 @@ function init_zones(zoneData, id) {
     var hasDockDoorZone = false;
     var hasMachineZone = false;
     var hasBinZone = false;
+
+
     $.each(zoneData, function () {
         if (/^ebr/i.test(this.properties.name)) {
 
@@ -318,7 +320,8 @@ function init_zones(zoneData, id) {
         }
         else if (/^(DockDoor)/i.test(this.properties.Zone_Type)) {
             dockDoors.addData(this);
-            hasDockDoorZone = true;
+    
+            //hasDockDoorZone = true;
             //fotfmanager.server.joinGroup("DockDoorZones");
         }
         else if (/^(Machine)/i.test(this.properties.Zone_Type)) {

@@ -12,33 +12,6 @@
         //Access Code-Behind Data in Javascript
         localStorage.setItem('User', JSON.stringify(<%=Session_Info%>));
     </script>
-    <style>
-        .loadingFOTF {
-            position: fixed;
-            margin-left: -5%;
-            margin-right: auto;
-            width: 110%;
-            top: -50px;
-            height: 10000px;
-            display: block;
-            z-index: 2000000001;
-            background-color: #f9f9f9;
-        }
-
-        .loadingFOTFBody {
-            overflow: hidden;
-        }
-    </style>
-    <link rel="preload" href="Content/bootstrap-icons.css" as="style"/>
-    <link rel="preload" as="style" href="Content/bootstrap.min.css" />
-    <link rel="preload" as="style" href="Content/selectize.bootstrap4.css" />
-    <link rel="preload" as="style" href="Content/easy-button.css" />
-    <link rel="preload" as="style" href="Content/_base.min.css" />
-    <link rel="preload" as="style" href="Content/leaflet.css" />
-    <link rel="preload" as="style" href="Content/leaflet-sidebar.css" />
-    <link rel="preload" as="style" href="Content/leaflet-geoman.css" />
-    <link rel="preload" as="style" href="Content/Site.min.css" />
-    <link rel="preload" as="style" href="Content/Filter.css" />
     <link rel="stylesheet" href="Content/bootstrap-icons.css" />
     <link rel="stylesheet" href="Content/bootstrap.min.css" />
     <link rel="stylesheet" href="Content/selectize.bootstrap4.css" />
@@ -804,10 +777,10 @@
     <div class="leaflet-sidebar leaflet-control leaflet-sidebar-left leaflet-touch collapsed" id="sidebar">
         <div class="leaflet-sidebar-content">
             <h1 id="fotf-site-facility-name" class="leaflet-sidebar-header d-flex">
-                <span class="slantedLogoDivider"></span>
+                 <span class="slantedLogoDivider"></span>
                 <i id="fotf-sidebar-close" class="leaflet-sidebar-close pi-iconExit"></i>
             </h1>
-
+           
             <!-- Sidebar panel Home - Zone Selector -->
             <div class="leaflet-sidebar-pane overflow-auto" id="home">
                 <div id="div_zoneSelect">
@@ -994,10 +967,18 @@
                         </div>
                         <div id="dockdoor_tripdiv" class="card bg-white mt-2 pb-1" style="display: none;">
                             <div class="card-header pl-1 border-bottom">
-                                <h6 class="control-label sectionHeader ml-1 mb-1 d-flex justify-content-between">Trip Selector
-                                <span class="btn btn-secondary border-0 badge-info badge" name="doornumbertripid"></span>
-
-                                </h6>
+                                <h6 class="control-label sectionHeader ml-1 mb-1 d-flex justify-content-between">Assigned Door Trips</h6>
+                            </div>
+                            <div class="card-body pb-0">
+                                    <div class="table-responsive">
+                                        <table class="table table-sm table-hover mb-0 border-bottom" id="doortriptable">
+                                     
+                                            <tbody></tbody>
+                                        </table>
+                                    </div>
+                            </div>
+                            <div class="card-header pl-1 border-bottom">
+                                <h6 class="control-label sectionHeader ml-1 mb-1 d-flex justify-content-between">Trip Selector</h6>
                             </div>
                             <div class="card-body pb-0">
                                 <div class="form-group col">
@@ -1007,7 +988,7 @@
                                     <span id="error_tripSelector" class="text-danger"></span>
                                 </div>
                                 <div class="form-group col">
-                                      <button type="button" class="btn btn-success" id="tripSelectorbtn" name="tripSelectorbtn">Submit</button>
+                                    <button type="button" class="btn btn-success" id="tripSelectorbtn" name="tripSelectorbtn">Submit</button>
                                 </div>
                             </div>
                         </div>
@@ -1808,16 +1789,12 @@
     </div>
 
     <script src="Scripts/jquery-3.6.0.min.js"></script>
-    <script>
-
-        $("#loadWrapper").removeClass("loadingFOTF");
-        $("body").removeClass("loadingFOTFBody");
-    </script>
     <script src="Scripts/bootstrap.bundle.min.js"></script>
     <script src="Scripts/moment.min.js"></script>
     <script src="Scripts/moment-timezone.min.js"></script>
     <script src="Scripts/moment-duration-format.js"></script>
     <script src="Scripts/moment-timezone-with-data-2012-2022.min.js"></script>
+    <script src="Scripts/jquery.dataTables.js"></script>
     <%--<script src="Scripts/selectize.min.js"></script>--%>
     <script src="Scripts/selectize.js"></script>
     <script src="Scripts/jquery.signalR-2.4.2.min.js"></script>

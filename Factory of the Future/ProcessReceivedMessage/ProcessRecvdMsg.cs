@@ -704,12 +704,12 @@ namespace Factory_of_the_Future
                     && f.Value.Properties.DoorNumber == trip.DoorNumber
                     ).Select(y => y.Value).ToList().ForEach(DockDoor =>
                     {
-                        if(DockDoor.Properties.DockDoorData.RawData != trip.RawData)
-                        {
-                           // DockDoor.Properties.ZoneUpdate = true;
-                            FOTFManager.Instance.BroadcastDockdoorZoneStatus(trip, cs.Id);
-                        }
-                        DockDoor.Properties.DockDoorData = trip;
+                        //if(DockDoor.Properties.DockDoorData.RawData != trip.RawData)
+                        //{
+                        //   // DockDoor.Properties.ZoneUpdate = true;
+                        //    FOTFManager.Instance.BroadcastDockdoorZoneStatus(trip, cs.Id);
+                        //}
+                        DockDoor.Properties.DockDoorData = FOTFManager.Instance.GetDigitalDockDoorList(DockDoor.Properties.DoorNumber);
                         FOTFManager.Instance.BroadcastDockDoorStatus(DockDoor, cs.Id);
                     });
                 }

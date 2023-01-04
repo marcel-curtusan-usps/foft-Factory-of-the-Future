@@ -288,7 +288,7 @@
     <Content Include="ET_Board\ET_Board.aspx" />
     <Content Include="ET_Board\Scritps\ET_Board.js" />
     <Content Include="DockDoor\DockDoor.aspx" />
-    <Content Include="DockDoor\Scripts\DigitalDockDoor.js" />
+    <Content Include="DockDoor\Scripts\digitalDockDoor.js" />
     <Content Include="favicon.ico" />
     <Content Include="Global.asax" />
     <Content Include="Default.aspx" />
@@ -508,6 +508,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AGV\Models\EITS_Messages.cs" />
+    <Compile Include="AGV\Models\ProcessMessage.cs" />
     <Compile Include="App_Start\AppParameters.cs" />
     <Compile Include="App_Start\BackgroundThread.cs" />
     <Compile Include="Controllers\DockDoorController.cs" />

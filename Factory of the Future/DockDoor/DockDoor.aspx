@@ -55,13 +55,13 @@
             <div class="card w-25">
                 <div class="card-heade text-center" style="padding: 0rem;">
                     <div class="col ml-0">
-                        <label class="control-label" style="font-size: 3rem; font-weight: bolder;" id="totalIndc">Total Loaded</label>
+                        <label class="control-label" style="font-size: 3rem; font-weight: bolder display:none;" id="totalIndc">Not Trip</label>
                     </div>
                     <div class="col ml-0" style="background-color: purple;">
-                        <label class="control-label flex-fill" style="font-size: 4rem; color: white; font-weight: bolder;" id="containerLoaded"></label>
+                        <label class="control-label flex-fill" style="font-size: 4rem; color: white; font-weight: bolder; display:none;" id="containerLoaded"></label>
                     </div>
                 </div>
-                <div class="card-body text-center" style="padding: 0rem; background-color: yellow" id="countdowndiv">
+                <div class="card-body text-center" style="padding: 0rem; background-color: yellow; display:none;" id="countdowndiv">
                     <label class="control-label" style="font-size: 4rem; font-weight: bolder;">
                         Countdown to Scheduled Departure <br/><br/>
                         <label class="control-label text-center" style="font-size: 6rem; font-weight: bolder;" id="timeCount">00:00</label>

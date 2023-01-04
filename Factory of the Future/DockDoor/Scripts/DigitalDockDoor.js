@@ -20,84 +20,78 @@ $.extend(fotfmanager.client, {
 function updateDockDoorStatus(data) {
     try {
         //show the trip direction 
-       // $('label[id=tripDirectionInd]').text(data.tripDirectionInd);
+        // $('label[id=tripDirectionInd]').text(data.tripDirectionInd);
+        if (data !== undefined && data.length !== 0) {
+            if (data[0].tripDirectionInd === "I") {
+                $('button[id=tripDirectionInd]').text("In-bound");
+                $('div[id=countdowndiv]').css("display", "block");
+                $('label[id=totalIndc]').text("Total Unloaded");
+                $('label[id=containerLoaded]').text();
 
-        if (data.tripDirectionInd === "I") {
-            $('button[id=tripDirectionInd]').text("In-bound");
-            $('div[id=countdowndiv]').css("display", "block");
-            $('label[id=totalIndc]').text("Total Unloaded");
-            $('label[id=containerLoaded]').text();
+            }
+            else if (data[0].tripDirectionInd === "O") {
+                //timeCount
+                $('div[id=countdowndiv]').css("display", "block");
+                $('label[id=timeCount]').text(data.tripMin + " Min");
+                $('label[id=totalIndc]').text("Total Unloaded");
+            }
+            else {
+                $('label[id=containerLoaded]').text();
 
-        }
-        else if (data.tripDirectionInd === "O") {
-            //timeCount
-            $('div[id=countdowndiv]').css("display", "block");
-            $('label[id=timeCount]').text(data.tripMin + " Min");
-            $('label[id=totalIndc]').text("Total Unloaded");
-            $('label[id=containerLoaded]').text();            
 
-        }
-        else {
-            $('label[id=totalIndc]').text("Not Trip");
-            $('label[id=containerLoaded]').text();
-            $('label[id=containerLoaded]').css("display", "block");
-            $('div[id=countdowndiv]').css("display", "none");
-            
-    
-        }
-        //load trips
-        if (data.Legs !== null) {
-            $.each(data.Legs, function () {
-                var legdata = this;
-                if (data.legNumber === legdata.legNumber) {
+            }
+            //load trips
+            if (data[0].Legs !== null) {
+                $.each(data[0].Legs, function () {
+                    var legdata = this;
+                    if (data[0].legNumber === legdata.legNumber) {
 
-                    legdata["route"] = data.route;
-                    legdata["trip"] = data.trip;
-                    loadLegsTripDataTable([legdata], "currentTripTable");
-                }
-                else if (data.legNumber > legdata.legNumber) {
-                    loadLegsTripDataTable([legdata], "nextTriptable");
-                }
-
-            });
-        }
-        else {
-            if (data.route !== null) {
-
-                //incoming trips
-                var indata = [
-                    {
-                        "route": data.route,
-                        "trip": data.trip,
-                        "routeTripLegId": data.routeTripLegId ,
-                        "routeTripId": data.routeTripId,
-                        "legNumber": 1,
-                        "legDestSiteID": data.legSiteName,
-                        "legOriginSiteID": "230",
-                        "scheduledArrDTM": "",
-                        "scheduledDepDTM": data.scheduledDtm,
-                        "actDepartureDtm": data.actualDtm,
-                        "createdDtm": "",
-                        "lastUpdtDtm": "",
-                        "legDestSiteName": data.legSiteName,
-                        "legOriginSiteName": data.legSiteName,
-                     
+                        legdata["route"] = data[0].route;
+                        legdata["trip"] = data[0].trip;
+                        loadLegsTripDataTable([legdata], "currentTripTable");
                     }
-                ]
 
-                loadLegsTripDataTable(indata, "currentTripTable");
+                });
             }
-            else
-            {
-                //remove trips info
-                removeLegsTripDataTable( "currentTripTable");
+            else {
+                if (data[0].route !== null) {
+
+                    //incoming trips
+                    var indata = [
+                        {
+                            "route": data[0].route,
+                            "trip": data[0].trip,
+                            "routeTripLegId": data[0].routeTripLegId,
+                            "routeTripId": data[0].routeTripId,
+                            "legNumber": 1,
+                            "legDestSiteID": data[0].legSiteName,
+                            "legOriginSiteID": "230",
+                            "scheduledArrDTM": "",
+                            "scheduledDepDTM": data[0].scheduledDtm,
+                            "actDepartureDtm": data[0].actualDtm,
+                            "createdDtm": "",
+                            "lastUpdtDtm": "",
+                            "legDestSiteName": data[0].legSiteName,
+                            "legOriginSiteName": data[0].legSiteName,
+
+                        }
+                    ]
+
+                    loadLegsTripDataTable(indata, "currentTripTable");
+                }
+                else {
+                    //remove trips info
+                    removeLegsTripDataTable("currentTripTable");
+                }
+            }
+            //else
+            //{
+            //   loadLegsTripDataTable([{}], "containerLocationtable");
+            //}
+            if (data.length > 1 && data.length <= 2 ) {
+                loadLegsTripDataTable(data[1], "nextTriptable");
             }
         }
-        //else
-        //{
-        //   loadLegsTripDataTable([{}], "containerLocationtable");
-        //}
-      
     } catch (e) {
         console.log(e);
     }
@@ -253,20 +247,16 @@ function createContainerDataTable(table) {
         "Stage": "",
         "Xdk": "",
         "Loaded":""
-
     }]
     var columns = [];
     var tempc = {};
     $.each(arrayColums[0], function (key, value) {
         tempc = {};
-
         tempc = {
             "title": capitalize_Words(key.replace(/\_/, ' ')),
             "mDataProp": key
         }
-
         columns.push(tempc);
-
     });
     $('#' + table).DataTable({
         dom: 'Bfrtip',
@@ -280,32 +270,9 @@ function createContainerDataTable(table) {
         language: {
             zeroRecords: "No Containers Found ",
             processing: "<div class='overlay custom-loader-background'><i class='fa fa-cog fa-spin custom-loader-color'></i></div>"
-        },
-        "fnPreDrawCallback": function () {
-            $("#loading").show();
-        },
-
-        "fnDrawCallback": function () {
-            $("#loading").hide();
-
-        },
+        },        
         aoColumns: columns,
-        columnDefs: [],
-        sorting: [[1, "desc"], [0, "asc"]],
-        rowCallback: function (row, data, index) {
-            if (data.tripMin > 0 && data.tripMin < 15) {
-                $(row).find('td:eq(5)').css('background-color', 'red');
-                $(row).find('td:eq(5)').css('color', 'white');
-            }
-            else if (data.tripMin > 15 && data.tripMin < 30) {
-                $(row).find('td:eq(5)').css('background-color', 'yellow');
-            }
-            else {
-                $(row).find('td:eq(5)').css('background-color', '');
-                $(row).find('td:eq(5)').css('background-color', '');
-                $(row).find('td:eq(5)').css('color', '');
-            }
-        }
+        columnDefs: []
     });
 }
 function capitalize_Words(str) {

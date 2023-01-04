@@ -8,14 +8,35 @@ namespace Factory_of_the_Future.AGV.Models
 {
     public class EITS_Messages
     {
-        public class HeartbeatRequest
+  
+        public class MessageResponse
         {
-            [Key]
-            public string OBJECT_TYPE { get; set; } = "";
+            public string OBJECT_TYPE { get; set; } = "COMMAND_RESPONSE";
             public string ACTION { get; set; } = "";
-            public string CLIENT_IP { get; set; } = "";
-            public string USERNAME { get; set; } = "";
-            public string VENDOR_NAME { get; set; } = "";
+            public string REQUESTID { get; set; } = "";
+            public string RESPONSE_CODE { get; set; } = "";
+            public string RESPONSE_MSG { get; set; } = "";
+            public MessageResponse(CancelMission cancelMission)
+            {
+                ACTION = cancelMission.ACTION;
+                REQUESTID = cancelMission.REQUESTID;
+                RESPONSE_CODE = new ProcessMessage().CancelRequet(cancelMission);
+                RESPONSE_MSG = "0";
+            }
+
+            public MessageResponse(RequestMission requestMission)
+            {
+                ACTION = requestMission.ACTION;
+                RESPONSE_CODE = "0";
+                RESPONSE_MSG = "0";
+            }
+
+            public MessageResponse(LocationStatus locationStatus)
+            {
+                ACTION = locationStatus.ACTION;
+                RESPONSE_CODE = new ProcessMessage().LocationStatus(locationStatus); 
+                RESPONSE_MSG = "0";
+            }
         }
         public class HeartbeatResponse
         {
@@ -47,8 +68,8 @@ namespace Factory_of_the_Future.AGV.Models
         }
         public class LocationStatus
         {
-            public string OBJECT_TYPE { get; set; } = "STATUS_UPDATE";
-            public string ACTION { get; set; } = "LOCATIONSTATUS";
+            public string OBJECT_TYPE { get; set; } = "";
+            public string ACTION { get; set; } = "";
             public string CLIENT_IP { get; set; } = "";
             public string USERNAME { get; set; } = "";
             public string VENDOR_NAME { get; set; } = "";
@@ -56,7 +77,7 @@ namespace Factory_of_the_Future.AGV.Models
             public string POSITION { get; set; } = "";
             public string STATUS { get; set; } = "";
         }
-        public class MoveRequest
+        public class RequestMission
         {
             public string OBJECT_TYPE { get; set; } = "COMMAND_REQUEST";
             public string ACTION { get; set; } = "MOVEREQUEST";
@@ -71,14 +92,22 @@ namespace Factory_of_the_Future.AGV.Models
             public string DROPNAME { get; set; } = "";
             public string ENDNAME { get; set; } = "";
         }
-        public class MoveResponse
+        public class CancelMission
         {
-            public string OBJECT_TYPE { get; set; } = "COMMAND_RESPONSE";
-            public string ACTION { get; set; } = "MOVEREQUEST";
+            public string OBJECT_TYPE { get; set; } = "";
+            public string ACTION { get; set; } = "";
+            public string VENDOR_NAME { get; set; } = "";
+            public string USERNAME { get; set; } = "";
+            public string CLIENT_IP { get; set; } = "";
             public string REQUESTID { get; set; } = "";
-            public string RESPONSE_CODE { get; set; } = "";
-            public string RESPONSE_MSG { get; set; } = "";
         }
-
+        public class HeartbeatRequest
+        {
+            public string OBJECT_TYPE { get; set; } = "";
+            public string ACTION { get; set; } = "";
+            public string CLIENT_IP { get; set; } = "";
+            public string USERNAME { get; set; } = "";
+            public string VENDOR_NAME { get; set; } = "";
+        }
     }
 }
