@@ -64,8 +64,9 @@ namespace Factory_of_the_Future
         public static ConcurrentDictionary<string, CoordinateSystem> CoordinateSystem { get; set; } = new ConcurrentDictionary<string, CoordinateSystem>();  
         public static ConcurrentDictionary<string, Cameras> CameraInfoList { get; set; } = new ConcurrentDictionary<string, Cameras>();
         public static ConcurrentDictionary<string, Connection> ConnectionList { get; set; } = new ConcurrentDictionary<string, Connection>();
+        public static ConcurrentDictionary<string, DoorTripAssociation> DoorTripAssociation { get; set; } = new ConcurrentDictionary<string, DoorTripAssociation>();
         //public static ConcurrentDictionary<string, GeoZone> ZoneList { get; set; } = new ConcurrentDictionary<string, GeoZone>();
-       // public static ConcurrentDictionary<string, GeoMarker> TagsList { get; set; } = new ConcurrentDictionary<string, GeoMarker>();
+        // public static ConcurrentDictionary<string, GeoMarker> TagsList { get; set; } = new ConcurrentDictionary<string, GeoMarker>();
         public static ConcurrentDictionary<string, ZoneInfo> ZoneInfo { get; set; } = new ConcurrentDictionary<string, ZoneInfo>();
         public static ConcurrentDictionary<string, string> DPSList { get; set; } = new ConcurrentDictionary<string, string>();
         public static ConcurrentDictionary<string, string> MPEPerformanceList { get; set; } = new ConcurrentDictionary<string, string>();
@@ -91,27 +92,7 @@ namespace Factory_of_the_Future
             { "America/New_York", "Eastern Standard Time" },
             { "Pacific/Honolulu", "Hawaiian Standard Time" }
         };
-        //public static void SetCameraMapping()
-        //{
-        //    CameraMapping = new Dictionary<string, string>();
-        //    try
-        //    {
-        //        using (StreamReader reader = new StreamReader(@"D:\CameraMapping\PortlandCameraMapping.csv"))
-        //        {
-        //            string line;
-        //            while ((line = reader.ReadLine()) != null)
-        //            {
-        //                line = line.Trim();
-        //                string[] parts = line.Split(',');
-        //                CameraMapping.Add(parts[0], parts[2]);
-        //            }
-        //        }
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        new ErrorLogger().ExceptionLog(ex);
-        //    }
-        //}
+      
         internal static void Start()
         {
             try
@@ -177,21 +158,24 @@ namespace Factory_of_the_Future
                         ApplicationEnvironment = "PROD";
                     }
                 }
+                NoImage = "data:image/jpeg;base64," + ImageToByteArray("NoImageFeed.jpg");
                 ///load app settings
                 if (GetAppSettings())
                 {
                     //load MpeWatch Site Info
                     GetMPEWatchSite();
-                    ///load default connection setting.
-                    GetConnectionDefault();
                     ///load Default Notification settings
                     GetNotificationDefault();
                     //loadtemp
                     LoadTempIndoorapData("Project_Data.json");
                     // load max (y-axis) values for machines
                     GetMachineThroughputMax("MachineThroughputMax.csv");
+                    //load the door and trip association 
+                    GetDoorTripAssociation();
+                    ///load default connection setting.
+                    GetConnectionDefault();
                 }
-                NoImage = "data:image/jpeg;base64," + ImageToByteArray("NoImageFeed.jpg");
+              
 
             }
             catch (Exception ex)
@@ -199,7 +183,34 @@ namespace Factory_of_the_Future
                 new ErrorLogger().ExceptionLog(ex);
             }
         }
+        private static void GetDoorTripAssociation()
+        {
+            try
+            {
+                string file_content = new FileIO().Read(string.Concat(Logdirpath, ConfigurationFloder), "DoorTripAssociation.json");
 
+                if (!string.IsNullOrEmpty(file_content))
+                {
+                    JToken tempData = JToken.Parse(file_content);
+       
+                    if (tempData.HasValues)
+                    {
+                        List<DoorTripAssociation> tempdata = tempData.ToObject<List<DoorTripAssociation>>();
+                        for (int i = 0; i < tempdata.Count; i++)
+                        {
+                            if (DoorTripAssociation.TryAdd(string.Concat(tempdata[i].Route, tempdata[i].Trip), tempdata[i]))
+                            {
+                                //
+                            } 
+                        }
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                new ErrorLogger().ExceptionLog(e);
+            }
+        }
         private static void GetMPEWatchSite()
         {
             try
@@ -500,95 +511,95 @@ namespace Factory_of_the_Future
                 new ErrorLogger().ExceptionLog(e);
             }
         }
-        internal static void LoadData(string FileName)
-        {
-            try
-            {
-                if (Logdirpath != null)
-                {
-                    string file_content = new FileIO().Read(string.Concat(Logdirpath, ConfigurationFloder), FileName);
+        //internal static void LoadData(string FileName)
+        //{
+        //    try
+        //    {
+        //        if (Logdirpath != null)
+        //        {
+        //            string file_content = new FileIO().Read(string.Concat(Logdirpath, ConfigurationFloder), FileName);
 
-                    if (!string.IsNullOrEmpty(file_content))
-                    {
-                        if (FileName.StartsWith("Connection.json"))
-                        {
-                            List<Connection> tempcon = JsonConvert.DeserializeObject<List<Connection>>(file_content);
-                            for (int i = 0; i < tempcon.Count; i++)
-                            {
-                                if (ConnectionList.TryAdd(tempcon[i].Id, tempcon[i]))
-                                {
-                                    RunningConnection.Add(tempcon[i]);
-                                }
-                            }
-                        }
-                        if (FileName.StartsWith("Zones.json"))
-                        {
-                            List<ZoneInfo> tempzone = JsonConvert.DeserializeObject<List<ZoneInfo>>(file_content);
-                            for (int i = 0; i < tempzone.Count; i++)
-                            {
-                                if (!ZoneInfo.ContainsKey(tempzone[i].Id))
-                                {
-                                    if (ZoneInfo.TryAdd(tempzone[i].Id, tempzone[i]))
-                                    {
+        //            if (!string.IsNullOrEmpty(file_content))
+        //            {
+        //                if (FileName.StartsWith("Connection.json"))
+        //                {
+        //                    List<Connection> tempcon = JsonConvert.DeserializeObject<List<Connection>>(file_content);
+        //                    for (int i = 0; i < tempcon.Count; i++)
+        //                    {
+        //                        if (ConnectionList.TryAdd(tempcon[i].Id, tempcon[i]))
+        //                        {
+        //                            RunningConnection.Add(tempcon[i]);
+        //                        }
+        //                    }
+        //                }
+        //                if (FileName.StartsWith("Zones.json"))
+        //                {
+        //                    List<ZoneInfo> tempzone = JsonConvert.DeserializeObject<List<ZoneInfo>>(file_content);
+        //                    for (int i = 0; i < tempzone.Count; i++)
+        //                    {
+        //                        if (!ZoneInfo.ContainsKey(tempzone[i].Id))
+        //                        {
+        //                            if (ZoneInfo.TryAdd(tempzone[i].Id, tempzone[i]))
+        //                            {
 
-                                    }
-                                }
-                            }
-                        }
-                        //if (FileName.StartsWith("CustomZones.json"))
-                        //{
-                        //    List<GeoZone> tempzone = JsonConvert.DeserializeObject<List<GeoZone>>(file_content);
+        //                            }
+        //                        }
+        //                    }
+        //                }
+        //                //if (FileName.StartsWith("CustomZones.json"))
+        //                //{
+        //                //    List<GeoZone> tempzone = JsonConvert.DeserializeObject<List<GeoZone>>(file_content);
 
-                        //    for (int i = 0; i < tempzone.Count; i++)
-                        //    {
-                        //        if (!ZoneList.ContainsKey(tempzone[i].Properties.Id))
-                        //        {
-                        //            tempzone[i].Properties.Source = "user";
-                        //            if (ZoneList.TryAdd(tempzone[i].Properties.Id, tempzone[i]))
-                        //            {
+        //                //    for (int i = 0; i < tempzone.Count; i++)
+        //                //    {
+        //                //        if (!ZoneList.ContainsKey(tempzone[i].Properties.Id))
+        //                //        {
+        //                //            tempzone[i].Properties.Source = "user";
+        //                //            if (ZoneList.TryAdd(tempzone[i].Properties.Id, tempzone[i]))
+        //                //            {
 
-                        //            }
-                        //        }
-                        //    }
-                        //}
-                        //if (FileName.StartsWith("Markers.json"))
-                        //{
-                        //    List<GeoMarker> tempMarker = JsonConvert.DeserializeObject<List<GeoMarker>>(file_content);
-                        //    for (int i = 0; i < tempMarker.Count; i++)
-                        //    {
-                        //        if (!TagsList.ContainsKey(tempMarker[i].Properties.Id))
-                        //        {
-                        //            tempMarker[i].Properties.Source = "user";
-                        //            if (TagsList.TryAdd(tempMarker[i].Properties.Id, tempMarker[i]))
-                        //            {
+        //                //            }
+        //                //        }
+        //                //    }
+        //                //}
+        //                //if (FileName.StartsWith("Markers.json"))
+        //                //{
+        //                //    List<GeoMarker> tempMarker = JsonConvert.DeserializeObject<List<GeoMarker>>(file_content);
+        //                //    for (int i = 0; i < tempMarker.Count; i++)
+        //                //    {
+        //                //        if (!TagsList.ContainsKey(tempMarker[i].Properties.Id))
+        //                //        {
+        //                //            tempMarker[i].Properties.Source = "user";
+        //                //            if (TagsList.TryAdd(tempMarker[i].Properties.Id, tempMarker[i]))
+        //                //            {
 
-                        //            }
-                        //        }
-                        //    }
-                        //}
-                        //Notification
-                        if (FileName.StartsWith("Notification.json"))
-                        {
-                            List<NotificationConditions> tempnotification = JsonConvert.DeserializeObject<List<NotificationConditions>>(file_content);
-                            for (int i = 0; i < tempnotification.Count; i++)
-                            {
-                                if (!NotificationConditionsList.ContainsKey(tempnotification[i].Id))
-                                {
-                                    if (NotificationConditionsList.TryAdd(tempnotification[i].Id, tempnotification[i]))
-                                    {
+        //                //            }
+        //                //        }
+        //                //    }
+        //                //}
+        //                //Notification
+        //                if (FileName.StartsWith("Notification.json"))
+        //                {
+        //                    List<NotificationConditions> tempnotification = JsonConvert.DeserializeObject<List<NotificationConditions>>(file_content);
+        //                    for (int i = 0; i < tempnotification.Count; i++)
+        //                    {
+        //                        if (!NotificationConditionsList.ContainsKey(tempnotification[i].Id))
+        //                        {
+        //                            if (NotificationConditionsList.TryAdd(tempnotification[i].Id, tempnotification[i]))
+        //                            {
 
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-            catch (Exception e)
-            {
-                new ErrorLogger().ExceptionLog(e);
-            }
-        }
+        //                            }
+        //                        }
+        //                    }
+        //                }
+        //            }
+        //        }
+        //    }
+        //    catch (Exception e)
+        //    {
+        //        new ErrorLogger().ExceptionLog(e);
+        //    }
+        //}
         private static string GetLocalIpAddress()
         {
             try

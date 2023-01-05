@@ -967,15 +967,24 @@
                         </div>
                         <div id="dockdoor_tripdiv" class="card bg-white mt-2 pb-1" style="display: none;">
                             <div class="card-header pl-1 border-bottom">
-                                <h6 class="control-label sectionHeader ml-1 mb-1 d-flex justify-content-between">Assigned Door Trips</h6>
+                                <h6 class="control-label sectionHeader ml-1 mb-1 d-flex justify-content-between">Trips Assigned To Door</h6>
                             </div>
                             <div class="card-body pb-0">
-                                    <div class="table-responsive">
-                                        <table class="table table-sm table-hover mb-0 border-bottom" id="doortriptable">
-                                     
-                                            <tbody></tbody>
-                                        </table>
-                                    </div>
+                                <div class="table-responsive">
+                                    <table class="table table-sm table-hover mb-0 border-bottom" id="doortriptable">
+                                         <thead class="thead-dark">
+                                                    <tr>
+                                                        <th class="row-cts-schd"><span class="ml-p25rem">Schd</span></th>
+                                                        <th class="row-cts-depart">Deprt</th>
+                                                        <th class="row-cts-rt">Route-Trip</th>
+                                                        <th class="row-cts-door">Door</th>
+                                                        <th class="row-cts-leg">Direction</th>
+                                                        <th class="row-cts-dest">Dest</th>
+                                                    </tr>
+                                                </thead>
+                                        <tbody></tbody>
+                                    </table>
+                                </div>
                             </div>
                             <div class="card-header pl-1 border-bottom">
                                 <h6 class="control-label sectionHeader ml-1 mb-1 d-flex justify-content-between">Trip Selector</h6>

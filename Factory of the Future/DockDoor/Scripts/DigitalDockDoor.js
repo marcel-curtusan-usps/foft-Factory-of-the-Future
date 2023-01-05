@@ -19,21 +19,23 @@ $.extend(fotfmanager.client, {
 });
 function updateDockDoorStatus(data) {
     try {
+        var legdata = null;
         //show the trip direction 
         // $('label[id=tripDirectionInd]').text(data.tripDirectionInd);
-        if (data !== undefined && data.length !== 0) {
+        if (data !== undefined && data.length > 0) {
             if (data[0].tripDirectionInd === "I") {
-                $('button[id=tripDirectionInd]').text("In-bound");
+ 
                 $('div[id=countdowndiv]').css("display", "block");
                 $('label[id=totalIndc]').text("Total Unloaded");
                 $('label[id=containerLoaded]').text();
-
+                $('label[id=countdowntext]').text("Countdown to Scheduled Arrive");
             }
             else if (data[0].tripDirectionInd === "O") {
+                $('label[id=countdowntext]').text("Countdown to Scheduled Departure");
                 //timeCount
                 $('div[id=countdowndiv]').css("display", "block");
-                $('label[id=timeCount]').text(data.tripMin + " Min");
-                $('label[id=totalIndc]').text("Total Unloaded");
+       
+                $('label[id=totalIndc]').text("Total Loaded");
             }
             else {
                 $('label[id=containerLoaded]').text();
@@ -45,10 +47,11 @@ function updateDockDoorStatus(data) {
                 $.each(data[0].Legs, function () {
                     var legdata = this;
                     if (data[0].legNumber === legdata.legNumber) {
-
+                        $('button[id=currentTripDirectionInd]').text(data[0].tripDirectionInd === "I" ? "In-Bound" : "Out-bound");
+                        $('label[id=timeCount]').text(data[0].tripMin + " Min");
                         legdata["route"] = data[0].route;
                         legdata["trip"] = data[0].trip;
-                        loadLegsTripDataTable([legdata], "currentTripTable");
+                        updateLegsTripDataTable([legdata], "currentTripTable");
                     }
 
                 });
@@ -59,6 +62,7 @@ function updateDockDoorStatus(data) {
                     //incoming trips
                     var indata = [
                         {
+                            "id": data[0].id,
                             "route": data[0].route,
                             "trip": data[0].trip,
                             "routeTripLegId": data[0].routeTripLegId,
@@ -77,19 +81,68 @@ function updateDockDoorStatus(data) {
                         }
                     ]
 
-                    loadLegsTripDataTable(indata, "currentTripTable");
+                    updateLegsTripDataTable(indata, "currentTripTable");
                 }
                 else {
                     //remove trips info
                     removeLegsTripDataTable("currentTripTable");
                 }
             }
-            //else
-            //{
-            //   loadLegsTripDataTable([{}], "containerLocationtable");
-            //}
-            if (data.length > 1 && data.length <= 2 ) {
-                loadLegsTripDataTable(data[1], "nextTriptable");
+            if (data.length > 1 ) {
+                if (data[1].Legs !== null) {
+                    $.each(data[1].Legs, function () {
+                        legdata = this;
+                        if (data[1].legNumber === legdata.legNumber) {
+                            $('button[id=nextTripDirectionInd]').text(data[1].tripDirectionInd === "I" ? "In-Bound" : "Out-bound");
+                            
+                            legdata["id"] = data[0].id,
+                            legdata["route"] = data[1].route;
+                            legdata["trip"] = data[1].trip;
+                     
+                            if (data[1].tripDirectionInd === "I") {
+                                legdata.legDestSiteName = legdata.legOriginSiteName;
+                            }
+                            updateLegsTripDataTable([legdata], "nextTriptable");
+                        }
+
+                    });
+                }
+                else {
+                    if (data[1].route !== null) {
+
+                        //incoming trips
+                        var indata = [
+                            {
+                                "id": data[1].id,
+                                "route": data[1].route,
+                                "trip": data[1].trip,
+                                "routeTripLegId": data[1].routeTripLegId,
+                                "routeTripId": data[1].routeTripId,
+                                "legNumber": 1,
+                                "legDestSiteID": data[1].legSiteName,
+                                "legOriginSiteID": "230",
+                                "scheduledArrDTM": "",
+                                "scheduledDepDTM": data[1].scheduledDtm,
+                                "actDepartureDtm": data[1].actualDtm,
+                                "createdDtm": "",
+                                "lastUpdtDtm": "",
+                                "legDestSiteName": data[1].legSiteName,
+                                "legOriginSiteName": data[1].legSiteName,
+
+                            }
+                        ]
+                        if (data[1].tripDirectionInd === "I") {
+                            data[1].legDestSiteName = "";
+                        }
+
+                        updateLegsTripDataTable(indata, "nextTriptable");
+                    }
+                    else {
+                        //remove trips info
+                        removeLegsTripDataTable("nextTriptable");
+                    }
+                }
+
             }
         }
     } catch (e) {
@@ -154,6 +207,20 @@ function SortByLegNumber(a, b) {
     let bName = parseInt(b.legNumber.match(/\d+/));
     return aName < bName ? -1 : aName > bName ? 1 : 0;
 }
+function updateLegsTripDataTable(ldata, table) {
+    var load = true;
+    if ($.fn.dataTable.isDataTable("#" + table)) {
+        $('#' + table).DataTable().rows(function (idx, data, node) {
+            load = false;
+            if (data.id === ldata[0].id) {
+                $('#' + table).DataTable().row(node).data(ldata[0]).draw().invalidate();
+            }
+        })
+        if (load) {
+            loadLegsTripDataTable(ldata, table);
+        }
+    }
+}
 function loadLegsTripDataTable(data, table) {
     if ($.fn.dataTable.isDataTable("#" + table)) {
         if (!$.isEmptyObject(data)) {
@@ -183,19 +250,29 @@ function createLegsTripDataTable(table) {
         if (/legDestSiteName/i.test(key)) {
             tempc = {
                 "title": "Destination",
-                "mDataProp": key
+                "mDataProp": key,
+                "class": "row-cts-des"
             }
         }
         else if (/route/i.test(key)) {
             tempc = {
                 "title": "Route",
-                "mDataProp": key
+                "mDataProp": key,
+                "class": "row-cts-route"
+            }
+        }
+        else if (/trip/i.test(key)) {
+            tempc = {
+                "title": "Trip",
+                "mDataProp": key,
+                "class": "row-cts-trip"
             }
         }
         else if (/scheduledArrDTM/i.test(key)) {
             tempc = {
-                "title": "Arrive Time",
+                "title": "Arrive",
                 "mDataProp": key,
+                "class": "row-cts-schd",
                 "mRender": function (data, type, full) {
                     let time = moment().set({ 'year': data.year, 'month': data.month, 'date': data.dayOfMonth, 'hour': data.hourOfDay, 'minute': data.minute, 'second': data.second });
                     return time.format("HH:mm");
@@ -204,8 +281,9 @@ function createLegsTripDataTable(table) {
         }
         else if (/scheduledDepDTM/i.test(key)) {
             tempc = {
-                "title": "Depart Time",
+                "title": "Depart",
                 "mDataProp": key,
+                "class": "row-cts-depart",
                 "mRender": function (data, type, full) {
                     let time = moment().set({ 'year': data.year, 'month': data.month, 'date': data.dayOfMonth, 'hour': data.hourOfDay, 'minute': data.minute, 'second': data.second });
                     return time.format("HH:mm");

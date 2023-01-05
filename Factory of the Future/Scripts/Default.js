@@ -640,8 +640,13 @@ function SortByName(a, b) {
     let bName = b.toLowerCase();
     return ((aName < bName) ? -1 : ((aName > bName) ? 1 : 0));
 }
+function SortBySiteName(a, b) {
+    let aName = a.legSiteName.toLowerCase();
+    let bName = b.legSiteName.toLowerCase();
+    return ((aName < bName) ? -1 : ((aName > bName) ? 1 : 0));
+}
 function SortByLocationName(a, b) {
-    let aName = a.locationName.toLowerCase();
+    let aName = a.toLowerCase();
     let bName = b.locationName.toLowerCase();
     return ((aName < bName) ? -1 : ((aName > bName) ? 1 : 0));
 }

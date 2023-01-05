@@ -537,7 +537,7 @@ namespace Factory_of_the_Future
             }
             else if (ConnectionInfo.ConnectionName.ToUpper().StartsWith("Web_Camera".ToUpper()))
             {
-                if (ConnectionInfo.MessageType.ToUpper().Contains("Stills".ToUpper()))
+                if (ConnectionInfo.MessageType.ToUpper().EndsWith("Stills".ToUpper()))
                 {
                     Dictionary<string, string> cameraImages = new Dictionary<string, string>();
                     foreach (CoordinateSystem cs in AppParameters.CoordinateSystem.Values)
@@ -549,16 +549,20 @@ namespace Factory_of_the_Future
                                 {
                                     //Update when change to FQN
                                     formatUrl = string.Format(ConnectionInfo.Url, Camera.Properties.Name.Trim());
-                                    string imageBase64 = string.Empty;
+                                    string imageBase64 = AppParameters.NoImage;
                                     if (!string.IsNullOrEmpty(formatUrl))
                                     {
-                                        using (WebClient client = new WebClient())
+                                        if (this.ConnectionInfo.ActiveConnection)
                                         {
-                                            client.Headers.Add(HttpRequestHeader.ContentType, "application/octet-stream");
-                                            byte[] result = client.DownloadData(formatUrl);
-                                            imageBase64 = "data:image/jpeg;base64," + Convert.ToBase64String(result);
+                                            using (WebClient client = new WebClient())
+                                            {
+                                                client.Headers.Add(HttpRequestHeader.ContentType, "application/octet-stream");
+                                                byte[] result = client.DownloadData(formatUrl);
+                                                imageBase64 = "data:image/jpeg;base64," + Convert.ToBase64String(result);
+                                            }
                                         }
                                         cameraImages.Add(Camera.Properties.Name, imageBase64);
+                                     
                                     }
                                 }
                                 catch (Exception e)
@@ -572,11 +576,15 @@ namespace Factory_of_the_Future
                     this.Status = 0;
                     return;
                 }
-                if (!string.IsNullOrEmpty(fdb))
+                else if (ConnectionInfo.MessageType.ToUpper().EndsWith("Cameras".ToUpper()))
                 {
-                    formatUrl = string.Format(ConnectionInfo.Url, fdb);
-                  
+                    if (!string.IsNullOrEmpty(fdb))
+                    {
+                        formatUrl = string.Format(ConnectionInfo.Url, fdb);
+
+                    }
                 }
+             
             }
             else if (ConnectionInfo.ConnectionName.ToUpper().StartsWith("IV".ToUpper()))
             {
@@ -672,8 +680,7 @@ namespace Factory_of_the_Future
                         // Page not found, thread has 404'd
                         //HttpWebResponse Resp = (HttpWebResponse)ex.Response;
 
-                        this.Status = 3;
-                        this.ConstantRefresh = false;
+                        this.Status = 0;
                         this.Connected = false;
                         Task.Run(() => updateConnection(this));
                         return;
@@ -683,13 +690,14 @@ namespace Factory_of_the_Future
                 catch (Exception e)
                 {
                     new ErrorLogger().ExceptionLog(e);
-
+                    this.Status = 0;
                     this.Connected = false;
                     Task.Run(() => updateConnection(this));
                 }
             }
             else
             {
+                this.Status = 0;
                 this.Connected = false;
                 Task.Run(() => updateConnection(this));
             }

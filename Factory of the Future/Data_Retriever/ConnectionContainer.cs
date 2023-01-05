@@ -33,6 +33,7 @@ namespace Factory_of_the_Future
                 }
                 else
                 {
+                    NewConnection.Download();
                     NewConnection._ThreadDownload();
 
                     if (!con.TcpIpConnection || !con.TcpIpConnection || !con.WsConnection)

@@ -284,23 +284,32 @@ namespace Factory_of_the_Future
                     int propertyCounter;
                     for (propertyCounter = 0; propertyCounter <= propertyCount - 1; propertyCounter++)
                     {
-                        string dn = groups[propertyCounter].Translate(typeof(System.Security.Principal.NTAccount)).ToString();
-
-                        int equalsIndex = dn.IndexOf("\\", 1);
-                        if ((equalsIndex == -1))
+                        try
                         {
+                            string dn = groups[propertyCounter].Translate(typeof(System.Security.Principal.NTAccount)).ToString();
+
+                            int equalsIndex = dn.IndexOf("\\", 1);
+                            if ((equalsIndex == -1))
+                            {
+                                continue;
+                            }
+
+                            var groupName = dn.Substring((equalsIndex + 1), (dn.Length - equalsIndex) - 1);
+                            if ((propertyCount - 1) == propertyCounter)
+                            {
+                                item += groupName;
+                            }
+                            else
+                            {
+                                item = item + groupName + "|";
+                            }
+                        }
+                        catch (Exception e)
+                        {
+                            new ErrorLogger().ExceptionLog(e);
                             continue;
                         }
-
-                        var groupName = dn.Substring((equalsIndex + 1), (dn.Length - equalsIndex) - 1);
-                        if ((propertyCount - 1) == propertyCounter)
-                        {
-                            item += groupName;
-                        }
-                        else
-                        {
-                            item = item + groupName + "|";
-                        }
+                     
                     }
                 }
                 return item;

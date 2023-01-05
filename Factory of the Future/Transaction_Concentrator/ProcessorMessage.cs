@@ -5,9 +5,6 @@ namespace Factory_of_the_Future
 {
     internal class ProcessorMessage
     {
-        private string requestType;
-        private string message1;
-        private string message2;
 
         public static string Message(string data)
         {

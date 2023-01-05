@@ -183,7 +183,7 @@ namespace Factory_of_the_Future
         {
             return _managerHub.GetDockDoorList();
         }
-        public List<RouteTrips> GetDigitalDockDoorList(string id)
+        public IEnumerable<RouteTrips> GetDigitalDockDoorList(string id)
         {
             return _managerHub.GetDigitalDockDoorList(id);
         }

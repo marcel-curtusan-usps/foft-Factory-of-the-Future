@@ -25,7 +25,7 @@ async function updateDockDoorZone(dockdoorzoneupdate) {
                         if (layer.feature.properties.id === dockdoorzoneupdate.properties.id) {
                             layer.feature.properties = dockdoorzoneupdate.properties;
                             layerindex = layer._leaflet_id;
-                            layer.setTooltipContent(dockdoorzoneupdate.properties.doorNumber.toString() + (dockdoorzoneupdate.properties.dockdoorData.tripDirectionInd !== "" ? "-" + dockdoorzoneupdate.properties.dockdoorData.tripDirectionInd : ""));
+                            layer.setTooltipContent(dockdoorzoneupdate.properties.doorNumber.toString() + (dockdoorzoneupdate.properties.dockdoorData[0].tripDirectionInd !== "" ? "-" + dockdoorzoneupdate.properties.dockdoorData[0].tripDirectionInd : ""));
                             return false;
                         }
                     }
@@ -55,7 +55,7 @@ document.addEventListener("layerscontentvisible", () => {
 var dockDoors = new L.GeoJSON(null, {
     style: function (feature) {
         try {
-            if (feature.properties.dockdoorData.length > 0 ) {
+            if (feature.properties.dockdoorData !== null && feature.properties.dockdoorData.length > 0 ) {
                 if (feature.properties.dockdoorData.tripDirectionInd !== "") {
                     if (feature.properties.dockdoorData.tripDirectionInd === "O") {
                         if (feature.properties.dockdoorData.tripMin <= 30) {
@@ -125,7 +125,7 @@ var dockDoors = new L.GeoJSON(null, {
         let dockdookflash = "";
         let doorNumberdisplay = feature.properties.doorNumber.toString();
 
-        if (feature.properties.dockdoorData.length > 0 ) {
+        if (feature.properties.dockdoorData !== null && feature.properties.dockdoorData.length > 0 ) {
             doorNumberdisplay = feature.properties.doorNumber.toString() + (feature.properties.dockdoorData[0].tripDirectionInd !== "" ? "-" + feature.properties.dockdoorData[0].tripDirectionInd : "")
             if (feature.properties.dockdoorData[0].tripDirectionInd === "O") {
                 if (feature.properties.dockdoorData[0].tripMin <= 30 && feature.properties.dockdoorData[0].Notloadedcontainers > 0) {
@@ -152,7 +152,7 @@ var dockDoors = new L.GeoJSON(null, {
             }
             LoadDockDoorTable(feature.properties);
         })
-        layer.bindTooltip(feature.properties.doorNumber, {
+        layer.bindTooltip(doorNumberdisplay, {
             permanent: true,
             interactive: true,
             direction: 'center',
@@ -205,47 +205,27 @@ let container_row_template = '<tr>' +
     '</tr>"';
 async function updatedockdoor(layerindex) {
     if (map._layers[layerindex].feature.properties.dockdoorData !== null) {
-        if (checkValue(map._layers[layerindex].feature.properties.dockdoorData.tripDirectionInd)) {
 
-            if (map._layers[layerindex].feature.properties.dockdoorData.tripDirectionInd === "O") {
-                if (map._layers[layerindex].feature.properties.dockdoorData.tripMin <= 30) {
-                    map._layers[layerindex].setStyle({
-                        weight: 2,
-                        opacity: 1,
-                        color: '#3573b1',
-                        fillColor: '#dc3545',   // Red. ff0af7 is Purple
-                        fillOpacity: 0.5,
-                        lastOpacity: 0.5
-                    });
-                    if (map._layers[layerindex].feature.properties.dockdoorData.Notloadedcontainers > 0) {
-                        if (map._layers[layerindex].hasOwnProperty("_tooltip")) {
-                            if (map._layers[layerindex]._tooltip.hasOwnProperty("_container")) {
-                                if (!map._layers[layerindex]._tooltip._container.classList.contains('doorflash')) {
-                                    map._layers[layerindex]._tooltip._container.classList.add('doorflash');
-                                }
+        if (map._layers[layerindex].feature.properties.dockdoorData[0].tripDirectionInd === "O") {
+            if (map._layers[layerindex].feature.properties.dockdoorData[0].tripMin <= 30) {
+                map._layers[layerindex].setStyle({
+                    weight: 2,
+                    opacity: 1,
+                    color: '#3573b1',
+                    fillColor: '#dc3545',   // Red. ff0af7 is Purple
+                    fillOpacity: 0.5,
+                    lastOpacity: 0.5
+                });
+                if (map._layers[layerindex].feature.properties.dockdoorData[0].Notloadedcontainers > 0) {
+                    if (map._layers[layerindex].hasOwnProperty("_tooltip")) {
+                        if (map._layers[layerindex]._tooltip.hasOwnProperty("_container")) {
+                            if (!map._layers[layerindex]._tooltip._container.classList.contains('doorflash')) {
+                                map._layers[layerindex]._tooltip._container.classList.add('doorflash');
                             }
                         }
                     }
-                    else {
-                        if (map._layers[layerindex].hasOwnProperty("_tooltip")) {
-                            if (map._layers[layerindex]._tooltip.hasOwnProperty("_container")) {
-                                if (map._layers[layerindex]._tooltip._container.classList.contains('doorflash')) {
-                                    map._layers[layerindex]._tooltip._container.classList.remove('doorflash');
-                                }
-                            }
-                        }
-                    }
-
                 }
                 else {
-                    map._layers[layerindex].setStyle({
-                        weight: 2,
-                        opacity: 1,
-                        color: '#3573b1',
-                        fillColor: '#3573b1',
-                        fillOpacity: 0.5,
-                        lastOpacity: 0.5
-                    });
                     if (map._layers[layerindex].hasOwnProperty("_tooltip")) {
                         if (map._layers[layerindex]._tooltip.hasOwnProperty("_container")) {
                             if (map._layers[layerindex]._tooltip._container.classList.contains('doorflash')) {
@@ -254,36 +234,55 @@ async function updatedockdoor(layerindex) {
                         }
                     }
                 }
+
             }
-            if (map._layers[layerindex].feature.properties.dockdoorData.tripDirectionInd === "I") {
+            else {
                 map._layers[layerindex].setStyle({
                     weight: 2,
                     opacity: 1,
                     color: '#3573b1',
                     fillColor: '#3573b1',
-                    fillOpacity: 0.2,
-                    lastOpacity: 0.2
+                    fillOpacity: 0.5,
+                    lastOpacity: 0.5
                 });
-            }
-        }
-        else {
-            map._layers[layerindex].setStyle({
-                weight: 2,
-                opacity: 1,
-                color: '#3573b1',
-                fillColor: '#989ea4',
-                fillOpacity: 0.2,
-                lastOpacity: 0.2
-            });
-            if (map._layers[layerindex].hasOwnProperty("_tooltip")) {
-                if (map._layers[layerindex]._tooltip.hasOwnProperty("_container")) {
-                    if (map._layers[layerindex]._tooltip._container.classList.contains('doorflash')) {
-                        map._layers[layerindex]._tooltip._container.classList.remove('doorflash');
+                if (map._layers[layerindex].hasOwnProperty("_tooltip")) {
+                    if (map._layers[layerindex]._tooltip.hasOwnProperty("_container")) {
+                        if (map._layers[layerindex]._tooltip._container.classList.contains('doorflash')) {
+                            map._layers[layerindex]._tooltip._container.classList.remove('doorflash');
+                        }
                     }
                 }
             }
         }
+        if (map._layers[layerindex].feature.properties.dockdoorData[0].tripDirectionInd === "I") {
+            map._layers[layerindex].setStyle({
+                weight: 2,
+                opacity: 1,
+                color: '#3573b1',
+                fillColor: '#3573b1',
+                fillOpacity: 0.2,
+                lastOpacity: 0.2
+            });
+        }
     }
+    else {
+        map._layers[layerindex].setStyle({
+            weight: 2,
+            opacity: 1,
+            color: '#3573b1',
+            fillColor: '#989ea4',
+            fillOpacity: 0.2,
+            lastOpacity: 0.2
+        });
+        if (map._layers[layerindex].hasOwnProperty("_tooltip")) {
+            if (map._layers[layerindex]._tooltip.hasOwnProperty("_container")) {
+                if (map._layers[layerindex]._tooltip._container.classList.contains('doorflash')) {
+                    map._layers[layerindex]._tooltip._container.classList.remove('doorflash');
+                }
+            }
+        }
+    }
+
     if ($('div[id=dockdoor_div]').is(':visible')) {
         var findtrdataid = dockdoortop_Table_Body.find('tr[data-id=' + map._layers[layerindex].feature.properties.id + ']');
         if (findtrdataid.length > 0) {
@@ -307,13 +306,17 @@ async function LoadDockDoorTable(data) {
         $zoneSelect[0].selectize.setValue(-1, true);
         $zoneSelect[0].selectize.setValue(data.id, true);
         dockdoortop_Table_Body.empty();
+        container_Table_Body.empty();
+        assignedTrips_Table_Body.empty();
 
         if (data.dockdoorData.length > 0) {
-            loadAssignedTripDataTable(data.dockdoorData,"doortriptable")
+           // loadAssignedTripDataTable(data.dockdoorData,"doortriptable")
+            $.each(data.dockdoorData, function () {
+                assignedTrips_Table_Body.append(assignedTrips_row_template.supplant(formatassignedTripsrow(this)));
+            });
             let dataproperties = data.dockdoorData[0];
             let loadtriphisory = false;
-            let tempdata = [];          
-            container_Table_Body.empty();
+            let tempdata = [];    
 /*            if (checkValue(dataproperties.legSiteName)) {*/
                 $('select[id=tripSelector]').val(dataproperties.id);
             
@@ -594,63 +597,33 @@ function formatcontainerdetailsrow(properties)
     });
 }
 //assigend trips to dock doors table setup and load
-async function createAssignedTripDatatable(table)
-{
-    if ($.fn.dataTable.isDataTable("#" + table)) {
-        let arrayColums = [{
-            "Location": "",
-            "Assigned": "",
-            "Close": "",
-            "Stage": "",
-            "Xdk": "",
-            "Loaded": ""
-        }]
-        var columns = [];
-        var tempc = {};
-        $.each(arrayColums[0], function (key, value) {
-            tempc = {};
-            tempc = {
-                "title": capitalize_Words(key.replace(/\_/, ' ')),
-                "mDataProp": key
-            }
-            columns.push(tempc);
-        });
-        $('#' + table).DataTable({
-            dom: 'Bfrtip',
-            bFilter: false,
-            bdeferRender: true,
-            paging: false,
-            bPaginate: false,
-            bAutoWidth: true,
-            bInfo: false,
-            destroy: true,
-            language: {
-                zeroRecords: "No Trips Found ",
-                processing: "<div class='overlay custom-loader-background'><i class='fa fa-cog fa-spin custom-loader-color'></i></div>"
-            },
-            aoColumns: columns,
-            columnDefs: []
-        });
-    }
+/*
+Scheduled outbound trips 
+*/
+function formatassignedTripsrow(properties) {
+    return $.extend(properties, {
+        schd: objSVTime(properties.scheduledDtm),
+        departed: !$.isEmptyObject(properties.actualDtm) ? objSVTime(properties.actualDtm) : "",
+        routetrip: properties.route + properties.trip + properties.tripDirectionInd,
+        door: checkValue(properties.doorNumber) ? properties.doorNumber : "0",
+        route: properties.route,
+        routeid: properties.id,
+        trip: properties.trip,
+        tripDirection: properties.tripDirectionInd === "O" ? "Out-bound" : "In-bound",
+        firstlegDest: properties.legSiteId,
+        firstlegSite: properties.legSiteName,
+        btnloadDoor: Load_btn_door(properties)
+    });
 }
-function loadAssignedTripDataTable(data, table) {
-    if ($.fn.dataTable.isDataTable("#" + table)) {
-            $('#' + table).DataTable().rows.add(data).draw();
-    }
-}
-function removeAssignedTripDataTable(table) {
-    if ($.fn.dataTable.isDataTable("#" + table)) {
-        $('#' + table).DataTable().rows(function (idx, data, node) {
-            $('#' + table).DataTable().row(node).remove().draw();
-        })
-    }
-}
-function updateAssignedTripDataTable(ldata, table) {
-    if ($.fn.dataTable.isDataTable("#" + table)) {
-        $('#' + table).DataTable().rows(function (idx, data, node) {
-            if (data.doorNumber === ldata.doorNumber) {
-                $('#' + table).DataTable().row(node).data(ldata).draw().invalidate();
-            }
-        })
-    }
-}
+let assignedTrips_Table = $('table[id=doortriptable]');
+let assignedTrips_Table_Body = assignedTrips_Table.find('tbody');
+let assignedTrips_row_template = '<tr data-id={routeid} data-door={door} >' +
+    '<td class="text-center">{schd}</td>' +
+    '<td class="text-center">{departed}</td>' +
+    '<td>' +
+    '<button class="btn btn-outline-info btn-sm btn-block px-1 routetripdetails" data-routetrip="{routeid}" style="font-size:12px;">{route}-{trip}</button>' +
+    '</td> ' +
+    '<td class="{background}">{btnloadDoor}</td>' +
+    '<td class="text-center">{tripDirection}</td>' +
+    '<td data-toggle="tooltip" title={firstlegSite}>{firstlegSite}</td>' +
+    '</tr>"';

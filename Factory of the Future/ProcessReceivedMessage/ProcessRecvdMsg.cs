@@ -296,21 +296,22 @@ namespace Factory_of_the_Future
                                 {
                                     Camera.Properties.CameraData.Base64Image = camImage;
                                     Camera.Properties.TagUpdate = true;
+                                    FOTFManager.Instance.BroadcastCameraStatus(Camera, cs.Id);
                                 }
                             }
                         });
                     }
-                    Task.Run(() => updateConnection(conID, "good"));
+                    Task.Run(() => UpdateConnection(conID, "good"));
                 }
                 catch (Exception ex)
                 {
-                    Task.Run(() => updateConnection(conID, "error"));
+                    Task.Run(() => UpdateConnection(conID, "error"));
                     new ErrorLogger().ExceptionLog(ex);
                 }
             }
             else
             {
-                Task.Run(() => updateConnection(conID, "error"));
+                Task.Run(() => UpdateConnection(conID, "error"));
             }
         }
 
@@ -586,19 +587,13 @@ namespace Factory_of_the_Future
                 AppParameters.RouteTripsList.AddOrUpdate(routetripid, newRTData,
                     (key, existingVal) =>
                     {
-                        if (existingVal.RawData != newRTData.RawData)
-                        {
-                            newRTData.RawData = JsonConvert.SerializeObject(newRTData, Formatting.None);
-                            newRTData.TripUpdate = true;
-                            newRTData.State = existingVal.State;
-                            newRTData.NotificationId = existingVal.NotificationId;
-                            return newRTData;
-                        }
-                        else
-                        {
-                            return existingVal;
-                        }
-
+                        existingVal.RawData = JsonConvert.SerializeObject(newRTData, Formatting.None);
+                        existingVal.TripUpdate = true;
+                        existingVal.State = newRTData.State;
+                        existingVal.NotificationId = existingVal.NotificationId;
+                        existingVal.DoorNumber = AppParameters.DoorTripAssociation.Where(f => f.Key == string.Concat(newRTData.Route, newRTData.Trip)).Select(y => y.Value.DoorNumber).FirstOrDefault();
+                        existingVal.DoorId = !string.IsNullOrEmpty(existingVal.DoorNumber) ? string.Concat("99D", existingVal.DoorNumber.ToString().PadLeft(4, '-')) : ""; 
+                        return existingVal;
                     });
                 if (newRTData.OperDate != null)
                 {
@@ -718,27 +713,27 @@ namespace Factory_of_the_Future
                                 {
                                     trip.DoorId = item["doorId"].ToString();
                                     trip.DoorNumber = item["doorNumber"].ToString();
-                                    trip.RawData = JsonConvert.SerializeObject(item, Formatting.None);
+                                    //trip.RawData = JsonConvert.SerializeObject(item, Formatting.None);
                                     //dooritem = JsonConvert.SerializeObject(trip, Formatting.None);
-                                    Task.Run(() => UpdateDoorZone(trip));
+                                    Task.Run(() => FOTFManager.Instance.UpdateDoorZone(trip));
 
                                 }
-                                else
-                                {
-                                    item["id"] = routetripid;
-                                    item["rawData"] = JsonConvert.SerializeObject(item, Formatting.None);
-                                    RouteTrips newRTData = item.ToObject<RouteTrips>();
-                                    newRTData.OperDate = newRTData.ScheduledDtm;
-                                    newRTData.TripMin = AppParameters.Get_TripMin(newRTData.ScheduledDtm);
-                                    Task.Run(() => AddTriptoList(routetripid, newRTData));
-                                    Task.Run(() => UpdateDoorZone(newRTData));
-                                }
+                                //else
+                                //{
+                                //    item["id"] = routetripid;
+                                //    item["rawData"] = JsonConvert.SerializeObject(item, Formatting.None);
+                                //    RouteTrips newRTData = item.ToObject<RouteTrips>();
+                                //    newRTData.OperDate = newRTData.ScheduledDtm;
+                                //    newRTData.TripMin = AppParameters.Get_TripMin(newRTData.ScheduledDtm);
+                                //    Task.Run(() => AddTriptoList(routetripid, newRTData));
+                                //    Task.Run(() => UpdateDoorZone(newRTData));
+                                //}
                             }
-                            else
-                            {
-                                item["rawData"] = JsonConvert.SerializeObject(item, Formatting.None);
-                                Task.Run(() => UpdateDoorZone(item.ToObject<RouteTrips>()));
-                            }
+                            //else
+                            //{
+                            //    item["rawData"] = JsonConvert.SerializeObject(item, Formatting.None);
+                            //    Task.Run(() => UpdateDoorZone(item.ToObject<RouteTrips>()));
+                            //}
                         }
                         Task.Run(() => UpdateConnection(conID, "good"));
                     }
@@ -759,42 +754,42 @@ namespace Factory_of_the_Future
                 new ErrorLogger().ExceptionLog(e);
             }
         }
-        private static void UpdateDoorZone(RouteTrips trip)
-        {
-            try
-            {
+        //private static void UpdateDoorZone(RouteTrips trip)
+        //{
+        //    try
+        //    {
 
-                foreach (CoordinateSystem cs in AppParameters.CoordinateSystem.Values)
-                {
-                    cs.Zones.Where(f => f.Value.Properties.ZoneType == "DockDoor"
-                    && f.Value.Properties.DoorNumber == trip.DoorNumber
-                    ).Select(y => y.Value).ToList().ForEach(DockDoor =>
-                    {
-                        //if(DockDoor.Properties.DockDoorData.RawData != trip.RawData)
-                        //{
-                        //   // DockDoor.Properties.ZoneUpdate = true;
-                        //    FOTFManager.Instance.BroadcastDockdoorZoneStatus(trip, cs.Id);
-                        //}
-                        DockDoor.Properties.DockDoorData = FOTFManager.Instance.GetDigitalDockDoorList(DockDoor.Properties.DoorNumber);
-                        FOTFManager.Instance.BroadcastDockDoorStatus(DockDoor, cs.Id);
-                    });
-                }
+        //        foreach (CoordinateSystem cs in AppParameters.CoordinateSystem.Values)
+        //        {
+        //            cs.Zones.Where(f => f.Value.Properties.ZoneType == "DockDoor"
+        //            && f.Value.Properties.DoorNumber == trip.DoorNumber
+        //            ).Select(y => y.Value).ToList().ForEach(DockDoor =>
+        //            {
+        //                //if(DockDoor.Properties.DockDoorData.RawData != trip.RawData)
+        //                //{
+        //                //   // DockDoor.Properties.ZoneUpdate = true;
+        //                //    FOTFManager.Instance.BroadcastDockdoorZoneStatus(trip, cs.Id);
+        //                //}
+        //                DockDoor.Properties.DockDoorData = FOTFManager.Instance.GetDigitalDockDoorList(DockDoor.Properties.DoorNumber);
+        //                FOTFManager.Instance.BroadcastDockDoorStatus(DockDoor, cs.Id);
+        //            });
+        //        }
 
-                //AppParameters.ZoneList.Where(r => r.Value.Properties.ZoneType == "DockDoor" 
-                //&& r.Value.Properties.DoorNumber == trip.DoorNumber).Select(y => y.Key).ToList().ForEach(key =>
-                //{
-                //    if (AppParameters.ZoneList.TryGetValue(key, out GeoZone doorZone))
-                //    {
-                //        doorZone.Properties.DockDoorData = trip;
-                //        doorZone.Properties.ZoneUpdate = true;
-                //    }
-                //});
-            }
-            catch (Exception e)
-            {
-                new ErrorLogger().ExceptionLog(e);
-            }
-        }
+        //        //AppParameters.ZoneList.Where(r => r.Value.Properties.ZoneType == "DockDoor" 
+        //        //&& r.Value.Properties.DoorNumber == trip.DoorNumber).Select(y => y.Key).ToList().ForEach(key =>
+        //        //{
+        //        //    if (AppParameters.ZoneList.TryGetValue(key, out GeoZone doorZone))
+        //        //    {
+        //        //        doorZone.Properties.DockDoorData = trip;
+        //        //        doorZone.Properties.ZoneUpdate = true;
+        //        //    }
+        //        //});
+        //    }
+        //    catch (Exception e)
+        //    {
+        //        new ErrorLogger().ExceptionLog(e);
+        //    }
+        //}
         private static void TacsVsSels(dynamic data, string message_type, string conID)
         {
             // "processedSince": "21-08-12 09:08:42",

@@ -20,9 +20,9 @@ async function init_arrive_depart_trips() {
                     }
                    
                 });
-                $.each(trips, function () {
+                $.each(trips.sort(SortBySiteName), function () {
                     process_trips(this);
-                    $('<option/>').val(this.id).html(this.route + " - " + this.trip + " | " + this.legSiteName + " -- " + tripDirectiontext(this)).appendTo('select[id=tripSelector]');
+                    $('<option/>').val(this.id).html(this.legSiteName + " | "+ this.route + " - " + this.trip + " | " + " -- " + tripDirectiontext(this)).appendTo('select[id=tripSelector]');
                 });
             }
         });

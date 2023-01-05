@@ -15,7 +15,7 @@ namespace Factory_of_the_Future.Controllers
         public IEnumerable<RouteTrips> Get()
         {
 
-            List<RouteTrips> doors = new List<RouteTrips>();
+            IEnumerable<RouteTrips> doors = new List<RouteTrips>();
             foreach (CoordinateSystem cs in AppParameters.CoordinateSystem.Values)
             {
                 cs.Zones.Where(f => f.Value.Properties.ZoneType == "DockDoor"
@@ -37,7 +37,7 @@ namespace Factory_of_the_Future.Controllers
         // GET: api/DockDoor/5
         public IEnumerable<RouteTrips> Get(string id)
         {
-            List<RouteTrips> doors = new List<RouteTrips>();
+            IEnumerable<RouteTrips> doors = new List<RouteTrips>();
             foreach (CoordinateSystem cs in AppParameters.CoordinateSystem.Values)
             {
                 cs.Zones.Where(f => f.Value.Properties.ZoneType == "DockDoor" && f.Value.Properties.DoorNumber.ToLower() == id.ToLower()

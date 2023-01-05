@@ -100,7 +100,7 @@ namespace Factory_of_the_Future
             //Connection status
             QSM_timer = new Timer(UpdateQSM, null, _250updateInterval, _250updateInterval);
             //Camera update;
-            Camera_timer = new Timer(UpdateCameraImages, null, _10000updateInterval, _60000updateInterval);
+            //Camera_timer = new Timer(UpdateCameraImages, null, _10000updateInterval, _60000updateInterval);
         }
 
 
@@ -132,7 +132,8 @@ namespace Factory_of_the_Future
             try
             {
                 List<RouteTrips> doorTrips = new List<RouteTrips>();
-                doorTrips = AppParameters.RouteTripsList.Where(x => !Regex.IsMatch(x.Value.State, "(CANCELED|DEPARTED|OMITTED|COMPLETE)", RegexOptions.IgnoreCase) && x.Value.DoorNumber == id).Select(y => y.Value).OrderBy(o => o.ScheduledDtm).ToList();
+                doorTrips = AppParameters.RouteTripsList.Where(x => !Regex.IsMatch(x.Value.State, "(CANCELED|DEPARTED|OMITTED|COMPLETE)", RegexOptions.IgnoreCase) 
+                && x.Value.DoorNumber == id).OrderBy(d => d.Value.ScheduledDtmfmt).Select(y => y.Value).ToList();
                 return doorTrips;
             }
             catch (Exception e)
@@ -261,74 +262,74 @@ namespace Factory_of_the_Future
                 return null;
             }
         }
-        public void UpdateCameraImages(object state)
-        {
-            try
-            {
-                lock (updateCameralock)
-                {
-                    if (!_updateCameraStatus)
-                    {
-                        foreach (CoordinateSystem cs in AppParameters.CoordinateSystem.Values)
-                        {
-                            cs.Locators.Where(f => f.Value.Properties.TagType != null &&
-                            f.Value.Properties.TagType == "Camera").Select(y => y.Value).ToList().ForEach(Camera =>
-                            {
-                                if (Camera.Properties.CameraData == null)
-                                {
-                                    Cameras cam = new Cameras();
-                                    if (AppParameters.CameraInfoList.TryGetValue(Camera.Properties.Name, out Cameras existingValue))
-                                    {
+        //public void UpdateCameraImages(object state)
+        //{
+        //    try
+        //    {
+        //        lock (updateCameralock)
+        //        {
+        //            if (!_updateCameraStatus)
+        //            {
+        //                foreach (CoordinateSystem cs in AppParameters.CoordinateSystem.Values)
+        //                {
+        //                    cs.Locators.Where(f => f.Value.Properties.TagType != null &&
+        //                    f.Value.Properties.TagType == "Camera").Select(y => y.Value).ToList().ForEach(Camera =>
+        //                    {
+        //                        if (Camera.Properties.CameraData == null)
+        //                        {
+        //                            Cameras cam = new Cameras();
+        //                            if (AppParameters.CameraInfoList.TryGetValue(Camera.Properties.Name, out Cameras existingValue))
+        //                            {
                                     
-                                        cam.FacilitySubtypeDesc = existingValue.FacilitySubtypeDesc;
-                                        cam.AuthKey = existingValue.AuthKey;
-                                        cam.Description = existingValue.Description;
-                                        cam.FacilitiyLatitudeNum = existingValue.FacilitiyLatitudeNum;
-                                        cam.FacilitiyLongitudeNum = existingValue.FacilitiyLongitudeNum;
-                                        cam.FacilityDisplayName = existingValue.FacilityDisplayName;
-                                        cam.FacilityPhysAddrTxt = existingValue.FacilityPhysAddrTxt;
-                                        cam.GeoProcDivisionNm = existingValue.GeoProcDivisionNm;
-                                        cam.GeoProcRegionNm = existingValue.GeoProcRegionNm;
-                                        cam.LocaleKey = existingValue.LocaleKey;
-                                        cam.ModelNum = existingValue.ModelNum;
-                                        cam.Reachable = existingValue.Reachable;
-                                        cam.CameraName = existingValue.CameraName;
-                                        cam.Base64Image = AppParameters.NoImage;
-                                        cam.Alerts = null;
-                                    }
-                                    else
-                                    {
-                                        cam.Base64Image = AppParameters.NoImage;
-                                        cam.CameraName = Camera.Properties.Name;
-                                    }
-                                    Camera.Properties.CameraData = cam;
-                                    new FileIO().Write(string.Concat(AppParameters.Logdirpath, AppParameters.ConfigurationFloder), "Project_Data.json", AppParameters.ZoneOutPutdata(AppParameters.CoordinateSystem.Select(x => x.Value).ToList()));
+        //                                cam.FacilitySubtypeDesc = existingValue.FacilitySubtypeDesc;
+        //                                cam.AuthKey = existingValue.AuthKey;
+        //                                cam.Description = existingValue.Description;
+        //                                cam.FacilitiyLatitudeNum = existingValue.FacilitiyLatitudeNum;
+        //                                cam.FacilitiyLongitudeNum = existingValue.FacilitiyLongitudeNum;
+        //                                cam.FacilityDisplayName = existingValue.FacilityDisplayName;
+        //                                cam.FacilityPhysAddrTxt = existingValue.FacilityPhysAddrTxt;
+        //                                cam.GeoProcDivisionNm = existingValue.GeoProcDivisionNm;
+        //                                cam.GeoProcRegionNm = existingValue.GeoProcRegionNm;
+        //                                cam.LocaleKey = existingValue.LocaleKey;
+        //                                cam.ModelNum = existingValue.ModelNum;
+        //                                cam.Reachable = existingValue.Reachable;
+        //                                cam.CameraName = existingValue.CameraName;
+        //                                cam.Base64Image = AppParameters.NoImage;
+        //                                cam.Alerts = null;
+        //                            }
+        //                            else
+        //                            {
+        //                                cam.Base64Image = AppParameters.NoImage;
+        //                                cam.CameraName = Camera.Properties.Name;
+        //                            }
+        //                            Camera.Properties.CameraData = cam;
+        //                            new FileIO().Write(string.Concat(AppParameters.Logdirpath, AppParameters.ConfigurationFloder), "Project_Data.json", AppParameters.ZoneOutPutdata(AppParameters.CoordinateSystem.Select(x => x.Value).ToList()));
 
-                                }
-                            //if (Camera.Properties.CameraData.Base64Image != TryUpdateCameraStatus(Camera.Properties.CameraData.CameraName, out string Base64Img))
-                            //{
-                            //    Camera.Properties.CameraData.Base64Image = Base64Img;
-                            //    BroadcastCameraStatus(Camera, cs.Id);
-                            //}
-                                if(TryUpdateCameraStatus(Camera))
-                                {
-                                    BroadcastCameraStatus(Camera, cs.Id);
-                                }
-                            });
-                        }
-                        _updateCameraStatus = false;
-                    }
-                }
-                // UpdateCameraImages();
-            }
-            catch (Exception e)
-            {
-                new ErrorLogger().ExceptionLog(e);
+        //                        }
+        //                    //if (Camera.Properties.CameraData.Base64Image != TryUpdateCameraStatus(Camera.Properties.CameraData.CameraName, out string Base64Img))
+        //                    //{
+        //                    //    Camera.Properties.CameraData.Base64Image = Base64Img;
+        //                    //    BroadcastCameraStatus(Camera, cs.Id);
+        //                    //}
+        //                        if(TryUpdateCameraStatus(Camera))
+        //                        {
+        //                            BroadcastCameraStatus(Camera, cs.Id);
+        //                        }
+        //                    });
+        //                }
+        //                _updateCameraStatus = false;
+        //            }
+        //        }
+        //        // UpdateCameraImages();
+        //    }
+        //    catch (Exception e)
+        //    {
+        //        new ErrorLogger().ExceptionLog(e);
 
-                _updateCameraStatus = false;
-            }
+        //        _updateCameraStatus = false;
+        //    }
 
-        }
+        //}
 
         public void BroadcastCameraStatus(GeoMarker Cameras, string id)
         {
@@ -383,21 +384,22 @@ namespace Factory_of_the_Future
         //    Clients.Group("CameraMarkers").updateCameraStatus(CameraZone, id);
         //}
 
-        private bool TryUpdateCameraStatus(GeoMarker camera)
-        {
-            bool updateImage = false;
-            if(!string.IsNullOrEmpty(AppParameters.ConnectionList.Where(x => x.Value.MessageType.ToUpper() == "getCameraStills".ToUpper() && x.Value.ActiveConnection).Select(y => y.Value.Id).FirstOrDefault()))
-            {
-                updateImage = camera.Properties.TagUpdate;
-            }
-            else if(camera.Properties.CameraData.Base64Image != AppParameters.NoImage)
-            {
-                camera.Properties.CameraData.Base64Image = AppParameters.NoImage;
-                updateImage = true;
-            }
-            camera.Properties.TagUpdate = false;
-            return updateImage;
-        }
+        //private bool TryUpdateCameraStatus(GeoMarker camera)
+        //{
+        //    bool updateImage = false;
+        //    if(!string.IsNullOrEmpty(AppParameters.ConnectionList.Where(x => x.Value.MessageType.ToUpper() == "getCameraStills".ToUpper() 
+        //    && x.Value.ActiveConnection).Select(y => y.Value.Id).FirstOrDefault()))
+        //    {
+        //        updateImage = camera.Properties.TagUpdate;
+        //    }
+        //    else if(camera.Properties.CameraData.Base64Image != AppParameters.NoImage)
+        //    {
+        //        camera.Properties.CameraData.Base64Image = AppParameters.NoImage;
+        //        updateImage = true;
+        //    }
+        //    camera.Properties.TagUpdate = false;
+        //    return updateImage;
+        //}
         //private static string TryUpdateCameraStatus(string camera, out string imageBase64)
         //{
         //    imageBase64 = AppParameters.NoImage;
@@ -860,6 +862,7 @@ namespace Factory_of_the_Future
             }
         }
 
+
         internal IEnumerable<NotificationConditions> EditNotification_Conditions(string data)
         {
             try
@@ -1118,10 +1121,7 @@ namespace Factory_of_the_Future
             Clients.Group("BinZones").updateBinZoneStatus(binZone, id);
         }
 
-        public void BroadcastDockdoorZoneStatus(RouteTrips dockdoortrips, string id)
-        {
-            Clients.Group("DockDoor_" + dockdoortrips.DoorNumber).updateDigitalDockDoorStatus(dockdoortrips, id);
-        }
+
 
         private void UpdateSVTripsStatus(object state)
         {
@@ -1135,6 +1135,10 @@ namespace Factory_of_the_Future
                                          select trip)
                     {
                         BroadcastSVTripsStatus(trip);
+                        if (!string.IsNullOrEmpty(trip.DoorNumber))
+                        {
+                            UpdateDoorZone(trip);
+                        }
                     }
 
                     _updateSVTripsStatus = false;
@@ -1410,8 +1414,10 @@ namespace Factory_of_the_Future
 
                 if (AppParameters.RouteTripsList.TryGetValue(data["RouteTrip"].ToString(), out RouteTrips trip))
                 {
-                    trip.DoorId = string.Concat("99D", data["DoorNumber"].ToString().PadLeft(4,'-'));//data["DoorNumber"];
+                    trip.DoorId = string.Concat("99D", data["DoorNumber"].ToString().PadLeft(4,'-'));
                     trip.DoorNumber = data["DoorNumber"].ToString();
+                    saveDoorTripAssociation(trip.DoorNumber, trip.Route, trip.Trip);
+                    UpdateDoorZone(trip);
                 }
             }
             catch (Exception e)
@@ -1419,6 +1425,41 @@ namespace Factory_of_the_Future
                 new ErrorLogger().ExceptionLog(e);
             }
         }
+
+        private void saveDoorTripAssociation(string doorNumber, string route, string trip)
+        {
+            bool update = false;
+            try
+            {
+                if (AppParameters.DoorTripAssociation.ContainsKey(string.Concat(route, trip)) 
+                    && AppParameters.DoorTripAssociation.TryGetValue(string.Concat(route, trip), out DoorTripAssociation dr))
+                {
+                    dr.DoorNumber = doorNumber;
+                    dr.Route = route;
+                    dr.Trip = trip;
+                    update = true;
+                }
+                else
+                {
+                    if (AppParameters.DoorTripAssociation.TryAdd(string.Concat(route, trip), new DoorTripAssociation { DoorNumber = doorNumber, Route = route, Trip = trip }))
+                    {
+                        update = true;  
+                    }
+                    
+                }
+                if (update)
+                {
+                    new FileIO().Write(string.Concat(AppParameters.Logdirpath, AppParameters.ConfigurationFloder), "DoorTripAssociation.json", JsonConvert.SerializeObject(AppParameters.DoorTripAssociation.Select(x => x.Value).ToList(), Formatting.Indented, new JsonSerializerSettings() { ContractResolver = new NullToEmptyStringResolver() }));
+                }
+
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+        }
+
         internal IEnumerable<RouteTrips> GetRouteTripsInfo(string id)
         {
             try
@@ -2325,25 +2366,39 @@ namespace Factory_of_the_Future
             Clients.Group("VehiclsMarkers").updateVehicles(vehicles, id);
         }
 
-        public void BroadcastDockDoorStatus(GeoZone dockDoor, string id)
-        {
-            Clients.Group("DockDoorZones").updateDockDoorStatus(dockDoor, id);
-        }
-
-        private bool TryUpdateDockDoorStatus(GeoZone dockDoor)
+        internal void UpdateDoorZone(RouteTrips trip)
         {
             try
             {
-                dockDoor.Properties.ZoneUpdate = false;
-                return true;
 
+                foreach (CoordinateSystem cs in AppParameters.CoordinateSystem.Values)
+                {
+                    cs.Zones.Where(f => f.Value.Properties.ZoneType == "DockDoor"
+                    && f.Value.Properties.DoorNumber == trip.DoorNumber
+                    ).Select(y => y.Value).ToList().ForEach(DockDoor =>
+                    {
+                       
+                        DockDoor.Properties.DockDoorData = FOTFManager.Instance.GetDigitalDockDoorList(DockDoor.Properties.DoorNumber);
+                        FOTFManager.Instance.BroadcastDockDoorStatus(DockDoor, cs.Id);
+                    });
+                }
             }
             catch (Exception e)
             {
                 new ErrorLogger().ExceptionLog(e);
-                return false;
             }
         }
+        public void BroadcastDockDoorStatus(GeoZone dockDoor, string id)
+        {
+            Clients.Group("DockDoorZones").updateDockDoorStatus(dockDoor, id);
+            Clients.Group("DockDoor_" + dockDoor.Properties.DoorNumber).updateDigitalDockDoorStatus(dockDoor.Properties.DockDoorData, id);
+        }
+        //public void BroadcastDockdoorZoneStatus(RouteTrips dockdoortrips, string id)
+        //{
+        //    Clients.Group("DockDoor_" + dockdoortrips.DoorNumber).updateDigitalDockDoorStatus(dockdoortrips, id);
+        //}
+
+
         private void UpdateVehicleTagStatus(object state)
         {
             lock (updateTagStatuslock)
@@ -2564,6 +2619,11 @@ namespace Factory_of_the_Future
                                         }
                                         else
                                         {
+                                            if (Connection_item.MessageType.ToUpper().EndsWith("Stills".ToUpper()))
+                                            {
+                                                Connection_item.ConnectionInfo.ActiveConnection = false;
+                                                Connection_item.Download();
+                                            }
                                             Connection_item.ConstantRefresh = false;
                                             Connection_item.Stop();
                                         }

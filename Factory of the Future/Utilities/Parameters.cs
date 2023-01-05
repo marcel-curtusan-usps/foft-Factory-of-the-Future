@@ -284,7 +284,7 @@ namespace Factory_of_the_Future
         public int GpioValue { get; set; } = -1;
 
         [JsonProperty("dockdoorData")]
-        public List<RouteTrips> DockDoorData { get; set; } = new List<RouteTrips>();
+        public IEnumerable<RouteTrips> DockDoorData { get; set; } = new List<RouteTrips>();
 
         [JsonProperty("rawData")]
         public string RawData { get; set; } = "";
@@ -687,6 +687,11 @@ namespace Factory_of_the_Future
         public bool containerTerminate { get; set; }
         public bool containerAtDest { get; set; }
         public bool containerRedirectedDest { get; set; }
+    }
+    public class DoorTripAssociation {
+        public string DoorNumber { get; set; }
+        public string Route { get; set; }
+        public string Trip { get; set; }
     }
     public class Connection
     {
@@ -1154,6 +1159,14 @@ namespace Factory_of_the_Future
 
         [JsonProperty("scheduledDtm")]
         public EventDtm ScheduledDtm { get; set; }
+        public DateTime ScheduledDtmfmt
+        {
+            get
+            {
+                return new DateTime(ScheduledDtm.Year, (ScheduledDtm.Month + 1), ScheduledDtm.DayOfMonth, ScheduledDtm.HourOfDay, ScheduledDtm.Minute, ScheduledDtm.Second);
+            }
+            set { return; }
+        }
 
         [JsonProperty("legScheduledDtm")]
         public EventDtm LegScheduledDtm { get; set; }
