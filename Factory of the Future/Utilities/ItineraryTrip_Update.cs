@@ -11,6 +11,8 @@ namespace Factory_of_the_Future
         {
             try
             {
+                string destsites = "";
+                bool update = false;
                 if (!string.IsNullOrEmpty(Itineraryitem))
                 {
                     JToken Itinerary = JToken.Parse(Itineraryitem);
@@ -21,9 +23,9 @@ namespace Factory_of_the_Future
                         {
                             if (AppParameters.RouteTripsList.TryGetValue(routtripid, out RouteTrips existingVal))
                             {
-                                string destsites = "";
+                            
                                 existingVal.Legs = legs.ToObject<List<Leg>>();
-                                bool update = false;
+                               
                                 foreach (JObject legitem in legs.Children())
                                 {
                                     // get all dest do not include origin Site if site is the same
@@ -41,6 +43,19 @@ namespace Factory_of_the_Future
                                 {
                                     existingVal.TripUpdate = true;
                                 }
+                            }
+                        }
+                    }
+                    else
+                    {
+
+                        if (AppParameters.RouteTripsList.TryGetValue(routtripid, out RouteTrips existingVal))
+                        {
+                         
+                            if (!(destsites == existingVal.DestSites || string.IsNullOrEmpty(destsites)))
+                            {
+                                existingVal.DestSites = ("(^" + existingVal.DestSiteId + "$)|");
+                                existingVal.TripUpdate = true;
                             }
                         }
                     }

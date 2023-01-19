@@ -215,9 +215,13 @@ $(function () {
     $.extend(fotfmanager.client, {
         floorImage: async (MapData) => { init_mapSetup(MapData); }
     });
+    //remove trips
+    $.extend(fotfmanager.client, {
+        removeSVTrips: async (tripid) => { removeTrips(tripid); }
+    });
     // Start the connection
     $.connection.hub.qs = { 'page_type': "CF".toUpperCase() };
-    $.connection.hub.start({ withCredentials: true, waitForPageLoad: false })
+    $.connection.hub.start({ waitForPageLoad: false })
         .done(function () {
 
             if (/^(Admin|OIE)/i.test(User.Role)) {
@@ -511,16 +515,29 @@ $(function () {
         let description = tr.attr('data-description');
         View_Web_Camera(id, model, description);
     });
-    //set the trip to a door
-    $(document).on('click', '.tripSelectorbtn', function () {
-        let td = $(this);
-        let tr = $(td).closest('tr');
-        let id = tr.attr('data-id');
-        let model = tr.attr('data-model');
-        let description = tr.attr('data-description');
-        View_Web_Camera(id, model, description);
-    });
+    ////set the trip to a door
+    //$(document).on('click', '.tripSelectorbtn', function () {
+    //    let td = $(this);
+    //    let tr = $(td).closest('tr');
+    //    let id = tr.attr('data-id');
+    //    let model = tr.attr('data-model');
+    //    let description = tr.attr('data-description');
+    //    View_Web_Camera(id, model, description);
+    //});
 });
+function removeTrips(routetrip)
+{
+    let trname = $.find('tbody tr[data-id=' + routetrip + ']');
+
+    if (trname.length > 0) {
+        for (let tr_name of trname) {
+            let tablename = $(tr_name).closest('table').attr('id');
+            $('#' + tablename).find('tbody tr[data-id=' + routetrip + ']').remove();
+        }
+    }
+    $('#tripSelector option[id=' + routetrip + ']').remove();
+}
+
 function Page_Update(data) {
     $('#fotf-site-facility-name').append(data.FACILITY_NAME);
     $(document).prop('title', data.FACILITY_NAME + ' ' + data.APPLICATION_NAME);

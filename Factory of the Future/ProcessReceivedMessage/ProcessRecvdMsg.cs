@@ -7,6 +7,7 @@ using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
@@ -375,7 +376,7 @@ namespace Factory_of_the_Future
                                 }
                                 sortindex++;
                                 scan.sortind = sortindex;
-                                d.binDisplay = scan.Event == "PASG" ? scan.BinName : "";
+                                d.BinDisplay = scan.Event == "PASG" ? scan.BinName : "";
                                 if (scan.SiteId == siteId)
                                 {
 
@@ -437,25 +438,42 @@ namespace Factory_of_the_Future
                                     }
                                 }
                             }
-                            if (AppParameters.Containers.TryGetValue(d.PlacardBarcode, out Container exisitingContainer))
+                            // Global.DockDoor_List.AddOrUpdate(vr_door_item.DoorNumber, vr_door_item, (key, existingVal) =>
+                            // {
+                            AppParameters.Containers.AddOrUpdate(d.PlacardBarcode, d, (Key, exisitingContainer) =>
                             {
-                                exisitingContainer.hasAssignScans = d.hasAssignScans;
-                                exisitingContainer.hasCloseScans = d.hasCloseScans;
-                                exisitingContainer.hasLoadScans = d.hasLoadScans;
-                                exisitingContainer.hasUnloadScans = d.hasUnloadScans;
-                                exisitingContainer.hasPrintScans = d.hasPrintScans;
-                                exisitingContainer.containerTerminate = d.containerTerminate;
-                                exisitingContainer.Location = d.Location;
-                                exisitingContainer.containerTerminate = d.containerTerminate;
-                                exisitingContainer.containerRedirectedDest = d.containerRedirectedDest;
-                                exisitingContainer.containerAtDest = d.containerAtDest;
-                                exisitingContainer.containerRedirectedDest = d.containerRedirectedDest;
+                                foreach (PropertyInfo prop in exisitingContainer.GetType().GetProperties())
+                                {
+                                    if (!new Regex("^(BinDisplay|ContainerHistory|BinName)$", RegexOptions.IgnoreCase).IsMatch(prop.Name))
+                                    {
+                                        if (prop.GetValue(d, null).ToString() != prop.GetValue(exisitingContainer, null).ToString())
+                                        {
+                                            prop.SetValue(exisitingContainer, prop.GetValue(d, null));
+                                        }
+                                    }
+                                }
                                 exisitingContainer.ContainerHistory = d.ContainerHistory;
-                            }
-                            else
-                            {
-                                AppParameters.Containers.TryAdd(d.PlacardBarcode, d);
-                            }
+                                return exisitingContainer;
+                            });
+                            //{
+                             
+                            //    exisitingContainer.hasAssignScans = d.hasAssignScans;
+                            //    exisitingContainer.hasCloseScans = d.hasCloseScans;
+                            //    exisitingContainer.hasLoadScans = d.hasLoadScans;
+                            //    exisitingContainer.hasUnloadScans = d.hasUnloadScans;
+                            //    exisitingContainer.hasPrintScans = d.hasPrintScans;
+                            //    exisitingContainer.containerTerminate = d.containerTerminate;
+                            //    exisitingContainer.Location = d.Location;
+                            //    exisitingContainer.containerTerminate = d.containerTerminate;
+                            //    exisitingContainer.containerRedirectedDest = d.containerRedirectedDest;
+                            //    exisitingContainer.containerAtDest = d.containerAtDest;
+                            //    exisitingContainer.containerRedirectedDest = d.containerRedirectedDest;
+                            //    exisitingContainer.ContainerHistory = d.ContainerHistory;
+                            //}
+                            //else
+                            //{
+                            //    AppParameters.Containers.TryAdd(d.PlacardBarcode, d);
+                            //}
 
                         }
                         Containers = null;
@@ -518,16 +536,16 @@ namespace Factory_of_the_Future
                                 newRTData.TripMin = AppParameters.Get_TripMin(newRTData.ScheduledDtm);
                                 // if trip does not exist and does not have CANCELED|DEPARTED|OMITTED|COMPLETE|REMOVE in LegStatus
                                 // then add to list
-                                if (AppParameters.RouteTripsList.ContainsKey(routetripid))
-                                {
+                                //if (AppParameters.RouteTripsList.ContainsKey(routetripid))
+                                //{
+                                //    Task.Run(() => AddTriptoList(routetripid, newRTData));
+                                //}
+                                //else if (!AppParameters.RouteTripsList.ContainsKey(routetripid) &&
+                                //    !(Regex.IsMatch(newRTData.LegStatus, "(CANCELED|DEPARTED|OMITTED|COMPLETE|REMOVE)", RegexOptions.IgnoreCase)
+                                //    || Regex.IsMatch(newRTData.Status, "(CANCELED|DEPARTED|OMITTED|COMPLETE|REMOVE)", RegexOptions.IgnoreCase)))
+                                //{
                                     Task.Run(() => AddTriptoList(routetripid, newRTData));
-                                }
-                                else if (!AppParameters.RouteTripsList.ContainsKey(routetripid) &&
-                                    !(Regex.IsMatch(newRTData.LegStatus, "(CANCELED|DEPARTED|OMITTED|COMPLETE|REMOVE)", RegexOptions.IgnoreCase)
-                                    || Regex.IsMatch(newRTData.Status, "(CANCELED|DEPARTED|OMITTED|COMPLETE|REMOVE)", RegexOptions.IgnoreCase)))
-                                {
-                                    Task.Run(() => AddTriptoList(routetripid, newRTData));
-                                }
+                                //}
 
 
                                 //if (AppParameters.RouteTripsList.ContainsKey(routetripid))
@@ -584,20 +602,44 @@ namespace Factory_of_the_Future
         {
             try
             {
-                AppParameters.RouteTripsList.AddOrUpdate(routetripid, newRTData,
-                    (key, existingVal) =>
-                    {
-                        existingVal.RawData = JsonConvert.SerializeObject(newRTData, Formatting.None);
-                        existingVal.TripUpdate = true;
-                        existingVal.State = newRTData.State;
-                        existingVal.NotificationId = existingVal.NotificationId;
-                        existingVal.DoorNumber = AppParameters.DoorTripAssociation.Where(f => f.Key == string.Concat(newRTData.Route, newRTData.Trip)).Select(y => y.Value.DoorNumber).FirstOrDefault();
-                        existingVal.DoorId = !string.IsNullOrEmpty(existingVal.DoorNumber) ? string.Concat("99D", existingVal.DoorNumber.ToString().PadLeft(4, '-')) : ""; 
-                        return existingVal;
-                    });
-                if (newRTData.OperDate != null)
+                if (getDefaultDockDoor(string.Concat(newRTData.Route, newRTData.Trip), out string RouteTritDefaultDoor))
                 {
-                    Task.Run(() => new ItineraryTrip_Update(GetItinerary(newRTData.Route, newRTData.Trip, AppParameters.AppSettings["FACILITY_NASS_CODE"].ToString(), AppParameters.GetSvDate(newRTData.OperDate)), routetripid));
+                    newRTData.DoorNumber = RouteTritDefaultDoor;
+                    newRTData.DoorId = !string.IsNullOrEmpty(RouteTritDefaultDoor) ? string.Concat("99D", RouteTritDefaultDoor.PadLeft(4, '-')) : "";
+
+
+                    if (AppParameters.RouteTripsList.ContainsKey(routetripid) && AppParameters.RouteTripsList.TryGetValue(routetripid, out RouteTrips existingVal))
+                    {
+                        if (AppParameters.RouteTripsList.TryUpdate(routetripid, newRTData, existingVal))
+                        {
+                            //update 
+                            
+                        }
+                       
+                    }
+                    else
+                    {
+
+                        if (AppParameters.RouteTripsList.TryAdd(routetripid, newRTData))
+                        {
+                            //add
+                        }
+                    }
+                  
+                    if (newRTData.OperDate != null)
+                    {
+                        Task.Run(() => new ItineraryTrip_Update(GetItinerary(newRTData.Route, newRTData.Trip, AppParameters.AppSettings["FACILITY_NASS_CODE"].ToString(), AppParameters.GetSvDate(newRTData.OperDate)), routetripid));
+                    }
+                }
+                else
+                {
+                    if (AppParameters.RouteTripsList.TryAdd(routetripid, newRTData))
+                    {
+                        if (newRTData.OperDate != null)
+                        {
+                            Task.Run(() => new ItineraryTrip_Update(GetItinerary(newRTData.Route, newRTData.Trip, AppParameters.AppSettings["FACILITY_NASS_CODE"].ToString(), AppParameters.GetSvDate(newRTData.OperDate)), routetripid));
+                        }
+                    }
                 }
             }
             catch (Exception e)
@@ -605,6 +647,25 @@ namespace Factory_of_the_Future
                 new ErrorLogger().ExceptionLog(e);
             }
         }
+
+        private static bool getDefaultDockDoor(string rt, out string door)
+        {
+            string _door = ""; 
+            try
+            {
+                _door = AppParameters.DoorTripAssociation.Where(f => f.Key == rt).Select(y => y.Value.DoorNumber).FirstOrDefault();
+                door = !string.IsNullOrEmpty(_door) ? _door.Trim() : "";
+
+                return true;
+            }
+            catch (Exception e)
+            {
+                door = !string.IsNullOrEmpty(_door) ? _door.Trim() : "";
+                new ErrorLogger().ExceptionLog(e);
+                return false;
+            }
+        }
+
         private static string GetItinerary(string route, string trip, string nasscode, DateTime start_time)
         {
             string temp = "";
@@ -709,31 +770,31 @@ namespace Factory_of_the_Future
 
                             if (!string.IsNullOrEmpty(routetripid))
                             {
-                                if (AppParameters.RouteTripsList.TryGetValue(routetripid, out RouteTrips trip))
+                                if (AppParameters.RouteTripsList.ContainsKey(routetripid) && AppParameters.RouteTripsList.TryGetValue(routetripid, out RouteTrips trip))
                                 {
                                     trip.DoorId = item["doorId"].ToString();
                                     trip.DoorNumber = item["doorNumber"].ToString();
-                                    //trip.RawData = JsonConvert.SerializeObject(item, Formatting.None);
-                                    //dooritem = JsonConvert.SerializeObject(trip, Formatting.None);
+                                    trip.Status = "ACTIVE";
                                     Task.Run(() => FOTFManager.Instance.UpdateDoorZone(trip));
 
                                 }
-                                //else
-                                //{
-                                //    item["id"] = routetripid;
-                                //    item["rawData"] = JsonConvert.SerializeObject(item, Formatting.None);
-                                //    RouteTrips newRTData = item.ToObject<RouteTrips>();
-                                //    newRTData.OperDate = newRTData.ScheduledDtm;
-                                //    newRTData.TripMin = AppParameters.Get_TripMin(newRTData.ScheduledDtm);
-                                //    Task.Run(() => AddTriptoList(routetripid, newRTData));
-                                //    Task.Run(() => UpdateDoorZone(newRTData));
-                                //}
+                                else if (!AppParameters.RouteTripsList.ContainsKey(routetripid))
+                                {
+
+                                    item["id"] = routetripid;
+                                    item["rawData"] = JsonConvert.SerializeObject(item, Formatting.None);
+                                    RouteTrips newRTData = item.ToObject<RouteTrips>();
+                                    newRTData.Status = "ACTIVE";
+                                    newRTData.TripMin = AppParameters.Get_TripMin(newRTData.ScheduledDtm);
+                                    Task.Run(() => AddTriptoList(routetripid, newRTData));
+                                    Task.Run(() => FOTFManager.Instance.UpdateDoorZone(newRTData));
+                                }
                             }
-                            //else
-                            //{
-                            //    item["rawData"] = JsonConvert.SerializeObject(item, Formatting.None);
-                            //    Task.Run(() => UpdateDoorZone(item.ToObject<RouteTrips>()));
-                            //}
+                            else
+                            {
+                                Task.Run(() => FOTFManager.Instance.UpdateDoorZone(item.ToObject<RouteTrips>()));
+                            }
+                           
                         }
                         Task.Run(() => UpdateConnection(conID, "good"));
                     }

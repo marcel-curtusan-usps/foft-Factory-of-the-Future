@@ -1135,10 +1135,7 @@ namespace Factory_of_the_Future
                                          select trip)
                     {
                         BroadcastSVTripsStatus(trip);
-                        if (!string.IsNullOrEmpty(trip.DoorNumber))
-                        {
-                            UpdateDoorZone(trip);
-                        }
+                      
                     }
 
                     _updateSVTripsStatus = false;
@@ -1204,6 +1201,7 @@ namespace Factory_of_the_Future
                     if (AppParameters.RouteTripsList.TryRemove(routetripid, out RouteTrips r))
                     {
                         Task.Run(() => CheckNotification(trip.State, state, "routetrip", trip, trip.NotificationId));
+                        BroadcastSVTripsRemove(r);
                     }
                 }
                 return update;
@@ -1275,9 +1273,17 @@ namespace Factory_of_the_Future
             }
         }
 
-        private void BroadcastSVTripsStatus(RouteTrips trip)
+        public void BroadcastSVTripsStatus(RouteTrips trip)
         {
             Clients.Group("Trips").updateSVTripsStatus(trip);
+            if (!string.IsNullOrEmpty(trip.DoorNumber))
+            {
+                UpdateDoorZone(trip);
+            }
+        }
+        private void BroadcastSVTripsRemove(RouteTrips trip)
+        {
+            Clients.All.removeSVTrips(trip.Id);
         }
         private string CheckNotification(string currentState, string NewState, string type, RouteTrips trip, string noteifi_id)
         {
@@ -2391,7 +2397,11 @@ namespace Factory_of_the_Future
         public void BroadcastDockDoorStatus(GeoZone dockDoor, string id)
         {
             Clients.Group("DockDoorZones").updateDockDoorStatus(dockDoor, id);
-            Clients.Group("DockDoor_" + dockDoor.Properties.DoorNumber).updateDigitalDockDoorStatus(dockDoor.Properties.DockDoorData, id);
+            if (dockDoor.Properties.DockDoorData.Count() == 0)
+            {
+                Clients.Group("DockDoor_" + dockDoor.Properties.DoorNumber).updateDigitalDockDoorStatus(dockDoor.Properties.DockDoorData, id);
+
+            }
         }
         //public void BroadcastDockdoorZoneStatus(RouteTrips dockdoortrips, string id)
         //{

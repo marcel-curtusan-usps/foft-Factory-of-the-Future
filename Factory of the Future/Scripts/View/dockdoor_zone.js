@@ -5,8 +5,6 @@ $.extend(fotfmanager.client, {
     updateDockDoorStatus: async (dockdoorupdate) => { updateDockDoorZone(dockdoorupdate) }
 });
 $(function () {
-
-    createAssignedTripDatatable("doortriptable");
     $('button[name=tripSelectorbtn]').off().on('click', function () {
         let jsonObject = {
             RouteTrip: $('select[name=tripSelector] option:selected').val(),
@@ -25,7 +23,7 @@ async function updateDockDoorZone(dockdoorzoneupdate) {
                         if (layer.feature.properties.id === dockdoorzoneupdate.properties.id) {
                             layer.feature.properties = dockdoorzoneupdate.properties;
                             layerindex = layer._leaflet_id;
-                            layer.setTooltipContent(dockdoorzoneupdate.properties.doorNumber.toString() + (dockdoorzoneupdate.properties.dockdoorData[0].tripDirectionInd !== "" ? "-" + dockdoorzoneupdate.properties.dockdoorData[0].tripDirectionInd : ""));
+                            layer.setTooltipContent(dockdoorzoneupdate.properties.doorNumber.toString() + getDoorTripIndc(dockdoorzoneupdate.properties.dockdoorData) );
                             return false;
                         }
                     }
@@ -54,74 +52,68 @@ document.addEventListener("layerscontentvisible", () => {
 });
 var dockDoors = new L.GeoJSON(null, {
     style: function (feature) {
+
         try {
-            if (feature.properties.dockdoorData !== null && feature.properties.dockdoorData.length > 0 ) {
-                if (feature.properties.dockdoorData.tripDirectionInd !== "") {
-                    if (feature.properties.dockdoorData.tripDirectionInd === "O") {
-                        if (feature.properties.dockdoorData.tripMin <= 30) {
-                            return {
-                                weight: 2,
-                                opacity: 1,
-                                color: '#3573b1',       // Blue
-                                fillColor: '#dc3545',   // Red. ff0af7 is Purple
-                                fillOpacity: 0.5,
-                                label: feature.properties.doorNumber.toString(),
-                                lastOpacity: 0.5
-                            };
-                        }
-                        else {
-                            return {
-                                weight: 2,
-                                opacity: 1,
-                                color: '#3573b1',       // Blue
-                                fillColor: '#3573b1',   // Blue. #98c9fa is lighter blue.
-                                fillOpacity: 0.5,
-                                label: feature.properties.doorNumber.toString(),
-                                lastOpacity: 0.5
-                            };
-                        }
-                    }
-                    else {
+            if (feature.properties.dockdoorData !== null && feature.properties.dockdoorData.length > 0) {
+
+                if (feature.properties.dockdoorData[0].tripDirectionInd === "O") {
+                    if (feature.properties.dockdoorData[0].tripMin <= 30) {
                         return {
                             weight: 2,
                             opacity: 1,
-                            color: '#3573b1',       // Blue
-                            fillColor: '#3573b1',   // Blue. #98c9fa is lighter blue.
+                            color: '#3573b1',
+                            fillColor: '#dc3545',   // Red. ff0af7 is Purple
                             fillOpacity: 0.5,
-                            label: feature.properties.doorNumber.toString(),
+                            lastOpacity: 0.5
+                        };
+
+                    }
+                    else {
+                       return{
+                            weight: 2,
+                            opacity: 1,
+                            color: '#3573b1',
+                            fillColor: '#3573b1',
+                            fillOpacity: 0.5,
                             lastOpacity: 0.5
                         };
                     }
-
                 }
-                else {
+                if (feature.properties.dockdoorData[0].tripDirectionInd === "I") {
                     return {
-                        weight: 1,
+                        weight: 2,
                         opacity: 1,
                         color: '#3573b1',
-                        fillColor: '#989ea4',
+                        fillColor: '#3573b1',
                         fillOpacity: 0.2,
-                        label: feature.properties.doorNumber.toString(),
                         lastOpacity: 0.2
                     };
                 }
             }
             else {
-                return {
-                    weight: 1,
+                return{
+                    weight: 2,
                     opacity: 1,
                     color: '#3573b1',
                     fillColor: '#989ea4',
-                    fillOpacity: 0.2 ,
-                    label: feature.properties.doorNumber.toString(),
+                    fillOpacity: 0.2,
                     lastOpacity: 0.2
                 };
             }
         } catch (e) {
             console.log(e);
+            return {
+                weight: 2,
+                opacity: 1,
+                color: '#3573b1',
+                fillColor: '#989ea4',
+                fillOpacity: 0.2,
+                lastOpacity: 0.2
+            }
         }
     },
     onEachFeature: function (feature, layer) {
+
         let dockdookflash = "";
         let doorNumberdisplay = feature.properties.doorNumber.toString();
 
@@ -165,7 +157,22 @@ var dockDoors = new L.GeoJSON(null, {
         return feature.properties.visible;
     }
 });
-
+function getDoorTripIndc(data)
+{
+    try {
+        if (data.length > 0) {
+            return "-" + data[0].tripDirectionInd;
+        }
+        else {
+            return "";
+        }
+     
+    } catch (e) {
+        console.log(e);
+        return "";
+    }
+   
+}
 let dockdoortop_Table = $('table[id=dockdoortable]');
 let dockdoortop_Table_Body = dockdoortop_Table.find('tbody');
 let dockdoortop_row_template = '<tr data-id={zone_id} >' +
@@ -204,7 +211,7 @@ let container_row_template = '<tr>' +
     '<td data-input="status" class="text-center {backgroundcolorstatus}">{status}</td>' +
     '</tr>"';
 async function updatedockdoor(layerindex) {
-    if (map._layers[layerindex].feature.properties.dockdoorData !== null) {
+    if (map._layers[layerindex].feature.properties.dockdoorData !== null && map._layers[layerindex].feature.properties.dockdoorData.length > 0) {
 
         if (map._layers[layerindex].feature.properties.dockdoorData[0].tripDirectionInd === "O") {
             if (map._layers[layerindex].feature.properties.dockdoorData[0].tripMin <= 30) {
@@ -459,6 +466,7 @@ async function LoadDockDoorTable(data) {
             //}
         }
         else {
+            $('span[name=doorstatus]').text(getDoorStatus(""));
             $('select[id=tripSelector]').val("");
             $('span[name=doornumberid]').text(data.doorNumber);
         }

@@ -349,7 +349,6 @@ function CreateZone(newlayer)
 }
 function CreateBinZone(newlayer) {
     try {
-        newlayer.sourceTarget.options.layers[0].options.id
         map.setView(newlayer.layer._bounds.getCenter());
         sidebar.open('home');
         var togeo = newlayer.layer.toGeoJSON();

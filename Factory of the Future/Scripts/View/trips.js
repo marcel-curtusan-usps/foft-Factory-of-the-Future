@@ -22,7 +22,7 @@ async function init_arrive_depart_trips() {
                 });
                 $.each(trips.sort(SortBySiteName), function () {
                     process_trips(this);
-                    $('<option/>').val(this.id).html(this.legSiteName + " | "+ this.route + " - " + this.trip + " | " + " -- " + tripDirectiontext(this)).appendTo('select[id=tripSelector]');
+                    $('<option/>').attr("id",this.id).val(this.id).html(this.legSiteName + " | " + this.route + " - " + this.trip + " | " + tripDirectiontext(this)).appendTo('select[id=tripSelector]');
                 });
             }
         });
@@ -33,13 +33,12 @@ async function init_arrive_depart_trips() {
 async function updateTrips(trip) {
     let routetrip = trip.id;
     let trname = $.find('tbody tr[data-id=' + routetrip + ']');
-
-    if (trname.length > 0) {
+   if (trname.length > 0) {
         for (let tr_name of trname) {
             let tablename = $(tr_name).closest('table').attr('id');
             if (checkValue(tablename)) {
                 if (/remove/i.test(trip.state)) {
-                        $('#' + tablename).find('tbody tr[data-id=' + routetrip + ']').remove();
+                      
                 }
                 else {
                     switch (tablename) {

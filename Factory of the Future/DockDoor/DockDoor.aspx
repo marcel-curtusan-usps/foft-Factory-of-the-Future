@@ -79,17 +79,9 @@
                 </div>
             </div>
             <div class="card w-25">
-                <div class="card-heade text-center" style="padding: 0rem;">
-                    <div class="col ml-0">
-                        <label class="control-label" style="font-size: 3rem; font-weight: bolder;" id="totalIndc">No Trip</label>
-                    </div>
-                    <div class="col ml-0" style="background-color: purple;">
-                        <label class="control-label flex-fill" style="font-size: 4rem; color: white; font-weight: bolder; display:none;" id="containerLoaded"></label>
-                    </div>
-                </div>
-                <div class="card-body text-center" style="padding: 0rem; background-color: yellow; display:none;" id="countdowndiv">
+                <div class="card-body text-center" style="padding: 0rem; display: none;" id="countdowndiv">
                     <label class="control-label" style="font-size: 4rem; font-weight: bolder;" id="countdowntext"></label>
-                     <label class="control-label text-center" style="font-size: 6rem; font-weight: bolder;" id="timeCount">00:00</label>
+                    <label class="timecounter" style="padding-top: 15rem;"></label>
                 </div>
 
             </div>
@@ -98,6 +90,7 @@
     <script src="../Scripts/jquery-3.6.0.min.js"></script>
     <script src="../Scripts/jquery.dataTables.js"></script>
     <script src="../Scripts/moment.js"></script>
+    <script src="../Scripts/moment-duration-format.js"></script>
     <script src="../Scripts/jquery.signalR-2.4.2.js"></script>
     <script src="../signalr/hubs/"></script>
     <script src="Scripts/DigitalDockDoor.js"></script>

@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json.Linq;
+﻿using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -27,7 +28,7 @@ namespace Factory_of_the_Future.Controllers
             
         }
         // POST: api/SVContainers
-        public IHttpActionResult Post([FromBody] JArray request_data)
+        public IHttpActionResult Post([FromBody] JToken request_data)
         {
             //handle bad requests
             if (!ModelState.IsValid)
@@ -39,11 +40,8 @@ namespace Factory_of_the_Future.Controllers
                 //start data process
                 if (request_data.HasValues)
                 {
-           
-                    JObject temp1 = new JObject(new JProperty("container", request_data));
                     //Send data to be processed.
-                    Task.Run(() => new ProcessRecvdMsg().StartProcess(request_data, "container", ""));
-            
+                    Task.Run(() => new ProcessRecvdMsg().StartProcess(JsonConvert.SerializeObject(request_data, Formatting.None), "container", ""));
                 }
             }
             else

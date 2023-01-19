@@ -24,7 +24,7 @@ $(function () {
             data.append("name", $('input[type=text][id=floorname]').val());
             data.append("metersPerPixel", $("#metersPerPixel option:selected").val());
             $.ajax({
-                url: "/api/UploadFiles",
+                url: window.location.href + "/api/UploadFiles",
                 type: "POST",
                 data: data,
                 cache: false,

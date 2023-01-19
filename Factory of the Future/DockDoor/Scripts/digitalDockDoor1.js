@@ -11,8 +11,7 @@ if (!String.prototype.supplant) {
 }
 var doornumber = "";
 var fotfmanager = $.connection.FOTFManager;
-var countdowntimerid = 0;
-var scheduledDateTime = new Date();
+var DateTimeNow = new Date();
 var CurrentTrip = false;
 var CurrentTripMin = 0;
 var CurrentTripInd = "";
@@ -23,6 +22,7 @@ var TimerID = -1;//hold the id
 var CountTimer = 0;
 var TripDirectionInd = "";
 var tripStatus = 0;
+var containerArray = [];
 /*
  this is for the dock door and container details.
  */
@@ -34,18 +34,19 @@ function updateDockDoorStatus(data) {
         var legdata = null;
         //show the trip direction 
         // $('label[id=tripDirectionInd]').text(data.tripDirectionInd);
-        if (data !== undefined && data.length > 0) {
+        if (!!data && data.length > 0) {
             if (data[0].containerScans !== null && data[0].containerScans.length > 0) {
                 CreateContainerCount(data[0].containerScans);
             }
             TripDirectionInd = data[0].tripDirectionInd;
             if (TripDirectionInd === "I") {
-
+                $('label[id=tirpIncdtext]').text("Inbound");
                 $('div[id=countdowndiv]').css("display", "block");
-                $('label[id=countdowntext]').text("Scheduled to Arrive");
+                $('label[id=countdowntext]').text("Scheduled" + "\n" + " Arrive");
             }
             else if (TripDirectionInd === "O") {
-                $('label[id=countdowntext]').text("Scheduled to Departure");
+                $('label[id=tirpIncdtext]').text("Outbound");
+                $('label[id=countdowntext]').text("Scheduled " + "\n" + "Departure");
                 //timeCount
                 $('div[id=countdowndiv]').css("display", "block");
             }
@@ -59,14 +60,12 @@ function updateDockDoorStatus(data) {
                             //start
                             CountTimer = startTimer(data[0].scheduledDtm);
                         }
-                        legdata["id"] = data[0].id;
                         legdata["route"] = data[0].route;
                         legdata["trip"] = data[0].trip;
                         legdata["legSiteId"] = data[0].legSiteId;
                         legdata["legSiteName"] = data[0].legSiteName;
                         legdata["scheduledDepDTM"] = data[0].scheduledDtm;
                         updateLegsTripDataTable([legdata], "currentTripTable");
-                        loadContainersDatatable(data[0].containerScans, "containerLocationtable");
                     }
 
                 });
@@ -107,18 +106,16 @@ function updateDockDoorStatus(data) {
                     removeLegsTripDataTable("currentTripTable");
                 }
             }
-            if (data.length > 1 ) {
+            if (data.length > 1) {
                 if (data[1].Legs !== null) {
                     $.each(data[1].Legs, function () {
                         legdata = this;
                         if (data[1].legNumber === legdata.legNumber) {
-                            $('button[id=nextTripDirectionInd]').text(TripDirectionInd=== "I" ? "In-Bound" : "Out-bound");
-                            
-                            legdata["id"] = data[0].id;
+                            $('button[id=nextTripDirectionInd]').text(TripDirectionInd === "I" ? "In-Bound" : "Out-bound");
+
+                            legdata["id"] = data[1].id;
                             legdata["route"] = data[1].route;
                             legdata["trip"] = data[1].trip;
-                            legdata["legSiteId"] = data[1].legSiteId;
-                            legdata["legSiteName"] = data[1].legSiteName;
                             legdata["scheduledDepDTM"] = data[1].scheduledDtm;
                             if (data[1].tripDirectionInd === "I") {
                                 legdata.legDestSiteName = legdata.legOriginSiteName;
@@ -139,10 +136,9 @@ function updateDockDoorStatus(data) {
                                 "trip": data[1].trip,
                                 "routeTripLegId": data[1].routeTripLegId,
                                 "routeTripId": data[1].routeTripId,
-                                "legNumber": data[1].legNumber,
+                                "legNumber": 1,
                                 "legSiteId": data[1].legSiteId,
                                 "legSiteName": data[1].legSiteName,
-                                "legDestSiteID": data[1].legSiteName,
                                 "legOriginSiteID": "",
                                 "scheduledArrDTM": "",
                                 "scheduledDepDTM": data[1].scheduledDtm,
@@ -167,6 +163,9 @@ function updateDockDoorStatus(data) {
                 }
 
             }
+        }
+        else {
+            stopTimer()
         }
     } catch (e) {
         console.log(e);
@@ -212,7 +211,7 @@ $(function () {
     });
 });
 $.urlParam = function (name) {
-    var results = new RegExp('[\?&]' + name + '=([^&#]*)','i').exec(window.location.search);
+    var results = new RegExp('[\?&]' + name + '=([^&#]*)', 'i').exec(window.location.search);
     doornumber = (results !== null) ? results[1] || 0 : "No Door Selected";
     return doornumber;
 }
@@ -224,38 +223,13 @@ function StartDataConnection(doorNum) {
     $.connection.hub.qs = { 'page_type': "DockDoor".toUpperCase() };
     $.connection.hub.start({ withCredentials: true, waitForPageLoad: false })
         .done(function () {
-            fotfmanager.server.getDigitalDockDoorList(doorNum).done(async (DockDoordata) => {updateDockDoorStatus(DockDoordata)});
+            fotfmanager.server.getDigitalDockDoorList(doorNum).done(async (DockDoordata) => { updateDockDoorStatus(DockDoordata) });
             fotfmanager.server.joinGroup("DockDoor_" + doorNum);
-
+            console.log("Connected at time: " + new Date($.now()));
         }).catch(
             function (err) {
                 console.log(err.toString());
             });
-}
-function updateCountdown(tripMin, tripdirInd) {
-    CurrentTripMin = tripMin;
-    CurrentTripInd = tripdirInd;
-    if (CurrentTripInd === "I") {
-        scheduledDateTime = new Date();
-        scheduledDateTime.setMinutes(scheduledDateTime.getMinutes() - CurrentTripMin);
-        CurrentTrip = true;
-    }
-    else if (CurrentTripInd === "O") {
-        scheduledDateTime = new Date();
-        scheduledDateTime.setMinutes(scheduledDateTime.getMinutes() - CurrentTripMin);
-        CurrentTrip = true;
-    }
-    else {
-        CurrentTrip = false;
-    }
-    if (CurrentTrip === true && countdowntimerid === 0) {
-        countdown();
-        countdowntimerid = setInterval(countdown, 1000);
-    }
-    else {
-        clearInterval(countdowntimerid);
-        countdowntimerid = setInterval(countdown, 1000);
-    }
 }
 function setHeight() {
     let height = (this.window.innerHeight > 0 ? this.window.innerHeight : this.screen.height) - 1;
@@ -289,32 +263,34 @@ function loadLegsTripDataTable(data, table) {
         }
     }
 }
-function removeLegsTripDataTable( table) {
+function removeLegsTripDataTable(table) {
     if ($.fn.dataTable.isDataTable("#" + table)) {
         $('#' + table).DataTable().rows(function (idx, data, node) {
-                $('#' + table).DataTable().row(node).remove().draw();
+            $('#' + table).DataTable().row(node).remove().draw();
         })
     }
 }
-function loadContainersDatatable(ConatinerData, table)
-{
-
+function loadContainersDatatable(data, table) {
+    if ($.fn.dataTable.isDataTable("#" + table)) {
+        if (!$.isEmptyObject(data)) {
+            $('#' + table).DataTable().rows.add(data).draw();
+        }
+    }
 }
 function createLegsTripDataTable(table) {
     let arrayColums = [{
-        
-            "scheduledDepDTM": "",
-            "route": "",
-            "trip": "",
-            "legSiteName": ""
-        }]
+        "route": "",
+        "trip": "",
+        "legSiteName": "",
+        "scheduledDepDTM": ""
+    }]
     var columns = [];
     var tempc = {};
     $.each(arrayColums[0], function (key, value) {
         tempc = {};
         if (/legSiteName/i.test(key)) {
             tempc = {
-                "title": "Site",
+                "title": '<label class="control-label" style="font-size: 4rem; font-weight: bolder;" id="tirpIncdtext"></label>',
                 "mDataProp": key,
                 "class": "row-cts-des",
                 "mRender": function (data, type, full) {
@@ -334,6 +310,17 @@ function createLegsTripDataTable(table) {
                 "title": "Trip",
                 "mDataProp": key,
                 "class": "row-cts-trip"
+            }
+        }
+        else if (/scheduledArrDTM/i.test(key)) {
+            tempc = {
+                "title": "Arrive",
+                "mDataProp": key,
+                "class": "row-cts-schd",
+                "mRender": function (data, type, full) {
+                    let time = moment().set({ 'year': data.year, 'month': data.month, 'date': data.dayOfMonth, 'hour': data.hourOfDay, 'minute': data.minute, 'second': data.second });
+                    return time.format("HH:mm");
+                }
             }
         }
         else if (/scheduledDepDTM/i.test(key)) {
@@ -365,31 +352,45 @@ function createLegsTripDataTable(table) {
         bAutoWidth: true,
         bInfo: false,
         destroy: true,
-        language: {
-            zeroRecords: "No Trips Assigned ",
-            processing: "<div class='overlay custom-loader-background'><i class='fa fa-cog fa-spin custom-loader-color'></i></div>"
-        },
         aoColumns: columns,
-        columnDefs: []
+        columnDefs: [],
+        rowCallback: function (row, data, index) {
+            $(row).find('td:eq(2)').css('font-size', 'calc(0.1em + 2.5vw)');
+            $(row).find('td:eq(2)').css('vertical-align','middle');
+
+        }
     });
 }
 function createContainerDataTable(table) {
 
     let arrayColums = [{
         "Location": "",
-        "Assigned": "",
-        "Close": "",
-        "Stage": "",
-        "Xdk": "",
-        "Loaded":""
+        "Count": ""
     }]
     var columns = [];
     var tempc = {};
     $.each(arrayColums[0], function (key, value) {
         tempc = {};
-        tempc = {
-            "title": capitalize_Words(key.replace(/\_/, ' ')),
-            "mDataProp": key
+        if (/Count/i.test(key)) {
+            tempc = {
+                "title": 'Ready not Loaded: '+'<label class="control-label" style="font-size: 4rem; font-weight: bolder;" id=totalcontainertext></label>',
+                "mDataProp": key,
+                "class": "row-cts-count"
+            }
+        }
+        else if (/Location/i.test(key)) {
+            tempc = {
+                "title": "Location",
+                "mDataProp": key,
+                "class": "row-cts-des"
+            }
+        }
+        else {
+
+            tempc = {
+                "title": capitalize_Words(key.replace(/\_/, ' ')),
+                "mDataProp": key
+            }
         }
         columns.push(tempc);
     });
@@ -402,10 +403,6 @@ function createContainerDataTable(table) {
         bAutoWidth: true,
         bInfo: false,
         destroy: true,
-        language: {
-            zeroRecords: "No Containers Found ",
-            processing: "<div class='overlay custom-loader-background'><i class='fa fa-cog fa-spin custom-loader-color'></i></div>"
-        },        
         aoColumns: columns,
         columnDefs: []
     });
@@ -418,7 +415,7 @@ function capitalize_Words(str) {
 function startTimer(SVdtm) {
     if (!!SVdtm) {
         var duration = calculatescheduledDuration(SVdtm);
-
+     
         var timer = setInterval(function () {
             if (!!duration && duration._isValid) {
                 CurrentTripMin = duration.asMinutes();
@@ -439,8 +436,18 @@ function startTimer(SVdtm) {
                     }
                 }
 
-                duration = moment.duration(duration.asSeconds() - Timerinterval, 'seconds');
-                $('.timecounter').html(duration.format("d [days] hh:mm:ss ", { trunc: true }));
+                if (tripStatus === 0) {
+                    duration = moment.duration(duration.asSeconds() - Timerinterval, 'seconds');
+                    $('.timecounter').html(duration.format("d [days] hh:mm:ss ", { trunc: true }));
+                }
+                else {
+                    $('.timecounter').html("Late");
+                    stopTimer();
+                }
+
+                
+
+
             }
             else {
                 stopTimer()
@@ -458,15 +465,13 @@ function startTimer(SVdtm) {
 };
 function stopTimer() {
     clearInterval(CountTimer);
-    $('.timecounter').html("");
-    $('div[id=countdowndiv]').css("display", "none");
 }
 function calculatescheduledDuration(t) {
     if (!!t) {
-        var timenow = moment();
+        var timenow = moment(DateTimeNow);
         var conditiontime = moment().set({ 'year': t.year, 'month': t.month, 'date': t.dayOfMonth, 'hour': t.hourOfDay, 'minute': t.minute, 'second': t.second });
         if (conditiontime._isValid) {
-
+        
             if (timenow > conditiontime) {
                 tripStatus = 1;
                 return moment.duration(timenow.diff(conditiontime));
@@ -474,8 +479,7 @@ function calculatescheduledDuration(t) {
             else {
                 tripStatus = 0;
                 return moment.duration(conditiontime.diff(timenow));
-            }
-        }
+            }        }
         else {
             return "";
         }
@@ -485,10 +489,10 @@ function Tripdisplay(color) {
     if (!!color) {
         switch (color) {
             case "yellow":
-                $('div.card').addClass('.cardYellow');
+                $('div.card').addClass('cardYellow');
                 break;
             case "red":
-                $('div.card').addClass('.cardRed');
+                $('div.card').addClass('cardRed');
                 break;
             default:
                 $('div.card').removeClass('cardRed').removeClass('cardYellow');
@@ -502,13 +506,13 @@ function CreateContainerCount(data) {
     $.map(data, function (contatiner) {
         if (contatiner.hasCloseScans && !contatiner.hasLoadScans) {
             if (containerArray.hasOwnProperty(contatiner.location)) {
-                containerArray.push({
+                ContainerSumCounts.push({
                     Location: contatiner.location,
                     count: 1
                 })
             }
             else {
-                containerArray.push({
+                ContainerSumCounts.push({
                     Location: contatiner.location,
                     Count: 1
                 })
@@ -518,6 +522,3 @@ function CreateContainerCount(data) {
     $('label[id=totalcontainertext]').text(containerArray.length);
     loadContainersDatatable(containerArray, "containerLocationtable");
 }
-
-
-

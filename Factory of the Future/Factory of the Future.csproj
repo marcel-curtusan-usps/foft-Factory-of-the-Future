@@ -15,7 +15,7 @@
     <RootNamespace>Factory_of_the_Future</RootNamespace>
     <AssemblyName>Factory of the Future</AssemblyName>
     <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
-    <UseIISExpress>true</UseIISExpress>
+    <UseIISExpress>false</UseIISExpress>
     <Use64BitIISExpress />
     <IISExpressSSLPort>44368</IISExpressSSLPort>
     <IISExpressAnonymousAuthentication>disabled</IISExpressAnonymousAuthentication>
@@ -284,7 +284,10 @@
     <Content Include="Content\themes\base\tooltip.css" />
     <Content Include="Content\_base.css" />
     <Content Include="Content\_base.min.css" />
+    <Content Include="DockDoor\Content\dockdoor1.css" />
     <Content Include="DockDoor\Content\dockdoor.css" />
+    <Content Include="DockDoor\DockDoor1.aspx" />
+    <Content Include="DockDoor\Scripts\digitalDockDoor1.js" />
     <Content Include="ET_Board\ET_Board.aspx" />
     <Content Include="ET_Board\Scritps\ET_Board.js" />
     <Content Include="DockDoor\DockDoor.aspx" />
@@ -524,6 +527,13 @@
     <Compile Include="Database_Calls\SV_DB_Call.cs" />
     <Compile Include="Data_Retriever\Connection.cs" />
     <Compile Include="Data_Retriever\ConnectionContainer.cs" />
+    <Compile Include="DockDoor\DockDoor1.aspx.cs">
+      <DependentUpon>DockDoor1.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="DockDoor\DockDoor1.aspx.designer.cs">
+      <DependentUpon>DockDoor1.aspx</DependentUpon>
+    </Compile>
     <Compile Include="ET_Board\ET_Board.aspx.cs">
       <DependentUpon>ET_Board.aspx</DependentUpon>
       <SubType>ASPXCodeBehind</SubType>
@@ -614,7 +624,7 @@
           <AutoAssignPort>True</AutoAssignPort>
           <DevelopmentServerPort>59289</DevelopmentServerPort>
           <DevelopmentServerVPath>/</DevelopmentServerVPath>
-          <IISUrl>http://localhost:59289/</IISUrl>
+          <IISUrl>http://tceng23.usa.dce.usps.gov/CF</IISUrl>
           <NTLMAuthentication>False</NTLMAuthentication>
           <UseCustomServer>False</UseCustomServer>
           <CustomServerUrl>
