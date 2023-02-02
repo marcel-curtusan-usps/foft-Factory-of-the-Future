@@ -11,6 +11,7 @@ namespace Factory_of_the_Future
     {
         public List<Api_Connection> Connection = new List<Api_Connection>();
         private bool disposedValue;
+        public bool updateFile;
         public Connection _conn { get; protected set; }
         public Api_Connection NewConnection { get; protected set; }
         public void Add(Connection con) 
@@ -82,6 +83,7 @@ namespace Factory_of_the_Future
                         Connection_item.ConnectionInfo.LastupDate = DateTime.Now;
                         Connection_item.ConnectionInfo.LastupdateByUsername = updateConndata.LastupdateByUsername;
                         Connection_item.ConnectionInfo.ActiveConnection = updateConndata.ActiveConnection;
+                        updateFile = true;
                         if (!updateConndata.ActiveConnection)
                         {
                             Connection_item.ConnectionInfo.DeactivatedDate = DateTime.Now;
@@ -154,6 +156,11 @@ namespace Factory_of_the_Future
                             }
                         }
                     }
+                }
+                if (updateFile)
+                {
+                    new FileIO().Write(string.Concat(AppParameters.CodeBase.Parent.FullName.ToString(), AppParameters.Appsetting), "Connection.json", AppParameters.ConnectionOutPutdata(Connection.Select(y => y.ConnectionInfo).ToList()));
+
                 }
             }
             catch (Exception e)

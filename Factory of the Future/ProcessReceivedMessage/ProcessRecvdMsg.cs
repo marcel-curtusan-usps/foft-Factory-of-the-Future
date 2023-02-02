@@ -57,7 +57,8 @@ namespace Factory_of_the_Future
                            // Trips(data, Message_type, connID);
                             break;
                         case "container":
-                            Container(_data, _connID);
+                            await Task.Run(() => new ContainerData().Load(_data, _Message_type, _connID));
+                            //Container(_data, _connID);
                             break;
                         case "getTacsVsSels":
                             TacsVsSels(_data, _Message_type, _connID);

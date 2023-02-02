@@ -23,7 +23,7 @@ namespace Factory_of_the_Future
             _connID = connID;
             try
             {
-                if (data != null)
+                if (_data != null)
                 {
                     Containers = JsonConvert.DeserializeObject<List<Container>>(_data);
                     if (Containers.Count > 0)
