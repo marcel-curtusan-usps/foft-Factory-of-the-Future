@@ -5,6 +5,8 @@
 <html lang="en" xmlns="http://www.w3.org/1999/xhtml" >
 <head runat="server">
     <title>USPS CF</title>
+    <meta http-equiv="Pragma" content="no-cache" />
+    <meta http-equiv="Expires" content="-1" />
     <meta charset="utf-8" />
     <meta http-equiv="Cache-control" content="public" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -66,19 +68,23 @@
                         </div>
                         <div class="col mt-3">
                             <div class="custom-control custom-switch">
-                                <input id="udp_connection" type="checkbox" class="custom-control-input" name="udp_connection" />
+                                <input id="api_connection" type="radio" class="custom-control-input" name="connectionType" />
+                                <label class="custom-control-label" for="api_connection">API</label>
+                            </div>
+                            <div class="custom-control custom-switch">
+                                <input id="udp_connection" type="radio" class="custom-control-input" name="connectionType" />
                                 <label class="custom-control-label" for="udp_connection">UDP Connection</label>
                             </div>
                              <div class="custom-control custom-switch">
-                                <input id="tcpip_connection" type="checkbox" class="custom-control-input" name="tcpip_connection" />
+                                <input id="tcpip_connection" type="radio" class="custom-control-input" name="connectionType" />
                                 <label class="custom-control-label" for="tcpip_connection">TCP/IP Server</label>
                             </div>
                             <div class="custom-control custom-switch">
-                                <input id="ws_connection" type="checkbox" class="custom-control-input" name="ws_connection" />
+                                <input id="ws_connection" type="radio" class="custom-control-input" name="connectionType" />
                                 <label class="custom-control-label" for="ws_connection">WS Connection</label>
                             </div>
                             <div class="custom-control custom-switch">
-                                <input id="hour_range" type="checkbox" class="custom-control-input" name="hour_range" />
+                                <input id="hour_range" type="radio" class="custom-control-input" name="hour_range" />
                                 <label class="custom-control-label" for="hour_range">Hour Range</label>
 
                             </div>
@@ -1817,7 +1823,7 @@
     <script src="Scripts/Filter.min.js"></script>
 
     <!--Load default settings for the site-->
-    <script src="Scripts/Default.js"></script>
+    <script src="Scripts/View/Default.js"></script>
     <!--Load application settings for the site-->
     <script src="Scripts/View/application_setting.js"></script>
      <!--Load Image Upload for the site-->

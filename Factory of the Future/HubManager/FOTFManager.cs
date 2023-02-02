@@ -7,16 +7,12 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.DirectoryServices;
 using System.DirectoryServices.AccountManagement;
-using System.IO;
 using System.Linq;
 using System.Security.Principal;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Net;
 using System.Net.Http;
-using System.Web;
-using System.Drawing;
 
 namespace Factory_of_the_Future
 {
@@ -52,7 +48,7 @@ namespace Factory_of_the_Future
         private readonly Timer SVTrips_timer;
         private readonly Timer Notification_timer;
         private readonly Timer BinZone_timer;
-        private readonly Timer Camera_timer;
+       // private readonly Timer Camera_timer;
         //status
         private volatile bool _updatePersonTagStatus = false;
         private volatile bool _updateZoneStatus = false;
@@ -63,7 +59,7 @@ namespace Factory_of_the_Future
         private volatile bool _updateSVTripsStatus = false;
         private volatile bool _updateNotificationstatus = false;
         private volatile bool _updateBinZoneStatus = false;
-        private volatile bool _updateCameraStatus = false;
+        //private volatile bool _updateCameraStatus = false;
         private bool disposedValue;
         private readonly HttpClient httpClient = new HttpClient();
         //250 Milliseconds
@@ -98,7 +94,7 @@ namespace Factory_of_the_Future
             Notification_timer = new Timer(UpdateNotificationtatus, null, _1000updateInterval, _1000updateInterval);
             ////
             //Connection status
-            QSM_timer = new Timer(UpdateQSM, null, _250updateInterval, _250updateInterval);
+            //QSM_timer = new Timer(UpdateQSM, null, _250updateInterval, _250updateInterval);
             //Camera update;
             //Camera_timer = new Timer(UpdateCameraImages, null, _10000updateInterval, _60000updateInterval);
         }
@@ -1201,7 +1197,7 @@ namespace Factory_of_the_Future
                     if (AppParameters.RouteTripsList.TryRemove(routetripid, out RouteTrips r))
                     {
                         Task.Run(() => CheckNotification(trip.State, state, "routetrip", trip, trip.NotificationId));
-                        BroadcastSVTripsRemove(r);
+                        BroadcastSVTripsRemove(r.Id);
                     }
                 }
                 return update;
@@ -1281,9 +1277,62 @@ namespace Factory_of_the_Future
                 UpdateDoorZone(trip);
             }
         }
-        private void BroadcastSVTripsRemove(RouteTrips trip)
+        public void BroadcastSVTripsUpdate(RouteTrips trip)
         {
-            Clients.All.removeSVTrips(trip.Id);
+            try
+            {
+                Clients.Group("Trips").SVTripsUpdate(trip);
+                if (!string.IsNullOrEmpty(trip.DoorNumber))
+                {
+                    UpdateDoorZone(trip);
+                }
+            }
+            catch (Exception e)
+            {
+                new ErrorLogger().ExceptionLog(e);
+            }
+
+
+        }
+        public void BroadcastSVTripsAdd(RouteTrips trip)
+        {
+
+            try
+            {
+                Clients.Group("Trips").SVTripsAdd(trip);
+                if (!string.IsNullOrEmpty(trip.DoorNumber))
+                {
+                    UpdateDoorZone(trip);
+                }
+            }
+            catch (Exception e)
+            {
+                new ErrorLogger().ExceptionLog(e);
+            }
+          
+
+        }
+        public void BroadcastSVTripsRemove(string id)
+        {
+            Clients.All.removeSVTrips(id);
+        }
+        internal void AddMap(string id, CoordinateSystem cSystem)
+        {
+            try
+            {
+                if (!AppParameters.CoordinateSystem.TryAdd(id, cSystem))
+                {
+                    new ErrorLogger().CustomLog("Unable to add CoordinateSystem " + id, string.Concat(AppParameters.AppSettings["APPLICATION_NAME"].ToString(), "_Applogs"));
+                }
+
+                _ = Task.Run(() => new FileIO().Write(string.Concat(AppParameters.Logdirpath, AppParameters.ConfigurationFloder), "Project_Data.json", AppParameters.ZoneOutPutdata(AppParameters.CoordinateSystem.Select(x => x.Value).ToList())));
+
+            }
+            catch (Exception e)
+            {
+
+                new ErrorLogger().ExceptionLog(e);
+            }
         }
         private string CheckNotification(string currentState, string NewState, string type, RouteTrips trip, string noteifi_id)
         {
@@ -1522,23 +1571,23 @@ namespace Factory_of_the_Future
         ////    }
         ////}
 
-        private void UpdateQSM(object state)
-        {
-            lock (updateQSMlock)
-            {
-                if (!_updatingQSMStatus)
-                {
-                    _updatingQSMStatus = true;
-                    foreach (var QSMitem in from QSMitem in AppParameters.ConnectionList.Values.Where(r => r.UpdateStatus).Select(y => y)
-                                            where TryUpdateQSMStaus(QSMitem)
-                                            select QSMitem)
-                    {
-                        BroadcastQSMUpdate(QSMitem);
-                    };
-                    _updatingQSMStatus = false;
-                }
-            }
-        }
+        //private void UpdateQSM(object state)
+        //{
+        //    lock (updateQSMlock)
+        //    {
+        //        if (!_updatingQSMStatus)
+        //        {
+        //            _updatingQSMStatus = true;
+        //            foreach (var QSMitem in from QSMitem in AppParameters.ConnectionList.Values.Where(r => r.UpdateStatus).Select(y => y)
+        //                                    where TryUpdateQSMStaus(QSMitem)
+        //                                    select QSMitem)
+        //            {
+        //                BroadcastQSMUpdate(QSMitem);
+        //            };
+        //            _updatingQSMStatus = false;
+        //        }
+        //    }
+        //}
 
 
         private bool TryUpdateQSMStaus(Connection con)
@@ -1559,7 +1608,7 @@ namespace Factory_of_the_Future
                 return false;
             }
         }
-        private void BroadcastQSMUpdate(Connection qSMitem)
+        public void BroadcastQSMUpdate(Connection qSMitem)
         {
             Clients.Group("QSM").UpdateQSMStatus(qSMitem);
         }
@@ -1839,186 +1888,186 @@ namespace Factory_of_the_Future
         }
 
 
-        internal async Task<bool> UpdateTagName(string tagId, string tagName)
-        {
-            try
-            {
-                DateTime thisTime = DateTime.Now;
-                // update the tag name using quuppa api
+        //internal async Task<bool> UpdateTagName(string tagId, string tagName)
+        //{
+        //    try
+        //    {
+        //        DateTime thisTime = DateTime.Now;
+        //        // update the tag name using quuppa api
 
-                // [IP:port]/qpe/modifyTag?&tag=<tag_id>&name=<NEW name>
+        //        // [IP:port]/qpe/modifyTag?&tag=<tag_id>&name=<NEW name>
 
-                HttpResponseMessage response = await
-                    httpClient.GetAsync(AppParameters.QuuppaBaseUrl +
-                    @"modifyTag?tag=" + tagId + "&name=" + tagName).ConfigureAwait(false);
-                if (response.StatusCode != HttpStatusCode.OK)
-                {
-                    return false;
-                }
-                string content = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
-                string fileName = GetQuuppaTagChangeFilename(tagId, thisTime);
-                // export the tag name change to a file
+        //        HttpResponseMessage response = await
+        //            httpClient.GetAsync(AppParameters.QuuppaBaseUrl +
+        //            @"modifyTag?tag=" + tagId + "&name=" + tagName).ConfigureAwait(false);
+        //        if (response.StatusCode != HttpStatusCode.OK)
+        //        {
+        //            return false;
+        //        }
+        //        string content = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
+        //        string fileName = GetQuuppaTagChangeFilename(tagId, thisTime);
+        //        // export the tag name change to a file
 
-                // [IP:port]/qpe/exportTags?tag=<tag_id>&filename=<YYYY-MM-DD_TAGID>
-                HttpResponseMessage response2 =
-                   await httpClient.GetAsync(AppParameters.QuuppaBaseUrl +
-                   @"exportTags?tag=" + tagId + "&name=" + tagName +
-                   "&filename=" + fileName).ConfigureAwait(false);
-                content = await response2.Content.ReadAsStringAsync().ConfigureAwait(false);
-                if (response2.StatusCode != HttpStatusCode.OK)
-                {
-                    return false;
-                }
+        //        // [IP:port]/qpe/exportTags?tag=<tag_id>&filename=<YYYY-MM-DD_TAGID>
+        //        HttpResponseMessage response2 =
+        //           await httpClient.GetAsync(AppParameters.QuuppaBaseUrl +
+        //           @"exportTags?tag=" + tagId + "&name=" + tagName +
+        //           "&filename=" + fileName).ConfigureAwait(false);
+        //        content = await response2.Content.ReadAsStringAsync().ConfigureAwait(false);
+        //        if (response2.StatusCode != HttpStatusCode.OK)
+        //        {
+        //            return false;
+        //        }
 
-                // import the tag name change for a permanent update
+        //        // import the tag name change for a permanent update
 
-                // [IP:port]/qpe/importTags?&filename=<YYYY-MM-DD_TAGID>
-                HttpResponseMessage response3 =
-                   await httpClient.GetAsync(AppParameters.QuuppaBaseUrl +
-                   @"importTags?filename=" + fileName).ConfigureAwait(false);
+        //        // [IP:port]/qpe/importTags?&filename=<YYYY-MM-DD_TAGID>
+        //        HttpResponseMessage response3 =
+        //           await httpClient.GetAsync(AppParameters.QuuppaBaseUrl +
+        //           @"importTags?filename=" + fileName).ConfigureAwait(false);
 
-                content = await response3.Content.ReadAsStringAsync().ConfigureAwait(false);
-                if (response3.StatusCode != HttpStatusCode.OK)
-                {
-                    return false;
-                }
+        //        content = await response3.Content.ReadAsStringAsync().ConfigureAwait(false);
+        //        if (response3.StatusCode != HttpStatusCode.OK)
+        //        {
+        //            return false;
+        //        }
 
 
 
-                // update the project data for the stored json file, which includes the new update
-                bool result = await UpdateProjectData().ConfigureAwait(false);
+        //        // update the project data for the stored json file, which includes the new update
+        //        bool result = await UpdateProjectData().ConfigureAwait(false);
 
-                // now update so the changes appear on the map
-                foreach (CoordinateSystem cs in AppParameters.CoordinateSystem.Values)
-                {
-                    List<GeoMarker> vehicles = cs.Locators.Where
-                        (f => f.Value.Properties.TagType.EndsWith("Vehicle") &&
-                    f.Key == tagId
-                    ).Select(y => y.Value).ToList<GeoMarker>();
+        //        // now update so the changes appear on the map
+        //        foreach (CoordinateSystem cs in AppParameters.CoordinateSystem.Values)
+        //        {
+        //            List<GeoMarker> vehicles = cs.Locators.Where
+        //                (f => f.Value.Properties.TagType.EndsWith("Vehicle") &&
+        //            f.Key == tagId
+        //            ).Select(y => y.Value).ToList<GeoMarker>();
 
-                    BroadcastVehiclesUpdate(vehicles, cs.Id);
-                }
-                return result;
-            }
-            catch (Exception e)
-            {
-                new ErrorLogger().ExceptionLog(e);
-                return false;
-            }
-        }
+        //            BroadcastVehiclesUpdate(vehicles, cs.Id);
+        //        }
+        //        return result;
+        //    }
+        //    catch (Exception e)
+        //    {
+        //        new ErrorLogger().ExceptionLog(e);
+        //        return false;
+        //    }
+        //}
 
 
 
         /*
          *  code added, but not a feature in the app yet, no GUI for this yet
          */
-        internal async Task<bool> UpdateTagGroupName(string tagId, string tagGroupName)
-        {
-            try
-            {
+        //internal async Task<bool> UpdateTagGroupName(string tagId, string tagGroupName)
+        //{
+        //    try
+        //    {
 
-                DateTime thisTime = DateTime.Now;
-                // update the tag group name using api call to quuppa
+        //        DateTime thisTime = DateTime.Now;
+        //        // update the tag group name using api call to quuppa
 
-                // [IP:port]/qpe/setTagGroup?tag=<tag_id>&targetGroup=<TargetTagGroup>&createNew=true
-                HttpResponseMessage response = await
-                    httpClient.GetAsync(AppParameters.QuuppaBaseUrl +
-                 @"setTagGroup?tag=" + tagId +
-                 @"&targetGroup=" + tagGroupName +
-                 @"&createNew=true").ConfigureAwait(false);
-                if (response.StatusCode != HttpStatusCode.OK)
-                {
-                    return false;
-                }
-                string content = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
-                string fileName = GetQuuppaTagChangeFilename(tagId, thisTime);
-                // export the tag group name change to a file
+        //        // [IP:port]/qpe/setTagGroup?tag=<tag_id>&targetGroup=<TargetTagGroup>&createNew=true
+        //        HttpResponseMessage response = await
+        //            httpClient.GetAsync(AppParameters.QuuppaBaseUrl +
+        //         @"setTagGroup?tag=" + tagId +
+        //         @"&targetGroup=" + tagGroupName +
+        //         @"&createNew=true").ConfigureAwait(false);
+        //        if (response.StatusCode != HttpStatusCode.OK)
+        //        {
+        //            return false;
+        //        }
+        //        string content = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
+        //        string fileName = GetQuuppaTagChangeFilename(tagId, thisTime);
+        //        // export the tag group name change to a file
 
-                // [IP:port]/qpe/exportTags?tag=<tag_id>&filename=<YYYY-MM-DD_TAGID>
-                HttpResponseMessage response2 =
-                   await httpClient.GetAsync(AppParameters.QuuppaBaseUrl +
-                   @"exportTags?tag=" + tagId +
-                   "&filename=" + fileName).ConfigureAwait(false);
-                content = await response2.Content.ReadAsStringAsync().ConfigureAwait(false);
-                if (response2.StatusCode != HttpStatusCode.OK)
-                {
-                    return false;
-                }
+        //        // [IP:port]/qpe/exportTags?tag=<tag_id>&filename=<YYYY-MM-DD_TAGID>
+        //        HttpResponseMessage response2 =
+        //           await httpClient.GetAsync(AppParameters.QuuppaBaseUrl +
+        //           @"exportTags?tag=" + tagId +
+        //           "&filename=" + fileName).ConfigureAwait(false);
+        //        content = await response2.Content.ReadAsStringAsync().ConfigureAwait(false);
+        //        if (response2.StatusCode != HttpStatusCode.OK)
+        //        {
+        //            return false;
+        //        }
 
-                // import the tag group name change for a permanent update
+        //        // import the tag group name change for a permanent update
 
-                // [IP:port]/qpe/importTags?&filename=<YYYY-MM-DD_TAGID>
-                HttpResponseMessage response3 =
-                   await httpClient.GetAsync(AppParameters.QuuppaBaseUrl +
-                   @"importTags?filename=" + fileName).ConfigureAwait(false);
+        //        // [IP:port]/qpe/importTags?&filename=<YYYY-MM-DD_TAGID>
+        //        HttpResponseMessage response3 =
+        //           await httpClient.GetAsync(AppParameters.QuuppaBaseUrl +
+        //           @"importTags?filename=" + fileName).ConfigureAwait(false);
 
-                content = await response3.Content.ReadAsStringAsync().ConfigureAwait(false);
-                if (response3.StatusCode != HttpStatusCode.OK)
-                {
-                    return false;
-                }
-                bool result = await UpdateProjectData().ConfigureAwait(false);
+        //        content = await response3.Content.ReadAsStringAsync().ConfigureAwait(false);
+        //        if (response3.StatusCode != HttpStatusCode.OK)
+        //        {
+        //            return false;
+        //        }
+        //        bool result = await UpdateProjectData().ConfigureAwait(false);
 
-                // now update so the changes appear on the map
-                foreach (CoordinateSystem cs in AppParameters.CoordinateSystem.Values)
-                {
-                    List<GeoMarker> vehicles = new List<GeoMarker>();
-                    GeoMarker vehicle = cs.Locators.Where(f => f.Value.Properties.TagType.EndsWith("Vehicle")
-                    && f.Key == tagId).Select(y => y.Value).FirstOrDefault<GeoMarker>();
+        //        // now update so the changes appear on the map
+        //        foreach (CoordinateSystem cs in AppParameters.CoordinateSystem.Values)
+        //        {
+        //            List<GeoMarker> vehicles = new List<GeoMarker>();
+        //            GeoMarker vehicle = cs.Locators.Where(f => f.Value.Properties.TagType.EndsWith("Vehicle")
+        //            && f.Key == tagId).Select(y => y.Value).FirstOrDefault<GeoMarker>();
 
-                    vehicles.Add(vehicle);
+        //            vehicles.Add(vehicle);
 
-                    BroadcastVehiclesUpdate(vehicles, cs.Id);
-                }
-                return result;
-            }
-            catch (Exception e)
-            {
-                new ErrorLogger().ExceptionLog(e);
-                return false;
-            }
-        }
-        internal string GetProjectInfoConnection()
-        {
-            Connection conn = AppParameters.ConnectionList.Where(x => x.Value.MessageType
-            == "getProjectInfo").Select(y => y.Value).FirstOrDefault<Connection>();
-            return string.Format(conn.Url, "getProjectInfo");
-        }
-        internal async Task<bool> UpdateProjectData()
-        {
+        //            BroadcastVehiclesUpdate(vehicles, cs.Id);
+        //        }
+        //        return result;
+        //    }
+        //    catch (Exception e)
+        //    {
+        //        new ErrorLogger().ExceptionLog(e);
+        //        return false;
+        //    }
+        //}
+        //internal string GetProjectInfoConnection()
+        //{
+        //    Connection conn = AppParameters.ConnectionList.Where(x => x.Value.MessageType
+        //    == "getProjectInfo").Select(y => y.Value).FirstOrDefault<Connection>();
+        //    return string.Format(conn.Url, "getProjectInfo");
+        //}
+        //internal async Task<bool> UpdateProjectData()
+        //{
 
-            try
-            {
-
-
-                string projectInfoConnectionString = GetProjectInfoConnection();
-                HttpResponseMessage response = await
-                    httpClient.GetAsync(projectInfoConnectionString).ConfigureAwait(false);
-                if (response.StatusCode != HttpStatusCode.OK)
-                {
-                    return false;
-                }
-
-                string content = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
-                JObject jo = JObject.Parse(content);
-                JArray coordinateSystems = (JArray)jo["coordinateSystems"];
-                string projectDataString = coordinateSystems.ToString();
+        //    try
+        //    {
 
 
-                new FileIO().Write(string.Concat(AppParameters.Logdirpath, AppParameters.ConfigurationFloder),
-                   "Project_Data.json", projectDataString);
+        //        string projectInfoConnectionString = GetProjectInfoConnection();
+        //        HttpResponseMessage response = await
+        //            httpClient.GetAsync(projectInfoConnectionString).ConfigureAwait(false);
+        //        if (response.StatusCode != HttpStatusCode.OK)
+        //        {
+        //            return false;
+        //        }
 
-                ProcessRecvdMsg.ProjectData(projectDataString, "");
-                AppParameters.ProjectData = projectDataString;
-                return true;
+        //        string content = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
+        //        JObject jo = JObject.Parse(content);
+        //        JArray coordinateSystems = (JArray)jo["coordinateSystems"];
+        //        string projectDataString = coordinateSystems.ToString();
 
-            }
-            catch (Exception e)
-            {
-                new ErrorLogger().ExceptionLog(e);
-                return false;
-            }
-        }
+
+        //        new FileIO().Write(string.Concat(AppParameters.Logdirpath, AppParameters.ConfigurationFloder),
+        //           "Project_Data.json", projectDataString);
+
+        //        ProcessRecvdMsg.ProjectData(projectDataString, "");
+        //        AppParameters.ProjectData = projectDataString;
+        //        return true;
+
+        //    }
+        //    catch (Exception e)
+        //    {
+        //        new ErrorLogger().ExceptionLog(e);
+        //        return false;
+        //    }
+        //}
         internal IEnumerable<CoordinateSystem> GetIndoorMapFloor(string id)
 
         {
@@ -2055,7 +2104,11 @@ namespace Factory_of_the_Future
                     CoordinateSystem.TryAdd(temp.Id, temp);
                     return CoordinateSystem.Select(y => y.Value).ToList();
                 }
-                return AppParameters.CoordinateSystem.Select(y => y.Value).ToList();
+                else
+                {
+                    return AppParameters.CoordinateSystem.Select(y => y.Value).ToList();
+                }
+               
             }
             catch (Exception e)
             {
@@ -2524,11 +2577,11 @@ namespace Factory_of_the_Future
             {
                 if (string.IsNullOrEmpty(id))
                 {
-                    return AppParameters.ConnectionList.Select(x => x.Value);
+                    return AppParameters.RunningConnection.Connection.Select(y => y.ConnectionInfo).ToList();
                 }
                 else
                 {
-                    return AppParameters.ConnectionList.Where(r => r.Key == id).Select(x => x.Value);
+                    return AppParameters.RunningConnection.Connection.Where(w => w.ConnectionInfo.Id == id).Select(y => y.ConnectionInfo).ToList();
                 }
             }
             catch (Exception e)
@@ -2550,36 +2603,16 @@ namespace Factory_of_the_Future
                 bool fileUpdate = false;
                 if (!string.IsNullOrEmpty(data))
                 {
-                    Connection newConndata = JsonConvert.DeserializeObject<Connection>(data);
-                    newConndata.CreatedDate = DateTime.Now;
-                    id = newConndata.Id;
-                    newConndata.ApiConnected = false;
-                    //tempcon[i].LasttimeApiConnected = DateTime.Now.AddMinutes(-120);
-                    if (newConndata.ConnectionName.ToLower() == "MPEWatch".ToLower())
-                    {
-                        newConndata.IpAddress = "";
-                        newConndata.Port = 0;
-                        newConndata.Url = "";
-                        string sitename = AppParameters.AppSettings["FACILITY_NAME"].ToString().ToLower().Replace(" ", "_").Replace("&", "").Replace("(", "").Replace(")", "");
-                        AppParameters.MPEWatchData.Where(r => r.Value.SiteNameLocal.ToLower() == sitename).Select(y => y.Value).ToList().ForEach(m =>
-                        {
-                            newConndata.IpAddress = m.Host;
-                            newConndata.Port = m.Port;
-                            newConndata.Url = m.URL;
-                        });
-                    }
-                    if (AppParameters.ConnectionList.TryAdd(newConndata.Id, newConndata))
-                    {
-                        AppParameters.RunningConnection.Add(newConndata);
-                        fileUpdate = true;
-                    }
+                        AppParameters.RunningConnection.Add(JsonConvert.DeserializeObject<Connection>(data));
+                  
+                    
                 }
 
                 if (fileUpdate)
                 {
-                    new FileIO().Write(string.Concat(AppParameters.CodeBase.Parent.FullName.ToString(), AppParameters.Appsetting), "Connection.json", JsonConvert.SerializeObject(AppParameters.ConnectionList.Select(x => x.Value).ToList(), Formatting.Indented, new JsonSerializerSettings() { ContractResolver = new NullToEmptyStringResolver() }));
+                    new FileIO().Write(string.Concat(AppParameters.CodeBase.Parent.FullName.ToString(), AppParameters.Appsetting), "Connection.json", JsonConvert.SerializeObject(AppParameters.RunningConnection.Connection.Where(w => w.ConnectionInfo.Id == id).Select(y => y.ConnectionInfo).ToList(), Formatting.Indented, new JsonSerializerSettings() { ContractResolver = new NullToEmptyStringResolver() }));
                 }
-                return AppParameters.ConnectionList.Where(w => w.Key == id).Select(s => s.Value);
+                return AppParameters.RunningConnection.Connection.Where(w => w.ConnectionInfo.Id == id).Select(y => y.ConnectionInfo).ToList();
             }
             catch (Exception e)
             {
@@ -2590,91 +2623,91 @@ namespace Factory_of_the_Future
 
         internal IEnumerable<Connection> EditAPI(string data)
         {
-            string id = string.Empty;
+         
             try
             {
-                bool fileUpdate = false;
                 if (!string.IsNullOrEmpty(data))
                 {
-                    Connection updateConndata = JsonConvert.DeserializeObject<Connection>(data);
-                    id = updateConndata.Id;
+                    AppParameters.RunningConnection.Edit(JsonConvert.DeserializeObject<Connection>(data));
+                    //id = updateConndata.Id;
 
-                    if (AppParameters.ConnectionList.ContainsKey(updateConndata.Id))
-                    {
-                        AppParameters.ConnectionList.AddOrUpdate(updateConndata.Id, updateConndata, (key, oldConndata) =>
-                        {
-                            fileUpdate = true;
-                            updateConndata.CreatedByUsername = oldConndata.CreatedByUsername;
-                            updateConndata.CreatedDate = oldConndata.CreatedDate;
-                            updateConndata.ApiConnected = oldConndata.ApiConnected;
+                    //if (AppParameters.ConnectionList.ContainsKey(updateConndata.Id))
+                    //{
+                    //    AppParameters.ConnectionList.AddOrUpdate(updateConndata.Id, updateConndata, (key, oldConndata) =>
+                    //    {
+                    //        fileUpdate = true;
+                    //        updateConndata.CreatedByUsername = oldConndata.CreatedByUsername;
+                    //        updateConndata.CreatedDate = oldConndata.CreatedDate;
+                    //        updateConndata.ApiConnected = oldConndata.ApiConnected;
 
-                            updateConndata.UpdateStatus = true;
-                            foreach (Api_Connection Connection_item in AppParameters.RunningConnection.Connection)
-                            {
-                                if (Connection_item.ID == updateConndata.Id)
-                                {
-                                    if (!updateConndata.ActiveConnection)
-                                    {
-                                        if (updateConndata.UdpConnection)
-                                        {
-                                            Connection_item._StopUDPListener();
-                                        }
-                                        if (updateConndata.TcpIpConnection)
-                                        {
-                                            Connection_item._StopTCPListener();
-                                        }
-                                        else if (updateConndata.WsConnection)
-                                        {
-                                            Connection_item.WSStop();
-                                        }
-                                        else
-                                        {
-                                            if (Connection_item.MessageType.ToUpper().EndsWith("Stills".ToUpper()))
-                                            {
-                                                Connection_item.ConnectionInfo.ActiveConnection = false;
-                                                Connection_item.Download();
-                                            }
-                                            Connection_item.ConstantRefresh = false;
-                                            Connection_item.Stop();
-                                        }
+                    //        updateConndata.UpdateStatus = true;
+                    //        foreach (Api_Connection Connection_item in AppParameters.RunningConnection.Connection)
+                    //        {
+                    //            if (Connection_item.ID == updateConndata.Id)
+                    //            {
+                    //                if (!updateConndata.ActiveConnection)
+                    //                {
+                    //                    if (updateConndata.UdpConnection)
+                    //                    {
+                    //                        Connection_item._StopUDPListener();
+                    //                    }
+                    //                    if (updateConndata.TcpIpConnection)
+                    //                    {
+                    //                        Connection_item._StopTCPListener();
+                    //                    }
+                    //                    else if (updateConndata.WsConnection)
+                    //                    {
+                    //                        Connection_item.WSStop();
+                    //                    }
+                    //                    else
+                    //                    {
+                    //                        if (Connection_item.MessageType.ToUpper().EndsWith("Stills".ToUpper()))
+                    //                        {
+                    //                            Connection_item.ConnectionInfo.ActiveConnection = false;
+                    //                            Connection_item.Download();
+                    //                        }
+                    //                        Connection_item.ConstantRefresh = false;
+                    //                        Connection_item.Stop();
+                    //                    }
 
-                                    }
-                                    else if (updateConndata.ActiveConnection)
-                                    {
-                                        if (updateConndata.UdpConnection)
-                                        {
-                                            Connection_item._StartUDPListener();
-                                        }
-                                        if (updateConndata.TcpIpConnection)
-                                        {
-                                            Connection_item._StartTCPListener();
-                                        }
-                                        else if (updateConndata.WsConnection)
-                                        {
-                                            Connection_item._WSThreadListener();
-                                        }
-                                        else
-                                        {
-                                            Connection_item.ConstantRefresh = true;
-                                            Connection_item._ThreadDownload();
-                                            Connection_item._ThreadRefresh();
-                                        }
-                                    }
+                    //                }
+                    //                else if (updateConndata.ActiveConnection)
+                    //                {
+                    //                    if (updateConndata.UdpConnection)
+                    //                    {
+                    //                        Connection_item._StartUDPListener();
+                    //                    }
+                    //                    if (updateConndata.TcpIpConnection)
+                    //                    {
+                    //                        Connection_item._StartTCPListener();
+                    //                    }
+                    //                    else if (updateConndata.WsConnection)
+                    //                    {
+                    //                        Connection_item._WSThreadListener();
+                    //                    }
+                    //                    else
+                    //                    {
+                    //                        Connection_item.ConstantRefresh = true;
+                    //                        Connection_item._ThreadDownload();
+                    //                        Connection_item._ThreadRefresh();
+                    //                    }
+                    //                }
 
-                                    Connection_item.ConnectionInfo = updateConndata;
+                    //                Connection_item.ConnectionInfo = updateConndata;
 
-                                }
-                            }
-                            return updateConndata;
-                        });
-                    }
+                    //            }
+                    //        }
+                    //        return updateConndata;
+                    //    });
+                    //}
                 }
 
-                if (fileUpdate)
-                {
-                    new FileIO().Write(string.Concat(AppParameters.CodeBase.Parent.FullName.ToString(), AppParameters.Appsetting), "Connection.json", JsonConvert.SerializeObject(AppParameters.ConnectionList.Select(x => x.Value).ToList(), Formatting.Indented, new JsonSerializerSettings() { ContractResolver = new NullToEmptyStringResolver() }));
-                }
-                return AppParameters.ConnectionList.Where(w => w.Key == id).Select(s => s.Value).ToList();
+                //if (fileUpdate)
+                //{
+                //    new FileIO().Write(string.Concat(AppParameters.CodeBase.Parent.FullName.ToString(), AppParameters.Appsetting), "Connection.json", JsonConvert.SerializeObject(AppParameters.ConnectionList.Select(x => x.Value).ToList(), Formatting.Indented, new JsonSerializerSettings() { ContractResolver = new NullToEmptyStringResolver() }));
+                //}
+                //return AppParameters.RunningConnection.Where(w => w. == id).Select(s => s.Value).ToList();
+                return null;
             }
             catch (Exception e)
             {
@@ -2688,61 +2721,63 @@ namespace Factory_of_the_Future
             string id = string.Empty;
             try
             {
-                JObject conn = JObject.Parse(data);
-                if (conn.HasValues)
-                {
-                    if (conn.ContainsKey("Id"))
-                    {
-                        id = (string)conn["Id"];
-                        foreach (Api_Connection Connection_item in AppParameters.RunningConnection.Connection)
-                        {
-                            if (Connection_item.ID == id)
-                            {
-                                if (AppParameters.ConnectionList.TryRemove(id, out Connection outtemp))
-                                {
-                                    if (Connection_item.ConnectionInfo.UdpConnection)
-                                    {
-                                        Connection_item.UDPDelete();
-                                        AppParameters.RunningConnection.Connection.Remove(Connection_item);
-                                        new FileIO().Write(string.Concat(AppParameters.CodeBase.Parent.FullName.ToString(), AppParameters.Appsetting), "Connection.json", JsonConvert.SerializeObject(AppParameters.ConnectionList.Select(x => x.Value).ToList(), Formatting.Indented, new JsonSerializerSettings() { ContractResolver = new NullToEmptyStringResolver() }));
-                                        return AppParameters.ConnectionList.Select(e => e.Value).ToList();
-                                    }
-                                    else if (Connection_item.ConnectionInfo.TcpIpConnection)
-                                    {
-                                        Connection_item.TCPDelete();
-                                        AppParameters.RunningConnection.Connection.Remove(Connection_item);
-                                        new FileIO().Write(string.Concat(AppParameters.CodeBase.Parent.FullName.ToString(), AppParameters.Appsetting), "Connection.json", JsonConvert.SerializeObject(AppParameters.ConnectionList.Select(x => x.Value).ToList(), Formatting.Indented, new JsonSerializerSettings() { ContractResolver = new NullToEmptyStringResolver() }));
-                                        return AppParameters.ConnectionList.Select(e => e.Value).ToList();
-                                    }
-                                    else if (Connection_item.ConnectionInfo.WsConnection)
-                                    {
-                                        Connection_item.WSDelete();
-                                        AppParameters.RunningConnection.Connection.Remove(Connection_item);
-                                        new FileIO().Write(string.Concat(AppParameters.CodeBase.Parent.FullName.ToString(), AppParameters.Appsetting), "Connection.json", JsonConvert.SerializeObject(AppParameters.ConnectionList.Select(x => x.Value).ToList(), Formatting.Indented, new JsonSerializerSettings() { ContractResolver = new NullToEmptyStringResolver() }));
-                                        return AppParameters.ConnectionList.Select(e => e.Value).ToList();
-                                    }
-                                    else
-                                    {
-                                        Connection_item.Stop_Delete();
-                                        AppParameters.RunningConnection.Connection.Remove(Connection_item);
-                                        new FileIO().Write(string.Concat(AppParameters.CodeBase.Parent.FullName.ToString(), AppParameters.Appsetting), "Connection.json", JsonConvert.SerializeObject(AppParameters.ConnectionList.Select(x => x.Value).ToList(), Formatting.Indented, new JsonSerializerSettings() { ContractResolver = new NullToEmptyStringResolver() }));
-                                        return AppParameters.ConnectionList.Select(e => e.Value).ToList();
-                                    }
-                                }
+                AppParameters.RunningConnection.Remove(JsonConvert.DeserializeObject<Connection>(data));
+                //JObject conn = JObject.Parse(data);
+                //if (conn.HasValues)
+                //{
+                //    if (conn.ContainsKey("Id"))
+                //    {
+                //        id = (string)conn["Id"];
+                //        foreach (Api_Connection Connection_item in AppParameters.RunningConnection.Connection)
+                //        {
+                //            if (Connection_item.ID == id)
+                //            {
+                //                if (AppParameters.ConnectionList.TryRemove(id, out Connection outtemp))
+                //                {
+                //                    if (Connection_item.ConnectionInfo.UdpConnection)
+                //                    {
+                //                        Connection_item.UDPDelete();
+                //                        AppParameters.RunningConnection.Connection.Remove(Connection_item);
+                //                        new FileIO().Write(string.Concat(AppParameters.CodeBase.Parent.FullName.ToString(), AppParameters.Appsetting), "Connection.json", JsonConvert.SerializeObject(AppParameters.ConnectionList.Select(x => x.Value).ToList(), Formatting.Indented, new JsonSerializerSettings() { ContractResolver = new NullToEmptyStringResolver() }));
+                //                        return AppParameters.ConnectionList.Select(e => e.Value).ToList();
+                //                    }
+                //                    else if (Connection_item.ConnectionInfo.TcpIpConnection)
+                //                    {
+                //                        Connection_item.TCPDelete();
+                //                        AppParameters.RunningConnection.Connection.Remove(Connection_item);
+                //                        new FileIO().Write(string.Concat(AppParameters.CodeBase.Parent.FullName.ToString(), AppParameters.Appsetting), "Connection.json", JsonConvert.SerializeObject(AppParameters.ConnectionList.Select(x => x.Value).ToList(), Formatting.Indented, new JsonSerializerSettings() { ContractResolver = new NullToEmptyStringResolver() }));
+                //                        return AppParameters.ConnectionList.Select(e => e.Value).ToList();
+                //                    }
+                //                    else if (Connection_item.ConnectionInfo.WsConnection)
+                //                    {
+                //                        Connection_item.WSDelete();
+                //                        AppParameters.RunningConnection.Connection.Remove(Connection_item);
+                //                        new FileIO().Write(string.Concat(AppParameters.CodeBase.Parent.FullName.ToString(), AppParameters.Appsetting), "Connection.json", JsonConvert.SerializeObject(AppParameters.ConnectionList.Select(x => x.Value).ToList(), Formatting.Indented, new JsonSerializerSettings() { ContractResolver = new NullToEmptyStringResolver() }));
+                //                        return AppParameters.ConnectionList.Select(e => e.Value).ToList();
+                //                    }
+                //                    else
+                //                    {
+                //                        Connection_item.Stop_Delete();
+                //                        AppParameters.RunningConnection.Connection.Remove(Connection_item);
+                //                        new FileIO().Write(string.Concat(AppParameters.CodeBase.Parent.FullName.ToString(), AppParameters.Appsetting), "Connection.json", JsonConvert.SerializeObject(AppParameters.ConnectionList.Select(x => x.Value).ToList(), Formatting.Indented, new JsonSerializerSettings() { ContractResolver = new NullToEmptyStringResolver() }));
+                //                        return AppParameters.ConnectionList.Select(e => e.Value).ToList();
+                //                    }
+                //                }
 
-                            }
-                        }
-                        return null;
-                    }
-                    else
-                    {
-                        return null;
-                    }
-                }
-                else
-                {
-                    return null;
-                }
+                //            }
+                //        }
+                //        return null;
+                //    }
+                //    else
+                //    {
+                //        return null;
+                //    }
+                //}
+                //else
+                //{
+                //    return null;
+                //}
+                return null;
             }
             catch (Exception e)
             {
@@ -2754,44 +2789,41 @@ namespace Factory_of_the_Future
         {
             string id = string.Empty;
             string floorID = string.Empty;
+            JObject objectdata = null;
             try
             {
                 bool fileUpdate = false;
                 if (!string.IsNullOrEmpty(data))
                 {
-                    if (AppParameters.IsValidJson(data))
+                    objectdata = JObject.Parse(data);
+                    if (objectdata.HasValues)
                     {
-                        JObject objectdata = JObject.Parse(data);
-                        if (objectdata.HasValues)
+                        if (objectdata.ContainsKey("floorId") && objectdata.ContainsKey("id"))
                         {
-                            if (objectdata.ContainsKey("floorId") && objectdata.ContainsKey("id"))
+                            floorID = objectdata["floorId"].ToString();
+                            id = objectdata["id"].ToString();
+                            if (AppParameters.CoordinateSystem.ContainsKey(floorID))
                             {
-                                floorID = objectdata["floorId"].ToString();
-                                id = objectdata["id"].ToString();
-                                if (AppParameters.CoordinateSystem.ContainsKey(floorID))
+                                ZoneInfo newzinfo = new ZoneInfo();
+                                if (AppParameters.CoordinateSystem.TryGetValue(floorID, out CoordinateSystem cs))
                                 {
-                                    ZoneInfo newzinfo = new ZoneInfo();
-                                    if (AppParameters.CoordinateSystem.TryGetValue(floorID, out CoordinateSystem cs))
+                                    if (cs.Zones.ContainsKey(id))
                                     {
-                                        if (cs.Zones.ContainsKey(id))
+                                        if (cs.Zones.TryGetValue(id, out GeoZone gz))
                                         {
-                                            if (cs.Zones.TryGetValue(id, out GeoZone gz))
-                                            {
-                                                gz.Properties.MPENumber = (int)objectdata["MPE_Number"];
-                                                gz.Properties.MPEType = objectdata["MPE_Type"].ToString();
-                                                gz.Properties.Name = string.Concat(gz.Properties.MPEType, "-", gz.Properties.MPENumber.ToString().PadLeft(3, '0'));
-                                                gz.Properties.QuuppaOverride = true;
-                                                gz.Properties.ZoneUpdate = true;
-                                                fileUpdate = true;
-                                            }
-
+                                            gz.Properties.MPENumber = (int)objectdata["MPE_Number"];
+                                            gz.Properties.MPEType = objectdata["MPE_Type"].ToString();
+                                            gz.Properties.Name = string.Concat(gz.Properties.MPEType, "-", gz.Properties.MPENumber.ToString().PadLeft(3, '0'));
+                                            gz.Properties.QuuppaOverride = true;
+                                            gz.Properties.ZoneUpdate = true;
+                                            fileUpdate = true;
                                         }
 
                                     }
 
                                 }
-                            }
 
+                            }
                         }
 
                     }
@@ -2808,6 +2840,15 @@ namespace Factory_of_the_Future
             {
                 new ErrorLogger().ExceptionLog(e);
                 return null;
+            }
+            finally 
+            {
+                data = null;
+                objectdata = null;
+                id = string.Empty;
+                floorID = string.Empty;
+
+
             }
         }
         internal IEnumerable<JToken> GetAppSettingdata()

@@ -11,6 +11,7 @@ using System.Threading.Tasks;
 using System.Web;
 using System.Web.Http;
 using System.Web.Security;
+using System.Web.SessionState;
 
 namespace Factory_of_the_Future
 {
@@ -141,83 +142,134 @@ namespace Factory_of_the_Future
         {
             lock (padlock)
             {
-                HttpCookie authCookie;
-                ADUser adUser = new ADUser
+                try
                 {
-                    UserId = Regex.Replace(HttpContext.Current.Request.LogonUserIdentity.Name, @"(USA\\|ENG\\)", "").Trim(),
-                    Session_ID = HttpContext.Current.Session.SessionID,
-                    NASSCode = AppParameters.AppSettings["FACILITY_NASS_CODE"].ToString(),
-                    FDBID = AppParameters.AppSettings["FACILITY_ID"].ToString(),
-                    FacilityTimeZone = AppParameters.AppSettings["FACILITY_TIMEZONE"].ToString(),
-                    App_Type = AppParameters.AppSettings["APPLICATION_NAME"].ToString(),
-                    FacilityName = !string.IsNullOrEmpty(AppParameters.AppSettings["FACILITY_NAME"].ToString()) ? AppParameters.AppSettings["FACILITY_NAME"].ToString() : "Site Not Configured",
-                    Server_IpAddress = AppParameters.ServerIpAddress,
-                    IsAuthenticated = HttpContext.Current.Request.IsAuthenticated,
-                    IpAddress = Request.ServerVariables["REMOTE_HOST"],
-                    Login_Date = DateTime.Now,
-                    Software_Version = AppParameters.VersionInfo,
-                    Browser_Type = HttpContext.Current.Request.Browser.Type,
-                    Browser_Name = HttpContext.Current.Request.Browser.Browser,
-                    Browser_Version = HttpContext.Current.Request.Browser.Version,
-                    Domain = HttpContext.Current.Request.LogonUserIdentity.Name.ToString().Split('\\')[0].ToUpper(),
-                    Environment = AppParameters.ApplicationEnvironment,
-                    Role = GetUserRole(GetGroupNames(((WindowsIdentity)HttpContext.Current.Request.LogonUserIdentity).Groups))
-                };
+                    Session[SessionKey.UserRole] = GetUserRole(GetGroupNames(HttpContext.Current.Request.LogonUserIdentity.Groups));
+                    Session[SessionKey.AceId] = Regex.Replace(HttpContext.Current.Request.LogonUserIdentity.Name, @"(USA\\|ENG\\)", "").Trim();
+                    Session[SessionKey.Session_ID] = HttpContext.Current.Session.SessionID;
+                    Session[SessionKey.IsAuthenticated] = HttpContext.Current.Request.IsAuthenticated;
+                    Session[SessionKey.UserFirstName] = "";
+                    Session[SessionKey.UserLastName] = "";
+                    Session[SessionKey.Facility_NASS_CODE] = AppParameters.AppSettings.ContainsKey("FACILITY_NASS_CODE") ? AppParameters.AppSettings["FACILITY_NASS_CODE"].ToString() : "";
+                    Session[SessionKey.Facility_Id] = AppParameters.AppSettings.ContainsKey("FACILITY_ID") ? AppParameters.AppSettings["FACILITY_ID"].ToString() : "";
+                    Session[SessionKey.Facility_Name] = AppParameters.AppSettings.ContainsKey("FACILITY_NAME") ? AppParameters.AppSettings["FACILITY_NAME"].ToString() : "";
+                    Session[SessionKey.Environment] = AppParameters.ApplicationEnvironment;
+                    Session[SessionKey.FacilityTimeZone] = AppParameters.AppSettings.ContainsKey("FACILITY_TIMEZONE") ? AppParameters.AppSettings["FACILITY_TIMEZONE"].ToString() : "";
+                    Session[SessionKey.SoftwareVersion] = AppParameters.VersionInfo;
+                    Session[SessionKey.ApplicationFullName] = AppParameters.AppSettings.ContainsKey("APPLICATION_FULLNAME") ? AppParameters.AppSettings["APPLICATION_FULLNAME"].ToString() : "";
+                    Session[SessionKey.ApplicationAbbr] = AppParameters.AppSettings.ContainsKey("APPLICATION_NAME") ? AppParameters.AppSettings["APPLICATION_NAME"].ToString() : "";
+                    Session[SessionKey.Server_IpAddress] = AppParameters.ServerIpAddress;
+                    Session[SessionKey.IpAddress] = Request.ServerVariables["REMOTE_HOST"];
+                    Session[SessionKey.Domain] = HttpContext.Current.Request.LogonUserIdentity.Name.ToString().Split('\\')[0].ToUpper();
+                    Session[SessionKey.Browser_Type] = HttpContext.Current.Request.Browser.Type;
+                    Session[SessionKey.Browser_Name] = HttpContext.Current.Request.Browser.Browser;
+                    Session[SessionKey.Browser_Version] = HttpContext.Current.Request.Browser.Version;
+                    AddUserToList(Session);
+                }
+                catch (Exception ex)
+                {
+                    new ErrorLogger().ExceptionLog(ex);
+                }
+                //HttpCookie authCookie;
+                //ADUser adUser = new ADUser
+                //{
+                //    UserId = Regex.Replace(HttpContext.Current.Request.LogonUserIdentity.Name, @"(USA\\|ENG\\)", "").Trim(),
+                //    Session_ID = HttpContext.Current.Session.SessionID,
+                //    NASSCode = AppParameters.AppSettings["FACILITY_NASS_CODE"].ToString(),
+                //    FDBID = AppParameters.AppSettings["FACILITY_ID"].ToString(),
+                //    FacilityTimeZone = AppParameters.AppSettings["FACILITY_TIMEZONE"].ToString(),
+                //    App_Type = AppParameters.AppSettings["APPLICATION_NAME"].ToString(),
+                //    FacilityName = !string.IsNullOrEmpty(AppParameters.AppSettings["FACILITY_NAME"].ToString()) ? AppParameters.AppSettings["FACILITY_NAME"].ToString() : "Site Not Configured",
+                //    Server_IpAddress = AppParameters.ServerIpAddress,
+                //    IsAuthenticated = HttpContext.Current.Request.IsAuthenticated,
+                //    IpAddress = Request.ServerVariables["REMOTE_HOST"],
+                //    Login_Date = DateTime.Now,
+                //    Software_Version = AppParameters.VersionInfo,
+                //    Browser_Type = HttpContext.Current.Request.Browser.Type,
+                //    Browser_Name = HttpContext.Current.Request.Browser.Browser,
+                //    Browser_Version = HttpContext.Current.Request.Browser.Version,
+                //    Domain = HttpContext.Current.Request.LogonUserIdentity.Name.ToString().Split('\\')[0].ToUpper(),
+                //    Environment = AppParameters.ApplicationEnvironment,
+                //    Role = GetUserRole(GetGroupNames(((WindowsIdentity)HttpContext.Current.Request.LogonUserIdentity).Groups))
+                //};
 
-                Session[SessionKey.AceId] = adUser.UserId;
-                Session[SessionKey.UserFirstName] = adUser.FirstName;
-                Session[SessionKey.UserLastName] = adUser.SurName;
-                Session[SessionKey.UserRole] = adUser.Role;
-                Session[SessionKey.Environment] = AppParameters.ApplicationEnvironment;
-                Session[SessionKey.SoftwareVersion] = adUser.Software_Version;
-                Session[SessionKey.ApplicationFullName] = AppParameters.AppSettings["APPLICATION_FULLNAME"].ToString();
-                Session[SessionKey.ApplicationAbbr] = AppParameters.AppSettings["APPLICATION_NAME"].ToString();
-                Session[SessionKey.IsAuthenticated] = HttpContext.Current.Request.IsAuthenticated;
-                authCookie = AuthenticationCookie.Create(adUser.UserId, Converter.ObjectToString(adUser), true);
-                Task.Run(() => AddUserToList(adUser));
-           
-                Response.Cookies.Add(authCookie);
+                //Session[SessionKey.AceId] = adUser.UserId;
+                //Session[SessionKey.UserFirstName] = adUser.FirstName;
+                //Session[SessionKey.UserLastName] = adUser.SurName;
+                //Session[SessionKey.UserRole] = adUser.Role;
+                //Session[SessionKey.Environment] = AppParameters.ApplicationEnvironment;
+                //Session[SessionKey.SoftwareVersion] = adUser.Software_Version;
+                //Session[SessionKey.ApplicationFullName] = AppParameters.AppSettings["APPLICATION_FULLNAME"].ToString();
+                //Session[SessionKey.ApplicationAbbr] = AppParameters.AppSettings["APPLICATION_NAME"].ToString();
+                //Session[SessionKey.IsAuthenticated] = HttpContext.Current.Request.IsAuthenticated;
+                //authCookie = AuthenticationCookie.Create(adUser.UserId, Converter.ObjectToString(adUser), true);
+                //Task.Run(() => AddUserToList(adUser));
+
+                //Response.Cookies.Add(authCookie);
 
             }
         }
-        private void AddUserToList(ADUser adUser)
+
+        private void AddUserToList(HttpSessionState session)
         {
             try
             {
-                if (_sessions.Count == 0)
-                {
-                    _sessions.Add(adUser);
-                    Task.Run(() => new User_Log().LoginUser(adUser));
-                }
-                else
-                {
-                    int itemindex = _sessions.FindIndex(r => r.Session_ID == adUser.Session_ID);
-                    if (itemindex != -1 && _sessions.Count > 0)
-                    {
-                        //log out user 
-                        if (!string.IsNullOrEmpty(_sessions[itemindex].Session_ID))
-                        {
-                            Task.Run(() => new User_Log().LogoutUser(_sessions[itemindex]));
-                            _sessions.Remove(_sessions[itemindex]);
-                        }
-                        _sessions[itemindex].Login_Date = adUser.Login_Date;
-                        _sessions[itemindex].Session_ID = adUser.Session_ID;
-                        //log of user logging in.
-                        Task.Run(() => new User_Log().LoginUser(adUser));
-
-                    }
-                    else
-                    {
-                        _sessions.Add(adUser);
-                        Task.Run(() => new User_Log().LoginUser(adUser));
-                    }
-                }
+                _ = Task.Run(() => new UserLog().LoginUser(session));
             }
             catch (Exception e)
             {
                 new ErrorLogger().ExceptionLog(e);
             }
         }
+        private void RemoveUserToList(HttpSessionState session)
+        {
+            try
+            {
+                _ = Task.Run(() => new UserLog().LogoutUser(session));
+            }
+            catch (Exception e)
+            {
+                new ErrorLogger().ExceptionLog(e);
+            }
+        }
+        //private void AddUserToList(ADUser adUser)
+        //{
+        //    try
+        //    {
+        //        if (_sessions.Count == 0)
+        //        {
+        //            _sessions.Add(adUser);
+        //            Task.Run(() => new User_Log().LoginUser(adUser));
+        //        }
+        //        else
+        //        {
+        //            int itemindex = _sessions.FindIndex(r => r.Session_ID == adUser.Session_ID);
+        //            if (itemindex != -1 && _sessions.Count > 0)
+        //            {
+        //                //log out user 
+        //                if (!string.IsNullOrEmpty(_sessions[itemindex].Session_ID))
+        //                {
+        //                    Task.Run(() => new User_Log().LogoutUser(_sessions[itemindex]));
+        //                    _sessions.Remove(_sessions[itemindex]);
+        //                }
+        //                _sessions[itemindex].Login_Date = adUser.Login_Date;
+        //                _sessions[itemindex].Session_ID = adUser.Session_ID;
+        //                //log of user logging in.
+        //                Task.Run(() => new User_Log().LoginUser(adUser));
+
+        //            }
+        //            else
+        //            {
+        //                _sessions.Add(adUser);
+        //                Task.Run(() => new User_Log().LoginUser(adUser));
+        //            }
+        //        }
+        //    }
+        //    catch (Exception e)
+        //    {
+        //        new ErrorLogger().ExceptionLog(e);
+        //    }
+        //}
         private string GetUserRole(string groups)
         {
             try

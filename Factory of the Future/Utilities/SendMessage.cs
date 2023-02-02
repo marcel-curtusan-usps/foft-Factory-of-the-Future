@@ -3,58 +3,65 @@ using System.IO;
 using System.Net;
 using System.Net.Security;
 using System.Reflection;
+using System.Security.Cryptography.X509Certificates;
 using System.Threading.Tasks;
 
 namespace Factory_of_the_Future
 {
-    internal class SendMessage
+    internal class SendMessage : IDisposable
     {
-        private static int GetWebExceptionStatusCode(WebException webError, out string statusDescription)
+        private bool disposedValue;
+
+        public string _url { get; protected set; }
+        public string _statusDescription { get; protected set; }
+        public string _responseDatastring { get; protected set; }
+        public int _response_code { get; protected set; }
+        private int GetWebExceptionStatusCode(WebException webError)
         {
             HttpWebResponse webResponse = (HttpWebResponse)webError.Response;
             if (webResponse != null)
             {
-                statusDescription = webResponse.StatusDescription;
                 return (int)webResponse.StatusCode;
             }
-            statusDescription = null;
             return 0;
         }
-
-        private static int GetStatusCode(WebClient client, out string statusDescription)
+        private int GetStatusCode(WebClient client)
         {
             FieldInfo responseField = client.GetType().GetField("m_WebResponse", BindingFlags.Instance | BindingFlags.NonPublic);
 
-            if (responseField != null)
+            if (responseField != null && responseField.GetValue(client) is HttpWebResponse response)
             {
-                if (responseField.GetValue(client) is HttpWebResponse response)
-                {
-                    statusDescription = response.StatusDescription;
-                    return (int)response.StatusCode;
-                }
-            }
 
-            statusDescription = null;
+                return (int)response.StatusCode;
+            }
             return 0;
         }
-
-        internal static string SV_Get(string url)
+        private string GetStatusMessage(WebClient client)
         {
-            string statusDescription;
-            string responseDatastring;
-            int response_code;
+            FieldInfo responseField = client.GetType().GetField("m_WebResponse", BindingFlags.Instance | BindingFlags.NonPublic);
+            if (responseField != null && responseField.GetValue(client) is HttpWebResponse response)
+            {
+                return response.StatusDescription;
+            }
+            return "";
+        }
+        internal string Get(Uri url)
+        {
             try
             {
+                ServicePointManager.SecurityProtocol |= SecurityProtocolType.Tls11 | SecurityProtocolType.Tls12;
+                ServicePointManager.ServerCertificateValidationCallback = new RemoteCertificateValidationCallback(AcceptAllCertifications);
                 using (WebClient client = new WebClient())
                 {
-                    Uri parURL = new Uri(url);
+                    
                     //add header
-                    responseDatastring = client.DownloadString(parURL);
-                    response_code = GetStatusCode(client, out statusDescription);
+                    _responseDatastring = client.DownloadString(url);
+                    _response_code = GetStatusCode(client);
+                    _statusDescription = GetStatusMessage(client);
                     //get the response from Vendor
-                    if (response_code == 201 || response_code == 200)
+                    if (_response_code == 201 || _response_code == 200)
                     {
-                        return responseDatastring;
+                        return _responseDatastring;
                     }
                     else
                     {
@@ -65,12 +72,14 @@ namespace Factory_of_the_Future
             catch (WebException webError)
             {
                 //this will give us the response code.
-                response_code = GetWebExceptionStatusCode(webError, out statusDescription);
-                if (response_code > 0)
+                _response_code = GetWebExceptionStatusCode(webError);
+                if (_response_code > 0)
                 {
-                    responseDatastring = new StreamReader(webError.Response.GetResponseStream()).ReadToEnd();
-                    if (!string.IsNullOrEmpty(responseDatastring))
+                    _responseDatastring = new StreamReader(webError.Response.GetResponseStream()).ReadToEnd();
+                    if (!string.IsNullOrEmpty(_responseDatastring))
                     {
+                        new ErrorLogger().CustomLog(_responseDatastring, string.Concat((string)AppParameters.AppSettings.Property("APPLICATION_NAME").Value, "UDP_InVaild_Message"));
+                        return "[]";
                     }
                 }
                 return "[]";
@@ -80,6 +89,47 @@ namespace Factory_of_the_Future
                 new ErrorLogger().ExceptionLog(e);
                 return "[]";
             }
+        }
+        private bool AcceptAllCertifications(object sender, X509Certificate certificate, X509Chain chain, SslPolicyErrors sslPolicyErrors)
+        {
+            if (sslPolicyErrors == SslPolicyErrors.None)
+            {
+                return true;
+            }
+
+            return false;
+        }
+        protected virtual void Dispose(bool disposing)
+        {
+            if (!disposedValue)
+            {
+                if (disposing)
+                {
+                    // TODO: dispose managed state (managed objects)
+                }
+
+                // TODO: free unmanaged resources (unmanaged objects) and override finalizer
+                // TODO: set large fields to null
+                disposedValue = true;
+                _url = string.Empty;
+                _statusDescription = string.Empty;
+                _responseDatastring = string.Empty;
+                _response_code = -0;
+            }
+        }
+
+        // // TODO: override finalizer only if 'Dispose(bool disposing)' has code to free unmanaged resources
+        // ~SendMessage()
+        // {
+        //     // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
+        //     Dispose(disposing: false);
+        // }
+
+        public void Dispose()
+        {
+            // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
+            Dispose(disposing: true);
+            GC.SuppressFinalize(this);
         }
     }
 }

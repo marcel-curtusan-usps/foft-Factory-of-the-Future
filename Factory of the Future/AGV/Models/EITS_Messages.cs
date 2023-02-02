@@ -50,14 +50,14 @@ namespace Factory_of_the_Future.AGV.Models
             {
                 try
                 {
-                    if (AppParameters.ConnectionList.Count > 0)
-                    {
-                        return 0;
-                    }
-                    else
-                    {
+                    //if (AppParameters.ConnectionList.Count > 0)
+                    //{
+                    //    return 0;
+                    //}
+                    //else
+                    //{
                         return -1;
-                    }
+                   // }
                 }
                 catch (Exception)
                 {

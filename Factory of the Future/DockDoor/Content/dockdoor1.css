@@ -27,10 +27,11 @@
     font-size: 3.5vw;
 }
 .cardYellow {
-background-color:yellow;
+    background-color: #FFF82E !important;
 }
 .cardRed {
-background-color:red;
+    background-color: #750000 !important;
+    color: white;
 }
 label {
     margin-bottom:0px;
@@ -39,6 +40,11 @@ label {
     padding: .01rem;
     vertical-align: top;
     border-top: 1px solid #dee2e6;
+}
+.tablewhite {
+    width: 100%;
+    margin-bottom: 0.01rem;
+    color: #FFFFFF !important;
 }
 .table {
     width: 100%;

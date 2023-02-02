@@ -22,7 +22,7 @@ namespace Factory_of_the_Future
                         if (!string.IsNullOrEmpty((string)AppParameters.AppSettings.Property("SV_SITE_URL").Value))
                         {
                             Uri parURL = new Uri((string)AppParameters.AppSettings.Property("SV_SITE_URL").Value + site_id_format);
-                            string SV_Response = SendMessage.SV_Get(parURL.AbsoluteUri);
+                            string SV_Response = new SendMessage().Get(parURL);
                             if (!string.IsNullOrEmpty(SV_Response))
                             {
 

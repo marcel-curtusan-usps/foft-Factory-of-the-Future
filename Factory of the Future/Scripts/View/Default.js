@@ -213,7 +213,9 @@ $(function () {
     });
 
     $.extend(fotfmanager.client, {
-        floorImage: async (MapData) => { init_mapSetup(MapData); }
+        floorImage: async (MapData) => {
+            //init_mapSetup(MapData);
+        }
     });
     //remove trips
     $.extend(fotfmanager.client, {
@@ -230,6 +232,7 @@ $(function () {
             if (!/^(Admin|OIE)/i.test(User.Role)) {
                 fotfmanager.server.leaveGroup("PeopleMarkers");
             }
+            Promise.all([init_mapSetup()]);
             conntoggle.state('conn-on');
         }).catch(
             function (err) {
@@ -495,12 +498,12 @@ $(function () {
             console.log(e);
         }
     });
-    $(document).on('click', '.connectionedit', function () {
-        var td = $(this);
-        var tr = $(td).closest('tr');
-        var id = tr.attr('data-id');
-        Edit_Connection(id);
-    });
+    //$(document).on('click', '.connectionedit', function () {
+    //    var td = $(this);
+    //    var tr = $(td).closest('tr');
+    //    var id = tr.attr('data-id');
+    //    Edit_Connection(id);
+    //});
     $(document).on('click', '.connectiondelete', function () {
         var td = $(this);
         var tr = $(td).closest('tr'),

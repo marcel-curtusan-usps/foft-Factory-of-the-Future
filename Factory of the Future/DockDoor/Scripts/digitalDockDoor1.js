@@ -42,7 +42,7 @@ function updateDockDoorStatus(data) {
             if (TripDirectionInd === "I") {
                 $('label[id=tirpIncdtext]').text("Inbound");
                 $('div[id=countdowndiv]').css("display", "block");
-                $('label[id=countdowntext]').text("Scheduled" + "\n" + " Arrive");
+                $('label[id=countdowntext]').text("Scheduled" + "\n" + " Arrival");
             }
             else if (TripDirectionInd === "O") {
                 $('label[id=tirpIncdtext]').text("Outbound");
@@ -165,7 +165,8 @@ function updateDockDoorStatus(data) {
             }
         }
         else {
-            stopTimer()
+            stopTimer();
+            reset();
         }
     } catch (e) {
         console.log(e);
@@ -243,7 +244,7 @@ function SortByLegNumber(a, b) {
     return aName < bName ? -1 : aName > bName ? 1 : 0;
 }
 function updateLegsTripDataTable(ldata, table) {
-    var load = true;
+    let load = true;
     if ($.fn.dataTable.isDataTable("#" + table)) {
         $('#' + table).DataTable().rows(function (idx, data, node) {
             load = false;
@@ -356,7 +357,7 @@ function createLegsTripDataTable(table) {
         columnDefs: [],
         rowCallback: function (row, data, index) {
             $(row).find('td:eq(2)').css('font-size', 'calc(0.1em + 2.5vw)');
-            $(row).find('td:eq(2)').css('vertical-align','middle');
+            $(row).find('td:eq(2)').css('vertical-align', 'middle');
 
         }
     });
@@ -373,7 +374,7 @@ function createContainerDataTable(table) {
         tempc = {};
         if (/Count/i.test(key)) {
             tempc = {
-                "title": 'Ready not Loaded: '+'<label class="control-label" style="font-size: 4rem; font-weight: bolder;" id=totalcontainertext></label>',
+                "title": 'Ready not Loaded: ' + '<label class="control-label" style="font-size: 4rem; font-weight: bolder;" id=totalcontainertext></label>',
                 "mDataProp": key,
                 "class": "row-cts-count"
             }
@@ -415,37 +416,37 @@ function capitalize_Words(str) {
 function startTimer(SVdtm) {
     if (!!SVdtm) {
         var duration = calculatescheduledDuration(SVdtm);
-     
+
         var timer = setInterval(function () {
             if (!!duration && duration._isValid) {
                 CurrentTripMin = duration.asMinutes();
 
-                if (TripDirectionInd === "O") {
-                    //When the trip departure clock is at 00:10:00, the entire screen for that dock door will turn YELLOW
-                    if (CurrentTripMin => 5 && CurrentTripMin <= 10) {
-                        //10 minutes before scheduled trip departure
-                        Tripdisplay("yellow");
-                    }
-                    //When the trip departure clock is at 00:05:00, AND there are closed but containers that have not been loaded for that trip, the entire screen will turn RED
-                    else if (CurrentTripMin => 0 && CurrentTripMin <= 5) {
-                        //5 minutes before scheduled trip departure
-                        Tripdisplay("red");
-                    }
-                    else {
-                        Tripdisplay("");
-                    }
-                }
-
                 if (tripStatus === 0) {
+                    if (TripDirectionInd === "O") {
+                        //When the trip departure clock is at 00:10:00, the entire screen for that dock door will turn YELLOW
+                        if (CurrentTripMin > 5 && CurrentTripMin <= 10 ) {
+                            //10 minutes before scheduled trip departure
+                            Tripdisplay("yellow");
+                        }
+                      //  When the trip departure clock is at 00:05:00, AND there are closed but containers that have not been loaded for that trip, the entire screen will turn RED
+                        else if (CurrentTripMin > 0 && CurrentTripMin < 5) {
+                            //5 minutes before scheduled trip departure
+                            Tripdisplay("red");
+                        }
+                        else {
+                            Tripdisplay("");
+                        }
+                    }
                     duration = moment.duration(duration.asSeconds() - Timerinterval, 'seconds');
                     $('.timecounter').html(duration.format("d [days] hh:mm:ss ", { trunc: true }));
                 }
                 else {
                     $('.timecounter').html("Late");
+                    Tripdisplay("red");
                     stopTimer();
                 }
 
-                
+
 
 
             }
@@ -466,12 +467,24 @@ function startTimer(SVdtm) {
 function stopTimer() {
     clearInterval(CountTimer);
 }
+function reset() {
+    $('#currentTripTable').DataTable().clear().draw();
+    $('#containerLocationtable').DataTable().clear().draw();
+    $('label[id=totalcontainertext]').text("")
+    $('label[id=tirpIncdtext]').text("");
+    $('label[id=countdowntext]').text("");
+    //timeCount
+    $('div[id=countdowndiv]').css("display", "none");
+    $('.timecounter').html("");
+    Tripdisplay("normal");
+    stopTimer();
+}
 function calculatescheduledDuration(t) {
     if (!!t) {
         var timenow = moment(DateTimeNow);
         var conditiontime = moment().set({ 'year': t.year, 'month': t.month, 'date': t.dayOfMonth, 'hour': t.hourOfDay, 'minute': t.minute, 'second': t.second });
         if (conditiontime._isValid) {
-        
+
             if (timenow > conditiontime) {
                 tripStatus = 1;
                 return moment.duration(timenow.diff(conditiontime));
@@ -479,7 +492,8 @@ function calculatescheduledDuration(t) {
             else {
                 tripStatus = 0;
                 return moment.duration(conditiontime.diff(timenow));
-            }        }
+            }
+        }
         else {
             return "";
         }
@@ -493,32 +507,37 @@ function Tripdisplay(color) {
                 break;
             case "red":
                 $('div.card').addClass('cardRed');
+                $('table').addClass('tablewhite');
                 break;
-            default:
+            case "normal":
                 $('div.card').removeClass('cardRed').removeClass('cardYellow');
+                $('table').removeClass('tablewhite');
                 break;
         }
     }
 }
+function SortByName(a, b) {
+    let aName = a.location;
+    let bName = b.location;
+    return ((aName < bName) ? -1 : ((aName > bName) ? 1 : 0));
+}
 function CreateContainerCount(data) {
-    let ContainerSumCounts = {};
+    let ContainerSumCounts = [];
     containerArray = [];
-    $.map(data, function (contatiner) {
-        if (contatiner.hasCloseScans && !contatiner.hasLoadScans) {
-            if (containerArray.hasOwnProperty(contatiner.location)) {
-                ContainerSumCounts.push({
-                    Location: contatiner.location,
-                    count: 1
-                })
-            }
-            else {
-                ContainerSumCounts.push({
-                    Location: contatiner.location,
-                    Count: 1
-                })
-            }
-        }
+    let filtered = data.filter(function (item) {
+        return item.location === item.location && item.hasCloseScans === true && item.hasLoadScans === false;
     });
-    $('label[id=totalcontainertext]').text(containerArray.length);
-    loadContainersDatatable(containerArray, "containerLocationtable");
+
+    console.log(filtered);
+  
+    $.map(filtered.sort(SortByName), function (contatiner) {
+        ContainerSumCounts.push({
+            Location: contatiner.location,
+            Count: filtered.filter(function (item) {
+                return item.location === contatiner.location && item.hasCloseScans === true && item.hasLoadScans === false;
+            }).length
+        })
+    });
+    $('label[id=totalcontainertext]').text(filtered.length);
+    loadContainersDatatable(ContainerSumCounts, "containerLocationtable");
 }

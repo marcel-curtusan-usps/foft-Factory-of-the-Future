@@ -21,6 +21,7 @@ namespace Factory_of_the_Future.AGV.Models
             }
             catch (Exception e)
             {
+                new ErrorLogger().ExceptionLog(e);
                 return (-99).ToString();
 
             }
@@ -42,6 +43,7 @@ namespace Factory_of_the_Future.AGV.Models
             }
             catch (Exception e)
             {
+                new ErrorLogger().ExceptionLog(e);
                 return (-99).ToString();
 
             }

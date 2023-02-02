@@ -13,6 +13,7 @@ namespace Factory_of_the_Future
             }
             catch (Exception e)
             {
+                new ErrorLogger().ExceptionLog(e);
                 return "";
             }
         }
@@ -27,6 +28,7 @@ namespace Factory_of_the_Future
             }
             catch (Exception e)
             {
+                new ErrorLogger().ExceptionLog(e);
                 return "";
             }
         }

@@ -641,6 +641,9 @@ async function Edit_Machine_Info(id) {
                             $('select[id=machine_zone_select_name]').val(Data.name.toString());
                         }
                         else {
+                            $('<option/>').val("").html("").appendTo('select[id=machine_zone_select_name]');
+                            $('<option/>').val("**Machine Not Listed").html("**Machine Not Listed").appendTo('select[id=machine_zone_select_name]');
+                            $('select[id=machine_zone_select_name]').val("**Machine Not Listed");
                             $('#machine_manual_row').css('display', '');
                             $('select[id=machine_zone_select_name]').css('display', 'none');
                         }

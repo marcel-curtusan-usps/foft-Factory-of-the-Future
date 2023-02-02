@@ -127,98 +127,10 @@ namespace Factory_of_the_Future
         public bool LocatorUpdate { get; set; }
     }
 
-    public class BackgroundImage
-    {
-        [JsonProperty("widthMeter")]
-        public double WidthMeter { get; set; }
 
-        [JsonProperty("xMeter")]
-        public double XMeter { get; set; }
 
-        [JsonProperty("visible")]
-        public bool Visible { get; set; }
-
-        [JsonProperty("otherCoordSys")]
-        public string OtherCoordSys { get; set; }
-
-        [JsonProperty("rotation")]
-        public int Rotation { get; set; }
-
-        [JsonProperty("base64")]
-        public string Base64 { get; set; } = "";
-
-        [JsonProperty("origoY")]
-        public double OrigoY { get; set; }
-
-        [JsonProperty("origoX")]
-        public double OrigoX { get; set; }
-
-        [JsonProperty("heightMeter")]
-        public double HeightMeter { get; set; }
-
-        [JsonProperty("yMeter")]
-        public double YMeter { get; set; }
-
-        [JsonProperty("alpha")]
-        public int Alpha { get; set; }
-
-        [JsonProperty("id")]
-        public string Id { get; set; }
-
-        [JsonProperty("name")]
-        public string Name { get; set; }
-
-        [JsonProperty("metersPerPixelY")]
-        public double MetersPerPixelY { get; set; }
-
-        [JsonProperty("metersPerPixelX")]
-        public double MetersPerPixelX { get; set; }
-        [JsonProperty("updateStatus")]
-        public bool UpdateStatus { get; set; } = false;
-
-        [JsonProperty("rawData")]
-        public string RawData { get; set; } = "";
-
-        [JsonProperty("coordinateSystemId")]
-        public string CoordinateSystemId { get; set; } = "";
-        //coordinateSystemId
-        //[JsonProperty("facilityName")]
-        //public string FacilityName { get; set; } = "Site Not Configured";
-
-        //[JsonProperty("softwareVersion")]
-        //public string SoftwareVersion { get; set; } = AppParameters.VersionInfo;
-
-        //[JsonProperty("applicationFullName")]
-        //public string ApplicationFullName { get; set; } = "";
-
-        //[JsonProperty("applicationAbbr")]
-        //public string ApplicationAbbr { get; set; } = "";
-    }
-    public class ZoneGeometry
-    {
-        [JsonProperty("type")]
-        public string Type { get; set; } = "Polygon";
-
-        [JsonProperty("coordinates")]
-        public List<List<List<double>>> Coordinates { get; set; }
-    }
-    public class MarkerGeometry
-    {
-        [JsonProperty("type")]
-        public string Type { get; set; } = "Point";
-
-        [JsonProperty("coordinates")]
-        public List<double> Coordinates { get; set; } 
-    }
-    public class LineGeometry
-    {
-        [JsonProperty("type")]
-        public string Type { get; set; } = "LineString";
-
-        [JsonProperty("coordinates")]
-        public List<List<List<double>>> Coordinates { get; set; }
-    }
-
+   
+  
     public class Properties
     {
         [JsonProperty("id")]
@@ -295,39 +207,6 @@ namespace Factory_of_the_Future
         public string Source { get; set; } = "";
     }
 
-    public class GeoZone
-    {
-        [JsonProperty("type")]
-        public string Type { get; set; } = "Feature";
-
-        [JsonProperty("geometry")]
-        public ZoneGeometry Geometry { get; set; } = new ZoneGeometry(); 
-
-        [JsonProperty("properties")]
-        public Properties Properties { get; set; } = new Properties();
-    }
-    public class GeoMarker
-    {
-        [JsonProperty("type")]
-        public string Type { get; set; } = "Feature"; 
-
-        [JsonProperty("geometry")]
-        public MarkerGeometry Geometry { get; set; } = new MarkerGeometry();
-
-        [JsonProperty("properties")]
-        public Marker Properties { get; set; } = new Marker();
-    }
-    public class GeoLine
-    {
-        [JsonProperty("type")]
-        public string Type { get; set; } = "Feature";
-
-        [JsonProperty("geometry")]
-        public LineGeometry Geometry { get; set; } = new LineGeometry();
-
-        [JsonProperty("properties")]
-        public RoutePath Properties { get; set; } = new RoutePath();
-    }
 
     public class RoutePath
     {
@@ -344,102 +223,6 @@ namespace Factory_of_the_Future
         public string Average_Duration { get; set; } = "";
     }
 
-    public class Marker
-    {
-        [JsonProperty("id")]
-        public string Id { get; set; }  = "";
-
-        [JsonProperty("floorId")]
-        public string FloorId { get; set; }
-
-        [JsonProperty("rFId")]
-        public string RFid { get; set; } = "";
-
-        [JsonProperty("visible")]
-        public bool Visible { get; set; } = false;
-
-        [JsonProperty("zones")]
-        public List<Zone> Zones { get; set; }
-
-        [JsonProperty("color")]
-        public string Color { get; set; } = "";
-
-        [JsonProperty("tagVisible")]
-        public bool TagVisible { get; set; } = false;
-
-        [JsonProperty("tagVisibleMils")]
-        public int TagVisibleMils { get; set; }
-
-        [JsonProperty("isWearingTag")]
-        public bool IsWearingTag { get; set; }
-
-        [JsonProperty("name")]
-        public string Name { get; set; } = "";
-
-        [JsonProperty("craftName")]
-        public string CraftName { get; set; } = "";
-
-        [JsonProperty("positionTS")]
-        public DateTime PositionTS { get; set; }
-
-        [JsonProperty("Tag_TS")]
-        public DateTime TagTS { get; set; }
-
-        [JsonProperty("Tag_Type")]
-        public string TagType { get; set; } = "";
-
-        [JsonProperty("Tag_Update")]
-        public bool TagUpdate { get; set; }
-
-        [JsonProperty("empId")]
-        public string EmpId { get; set; } = "";
-
-        [JsonProperty("emptype")]
-        public string Emptype { get; set; } = "";
-        [JsonProperty("badgeId")]
-        public string BadgeId { get; set; } = "";
-
-        [JsonProperty("empName")]
-        public string EmpName { get; set; } = "";
-
-        [JsonProperty("isLdcAlert")]
-        public bool IsLdcAlert { get; set; }
-
-        [JsonProperty("currentLDCs")]
-        public string CurrentLDCs { get; set; } = "";
-
-        [JsonProperty("tacs")]
-        //public string Tacs { get; set; } = "";
-        public Tacs Tacs { get; set; }
-
-        [JsonProperty("sels")]
-        public string Sels { get; set; } = "";
-
-        [JsonProperty("movementStatus")]
-        public string MovementStatus { get; set; } = "noData";
-
-        [JsonProperty("Raw_Data")]
-        public string RawData { get; set; } = "";
-
-        [JsonProperty("Camera_Data")]
-        public Cameras CameraData { get; set; }
-
-        [JsonProperty("Vehicle_Status_Data")]
-        public VehicleStatus Vehicle_Status_Data { get; set; }
-
-        [JsonProperty("Mission")]
-        public Mission Misison { get; set; }
-
-        [JsonProperty("source")]
-        public string Source { get; set; } = "";
-
-        [JsonProperty("notificationId")]
-        public string NotificationId { get; set; } = "";
-
-        [JsonProperty("routePath")]
-        public GeoLine RoutePath { get; set; }
-        public List<DarvisCameraAlert> DarvisAlerts { get; internal set; }
-    }
     public class ZoneInfo
     {
         [JsonProperty("MPE_Type")]
@@ -508,54 +291,7 @@ namespace Factory_of_the_Future
         public string CriticalColor { get; set; } = "";
     }
 
-    public class Zone
-    {
-        [JsonProperty("locationLocked")]
-        public bool LocationLocked { get; set; }
-
-        [JsonProperty("notes")]
-        public string Notes { get; set; }
-
-        [JsonProperty("visible")]
-        public bool Visible { get; set; }
-
-        [JsonProperty("color")]
-        public string Color { get; set; }
-
-        [JsonProperty("zoneGroupId")]
-        public string ZoneGroupId { get; set; }
-
-        [JsonProperty("name")]
-        public string Name { get; set; }
-
-        [JsonProperty("polygonData")]
-        public string PolygonData { get; set; }
-
-        [JsonProperty("id")]
-        public string Id { get; set; }
-
-        [JsonProperty("polygonHoles")]
-        public List<object> PolygonHoles { get; set; }
-        [JsonIgnore]
-        public bool UpdateStatus { get; set; } = false;
-    }
-
-    public class CoordinateSystem
-    {
-        [JsonProperty("id")]
-        public string Id { get; set; } = "";
-        [JsonProperty("name")]
-        public string Name { get; set; } = "";
-
-        [JsonProperty("locators")]
-        public ConcurrentDictionary<string, GeoMarker> Locators = new ConcurrentDictionary<string, GeoMarker>();
-
-        [JsonProperty("backgroundImages")]
-        public BackgroundImage BackgroundImage = new BackgroundImage();
-
-        [JsonProperty("zones")]
-        public ConcurrentDictionary<string, GeoZone> Zones= new ConcurrentDictionary<string, GeoZone>();
-    }          
+ 
     public class TrackTagGroups
     {
         [JsonProperty("tagGroups")]
@@ -564,131 +300,7 @@ namespace Factory_of_the_Future
         [JsonProperty("allTags")]
         public bool AllTags { get; set; }
     }
-    public class EventDtm
-    {
-        [JsonProperty("year")]
-        public int Year { get; set; } = 1;
 
-        [JsonProperty("month")]
-        public int Month { get; set; } = 1;
-
-        [JsonProperty("dayOfMonth")]
-        public int DayOfMonth { get; set; } = 1;
-
-        [JsonProperty("hourOfDay")]
-        public int HourOfDay { get; set; } = 1
-            ;
-
-        [JsonProperty("minute")]
-        public int Minute { get; set; } = 0;
-
-        [JsonProperty("second")]
-        public int Second { get; set; } = 0;
-    }
-    public class ContainerHistory
-    {
-        [JsonProperty("event")]
-        public string Event { get; set; }
-
-        [JsonProperty("eventDtm")]
-        public EventDtm EventDtm { get; set; } = new EventDtm();
-        public DateTime EventDtmfmt
-        {
-            get
-            {
-                return new DateTime(EventDtm.Year, (EventDtm.Month + 1), EventDtm.DayOfMonth, EventDtm.HourOfDay, EventDtm.Minute, EventDtm.Second);
-            }
-            set { return; }
-        }
-
-        [JsonProperty("siteId")]
-        public string SiteId { get; set; } = "";
-
-        [JsonProperty("updtUserId")]
-        public string UpdtUserId { get; set; } = "";
-
-        [JsonProperty("siteName")]
-        public string SiteName { get; set; } = "";
-
-        [JsonProperty("siteType")]
-        public string SiteType { get; set; } = "";
-
-        [JsonProperty("route")]
-        public string Route { get; set; } = "";
-
-        [JsonProperty("trip")]
-        public string Trip { get; set; } = "";
-
-        [JsonProperty("trailer")]
-        public string Trailer { get; set; } = "";
-
-        [JsonProperty("source")]
-        public string Source { get; set; } = "";
-
-        [JsonProperty("redirectInd")]
-        public string RedirectInd { get; set; } = "";
-
-        [JsonProperty("location")]
-        public string Location { get; set; } = "";
-
-        [JsonProperty("binNumber")]
-        public string BinNumber { get; set; } = "";
-
-        [JsonProperty("binName")]
-        public string BinName { get; set; } = "";
-
-        public int sortind { get; set; }
-    }
-    public class Container
-    {
-        public DateTime EventDtm { get; set; } = DateTime.Now;
-
-        [JsonProperty("placardBarcode")]
-        public string PlacardBarcode { get; set; } = "";
-
-        [JsonProperty("trailer")]
-        public string Trailer { get; set; } = "";
-
-        [JsonProperty("containerHistory")]
-        public List<ContainerHistory> ContainerHistory { get; set; } = new List<ContainerHistory>();
-
-        [JsonProperty("origin")]
-        public string Origin { get; set; } = "";
-
-        [JsonProperty("dest")]
-        public string Dest { get; set; } = "";
-
-        [JsonProperty("originName")]
-        public string OriginName { get; set; } = "";
-
-        [JsonProperty("destinationName")]
-        public string DestinationName { get; set; } = "";
-
-        [JsonProperty("location")]
-        public string Location { get; set; } = "";
-
-        [JsonProperty("binNumber")]
-        public string BinNumber { get; set; } = "";
-
-        [JsonProperty("binName")]
-        public string BinName { get; set; } = "";
-
-        [JsonProperty("mailClass")]
-        public string MailClass { get; set; } = "";
-
-        [JsonProperty("mailType")]
-        public string MailType { get; set; } = "";
-        public string MailClassDisplay { get; set; } = "";
-        public string BinDisplay { get; set; } = "";
-        public bool hasPrintScans { get; set; }
-        public bool hasAssignScans { get; set; }
-        public bool hasCloseScans { get; set; }
-        public bool hasLoadScans { get; set; }
-        public bool hasUnloadScans { get; set; }
-        public bool containerTerminate { get; set; }
-        public bool containerAtDest { get; set; }
-        public bool containerRedirectedDest { get; set; }
-    }
     public class DoorTripAssociation {
         public string DoorNumber { get; set; }
         public string Route { get; set; }
@@ -744,13 +356,16 @@ namespace Factory_of_the_Future
         public bool UdpConnection { get; set; } = false;
         [JsonProperty("TcpIpConnection")]
         public bool TcpIpConnection { get; set; } = false;
-
         [JsonProperty("WsConnection")]
         public bool WsConnection { get; set; } = false;
+        [JsonProperty("ApiConnection")]
+        public bool ApiConnection { get; set; } = false;
         [JsonIgnore]
         public bool UpdateStatus { get; set; } = false;
         [JsonProperty("Url")]
         public string Url { get; set; } = "";
+        [JsonProperty("Status")]
+        public string Status { get; set; } = "";
     }
     public class StaffingSortplan
     {
@@ -941,128 +556,7 @@ namespace Factory_of_the_Future
         public string TimeToCompActualDateTime { get; set; } = "";
     }
     
-    public class DarvisCameraAlert
-    {
-        [JsonProperty("TYPE")]
-        public string Type { get; set; }
-        [JsonProperty("DWELL_TIME")]
-        public float DwellTime { get; set; }
-        [JsonProperty("TOP")]
-        public int Top { get; set; }
-        [JsonProperty("BOTTOM")]
-        public int Bottom { get; set; }
-        [JsonProperty("LEFT")]
-        public int Left { get; set; }
-        [JsonProperty("RIGHT")]
-        public int Right { get; set; }
-        [JsonProperty("OBJECT_ID")]
-        public string object_id { get; set; }
-        [JsonProperty("OBJECT_CLASS")]
-        public string object_class { get; set; }
-        [JsonProperty("ALERT_BASE64")]
-        public string AlertBase64Image { get; set; }
-    }
-    public class Cameras
-    {
-        [JsonProperty("LOCALE_KEY")]
-        public string LocaleKey { get; set; } = "";
 
-        [JsonProperty("MODEL_NUM")]
-        public string ModelNum { get; set; } = "";
-
-        [JsonProperty("FACILITY_PHYS_ADDR_TXT")]
-        public string FacilityPhysAddrTxt { get; set; } = "";
-
-        [JsonProperty("GEO_PROC_REGION_NM")]
-        public string GeoProcRegionNm { get; set; } = "";
-
-        [JsonProperty("FACILITY_SUBTYPE_DESC")]
-        public string FacilitySubtypeDesc { get; set; } = "";
-
-        [JsonProperty("GEO_PROC_DIVISION_NM")]
-        public string GeoProcDivisionNm { get; set; } = "";
-
-        [JsonProperty("AUTH_KEY")]
-        public string AuthKey { get; set; } = "";
-
-        [JsonProperty("FACILITY_LATITUDE_NUM")]
-        public double FacilitiyLatitudeNum { get; set; } = 0.0;
-
-        [JsonProperty("FACILITY_LONGITUDE_NUM")]
-        public double FacilitiyLongitudeNum { get; set; } = 0.0;
-
-        [JsonProperty("CAMERA_NAME")]
-        public string CameraName { get; set; } = "";
-
-        [JsonProperty("DESCRIPTION")]
-        public string Description { get; set; } = "";
-
-        [JsonProperty("REACHABLE")]
-        public string Reachable { get; set; } = "";
-
-        [JsonProperty("FACILITY_DISPLAY_NME")]
-        public string FacilityDisplayName { get; set; } = "";
-
-        [JsonProperty("base64Image")]
-        public string Base64Image { get; set; } = AppParameters.NoImage;
-        
-        [JsonProperty("CAMERA_ALERTS")]
-        public List<DarvisCameraAlert> Alerts { get; set; }
-
-        [JsonProperty("LAST_ALERT_UPDATE")]
-        public long LastAlertUpdate { get; set; } = 0;
-
-    }
-    public class Leg
-    {
-        [JsonProperty("routeTripLegId")]
-        public int RouteTripLegId { get; set; } = 0;
-
-        [JsonProperty("routeTripId")]
-        public int RouteTripId { get; set; } = 0;
-
-        [JsonProperty("legNumber")]
-        public int LegNumber { get; set; } = 0;
-
-        [JsonProperty("legDestSiteID")]
-        public string LegDestSiteID { get; set; } = "";
-
-        [JsonProperty("legOriginSiteID")]
-        public string LegOriginSiteID { get; set; } = "";
-
-        [JsonProperty("scheduledArrDTM")]
-        public EventDtm ScheduledArrDTM { get; set; } = new EventDtm();
-
-        [JsonProperty("scheduledDepDTM")]
-        public EventDtm ScheduledDepDTM { get; set; } = new EventDtm();
-
-        [JsonProperty("actDepartureDtm")]
-        public EventDtm ActDepartureDtm { get; set; } = new EventDtm();
-
-        [JsonProperty("createdDtm")]
-        public EventDtm CreatedDtm { get; set; } = new EventDtm();
-
-        [JsonProperty("lastUpdtDtm")]
-        public EventDtm LastUpdtDtm { get; set; } = new EventDtm();
-
-        [JsonProperty("legDestSiteName")]
-        public string LegDestSiteName { get; set; } = "";
-
-        [JsonProperty("legOriginSiteName")]
-        public string LegOriginSiteName { get; set; } = "";
-
-        [JsonProperty("outboundProcessedInd")]
-        public string OutboundProcessedInd { get; set; } = "";
-
-        [JsonProperty("inboundProcessedInd")]
-        public string InboundProcessedInd { get; set; } = "";
-
-        [JsonProperty("legOriginMSPBarcode")]
-        public string LegOriginMSPBarcode { get; set; } = "";
-
-        [JsonProperty("legDestMSPBarcode")]
-        public string LegDestMSPBarcode { get; set; } = "";
-    }
     public class NullToEmptyStringResolver : Newtonsoft.Json.Serialization.DefaultContractResolver
     {
         protected override IList<JsonProperty> CreateProperties(Type type, MemberSerialization memberSerialization)
@@ -1123,238 +617,197 @@ namespace Factory_of_the_Future
 
     }
     //// trips
-    public class RouteTrips
-    {
-        [JsonProperty("routeTripId")]
-        public int RouteTripId { get; set; } = 0;
+    //public class RouteTrips
+    //{
+    //    [JsonProperty("routeTripId")]
+    //    public int RouteTripId { get; set; } = 0;
 
-        [JsonProperty("routeTripLegId")]
-        public int RouteTripLegId { get; set; } = 0;
+    //    [JsonProperty("routeTripLegId")]
+    //    public int RouteTripLegId { get; set; } = 0;
 
-        [JsonProperty("route")]
-        public string Route { get; set; } = "";
+    //    [JsonProperty("route")]
+    //    public string Route { get; set; } = "";
 
-        [JsonProperty("trip")]
-        public string Trip { get; set; } = "";
+    //    [JsonProperty("trip")]
+    //    public string Trip { get; set; } = "";
 
-        [JsonProperty("tripDirectionInd")]
-        public string TripDirectionInd { get; set; } = "";
+    //    [JsonProperty("tripDirectionInd")]
+    //    public string TripDirectionInd { get; set; } = "";
 
-        [JsonProperty("legNumber")]
-        public int LegNumber { get; set; }
+    //    [JsonProperty("legNumber")]
+    //    public int LegNumber { get; set; }
 
-        [JsonProperty("serviceTypeCode")]
-        public string ServiceTypeCode { get; set; } = "";
+    //    [JsonProperty("serviceTypeCode")]
+    //    public string ServiceTypeCode { get; set; } = "";
 
-        [JsonProperty("legSiteId")]
-        public string LegSiteId { get; set; } = "";
+    //    [JsonProperty("legSiteId")]
+    //    public string LegSiteId { get; set; } = "";
 
-        [JsonProperty("legSiteName")]
-        public string LegSiteName { get; set; } = "";
+    //    [JsonProperty("legSiteName")]
+    //    public string LegSiteName { get; set; } = "";
 
-        [JsonProperty("tripSiteId")]
-        public string TripSiteId { get; set; } = "";
+    //    [JsonProperty("tripSiteId")]
+    //    public string TripSiteId { get; set; } = "";
 
-        [JsonProperty("tripSiteName")]
-        public string TripSiteName { get; set; } = "";
+    //    [JsonProperty("tripSiteName")]
+    //    public string TripSiteName { get; set; } = "";
 
-        [JsonProperty("scheduledDtm")]
-        public EventDtm ScheduledDtm { get; set; } = new EventDtm();
-        public DateTime ScheduledDtmfmt
-        {
-            get
-            {
-                return new DateTime(ScheduledDtm.Year, (ScheduledDtm.Month + 1), ScheduledDtm.DayOfMonth, ScheduledDtm.HourOfDay, ScheduledDtm.Minute, ScheduledDtm.Second);
-            }
-            set { return; }
-        }
+    //    [JsonProperty("scheduledDtm")]
+    //    public EventDtm ScheduledDtm { get; set; } = new EventDtm();
+    //    public DateTime ScheduledDtmfmt
+    //    {
+    //        get
+    //        {
+    //            return new DateTime(ScheduledDtm.Year, (ScheduledDtm.Month + 1), ScheduledDtm.DayOfMonth, ScheduledDtm.HourOfDay, ScheduledDtm.Minute, ScheduledDtm.Second);
+    //        }
+    //        set { return; }
+    //    }
 
-        [JsonProperty("legScheduledDtm")]
-        public EventDtm LegScheduledDtm { get; set; } = new EventDtm();
+    //    [JsonProperty("legScheduledDtm")]
+    //    public EventDtm LegScheduledDtm { get; set; } = new EventDtm();
 
-        [JsonProperty("containerScans")]
-        public IEnumerable<Container> Containers { get; set; } = null;
+    //    [JsonProperty("containerScans")]
+    //    public IEnumerable<Container> Containers { get; set; } = null;
 
-        [JsonProperty("Notloadedcontainers")]
-        public int NotloadedContainers { get; set; } = 0;
+    //    [JsonProperty("Notloadedcontainers")]
+    //    public int NotloadedContainers { get; set; } = 0;
 
-        [JsonProperty("form5397Ind")]
-        public string Form5397Ind { get; set; } = "";
+    //    [JsonProperty("form5397Ind")]
+    //    public string Form5397Ind { get; set; } = "";
 
-        [JsonProperty("originAreaName")]
-        public string OriginAreaName { get; set; } = "";
+    //    [JsonProperty("originAreaName")]
+    //    public string OriginAreaName { get; set; } = "";
 
-        [JsonProperty("originDistrictName")]
-        public string OriginDistrictName { get; set; } = "";
+    //    [JsonProperty("originDistrictName")]
+    //    public string OriginDistrictName { get; set; } = "";
 
-        [JsonProperty("originSiteName")]
-        public string OriginSiteName { get; set; } = "";
+    //    [JsonProperty("originSiteName")]
+    //    public string OriginSiteName { get; set; } = "";
 
-        [JsonProperty("originSiteId")]
-        public string OriginSiteId { get; set; } = "";
+    //    [JsonProperty("originSiteId")]
+    //    public string OriginSiteId { get; set; } = "";
 
-        [JsonProperty("destAreaName")]
-        public string DestAreaName { get; set; } = "";
+    //    [JsonProperty("destAreaName")]
+    //    public string DestAreaName { get; set; } = "";
 
-        [JsonProperty("destDistrictName")]
-        public string DestDistrictName { get; set; } = "";
+    //    [JsonProperty("destDistrictName")]
+    //    public string DestDistrictName { get; set; } = "";
 
-        [JsonProperty("destSiteName")]
-        public string DestSiteName { get; set; } = "";
+    //    [JsonProperty("destSiteName")]
+    //    public string DestSiteName { get; set; } = "";
 
-        [JsonProperty("destSiteId")]
-        public string DestSiteId { get; set; } = "";
+    //    [JsonProperty("destSiteId")]
+    //    public string DestSiteId { get; set; } = "";
 
-        [JsonProperty("tourNumber")]
-        public int TourNumber { get; set; } = 0;
+    //    [JsonProperty("tourNumber")]
+    //    public int TourNumber { get; set; } = 0;
 
-        [JsonProperty("supplier")]
-        public string Supplier { get; set; } = "";
+    //    [JsonProperty("supplier")]
+    //    public string Supplier { get; set; } = "";
 
-        [JsonProperty("notUnloadedInd")]
-        public string NotUnloadedInd { get; set; } = "";
+    //    [JsonProperty("notUnloadedInd")]
+    //    public string NotUnloadedInd { get; set; } = "";
 
-        [JsonProperty("operDate")]
-        public EventDtm OperDate { get; set; } = new EventDtm();
+    //    [JsonProperty("operDate")]
+    //    public EventDtm OperDate { get; set; } = new EventDtm();
 
-        [JsonProperty("initialOriginSiteId")]
-        public string InitialOriginSiteId { get; set; } = "";
+    //    [JsonProperty("initialOriginSiteId")]
+    //    public string InitialOriginSiteId { get; set; } = "";
 
-        [JsonProperty("initialOriginSiteName")]
-        public string InitialOriginSiteName { get; set; } = "";
+    //    [JsonProperty("initialOriginSiteName")]
+    //    public string InitialOriginSiteName { get; set; } = "";
 
-        [JsonProperty("finalDestSiteId")]
-        public string FinalDestSiteId { get; set; } = "";
+    //    [JsonProperty("finalDestSiteId")]
+    //    public string FinalDestSiteId { get; set; } = "";
 
-        [JsonProperty("finalDestSiteName")]
-        public string FinalDestSiteName { get; set; } = "";
+    //    [JsonProperty("finalDestSiteName")]
+    //    public string FinalDestSiteName { get; set; } = "";
 
-        [JsonProperty("isAODU")]
-        public string IsAODU { get; set; } = "";
+    //    [JsonProperty("isAODU")]
+    //    public string IsAODU { get; set; } = "";
 
-        [JsonProperty("id")]
-        public string Id { get; set; } = "";
+    //    [JsonProperty("id")]
+    //    public string Id { get; set; } = "";
 
-        [JsonProperty("tripMin")]
-        public int? TripMin { get; set; } = 0;
+    //    [JsonProperty("tripMin")]
+    //    public int? TripMin { get; set; } = 0;
 
-        [JsonProperty("status")]
-        public string Status { get; set; } = "";
+    //    [JsonProperty("status")]
+    //    public string Status { get; set; } = "";
 
-        [JsonProperty("state")]
-        public string State { get; set; } = "";
+    //    [JsonProperty("state")]
+    //    public string State { get; set; } = "";
 
-        [JsonProperty("notificationId")]
-        public string NotificationId { get; set; } = "";
+    //    [JsonProperty("notificationId")]
+    //    public string NotificationId { get; set; } = "";
 
-        [JsonProperty("legStatus")]
-        public string LegStatus { get; set; } = "";
+    //    [JsonProperty("legStatus")]
+    //    public string LegStatus { get; set; } = "";
 
-        [JsonProperty("trailerBarcode")]
-        public string TrailerBarcode { get; set; } = "";
+    //    [JsonProperty("trailerBarcode")]
+    //    public string TrailerBarcode { get; set; } = "";
 
-        [JsonProperty("actualDtm")]
-        public EventDtm ActualDtm { get; set; } = new EventDtm();
+    //    [JsonProperty("actualDtm")]
+    //    public EventDtm ActualDtm { get; set; } = new EventDtm();
 
-        [JsonProperty("legActualDtm")]
-        public EventDtm LegActualDtm { get; set; } = new EventDtm();
+    //    [JsonProperty("legActualDtm")]
+    //    public EventDtm LegActualDtm { get; set; } = new EventDtm();
 
-        [JsonProperty("driverFirstName")]
-        public string DriverFirstName { get; set; } = "";
+    //    [JsonProperty("driverFirstName")]
+    //    public string DriverFirstName { get; set; } = "";
 
-        [JsonProperty("driverLastName")]
-        public string DriverLastName { get; set; } = "";
+    //    [JsonProperty("driverLastName")]
+    //    public string DriverLastName { get; set; } = "";
 
-        [JsonProperty("driverPhoneNumber")]
-        public string DriverPhoneNumber { get; set; } = "";
+    //    [JsonProperty("driverPhoneNumber")]
+    //    public string DriverPhoneNumber { get; set; } = "";
 
-        [JsonProperty("driverBarcode")]
-        public string DriverBarcode { get; set; } = "";
+    //    [JsonProperty("driverBarcode")]
+    //    public string DriverBarcode { get; set; } = "";
 
-        [JsonProperty("driverId")]
-        public int? DriverId { get; set; } = 0;
+    //    [JsonProperty("driverId")]
+    //    public int? DriverId { get; set; } = 0;
 
-        [JsonProperty("doorId")]
-        public string DoorId { get; set; } = "";
+    //    [JsonProperty("doorId")]
+    //    public string DoorId { get; set; } = "";
 
-        [JsonProperty("doorNumber")]
-        public string DoorNumber { get; set; } = "";
+    //    [JsonProperty("doorNumber")]
+    //    public string DoorNumber { get; set; } = "";
 
-        [JsonProperty("vanNumber")]
-        public string VanNumber { get; set; } = "";
+    //    [JsonProperty("vanNumber")]
+    //    public string VanNumber { get; set; } = "";
 
-        [JsonProperty("trailerLengthCode")]
-        public string TrailerLengthCode { get; set; } = "";
+    //    [JsonProperty("trailerLengthCode")]
+    //    public string TrailerLengthCode { get; set; } = "";
 
-        [JsonProperty("loadPercent")]
-        public int? LoadPercent { get; set; } = 0;
+    //    [JsonProperty("loadPercent")]
+    //    public int? LoadPercent { get; set; } = 0;
 
-        [JsonProperty("loadUnldStartDtm")]
-        public EventDtm LoadUnldStartDtm { get; set; } = new EventDtm();
+    //    [JsonProperty("loadUnldStartDtm")]
+    //    public EventDtm LoadUnldStartDtm { get; set; } = new EventDtm();
 
-        [JsonProperty("loadUnldEndDtm")]
-        public EventDtm LoadUnldEndDtm { get; set; } = new EventDtm();
+    //    [JsonProperty("loadUnldEndDtm")]
+    //    public EventDtm LoadUnldEndDtm { get; set; } = new EventDtm();
 
-        [JsonProperty("doorDtm")]
-        public EventDtm DoorDtm { get; set; } = new EventDtm();
+    //    [JsonProperty("doorDtm")]
+    //    public EventDtm DoorDtm { get; set; } = new EventDtm();
 
-        [JsonProperty("legDoorDtm")]
-        public EventDtm LegDoorDtm { get; set; } = new EventDtm();
+    //    [JsonProperty("legDoorDtm")]
+    //    public EventDtm LegDoorDtm { get; set; } = new EventDtm();
 
-        [JsonProperty("mspBarcode")]
-        public string MspBarcode { get; set; } = "";
+    //    [JsonProperty("mspBarcode")]
+    //    public string MspBarcode { get; set; } = "";
 
-        [JsonProperty("destSite")]
-        public string DestSites { get; set; } = "";
+    //    [JsonProperty("destSite")]
+    //    public string DestSites { get; set; } = "";
 
-        [JsonProperty("rawData")]
-        public string RawData { get; set; } = "";
-        [JsonProperty("Trip_Update")]
-        public bool TripUpdate { get; set; } = false;
-        public List<Leg> Legs { get; set; } = new List<Leg>();
-    }
+    //    [JsonProperty("rawData")]
+    //    public string RawData { get; set; } = "";
+    //    [JsonProperty("Trip_Update")]
+    //    public bool TripUpdate { get; set; } = false;
+    //    public List<Leg> Legs { get; set; } = new List<Leg>();
+    //}
 
-    public class Tacs
-    {
-        [JsonProperty("ldc")]
-        public string Ldc { get; set; } = "";
-
-        [JsonProperty("finance")]
-        public string Finance { get; set; } = "";
-
-        [JsonProperty("fnAlert")]
-        public string FnAlert { get; set; } = "";
-
-        [JsonProperty("totalTime")]
-        public int TotalTime { get; set; } = 0;
-
-        [JsonProperty("operationId")]
-        public string OperationId { get; set; } = "";
-
-        [JsonProperty("payLocation")]
-        public string PayLocation { get; set; } = "";
-
-        [JsonProperty("isOvertimeAuth")]
-        public bool IsOvertimeAuth { get; set; }
-
-        [JsonProperty("overtimeHours")]
-        public int OvertimeHours { get; set; } = 0;
-
-        [JsonProperty("isOvertime")]
-        public bool IsOvertime { get; set; }
-
-        [JsonProperty("startTs")]
-        public object StartTs { get; set; }
-
-        [JsonProperty("startTxt")]
-        public string StartTxt { get; set; } = "";
-
-        [JsonProperty("ts")]
-        public object Ts { get; set; }
-
-        [JsonProperty("openRingCode")]
-        public string OpenRingCode { get; set; } = "";
-    }
 
     public class MissedSel
     {
@@ -1809,9 +1262,10 @@ namespace Factory_of_the_Future
             return true;
         }
     }
-    public static class SessionKey
+    public class SessionKey
     {
         public const string ADUser = "ADUser";
+        public const string Session_ID = "Session_ID";
         public const string IsAuthenticated = "IsAuthenticated";
         public const string AceId = "ACEID";
         public const string UserRole = "UserRole";
@@ -1820,11 +1274,18 @@ namespace Factory_of_the_Future
         public const string Facility_NASS_CODE = "Facility_NASS_CODE";
         public const string Facility_Id = "Facility_Id";
         public const string Facility_Name = "Facility_Name";
+        public const string Facility_FDBID = "Facility_FDBID";
         public const string Environment = "Environment";
         public const string FacilityTimeZone = "FacilityTimeZone";
         public const string SoftwareVersion = "SoftwareVersion";
         public const string ApplicationFullName = "ApplicationFullName";
         public const string ApplicationAbbr = "ApplicationAbbr";
+        public const string Server_IpAddress = "Server_IpAddress";
+        public const string IpAddress = "IpAddress";
+        public const string Domain = "Domain";
+        public const string Browser_Type = "Browser_Type";
+        public const string Browser_Name = "Browser_Name";
+        public const string Browser_Version = "Browser_Version";
     }
 
     public class AuthenticationCookie

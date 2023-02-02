@@ -248,7 +248,7 @@ namespace Factory_of_the_Future
 
             // Perform the first server accept
             IsAccepting = true;
-            Task.Run(() => updateConnection());
+           // Task.Run(() => updateConnection());
             StartAccept(_acceptorEventArg);
 
             return true;
@@ -266,7 +266,7 @@ namespace Factory_of_the_Future
 
             // Stop accepting new clients
             IsAccepting = false;
-            Task.Run(() => updateConnection());
+           // Task.Run(() => updateConnection());
             // Reset acceptor event arg
             _acceptorEventArg.Completed -= OnAsyncCompleted;
 
@@ -335,23 +335,23 @@ namespace Factory_of_the_Future
                 ProcessAccept(e);
             }
         }
-        private void updateConnection()
-        {
-            try
-            {
-                foreach (Connection m in AppParameters.ConnectionList.Where(x => x.Value.Id ==this.Conid).Select(y => y.Value))
-                {
+        //private void updateConnection()
+        //{
+        //    try
+        //    {
+        //        foreach (Connection m in AppParameters.ConnectionList.Where(x => x.Value.Id ==this.Conid).Select(y => y.Value))
+        //        {
 
-                    m.ApiConnected = IsAccepting;
-                    m.LasttimeApiConnected = DateTime.Now;
-                    m.UpdateStatus = true;
-                }
-            }
-            catch (Exception e)
-            {
-                new ErrorLogger().ExceptionLog(e);
-            }
-        }
+        //            m.ApiConnected = IsAccepting;
+        //            m.LasttimeApiConnected = DateTime.Now;
+        //            m.UpdateStatus = true;
+        //        }
+        //    }
+        //    catch (Exception e)
+        //    {
+        //        new ErrorLogger().ExceptionLog(e);
+        //    }
+        //}
 
         /// <summary>
         /// Process accepted client connection

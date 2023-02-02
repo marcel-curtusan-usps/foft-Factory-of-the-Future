@@ -1,13 +1,8 @@
-﻿using Microsoft.AspNet.SignalR;
+﻿
+using Microsoft.AspNet.SignalR;
 using Microsoft.AspNet.SignalR.Hubs;
-using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using System;
 using System.Collections.Generic;
-using System.Runtime.Remoting.Contexts;
-using System.Security.Claims;
-using System.Security.Principal;
-using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 namespace Factory_of_the_Future
@@ -239,12 +234,12 @@ namespace Factory_of_the_Future
             return _managerHub.GetIndoorMapFloor(id);
         }
 
-        public async Task<string> UpdateTagName(string tagId, string tagName)
-        {
-                bool result = await _managerHub.UpdateTagName(tagId, tagName).ConfigureAwait(false);
-                string updatedString = result ? "updated" : "error";
-                return @"{""status"":""" + updatedString + @"""}";
-        }
+        //public async Task<string> UpdateTagName(string tagId, string tagName)
+        //{
+        //        bool result = await _managerHub.UpdateTagName(tagId, tagName).ConfigureAwait(false);
+        //        string updatedString = result ? "updated" : "error";
+        //        return @"{""status"":""" + updatedString + @"""}";
+        //}
 
         /// <summary>
         /// Get Vehicle tags
@@ -284,10 +279,10 @@ namespace Factory_of_the_Future
         /// <returns></returns>
         public override Task OnConnected()
         {
-            if (Context.QueryString["page_type"] == "CF" )
-            {
-                Clients.Caller.floorImage(_managerHub.GetIndoorMap());
-            }
+            //if (Context.QueryString["page_type"] == "CF" )
+            //{
+            //    Clients.Caller.floorImage(_managerHub.GetIndoorMap());
+            //}
             return base.OnConnected(); 
         }
 

@@ -12,10 +12,8 @@ using System.Net.Sockets;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
-using System.Text.RegularExpressions;
 using System.Net.Security;
 using System.Security.Cryptography.X509Certificates;
-using System.Web.Http.Results;
 
 namespace Factory_of_the_Future
 {
@@ -63,7 +61,7 @@ namespace Factory_of_the_Future
         public static ConcurrentDictionary<string, MachData> MPEWatchData { get; set; } = new ConcurrentDictionary<string, MachData>();
         public static ConcurrentDictionary<string, CoordinateSystem> CoordinateSystem { get; set; } = new ConcurrentDictionary<string, CoordinateSystem>();  
         public static ConcurrentDictionary<string, Cameras> CameraInfoList { get; set; } = new ConcurrentDictionary<string, Cameras>();
-        public static ConcurrentDictionary<string, Connection> ConnectionList { get; set; } = new ConcurrentDictionary<string, Connection>();
+        //public static ConcurrentDictionary<string, Connection> ConnectionList { get; set; } = new ConcurrentDictionary<string, Connection>();
         public static ConcurrentDictionary<string, DoorTripAssociation> DoorTripAssociation { get; set; } = new ConcurrentDictionary<string, DoorTripAssociation>();
         //public static ConcurrentDictionary<string, GeoZone> ZoneList { get; set; } = new ConcurrentDictionary<string, GeoZone>();
         // public static ConcurrentDictionary<string, GeoMarker> TagsList { get; set; } = new ConcurrentDictionary<string, GeoMarker>();
@@ -365,38 +363,24 @@ namespace Factory_of_the_Future
 
                     for (int i = 0; i < tempcon.Count; i++)
                     {
-                        tempcon[i].ApiConnected = false;
-                        //tempcon[i].LasttimeApiConnected = DateTime.Now.AddMinutes(-120);
-                        if (tempcon[i].ConnectionName.ToLower() == "MPEWatch".ToLower())
-                        {
-                            tempcon[i].IpAddress = "";
-                            tempcon[i].Port = 0;
-                            tempcon[i].Url = "";
-                            string sitename = AppParameters.AppSettings["FACILITY_NAME"].ToString().ToLower().Replace(" ","_").Replace("&","").Replace("(", "").Replace(")", "");
-                            MPEWatchData.Where(r => r.Value.SiteNameLocal.ToLower() == sitename).Select(y => y.Value).ToList().ForEach(m => {
-                                tempcon[i].IpAddress = m.Host;
-                                tempcon[i].Port = m.Port;
-                                tempcon[i].Url = m.URL;
-                            });
-
-                         
-                        }
-                        if (ConnectionList.TryAdd(tempcon[i].Id, tempcon[i]))
-                        {
-                            RunningConnection.Add(tempcon[i]);
-                        }
-                        if (tempcon[i].ConnectionName == "Quuppa" &&
-                            String.IsNullOrEmpty(QuuppaBaseUrl))
-                        {
-                            int slashBeforeQpeIndex =
-                                    tempcon[i].Url.IndexOf(@"/qpe/");
-                            if (slashBeforeQpeIndex != -1)
-                            {
-                                QuuppaBaseUrl = 
-                                    tempcon[i].Url.Substring(0, 
-                                    slashBeforeQpeIndex + 5);
-                            }
-                        }
+                       
+                        RunningConnection.Add(tempcon[i]);
+                        //if (ConnectionList.TryAdd(tempcon[i].Id, tempcon[i]))
+                        //{
+                        //    RunningConnection.Add(tempcon[i]);
+                        //}
+                        //if (tempcon[i].ConnectionName == "Quuppa" &&
+                        //    String.IsNullOrEmpty(QuuppaBaseUrl))
+                        //{
+                        //    int slashBeforeQpeIndex =
+                        //            tempcon[i].Url.IndexOf(@"/qpe/");
+                        //    if (slashBeforeQpeIndex != -1)
+                        //    {
+                        //        QuuppaBaseUrl = 
+                        //            tempcon[i].Url.Substring(0, 
+                        //            slashBeforeQpeIndex + 5);
+                        //    }
+                        //}
                     }
                     //write to file
                     new FileIO().Write(string.Concat(AppParameters.CodeBase.Parent.FullName.ToString(), AppParameters.Appsetting), "AppSettings.json", JsonConvert.SerializeObject(AppParameters.AppSettings, Formatting.Indented));
@@ -405,6 +389,25 @@ namespace Factory_of_the_Future
             catch (Exception e)
             {
                 new ErrorLogger().ExceptionLog(e);
+            }
+        }
+        internal static string ConnectionOutPutdata(List<Connection> connections)
+        {
+            try
+            {
+                var jsonResolver = new PropertyRenameAndIgnoreSerializerContractResolver();
+                jsonResolver.IgnoreProperty(typeof(Connection), "Status");
+                jsonResolver.IgnoreProperty(typeof(Connection), "ApiConnected");
+                jsonResolver.IgnoreProperty(typeof(Connection), "LasttimeApiConnected");
+
+                var serializerSettings = new JsonSerializerSettings();
+                serializerSettings.ContractResolver = jsonResolver;
+                return JsonConvert.SerializeObject(connections, Formatting.Indented, serializerSettings);
+            }
+            catch (Exception e)
+            {
+                new ErrorLogger().ExceptionLog(e);
+                return "";
             }
         }
         public static void LoglocationSetup()
@@ -861,7 +864,7 @@ namespace Factory_of_the_Future
                   
                 }
                 RunningConnection = new ConnectionContainer();
-                ConnectionList = new ConcurrentDictionary<string, Connection>();
+                //ConnectionList = new ConcurrentDictionary<string, Connection>();
                 AppParameters.AppSettings["MPE_WATCH_ID"] = "";
 
                 if (ActiveServer)

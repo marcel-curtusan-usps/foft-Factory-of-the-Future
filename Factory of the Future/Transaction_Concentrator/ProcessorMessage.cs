@@ -27,6 +27,7 @@ namespace Factory_of_the_Future
             }
             catch (System.Exception e)
             {
+                new ErrorLogger().ExceptionLog(e);
                 return "";
             }
         }

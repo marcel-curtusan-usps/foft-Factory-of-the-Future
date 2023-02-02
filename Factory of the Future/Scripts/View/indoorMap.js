@@ -68,7 +68,15 @@ if ($.urlParam('specifyLayers')) {
 else {
     layersSelected = [mainfloor,
         polygonMachine,
-        piv_vehicles, agv_vehicles, agvLocations, container, stagingAreas, stagingBullpenAreas, tagsMarkersGroup, dockDoors, binzonepoly
+        piv_vehicles,
+        agv_vehicles,
+        agvLocations,
+        container,
+        stagingAreas,
+        stagingBullpenAreas,
+        tagsMarkersGroup,
+        dockDoors,
+        binzonepoly
     ];
 
 }
@@ -423,79 +431,81 @@ $('#layersToggle').on('click', function () {
     $('[data-toggle=popover]').popover('hide');
     $('#twentyfourmessage').popover('hide');
 });
-function init_mapSetup(MapData) {
+async function init_mapSetup(MapData) {
     try {
-        if (MapData.length > 0) {
-            //map.attributionControl.setPrefix("USPS " + MapData[0].backgroundImages.applicationFullName + " (" + MapData[0].backgroundImages.softwareVersion + ")");
-            //$('#fotf-site-facility-name').append(MapData[0].backgroundImages.facilityName);
-            //map.attributionControl.addAttribution(MapData[0].backgroundImages.facilityName);
-            //$(document).prop('title', MapData[0].backgroundImages.facilityName + ' ' + MapData[0].backgroundImages.applicationAbbr);
-            $.each(MapData, function (index) {
-                //set new image
-                let img = new Image();
-                //load Base64 image
-                img.src = this.backgroundImages.base64;
-                //create he bound of the image.
-                let bounds = [[this.backgroundImages.yMeter, this.backgroundImages.xMeter], [this.backgroundImages.heightMeter + this.backgroundImages.yMeter, this.backgroundImages.widthMeter + this.backgroundImages.xMeter]];
-                var trackingarea = L.polygon(bounds, {});
-                if (index === 0) {
-                    mainfloor.options.id = this.id;         
-                    mainfloor.setUrl(img.src);
-                    mainfloor.setZIndex(index);
-                    mainfloor.setBounds(trackingarea.getBounds());
-                    //center image
-                    map.setView(trackingarea.getBounds().getCenter(), 1.5);
-                    //init_zones(this.zones, this.id);
-                    //init_locators(this.locators, this.id);
+        fotfmanager.server.getMap().done(function (MapData) {
+            if (MapData.length > 0) {
+                //map.attributionControl.setPrefix("USPS " + MapData[0].backgroundImages.applicationFullName + " (" + MapData[0].backgroundImages.softwareVersion + ")");
+                //$('#fotf-site-facility-name').append(MapData[0].backgroundImages.facilityName);
+                //map.attributionControl.addAttribution(MapData[0].backgroundImages.facilityName);
+                //$(document).prop('title', MapData[0].backgroundImages.facilityName + ' ' + MapData[0].backgroundImages.applicationAbbr);
+                $.each(MapData, function (index) {
+                    //set new image
+                    let img = new Image();
+                    //load Base64 image
+                    img.src = this.backgroundImages.base64;
+                    //create he bound of the image.
+                    let bounds = [[this.backgroundImages.yMeter, this.backgroundImages.xMeter], [this.backgroundImages.heightMeter + this.backgroundImages.yMeter, this.backgroundImages.widthMeter + this.backgroundImages.xMeter]];
+                    var trackingarea = L.polygon(bounds, {});
+                    if (index === 0) {
+                        mainfloor.options.id = this.id;
+                        mainfloor.setUrl(img.src);
+                        mainfloor.setZIndex(index);
+                        mainfloor.setBounds(trackingarea.getBounds());
+                        //center image
+                        map.setView(trackingarea.getBounds().getCenter(), 1.5);
+                        //init_zones(this.zones, this.id);
+                        //init_locators(this.locators, this.id);
+                    }
+                    else {
+                        layersControl.addBaseLayer(L.imageOverlay(img.src, trackingarea.getBounds(), { id: this.id, zindex: index }), this.backgroundImages.name);
+                        //init_zones(this.zones, this.id);
+                        //init_locators(this.locators, this.id);
+                    }
+                });
+                init_arrive_depart_trips();
+                fotfmanager.server.joinGroup("Trips");
+                //init_agvtags();
+                LoadNotification("routetrip");
+                LoadNotification("vehicle");
+                fotfmanager.server.joinGroup("Notification");
+                //add user to the tag groups only for none PMCCUser
+                if (User.hasOwnProperty("UserId") && /^(Admin|OIE)/i.test(User.Role)) {
+                    fotfmanager.server.joinGroup("PeopleMarkers");
                 }
-                else {
-                    layersControl.addBaseLayer(L.imageOverlay(img.src, trackingarea.getBounds(), { id: this.id, zindex: index }), this.backgroundImages.name);
-                    //init_zones(this.zones, this.id);
-                    //init_locators(this.locators, this.id);
+                if (/(^PMCCUser$)/i.test(User.UserId)) {
+                    fotfmanager.server.leaveGroup("PeopleMarkers");
                 }
-            });
-            init_arrive_depart_trips();
-            fotfmanager.server.joinGroup("Trips");
-            //init_agvtags();
-            LoadNotification("routetrip");
-            LoadNotification("vehicle");
-            fotfmanager.server.joinGroup("Notification");
-            //add user to the tag groups only for none PMCCUser
-            if (User.hasOwnProperty("UserId") && /^(Admin|OIE)/i.test(User.Role)) {
-                fotfmanager.server.joinGroup("PeopleMarkers");
-            }
-            if (/(^PMCCUser$)/i.test(User.UserId)) {
-                fotfmanager.server.leaveGroup("PeopleMarkers");
-            }
-            
-        }
-        //else {
-        //    fotfmanager.server.GetIndoorMap().done(function (GetIndoorMap) {
-        //        if (GetIndoorMap.length > 0) {
-        //            $.each(GetIndoorMap, function () {
-        //                map.attributionControl.setPrefix("USPS " + this.backgroundImages.applicationFullName + " (" + this.backgroundImages.softwareVersion + ")");
-        //                $('#fotf-site-facility-name').append(this.backgroundImages.facilityName);
-        //                map.attributionControl.addAttribution(this.backgroundImages.facilityName);
-        //                $(document).prop('title', this.backgroundImages.facilityName + ' ' + this.backgroundImages.applicationAbbr);
-        //            });
-        //        }
-        //    })
-        //}
-        if ($.isEmptyObject(map)) {
-            $('div[id=map]').css('display', 'none');
-            $('<div/>', { class: 'jumbotron text-center' })
-                .append($('<h1/>', { class: 'display-4', text: "Map has not been Configured " }))
-                .append($('<p/>', { class: 'lead', text: 'Please Configure Map' }))
-                .append($('<hr/>', { class: 'my-4' }))
-                .append($('<div/>', { class: 'row' })
-                    .append($('<div>', { class: 'col' })
-                        .append($('<button/>', { class: 'btn btn-outline-success ', type: 'button', id: 'API_connection', text: 'Configure Map' })))
 
-                ).append($('<div/>', { class: 'row' })
-                    .append($('<div>', { class: 'col text-center' })
-                        .append($('<span/>', { class: 'text-info ', id: 'error_remove_server_connection' })))
-                ).insertBefore('div[id=map]');
-        }
+            }
+            //else {
+            //    fotfmanager.server.GetIndoorMap().done(function (GetIndoorMap) {
+            //        if (GetIndoorMap.length > 0) {
+            //            $.each(GetIndoorMap, function () {
+            //                map.attributionControl.setPrefix("USPS " + this.backgroundImages.applicationFullName + " (" + this.backgroundImages.softwareVersion + ")");
+            //                $('#fotf-site-facility-name').append(this.backgroundImages.facilityName);
+            //                map.attributionControl.addAttribution(this.backgroundImages.facilityName);
+            //                $(document).prop('title', this.backgroundImages.facilityName + ' ' + this.backgroundImages.applicationAbbr);
+            //            });
+            //        }
+            //    })
+            //}
+            if ($.isEmptyObject(map)) {
+                $('div[id=map]').css('display', 'none');
+                $('<div/>', { class: 'jumbotron text-center' })
+                    .append($('<h1/>', { class: 'display-4', text: "Map has not been Configured " }))
+                    .append($('<p/>', { class: 'lead', text: 'Please Configure Map' }))
+                    .append($('<hr/>', { class: 'my-4' }))
+                    .append($('<div/>', { class: 'row' })
+                        .append($('<div>', { class: 'col' })
+                            .append($('<button/>', { class: 'btn btn-outline-success ', type: 'button', id: 'API_connection', text: 'Configure Map' })))
+
+                    ).append($('<div/>', { class: 'row' })
+                        .append($('<div>', { class: 'col text-center' })
+                            .append($('<span/>', { class: 'text-info ', id: 'error_remove_server_connection' })))
+                    ).insertBefore('div[id=map]');
+            }
+        })
     } catch (e) {
         $('div[id=map]').css('display', 'none');
         $('<div/>', { class: 'jumbotron text-center' })

@@ -14,46 +14,56 @@ using System.Threading.Tasks;
 
 namespace Factory_of_the_Future
 {
-    public class ProcessRecvdMsg
+    public class ProcessRecvdMsg : IDisposable
     {
-        public void StartProcess(dynamic data, string Message_type, string connID)
+        private bool disposedValue;
+        public dynamic _data { get; protected set; }
+        public string _Message_type { get; protected set; }
+        public string _connID { get; protected set; }
+        public async Task StartProcess(dynamic data, string Message_type, string connID)
         {
             try
             {
-                if (!string.IsNullOrEmpty(Message_type))
+                _data = data;
+                _Message_type = Message_type;
+                _connID = connID;
+                if (!string.IsNullOrEmpty(_Message_type))
                 {
-                    switch (Message_type)
+                    switch (_Message_type)
                     {
                         ///*Web cameras*/
                         case "Cameras":
-                            CameraData(data, connID);
+                            CameraData(_data, _connID);
                             break;
                         case "getCameraStills":
-                            CameraStillsData(data, connID);
+                            CameraStillsData(_data, _connID);
                             break;
                         /*Quuppa Data Start*/
                         case "getTagPosition":
-                            TagPosition(data,connID);
+                            TagPosition(_data, _connID);
                             break;
                         case "getProjectInfo":
-                            ProjectData(data, connID);
+                            await Task.Run(() => new ProjectData().Load(_data, _Message_type, _connID));
+                            // ProjectData(data, connID);
                             break;
                         ///*Quuppa Data End*/
                         ///*SVWeb Data Start*/
                         case "doors":
-                            Doors(data, connID);
+                            await Task.Run(() => new DoorData().Load(_data, _Message_type, _connID));
+                            //Doors(data, connID);
                             break;
                         case "trips":
-                            Trips(data, Message_type, connID);
+                            await Task.Run(() => new TripData().Load(_data, _Message_type, _connID));
+                           // Trips(data, Message_type, connID);
                             break;
                         case "container":
-                            Container(data, connID);
+                            Container(_data, _connID);
                             break;
                         case "getTacsVsSels":
-                            TacsVsSels(data, Message_type, connID);
+                            TacsVsSels(_data, _Message_type, _connID);
                             break;
                         case "getTacsVsSels_Summary":
-                            TacsVsSels(data, Message_type, connID);
+                            TacsVsSels(_data, _Message_type, _connID);
                             break;
                         //case "TacsVsSelsAnomaly":
                         //    TacsVsSelsLDCAnomaly(data, Message_type);
@@ -61,59 +71,59 @@ namespace Factory_of_the_Future
                         ///*SELS RT Data End*/
                         ///*IV Data Start*/
                         case "getStaffBySite":
-                            Staffing(data, connID);
+                            Staffing(_data, _connID);
                             break;
                         ///*IV Data End*/
                         ///*AGVM Data Start*/
                         case "FLEET_STATUS":
-                            FLEET_STATUS(data);
+                            FLEET_STATUS(_data);
                             break;
                         case "MATCHEDWITHWORK":
-                            MATCHEDWITHWORK(data);
+                            MATCHEDWITHWORK(_data);
                             break;
                         case "SUCCESSFULPICKUP":
-                            SUCCESSFULPICKUP(data);
+                            SUCCESSFULPICKUP(_data);
                             break;
                         case "SUCCESSFULDROP":
-                            SUCCESSFULDROP(data);
+                            SUCCESSFULDROP(_data);
                             break;
                         case "ERRORWITHOUTWORK":
-                            ERRORWITHOUTWORK(data);
+                            ERRORWITHOUTWORK(_data);
                             break;
                         case "ERRORWITHWORK":
-                            ERRORWITHWORK(data);
+                            ERRORWITHWORK(_data);
                             break;
                         case "MOVEREQUEST":
-                            MOVEREQUEST(data);
+                            MOVEREQUEST(_data);
                             break;
                         case "MISSIONCANCELED":
-                            if (!data.ContainsKey("NASS_CODE"))
+                            if (!_data.ContainsKey("NASS_CODE"))
                             {
-                                data["NASS_CODE"] = AppParameters.AppSettings["FACILITY_NASS_CODE"].ToString();
+                                _data["NASS_CODE"] = AppParameters.AppSettings["FACILITY_NASS_CODE"].ToString();
                             } 
-                            ERRORWITHWORK(data);
+                            ERRORWITHWORK(_data);
                             break;
                         case "MISSIONFAILED":
-                            ERRORWITHWORK(data);
+                            ERRORWITHWORK(_data);
                             break;
                         ///*AGVM Data End*/
                         ///*MPEWatch Data Start*/
                         case "mpe_watch_id":
-                            MPE_Watch_Id(data);
+                            MPE_Watch_Id(_data);
                             break;
                         case "rpg_run_perf":
-                            MPEWatch_RPGPerf(data, connID);
+                            MPEWatch_RPGPerf(_data, _connID);
                             break;
                         case "rpg_plan":
-                            MPEWatch_RPGPlan(data, connID);
+                            MPEWatch_RPGPlan(_data, _connID);
                             break;
                         case "dps_run_estm":
-                            MPEWatch_DPSEst(data, connID);
+                            MPEWatch_DPSEst(_data, _connID);
                             break;
                         ///*MPEWatch Data End*/
                         
                         case "getSVZones":
-                            SVZones(data, connID);
+                            SVZones(_data, _connID);
                             break;
                         default:
                             break;
@@ -514,139 +524,139 @@ namespace Factory_of_the_Future
             }
 
         }
-        private static void Trips(dynamic data, string message_type, string conID)
-        {
+        //private static void Trips(dynamic data, string message_type, string conID)
+        //{
 
-            try
-            {
-                if (data != null)
-                {
-                    JToken jsonObject = JToken.Parse(data);
-                    if (jsonObject != null && jsonObject.HasValues)
-                    {
-                        foreach (JObject rt in jsonObject.Children())
-                        {
-                            if (rt.ContainsKey("routeTripId") && rt.ContainsKey("routeTripLegId") && rt.ContainsKey("tripDirectionInd"))
-                            {
-                                string routetripid = string.Concat(rt["routeTripId"].ToString(), rt["routeTripLegId"].ToString(), rt["tripDirectionInd"].ToString());
-                                rt["id"] = routetripid;
+        //    try
+        //    {
+        //        if (data != null)
+        //        {
+        //            JToken jsonObject = JToken.Parse(data);
+        //            if (jsonObject != null && jsonObject.HasValues)
+        //            {
+        //                foreach (JObject rt in jsonObject.Children())
+        //                {
+        //                    if (rt.ContainsKey("routeTripId") && rt.ContainsKey("routeTripLegId") && rt.ContainsKey("tripDirectionInd"))
+        //                    {
+        //                        string routetripid = string.Concat(rt["routeTripId"].ToString(), rt["routeTripLegId"].ToString(), rt["tripDirectionInd"].ToString());
+        //                        rt["id"] = routetripid;
 
-                                rt["rawData"] = JsonConvert.SerializeObject(rt, Formatting.None);
-                                RouteTrips newRTData = rt.ToObject<RouteTrips>();
-                                newRTData.TripMin = AppParameters.Get_TripMin(newRTData.ScheduledDtm);
-                                // if trip does not exist and does not have CANCELED|DEPARTED|OMITTED|COMPLETE|REMOVE in LegStatus
-                                // then add to list
-                                //if (AppParameters.RouteTripsList.ContainsKey(routetripid))
-                                //{
-                                //    Task.Run(() => AddTriptoList(routetripid, newRTData));
-                                //}
-                                //else if (!AppParameters.RouteTripsList.ContainsKey(routetripid) &&
-                                //    !(Regex.IsMatch(newRTData.LegStatus, "(CANCELED|DEPARTED|OMITTED|COMPLETE|REMOVE)", RegexOptions.IgnoreCase)
-                                //    || Regex.IsMatch(newRTData.Status, "(CANCELED|DEPARTED|OMITTED|COMPLETE|REMOVE)", RegexOptions.IgnoreCase)))
-                                //{
-                                    Task.Run(() => AddTriptoList(routetripid, newRTData));
-                                //}
-
-
-                                //if (AppParameters.RouteTripsList.ContainsKey(routetripid))
-                                //{
-
-                                //    if (AppParameters.RouteTripsList.AddOrUpdate(routetripid, out RouteTrips existingVal))
-                                //    {
-                                //        if (rt.ToString() != existingVal.RawData)
-                                //        {
-                                //            existingVal.TripUpdate = true;
-                                //            existingVal.Merge(rt, new JsonMergeSettings { MergeArrayHandling = MergeArrayHandling.Union });
-                                //            //Task.Run(() => new ItineraryTrip_Update(GetItinerary(rt["route"].ToString(), rt["trip"].ToString(), AppParameters.AppSettings["FACILITY_NASS_CODE"].ToString(), GetSvDate((JObject)rt["operDate"])), rt["tripDirectionInd"].ToString(), routetripid));
-                                //        }
-                                //    }
-                                //}
-                                //else
-                                //{
-
-                                //    if (AppParameters.RouteTripsList.TryAdd(routetripid, rt.ToObject<RouteTrips>()))
-                                //    {
-                                //        // Task.Run(() => new ItineraryTrip_Update(GetItinerary(rt["route"].ToString(), rt["trip"].ToString(), AppParameters.AppSettings["FACILITY_NASS_CODE"].ToString(), GetSvDate((JObject)rt["operDate"])), rt["tripDirectionInd"].ToString(), routetripid));
-                                //    }
-                                //}
-                            }
-
-                        }
-                        Task.Run(() => UpdateConnection(conID, "good"));
-                    }
-                    else
-                    {
-                        Task.Run(() => UpdateConnection(conID, "error"));
-                    }
-                    jsonObject = null;
-                }
-                else
-                {
-                    Task.Run(() => UpdateConnection(conID, "error"));
-                }
-                if (AppParameters.RouteTripsList.Count > 0)
-                {
-                    foreach (string m in AppParameters.RouteTripsList.Where(r => r.Value.TripMin < -1440 ).Select(y => y.Key))
-                    {
-                        AppParameters.RouteTripsList.TryRemove(m, out RouteTrips value);
-                    }
-                }
-            }
-            catch (Exception e)
-            {
-                Task.Run(() => UpdateConnection(conID, "error"));
-                new ErrorLogger().ExceptionLog(e);
-            }
-        }
-        private static void AddTriptoList(string routetripid, RouteTrips newRTData)
-        {
-            try
-            {
-                if (getDefaultDockDoor(string.Concat(newRTData.Route, newRTData.Trip), out string RouteTritDefaultDoor))
-                {
-                    newRTData.DoorNumber = RouteTritDefaultDoor;
-                    newRTData.DoorId = !string.IsNullOrEmpty(RouteTritDefaultDoor) ? string.Concat("99D", RouteTritDefaultDoor.PadLeft(4, '-')) : "";
+        //                        rt["rawData"] = JsonConvert.SerializeObject(rt, Formatting.None);
+        //                        RouteTrips newRTData = rt.ToObject<RouteTrips>();
+        //                        newRTData.TripMin = AppParameters.Get_TripMin(newRTData.ScheduledDtm);
+        //                        // if trip does not exist and does not have CANCELED|DEPARTED|OMITTED|COMPLETE|REMOVE in LegStatus
+        //                        // then add to list
+        //                        //if (AppParameters.RouteTripsList.ContainsKey(routetripid))
+        //                        //{
+        //                        //    Task.Run(() => AddTriptoList(routetripid, newRTData));
+        //                        //}
+        //                        //else if (!AppParameters.RouteTripsList.ContainsKey(routetripid) &&
+        //                        //    !(Regex.IsMatch(newRTData.LegStatus, "(CANCELED|DEPARTED|OMITTED|COMPLETE|REMOVE)", RegexOptions.IgnoreCase)
+        //                        //    || Regex.IsMatch(newRTData.Status, "(CANCELED|DEPARTED|OMITTED|COMPLETE|REMOVE)", RegexOptions.IgnoreCase)))
+        //                        //{
+        //                            Task.Run(() => AddTriptoList(routetripid, newRTData));
+        //                        //}
 
 
-                    if (AppParameters.RouteTripsList.ContainsKey(routetripid) && AppParameters.RouteTripsList.TryGetValue(routetripid, out RouteTrips existingVal))
-                    {
-                        if (AppParameters.RouteTripsList.TryUpdate(routetripid, newRTData, existingVal))
-                        {
-                            //update 
+        //                        //if (AppParameters.RouteTripsList.ContainsKey(routetripid))
+        //                        //{
+
+        //                        //    if (AppParameters.RouteTripsList.AddOrUpdate(routetripid, out RouteTrips existingVal))
+        //                        //    {
+        //                        //        if (rt.ToString() != existingVal.RawData)
+        //                        //        {
+        //                        //            existingVal.TripUpdate = true;
+        //                        //            existingVal.Merge(rt, new JsonMergeSettings { MergeArrayHandling = MergeArrayHandling.Union });
+        //                        //            //Task.Run(() => new ItineraryTrip_Update(GetItinerary(rt["route"].ToString(), rt["trip"].ToString(), AppParameters.AppSettings["FACILITY_NASS_CODE"].ToString(), GetSvDate((JObject)rt["operDate"])), rt["tripDirectionInd"].ToString(), routetripid));
+        //                        //        }
+        //                        //    }
+        //                        //}
+        //                        //else
+        //                        //{
+
+        //                        //    if (AppParameters.RouteTripsList.TryAdd(routetripid, rt.ToObject<RouteTrips>()))
+        //                        //    {
+        //                        //        // Task.Run(() => new ItineraryTrip_Update(GetItinerary(rt["route"].ToString(), rt["trip"].ToString(), AppParameters.AppSettings["FACILITY_NASS_CODE"].ToString(), GetSvDate((JObject)rt["operDate"])), rt["tripDirectionInd"].ToString(), routetripid));
+        //                        //    }
+        //                        //}
+        //                    }
+
+        //                }
+        //                Task.Run(() => UpdateConnection(conID, "good"));
+        //            }
+        //            else
+        //            {
+        //                Task.Run(() => UpdateConnection(conID, "error"));
+        //            }
+        //            jsonObject = null;
+        //        }
+        //        else
+        //        {
+        //            Task.Run(() => UpdateConnection(conID, "error"));
+        //        }
+        //        if (AppParameters.RouteTripsList.Count > 0)
+        //        {
+        //            foreach (string m in AppParameters.RouteTripsList.Where(r => r.Value.TripMin < -1440 ).Select(y => y.Key))
+        //            {
+        //                AppParameters.RouteTripsList.TryRemove(m, out RouteTrips value);
+        //            }
+        //        }
+        //    }
+        //    catch (Exception e)
+        //    {
+        //        Task.Run(() => UpdateConnection(conID, "error"));
+        //        new ErrorLogger().ExceptionLog(e);
+        //    }
+        //}
+        //private static void AddTriptoList(string routetripid, RouteTrips newRTData)
+        //{
+        //    try
+        //    {
+        //        if (getDefaultDockDoor(string.Concat(newRTData.Route, newRTData.Trip), out string RouteTritDefaultDoor))
+        //        {
+        //            newRTData.DoorNumber = RouteTritDefaultDoor;
+        //            newRTData.DoorId = !string.IsNullOrEmpty(RouteTritDefaultDoor) ? string.Concat("99D", RouteTritDefaultDoor.PadLeft(4, '-')) : "";
+
+
+        //            if (AppParameters.RouteTripsList.ContainsKey(routetripid) && AppParameters.RouteTripsList.TryGetValue(routetripid, out RouteTrips existingVal))
+        //            {
+        //                if (AppParameters.RouteTripsList.TryUpdate(routetripid, newRTData, existingVal))
+        //                {
+        //                    //update 
                             
-                        }
+        //                }
                        
-                    }
-                    else
-                    {
+        //            }
+        //            else
+        //            {
 
-                        if (AppParameters.RouteTripsList.TryAdd(routetripid, newRTData))
-                        {
-                            //add
-                        }
-                    }
+        //                if (AppParameters.RouteTripsList.TryAdd(routetripid, newRTData))
+        //                {
+        //                    //add
+        //                }
+        //            }
                   
-                    if (newRTData.OperDate != null)
-                    {
-                        Task.Run(() => new ItineraryTrip_Update(GetItinerary(newRTData.Route, newRTData.Trip, AppParameters.AppSettings["FACILITY_NASS_CODE"].ToString(), AppParameters.GetSvDate(newRTData.OperDate)), routetripid));
-                    }
-                }
-                else
-                {
-                    if (AppParameters.RouteTripsList.TryAdd(routetripid, newRTData))
-                    {
-                        if (newRTData.OperDate != null)
-                        {
-                            Task.Run(() => new ItineraryTrip_Update(GetItinerary(newRTData.Route, newRTData.Trip, AppParameters.AppSettings["FACILITY_NASS_CODE"].ToString(), AppParameters.GetSvDate(newRTData.OperDate)), routetripid));
-                        }
-                    }
-                }
-            }
-            catch (Exception e)
-            {
-                new ErrorLogger().ExceptionLog(e);
-            }
-        }
+        //            if (newRTData.OperDate != null)
+        //            {
+        //                Task.Run(() => new ItineraryTrip_Update(GetItinerary(newRTData.Route, newRTData.Trip, AppParameters.AppSettings["FACILITY_NASS_CODE"].ToString(), AppParameters.GetSvDate(newRTData.OperDate)), routetripid));
+        //            }
+        //        }
+        //        else
+        //        {
+        //            if (AppParameters.RouteTripsList.TryAdd(routetripid, newRTData))
+        //            {
+        //                if (newRTData.OperDate != null)
+        //                {
+        //                    Task.Run(() => new ItineraryTrip_Update(GetItinerary(newRTData.Route, newRTData.Trip, AppParameters.AppSettings["FACILITY_NASS_CODE"].ToString(), AppParameters.GetSvDate(newRTData.OperDate)), routetripid));
+        //                }
+        //            }
+        //        }
+        //    }
+        //    catch (Exception e)
+        //    {
+        //        new ErrorLogger().ExceptionLog(e);
+        //    }
+        //}
 
         private static bool getDefaultDockDoor(string rt, out string door)
         {
@@ -666,27 +676,27 @@ namespace Factory_of_the_Future
             }
         }
 
-        private static string GetItinerary(string route, string trip, string nasscode, DateTime start_time)
-        {
-            string temp = "";
-            try
-            {
-                //string start_time = string.Concat(DateTime.Now.ToString("yyyy-MM-dd'T'"), "00:00:00");
+        //private static string GetItinerary(string route, string trip, string nasscode, DateTime start_time)
+        //{
+        //    string temp = "";
+        //    try
+        //    {
+        //        //string start_time = string.Concat(DateTime.Now.ToString("yyyy-MM-dd'T'"), "00:00:00");
 
-                Uri parURL = new Uri(string.Format((string)AppParameters.AppSettings["SV_ITINERARY"], route, trip, string.Concat(start_time.ToString("yyyy-MM-dd'T'"), "00:00:00")));
-                string SV_Response = SendMessage.SV_Get(parURL.AbsoluteUri);
-                if (!string.IsNullOrEmpty(SV_Response))
-                {
-                    temp = SV_Response;
-                }
-                return temp;
-            }
-            catch (Exception e)
-            {   
-                new ErrorLogger().ExceptionLog(e);
-                return temp;
-            }
-        }
+        //        Uri parURL = new Uri(string.Format((string)AppParameters.AppSettings["SV_ITINERARY"], route, trip, string.Concat(start_time.ToString("yyyy-MM-dd'T'"), "00:00:00")));
+        //        string SV_Response = SendMessage.SV_Get(parURL.AbsoluteUri);
+        //        if (!string.IsNullOrEmpty(SV_Response))
+        //        {
+        //            temp = SV_Response;
+        //        }
+        //        return temp;
+        //    }
+        //    catch (Exception e)
+        //    {   
+        //        new ErrorLogger().ExceptionLog(e);
+        //        return temp;
+        //    }
+        //}
         private static void SVZones(dynamic data, string conID)
         {
 
@@ -739,82 +749,82 @@ namespace Factory_of_the_Future
                 new ErrorLogger().ExceptionLog(e);
             }
         }
-        private static void Doors(dynamic data, string conID)
-        {
-            try
-            {
-                if (data != null)
-                {
-                    JToken tempData = JToken.Parse(data);
-                    if (tempData !=null && tempData.HasValues)
-                    {
-                        foreach (JObject item in tempData.Children())
-                        {
-                            string dockdoor_id = item.ContainsKey("doorNumber") ? item["doorNumber"].ToString() : "";
-                            if (!string.IsNullOrEmpty(dockdoor_id))
-                            {
-                                string doorInfo = JsonConvert.SerializeObject(item, Formatting.None);
-                                AppParameters.DockdoorList.AddOrUpdate(dockdoor_id, doorInfo,
-                                   (key, oldValue) =>
-                                   {
-                                       return doorInfo;
-                                   });
-                                doorInfo = null;
-                            }
+        //private static void Doors(dynamic data, string conID)
+        //{
+        //    try
+        //    {
+        //        if (data != null)
+        //        {
+        //            JToken tempData = JToken.Parse(data);
+        //            if (tempData !=null && tempData.HasValues)
+        //            {
+        //                foreach (JObject item in tempData.Children())
+        //                {
+        //                    string dockdoor_id = item.ContainsKey("doorNumber") ? item["doorNumber"].ToString() : "";
+        //                    if (!string.IsNullOrEmpty(dockdoor_id))
+        //                    {
+        //                        string doorInfo = JsonConvert.SerializeObject(item, Formatting.None);
+        //                        AppParameters.DockdoorList.AddOrUpdate(dockdoor_id, doorInfo,
+        //                           (key, oldValue) =>
+        //                           {
+        //                               return doorInfo;
+        //                           });
+        //                        doorInfo = null;
+        //                    }
 
-                            string routetripid = "";
-                            if (item.ContainsKey("routeTripId") && item.ContainsKey("routeTripLegId") && item.ContainsKey("tripDirectionInd"))
-                            {
-                                routetripid = string.Concat(item["routeTripId"].ToString(), item["routeTripLegId"].ToString(), item["tripDirectionInd"].ToString());
-                            }
+        //                    string routetripid = "";
+        //                    if (item.ContainsKey("routeTripId") && item.ContainsKey("routeTripLegId") && item.ContainsKey("tripDirectionInd"))
+        //                    {
+        //                        routetripid = string.Concat(item["routeTripId"].ToString(), item["routeTripLegId"].ToString(), item["tripDirectionInd"].ToString());
+        //                    }
 
-                            if (!string.IsNullOrEmpty(routetripid))
-                            {
-                                if (AppParameters.RouteTripsList.ContainsKey(routetripid) && AppParameters.RouteTripsList.TryGetValue(routetripid, out RouteTrips trip))
-                                {
-                                    trip.DoorId = item["doorId"].ToString();
-                                    trip.DoorNumber = item["doorNumber"].ToString();
-                                    trip.Status = "ACTIVE";
-                                    Task.Run(() => FOTFManager.Instance.UpdateDoorZone(trip));
+        //                    if (!string.IsNullOrEmpty(routetripid))
+        //                    {
+        //                        if (AppParameters.RouteTripsList.ContainsKey(routetripid) && AppParameters.RouteTripsList.TryGetValue(routetripid, out RouteTrips trip))
+        //                        {
+        //                            trip.DoorId = item["doorId"].ToString();
+        //                            trip.DoorNumber = item["doorNumber"].ToString();
+        //                            trip.Status = "ACTIVE";
+        //                            Task.Run(() => FOTFManager.Instance.UpdateDoorZone(trip));
 
-                                }
-                                else if (!AppParameters.RouteTripsList.ContainsKey(routetripid))
-                                {
+        //                        }
+        //                        else if (!AppParameters.RouteTripsList.ContainsKey(routetripid))
+        //                        {
 
-                                    item["id"] = routetripid;
-                                    item["rawData"] = JsonConvert.SerializeObject(item, Formatting.None);
-                                    RouteTrips newRTData = item.ToObject<RouteTrips>();
-                                    newRTData.Status = "ACTIVE";
-                                    newRTData.TripMin = AppParameters.Get_TripMin(newRTData.ScheduledDtm);
-                                    Task.Run(() => AddTriptoList(routetripid, newRTData));
-                                    Task.Run(() => FOTFManager.Instance.UpdateDoorZone(newRTData));
-                                }
-                            }
-                            else
-                            {
-                                Task.Run(() => FOTFManager.Instance.UpdateDoorZone(item.ToObject<RouteTrips>()));
-                            }
+        //                            item["id"] = routetripid;
+        //                            item["rawData"] = JsonConvert.SerializeObject(item, Formatting.None);
+        //                            RouteTrips newRTData = item.ToObject<RouteTrips>();
+        //                            newRTData.Status = "ACTIVE";
+        //                            newRTData.TripMin = AppParameters.Get_TripMin(newRTData.ScheduledDtm);
+        //                            Task.Run(() => AddTriptoList(routetripid, newRTData));
+        //                            Task.Run(() => FOTFManager.Instance.UpdateDoorZone(newRTData));
+        //                        }
+        //                    }
+        //                    else
+        //                    {
+        //                        Task.Run(() => FOTFManager.Instance.UpdateDoorZone(item.ToObject<RouteTrips>()));
+        //                    }
                            
-                        }
-                        Task.Run(() => UpdateConnection(conID, "good"));
-                    }
-                    else
-                    {
-                        Task.Run(() => UpdateConnection(conID, "error"));
-                    }
-                }
-                else
-                {
-                    Task.Run(() => UpdateConnection(conID, "error"));
-                }
-                data = null;
-            }
-            catch (Exception e)
-            {
-                Task.Run(() => UpdateConnection(conID, "error"));
-                new ErrorLogger().ExceptionLog(e);
-            }
-        }
+        //                }
+        //                Task.Run(() => UpdateConnection(conID, "good"));
+        //            }
+        //            else
+        //            {
+        //                Task.Run(() => UpdateConnection(conID, "error"));
+        //            }
+        //        }
+        //        else
+        //        {
+        //            Task.Run(() => UpdateConnection(conID, "error"));
+        //        }
+        //        data = null;
+        //    }
+        //    catch (Exception e)
+        //    {
+        //        Task.Run(() => UpdateConnection(conID, "error"));
+        //        new ErrorLogger().ExceptionLog(e);
+        //    }
+        //}
         //private static void UpdateDoorZone(RouteTrips trip)
         //{
         //    try
@@ -2140,125 +2150,125 @@ namespace Factory_of_the_Future
             }
         }
 
-        internal static void ProjectData(dynamic jsonObject, string conID)
-        {
-            bool saveToFile = false;
-            try
-            {
-                if (jsonObject != null)
-                {
-                    JToken tempData = JToken.Parse(jsonObject);
-                    if (tempData.HasValues)
-                    {
-                        if (tempData.Type != JTokenType.Array)
-                        {
-                            if (((JObject)tempData).ContainsKey("coordinateSystems"))
-                            {
-                                if (AppParameters.CoordinateSystem.FirstOrDefault().Key == "temp")
-                                {
-                                    AppParameters.CoordinateSystem.TryRemove("temp", out CoordinateSystem tep);
-                                }
-                                // loop though the Coordinate system
-                                JToken CoordinateSystem = tempData.SelectToken("coordinateSystems");
-                                for (int i = 0; i < CoordinateSystem.Count(); i++)
-                                {
-                                    if (AppParameters.CoordinateSystem.ContainsKey(CoordinateSystem[i]["id"].ToString()))
-                                    {
-                                        if (AppParameters.CoordinateSystem.TryGetValue(CoordinateSystem[i]["id"].ToString(), out CoordinateSystem updateCS))
-                                        {
-                                            //the background image
-                                            LoadBcagroundImage(CoordinateSystem[i].SelectToken("backgroundImages"), updateCS.Id, CoordinateSystem[i]["name"].ToString(), out saveToFile);
-                                            //this is for Zones
-                                            LoadZones(CoordinateSystem[i].SelectToken("zones"), updateCS.Id, out saveToFile);
-                                            //this is for Locators
-                                            LoadLocators(CoordinateSystem[i].SelectToken("locators"), updateCS.Id, out saveToFile);
+        //internal static void ProjectData(dynamic jsonObject, string conID)
+        //{
+        //    bool saveToFile = false;
+        //    try
+        //    {
+        //        if (jsonObject != null)
+        //        {
+        //            JToken tempData = JToken.Parse(jsonObject);
+        //            if (tempData.HasValues)
+        //            {
+        //                if (tempData.Type != JTokenType.Array)
+        //                {
+        //                    if (((JObject)tempData).ContainsKey("coordinateSystems"))
+        //                    {
+        //                        if (AppParameters.CoordinateSystem.FirstOrDefault().Key == "temp")
+        //                        {
+        //                            AppParameters.CoordinateSystem.TryRemove("temp", out CoordinateSystem tep);
+        //                        }
+        //                        // loop though the Coordinate system
+        //                        JToken CoordinateSystem = tempData.SelectToken("coordinateSystems");
+        //                        for (int i = 0; i < CoordinateSystem.Count(); i++)
+        //                        {
+        //                            if (AppParameters.CoordinateSystem.ContainsKey(CoordinateSystem[i]["id"].ToString()))
+        //                            {
+        //                                if (AppParameters.CoordinateSystem.TryGetValue(CoordinateSystem[i]["id"].ToString(), out CoordinateSystem updateCS))
+        //                                {
+        //                                    //the background image
+        //                                    LoadBcagroundImage(CoordinateSystem[i].SelectToken("backgroundImages"), updateCS.Id, CoordinateSystem[i]["name"].ToString(), out saveToFile);
+        //                                    //this is for Zones
+        //                                    LoadZones(CoordinateSystem[i].SelectToken("zones"), updateCS.Id, out saveToFile);
+        //                                    //this is for Locators
+        //                                    LoadLocators(CoordinateSystem[i].SelectToken("locators"), updateCS.Id, out saveToFile);
 
-                                        }
-                                    }
-                                    else
-                                    {
-                                        CoordinateSystem CSystem = new CoordinateSystem
-                                        {
-                                            Name = CoordinateSystem[i]["name"].ToString(),
-                                            Id = CoordinateSystem[i]["id"].ToString()
-                                        };
-                                        ///this is used to add new Coordinate System images
-                                        if (AppParameters.CoordinateSystem.TryAdd(CSystem.Id, CSystem))
-                                        {
-                                            //the background image
-                                            LoadBcagroundImage(CoordinateSystem[i].SelectToken("backgroundImages"), CSystem.Id, CSystem.Name, out saveToFile);
-                                            //this is for Zones
-                                            LoadZones(CoordinateSystem[i].SelectToken("zones"), CSystem.Id, out saveToFile);
-                                            //this is for Locators
-                                            LoadLocators(CoordinateSystem[i].SelectToken("locators"), CSystem.Id, out saveToFile);
-                                        }
-                                        else
-                                        {
-                                            new ErrorLogger().CustomLog("Unable to add CoordinateSystem " + CSystem.Id, string.Concat((string)AppParameters.AppSettings.Property("APPLICATION_NAME").Value, "_Applogs"));
-                                        }
-                                    }
-                                }
-                                Task.Run(() => UpdateConnection(conID, "good"));
-                            }
-                        }
-                        else
-                        {
-                            for (int i = 0; i < tempData.Count(); i++)
-                            {
-                                if (AppParameters.CoordinateSystem.ContainsKey(tempData[i]["id"].ToString()))
-                                {
-                                    if (AppParameters.CoordinateSystem.TryGetValue(tempData[i]["id"].ToString(), out CoordinateSystem updateCS))
-                                    {
-                                        //the background image
-                                        LoadlocalBcagroundImage(tempData[i].SelectToken("backgroundImages"), updateCS.Id, tempData[i]["name"].ToString(), out saveToFile);
-                                        //this is for Zones
-                                        LoadlocalZones(tempData[i].SelectToken("zones"), updateCS.Id, out saveToFile);
-                                        //this is for Locators
-                                        LoadlocalLocators(tempData[i].SelectToken("locators"), updateCS.Id, out saveToFile);
+        //                                }
+        //                            }
+        //                            else
+        //                            {
+        //                                CoordinateSystem CSystem = new CoordinateSystem
+        //                                {
+        //                                    Name = CoordinateSystem[i]["name"].ToString(),
+        //                                    Id = CoordinateSystem[i]["id"].ToString()
+        //                                };
+        //                                ///this is used to add new Coordinate System images
+        //                                if (AppParameters.CoordinateSystem.TryAdd(CSystem.Id, CSystem))
+        //                                {
+        //                                    //the background image
+        //                                    LoadBcagroundImage(CoordinateSystem[i].SelectToken("backgroundImages"), CSystem.Id, CSystem.Name, out saveToFile);
+        //                                    //this is for Zones
+        //                                    LoadZones(CoordinateSystem[i].SelectToken("zones"), CSystem.Id, out saveToFile);
+        //                                    //this is for Locators
+        //                                    LoadLocators(CoordinateSystem[i].SelectToken("locators"), CSystem.Id, out saveToFile);
+        //                                }
+        //                                else
+        //                                {
+        //                                    new ErrorLogger().CustomLog("Unable to add CoordinateSystem " + CSystem.Id, string.Concat((string)AppParameters.AppSettings.Property("APPLICATION_NAME").Value, "_Applogs"));
+        //                                }
+        //                            }
+        //                        }
+        //                        Task.Run(() => UpdateConnection(conID, "good"));
+        //                    }
+        //                }
+        //                else
+        //                {
+        //                    for (int i = 0; i < tempData.Count(); i++)
+        //                    {
+        //                        if (AppParameters.CoordinateSystem.ContainsKey(tempData[i]["id"].ToString()))
+        //                        {
+        //                            if (AppParameters.CoordinateSystem.TryGetValue(tempData[i]["id"].ToString(), out CoordinateSystem updateCS))
+        //                            {
+        //                                //the background image
+        //                                LoadlocalBcagroundImage(tempData[i].SelectToken("backgroundImages"), updateCS.Id, tempData[i]["name"].ToString(), out saveToFile);
+        //                                //this is for Zones
+        //                                LoadlocalZones(tempData[i].SelectToken("zones"), updateCS.Id, out saveToFile);
+        //                                //this is for Locators
+        //                                LoadlocalLocators(tempData[i].SelectToken("locators"), updateCS.Id, out saveToFile);
 
-                                    }
-                                }
-                                else
-                                {
-                                    CoordinateSystem CSystem = new CoordinateSystem
-                                    {
-                                        Name = tempData[i]["name"].ToString(),
-                                        Id = tempData[i]["id"].ToString()
-                                    };
-                                    ///this is used to add new Coordinate System images
-                                    if (AppParameters.CoordinateSystem.TryAdd(CSystem.Id, CSystem))
-                                    {
-                                        //the background image
-                                        LoadlocalBcagroundImage(tempData[i].SelectToken("backgroundImages"), CSystem.Id, CSystem.Name, out saveToFile);
-                                        //this is for Zones
-                                        LoadlocalZones(tempData[i].SelectToken("zones"), CSystem.Id, out saveToFile);
-                                        //this is for Locators
-                                        LoadlocalLocators(tempData[i].SelectToken("locators"), CSystem.Id, out saveToFile);
-                                    }
-                                    else
-                                    {
-                                        new ErrorLogger().CustomLog("Unable to add CoordinateSystem " + CSystem.Id, string.Concat((string)AppParameters.AppSettings.Property("APPLICATION_NAME").Value, "_Applogs"));
-                                    }
-                                }
-                            }
-                        }
-                    }
-                    //log Project Data to locale drive.
-                    if (saveToFile)
-                    {
-                        new FileIO().Write(string.Concat(AppParameters.Logdirpath, AppParameters.ConfigurationFloder), "Project_Data.json", AppParameters.ZoneOutPutdata(AppParameters.CoordinateSystem.Select(x => x.Value).ToList()));
+        //                            }
+        //                        }
+        //                        else
+        //                        {
+        //                            CoordinateSystem CSystem = new CoordinateSystem
+        //                            {
+        //                                Name = tempData[i]["name"].ToString(),
+        //                                Id = tempData[i]["id"].ToString()
+        //                            };
+        //                            ///this is used to add new Coordinate System images
+        //                            if (AppParameters.CoordinateSystem.TryAdd(CSystem.Id, CSystem))
+        //                            {
+        //                                //the background image
+        //                                LoadlocalBcagroundImage(tempData[i].SelectToken("backgroundImages"), CSystem.Id, CSystem.Name, out saveToFile);
+        //                                //this is for Zones
+        //                                LoadlocalZones(tempData[i].SelectToken("zones"), CSystem.Id, out saveToFile);
+        //                                //this is for Locators
+        //                                LoadlocalLocators(tempData[i].SelectToken("locators"), CSystem.Id, out saveToFile);
+        //                            }
+        //                            else
+        //                            {
+        //                                new ErrorLogger().CustomLog("Unable to add CoordinateSystem " + CSystem.Id, string.Concat((string)AppParameters.AppSettings.Property("APPLICATION_NAME").Value, "_Applogs"));
+        //                            }
+        //                        }
+        //                    }
+        //                }
+        //            }
+        //            //log Project Data to locale drive.
+        //            if (saveToFile)
+        //            {
+        //                new FileIO().Write(string.Concat(AppParameters.Logdirpath, AppParameters.ConfigurationFloder), "Project_Data.json", AppParameters.ZoneOutPutdata(AppParameters.CoordinateSystem.Select(x => x.Value).ToList()));
 
-                   //     new FileIO().Write(string.Concat(AppParameters.Logdirpath, AppParameters.ConfigurationFloder), "Project_Data.json", JsonConvert.SerializeObject(AppParameters.CoordinateSystem, Formatting.Indented));
-                    }
-                }
-            }
-            catch (Exception e)
-            {
-                Task.Run(() => UpdateConnection(conID, "error"));
-                new ErrorLogger().ExceptionLog(e);
-            }
+        //           //     new FileIO().Write(string.Concat(AppParameters.Logdirpath, AppParameters.ConfigurationFloder), "Project_Data.json", JsonConvert.SerializeObject(AppParameters.CoordinateSystem, Formatting.Indented));
+        //            }
+        //        }
+        //    }
+        //    catch (Exception e)
+        //    {
+        //        Task.Run(() => UpdateConnection(conID, "error"));
+        //        new ErrorLogger().ExceptionLog(e);
+        //    }
             
-        }
+        //}
         private static void LoadlocalLocators(JToken locatorlist, string csid, out bool saveToFile)
         {
             saveToFile = false;
@@ -2650,17 +2660,17 @@ namespace Factory_of_the_Future
         {
             try
             {
-               if(AppParameters.ConnectionList.TryGetValue(conId, out Connection m ))
-                {
-                    var newConStatus = type != "error";
-                    if(m.ApiConnected != newConStatus)
-                    {
-                        m.ApiConnected = newConStatus;
-                        m.UpdateStatus = true;
-                    }
-                    //m.ApiConnected = type == "error" ? false : true;
+               //if(AppParameters.ConnectionList.TryGetValue(conId, out Connection m ))
+               // {
+               //     var newConStatus = type != "error";
+               //     if(m.ApiConnected != newConStatus)
+               //     {
+               //         m.ApiConnected = newConStatus;
+               //         m.UpdateStatus = true;
+               //     }
+               //     //m.ApiConnected = type == "error" ? false : true;
                     
-                }
+               // }
             }
             catch (Exception e)
             {
@@ -3408,6 +3418,38 @@ namespace Factory_of_the_Future
                     }
                 }
             }
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (!disposedValue)
+            {
+                if (disposing)
+                {
+                    // TODO: dispose managed state (managed objects)
+                }
+
+                // TODO: free unmanaged resources (unmanaged objects) and override finalizer
+                // TODO: set large fields to null
+                disposedValue = true;
+                _data = null;
+                _Message_type = string.Empty;
+                _connID = string.Empty;
+            }
+        }
+
+        // // TODO: override finalizer only if 'Dispose(bool disposing)' has code to free unmanaged resources
+        // ~ProcessRecvdMsg()
+        // {
+        //     // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
+        //     Dispose(disposing: false);
+        // }
+
+        public void Dispose()
+        {
+            // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
+            Dispose(disposing: true);
+            GC.SuppressFinalize(this);
         }
     }
 }
