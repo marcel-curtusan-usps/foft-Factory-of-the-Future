@@ -23,6 +23,7 @@ var CountTimer = 0;
 var TripDirectionInd = "";
 var tripStatus = 0;
 var containerArray = [];
+var ContainerNotloadedCount = 0;
 /*
  this is for the dock door and container details.
  */
@@ -424,12 +425,12 @@ function startTimer(SVdtm) {
                 if (tripStatus === 0) {
                     if (TripDirectionInd === "O") {
                         //When the trip departure clock is at 00:10:00, the entire screen for that dock door will turn YELLOW
-                        if (CurrentTripMin > 5 && CurrentTripMin <= 10 ) {
+                        if ((CurrentTripMin > 5 && CurrentTripMin <= 10) && ContainerNotloadedCount > 0) {
                             //10 minutes before scheduled trip departure
                             Tripdisplay("yellow");
                         }
                       //  When the trip departure clock is at 00:05:00, AND there are closed but containers that have not been loaded for that trip, the entire screen will turn RED
-                        else if (CurrentTripMin > 0 && CurrentTripMin < 5) {
+                        else if ((CurrentTripMin > 0 && CurrentTripMin < 5) && ContainerNotloadedCount > 0) {
                             //5 minutes before scheduled trip departure
                             Tripdisplay("red");
                         }
@@ -527,9 +528,6 @@ function CreateContainerCount(data) {
     let filtered = data.filter(function (item) {
         return item.location === item.location && item.hasCloseScans === true && item.hasLoadScans === false;
     });
-
-    console.log(filtered);
-  
     $.map(filtered.sort(SortByName), function (contatiner) {
         ContainerSumCounts.push({
             Location: contatiner.location,
@@ -538,6 +536,27 @@ function CreateContainerCount(data) {
             }).length
         })
     });
-    $('label[id=totalcontainertext]').text(filtered.length);
-    loadContainersDatatable(ContainerSumCounts, "containerLocationtable");
+    let finalCount = remove_duplicates(ContainerSumCounts);
+    console.log(finalCount);
+    ContainerNotloadedCount = filtered.length
+    $('label[id=totalcontainertext]').text(ContainerNotloadedCount);
+    loadContainersDatatable(finalCount, "containerLocationtable");
 }
+function remove_duplicates(objectsArray) {
+    var usedObjects = {};
+
+    for (var i = objectsArray.length - 1; i >= 0; i--) {
+        var so = JSON.stringify(objectsArray[i]);
+
+        if (usedObjects[so]) {
+            objectsArray.splice(i, 1);
+
+        } else {
+            usedObjects[so] = true;
+        }
+    }
+
+    return objectsArray;
+
+}
+

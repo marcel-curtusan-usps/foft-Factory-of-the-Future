@@ -1,9 +1,13 @@
 ﻿/**
  *use this for the trips
  */
-
+//remove trips
 $.extend(fotfmanager.client, {
-    updateSVTripsStatus: async (updatetripsstatus) => { updateTrips(updatetripsstatus) }
+ 
+});
+$.extend(fotfmanager.client, {
+    updateSVTripsStatus: async (updatetripsstatus) => { updateTrips(updatetripsstatus) },
+    removeSVTrips: async (tripid) => { removeTrips(tripid); }
 });
 
 async function init_arrive_depart_trips() {
