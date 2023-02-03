@@ -33,7 +33,7 @@ $(function () {
         $(document).prop('title', User.Facility_Name + ' ' + User.ApplicationFullName);
         map.attributionControl.setPrefix("USPS " + User.ApplicationFullName + " (" + User.SoftwareVersion + ") | " + User.Facility_Name);
         //add Connection list if user is Admin or OIE
-        if (/^(Admin|OIE)/i.test(User.Role)) {
+        if (/^(Admin|OIE|OPERATOR)/i.test(User.Role)) {
             sidebar.addPanel({
                 id: 'connections',
                 tab: '<span class="iconCenter"><i class="pi-iconDiagramOutline"></i></span>',

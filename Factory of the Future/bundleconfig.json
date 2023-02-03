@@ -1,0 +1,36 @@
+[
+  {
+    "outputFileName": "Content/cssFOTFBundle.css",
+    "inputFiles": [
+      "Content/bootstrap-icons.css",
+      "Content/bootstrap.css",
+      "Content/selectize.bootstrap4.css",
+      "Content/easy-button.css",
+      "Content/_base.css",
+      "Content/leaflet.css",
+      "Content/leaflet-sidebar.css",
+      "Content/leaflet-geoman.css",
+      "Content/Site.css",
+      "Content/Filter.css"
+    ],
+    "sourceMap": false,
+    "sourceMapRootPath": null
+  },
+  {
+    "outputFileName": "Scripts/thirdPartyFOTFScripts.js",
+    "inputFiles": [
+      "Scripts/jquery-3.6.0.js",
+      "Scripts/bootstrap.bundle.js",
+      "Scripts/moment.js",
+      "Scripts/moment-timezone.js",
+      "Scripts/moment-duration-format.js",
+      "Scripts/moment-timezone-with-data-2012-2022.js",
+      "Scripts/jquery.dataTables.js",
+      "Scripts/selectize.js",
+      "Scripts/jquery.signalR-2.4.2.js",
+      "Scripts/Filter.js"
+    ],
+    "sourceMap": false,
+    "sourceMapRootPath": null
+  }
+]

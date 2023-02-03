@@ -24,6 +24,7 @@ namespace Factory_of_the_Future
             try
             {
                 GlobalConfiguration.Configure(WebApiConfig.Register);
+                //BundleConfig.RegisterBundles(BundleTable.Bundles);
             }
             catch (Exception ex)
             {

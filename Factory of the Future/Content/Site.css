@@ -203,7 +203,7 @@ table thead tr th {
   vertical-align: middle; }
 
 .table {
-  table-layout: fixed;
+  table-layout: auto; /*it was fixed*/
   width: 100%;
   white-space: nowrap; }
 
@@ -328,7 +328,7 @@ td.thead-dark {
 
 /**compliance table*/
 .row-comp-1 {
-  width: 45%; }
+  width: 42%; } /*it was 45*/
 
 .row-comp-2 {
   width: 15%; }

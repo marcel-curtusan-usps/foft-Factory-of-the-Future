@@ -241,7 +241,7 @@ table thead tr th {
 }
 
 .table {
-    table-layout: fixed;
+    table-layout: auto;
     width: 100%;
     white-space: nowrap;
 }
@@ -396,7 +396,7 @@ td.thead-dark {
 }
 /**compliance table*/
 .row-comp-1 {
-    width: 45%;
+    width: 42%;
 }
 
 .row-comp-2 {

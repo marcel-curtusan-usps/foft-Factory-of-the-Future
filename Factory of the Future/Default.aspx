@@ -14,7 +14,7 @@
         //Access Code-Behind Data in Javascript
         localStorage.setItem('User', JSON.stringify(<%=Session_Info%>));
     </script>
-    <link rel="stylesheet" href="Content/bootstrap-icons.css" />
+   <%-- <link rel="stylesheet" href="Content/bootstrap-icons.css" />
     <link rel="stylesheet" href="Content/bootstrap.min.css" />
     <link rel="stylesheet" href="Content/selectize.bootstrap4.css" />
     <link rel="stylesheet" href="Content/easy-button.css" />
@@ -22,8 +22,9 @@
     <link rel="stylesheet" href="Content/leaflet.css" />
     <link rel="stylesheet" href="Content/leaflet-sidebar.css" />
     <link rel="stylesheet" href="Content/leaflet-geoman.css" />
-    <link rel="stylesheet" href="Content/Site.min.css" />
-    <link rel="stylesheet" href="Content/Filter.css" />
+    <link rel="stylesheet" href="Content/Site.min.css"  />
+    <link rel="stylesheet" href="Content/Filter.css" />--%>
+    <link rel="stylesheet" href="Content/FOTFCSSBundle.min.css" />
 </head>
 <body class="loadingFOTFBody">
     <div id="loadWrapper" class="loadingFOTF">
@@ -1813,6 +1814,10 @@
     <%--<script src="Scripts/selectize.min.js"></script>--%>
     <script src="Scripts/selectize.js"></script>
     <script src="Scripts/jquery.signalR-2.4.2.min.js"></script>
+    <script src="Scripts/Filter.min.js"></script>
+
+    <script src="Scripts/thirdPartyFOTFScripts.min.js"></script>
+
     <!--<script src="Scripts/jquery.signalR-2.4.2.js"></script>-->
     <script src="signalr/hubs/"></script>
     <script src="Scripts/leaflet/leaflet.js"></script>
@@ -1820,7 +1825,9 @@
     <script src="Scripts/leaflet/Plugins/easy-button.js"></script>
     <script src="Scripts/leaflet/Plugins/leaflet-marker-slideto.js"></script>
     <script src="Scripts/leaflet/Plugins/leaflet-indoor.js"></script>
-    <script src="Scripts/Filter.min.js"></script>
+    <!--geometry editing -->
+    <script src="Scripts/leaflet/Plugins/leaflet-geoman.min.js"></script>
+
 
     <!--Load default settings for the site-->
     <script src="Scripts/View/Default.js"></script>
@@ -1858,14 +1865,11 @@
     <script src="Scripts/View/locators.js"></script>
     <!--Views for trips-->
     <script src="Scripts/View/trips.js"></script>
-    <!--QR Code js-->
-    <script src="Scripts/QRCode/qrcode.min.js"></script>
     <!--tag search js-->
     <script src="Scripts/View/tag_search.js"></script>
     <!--camera js-->
     <script src="Scripts/View/camera_video.js"></script>
-    <!--geometry editing -->
-    <script src="Scripts/leaflet/Plugins/leaflet-geoman.min.js"></script>
+    
     <script src="Scripts/View/geometry_editing.js"></script>
     <!--Views for sparklines/graphs for machine processing equipment details-->
     <script src="Scripts/View/machine_sparkline.js"></script>
@@ -1874,7 +1878,8 @@
     <!--24 Hour Clock js-->
     <script defer="defer" src="Scripts/View/twenty_four_hour_clock.js"></script>
     <script defer="defer" src="Scripts/Chart.min.js"></script>
-
+    <!--QR Code js-->
+    <script src="Scripts/QRCode/qrcode.min.js"></script>
     <script>
         $(document).ready(function () {
             $(".bi").on("click", function () {

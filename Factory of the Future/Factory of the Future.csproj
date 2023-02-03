@@ -36,7 +36,8 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <CodeAnalysisRuleSet>..\.sonarlint\9209_factory-of-the-futurecsharp.ruleset</CodeAnalysisRuleSet>
+    <CodeAnalysisRuleSet>
+    </CodeAnalysisRuleSet>
     <PlatformTarget>AnyCPU</PlatformTarget>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
@@ -47,7 +48,8 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <CodeAnalysisRuleSet>..\.sonarlint\9209_factory-of-the-futurecsharp.ruleset</CodeAnalysisRuleSet>
+    <CodeAnalysisRuleSet>
+    </CodeAnalysisRuleSet>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Microsoft.AspNet.SignalR.Core, Version=2.4.2.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
@@ -200,9 +202,17 @@
     <Content Include="Content\bootstrap.min.css" />
     <Content Include="Content\Chart.css" />
     <Content Include="Content\Chart.min.css" />
+    <Content Include="Content\cssFOTFBundle.min.css">
+      <DependentUpon>cssFOTFBundle.css</DependentUpon>
+    </Content>
     <Content Include="Content\easy-button.css" />
     <Content Include="Content\Filter.css" />
     <Content Include="Content\fonts\fotf-icon.svg" />
+    <Content Include="Content\cssFOTFBundle.css" />
+    <Content Include="Content\FOTFCSSBundle.css" />
+    <Content Include="Content\FOTFCSSBundle.min.css">
+      <DependentUpon>FOTFCSSBundle.css</DependentUpon>
+    </Content>
     <Content Include="Content\images\camera-fill.svg" />
     <Content Include="Content\images\camera-video.svg" />
     <Content Include="Content\images\layers-2x.png" />
@@ -240,7 +250,9 @@
     <Content Include="Content\selectize.default.css" />
     <Content Include="Content\selectize.legacy.css" />
     <Content Include="Content\Site.css" />
-    <Content Include="Content\Site.min.css" />
+    <Content Include="Content\Site.min.css">
+      <DependentUpon>Site.css</DependentUpon>
+    </Content>
     <Content Include="Content\themes\base\accordion.css" />
     <Content Include="Content\themes\base\all.css" />
     <Content Include="Content\themes\base\autocomplete.css" />
@@ -308,6 +320,10 @@
     <Content Include="Scripts\bootstrap.min.js" />
     <Content Include="Scripts\Chart.js" />
     <Content Include="Scripts\Chart.min.js" />
+    <Content Include="Scripts\thirdPartyFOTFScripts.js" />
+    <Content Include="Scripts\thirdPartyFOTFScripts.min.js">
+      <DependentUpon>thirdPartyFOTFScripts.js</DependentUpon>
+    </Content>
     <Content Include="Scripts\View\Default.js" />
     <Content Include="Scripts\esm\popper-utils.js" />
     <Content Include="Scripts\esm\popper-utils.min.js" />
@@ -339,12 +355,10 @@
     <Content Include="Content\_base.scss" />
     <Content Include="AppSetting\AppSettings.json" />
     <Content Include="Content\bootstrap-icons.json" />
-    <Content Include="..\.sonarlint\9209_factory-of-the-futurecsharp.ruleset">
-      <Link>9209_factory-of-the-futurecsharp.ruleset</Link>
-    </Content>
     <Content Include="AppSetting\Notification.json" />
     <Content Include="AppSetting\Connection.json" />
     <Content Include="AppSetting\MPEWatch_Site_List.json" />
+    <None Include="bundleconfig.json" />
     <None Include="compilerconfig.json" />
     <None Include="compilerconfig.json.defaults">
       <DependentUpon>compilerconfig.json</DependentUpon>
