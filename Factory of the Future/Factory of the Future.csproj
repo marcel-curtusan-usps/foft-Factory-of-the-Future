@@ -209,10 +209,6 @@
     <Content Include="Content\Filter.css" />
     <Content Include="Content\fonts\fotf-icon.svg" />
     <Content Include="Content\cssFOTFBundle.css" />
-    <Content Include="Content\FOTFCSSBundle.css" />
-    <Content Include="Content\FOTFCSSBundle.min.css">
-      <DependentUpon>FOTFCSSBundle.css</DependentUpon>
-    </Content>
     <Content Include="Content\images\camera-fill.svg" />
     <Content Include="Content\images\camera-video.svg" />
     <Content Include="Content\images\layers-2x.png" />
