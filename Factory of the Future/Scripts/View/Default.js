@@ -217,10 +217,7 @@ $(function () {
             //init_mapSetup(MapData);
         }
     });
-    //remove trips
-    $.extend(fotfmanager.client, {
-        removeSVTrips: async (tripid) => { removeTrips(tripid); }
-    });
+  
     // Start the connection
     $.connection.hub.qs = { 'page_type': "CF".toUpperCase() };
     $.connection.hub.start({ waitForPageLoad: false })
