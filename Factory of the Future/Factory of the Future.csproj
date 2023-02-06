@@ -251,6 +251,10 @@
     <Content Include="Content\Site.min.css">
       <DependentUpon>Site.css</DependentUpon>
     </Content>
+    <Content Include="Content\supportCSSBundle.css" />
+    <Content Include="Content\supportCSSBundle.min.css">
+      <DependentUpon>supportCSSBundle.css</DependentUpon>
+    </Content>
     <Content Include="Content\themes\base\accordion.css" />
     <Content Include="Content\themes\base\all.css" />
     <Content Include="Content\themes\base\autocomplete.css" />
@@ -318,15 +322,12 @@
     <Content Include="Scripts\bootstrap.min.js" />
     <Content Include="Scripts\Chart.js" />
     <Content Include="Scripts\Chart.min.js" />
-    <Content Include="Scripts\scriptsFOTFThirdParty.js" />
-    <Content Include="Scripts\scriptsFOTFThirdParty.min.js">
-      <DependentUpon>scriptsFOTFThirdParty.js</DependentUpon>
+    <Content Include="Scripts\supportScriptsBundle.js" />
+    <Content Include="Scripts\supportScriptsBundle.min.js">
+      <DependentUpon>supportScriptsBundle.js</DependentUpon>
     </Content>
-    <Content Include="Scripts\thirdPartyFOTFScripts.js" />
-    <Content Include="Scripts\thirdPartyFOTFScripts.min.js">
-      <DependentUpon>thirdPartyFOTFScripts.js</DependentUpon>
-    </Content>
-    <Content Include="Scripts\View\Default.js" />
+    <Content Include="Scripts\View\customScriptsBundle.js" />
+    <Content Include="Scripts\View\default.js" />
     <Content Include="Scripts\esm\popper-utils.js" />
     <Content Include="Scripts\esm\popper-utils.min.js" />
     <Content Include="Scripts\esm\popper.js" />

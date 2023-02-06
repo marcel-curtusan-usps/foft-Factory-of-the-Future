@@ -21,6 +21,10 @@ let timezone = {};
 let condition = false;
 
 $(function () {
+    $(".bi").on("click", function () {
+        $(this).toggleClass("bi-arrows-expand");
+        $(this).toggleClass("bi-arrows-collapse");
+    });
     $("form").submit(function () { return false; });
     
     $(window).resize(function () {
