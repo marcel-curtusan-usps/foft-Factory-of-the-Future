@@ -318,6 +318,10 @@
     <Content Include="Scripts\bootstrap.min.js" />
     <Content Include="Scripts\Chart.js" />
     <Content Include="Scripts\Chart.min.js" />
+    <Content Include="Scripts\scriptsFOTFThirdParty.js" />
+    <Content Include="Scripts\scriptsFOTFThirdParty.min.js">
+      <DependentUpon>scriptsFOTFThirdParty.js</DependentUpon>
+    </Content>
     <Content Include="Scripts\thirdPartyFOTFScripts.js" />
     <Content Include="Scripts\thirdPartyFOTFScripts.min.js">
       <DependentUpon>thirdPartyFOTFScripts.js</DependentUpon>
@@ -488,6 +492,7 @@
     <Content Include="Scripts\View\floorplan.js" />
     <Content Include="Scripts\View\indoorMap.js" />
     <Content Include="Scripts\View\machine_sparkline.js" />
+    <Content Include="Scripts\View\scriptsFOTFCustom.js" />
     <Content Include="Scripts\View\staging_bullpen.js" />
     <Content Include="Scripts\View\tag_search.js" />
     <Content Include="Scripts\View\trips.js" />
