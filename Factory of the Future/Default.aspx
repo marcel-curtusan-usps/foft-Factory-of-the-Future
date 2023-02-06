@@ -14,16 +14,6 @@
         //Access Code-Behind Data in Javascript
         localStorage.setItem('User', JSON.stringify(<%=Session_Info%>));
     </script>
-   <%-- <link rel="stylesheet" href="Content/bootstrap-icons.css" />
-    <link rel="stylesheet" href="Content/bootstrap.min.css" />
-    <link rel="stylesheet" href="Content/selectize.bootstrap4.css" />
-    <link rel="stylesheet" href="Content/easy-button.css" />
-    <link rel="stylesheet" href="Content/_base.min.css" />
-    <link rel="stylesheet" href="Content/leaflet.css" />
-    <link rel="stylesheet" href="Content/leaflet-sidebar.css" />
-    <link rel="stylesheet" href="Content/leaflet-geoman.css" />
-    <link rel="stylesheet" href="Content/Site.min.css"  />
-    <link rel="stylesheet" href="Content/Filter.css" />--%>
     <link rel="stylesheet" href="Content/cssFOTFBundle.min.css"/>
 </head>
 <body class="loadingFOTFBody">
