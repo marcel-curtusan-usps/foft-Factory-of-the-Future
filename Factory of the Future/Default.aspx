@@ -24,7 +24,7 @@
     <link rel="stylesheet" href="Content/leaflet-geoman.css" />
     <link rel="stylesheet" href="Content/Site.min.css"  />
     <link rel="stylesheet" href="Content/Filter.css" />--%>
-    <link rel="stylesheet" href="Content/FOTFCSSBundle.min.css" />
+    <link rel="stylesheet" href="Content/cssFOTFBundle.min.css"/>
 </head>
 <body class="loadingFOTFBody">
     <div id="loadWrapper" class="loadingFOTF">
@@ -1816,7 +1816,7 @@
     <script src="Scripts/jquery.signalR-2.4.2.min.js"></script>
     <script src="Scripts/Filter.min.js"></script>
 
-    <script src="Scripts/thirdPartyFOTFScripts.min.js"></script>
+    <%--<script src="Scripts/thirdPartyFOTFScripts.min.js"></script>--%>
 
     <!--<script src="Scripts/jquery.signalR-2.4.2.js"></script>-->
     <script src="signalr/hubs/"></script>
