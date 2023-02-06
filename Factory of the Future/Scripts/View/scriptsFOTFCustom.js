@@ -329,16 +329,8 @@ $(function () {
                         try {
                             $('button[id=usertagsubmitBtn]').prop('disabled', true);
                             let jsonObject = {};
-                            if ($('input[type=text][name=empId]').val() !== map._layers[layerindex].feature.properties.Employee_EIN) {
-                                jsonObject.Employee_EIN = $('input[type=text][name=employee_ein]').val();
-                            }
-                            else {
-                                jsonObject.Employee_EIN = "";
-                            };
-                            if ($('input[type=text][name=empName]').val() !== map._layers[layerindex].feature.properties.Employee_Name) {
-                                jsonObject.Employee_Name = $('input[type=text][name=employee_name]').val()
-                            }
-                            else jsonObject.Employee_Name = "";
+                            $('input[type=text][name=empId]').val() !== map._layers[layerindex].feature.properties.Employee_EIN ? jsonObject.Employee_EIN = $('input[type=text][name=employee_ein]').val() : "";
+                            $('input[type=text][name=empName]').val() !== map._layers[layerindex].feature.properties.Employee_Name ? jsonObject.Employee_Name = $('input[type=text][name=employee_name]').val() : "";
                             if (!$.isEmptyObject(jsonObject)) {
                                 jsonObject.id = map._layers[layerindex].feature.properties.id;
                                 $.connection.FOTFManager.server.editTagInfo(JSON.stringify(jsonObject)).done(function (Data) {
@@ -594,15 +586,7 @@ function setHeight() {
     $('div[id=map]').css("min-height", height + "px");
 }
 function SortByVehicleName(a, b) {
-    if (a.VEHICLENAME < b.VEHICLENAME) {
-        return -1;
-    }
-    else if (a.VEHICLENAME > b.VEHICLENAME) {
-        return 1;
-    } else {
-        return 0;
-    }
-    /*return a.VEHICLENAME < b.VEHICLENAME ? -1 : a.VEHICLENAME > b.VEHICLENAME ? 1 : 0;*/
+    return a.VEHICLENAME < b.VEHICLENAME ? -1 : a.VEHICLENAME > b.VEHICLENAME ? 1 : 0;
 }
 function formatTime(value_time) {
     try {
@@ -666,55 +650,22 @@ function OrderBy(a, b, n) {
     return 0;
 }
 function SortByTagName(a, b) {
-    if (a.name < b.name) {
-        return -1;
-    }
-    else if (a.name > b.name) {
-        return 1
-    } else {
-           return 0;
-           }
-    //return a.name < b.name ? -1 : a.name > b.name ? 1 : 0;
+    return a.name < b.name ? -1 : a.name > b.name ? 1 : 0;
 }
 function SortByName(a, b) {
     let aName = a.toLowerCase();
     let bName = b.toLowerCase();
-    if (aName < bName) {
-        return -1;
-    }
-    else if (aName > bName) {
-        return 1
-    } else {
-        return 0;
-    }
-
-    //return ((aName < bName) ? -1 : ((aName > bName) ? 1 : 0));
+    return ((aName < bName) ? -1 : ((aName > bName) ? 1 : 0));
 }
 function SortBySiteName(a, b) {
     let aName = a.legSiteName.toLowerCase();
     let bName = b.legSiteName.toLowerCase();
-    if (aName < bName) {
-        return -1;
-    }
-    else if (aName > bName) {
-        return 1
-    } else {
-        return 0;
-    }
-    //return ((aName < bName) ? -1 : ((aName > bName) ? 1 : 0));
+    return ((aName < bName) ? -1 : ((aName > bName) ? 1 : 0));
 }
 function SortByLocationName(a, b) {
     let aName = a.toLowerCase();
     let bName = b.locationName.toLowerCase();
-    if (aName < bName) {
-        return -1;
-    }
-    else if (aName > bName) {
-            return 1
-         } else {
-                  return 0;
-         }
-    //return ((aName < bName) ? -1 : ((aName > bName) ? 1 : 0));
+    return ((aName < bName) ? -1 : ((aName > bName) ? 1 : 0));
 }
 function SortByNumber(a, b) {
     return a - b;
@@ -738,23 +689,9 @@ function GetPeopleInZone(zone, P2Pdata, staffarray) {
                                         if (layer.hasOwnProperty("_tooltip")) {
                                             if (layer._tooltip.hasOwnProperty("_container")) {
                                                 if (!layer._tooltip._container.classList.contains('tooltip-hidden')) {
-                                                    let name = "";
-                                                    let nameId = "";
-                                                    if (checkValue(layer.feature.properties.craftName)) {
-                                                        name = layer.feature.properties.craftName;
-                                                    }
-                                                    else {
-                                                        layer.feature.properties.id;
-                                                    }
-                                                    if (checkValue(layer.feature.properties.id) {
-                                                        nameId = layer.feature.properties.id;
-                                                    }
-                                                    else {
-                                                        nameId = layer.feature.properties.id;
-                                                    }
                                                     staffarray.push({
-                                                        name:  name,
-                                                        nameId: nameId,
+                                                        name: checkValue(layer.feature.properties.craftName) ? layer.feature.properties.craftName : layer.feature.properties.id,
+                                                        nameId: checkValue(layer.feature.properties.id) ? layer.feature.properties.id : layer.feature.properties.id,
                                                         id: layer.feature.properties.id
                                                     })
                                                 }
