@@ -8,20 +8,23 @@ namespace Factory_of_the_Future
     public class UserLog : IDisposable
     {
         private bool disposedValue;
+        public string sqlQuery { get; protected set; }
+        public HttpSessionState session { get; protected set; }
 
-        internal void LoginUser(HttpSessionState session)
+        internal void LoginUser(HttpSessionState _session)
         {
             try
             {
+                session = _session;
 
                 if (AppParameters.CodeBase.Parent.Exists && !string.IsNullOrEmpty(AppParameters.AppSettings.ContainsKey("ORACONNASSTRING") ? (string)AppParameters.AppSettings.Property("ORACONNASSTRING").Value : ""))
                 {
                     using (OracleConnection connection = new OracleConnection(AppParameters.Decrypt((string)AppParameters.AppSettings.Property("ORACONNASSTRING").Value)))
                     {
-                        string item2 = new FileIO().Read(string.Concat(AppParameters.CodeBase.Parent.FullName.ToString(), AppParameters.ORAQuery), "UserSessionIN_Query.txt");
-                        if (!string.IsNullOrEmpty(item2))
+                        sqlQuery = new FileIO().Read(string.Concat(AppParameters.CodeBase.Parent.FullName.ToString(), AppParameters.ORAQuery), "UserSessionIN_Query.txt");
+                        if (!string.IsNullOrEmpty(sqlQuery))
                         {
-                            using (OracleCommand command = new OracleCommand(item2, connection))
+                            using (OracleCommand command = new OracleCommand(sqlQuery, connection))
                             {
                                 if (connection.State == ConnectionState.Closed)
                                 {
@@ -59,18 +62,19 @@ namespace Factory_of_the_Future
             }
         }
 
-        internal void LogoutUser(HttpSessionState session)
+        internal void LogoutUser(HttpSessionState _session)
         {
+            session = _session;
             try
             {
                 if (AppParameters.CodeBase.Parent.Exists && !string.IsNullOrEmpty(AppParameters.AppSettings.ContainsKey("ORACONNASSTRING") ? (string)AppParameters.AppSettings.Property("ORACONNASSTRING").Value : ""))
                 {
                     using (OracleConnection connection = new OracleConnection(AppParameters.Decrypt((string)AppParameters.AppSettings.Property("ORACONNASSTRING").Value)))
                     {
-                        string item2 = new FileIO().Read(string.Concat(AppParameters.CodeBase.Parent.FullName.ToString(), AppParameters.ORAQuery), "UserSessionOUT_Query.txt");
-                        if (!string.IsNullOrEmpty(item2))
+                        sqlQuery = new FileIO().Read(string.Concat(AppParameters.CodeBase.Parent.FullName.ToString(), AppParameters.ORAQuery), "UserSessionOUT_Query.txt");
+                        if (!string.IsNullOrEmpty(sqlQuery))
                         {
-                            using (OracleCommand command = new OracleCommand(item2, connection))
+                            using (OracleCommand command = new OracleCommand(sqlQuery, connection))
                             {
                                 if (connection.State == ConnectionState.Closed)
                                 {
@@ -105,6 +109,8 @@ namespace Factory_of_the_Future
                 // TODO: free unmanaged resources (unmanaged objects) and override finalizer
                 // TODO: set large fields to null
                 disposedValue = true;
+                session = null;
+                sqlQuery= null;
             }
         }
 

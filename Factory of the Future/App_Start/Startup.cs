@@ -14,11 +14,12 @@ using System.Diagnostics;
 
 namespace Factory_of_the_Future
 {
-    public class Startup
+    public class Startup : PersistentConnection
     {
         public void Configuration(IAppBuilder app)
         {
             AppParameters.Start();
+            GlobalHost.Configuration.DefaultMessageBufferSize = 32;
             app.Map("/signalr", map =>
             {
                  

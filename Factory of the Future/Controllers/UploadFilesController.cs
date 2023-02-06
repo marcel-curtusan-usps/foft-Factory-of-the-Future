@@ -72,35 +72,13 @@ namespace Factory_of_the_Future.Controllers
                         HeightMeter = OSLImage.Height * metersPerPixelX,
                         Base64 = string.Concat("data:image/png;base64,", imageBase64),
                         CoordinateSystemId = CSystem.Id,
-                        //FacilityName = !string.IsNullOrEmpty(AppParameters.AppSettings["FACILITY_NAME"].ToString()) ? AppParameters.AppSettings["FACILITY_NAME"].ToString() : "Site Not Configured",
-                        //ApplicationFullName = AppParameters.AppSettings["APPLICATION_FULLNAME"].ToString(),
-                        //ApplicationAbbr = AppParameters.AppSettings["APPLICATION_NAME"].ToString(),
                     };
                     CSystem.BackgroundImage = temp;
-                    AppParameters.CoordinateSystem.TryAdd(CSystem.Id, CSystem);
-
-                    new FileIO().Write(string.Concat(AppParameters.Logdirpath, AppParameters.ConfigurationFloder), "Project_Data.json", AppParameters.ZoneOutPutdata(AppParameters.CoordinateSystem.Select(x => x.Value).ToList()));
+                    Task.Run(() => FOTFManager.Instance.AddMap(CSystem.Id, CSystem));
 
                 }
             ////Fetch the File Name.
             string fileName = postedFile.FileName;
-                //string fullFilePath = string.Concat(path, @"\", fileName);
-                //FileInfo fileToupload = new FileInfo(fullFilePath);
-                //if (fileToupload.Exists)
-                //{
-                //    //move old image to archive
-                //    File.Move(fileToupload.FullName, fileToupload.DirectoryName + "\\" + Path.GetFileNameWithoutExtension(fileToupload.Name) + "_" + fileToupload.LastWriteTime.ToString("yyyy_MM_dd_HH_mm_ss_fff") + fileToupload.Extension);
-                //    postedFile.SaveAs(fullFilePath);
-
-                //    //Task.Run(() => new ProcessRecvdMsg().StartProcess(JsonConvert.SerializeObject(temp1, Formatting.None), "getProjectInfo", "0"));
-                //}
-                //else
-                //{
-                //    //Save the image.
-                //    postedFile.SaveAs(fullFilePath);
-                //    //Task.Run(() => new ProcessRecvdMsg().StartProcess(JsonConvert.SerializeObject(temp1, Formatting.None), "getProjectInfo", "0"));
-                //}
-                //Send OK Response to Client.
                 return Request.CreateResponse(HttpStatusCode.OK, fileName);
             }
             catch (Exception e)

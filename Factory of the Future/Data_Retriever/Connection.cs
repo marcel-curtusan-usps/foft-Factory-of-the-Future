@@ -564,7 +564,7 @@ namespace Factory_of_the_Future
                     if (ConnectionInfo.MessageType.ToUpper().EndsWith("Stills".ToUpper()))
                     {
                         Dictionary<string, string> cameraImages = new Dictionary<string, string>();
-                        foreach (CoordinateSystem cs in AppParameters.CoordinateSystem.Values)
+                        foreach (CoordinateSystem cs in FOTFManager.Instance.CoordinateSystem.Values)
                         {
                             cs.Locators.Where(f => f.Value.Properties.TagType != null &&
                                 f.Value.Properties.TagType == "Camera").Select(y => y.Value).ToList().ForEach(Camera =>

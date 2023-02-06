@@ -239,7 +239,7 @@ namespace Factory_of_the_Future
                                 existingValue.Base64Image = AppParameters.NoImage;
                                 existingValue.Alerts = null;
 
-                                foreach (CoordinateSystem cs in AppParameters.CoordinateSystem.Values)
+                                foreach (CoordinateSystem cs in FOTFManager.Instance.CoordinateSystem.Values)
                                 {
                                     cs.Locators.Where(f => f.Value.Properties.TagType != null &&
                                     f.Value.Properties.TagType == "Camera").Select(y => y.Value).ToList().ForEach(Camera =>
@@ -297,7 +297,7 @@ namespace Factory_of_the_Future
             {
                 try
                 {
-                    foreach (CoordinateSystem cs in AppParameters.CoordinateSystem.Values)
+                    foreach (CoordinateSystem cs in FOTFManager.Instance.CoordinateSystem.Values)
                     {
                         cs.Locators.Where(f => f.Value.Properties.TagType != null &&
                         f.Value.Properties.TagType == "Camera").Select(y => y.Value).ToList().ForEach(Camera =>
@@ -313,17 +313,11 @@ namespace Factory_of_the_Future
                             }
                         });
                     }
-                    Task.Run(() => UpdateConnection(conID, "good"));
                 }
                 catch (Exception ex)
                 {
-                    Task.Run(() => UpdateConnection(conID, "error"));
                     new ErrorLogger().ExceptionLog(ex);
                 }
-            }
-            else
-            {
-                Task.Run(() => UpdateConnection(conID, "error"));
             }
         }
 
@@ -905,7 +899,7 @@ namespace Factory_of_the_Future
                             bool isOverTimeAuth = !string.IsNullOrEmpty(item["tacs"]["isOvertimeAuth"].ToString()) && (bool)item["tacs"]["isOvertimeAuth"];
                             if (!string.IsNullOrEmpty(badgeID))
                             {
-                                foreach (CoordinateSystem cs in AppParameters.CoordinateSystem.Values)
+                                foreach (CoordinateSystem cs in FOTFManager.Instance.CoordinateSystem.Values)
                                 {
                                     List<string> tagID = cs.Locators.Where(x => x.Value.Properties.TagType.EndsWith("Person")
                                     && x.Value.Properties.Id.Trim().ToUpper() == badgeID.Trim().ToUpper()).Select(y => y.Key).ToList();
@@ -1144,7 +1138,7 @@ namespace Factory_of_the_Future
                                       return newMPEPerf;
                                   });
 
-                            foreach (CoordinateSystem cs in AppParameters.CoordinateSystem.Values)
+                            foreach (CoordinateSystem cs in FOTFManager.Instance.CoordinateSystem.Values)
                             {
                                 cs.Zones.Where(f => f.Value.Properties.ZoneType == "Machine" &&
                                 f.Value.Properties.Name == MpeName).Select(y => y.Value).ToList().ForEach(existingVal =>
@@ -1230,7 +1224,7 @@ namespace Factory_of_the_Future
                 string MpeNumber = data["mpe_number"].ToString().PadLeft(3, '0');
                 List<string> FullBins = !string.IsNullOrEmpty(data["bin_full_bins"].ToString()) ? data["bin_full_bins"].ToString().Split(',').Select(p => p.Trim().TrimStart('0')).ToList() : new List<string>();
 
-                foreach (CoordinateSystem cs in AppParameters.CoordinateSystem.Values)
+                foreach (CoordinateSystem cs in FOTFManager.Instance.CoordinateSystem.Values)
                 {
                     foreach (string key in cs.Zones.Where(f => f.Value.Properties.ZoneType == "Bin" &&
                     f.Value.Properties.MPEType.Trim() == MpeType && f.Value.Properties.MPENumber.ToString().PadLeft(3, '0') == MpeNumber).Select(y => y.Key).ToList())
@@ -1481,7 +1475,7 @@ namespace Factory_of_the_Future
 
 
                     //match with vehicle
-                    foreach (CoordinateSystem cs in AppParameters.CoordinateSystem.Values)
+                    foreach (CoordinateSystem cs in FOTFManager.Instance.CoordinateSystem.Values)
                     {
                         //get the key for the tag.
                         List<string> tag_id = cs.Locators.Where(f => f.Value.Properties.Name == tempMission.VEHICLE
@@ -1509,7 +1503,7 @@ namespace Factory_of_the_Future
                         }
                     }
                     //update AGV zone location
-                    foreach (CoordinateSystem cs in AppParameters.CoordinateSystem.Values)
+                    foreach (CoordinateSystem cs in FOTFManager.Instance.CoordinateSystem.Values)
                     {
                         //pickup location
                         cs.Zones.Where(f => f.Value.Properties.ZoneType == "AGVLocation" &&
@@ -1549,7 +1543,7 @@ namespace Factory_of_the_Future
                     if (data.ContainsKey("VEHICLE"))
                     {
                         //match with vehicle
-                        foreach (CoordinateSystem cs in AppParameters.CoordinateSystem.Values)
+                        foreach (CoordinateSystem cs in FOTFManager.Instance.CoordinateSystem.Values)
                         {
                             //get the key for the tag.
                             List<string> tag_id = cs.Locators.Where(f => f.Value.Properties.Name == (string)data["VEHICLE"]
@@ -1610,7 +1604,7 @@ namespace Factory_of_the_Future
 
 
                     //match with vehicle
-                    foreach (CoordinateSystem cs in AppParameters.CoordinateSystem.Values)
+                    foreach (CoordinateSystem cs in FOTFManager.Instance.CoordinateSystem.Values)
                     {
                         //get the key for the tag.
                         List<string> tag_id = cs.Locators.Where(f => f.Value.Properties.Name == tempMission.VEHICLE
@@ -1641,7 +1635,7 @@ namespace Factory_of_the_Future
 
                   
                     //update AGV zone location
-                    foreach (CoordinateSystem cs in AppParameters.CoordinateSystem.Values)
+                    foreach (CoordinateSystem cs in FOTFManager.Instance.CoordinateSystem.Values)
                     {
                         //pickup location
                         cs.Zones.Where(f => f.Value.Properties.ZoneType == "AGVLocation" &&
@@ -1714,7 +1708,7 @@ namespace Factory_of_the_Future
                     }
                     //match with vehicle
                  
-                    foreach (CoordinateSystem cs in AppParameters.CoordinateSystem.Values)
+                    foreach (CoordinateSystem cs in FOTFManager.Instance.CoordinateSystem.Values)
                     {
                         //get the key for the tag.
                         List<string> tag_id = cs.Locators.Where(f => f.Value.Properties.Name == tempMission.VEHICLE
@@ -1738,7 +1732,7 @@ namespace Factory_of_the_Future
                     }
                
                     //update AGV zone location
-                    foreach (CoordinateSystem cs in AppParameters.CoordinateSystem.Values)
+                    foreach (CoordinateSystem cs in FOTFManager.Instance.CoordinateSystem.Values)
                     {
                         //pickup location
                         cs.Zones.Where(f => f.Value.Properties.ZoneType == "AGVLocation" &&
@@ -1823,7 +1817,7 @@ namespace Factory_of_the_Future
                         }
                     }
                     //match with vehicle
-                    foreach (CoordinateSystem cs in AppParameters.CoordinateSystem.Values)
+                    foreach (CoordinateSystem cs in FOTFManager.Instance.CoordinateSystem.Values)
                     {
                         //get the key for the tag.
                         List<string> tag_id = cs.Locators.Where(f => f.Value.Properties.Name == tempMission.VEHICLE
@@ -1847,7 +1841,7 @@ namespace Factory_of_the_Future
                     }
                   
                     //update AGV zone location
-                    foreach (CoordinateSystem cs in AppParameters.CoordinateSystem.Values)
+                    foreach (CoordinateSystem cs in FOTFManager.Instance.CoordinateSystem.Values)
                     {
                         //pickup location
                         cs.Zones.Where(f => f.Value.Properties.ZoneType == "AGVLocation" &&
@@ -1921,7 +1915,7 @@ namespace Factory_of_the_Future
                             }
                         }
                         //update AGV zone location
-                        foreach (CoordinateSystem cs in AppParameters.CoordinateSystem.Values)
+                        foreach (CoordinateSystem cs in FOTFManager.Instance.CoordinateSystem.Values)
                         {
                             //pickup location
                             cs.Zones.Where(f => f.Value.Properties.ZoneType == "AGVLocation" &&
@@ -1974,7 +1968,7 @@ namespace Factory_of_the_Future
                     if (data.ContainsKey("VEHICLE"))
                     {
                         VehicleStatus newVehicleStatus = data.ToObject<VehicleStatus>(new JsonSerializer { NullValueHandling = NullValueHandling.Ignore });
-                        foreach (CoordinateSystem cs in AppParameters.CoordinateSystem.Values)
+                        foreach (CoordinateSystem cs in FOTFManager.Instance.CoordinateSystem.Values)
                         {
                             //get the key for the tag.
                             List<string> tag_id = cs.Locators.Where(f => f.Value.Properties.Name == newVehicleStatus.VEHICLE
@@ -2280,7 +2274,7 @@ namespace Factory_of_the_Future
                     foreach (JToken locatorsitem in locatorlist)
                     {
                         GeoMarker Lmarker = locatorsitem.FirstOrDefault().ToObject<GeoMarker>();
-                        if (AppParameters.CoordinateSystem[csid].Locators.TryAdd(Lmarker.Properties.Id, Lmarker))
+                        if (FOTFManager.Instance.CoordinateSystem[csid].Locators.TryAdd(Lmarker.Properties.Id, Lmarker))
                         {
                             Lmarker.Properties.TagUpdate = true;
                         }
@@ -2304,7 +2298,7 @@ namespace Factory_of_the_Future
                     foreach (JToken zoneitem in zoneslist)
                     {
                         GeoZone newGZone = zoneitem.FirstOrDefault().ToObject<GeoZone>();
-                        if (AppParameters.CoordinateSystem[csid].Zones.TryAdd(newGZone.Properties.Id, newGZone))
+                        if (FOTFManager.Instance.CoordinateSystem[csid].Zones.TryAdd(newGZone.Properties.Id, newGZone))
                         {
                             newGZone.Properties.ZoneUpdate = true;
                         }
@@ -2328,7 +2322,7 @@ namespace Factory_of_the_Future
                 if (backgroundImages != null && backgroundImages.Count() > 0)
                 {
                     BackgroundImage newbckimg = backgroundImages.ToObject<BackgroundImage>();
-                    AppParameters.CoordinateSystem[csid].BackgroundImage = newbckimg;
+                    FOTFManager.Instance.CoordinateSystem[csid].BackgroundImage = newbckimg;
                     newbckimg.UpdateStatus = true;
                 }
             }
@@ -2354,7 +2348,7 @@ namespace Factory_of_the_Future
                         //newbckimg.ApplicationAbbr = AppParameters.AppSettings["APPLICATION_NAME"].ToString();
                         newbckimg.Name = csname;
                         newbckimg.CoordinateSystemId = csid;
-                        AppParameters.CoordinateSystem[csid].BackgroundImage = newbckimg;
+                        FOTFManager.Instance.CoordinateSystem[csid].BackgroundImage = newbckimg;
                         newbckimg.UpdateStatus = true;
                         saveToFile = true;
 
@@ -2378,7 +2372,7 @@ namespace Factory_of_the_Future
                     {
                         bool zoneUpdate = false;
                       
-                        if (AppParameters.CoordinateSystem[csid].Zones.TryGetValue(zoneitem["id"].ToString(), out GeoZone gZone))
+                        if (FOTFManager.Instance.CoordinateSystem[csid].Zones.TryGetValue(zoneitem["id"].ToString(), out GeoZone gZone))
                         {
                             ZoneGeometry tempGeometry = GetQuuppaZoneGeometry(zoneitem["polygonData"]);
                             if (JsonConvert.SerializeObject(gZone.Geometry.Coordinates, Formatting.None) != JsonConvert.SerializeObject(tempGeometry.Coordinates, Formatting.None))
@@ -2445,7 +2439,7 @@ namespace Factory_of_the_Future
                                 newGZone.Properties.MPEType = string.Join(string.Empty, Regex.Matches(newGZone.Properties.Name, @"\p{L}+").OfType<Match>().Select(m => m.Value));
                             }
                            
-                            if (AppParameters.CoordinateSystem[csid].Zones.TryAdd(newGZone.Properties.Id, newGZone))
+                            if (FOTFManager.Instance.CoordinateSystem[csid].Zones.TryAdd(newGZone.Properties.Id, newGZone))
                             {
                                 newGZone.Properties.ZoneUpdate = true;
                                 saveToFile = true;
@@ -2473,7 +2467,7 @@ namespace Factory_of_the_Future
                     foreach (JObject locatorsitem in locatorlist.Children())
                     {
                         bool locatorupdate = false;
-                        if (AppParameters.CoordinateSystem[csid].Locators.TryGetValue(locatorsitem["id"].ToString(), out GeoMarker geoLmarker))
+                        if (FOTFManager.Instance.CoordinateSystem[csid].Locators.TryGetValue(locatorsitem["id"].ToString(), out GeoMarker geoLmarker))
                         {
                             // check if position changed
 
@@ -2525,7 +2519,7 @@ namespace Factory_of_the_Future
                             Lmarker.Geometry = GetQuuppaTagGeometry(locatorsitem["location"]);
                             Lmarker.Properties.TagVisible = (bool)locatorsitem["visible"];
                             Lmarker.Properties.Source = "other";
-                            if (AppParameters.CoordinateSystem[csid].Locators.TryAdd(Lmarker.Properties.Id, Lmarker))
+                            if (FOTFManager.Instance.CoordinateSystem[csid].Locators.TryAdd(Lmarker.Properties.Id, Lmarker))
                             {
                                 Lmarker.Properties.TagUpdate = true;
                                 saveToFile = true;
@@ -2563,7 +2557,7 @@ namespace Factory_of_the_Future
                                 string tagid = tagitem.ContainsKey("id") ? tagitem["id"].ToString() : tagitem["tagId"].ToString();
                                 //new tag data format version of Quuppa = "locationCoordSysId": "20a2d551-4b2a-4b4f-ab80-0caa4b250b38"
                                 //old tag data format version of Quuppa "coordinateSystemId": "e11a3dd5-2e97-405c-9dfd-e63eb810964f",
-                                foreach (CoordinateSystem cs in AppParameters.CoordinateSystem.Values)
+                                foreach (CoordinateSystem cs in FOTFManager.Instance.CoordinateSystem.Values)
                                 {
                                     List<string> tag_id = cs.Locators.Where(f => f.Key == tagid).Select(y => y.Key).ToList();
                                     if (tag_id.Count > 0)
@@ -2858,7 +2852,7 @@ namespace Factory_of_the_Future
             try
             {
                 string zoneID = string.Empty;
-                foreach(CoordinateSystem cs in AppParameters.CoordinateSystem.Values)
+                foreach(CoordinateSystem cs in FOTFManager.Instance.CoordinateSystem.Values)
                 {
                     zoneID = cs.Zones.Where(x => x.Value.Properties.ZoneType == "Machine" &&
                             x.Value.Properties.MPEType == machineData["mpe_type"].ToString() &&
@@ -3367,7 +3361,7 @@ namespace Factory_of_the_Future
                                 ProcessNewOrExistingCameraData(updatedObject, ref alertList, camera_id, false);
                             }
                             List<Tuple<GeoMarker, string>> camerasToBroadcast = new List<Tuple<GeoMarker, string>>();
-                            foreach (CoordinateSystem cs in AppParameters.CoordinateSystem.Values)
+                            foreach (CoordinateSystem cs in FOTFManager.Instance.CoordinateSystem.Values)
                             {
                                 cs.Locators.Where(f => f.Value.Properties.TagType == "Camera" &&
                                 f.Value.Properties.Name == camera_id).Select(y => y.Value).

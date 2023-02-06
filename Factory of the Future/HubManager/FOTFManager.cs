@@ -20,8 +20,10 @@ namespace Factory_of_the_Future
     public class FOTFManager : IDisposable
     {
         private readonly static Lazy<FOTFManager> _instance = new Lazy<FOTFManager>(() => new FOTFManager(GlobalHost.ConnectionManager.GetHubContext<HubManager>().Clients));
-
-
+        public readonly ConcurrentDictionary<string, CoordinateSystem> CoordinateSystem = new ConcurrentDictionary<string, CoordinateSystem>();
+        public static FOTFManager Instance { get { return _instance.Value; } }
+        private IHubConnectionContext<dynamic> Clients { get; set; }
+        public FOTFManager(IHubConnectionContext<dynamic> clients) { Clients = clients; }
         //blocks
         private readonly object updateZoneStatuslock = new object();
         private readonly object updateTagStatuslock = new object();
@@ -48,7 +50,7 @@ namespace Factory_of_the_Future
         private readonly Timer SVTrips_timer;
         private readonly Timer Notification_timer;
         private readonly Timer BinZone_timer;
-       // private readonly Timer Camera_timer;
+        // private readonly Timer Camera_timer;
         //status
         private volatile bool _updatePersonTagStatus = false;
         private volatile bool _updateZoneStatus = false;
@@ -77,36 +79,30 @@ namespace Factory_of_the_Future
 
 
         //init timers
-        private FOTFManager(IHubConnectionContext<dynamic> clients)
-        {
-            Clients = clients;
-            VehicleTag_timer = new Timer(UpdateVehicleTagStatus, null, _250updateInterval, _250updateInterval);
-            PersonTag_timer = new Timer(UpdatePersonTagStatus, null, _250updateInterval, _250updateInterval);
-            /////Zone status.
-            Zone_timer = new Timer(UpdateZoneStatus, null, _2000updateInterval, _2000updateInterval);
-            //DockDoor_timer = new Timer(UpdateDockDoorStatus, null, _250updateInterval, _250updateInterval);
-            Machine_timer = new Timer(UpdateMachineStatus, null, _2000updateInterval, _2000updateInterval);
-            AGVLocation_timer = new Timer(UpdateAGVLocationStatus, null, _250updateInterval, _250updateInterval);
-            BinZone_timer = new Timer(UpdateBinZoneStatus, null, _2000updateInterval, _2000updateInterval);
-            /////SV Trips Data
-            SVTrips_timer = new Timer(UpdateSVTripsStatus, null, _30000updateInterval, _30000updateInterval);
-            ////   Notification data timer
-            Notification_timer = new Timer(UpdateNotificationtatus, null, _1000updateInterval, _1000updateInterval);
-            ////
-            //Connection status
-            //QSM_timer = new Timer(UpdateQSM, null, _250updateInterval, _250updateInterval);
-            //Camera update;
-            //Camera_timer = new Timer(UpdateCameraImages, null, _10000updateInterval, _60000updateInterval);
-        }
+        //private FOTFManager(IHubConnectionContext<dynamic> clients)
+        //{
+        //    Clients = clients;
+        //    VehicleTag_timer = new Timer(UpdateVehicleTagStatus, null, _250updateInterval, _250updateInterval);
+        //    PersonTag_timer = new Timer(UpdatePersonTagStatus, null, _250updateInterval, _250updateInterval);
+        //    /////Zone status.
+        //    Zone_timer = new Timer(UpdateZoneStatus, null, _2000updateInterval, _2000updateInterval);
+        //    //DockDoor_timer = new Timer(UpdateDockDoorStatus, null, _250updateInterval, _250updateInterval);
+        //    Machine_timer = new Timer(UpdateMachineStatus, null, _2000updateInterval, _2000updateInterval);
+        //    AGVLocation_timer = new Timer(UpdateAGVLocationStatus, null, _250updateInterval, _250updateInterval);
+        //    BinZone_timer = new Timer(UpdateBinZoneStatus, null, _2000updateInterval, _2000updateInterval);
+        //    /////SV Trips Data
+        //    SVTrips_timer = new Timer(UpdateSVTripsStatus, null, _30000updateInterval, _30000updateInterval);
+        //    ////   Notification data timer
+        //    Notification_timer = new Timer(UpdateNotificationtatus, null, _1000updateInterval, _1000updateInterval);
+        //    ////
+        //    //Connection status
+        //    //QSM_timer = new Timer(UpdateQSM, null, _250updateInterval, _250updateInterval);
+        //    //Camera update;
+        //    //Camera_timer = new Timer(UpdateCameraImages, null, _10000updateInterval, _60000updateInterval);
+        //}
 
 
 
-        public static FOTFManager Instance
-        {
-            get { return _instance.Value; }
-        }
-
-        private IHubConnectionContext<dynamic> Clients { get; set; }
 
         internal void GetConnections(string connectionId)
         {
@@ -128,7 +124,7 @@ namespace Factory_of_the_Future
             try
             {
                 List<RouteTrips> doorTrips = new List<RouteTrips>();
-                doorTrips = AppParameters.RouteTripsList.Where(x => !Regex.IsMatch(x.Value.State, "(CANCELED|DEPARTED|OMITTED|COMPLETE)", RegexOptions.IgnoreCase) 
+                doorTrips = AppParameters.RouteTripsList.Where(x => !Regex.IsMatch(x.Value.State, "(CANCELED|DEPARTED|OMITTED|COMPLETE)", RegexOptions.IgnoreCase)
                 && x.Value.DoorNumber == id).OrderBy(d => d.Value.ScheduledDtmfmt).Select(y => y.Value).ToList();
                 return doorTrips;
             }
@@ -140,7 +136,7 @@ namespace Factory_of_the_Future
             //try
             //{
             //    List<RouteTrips> doorData = new List<RouteTrips>();
-            //    foreach (CoordinateSystem cs in AppParameters.CoordinateSystem.Values)
+            //    foreach (CoordinateSystem cs in CoordinateSystem.Values)
             //    {
             //        cs.Zones.Where(f => f.Value.Properties.ZoneType == "DockDoor" && f.Value.Properties.DoorNumber.ToLower() == id.ToLower()
             //        ).Select(y => y.Value).ToList().ForEach(DockDoor =>
@@ -201,13 +197,13 @@ namespace Factory_of_the_Future
                 }
 
 
-                if (AppParameters.CoordinateSystem.ContainsKey(newtempgZone.Properties.FloorId))
+                if (CoordinateSystem.ContainsKey(newtempgZone.Properties.FloorId))
                 {
-                    if (AppParameters.CoordinateSystem.TryGetValue(newtempgZone.Properties.FloorId, out CoordinateSystem cs))
+                    if (CoordinateSystem.TryGetValue(newtempgZone.Properties.FloorId, out CoordinateSystem cs))
                     {
                         if (cs.Zones.TryAdd(newtempgZone.Properties.Id, newtempgZone))
                         {
-                            new FileIO().Write(string.Concat(AppParameters.Logdirpath, AppParameters.ConfigurationFloder), "Project_Data.json", AppParameters.ZoneOutPutdata(AppParameters.CoordinateSystem.Select(x => x.Value).ToList()));
+                            new FileIO().Write(string.Concat(AppParameters.Logdirpath, AppParameters.ConfigurationFloder), "Project_Data.json", AppParameters.ZoneOutPutdata(CoordinateSystem.Select(x => x.Value).ToList()));
                             return newtempgZone;
                         }
                     }
@@ -266,7 +262,7 @@ namespace Factory_of_the_Future
         //        {
         //            if (!_updateCameraStatus)
         //            {
-        //                foreach (CoordinateSystem cs in AppParameters.CoordinateSystem.Values)
+        //                foreach (CoordinateSystem cs in CoordinateSystem.Values)
         //                {
         //                    cs.Locators.Where(f => f.Value.Properties.TagType != null &&
         //                    f.Value.Properties.TagType == "Camera").Select(y => y.Value).ToList().ForEach(Camera =>
@@ -276,7 +272,7 @@ namespace Factory_of_the_Future
         //                            Cameras cam = new Cameras();
         //                            if (AppParameters.CameraInfoList.TryGetValue(Camera.Properties.Name, out Cameras existingValue))
         //                            {
-                                    
+
         //                                cam.FacilitySubtypeDesc = existingValue.FacilitySubtypeDesc;
         //                                cam.AuthKey = existingValue.AuthKey;
         //                                cam.Description = existingValue.Description;
@@ -299,7 +295,7 @@ namespace Factory_of_the_Future
         //                                cam.CameraName = Camera.Properties.Name;
         //                            }
         //                            Camera.Properties.CameraData = cam;
-        //                            new FileIO().Write(string.Concat(AppParameters.Logdirpath, AppParameters.ConfigurationFloder), "Project_Data.json", AppParameters.ZoneOutPutdata(AppParameters.CoordinateSystem.Select(x => x.Value).ToList()));
+        //                            new FileIO().Write(string.Concat(AppParameters.Logdirpath, AppParameters.ConfigurationFloder), "Project_Data.json", AppParameters.ZoneOutPutdata(CoordinateSystem.Select(x => x.Value).ToList()));
 
         //                        }
         //                    //if (Camera.Properties.CameraData.Base64Image != TryUpdateCameraStatus(Camera.Properties.CameraData.CameraName, out string Base64Img))
@@ -340,7 +336,7 @@ namespace Factory_of_the_Future
 
         //            if (!_updateCameraStatus)
         //            {
-        //                foreach (CoordinateSystem cs in AppParameters.CoordinateSystem.Values)
+        //                foreach (CoordinateSystem cs in CoordinateSystem.Values)
         //                {
         //                    cs.Locators.Where(f => f.Value.Properties.TagType != null &&
         //                    f.Value.Properties.TagType == "Camera").Select(y => y.Value).ToList().ForEach(Camera =>
@@ -532,13 +528,13 @@ namespace Factory_of_the_Future
 
                 }
 
-                if (AppParameters.CoordinateSystem.ContainsKey(newtempgMarker.Properties.FloorId))
+                if (CoordinateSystem.ContainsKey(newtempgMarker.Properties.FloorId))
                 {
-                    if (AppParameters.CoordinateSystem.TryGetValue(newtempgMarker.Properties.FloorId, out CoordinateSystem cs))
+                    if (CoordinateSystem.TryGetValue(newtempgMarker.Properties.FloorId, out CoordinateSystem cs))
                     {
                         if (cs.Locators.TryAdd(newtempgMarker.Properties.Id, newtempgMarker))
                         {
-                            new FileIO().Write(string.Concat(AppParameters.Logdirpath, AppParameters.ConfigurationFloder), "Project_Data.json", AppParameters.ZoneOutPutdata(AppParameters.CoordinateSystem.Select(x => x.Value).ToList()));
+                            new FileIO().Write(string.Concat(AppParameters.Logdirpath, AppParameters.ConfigurationFloder), "Project_Data.json", AppParameters.ZoneOutPutdata(CoordinateSystem.Select(x => x.Value).ToList()));
                             return newtempgMarker;
                         }
                     }
@@ -579,7 +575,7 @@ namespace Factory_of_the_Future
             {
                 bool removeMarker = false;
                 GeoMarker markerinfo = null;
-                foreach (CoordinateSystem cs in AppParameters.CoordinateSystem.Values)
+                foreach (CoordinateSystem cs in CoordinateSystem.Values)
                 {
                     if (cs.Locators.ContainsKey(data))
                     {
@@ -599,7 +595,7 @@ namespace Factory_of_the_Future
                         {
                             if (cs.Locators.TryRemove(data, out markerinfo))
                             {
-                                new FileIO().Write(string.Concat(AppParameters.Logdirpath, AppParameters.ConfigurationFloder), "Project_Data.json", AppParameters.ZoneOutPutdata(AppParameters.CoordinateSystem.Select(x => x.Value).ToList()));
+                                new FileIO().Write(string.Concat(AppParameters.Logdirpath, AppParameters.ConfigurationFloder), "Project_Data.json", AppParameters.ZoneOutPutdata(CoordinateSystem.Select(x => x.Value).ToList()));
                             }
                         }
                     }
@@ -619,7 +615,7 @@ namespace Factory_of_the_Future
             {
                 bool removeZone = false;
                 GeoZone ZoneInfo = null;
-                foreach (CoordinateSystem cs in AppParameters.CoordinateSystem.Values)
+                foreach (CoordinateSystem cs in CoordinateSystem.Values)
                 {
                     if (cs.Zones.ContainsKey(data))
                     {
@@ -639,7 +635,7 @@ namespace Factory_of_the_Future
                         {
                             if (cs.Zones.TryRemove(data, out ZoneInfo))
                             {
-                                new FileIO().Write(string.Concat(AppParameters.Logdirpath, AppParameters.ConfigurationFloder), "Project_Data.json", AppParameters.ZoneOutPutdata(AppParameters.CoordinateSystem.Select(x => x.Value).ToList()));
+                                new FileIO().Write(string.Concat(AppParameters.Logdirpath, AppParameters.ConfigurationFloder), "Project_Data.json", AppParameters.ZoneOutPutdata(CoordinateSystem.Select(x => x.Value).ToList()));
                             }
                         }
                     }
@@ -1017,7 +1013,7 @@ namespace Factory_of_the_Future
                 {
                     _updateZoneStatus = true;
 
-                    foreach (CoordinateSystem cs in AppParameters.CoordinateSystem.Values)
+                    foreach (CoordinateSystem cs in CoordinateSystem.Values)
                     {
                         cs.Zones.Where(f => f.Value.Properties.ZoneType == "Area"
                         && f.Value.Properties.ZoneUpdate
@@ -1062,7 +1058,7 @@ namespace Factory_of_the_Future
                 if (!_updateBinZoneStatus)
                 {
                     _updateBinZoneStatus = true;
-                    foreach (CoordinateSystem cs in AppParameters.CoordinateSystem.Values)
+                    foreach (CoordinateSystem cs in CoordinateSystem.Values)
                     {
                         cs.Zones.Where(f => f.Value.Properties.ZoneType == "Bin" && f.Value.Properties.ZoneUpdate && f.Value.Properties.Visible).Select(y => y.Value).ToList().ForEach(BIN =>
                         {
@@ -1131,7 +1127,7 @@ namespace Factory_of_the_Future
                                          select trip)
                     {
                         BroadcastSVTripsStatus(trip);
-                      
+
                     }
 
                     _updateSVTripsStatus = false;
@@ -1189,7 +1185,7 @@ namespace Factory_of_the_Future
                         trip.NotloadedContainers = NotloadedContainers;
                     }
                     trip.State = state;
-                   
+
                 }
                 else
                 {
@@ -1309,7 +1305,7 @@ namespace Factory_of_the_Future
             {
                 new ErrorLogger().ExceptionLog(e);
             }
-          
+
 
         }
         public void BroadcastSVTripsRemove(string id)
@@ -1320,12 +1316,12 @@ namespace Factory_of_the_Future
         {
             try
             {
-                if (!AppParameters.CoordinateSystem.TryAdd(id, cSystem))
+                if (!CoordinateSystem.TryAdd(id, cSystem))
                 {
                     new ErrorLogger().CustomLog("Unable to add CoordinateSystem " + id, string.Concat(AppParameters.AppSettings["APPLICATION_NAME"].ToString(), "_Applogs"));
                 }
 
-                _ = Task.Run(() => new FileIO().Write(string.Concat(AppParameters.Logdirpath, AppParameters.ConfigurationFloder), "Project_Data.json", AppParameters.ZoneOutPutdata(AppParameters.CoordinateSystem.Select(x => x.Value).ToList())));
+                _ = Task.Run(() => new FileIO().Write(string.Concat(AppParameters.Logdirpath, AppParameters.ConfigurationFloder), "Project_Data.json", AppParameters.ZoneOutPutdata(CoordinateSystem.Select(x => x.Value).ToList())));
 
             }
             catch (Exception e)
@@ -1469,7 +1465,7 @@ namespace Factory_of_the_Future
 
                 if (AppParameters.RouteTripsList.TryGetValue(data["RouteTrip"].ToString(), out RouteTrips trip))
                 {
-                    trip.DoorId = string.Concat("99D", data["DoorNumber"].ToString().PadLeft(4,'-'));
+                    trip.DoorId = string.Concat("99D", data["DoorNumber"].ToString().PadLeft(4, '-'));
                     trip.DoorNumber = data["DoorNumber"].ToString();
                     saveDoorTripAssociation(trip.DoorNumber, trip.Route, trip.Trip);
                     UpdateDoorZone(trip);
@@ -1486,7 +1482,7 @@ namespace Factory_of_the_Future
             bool update = false;
             try
             {
-                if (AppParameters.DoorTripAssociation.ContainsKey(string.Concat(route, trip)) 
+                if (AppParameters.DoorTripAssociation.ContainsKey(string.Concat(route, trip))
                     && AppParameters.DoorTripAssociation.TryGetValue(string.Concat(route, trip), out DoorTripAssociation dr))
                 {
                     dr.DoorNumber = doorNumber;
@@ -1498,9 +1494,9 @@ namespace Factory_of_the_Future
                 {
                     if (AppParameters.DoorTripAssociation.TryAdd(string.Concat(route, trip), new DoorTripAssociation { DoorNumber = doorNumber, Route = route, Trip = trip }))
                     {
-                        update = true;  
+                        update = true;
                     }
-                    
+
                 }
                 if (update)
                 {
@@ -1711,7 +1707,7 @@ namespace Factory_of_the_Future
                 {
                     _updateAGVLocationStatus = true;
 
-                    foreach (CoordinateSystem cs in AppParameters.CoordinateSystem.Values)
+                    foreach (CoordinateSystem cs in CoordinateSystem.Values)
                     {
                         cs.Zones.Where(f => f.Value.Properties.ZoneType == "AGVLocation" && f.Value.Properties.ZoneUpdate && f.Value.Properties.Visible).Select(y => y.Value).ToList().ForEach(AGV_Location =>
                         {
@@ -1762,7 +1758,7 @@ namespace Factory_of_the_Future
                 if (!_updateMachineStatus)
                 {
                     _updateMachineStatus = true;
-                    foreach (CoordinateSystem cs in AppParameters.CoordinateSystem.Values)
+                    foreach (CoordinateSystem cs in CoordinateSystem.Values)
                     {
                         cs.Zones.Where(f => f.Value.Properties.ZoneType == "Machine" && f.Value.Properties.ZoneUpdate).Select(y => y.Value).ToList().ForEach(Machine =>
                         {
@@ -1938,7 +1934,7 @@ namespace Factory_of_the_Future
         //        bool result = await UpdateProjectData().ConfigureAwait(false);
 
         //        // now update so the changes appear on the map
-        //        foreach (CoordinateSystem cs in AppParameters.CoordinateSystem.Values)
+        //        foreach (CoordinateSystem cs in CoordinateSystem.Values)
         //        {
         //            List<GeoMarker> vehicles = cs.Locators.Where
         //                (f => f.Value.Properties.TagType.EndsWith("Vehicle") &&
@@ -2009,7 +2005,7 @@ namespace Factory_of_the_Future
         //        bool result = await UpdateProjectData().ConfigureAwait(false);
 
         //        // now update so the changes appear on the map
-        //        foreach (CoordinateSystem cs in AppParameters.CoordinateSystem.Values)
+        //        foreach (CoordinateSystem cs in CoordinateSystem.Values)
         //        {
         //            List<GeoMarker> vehicles = new List<GeoMarker>();
         //            GeoMarker vehicle = cs.Locators.Where(f => f.Value.Properties.TagType.EndsWith("Vehicle")
@@ -2073,7 +2069,7 @@ namespace Factory_of_the_Future
         {
             try
             {
-                return AppParameters.CoordinateSystem.Where(r => r.Key == id).Select(y => y.Value).ToList();
+                return CoordinateSystem.Where(r => r.Key == id).Select(y => y.Value).ToList();
             }
             catch (Exception e)
             {
@@ -2085,7 +2081,7 @@ namespace Factory_of_the_Future
         {
             try
             {
-                if (AppParameters.CoordinateSystem.Keys.Count == 0)
+                if (CoordinateSystem.Keys.Count == 0)
                 {
                     ConcurrentDictionary<string, CoordinateSystem> CoordinateSystem = new ConcurrentDictionary<string, CoordinateSystem>();
 
@@ -2106,9 +2102,9 @@ namespace Factory_of_the_Future
                 }
                 else
                 {
-                    return AppParameters.CoordinateSystem.Select(y => y.Value).ToList();
+                    return CoordinateSystem.Select(y => y.Value).ToList();
                 }
-               
+
             }
             catch (Exception e)
             {
@@ -2402,7 +2398,7 @@ namespace Factory_of_the_Future
         //        if (!_updateDockDoorStatus)
         //        {
         //            _updateDockDoorStatus = true;
-        //            foreach (CoordinateSystem cs in AppParameters.CoordinateSystem.Values)
+        //            foreach (CoordinateSystem cs in CoordinateSystem.Values)
         //            {
         //                cs.Zones.Where(f => f.Value.Properties.ZoneType == "DockDoor"
         //                && f.Value.Properties.ZoneUpdate
@@ -2430,13 +2426,13 @@ namespace Factory_of_the_Future
             try
             {
 
-                foreach (CoordinateSystem cs in AppParameters.CoordinateSystem.Values)
+                foreach (CoordinateSystem cs in CoordinateSystem.Values)
                 {
                     cs.Zones.Where(f => f.Value.Properties.ZoneType == "DockDoor"
                     && f.Value.Properties.DoorNumber == trip.DoorNumber
                     ).Select(y => y.Value).ToList().ForEach(DockDoor =>
                     {
-                       
+
                         DockDoor.Properties.DockDoorData = FOTFManager.Instance.GetDigitalDockDoorList(DockDoor.Properties.DoorNumber);
                         FOTFManager.Instance.BroadcastDockDoorStatus(DockDoor, cs.Id);
                     });
@@ -2450,7 +2446,7 @@ namespace Factory_of_the_Future
         public void BroadcastDockDoorStatus(GeoZone dockDoor, string id)
         {
             Clients.Group("DockDoorZones").updateDockDoorStatus(dockDoor, id);
-            if (dockDoor.Properties.DockDoorData.Count() == 0)
+            if (!dockDoor.Properties.DockDoorData.Any())
             {
                 Clients.Group("DockDoor_" + dockDoor.Properties.DoorNumber).updateDigitalDockDoorStatus(dockDoor.Properties.DockDoorData, id);
 
@@ -2477,7 +2473,7 @@ namespace Factory_of_the_Future
                     //    BroadcastVehicleTagStatus(Tag);
                     //}
 
-                    foreach (CoordinateSystem cs in AppParameters.CoordinateSystem.Values)
+                    foreach (CoordinateSystem cs in CoordinateSystem.Values)
                     {
                         cs.Locators.Where(f => f.Value.Properties.TagType.EndsWith("Vehicle") && f.Value.Properties.TagUpdate).Select(y => y.Value).ToList().ForEach(marker =>
                         {
@@ -2498,8 +2494,6 @@ namespace Factory_of_the_Future
             Clients.Group("VehiclsMarkers").updateVehicleTagStatus(marker, id);
         }
 
-
-
         private void UpdatePersonTagStatus(object state)
         {
             lock (updatePersonTagStatuslock)
@@ -2517,7 +2511,7 @@ namespace Factory_of_the_Future
                     //{
                     //    BroadcastPersonTagStatus(Marker);
                     //}
-                    foreach (CoordinateSystem cs in AppParameters.CoordinateSystem.Values)
+                    foreach (CoordinateSystem cs in CoordinateSystem.Values)
                     {
                         cs.Locators.Where(f => f.Value.Properties.TagType.EndsWith("Person")
                         && f.Value.Properties.TagUpdate).Select(y => y.Value).ToList().ForEach(marker =>
@@ -2571,6 +2565,12 @@ namespace Factory_of_the_Future
         {
             Clients.Group("PeopleMarkers").updatePersonTagStatus(Marker, id);
         }
+        public List<ThroughputValues> GetMachineThroughputMaximums()
+        {
+            return AppParameters.MachineThroughputMax;
+        }
+        #region
+        // Api Section 
         internal IEnumerable<Connection> GetAPIList(string id)
         {
             try
@@ -2590,29 +2590,13 @@ namespace Factory_of_the_Future
                 return null;
             }
         }
-
-        public List<ThroughputValues> GetMachineThroughputMaximums()
-        {
-            return AppParameters.MachineThroughputMax;
-        }
         internal IEnumerable<Connection> AddAPI(string data)
         {
-            string id = string.Empty;
             try
             {
-                bool fileUpdate = false;
-                if (!string.IsNullOrEmpty(data))
-                {
-                        AppParameters.RunningConnection.Add(JsonConvert.DeserializeObject<Connection>(data));
-                  
-                    
-                }
+                AppParameters.RunningConnection.Add(JsonConvert.DeserializeObject<Connection>(data));
 
-                if (fileUpdate)
-                {
-                    new FileIO().Write(string.Concat(AppParameters.CodeBase.Parent.FullName.ToString(), AppParameters.Appsetting), "Connection.json", JsonConvert.SerializeObject(AppParameters.RunningConnection.Connection.Where(w => w.ConnectionInfo.Id == id).Select(y => y.ConnectionInfo).ToList(), Formatting.Indented, new JsonSerializerSettings() { ContractResolver = new NullToEmptyStringResolver() }));
-                }
-                return AppParameters.RunningConnection.Connection.Where(w => w.ConnectionInfo.Id == id).Select(y => y.ConnectionInfo).ToList();
+                return null;
             }
             catch (Exception e)
             {
@@ -2620,93 +2604,13 @@ namespace Factory_of_the_Future
                 return null;
             }
         }
-
         internal IEnumerable<Connection> EditAPI(string data)
         {
-         
+
             try
             {
-                if (!string.IsNullOrEmpty(data))
-                {
-                    AppParameters.RunningConnection.Edit(JsonConvert.DeserializeObject<Connection>(data));
-                    //id = updateConndata.Id;
+                AppParameters.RunningConnection.Edit(JsonConvert.DeserializeObject<Connection>(data));
 
-                    //if (AppParameters.ConnectionList.ContainsKey(updateConndata.Id))
-                    //{
-                    //    AppParameters.ConnectionList.AddOrUpdate(updateConndata.Id, updateConndata, (key, oldConndata) =>
-                    //    {
-                    //        fileUpdate = true;
-                    //        updateConndata.CreatedByUsername = oldConndata.CreatedByUsername;
-                    //        updateConndata.CreatedDate = oldConndata.CreatedDate;
-                    //        updateConndata.ApiConnected = oldConndata.ApiConnected;
-
-                    //        updateConndata.UpdateStatus = true;
-                    //        foreach (Api_Connection Connection_item in AppParameters.RunningConnection.Connection)
-                    //        {
-                    //            if (Connection_item.ID == updateConndata.Id)
-                    //            {
-                    //                if (!updateConndata.ActiveConnection)
-                    //                {
-                    //                    if (updateConndata.UdpConnection)
-                    //                    {
-                    //                        Connection_item._StopUDPListener();
-                    //                    }
-                    //                    if (updateConndata.TcpIpConnection)
-                    //                    {
-                    //                        Connection_item._StopTCPListener();
-                    //                    }
-                    //                    else if (updateConndata.WsConnection)
-                    //                    {
-                    //                        Connection_item.WSStop();
-                    //                    }
-                    //                    else
-                    //                    {
-                    //                        if (Connection_item.MessageType.ToUpper().EndsWith("Stills".ToUpper()))
-                    //                        {
-                    //                            Connection_item.ConnectionInfo.ActiveConnection = false;
-                    //                            Connection_item.Download();
-                    //                        }
-                    //                        Connection_item.ConstantRefresh = false;
-                    //                        Connection_item.Stop();
-                    //                    }
-
-                    //                }
-                    //                else if (updateConndata.ActiveConnection)
-                    //                {
-                    //                    if (updateConndata.UdpConnection)
-                    //                    {
-                    //                        Connection_item._StartUDPListener();
-                    //                    }
-                    //                    if (updateConndata.TcpIpConnection)
-                    //                    {
-                    //                        Connection_item._StartTCPListener();
-                    //                    }
-                    //                    else if (updateConndata.WsConnection)
-                    //                    {
-                    //                        Connection_item._WSThreadListener();
-                    //                    }
-                    //                    else
-                    //                    {
-                    //                        Connection_item.ConstantRefresh = true;
-                    //                        Connection_item._ThreadDownload();
-                    //                        Connection_item._ThreadRefresh();
-                    //                    }
-                    //                }
-
-                    //                Connection_item.ConnectionInfo = updateConndata;
-
-                    //            }
-                    //        }
-                    //        return updateConndata;
-                    //    });
-                    //}
-                }
-
-                //if (fileUpdate)
-                //{
-                //    new FileIO().Write(string.Concat(AppParameters.CodeBase.Parent.FullName.ToString(), AppParameters.Appsetting), "Connection.json", JsonConvert.SerializeObject(AppParameters.ConnectionList.Select(x => x.Value).ToList(), Formatting.Indented, new JsonSerializerSettings() { ContractResolver = new NullToEmptyStringResolver() }));
-                //}
-                //return AppParameters.RunningConnection.Where(w => w. == id).Select(s => s.Value).ToList();
                 return null;
             }
             catch (Exception e)
@@ -2715,68 +2619,11 @@ namespace Factory_of_the_Future
                 return null;
             }
         }
-
         internal IEnumerable<Connection> RemoveAPI(string data)
         {
-            string id = string.Empty;
             try
             {
                 AppParameters.RunningConnection.Remove(JsonConvert.DeserializeObject<Connection>(data));
-                //JObject conn = JObject.Parse(data);
-                //if (conn.HasValues)
-                //{
-                //    if (conn.ContainsKey("Id"))
-                //    {
-                //        id = (string)conn["Id"];
-                //        foreach (Api_Connection Connection_item in AppParameters.RunningConnection.Connection)
-                //        {
-                //            if (Connection_item.ID == id)
-                //            {
-                //                if (AppParameters.ConnectionList.TryRemove(id, out Connection outtemp))
-                //                {
-                //                    if (Connection_item.ConnectionInfo.UdpConnection)
-                //                    {
-                //                        Connection_item.UDPDelete();
-                //                        AppParameters.RunningConnection.Connection.Remove(Connection_item);
-                //                        new FileIO().Write(string.Concat(AppParameters.CodeBase.Parent.FullName.ToString(), AppParameters.Appsetting), "Connection.json", JsonConvert.SerializeObject(AppParameters.ConnectionList.Select(x => x.Value).ToList(), Formatting.Indented, new JsonSerializerSettings() { ContractResolver = new NullToEmptyStringResolver() }));
-                //                        return AppParameters.ConnectionList.Select(e => e.Value).ToList();
-                //                    }
-                //                    else if (Connection_item.ConnectionInfo.TcpIpConnection)
-                //                    {
-                //                        Connection_item.TCPDelete();
-                //                        AppParameters.RunningConnection.Connection.Remove(Connection_item);
-                //                        new FileIO().Write(string.Concat(AppParameters.CodeBase.Parent.FullName.ToString(), AppParameters.Appsetting), "Connection.json", JsonConvert.SerializeObject(AppParameters.ConnectionList.Select(x => x.Value).ToList(), Formatting.Indented, new JsonSerializerSettings() { ContractResolver = new NullToEmptyStringResolver() }));
-                //                        return AppParameters.ConnectionList.Select(e => e.Value).ToList();
-                //                    }
-                //                    else if (Connection_item.ConnectionInfo.WsConnection)
-                //                    {
-                //                        Connection_item.WSDelete();
-                //                        AppParameters.RunningConnection.Connection.Remove(Connection_item);
-                //                        new FileIO().Write(string.Concat(AppParameters.CodeBase.Parent.FullName.ToString(), AppParameters.Appsetting), "Connection.json", JsonConvert.SerializeObject(AppParameters.ConnectionList.Select(x => x.Value).ToList(), Formatting.Indented, new JsonSerializerSettings() { ContractResolver = new NullToEmptyStringResolver() }));
-                //                        return AppParameters.ConnectionList.Select(e => e.Value).ToList();
-                //                    }
-                //                    else
-                //                    {
-                //                        Connection_item.Stop_Delete();
-                //                        AppParameters.RunningConnection.Connection.Remove(Connection_item);
-                //                        new FileIO().Write(string.Concat(AppParameters.CodeBase.Parent.FullName.ToString(), AppParameters.Appsetting), "Connection.json", JsonConvert.SerializeObject(AppParameters.ConnectionList.Select(x => x.Value).ToList(), Formatting.Indented, new JsonSerializerSettings() { ContractResolver = new NullToEmptyStringResolver() }));
-                //                        return AppParameters.ConnectionList.Select(e => e.Value).ToList();
-                //                    }
-                //                }
-
-                //            }
-                //        }
-                //        return null;
-                //    }
-                //    else
-                //    {
-                //        return null;
-                //    }
-                //}
-                //else
-                //{
-                //    return null;
-                //}
                 return null;
             }
             catch (Exception e)
@@ -2785,6 +2632,7 @@ namespace Factory_of_the_Future
                 return null;
             }
         }
+        #endregion
         internal IEnumerable<GeoZone> EditZone(string data)
         {
             string id = string.Empty;
@@ -2802,10 +2650,10 @@ namespace Factory_of_the_Future
                         {
                             floorID = objectdata["floorId"].ToString();
                             id = objectdata["id"].ToString();
-                            if (AppParameters.CoordinateSystem.ContainsKey(floorID))
+                            if (CoordinateSystem.ContainsKey(floorID))
                             {
                                 ZoneInfo newzinfo = new ZoneInfo();
-                                if (AppParameters.CoordinateSystem.TryGetValue(floorID, out CoordinateSystem cs))
+                                if (CoordinateSystem.TryGetValue(floorID, out CoordinateSystem cs))
                                 {
                                     if (cs.Zones.ContainsKey(id))
                                     {
@@ -2831,17 +2679,17 @@ namespace Factory_of_the_Future
 
                 if (fileUpdate)
                 {
-                    new FileIO().Write(string.Concat(AppParameters.Logdirpath, AppParameters.ConfigurationFloder), "Project_Data.json", AppParameters.ZoneOutPutdata(AppParameters.CoordinateSystem.Select(x => x.Value).ToList()));
+                    new FileIO().Write(string.Concat(AppParameters.Logdirpath, AppParameters.ConfigurationFloder), "Project_Data.json", AppParameters.ZoneOutPutdata(CoordinateSystem.Select(x => x.Value).ToList()));
                 }
 
-                return AppParameters.CoordinateSystem[floorID].Zones.Where(w => w.Key == id).Select(s => s.Value).ToList();
+                return CoordinateSystem[floorID].Zones.Where(w => w.Key == id).Select(s => s.Value).ToList();
             }
             catch (Exception e)
             {
                 new ErrorLogger().ExceptionLog(e);
                 return null;
             }
-            finally 
+            finally
             {
                 data = null;
                 objectdata = null;
@@ -2956,7 +2804,7 @@ namespace Factory_of_the_Future
             try
             {
                 List<BackgroundImage> temp = new List<BackgroundImage>();
-                foreach (CoordinateSystem cs in AppParameters.CoordinateSystem.Values)
+                foreach (CoordinateSystem cs in CoordinateSystem.Values)
                 {
                     temp.Add(cs.BackgroundImage);
                 };
@@ -2973,7 +2821,7 @@ namespace Factory_of_the_Future
             try
             {
                 List<BackgroundImage> temp = new List<BackgroundImage>();
-                foreach (CoordinateSystem cs in AppParameters.CoordinateSystem.Values)
+                foreach (CoordinateSystem cs in CoordinateSystem.Values)
                 {
                     if (cs.BackgroundImage.Id == data["id"])
                     {

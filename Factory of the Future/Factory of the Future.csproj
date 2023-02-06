@@ -39,6 +39,8 @@
     <CodeAnalysisRuleSet>
     </CodeAnalysisRuleSet>
     <PlatformTarget>AnyCPU</PlatformTarget>
+    <RunCodeAnalysis>true</RunCodeAnalysis>
+    <CodeAnalysisIgnoreGeneratedCode>false</CodeAnalysisIgnoreGeneratedCode>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -606,7 +608,7 @@
     <Compile Include="Transaction_Concentrator\TC.cs" />
     <Compile Include="TCPIP_Listener\TcpServer.cs" />
     <Compile Include="TCPIP_Listener\TcpSession.cs" />
-    <Compile Include="UserLog.cs" />
+    <Compile Include="Utilities\UserLog.cs" />
     <Compile Include="Utilities\Graphics.cs" />
     <Compile Include="UDP_Listener\UdpServer.cs" />
     <Compile Include="ProcessReceivedMessage\ProcessRecvdMsg.cs" />
@@ -623,7 +625,6 @@
     <Compile Include="Utilities\SendMessage.cs" />
     <Compile Include="Utilities\SetData.cs" />
     <Compile Include="Utilities\System_Information.cs" />
-    <Compile Include="Utilities\User_Log.cs" />
     <Compile Include="WS_Listener\WSHandler.cs" />
   </ItemGroup>
   <ItemGroup>

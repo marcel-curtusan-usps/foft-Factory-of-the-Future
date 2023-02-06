@@ -347,13 +347,18 @@ function createLegsTripDataTable(table) {
     });
     $('#' + table).DataTable({
         dom: 'Bfrtip',
+        bInfo: false,
         bFilter: false,
-        bdeferRender: true,
+        bdeferRender: false,
+        scrollX: false,
+        scrollCollapse: true,
         paging: false,
         bPaginate: false,
         bAutoWidth: true,
-        bInfo: false,
         destroy: true,
+        language: {
+            zeroRecords: "No Missions Data Available"
+        },
         aoColumns: columns,
         columnDefs: [],
         rowCallback: function (row, data, index) {

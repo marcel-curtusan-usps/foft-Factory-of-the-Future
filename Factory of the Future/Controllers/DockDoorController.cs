@@ -16,7 +16,7 @@ namespace Factory_of_the_Future.Controllers
         {
 
             IEnumerable<RouteTrips> doors = new List<RouteTrips>();
-            foreach (CoordinateSystem cs in AppParameters.CoordinateSystem.Values)
+            foreach (CoordinateSystem cs in FOTFManager.Instance.CoordinateSystem.Values)
             {
                 cs.Zones.Where(f => f.Value.Properties.ZoneType == "DockDoor"
                 ).Select(y => y.Value).ToList().ForEach(DockDoor =>
@@ -38,7 +38,7 @@ namespace Factory_of_the_Future.Controllers
         public IEnumerable<RouteTrips> Get(string id)
         {
             IEnumerable<RouteTrips> doors = new List<RouteTrips>();
-            foreach (CoordinateSystem cs in AppParameters.CoordinateSystem.Values)
+            foreach (CoordinateSystem cs in FOTFManager.Instance.CoordinateSystem.Values)
             {
                 cs.Zones.Where(f => f.Value.Properties.ZoneType == "DockDoor" && f.Value.Properties.DoorNumber.ToLower() == id.ToLower()
                 ).Select(y => y.Value).ToList().ForEach(DockDoor =>

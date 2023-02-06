@@ -59,7 +59,7 @@ namespace Factory_of_the_Future
 
         //public static Dictionary<string, string> CameraMapping { get; set; }
         public static ConcurrentDictionary<string, MachData> MPEWatchData { get; set; } = new ConcurrentDictionary<string, MachData>();
-        public static ConcurrentDictionary<string, CoordinateSystem> CoordinateSystem { get; set; } = new ConcurrentDictionary<string, CoordinateSystem>();  
+       // public static ConcurrentDictionary<string, CoordinateSystem> CoordinateSystem { get; set; } = new ConcurrentDictionary<string, CoordinateSystem>();  
         public static ConcurrentDictionary<string, Cameras> CameraInfoList { get; set; } = new ConcurrentDictionary<string, Cameras>();
         //public static ConcurrentDictionary<string, Connection> ConnectionList { get; set; } = new ConcurrentDictionary<string, Connection>();
         public static ConcurrentDictionary<string, DoorTripAssociation> DoorTripAssociation { get; set; } = new ConcurrentDictionary<string, DoorTripAssociation>();
@@ -465,31 +465,31 @@ namespace Factory_of_the_Future
                 new ErrorLogger().ExceptionLog(e);
             }
         }
-        internal static void LoadIndoorapData(string fileName)
-        {
-            try
-            {
-                string ProjectData = new FileIO().Read(string.Concat(Logdirpath, ConfigurationFloder), fileName);
+        //internal static void LoadIndoorapData(string fileName)
+        //{
+        //    try
+        //    {
+        //        string ProjectData = new FileIO().Read(string.Concat(Logdirpath, ConfigurationFloder), fileName);
 
-                if (!string.IsNullOrEmpty(ProjectData))
-                {
-                    List<CoordinateSystem> cs = JsonConvert.DeserializeObject<List<CoordinateSystem>>(ProjectData);
-                    foreach (CoordinateSystem csitem in cs)
-                    {
-                        if (!CoordinateSystem.TryAdd(csitem.Id, csitem)) 
-                        {
-                            new ErrorLogger().CustomLog("Unable to CoordinateSystem" + csitem.Name, string.Concat((string)AppParameters.AppSettings.Property("APPLICATION_NAME").Value, "_Applogs"));
+        //        if (!string.IsNullOrEmpty(ProjectData))
+        //        {
+        //            List<CoordinateSystem> cs = JsonConvert.DeserializeObject<List<CoordinateSystem>>(ProjectData);
+        //            foreach (CoordinateSystem csitem in cs)
+        //            {
+        //                if (!CoordinateSystem.TryAdd(csitem.Id, csitem)) 
+        //                {
+        //                    new ErrorLogger().CustomLog("Unable to CoordinateSystem" + csitem.Name, string.Concat((string)AppParameters.AppSettings.Property("APPLICATION_NAME").Value, "_Applogs"));
 
-                        }
-                    }
-                    //Task.Run(() => new ProcessRecvdMsg().StartProcess(ProjectData, "getProjectInfo", ""));
-                }
-            }
-            catch (Exception e)
-            {
-                new ErrorLogger().ExceptionLog(e);
-            }
-        }
+        //                }
+        //            }
+        //            //Task.Run(() => new ProcessRecvdMsg().StartProcess(ProjectData, "getProjectInfo", ""));
+        //        }
+        //    }
+        //    catch (Exception e)
+        //    {
+        //        new ErrorLogger().ExceptionLog(e);
+        //    }
+        //}
         internal static void LoadTempIndoorapData(string fileName)
         {
             try
@@ -846,7 +846,7 @@ namespace Factory_of_the_Future
                 //IndoorMap = new ConcurrentDictionary<string, BackgroundImage>();
                 //TagsList = new ConcurrentDictionary<string, GeoMarker>();
                 //ZoneList = new ConcurrentDictionary<string, GeoZone>();
-                CoordinateSystem = new ConcurrentDictionary<string, CoordinateSystem>();
+                //CoordinateSystem = new ConcurrentDictionary<string, CoordinateSystem>();
                 foreach (Api_Connection conn in RunningConnection.Connection)
                 {
                     if (conn.ConnectionInfo.UdpConnection)
