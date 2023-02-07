@@ -493,7 +493,6 @@
     <Content Include="Scripts\View\floorplan.js" />
     <Content Include="Scripts\View\indoorMap.js" />
     <Content Include="Scripts\View\machine_sparkline.js" />
-    <Content Include="Scripts\View\scriptsFOTFCustom.js" />
     <Content Include="Scripts\View\staging_bullpen.js" />
     <Content Include="Scripts\View\tag_search.js" />
     <Content Include="Scripts\View\trips.js" />

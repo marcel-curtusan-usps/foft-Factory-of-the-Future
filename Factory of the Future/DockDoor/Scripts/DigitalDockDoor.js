@@ -264,8 +264,8 @@ function setHeight() {
     $("div.card").css("min-height", pageBottom + "px");
 }
 function SortByLegNumber(a, b) {
-    let aName = parseInt(a.legNumber.match(/\d+/));
-    let bName = parseInt(b.legNumber.match(/\d+/));
+    let aName = parseInt(a.legNumber.match(/\d+/), 10);
+    let bName = parseInt(b.legNumber.match(/\d+/), 10);
     return aName < bName ? -1 : aName > bName ? 1 : 0;
 }
 function updateLegsTripDataTable(ldata, table) {

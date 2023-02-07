@@ -625,8 +625,8 @@ function Add_Connection() {
             UdpConnection: $('input[type=checkbox][name=udp_connection]').is(':checked'),
             TcpIpConnection: $('input[type=checkbox][name=tcpip_connection]').is(':checked'),
             WsConnection: $('input[type=checkbox][name=ws_connection]').is(':checked'),
-            HoursBack: parseInt($('input[id=hoursback_range]').val()),
-            HoursForward: parseInt($('input[id=hoursforward_range]').val()),
+            HoursBack: parseInt($('input[id=hoursback_range]').val(), 10),
+            HoursForward: parseInt($('input[id=hoursforward_range]').val(), 10),
             DataRetrieve: $('select[name=data_retrieve] option:selected').val(),
             ConnectionName: $('input[type=text][name=connection_name]').val(),
             IpAddress: $('input[type=text][name=ip_address]').val(),
@@ -676,22 +676,22 @@ function Edit_Connection(Data) {
     }
     if (Data.HoursBack > 0 || Data.HoursForward > 0) {
 
-        $('.hoursbackvalue').html($.isNumeric(Data.HoursBack) ? parseInt(Data.HoursBack) : 0);
-        $('input[id=hoursback_range]').val($.isNumeric(Data.HoursBack) ? parseInt(Data.HoursBack) : 0);
+        $('.hoursbackvalue').html($.isNumeric(Data.HoursBack) ? parseInt(Data.HoursBack, 10) : 0);
+        $('input[id=hoursback_range]').val($.isNumeric(Data.HoursBack) ? parseInt(Data.HoursBack, 10) : 0);
         $('.hours_range_row').css("display", "");
-        $('.hoursforwardvalue').html($.isNumeric(Data.HoursForward) ? parseInt(Data.HoursForward) : 0);
-        $('input[id=hoursforward_range]').val($.isNumeric(Data.HoursForward) ? parseInt(Data.HoursForward) : 0);
+        $('.hoursforwardvalue').html($.isNumeric(Data.HoursForward) ? parseInt(Data.HoursForward, 10) : 0);
+        $('input[id=hoursforward_range]').val($.isNumeric(Data.HoursForward) ? parseInt(Data.HoursForward, 10) : 0);
         $('.hours_range_row').css("display", "");
 
         $('input[type=checkbox][name=hour_range]').prop('checked', true).change();
 
     }
     else {
-        $('.hoursbackvalue').html($.isNumeric(Data.HoursBack) ? parseInt(Data.HoursBack) : 0);
-        $('input[id=hoursback_range]').val($.isNumeric(Data.HoursBack) ? parseInt(Data.HoursBack) : 0);
+        $('.hoursbackvalue').html($.isNumeric(Data.HoursBack) ? parseInt(Data.HoursBack, 10) : 0);
+        $('input[id=hoursback_range]').val($.isNumeric(Data.HoursBack) ? parseInt(Data.HoursBack, 10) : 0);
         $('.hours_range_row').css("display", "none");
-        $('.hoursforwardvalue').html($.isNumeric(Data.HoursForward) ? parseInt(Data.HoursForward) : 0);
-        $('input[id=hoursforward_range]').val($.isNumeric(Data.HoursForward) ? parseInt(Data.HoursForward) : 0);
+        $('.hoursforwardvalue').html($.isNumeric(Data.HoursForward) ? parseInt(Data.HoursForward, 10) : 0);
+        $('input[id=hoursforward_range]').val($.isNumeric(Data.HoursForward) ? parseInt(Data.HoursForward, 10) : 0);
         $('.hours_range_row').css("display", "none");
         $('input[type=checkbox][name=hour_range]').prop('checked', false).change();
     }
