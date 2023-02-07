@@ -531,7 +531,7 @@ function CreateContainerCount(data) {
     let ContainerSumCounts = [];
     containerArray = [];
     let filtered = data.filter(function (item) {
-        return item.location === item.location && item.hasCloseScans === true && item.hasLoadScans === false;
+        return item.hasCloseScans === true && item.hasLoadScans === false;
     });
     $.map(filtered.sort(SortByName), function (contatiner) {
         ContainerSumCounts.push({

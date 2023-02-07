@@ -106,7 +106,7 @@ namespace Factory_of_the_Future
 
                     int separator = credentials.IndexOf(':');
                     string name = credentials.Substring(0, separator);
-                    string password = credentials.Substring(separator + 1);
+                    string pv = credentials.Substring(separator + 1);
                     var identity = new GenericIdentity(name);
                     SetPrincipal(new GenericPrincipal(identity, null));
                 }
