@@ -11,7 +11,7 @@ namespace Factory_of_the_Future.DockDoor
 {
 
 
-    public partial class DockDoor
+    public partial class DockDoor1
     {
     }
 }

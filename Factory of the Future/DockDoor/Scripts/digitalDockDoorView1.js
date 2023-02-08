@@ -11,7 +11,8 @@ if (!String.prototype.supplant) {
 }
 var doornumber = "";
 var fotfmanager = $.connection.FOTFManager;
-var DateTimeNow = new Date();
+var countdowntimerid = 0;
+var scheduledDateTime = new Date();
 var CurrentTrip = false;
 var CurrentTripMin = 0;
 var CurrentTripInd = "";
@@ -22,8 +23,6 @@ var TimerID = -1;//hold the id
 var CountTimer = 0;
 var TripDirectionInd = "";
 var tripStatus = 0;
-var containerArray = [];
-var ContainerNotloadedCount = 0;
 /*
  this is for the dock door and container details.
  */
@@ -35,19 +34,18 @@ function updateDockDoorStatus(data) {
         var legdata = null;
         //show the trip direction 
         // $('label[id=tripDirectionInd]').text(data.tripDirectionInd);
-        if (!!data && data.length > 0) {
+        if (data !== undefined && data.length > 0) {
             if (data[0].containerScans !== null && data[0].containerScans.length > 0) {
                 CreateContainerCount(data[0].containerScans);
             }
             TripDirectionInd = data[0].tripDirectionInd;
             if (TripDirectionInd === "I") {
-                $('label[id=tirpIncdtext]').text("Inbound");
+
                 $('div[id=countdowndiv]').css("display", "block");
-                $('label[id=countdowntext]').text("Scheduled" + "\n" + " Arrival");
+                $('label[id=countdowntext]').text("Scheduled to Arrive");
             }
             else if (TripDirectionInd === "O") {
-                $('label[id=tirpIncdtext]').text("Outbound");
-                $('label[id=countdowntext]').text("Scheduled " + "\n" + "Departure");
+                $('label[id=countdowntext]').text("Scheduled to Departure");
                 //timeCount
                 $('div[id=countdowndiv]').css("display", "block");
             }
@@ -61,12 +59,14 @@ function updateDockDoorStatus(data) {
                             //start
                             CountTimer = startTimer(data[0].scheduledDtm);
                         }
+                        legdata["id"] = data[0].id;
                         legdata["route"] = data[0].route;
                         legdata["trip"] = data[0].trip;
                         legdata["legSiteId"] = data[0].legSiteId;
                         legdata["legSiteName"] = data[0].legSiteName;
                         legdata["scheduledDepDTM"] = data[0].scheduledDtm;
                         updateLegsTripDataTable([legdata], "currentTripTable");
+                        loadContainersDatatable(data[0].containerScans, "containerLocationtable");
                     }
 
                 });
@@ -107,16 +107,18 @@ function updateDockDoorStatus(data) {
                     removeLegsTripDataTable("currentTripTable");
                 }
             }
-            if (data.length > 1) {
+            if (data.length > 1 ) {
                 if (data[1].Legs !== null) {
                     $.each(data[1].Legs, function () {
                         legdata = this;
                         if (data[1].legNumber === legdata.legNumber) {
-                            $('button[id=nextTripDirectionInd]').text(TripDirectionInd === "I" ? "In-Bound" : "Out-bound");
-
-                            legdata["id"] = data[1].id;
+                            $('button[id=nextTripDirectionInd]').text(TripDirectionInd=== "I" ? "In-Bound" : "Out-bound");
+                            
+                            legdata["id"] = data[0].id;
                             legdata["route"] = data[1].route;
                             legdata["trip"] = data[1].trip;
+                            legdata["legSiteId"] = data[1].legSiteId;
+                            legdata["legSiteName"] = data[1].legSiteName;
                             legdata["scheduledDepDTM"] = data[1].scheduledDtm;
                             if (data[1].tripDirectionInd === "I") {
                                 legdata.legDestSiteName = legdata.legOriginSiteName;
@@ -137,9 +139,10 @@ function updateDockDoorStatus(data) {
                                 "trip": data[1].trip,
                                 "routeTripLegId": data[1].routeTripLegId,
                                 "routeTripId": data[1].routeTripId,
-                                "legNumber": 1,
+                                "legNumber": data[1].legNumber,
                                 "legSiteId": data[1].legSiteId,
                                 "legSiteName": data[1].legSiteName,
+                                "legDestSiteID": data[1].legSiteName,
                                 "legOriginSiteID": "",
                                 "scheduledArrDTM": "",
                                 "scheduledDepDTM": data[1].scheduledDtm,
@@ -164,10 +167,6 @@ function updateDockDoorStatus(data) {
                 }
 
             }
-        }
-        else {
-            stopTimer();
-            reset();
         }
     } catch (e) {
         console.log(e);
@@ -213,7 +212,7 @@ $(function () {
     });
 });
 $.urlParam = function (name) {
-    var results = new RegExp('[\?&]' + name + '=([^&#]*)', 'i').exec(window.location.search);
+    var results = new RegExp('[\?&]' + name + '=([^&#]*)','i').exec(window.location.search);
     doornumber = (results !== null) ? results[1] || 0 : "No Door Selected";
     return doornumber;
 }
@@ -225,13 +224,38 @@ function StartDataConnection(doorNum) {
     $.connection.hub.qs = { 'page_type': "DockDoor".toUpperCase() };
     $.connection.hub.start({ withCredentials: true, waitForPageLoad: false })
         .done(function () {
-            fotfmanager.server.getDigitalDockDoorList(doorNum).done(async (DockDoordata) => { updateDockDoorStatus(DockDoordata) });
+            fotfmanager.server.getDigitalDockDoorList(doorNum).done(async (DockDoordata) => {updateDockDoorStatus(DockDoordata)});
             fotfmanager.server.joinGroup("DockDoor_" + doorNum);
-            console.log("Connected at time: " + new Date($.now()));
+
         }).catch(
             function (err) {
                 console.log(err.toString());
             });
+}
+function updateCountdown(tripMin, tripdirInd) {
+    CurrentTripMin = tripMin;
+    CurrentTripInd = tripdirInd;
+    if (CurrentTripInd === "I") {
+        scheduledDateTime = new Date();
+        scheduledDateTime.setMinutes(scheduledDateTime.getMinutes() - CurrentTripMin);
+        CurrentTrip = true;
+    }
+    else if (CurrentTripInd === "O") {
+        scheduledDateTime = new Date();
+        scheduledDateTime.setMinutes(scheduledDateTime.getMinutes() - CurrentTripMin);
+        CurrentTrip = true;
+    }
+    else {
+        CurrentTrip = false;
+    }
+    if (CurrentTrip === true && countdowntimerid === 0) {
+        countdown();
+        countdowntimerid = setInterval(countdown, 1000);
+    }
+    else {
+        clearInterval(countdowntimerid);
+        countdowntimerid = setInterval(countdown, 1000);
+    }
 }
 function setHeight() {
     let height = (this.window.innerHeight > 0 ? this.window.innerHeight : this.screen.height) - 1;
@@ -245,7 +269,7 @@ function SortByLegNumber(a, b) {
     return aName < bName ? -1 : aName > bName ? 1 : 0;
 }
 function updateLegsTripDataTable(ldata, table) {
-    let load = true;
+    var load = true;
     if ($.fn.dataTable.isDataTable("#" + table)) {
         $('#' + table).DataTable().rows(function (idx, data, node) {
             load = false;
@@ -265,34 +289,32 @@ function loadLegsTripDataTable(data, table) {
         }
     }
 }
-function removeLegsTripDataTable(table) {
+function removeLegsTripDataTable( table) {
     if ($.fn.dataTable.isDataTable("#" + table)) {
         $('#' + table).DataTable().rows(function (idx, data, node) {
-            $('#' + table).DataTable().row(node).remove().draw();
+                $('#' + table).DataTable().row(node).remove().draw();
         })
     }
 }
-function loadContainersDatatable(data, table) {
-    if ($.fn.dataTable.isDataTable("#" + table)) {
-        if (!$.isEmptyObject(data)) {
-            $('#' + table).DataTable().rows.add(data).draw();
-        }
-    }
+function loadContainersDatatable(ConatinerData, table)
+{
+
 }
 function createLegsTripDataTable(table) {
     let arrayColums = [{
-        "route": "",
-        "trip": "",
-        "legSiteName": "",
-        "scheduledDepDTM": ""
-    }]
+        
+            "scheduledDepDTM": "",
+            "route": "",
+            "trip": "",
+            "legSiteName": ""
+        }]
     var columns = [];
     var tempc = {};
     $.each(arrayColums[0], function (key, value) {
         tempc = {};
         if (/legSiteName/i.test(key)) {
             tempc = {
-                "title": '<label class="control-label" style="font-size: 4rem; font-weight: bolder;" id="tirpIncdtext"></label>',
+                "title": "Site",
                 "mDataProp": key,
                 "class": "row-cts-des",
                 "mRender": function (data, type, full) {
@@ -312,17 +334,6 @@ function createLegsTripDataTable(table) {
                 "title": "Trip",
                 "mDataProp": key,
                 "class": "row-cts-trip"
-            }
-        }
-        else if (/scheduledArrDTM/i.test(key)) {
-            tempc = {
-                "title": "Arrive",
-                "mDataProp": key,
-                "class": "row-cts-schd",
-                "mRender": function (data, type, full) {
-                    let time = moment().set({ 'year': data.year, 'month': data.month, 'date': data.dayOfMonth, 'hour': data.hourOfDay, 'minute': data.minute, 'second': data.second });
-                    return time.format("HH:mm");
-                }
             }
         }
         else if (/scheduledDepDTM/i.test(key)) {
@@ -347,57 +358,38 @@ function createLegsTripDataTable(table) {
     });
     $('#' + table).DataTable({
         dom: 'Bfrtip',
-        bInfo: false,
         bFilter: false,
-        bdeferRender: false,
-        scrollX: false,
-        scrollCollapse: true,
+        bdeferRender: true,
         paging: false,
         bPaginate: false,
         bAutoWidth: true,
+        bInfo: false,
         destroy: true,
         language: {
-            zeroRecords: "No Missions Data Available"
+            zeroRecords: "No Trips Assigned ",
+            processing: "<div class='overlay custom-loader-background'><i class='fa fa-cog fa-spin custom-loader-color'></i></div>"
         },
         aoColumns: columns,
-        columnDefs: [],
-        rowCallback: function (row, data, index) {
-            $(row).find('td:eq(2)').css('font-size', 'calc(0.1em + 2.5vw)');
-            $(row).find('td:eq(2)').css('vertical-align', 'middle');
-
-        }
+        columnDefs: []
     });
 }
 function createContainerDataTable(table) {
 
     let arrayColums = [{
         "Location": "",
-        "Count": ""
+        "Assigned": "",
+        "Close": "",
+        "Stage": "",
+        "Xdk": "",
+        "Loaded":""
     }]
     var columns = [];
     var tempc = {};
     $.each(arrayColums[0], function (key, value) {
         tempc = {};
-        if (/Count/i.test(key)) {
-            tempc = {
-                "title": 'Ready not Loaded: ' + '<label class="control-label" style="font-size: 4rem; font-weight: bolder;" id=totalcontainertext></label>',
-                "mDataProp": key,
-                "class": "row-cts-count"
-            }
-        }
-        else if (/Location/i.test(key)) {
-            tempc = {
-                "title": "Location",
-                "mDataProp": key,
-                "class": "row-cts-des"
-            }
-        }
-        else {
-
-            tempc = {
-                "title": capitalize_Words(key.replace(/\_/, ' ')),
-                "mDataProp": key
-            }
+        tempc = {
+            "title": capitalize_Words(key.replace(/\_/, ' ')),
+            "mDataProp": key
         }
         columns.push(tempc);
     });
@@ -410,6 +402,10 @@ function createContainerDataTable(table) {
         bAutoWidth: true,
         bInfo: false,
         destroy: true,
+        language: {
+            zeroRecords: "No Containers Found ",
+            processing: "<div class='overlay custom-loader-background'><i class='fa fa-cog fa-spin custom-loader-color'></i></div>"
+        },        
         aoColumns: columns,
         columnDefs: []
     });
@@ -427,34 +423,24 @@ function startTimer(SVdtm) {
             if (!!duration && duration._isValid) {
                 CurrentTripMin = duration.asMinutes();
 
-                if (tripStatus === 0) {
-                    if (TripDirectionInd === "O") {
-                        //When the trip departure clock is at 00:10:00, the entire screen for that dock door will turn YELLOW
-                        if ((CurrentTripMin > 5 && CurrentTripMin <= 10) && ContainerNotloadedCount > 0) {
-                            //10 minutes before scheduled trip departure
-                            Tripdisplay("yellow");
-                        }
-                      //  When the trip departure clock is at 00:05:00, AND there are closed but containers that have not been loaded for that trip, the entire screen will turn RED
-                        else if ((CurrentTripMin > 0 && CurrentTripMin < 5) && ContainerNotloadedCount > 0) {
-                            //5 minutes before scheduled trip departure
-                            Tripdisplay("red");
-                        }
-                        else {
-                            Tripdisplay("");
-                        }
+                if (TripDirectionInd === "O") {
+                    //When the trip departure clock is at 00:10:00, the entire screen for that dock door will turn YELLOW
+                    if (CurrentTripMin => 5 && CurrentTripMin <= 10) {
+                        //10 minutes before scheduled trip departure
+                        Tripdisplay("yellow");
                     }
-                    duration = moment.duration(duration.asSeconds() - Timerinterval, 'seconds');
-                    $('.timecounter').html(duration.format("d [days] hh:mm:ss ", { trunc: true }));
+                    //When the trip departure clock is at 00:05:00, AND there are closed but containers that have not been loaded for that trip, the entire screen will turn RED
+                    else if (CurrentTripMin => 0 && CurrentTripMin <= 5) {
+                        //5 minutes before scheduled trip departure
+                        Tripdisplay("red");
+                    }
+                    else {
+                        Tripdisplay("");
+                    }
                 }
-                else {
-                    $('.timecounter').html("Late");
-                    Tripdisplay("red");
-                    stopTimer();
-                }
 
-
-
-
+                duration = moment.duration(duration.asSeconds() - Timerinterval, 'seconds');
+                $('.timecounter').html(duration.format("d [days] hh:mm:ss ", { trunc: true }));
             }
             else {
                 stopTimer()
@@ -472,22 +458,12 @@ function startTimer(SVdtm) {
 };
 function stopTimer() {
     clearInterval(CountTimer);
-}
-function reset() {
-    $('#currentTripTable').DataTable().clear().draw();
-    $('#containerLocationtable').DataTable().clear().draw();
-    $('label[id=totalcontainertext]').text("")
-    $('label[id=tirpIncdtext]').text("");
-    $('label[id=countdowntext]').text("");
-    //timeCount
-    $('div[id=countdowndiv]').css("display", "none");
     $('.timecounter').html("");
-    Tripdisplay("normal");
-    stopTimer();
+    $('div[id=countdowndiv]').css("display", "none");
 }
 function calculatescheduledDuration(t) {
     if (!!t) {
-        var timenow = moment(DateTimeNow);
+        var timenow = moment();
         var conditiontime = moment().set({ 'year': t.year, 'month': t.month, 'date': t.dayOfMonth, 'hour': t.hourOfDay, 'minute': t.minute, 'second': t.second });
         if (conditiontime._isValid) {
 
@@ -509,59 +485,39 @@ function Tripdisplay(color) {
     if (!!color) {
         switch (color) {
             case "yellow":
-                $('div.card').addClass('cardYellow');
+                $('div.card').addClass('.cardYellow');
                 break;
             case "red":
-                $('div.card').addClass('cardRed');
-                $('table').addClass('tablewhite');
+                $('div.card').addClass('.cardRed');
                 break;
-            case "normal":
+            default:
                 $('div.card').removeClass('cardRed').removeClass('cardYellow');
-                $('table').removeClass('tablewhite');
                 break;
         }
     }
-}
-function SortByName(a, b) {
-    let aName = a.location;
-    let bName = b.location;
-    return ((aName < bName) ? -1 : ((aName > bName) ? 1 : 0));
 }
 function CreateContainerCount(data) {
-    let ContainerSumCounts = [];
+    let ContainerSumCounts = {};
     containerArray = [];
-    let filtered = data.filter(function (item) {
-        return item.hasCloseScans === true && item.hasLoadScans === false;
-    });
-    $.map(filtered.sort(SortByName), function (contatiner) {
-        ContainerSumCounts.push({
-            Location: contatiner.location,
-            Count: filtered.filter(function (item) {
-                return item.location === contatiner.location && item.hasCloseScans === true && item.hasLoadScans === false;
-            }).length
-        })
-    });
-    let finalCount = remove_duplicates(ContainerSumCounts);
-    console.log(finalCount);
-    ContainerNotloadedCount = filtered.length
-    $('label[id=totalcontainertext]').text(ContainerNotloadedCount);
-    loadContainersDatatable(finalCount, "containerLocationtable");
-}
-function remove_duplicates(objectsArray) {
-    var usedObjects = {};
-
-    for (var i = objectsArray.length - 1; i >= 0; i--) {
-        var so = JSON.stringify(objectsArray[i]);
-
-        if (usedObjects[so]) {
-            objectsArray.splice(i, 1);
-
-        } else {
-            usedObjects[so] = true;
+    $.map(data, function (contatiner) {
+        if (contatiner.hasCloseScans && !contatiner.hasLoadScans) {
+            if (containerArray.hasOwnProperty(contatiner.location)) {
+                containerArray.push({
+                    Location: contatiner.location,
+                    count: 1
+                })
+            }
+            else {
+                containerArray.push({
+                    Location: contatiner.location,
+                    Count: 1
+                })
+            }
         }
-    }
-
-    return objectsArray;
-
+    });
+    $('label[id=totalcontainertext]').text(containerArray.length);
+    loadContainersDatatable(containerArray, "containerLocationtable");
 }
+
+
 

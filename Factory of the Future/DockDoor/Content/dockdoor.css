@@ -5,36 +5,51 @@
     margin-right: auto;
     margin-left: auto;
 }
+.dataTables_empty {
+    display: none;
+}
 #currentTripTable > thead > tr > th {
-    background-color: #0067F4 !important;
-    color: #FFFFFF !important;
-    font-size: 1.5rem;
+    font-size: 3.5vw;
     text-align: center;
+    font-weight: initial;
 }
 #currentTripTable > tbody > tr > td {
-    
-    font-size: 2rem;
+    font-size: 3.5vw;
     text-align: center;
+    font-weight: bolder;
 }
 #containerLocationtable > thead > tr > th {
-    background-color: #0067F4 !important;
-    color: #FFFFFF !important;
-    font-size: 2rem;
-}
-#nextTriptable > thead > tr > th {
-    background-color: #0067F4 !important;
-    color: #FFFFFF !important;
-    font-size: 1.5rem;
+    font-size: 3.5vw;
     text-align: center;
+    font-weight: initial;
 }
-#nextTriptable > tbody > tr > td {
-    font-size: 2rem;
-    text-align: center;
+#containerLocationtable > tbody > tr > td {
+    font-size: 3.5vw;
 }
-
-#nextTriptable > thead > tr > th {
-    background-color: #0067F4 !important;
+.cardYellow {
+    background-color: #FFF82E !important;
+}
+.cardRed {
+    background-color: #750000 !important;
+    color: white;
+}
+label {
+    margin-bottom:0px;
+}
+.table td, .table th {
+    padding: .01rem;
+    vertical-align: top;
+    border-top: 1px solid #dee2e6;
+}
+.tablewhite {
+    width: 100%;
+    margin-bottom: 0.01rem;
     color: #FFFFFF !important;
+}
+.table {
+    width: 100%;
+    margin-bottom: 0.01rem;
+    color: #212529;
 }
 /**CTS table*/
 .row-cts-schd {
@@ -54,7 +69,9 @@
 .row-cts-dest {
     width: 30%;
 }
-/*countdown timer*/
+.row-cts-count {
+    width: 50%;
+}
 /*countdown timer*/
 .timecounter {
     display: flex;
@@ -63,5 +80,6 @@
     align-items: center;
     height: 10vh;
     font-size: 7vw;
-    font-weight: bolder;
+    font-weight:bolder;
 }
+
