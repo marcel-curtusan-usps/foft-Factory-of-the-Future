@@ -10,9 +10,10 @@ namespace Factory_of_the_Future
     {
         private string _Itineraryitem { get; set; }
         private string _routetripid { get; set; }
-        private StringBuilder destsites;
+        private StringBuilder destsites = new StringBuilder();
         private bool disposedValue;
-        private bool update;
+        private JToken Itinerary  { get; set; }
+        private JToken legs { get; set; }
 
         public ItineraryTrip_Update(string Itineraryitem, string routetripid)
         {
@@ -22,11 +23,11 @@ namespace Factory_of_the_Future
             {
                 if (!string.IsNullOrEmpty(_Itineraryitem))
                 {
-                    JToken Itinerary = JToken.Parse(_Itineraryitem);
+                    Itinerary = JToken.Parse(_Itineraryitem);
                     if (Itinerary.HasValues)
                     {
-                        JToken legs = Itinerary[0].SelectToken("legs");
-                        if (legs.Any())
+                        legs = Itinerary[0].SelectToken("legs");
+                        if (legs.HasValues)
                         {
                             if (AppParameters.RouteTripsList.TryGetValue(_routetripid, out RouteTrips existingVal))
                             {
@@ -38,7 +39,7 @@ namespace Factory_of_the_Future
                                     {
                                         if (legitem.LegDestSiteID != existingVal.OriginSiteId && existingVal.LegNumber >= legitem.LegNumber)
                                         {
-                                            destsites.Append( "(^" + legitem.LegDestSiteID + "$)|");
+                                            destsites.Append("(^" + legitem.LegDestSiteID + "$)|");
                                         }
                                     }
                                 }
@@ -83,6 +84,10 @@ namespace Factory_of_the_Future
             {
                 new ErrorLogger().ExceptionLog(e);
             }
+            finally
+            {
+                Dispose();
+            }
         }
 
         protected virtual void Dispose(bool disposing)
@@ -97,6 +102,10 @@ namespace Factory_of_the_Future
                 // TODO: free unmanaged resources (unmanaged objects) and override finalizer
                 // TODO: set large fields to null
                 disposedValue = true;
+                legs = null;
+                Itinerary = null;
+                _routetripid = string.Empty;
+                _Itineraryitem = string.Empty;
             }
         }
 
