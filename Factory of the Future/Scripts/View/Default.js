@@ -233,6 +233,7 @@ $(function () {
             if (!/^(Admin|OIE)/i.test(User.Role)) {
                 fotfmanager.server.leaveGroup("PeopleMarkers");
             }
+            Promise.all([initDoorDataTable()]);
             Promise.all([init_mapSetup()]);
             conntoggle.state('conn-on');
         }).catch(
@@ -529,18 +530,7 @@ $(function () {
     //    View_Web_Camera(id, model, description);
     //});
 });
-function removeTrips(routetrip)
-{
-    let trname = $.find('tbody tr[data-id=' + routetrip + ']');
 
-    if (trname.length > 0) {
-        for (let tr_name of trname) {
-            let tablename = $(tr_name).closest('table').attr('id');
-            $('#' + tablename).find('tbody tr[data-id=' + routetrip + ']').remove();
-        }
-    }
-    $('#tripSelector option[id=' + routetrip + ']').remove();
-}
 
 function Page_Update(data) {
     $('#fotf-site-facility-name').append(data.FACILITY_NAME);
@@ -672,6 +662,11 @@ function SortByLocationName(a, b) {
     return ((aName < bName) ? -1 : ((aName > bName) ? 1 : 0));
 }
 function SortByNumber(a, b) {
+    return a - b;
+}
+function SortByValue(a, b) {
+    a = a.value;
+    b = b.value;
     return a - b;
 }
 function GetPeopleInZone(zone, P2Pdata, staffarray) {
@@ -1039,7 +1034,13 @@ function viewportSelectedByName(name) {
         });
     }
 }
-
+async function loadDatatable(data, table) {
+    if ($.fn.dataTable.isDataTable("#" + table)) {
+        if (!$.isEmptyObject(data)) {
+            $('#' + table).DataTable().rows.add(data).draw();
+        }
+    }
+}
 function hideSidebarLayerDivs() {
 
     $('div[id=agvlocation_div]').css('display', 'none');

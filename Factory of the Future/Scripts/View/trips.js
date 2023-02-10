@@ -6,8 +6,9 @@ $.extend(fotfmanager.client, {
  
 });
 $.extend(fotfmanager.client, {
-    updateSVTripsStatus: async (updatetripsstatus) => { updateTrips(updatetripsstatus) },
-    removeSVTrips: async (tripid) => { removeTrips(tripid); }
+    SVTripsAdd: async (tripsadd) => { Promise.all([addTrips(tripsadd)]) },
+    SVTripsUpdate: async (updatetripsstatus) => { Promise.all([updateTrips(updatetripsstatus)]) },
+    SVTripsRemove: async (tripid) => { Promise.all([ removeTrips(tripid)]) }
 });
 
 async function init_arrive_depart_trips() {
@@ -34,44 +35,44 @@ async function init_arrive_depart_trips() {
         console.log(e);
     }
 }
-async function updateTrips(trip) {
-    let routetrip = trip.id;
-    let trname = $.find('tbody tr[data-id=' + routetrip + ']');
-   if (trname.length > 0) {
-        for (let tr_name of trname) {
-            let tablename = $(tr_name).closest('table').attr('id');
-            if (checkValue(tablename)) {
-                if (/remove/i.test(trip.state)) {
+//async function updateTrips(trip) {
+//    let routetrip = trip.id;
+//    let trname = $.find('tbody tr[data-id=' + routetrip + ']');
+//   if (trname.length > 0) {
+//        for (let tr_name of trname) {
+//            let tablename = $(tr_name).closest('table').attr('id');
+//            if (checkValue(tablename)) {
+//                if (/remove/i.test(trip.state)) {
                       
-                }
-                else {
-                    switch (tablename) {
-                        case "ctsdockdepartedtable":
-                            ob_trips_Table_Body.find('tbody tr[data-id=' + routetrip + ']').replaceWith(ob_trips_row_template.supplant(formatobtriprow(trip)));
-                            break;
-                        case "ctslocaldockdepartedtable":
-                            oblocal_trips_Table_Body.find('tbody tr[data-id=' + routetrip + ']').replaceWith(oblocal_trips_row_template.supplant(formatobtriprow(trip)));
-                            break;
-                        case "ctsouttoptable":
-                            scheouttrips_Table_Body.find('tbody tr[data-id=' + routetrip + ']').replaceWith(scheouttrips_row_template.supplant(formatobtriprow(trip)));
-                            break;
-                        case "ctsintoptable":
-                            scheintrips_Table_Body.find('tbody tr[data-id=' + routetrip + ']').replaceWith(scheintrips_row_template.supplant(formatobtriprow(trip)));
-                            break;
-                        default:
-                    }
-                }
-            }
-        }
+//                }
+//                else {
+//                    switch (tablename) {
+//                        case "ctsdockdepartedtable":
+//                            ob_trips_Table_Body.find('tbody tr[data-id=' + routetrip + ']').replaceWith(ob_trips_row_template.supplant(formatobtriprow(trip)));
+//                            break;
+//                        case "ctslocaldockdepartedtable":
+//                            oblocal_trips_Table_Body.find('tbody tr[data-id=' + routetrip + ']').replaceWith(oblocal_trips_row_template.supplant(formatobtriprow(trip)));
+//                            break;
+//                        case "ctsouttoptable":
+//                            scheouttrips_Table_Body.find('tbody tr[data-id=' + routetrip + ']').replaceWith(scheouttrips_row_template.supplant(formatobtriprow(trip)));
+//                            break;
+//                        case "ctsintoptable":
+//                            scheintrips_Table_Body.find('tbody tr[data-id=' + routetrip + ']').replaceWith(scheintrips_row_template.supplant(formatobtriprow(trip)));
+//                            break;
+//                        default:
+//                    }
+//                }
+//            }
+//        }
        
-    }
-    else {
-        if (!/remove/i.test(trip.state)) {
-            process_trips(trip);
-        }
+//    }
+//    else {
+//        if (!/remove/i.test(trip.state)) {
+//            process_trips(trip);
+//        }
         
-    }
-}
+//    }
+//}
 async function process_trips(trip)
 {
     try {
@@ -101,6 +102,30 @@ async function process_trips(trip)
     } catch (e) {
         console.log(e);
     }
+}
+async function removeTrips(routetrip) {
+    removeTripsDoorAssignedDatatable(routetrip, "doortriptable")
+    let trname = $.find('tbody tr[data-id=' + routetrip + ']');
+
+    if (trname.length > 0) {
+        for (let tr_name of trname) {
+            let tablename = $(tr_name).closest('table').attr('id');
+            $('#' + tablename).find('tbody tr[data-id=' + routetrip + ']').remove();
+        }
+    }
+    $('#tripSelector option[id=' + routetrip + ']').remove();
+}
+async function addTrips(trip) {
+    $('<option/>').attr("id", trip.id).val(trip.id).html(trip.legSiteName + " | " + trip.route + " - " + trip.trip + " | " + tripDirectiontext(trip)).appendTo('select[id=tripSelector]');
+    var selectList = $('#tripSelector option');
+
+    selectList.sort(SortByValue);
+
+    $('#tripSelector').html(selectList);
+}
+async function updateTrips(trip) {
+
+
 }
 /**
 Outbound network trips

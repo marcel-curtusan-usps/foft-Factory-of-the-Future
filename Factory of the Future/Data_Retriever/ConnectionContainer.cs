@@ -3,6 +3,7 @@ using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Web;
 
 namespace Factory_of_the_Future
@@ -14,7 +15,7 @@ namespace Factory_of_the_Future
         public bool updateFile;
         public Connection _conn { get; protected set; }
         public Api_Connection NewConnection { get; protected set; }
-        public void Add(Connection con) 
+        public void Add(Connection con)
         {
             try
             {
@@ -72,7 +73,7 @@ namespace Factory_of_the_Future
             }
 
         }
-        internal void Edit(Connection updateConndata)
+        public async Task EditAsync(Connection updateConndata)
         {
             try
             {
@@ -155,10 +156,15 @@ namespace Factory_of_the_Future
 
                             }
                         }
+                        if (updateFile)
+                        {
+                         await Task.Run(() => FOTFManager.Instance.BroadcastQSMUpdate(Connection_item.ConnectionInfo)).ConfigureAwait(false);
+                        }
                     }
                 }
                 if (updateFile)
                 {
+                   
                     new FileIO().Write(string.Concat(AppParameters.CodeBase.Parent.FullName.ToString(), AppParameters.Appsetting), "Connection.json", AppParameters.ConnectionOutPutdata(Connection.Select(y => y.ConnectionInfo).ToList()));
 
                 }

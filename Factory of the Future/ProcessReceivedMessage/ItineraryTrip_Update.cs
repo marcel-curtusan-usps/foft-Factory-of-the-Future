@@ -43,6 +43,7 @@ namespace Factory_of_the_Future
                                         }
                                     }
                                 }
+                                existingVal.DestSites = destsites.ToString().Substring(0, destsites.Length - 1);
                                 existingVal.TripUpdate = true;
                                 //foreach (JObject legitem in legs.Children().OfType<JObject>())
                                 //{
@@ -69,12 +70,8 @@ namespace Factory_of_the_Future
 
                         if (AppParameters.RouteTripsList.TryGetValue(_routetripid, out RouteTrips existingVal))
                         {
-                            if (destsites.Length > 0)
-                            {
-
-                                existingVal.DestSites = ("(^" + existingVal.DestSiteId + "$)|");
-                                existingVal.TripUpdate = true;
-                            }
+                            existingVal.DestSites = ("(^" + existingVal.LegSiteId + "$)");
+                            existingVal.TripUpdate = true;
                         }
                     }
 

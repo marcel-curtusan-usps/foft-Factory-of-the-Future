@@ -324,7 +324,6 @@
     <Content Include="Scripts\supportScriptsBundle.min.js">
       <DependentUpon>supportScriptsBundle.js</DependentUpon>
     </Content>
-    <Content Include="Scripts\View\customScriptsBundle.js" />
     <Content Include="Scripts\View\default.js" />
     <Content Include="Scripts\esm\popper-utils.js" />
     <Content Include="Scripts\esm\popper-utils.min.js" />

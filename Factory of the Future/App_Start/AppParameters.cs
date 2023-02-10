@@ -171,7 +171,7 @@ namespace Factory_of_the_Future
                     //load the door and trip association 
                     GetDoorTripAssociation();
                     ///load default connection setting.
-                    GetConnectionDefault();
+                    GetConnectionDefaultAsync();
                 }
               
 
@@ -349,7 +349,7 @@ namespace Factory_of_the_Future
             }
         }
 
-        public static void GetConnectionDefault()
+        public static async Task GetConnectionDefaultAsync()
         {
             try
             {
@@ -364,7 +364,7 @@ namespace Factory_of_the_Future
                     for (int i = 0; i < tempcon.Count; i++)
                     {
                        
-                        RunningConnection.Add(tempcon[i]);
+                        await Task.Run(() => RunningConnection.Add(tempcon[i])).ConfigureAwait(false);
                         //if (ConnectionList.TryAdd(tempcon[i].Id, tempcon[i]))
                         //{
                         //    RunningConnection.Add(tempcon[i]);

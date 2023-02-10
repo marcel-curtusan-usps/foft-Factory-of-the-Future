@@ -24,49 +24,36 @@ var TripDirectionInd = "";
 var tripStatus = 0;
 var containerArray = [];
 var ContainerNotloadedCount = 0;
+var legdata = null;
 /*
  this is for the dock door and container details.
  */
 $.extend(fotfmanager.client, {
-    updateDigitalDockDoorStatus: async (digitaldockdoorupdate) => { updateDockDoorStatus(digitaldockdoorupdate) }
+    updateDigitalDockDoorStatus: async (digitaldockdoorupdate) => { Promise.all([updateDockDoorStatus(digitaldockdoorupdate)]) }
 });
-function updateDockDoorStatus(data) {
+async function updateDockDoorStatus(data) {
     try {
-        var legdata = null;
+
         //show the trip direction 
         // $('label[id=tripDirectionInd]').text(data.tripDirectionInd);
-        if (!!data && data.length > 0) {
-            if (data[0].containerScans !== null && data[0].containerScans.length > 0) {
-                CreateContainerCount(data[0].containerScans);
-            }
-            TripDirectionInd = data[0].tripDirectionInd;
-            if (TripDirectionInd === "I") {
-                $('label[id=tirpIncdtext]').text("Inbound");
-                $('div[id=countdowndiv]').css("display", "block");
-                $('label[id=countdowntext]').text("Scheduled" + "\n" + " Arrival");
-            }
-            else if (TripDirectionInd === "O") {
-                $('label[id=tirpIncdtext]').text("Outbound");
-                $('label[id=countdowntext]').text("Scheduled " + "\n" + "Departure");
-                //timeCount
-                $('div[id=countdowndiv]').css("display", "block");
-            }
+        if (!!data && data.length > 0 && data[0].atDoor) {
             //load trips
             if (data[0].Legs.length > 0) {
                 $.each(data[0].Legs, function () {
-                    var legdata = this;
+                    legdata = this;
                     if (data[0].legNumber === legdata.legNumber) {
                         $('button[id=currentTripDirectionInd]').text(TripDirectionInd === "I" ? "In-Bound" : "Out-bound");
-                        if (data[0].tripMin !== CurrentTripMin) {
+                        if (CurrentTripMin === 0) {
                             //start
                             CountTimer = startTimer(data[0].scheduledDtm);
                         }
+                        legdata["id"] = data[0].id;
                         legdata["route"] = data[0].route;
                         legdata["trip"] = data[0].trip;
                         legdata["legSiteId"] = data[0].legSiteId;
                         legdata["legSiteName"] = data[0].legSiteName;
                         legdata["scheduledDepDTM"] = data[0].scheduledDtm;
-                        updateLegsTripDataTable([legdata], "currentTripTable");
+                        updateDataTable([legdata], "currentTripTable");
                     }
 
                 });
@@ -75,7 +62,7 @@ function updateDockDoorStatus(data) {
                 if (data[0].route !== null) {
 
                     //incoming trips
-                    var indata = [
+                    legdata = [
                         {
                             "id": data[0].id,
                             "route": data[0].route,
@@ -96,74 +83,90 @@ function updateDockDoorStatus(data) {
 
                         }
                     ]
-                    if (data[0].tripMin !== CurrentTripMin) {
+                    if (CurrentTripMin === 0) {
                         //start
                         CountTimer = startTimer(data[0].scheduledDtm);
                     }
-                    updateLegsTripDataTable(indata, "currentTripTable");
+                    updateDataTable(legdata, "currentTripTable");
                 }
                 else {
                     //remove trips info
                     removeLegsTripDataTable("currentTripTable");
                 }
             }
-            if (data.length > 1) {
-                if (data[1].Legs !== null) {
-                    $.each(data[1].Legs, function () {
-                        legdata = this;
-                        if (data[1].legNumber === legdata.legNumber) {
-                            $('button[id=nextTripDirectionInd]').text(TripDirectionInd === "I" ? "In-Bound" : "Out-bound");
-
-                            legdata["id"] = data[1].id;
-                            legdata["route"] = data[1].route;
-                            legdata["trip"] = data[1].trip;
-                            legdata["scheduledDepDTM"] = data[1].scheduledDtm;
-                            if (data[1].tripDirectionInd === "I") {
-                                legdata.legDestSiteName = legdata.legOriginSiteName;
-                            }
-                            updateLegsTripDataTable([legdata], "nextTriptable");
-                        }
-
-                    });
-                }
-                else {
-                    if (data[1].route !== null) {
-
-                        //incoming trips
-                        var indata = [
-                            {
-                                "id": data[1].id,
-                                "route": data[1].route,
-                                "trip": data[1].trip,
-                                "routeTripLegId": data[1].routeTripLegId,
-                                "routeTripId": data[1].routeTripId,
-                                "legNumber": 1,
-                                "legSiteId": data[1].legSiteId,
-                                "legSiteName": data[1].legSiteName,
-                                "legOriginSiteID": "",
-                                "scheduledArrDTM": "",
-                                "scheduledDepDTM": data[1].scheduledDtm,
-                                "actDepartureDtm": data[1].actualDtm,
-                                "createdDtm": "",
-                                "lastUpdtDtm": "",
-                                "legDestSiteName": data[1].legSiteName,
-                                "legOriginSiteName": data[1].legSiteName,
-
-                            }
-                        ]
-                        if (data[1].tripDirectionInd === "I") {
-                            data[1].legDestSiteName = "";
-                        }
-
-                        updateLegsTripDataTable(indata, "nextTriptable");
-                    }
-                    else {
-                        //remove trips info
-                        removeLegsTripDataTable("nextTriptable");
-                    }
-                }
-
+            TripDirectionInd = data[0].tripDirectionInd;
+            if (TripDirectionInd === "I") {
+                $('label[id=tirpIncdtext]').text("Inbound");
+                $('div[id=countdowndiv]').css("display", "block");
+                $('label[id=countdowntext]').text("Scheduled" + "\n" + " Arrival");
             }
+            else if (TripDirectionInd === "O") {
+                if (data[0].containerScans !== null && data[0].containerScans.length > 0) {
+                    CreateContainerCount(data[0].containerScans);
+                }
+                $('label[id=tirpIncdtext]').text("Outbound");
+                $('label[id=countdowntext]').text("Scheduled " + "\n" + "Departure");
+                //timeCount
+                $('div[id=countdowndiv]').css("display", "block");
+            }
+           
+            //if (data.length > 1) {
+            //    if (data[1].Legs !== null) {
+            //        $.each(data[1].Legs, function () {
+            //            legdata = this;
+            //            if (data[1].legNumber === legdata.legNumber) {
+            //                $('button[id=nextTripDirectionInd]').text(TripDirectionInd === "I" ? "In-Bound" : "Out-bound");
+
+            //                legdata["id"] = data[1].id;
+            //                legdata["route"] = data[1].route;
+            //                legdata["trip"] = data[1].trip;
+            //                legdata["scheduledDepDTM"] = data[1].scheduledDtm;
+            //                if (data[1].tripDirectionInd === "I") {
+            //                    legdata.legDestSiteName = legdata.legOriginSiteName;
+            //                }
+            //                updateLegsTripDataTable([legdata], "nextTriptable");
+            //            }
+
+            //        });
+            //    }
+            //    else {
+            //        if (data[1].route !== null) {
+
+            //            //incoming trips
+            //            var indata = [
+            //                {
+            //                    "id": data[1].id,
+            //                    "route": data[1].route,
+            //                    "trip": data[1].trip,
+            //                    "routeTripLegId": data[1].routeTripLegId,
+            //                    "routeTripId": data[1].routeTripId,
+            //                    "legNumber": 1,
+            //                    "legSiteId": data[1].legSiteId,
+            //                    "legSiteName": data[1].legSiteName,
+            //                    "legOriginSiteID": "",
+            //                    "scheduledArrDTM": "",
+            //                    "scheduledDepDTM": data[1].scheduledDtm,
+            //                    "actDepartureDtm": data[1].actualDtm,
+            //                    "createdDtm": "",
+            //                    "lastUpdtDtm": "",
+            //                    "legDestSiteName": data[1].legSiteName,
+            //                    "legOriginSiteName": data[1].legSiteName,
+
+            //                }
+            //            ]
+            //            if (data[1].tripDirectionInd === "I") {
+            //                data[1].legDestSiteName = "";
+            //            }
+
+            //            updateLegsTripDataTable(indata, "nextTriptable");
+            //        }
+            //        else {
+            //            //remove trips info
+            //            removeLegsTripDataTable("nextTriptable");
+            //        }
+            //    }
+
+            //}
         }
         else {
             stopTimer();
@@ -177,8 +180,19 @@ $(function () {
     setHeight();
     $('label[id=dockdoorNumber]').text($.urlParam("dockdoor"));
     if (doornumber !== "") {
-        StartDataConnection(doornumber);
+        Promise.all([StartDataConnection()]);
     }
+    //start connection 
+    $.connection.hub.qs = { 'page_type': "DockDoor".toUpperCase() };
+    $.connection.hub.start({ waitForPageLoad: false })
+        .done(function () {
+            fotfmanager.server.getDigitalDockDoorList(doornumber).done(async (DockDoordata) => { Promise.all([updateDockDoorStatus(DockDoordata) ])});
+            fotfmanager.server.joinGroup("DockDoor_" + doornumber);
+            console.log("Connected at time: " + new Date($.now()));
+        }).catch(
+            function (err) {
+                console.log(err.toString());
+            });
     // Raised when the connection state changes. Provides the old state and the new state (Connecting, Connected, Reconnecting, or Disconnected).
     $.connection.hub.stateChanged(function (state) {
         //switch (state.newState) {
@@ -217,21 +231,12 @@ $.urlParam = function (name) {
     doornumber = (results !== null) ? results[1] || 0 : "No Door Selected";
     return doornumber;
 }
-function StartDataConnection(doorNum) {
+async function StartDataConnection() {
     // Start the connection
     createLegsTripDataTable("currentTripTable");
     createLegsTripDataTable("nextTriptable");
     createContainerDataTable("containerLocationtable");
-    $.connection.hub.qs = { 'page_type': "DockDoor".toUpperCase() };
-    $.connection.hub.start({ withCredentials: true, waitForPageLoad: false })
-        .done(function () {
-            fotfmanager.server.getDigitalDockDoorList(doorNum).done(async (DockDoordata) => { updateDockDoorStatus(DockDoordata) });
-            fotfmanager.server.joinGroup("DockDoor_" + doorNum);
-            console.log("Connected at time: " + new Date($.now()));
-        }).catch(
-            function (err) {
-                console.log(err.toString());
-            });
+ 
 }
 function setHeight() {
     let height = (this.window.innerHeight > 0 ? this.window.innerHeight : this.screen.height) - 1;
@@ -244,7 +249,7 @@ function SortByLegNumber(a, b) {
     let bName = parseInt(b.legNumber.match(/\d+/), 10);
     return aName < bName ? -1 : aName > bName ? 1 : 0;
 }
-function updateLegsTripDataTable(ldata, table) {
+function updateDataTable(ldata, table) {
     let load = true;
     if ($.fn.dataTable.isDataTable("#" + table)) {
         $('#' + table).DataTable().rows(function (idx, data, node) {
@@ -254,11 +259,25 @@ function updateLegsTripDataTable(ldata, table) {
             }
         })
         if (load) {
-            loadLegsTripDataTable(ldata, table);
+            loadDataTable(ldata, table);
         }
     }
 }
-function loadLegsTripDataTable(data, table) {
+function updateContainerDataTable(ldata, table) {
+    let load = true;
+    if ($.fn.dataTable.isDataTable("#" + table)) {
+        $('#' + table).DataTable().rows(function (idx, data, node) {
+            load = false;
+            if (data.Location === ldata[0].Location) {
+                $('#' + table).DataTable().row(node).data(ldata[0]).draw().invalidate();
+            }
+        })
+        if (load) {
+            loadDataTable(ldata, table);
+        }
+    }
+}
+function loadDataTable(data, table) {
     if ($.fn.dataTable.isDataTable("#" + table)) {
         if (!$.isEmptyObject(data)) {
             $('#' + table).DataTable().rows.add(data).draw();
@@ -272,13 +291,7 @@ function removeLegsTripDataTable(table) {
         })
     }
 }
-function loadContainersDatatable(data, table) {
-    if ($.fn.dataTable.isDataTable("#" + table)) {
-        if (!$.isEmptyObject(data)) {
-            $('#' + table).DataTable().rows.add(data).draw();
-        }
-    }
-}
+
 function createLegsTripDataTable(table) {
     let arrayColums = [{
         "route": "",
@@ -545,7 +558,7 @@ function CreateContainerCount(data) {
     console.log(finalCount);
     ContainerNotloadedCount = filtered.length
     $('label[id=totalcontainertext]').text(ContainerNotloadedCount);
-    loadContainersDatatable(finalCount, "containerLocationtable");
+    updateContainerDataTable(finalCount, "containerLocationtable");
 }
 function remove_duplicates(objectsArray) {
     var usedObjects = {};

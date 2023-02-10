@@ -3,6 +3,8 @@ using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 namespace Factory_of_the_Future
@@ -21,7 +23,7 @@ namespace Factory_of_the_Future
         public List<RouteTrips> doortempData;
         private bool saveToFile;
 
-        internal bool Load(dynamic data, string message_type, string connID)
+        internal async Task<bool> LoadAsync(dynamic data, string message_type, string connID)
         {
             saveToFile = false;
             _data = data;
@@ -37,48 +39,71 @@ namespace Factory_of_the_Future
                         doortempData = tempData.ToObject<List<RouteTrips>>();
                         foreach (RouteTrips rt in doortempData)
                         {
-                            AppParameters.DockdoorList.AddOrUpdate(rt.DoorNumber, rt.DoorNumber, (key, oldValue) =>
-                                   {
-                                       return rt.DoorNumber;
-                                   });
-                            if (rt.Id != "00" )
+                            if (!AppParameters.DockdoorList.ContainsKey(rt.DoorNumber))
                             {
-                                SaveDoorTripAssociation(new DoorTripAssociation { DoorNumber = rt.DoorNumber, Route = rt.Route, Trip = rt.Trip });
+                                if (AppParameters.DockdoorList.TryAdd(rt.DoorNumber, rt.DoorNumber))
+                                { 
+                                 //
+                                }
+                            }
+                            
+                            if (rt.Id != "00")
+                            {
+                               await Task.Run(() => FOTFManager.Instance.saveDoorTripAssociation(rt.DoorNumber, rt.Route, rt.Trip )).ConfigureAwait(false);
+                                rt.AtDoor = true;
 
-                                if (!string.IsNullOrEmpty(rt.Id))
+                                if (AppParameters.RouteTripsList.ContainsKey(rt.Id) && AppParameters.RouteTripsList.TryGetValue(rt.Id, out currenttrip))
                                 {
-                                    if (AppParameters.RouteTripsList.ContainsKey(rt.Id)
-                                        && AppParameters.RouteTripsList.TryGetValue(rt.Id, out currenttrip))
+                                    currenttrip.Containers = FOTFManager.Instance.GetTripContainer(currenttrip.DestSites, rt.TrailerBarcode, out int NotloadedContainers, out int loaded);
+                                    currenttrip.NotloadedContainers = NotloadedContainers;
+                                    currenttrip.RawData = JsonConvert.SerializeObject(rt, Formatting.None);
+                                  
+                                    bool update = false;
+                                    foreach (PropertyInfo prop in currenttrip.GetType().GetProperties())
                                     {
-                                        currenttrip.TripMin = AppParameters.Get_TripMin(rt.ScheduledDtm);
-                                        currenttrip.RawData = JsonConvert.SerializeObject(rt, Formatting.None);
-                                        currenttrip.DoorId = rt.DoorId;
-                                        currenttrip.DoorNumber = rt.DoorNumber;
-                                        currenttrip.Status = "ACTIVE";
 
-                                        Task.Run(() => FOTFManager.Instance.UpdateDoorZone(currenttrip));
+                                        if (!new Regex("^(Containers|Legs|RawData)$", RegexOptions.IgnoreCase).IsMatch(prop.Name))
+                                        {
+                                            if (prop.GetValue(rt, null).ToString() != prop.GetValue(currenttrip, null).ToString())
+                                            {
+                                                update = true;
+                                                prop.SetValue(currenttrip, prop.GetValue(rt, null));
 
+                                            }
+                                        }
                                     }
-                                    else if (!AppParameters.RouteTripsList.ContainsKey(rt.Id))
+                                    if (update)
                                     {
-                                        rt.TripMin = AppParameters.Get_TripMin(rt.ScheduledDtm);
-                                        rt.RawData = JsonConvert.SerializeObject(rt, Formatting.None);
-                                        rt.Status = "ACTIVE";
-
-                                        AddTriptoList(rt.Id, rt);
-                                        Task.Run(() => FOTFManager.Instance.UpdateDoorZone(rt));
+                                        await Task.Run(() => FOTFManager.Instance.UpdateDoorData(currenttrip.DoorNumber)).ConfigureAwait(false);
                                     }
                                 }
-                                else
+                                else if (!AppParameters.RouteTripsList.ContainsKey(rt.Id))
                                 {
-                                    Task.Run(() => FOTFManager.Instance.UpdateDoorZone(rt));
+                                    rt.DestSites = ("(^" + rt.LegSiteId + "$)");
+
+                                    rt.Containers = FOTFManager.Instance.GetTripContainer(rt.DestSites, rt.TrailerBarcode, out int NotloadedContainers, out int loaded);
+                                    rt.NotloadedContainers = NotloadedContainers;
+                                    rt.RawData = JsonConvert.SerializeObject(rt, Formatting.None);
+                                    rt.Status = "ACTIVE";
+                                    if (AppParameters.RouteTripsList.TryAdd(rt.Id, rt))
+                                    {
+                                        await Task.Run(() => FOTFManager.Instance.AddDoorData(rt.DoorNumber)).ConfigureAwait(false);
+                                    }
+                                    
                                 }
+
                             }
                             else
                             {
-                                Task.Run(() => FOTFManager.Instance.UpdateDoorZone(rt));
+                                foreach (string rtId in AppParameters.RouteTripsList.Where(x => x.Value.DoorNumber == rt.DoorNumber && x.Value.AtDoor).Select(y => y.Key))
+                                {
+                                    if (AppParameters.RouteTripsList.TryRemove(rtId, out currenttrip))
+                                    {
+                                        await Task.Run(() => FOTFManager.Instance.RemoveDoorData(rt.DoorNumber)).ConfigureAwait(false);
+                                    }
+                                }
+                               
                             }
-
                         }
                     }
                 }
@@ -92,30 +117,30 @@ namespace Factory_of_the_Future
             }
             finally
             {
-                Dispose(false);
-            }
-        }
-        internal void SaveDoorTripAssociation(DoorTripAssociation data)
-        {
-            try
-            {
-
-                AppParameters.DoorTripAssociation.AddOrUpdate(string.Concat(data.Route, data.Trip), data, (key, oldValue) =>
-                {
-                    return data;
-                });
-
-                new FileIO().Write(string.Concat(AppParameters.Logdirpath, AppParameters.ConfigurationFloder), "DoorTripAssociation.json", JsonConvert.SerializeObject(AppParameters.DoorTripAssociation.Select(x => x.Value).ToList(), Formatting.Indented));
-            }
-            catch (Exception e)
-            {
-                new ErrorLogger().ExceptionLog(e);
-            }
-            finally
-            {
                 Dispose();
             }
         }
+        //internal void SaveDoorTripAssociation(DoorTripAssociation data)
+        //{
+        //    try
+        //    {
+
+        //        AppParameters.DoorTripAssociation.AddOrUpdate(string.Concat(data.Route, data.Trip), data, (key, oldValue) =>
+        //        {
+        //            return data;
+        //        });
+
+        //        new FileIO().Write(string.Concat(AppParameters.Logdirpath, AppParameters.ConfigurationFloder), "DoorTripAssociation.json", JsonConvert.SerializeObject(AppParameters.DoorTripAssociation.Select(x => x.Value).ToList(), Formatting.Indented));
+        //    }
+        //    catch (Exception e)
+        //    {
+        //        new ErrorLogger().ExceptionLog(e);
+        //    }
+        //    finally
+        //    {
+        //        Dispose();
+        //    }
+        //}
         private bool getDefaultDockDoor(string rt, out string door)
         {
             string _door = "";
@@ -133,55 +158,56 @@ namespace Factory_of_the_Future
                 return false;
             }
         }
-        private void AddTriptoList(string routetripid, RouteTrips newRTData)
-        {
-            try
-            {
-                if (getDefaultDockDoor(string.Concat(newRTData.Route, newRTData.Trip), out string RouteTritDefaultDoor))
-                {
-                    newRTData.DoorNumber = RouteTritDefaultDoor;
-                    newRTData.DoorId = !string.IsNullOrEmpty(RouteTritDefaultDoor) ? string.Concat("99D", RouteTritDefaultDoor.PadLeft(4, '-')) : "";
+        //private RouteTrips AddTriptoList(string routetripid, RouteTrips newRTData)
+        //{
+        //    try
+        //    {
+        //        if (string.IsNullOrEmpty(newRTData.DoorNumber) )
+        //        {
+        //            getDefaultDockDoor(string.Concat(newRTData.Route, newRTData.Trip), out string RouteTritDefaultDoor);
+        //            newRTData.DoorNumber = RouteTritDefaultDoor;
+        //            newRTData.DoorId = !string.IsNullOrEmpty(RouteTritDefaultDoor) ? string.Concat("99D", RouteTritDefaultDoor.PadLeft(4, '-')) : "";
 
 
-                    if (AppParameters.RouteTripsList.ContainsKey(routetripid) && AppParameters.RouteTripsList.TryGetValue(routetripid, out RouteTrips existingVal))
-                    {
-                        if (AppParameters.RouteTripsList.TryUpdate(routetripid, newRTData, existingVal))
-                        {
-                            //update 
+        //            if (AppParameters.RouteTripsList.ContainsKey(routetripid) && AppParameters.RouteTripsList.TryGetValue(routetripid, out RouteTrips existingVal))
+        //            {
+        //                if (AppParameters.RouteTripsList.TryUpdate(routetripid, newRTData, existingVal))
+        //                {
+        //                    //update 
 
-                        }
+        //                }
 
-                    }
-                    else
-                    {
+        //            }
+        //            else
+        //            {
 
-                        if (AppParameters.RouteTripsList.TryAdd(routetripid, newRTData))
-                        {
-                            //add
-                        }
-                    }
+        //                if (AppParameters.RouteTripsList.TryAdd(routetripid, newRTData))
+        //                {
+        //                    //add
+        //                }
+        //            }
 
-                    if (newRTData.OperDate != null)
-                    {
-                        Task.Run(() => new ItineraryTrip_Update(GetItinerary(newRTData.Route, newRTData.Trip, AppParameters.AppSettings["FACILITY_NASS_CODE"].ToString(), AppParameters.GetSvDate(newRTData.OperDate)), routetripid));
-                    }
-                }
-                else
-                {
-                    if (AppParameters.RouteTripsList.TryAdd(routetripid, newRTData))
-                    {
-                        if (newRTData.OperDate != null)
-                        {
-                            Task.Run(() => new ItineraryTrip_Update(GetItinerary(newRTData.Route, newRTData.Trip, AppParameters.AppSettings["FACILITY_NASS_CODE"].ToString(), AppParameters.GetSvDate(newRTData.OperDate)), routetripid));
-                        }
-                    }
-                }
-            }
-            catch (Exception e)
-            {
-                new ErrorLogger().ExceptionLog(e);
-            }
-        }
+        //            if (newRTData.OperDate != null)
+        //            {
+        //               await Task.Run(() => new ItineraryTrip_Update(GetItinerary(newRTData.Route, newRTData.Trip, AppParameters.AppSettings["FACILITY_NASS_CODE"].ToString(), AppParameters.GetSvDate(newRTData.OperDate)), routetripid)).ConfigureAwait(false);
+        //            }
+        //        }
+        //        else
+        //        {
+        //            if (AppParameters.RouteTripsList.TryAdd(routetripid, newRTData))
+        //            {
+        //                if (newRTData.OperDate != null)
+        //                {
+        //                    await Task.Run(() => new ItineraryTrip_Update(GetItinerary(newRTData.Route, newRTData.Trip, AppParameters.AppSettings["FACILITY_NASS_CODE"].ToString(), AppParameters.GetSvDate(newRTData.OperDate)), routetripid)).ConfigureAwait(false);
+        //                }
+        //            }
+        //        }
+        //    }
+        //    catch (Exception e)
+        //    {
+        //        new ErrorLogger().ExceptionLog(e);
+        //    }
+        //}
 
         private string GetItinerary(string route, string trip, string nasscode, DateTime start_time)
         {

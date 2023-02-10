@@ -2,10 +2,27 @@
  this is for stage zone
  */
 $.extend(fotfmanager.client, {
-    updateStageZoneStatus: async (updateStage) => { updateStageZone(updateStage) }
+    addZone: async (addZoneData, floorId, zonetype) => { addZone(addZoneData, floorId, zonetype) },
+    removeZone: async (removeZoneData, floorId, zonetype) => { removeZone(removeZoneData, floorId, zonetype) },
+    updateZone: async (updateZoneData, floorId, zonetype) => { updateZone(updateZoneData, floorId, zonetype) }
 });
-async function updateStageZone() {
+async function addZone(data, floorId, zonetype) {
     try {
+        //
+    } catch (e) {
+        console.log(e);
+    }
+}
+async function removeZone(data, floorId, zonetype) {
+    try {
+        //
+    } catch (e) {
+        console.log(e);
+    }
+}
+async function updateZone(data, floorId, zonetype) {
+    try {
+        //
     } catch (e) {
         console.log(e);
     }

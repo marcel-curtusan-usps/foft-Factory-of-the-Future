@@ -22,7 +22,7 @@ namespace Factory_of_the_Future
         public string Trip { get; set; } = "";
 
         [JsonProperty("tripDirectionInd")]
-        public string TripDirectionInd { get; set; } = string.Empty;
+        public string TripDirectionInd { get; set; } = "";
 
         [JsonProperty("legNumber")]
         public int LegNumber { get; set; }
@@ -117,10 +117,18 @@ namespace Factory_of_the_Future
         public string IsAODU { get; set; } = "";
 
         [JsonProperty("tripMin")]
-        public int? TripMin { get; set; } = 0;
+        public int TripMin {
+            get {
+                return AppParameters.Get_TripMin(ScheduledDtm);
+            }
+            set {
+                return;
+            }
+        }
+
 
         [JsonProperty("status")]
-        public string Status { get; set; } = "";
+        public string Status { get; set; } = "ACTIVE";
 
         [JsonProperty("state")]
         public string State { get; set; } = "";
@@ -136,6 +144,14 @@ namespace Factory_of_the_Future
 
         [JsonProperty("actualDtm")]
         public EventDtm ActualDtm { get; set; } = new EventDtm();
+        public DateTime ActualDtmfmt
+        {
+            get
+            {
+                return new DateTime(ActualDtm.Year, (ActualDtm.Month + 1), ActualDtm.DayOfMonth, ActualDtm.HourOfDay, ActualDtm.Minute, ActualDtm.Second);
+            }
+            set { return; }
+        }
 
         [JsonProperty("legActualDtm")]
         public EventDtm LegActualDtm { get; set; } = new EventDtm();
@@ -160,6 +176,8 @@ namespace Factory_of_the_Future
 
         [JsonProperty("doorNumber")]
         public string DoorNumber { get; set; } = "";
+        [JsonProperty("atDoor")]
+        public bool AtDoor { get; set; }
 
         [JsonProperty("vanNumber")]
         public string VanNumber { get; set; } = "";

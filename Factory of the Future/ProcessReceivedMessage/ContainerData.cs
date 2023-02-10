@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 
 namespace Factory_of_the_Future
 {
@@ -14,10 +15,12 @@ namespace Factory_of_the_Future
         public string _Message_type { get; protected set; }
         public string _connID { get; protected set; }
         public List<Container> Containers { get; protected set; }
+        public Container _container = null;
+        private bool saveToFile;
 
-        internal bool Load(dynamic data, string message_type, string connID)
+        internal async Task<bool> LoadAsync(dynamic data, string message_type, string connID)
         {
-            bool saveToFile = false;
+            saveToFile = false;
             _data = data;
             _Message_type = message_type;
             _connID = connID;
@@ -86,7 +89,7 @@ namespace Factory_of_the_Future
                                     }
 
                                 }
-                                if (scan.Event == "TERM")
+                                if (scan.Event == "TERM" || scan.Event == "47")
                                 {
                                     d.containerTerminate = true;
                                 }
@@ -94,7 +97,6 @@ namespace Factory_of_the_Future
                                 {
                                     d.containerRedirectedDest = true;
                                 }
-
                                 if (scan.Event == "UNLD" && scan.SiteType == "Destination")
                                 {
                                     if (scan.SiteId == d.Dest)
@@ -112,23 +114,44 @@ namespace Factory_of_the_Future
                                     }
                                 }
                             }
-                            // Global.DockDoor_List.AddOrUpdate(vr_door_item.DoorNumber, vr_door_item, (key, existingVal) =>
-                            // {
-                            AppParameters.Containers.AddOrUpdate(d.PlacardBarcode, d, (Key, exisitingContainer) =>
+                            if (AppParameters.Containers.ContainsKey(d.PlacardBarcode) && AppParameters.Containers.TryGetValue(d.PlacardBarcode, out _container))
                             {
-                                foreach (PropertyInfo prop in exisitingContainer.GetType().GetProperties())
+                                foreach (PropertyInfo prop in _container.GetType().GetProperties())
                                 {
                                     if (!new Regex("^(BinDisplay|ContainerHistory|BinName)$", RegexOptions.IgnoreCase).IsMatch(prop.Name))
                                     {
-                                        if (prop.GetValue(d, null).ToString() != prop.GetValue(exisitingContainer, null).ToString())
+                                        if (prop.GetValue(d, null).ToString() != prop.GetValue(_container, null).ToString())
                                         {
-                                            prop.SetValue(exisitingContainer, prop.GetValue(d, null));
+                                            prop.SetValue(_container, prop.GetValue(d, null));
                                         }
                                     }
                                 }
-                                exisitingContainer.ContainerHistory = d.ContainerHistory;
-                                return exisitingContainer;
-                            });
+                            }
+                            else
+                            {
+                                if (AppParameters.Containers.TryAdd(d.PlacardBarcode, d))
+                                {
+                                    //
+                                }
+                            }
+
+                            // Global.DockDoor_List.AddOrUpdate(vr_door_item.DoorNumber, vr_door_item, (key, existingVal) =>
+                            // {
+                            //AppParameters.Containers.AddOrUpdate(d.PlacardBarcode, d, (Key, exisitingContainer) =>
+                            //{
+                            //    foreach (PropertyInfo prop in exisitingContainer.GetType().GetProperties())
+                            //    {
+                            //        if (!new Regex("^(BinDisplay|ContainerHistory|BinName)$", RegexOptions.IgnoreCase).IsMatch(prop.Name))
+                            //        {
+                            //            if (prop.GetValue(d, null).ToString() != prop.GetValue(exisitingContainer, null).ToString())
+                            //            {
+                            //                prop.SetValue(exisitingContainer, prop.GetValue(d, null));
+                            //            }
+                            //        }
+                            //    }
+                            //    exisitingContainer.ContainerHistory = d.ContainerHistory;
+                            //    return exisitingContainer;
+                            //});
                             //{
 
                             //    exisitingContainer.hasAssignScans = d.hasAssignScans;
@@ -154,16 +177,8 @@ namespace Factory_of_the_Future
 
                     }
                 }
-
-                if (AppParameters.Containers.Count > 0)
-                {
-                    foreach (string m in AppParameters.Containers.Where(r => DateTime.Now.Subtract(r.Value.EventDtm).TotalDays >= 3).Select(y => y.Key))
-                    {
-                        AppParameters.Containers.TryRemove(m, out Container outc);
-
-                    }
-                }
-                //CheckScanNotification();
+               await Task.Run(() => RemoveContainers()).ConfigureAwait(false);
+              
                 return saveToFile;
             }
             catch (Exception e)
@@ -176,6 +191,29 @@ namespace Factory_of_the_Future
                 Dispose();
             }
         }
+
+        private void RemoveContainers()
+        {
+            try
+            {
+                if (AppParameters.Containers.Count > 0)
+                {
+                    foreach (string m in AppParameters.Containers.Where(r => DateTime.Now.Subtract(r.Value.EventDtm).TotalDays >= 3).Select(y => y.Key))
+                    {
+                        AppParameters.Containers.TryRemove(m, out _container);
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                new ErrorLogger().ExceptionLog(e);
+            }
+            finally
+            {
+                Dispose();
+            }
+        }
+
         protected virtual void Dispose(bool disposing)
         {
             if (!disposedValue)
@@ -187,11 +225,13 @@ namespace Factory_of_the_Future
 
                 // TODO: free unmanaged resources (unmanaged objects) and override finalizer
                 // TODO: set large fields to null
+                disposedValue = true;
                 _data = null;
                 _Message_type = string.Empty;
                 _connID = string.Empty;
                 Containers = null;
-                disposedValue = true;
+                _container = null;
+               
             }
         }
 

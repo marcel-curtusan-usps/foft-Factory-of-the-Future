@@ -43,21 +43,21 @@ namespace Factory_of_the_Future
                             TagPosition(_data, _connID);
                             break;
                         case "getProjectInfo":
-                            await Task.Run(() => new ProjectData().Load(_data, _Message_type, _connID));
+                            await Task.Run(() => new ProjectData().Load(_data, _Message_type, _connID)).ConfigureAwait(false);
                             // ProjectData(data, connID);
                             break;
                         ///*Quuppa Data End*/
                         ///*SVWeb Data Start*/
                         case "doors":
-                            await Task.Run(() => new DoorData().Load(_data, _Message_type, _connID));
+                            await Task.Run(() => new DoorData().LoadAsync(_data, _Message_type, _connID)).ConfigureAwait(false);
                             //Doors(data, connID);
                             break;
                         case "trips":
-                            await Task.Run(() => new TripData().Load(_data, _Message_type, _connID));
+                            await Task.Run(() => new TripData().LoadAsync(_data, _Message_type, _connID)).ConfigureAwait(false);
                            // Trips(data, Message_type, connID);
                             break;
                         case "container":
-                            await Task.Run(() => new ContainerData().Load(_data, _Message_type, _connID));
+                            await Task.Run(() => new ContainerData().LoadAsync(_data, _Message_type, _connID)).ConfigureAwait(false);
                             //Container(_data, _connID);
                             break;
                         case "getTacsVsSels":
