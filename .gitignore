@@ -386,3 +386,5 @@ FodyWeavers.xsd
 
 # Exclude AppSettings.json since that is specific to each machine.
 **/AppSetting/AppSettings.json
+**/SonarLint.xml
+**/9209_fotfsmartfacilitycsharp.ruleset
