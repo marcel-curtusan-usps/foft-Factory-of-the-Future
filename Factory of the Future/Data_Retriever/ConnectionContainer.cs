@@ -84,6 +84,8 @@ namespace Factory_of_the_Future
                         Connection_item.ConnectionInfo.LastupDate = DateTime.Now;
                         Connection_item.ConnectionInfo.LastupdateByUsername = updateConndata.LastupdateByUsername;
                         Connection_item.ConnectionInfo.ActiveConnection = updateConndata.ActiveConnection;
+                        Connection_item.ConnectionInfo.HoursBack = updateConndata.HoursBack;
+                        Connection_item.ConnectionInfo.HoursForward = updateConndata.HoursForward;
                         updateFile = true;
                         if (!updateConndata.ActiveConnection)
                         {

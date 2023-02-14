@@ -87,7 +87,7 @@ namespace Factory_of_the_Future
                                     rt.Status = "ACTIVE";
                                     if (AppParameters.RouteTripsList.TryAdd(rt.Id, rt))
                                     {
-                                        await Task.Run(() => FOTFManager.Instance.AddDoorData(rt.DoorNumber)).ConfigureAwait(false);
+                                        await Task.Run(() => FOTFManager.Instance.UpdateDoorData(rt.DoorNumber)).ConfigureAwait(false);
                                     }
                                     
                                 }
@@ -99,7 +99,7 @@ namespace Factory_of_the_Future
                                 {
                                     if (AppParameters.RouteTripsList.TryRemove(rtId, out currenttrip))
                                     {
-                                        await Task.Run(() => FOTFManager.Instance.RemoveDoorData(rt.DoorNumber)).ConfigureAwait(false);
+                                        await Task.Run(() => FOTFManager.Instance.UpdateDoorData(rt.DoorNumber)).ConfigureAwait(false);
                                     }
                                 }
                                

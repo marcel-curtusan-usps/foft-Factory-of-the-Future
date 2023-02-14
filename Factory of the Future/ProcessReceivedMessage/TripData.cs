@@ -44,7 +44,7 @@ namespace Factory_of_the_Future
                                 if (AppParameters.RouteTripsList.ContainsKey(rt.Id))
                                 {
                                     //remove trip
-                                    FOTFManager.Instance.BroadcastSVTripsRemove(rt.Id);
+                                    FOTFManager.Instance.BroadcastTripsRemove(rt.Id);
                                 }
                             }
                             else
@@ -56,7 +56,7 @@ namespace Factory_of_the_Future
                                     {
                                         if (AppParameters.RouteTripsList.TryRemove(rt.Id, out currentRTData))
                                         {
-                                            FOTFManager.Instance.BroadcastSVTripsRemove(rt.Id);
+                                            FOTFManager.Instance.BroadcastTripsRemove(rt.Id);
                                         }
                                     }
                                 }
@@ -90,13 +90,13 @@ namespace Factory_of_the_Future
                                         }
                                         if (update)
                                         {
-                                           await Task.Run(() => FOTFManager.Instance.BroadcastSVTripsUpdate(currentRTData)).ConfigureAwait(false);
+                                           await Task.Run(() => FOTFManager.Instance.BroadcastTripsUpdate(currentRTData)).ConfigureAwait(false);
                                         }
                                         
                                     }
                                     else if (AppParameters.RouteTripsList.TryAdd(rt.Id, rt))
                                     {
-                                        FOTFManager.Instance.BroadcastSVTripsAdd(rt);
+                                        FOTFManager.Instance.BroadcastTripsAdd(rt);
 
                                     }
                                     //get trip Itinerary

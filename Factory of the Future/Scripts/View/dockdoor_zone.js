@@ -2,9 +2,7 @@
  this is for the dock door and container details.
  */
 $.extend(fotfmanager.client, {
-    addDockDoorData: async (addData, floorId, zoneId) => { Promise.all([AddDockDoorData(addData, floorId, zoneId)]) },
-    updateDockDoorData: async (updateData, floorId, zoneId) => { Promise.all([UpdateDockDoorData([updateData], floorId, zoneId)]) },
-    removeDockDoorData: async (removeData, floorId, zoneId) => { Promise.all([RemoveDockDoorData(removeData, floorId, zoneId)]) }
+    updateDockDoorData: async (updateData, floorId, zoneId) => { Promise.all([UpdateDockDoorData(updateData, floorId, zoneId)]) }
 });
 $(function () {
     $('button[name=tripSelectorbtn]').off().on('click', function () {
@@ -15,149 +13,33 @@ $(function () {
         fotfmanager.server.updateRouteTripDoorAssigment(jsonObject).done();
     });
 });
-async function AddDockDoorData(data, floorId, zoneId) {
-    map._layers[zoneId].feature.properties = data.properties;
-    if ($('div[id=dockdoor_div]').is(':visible') &&
-        $('div[id=dockdoor_div]').attr("data-id") === data.properties.id) {
-        Promise.all([LoadDockDoorTable(data.properties)]);
+
+async function UpdateDockDoorData(data, floorId, zoneId) {
+    try {
+        if (baselayerid === floorId) {
+            map.whenReady(() => {
+                $.map(map._layers, function (layer, i) {
+                    if (layer.hasOwnProperty("feature") && layer.feature.properties.id === data.properties.id) {
+                        layer.feature.properties = data.properties;
+                        layer.setTooltipContent(data.properties.doorNumber.toString() + getDoorTripIndc(data.properties.dockdoorData));
+                        if ($('div[id=dockdoor_div]').is(':visible') &&
+                            $('div[id=dockdoor_div]').attr("data-id") === data.properties.id) {
+                            Promise.all([LoadDockDoorTable(data.properties)]);
+                        }
+                        Promise.all([updatedockdoor(layer._leaflet_id)]);
+                        return false;
+                    }
+                });
+
+            });
+        }
     }
-}
-async function UpdateDockDoorData(geojson, floorId, zoneId) {
-    var layersToRemove = [],
-        enter = {},
-        update = {},
-        exit = {},
-        seenFeatures = {},
-        i, len, feature;
-    var handleData = L.bind(function (geojson) {
-
-        var features = L.Util.isArray(geojson) ? geojson : geojson.features;
-        if (features) {
-            for (i = 0, len = features.length; i < len; i++) {
-                // only add this if geometry or geometries are set and not null
-                feature = features[i];
-                if (feature.geometries || feature.geometry || feature.features || feature.coordinates) {
-                    handleData(feature);
-                }
-            }
-            return;
-        }
-
-        var container = this._container;
-        var options = this.options;
-
-        if (options.filter && !options.filter(geojson)) { return; }
-
-        var f = L.GeoJSON.asFeature(geojson);
-        var fId = options.getFeatureId(f);
-        var oldLayer = this._featureLayers[fId];
-
-        var layer = this.options.updateFeature(f, oldLayer);
-        if (!layer) {
-            layer = L.GeoJSON.geometryToLayer(geojson, options);
-            if (!layer) {
-                return;
-            }
-            layer.defaultOptions = layer.options;
-            layer.feature = f;
-
-            if (options.onEachFeature) {
-                options.onEachFeature(geojson, layer);
-            }
-
-            if (options.style && layer.setStyle) {
-                layer.setStyle(options.style(geojson));
-            }
-
-        }
-
-        layer.feature = f;
-        if (container.resetStyle) {
-            container.resetStyle(layer);
-        }
-
-        if (oldLayer) {
-            update[fId] = geojson;
-            if (oldLayer != layer) {
-                layersToRemove.push(oldLayer);
-                container.addLayer(layer);
-            }
-        } else {
-            enter[fId] = geojson;
-            container.addLayer(layer);
-        }
-
-        this._featureLayers[fId] = layer;
-        this._features[fId] = seenFeatures[fId] = f;
-
-    //try {
-    //    let layerindex = -0;
-    //    map.whenReady(() => {
-    //        if (map.hasOwnProperty("_layers")) {
-    //            $.map(map._layers, function (layer, i) {
-    //                if (layer.hasOwnProperty("feature")) {
-    //                    if (layer.feature.properties.id === data.properties.id) {
-    //                        layer.feature.properties = data.properties;
-    //                        layerindex = layer._leaflet_id;
-    //                        layer.setTooltipContent(data.properties.doorNumber.toString() + getDoorTripIndc(data.properties.dockdoorData));
-    //                        return false;
-    //                    }
-    //                }
-    //            });
-    //            if (layerindex !== -0) {
-    //                if ($('div[id=dockdoor_div]').is(':visible') &&
-    //                    $('div[id=dockdoor_div]').attr("data-id") === data.properties.id) {
-    //                    Promise.all([LoadDockDoorTable(data.properties)]);
-    //                }
-    //                Promise.all([updatedockdoor(layerindex)]);
-    //            }
-    //        }
-    //    });
-
-    //} catch (e) {
-    //    console.log(e);
-    //}
-
-}
-async function RemoveDockDoorData(data, floorId, zoneId) {
-    map._layers[zoneId].feature.properties = data.properties;
-    if ($('div[id=dockdoor_div]').is(':visible') &&
-        $('div[id=dockdoor_div]').attr("data-id") === data.properties.id) {
-        Promise.all([LoadDockDoorTable(data.properties)]);
+    catch (e)
+    {
+        console.log(e);
     }
-}
-//async function updateDockDoorZone(dockdoorzoneupdate) {
-//    try {
-//        let layerindex = -0;
-//        map.whenReady(() => {
-//            if (map.hasOwnProperty("_layers")) {
-//                $.map(map._layers, function (layer, i) {
-//                    if (layer.hasOwnProperty("feature")) {
-//                        if (layer.feature.properties.id === dockdoorzoneupdate.properties.id) {
-//                            layer.feature.properties = dockdoorzoneupdate.properties;
-//                            layerindex = layer._leaflet_id;
-//                            layer.setTooltipContent(dockdoorzoneupdate.properties.doorNumber.toString() + getDoorTripIndc(dockdoorzoneupdate.properties.dockdoorData) );
-//                            return false;
-//                        }
-//                    }
-//                });
-//                if (layerindex !== -0) {
-//                    if ($('div[id=dockdoor_div]').is(':visible') &&
-//                        $('div[id=dockdoor_div]').attr("data-id") === dockdoorzoneupdate.properties.id) {
-//                        Promise.all([LoadDockDoorTable(dockdoorzoneupdate.properties)]);
-//                    }
-//                    Promise.all([updatedockdoor(layerindex)]);
-//                }
-//                else {
-//                    dockDoors.addData(dockdoorzoneupdate);
-//                }
-//            }
-//        });
 
-//    } catch (e) {
-//        console.log(e);
-//    }
-//}
+}
 
 document.addEventListener("layerscontentvisible", () => {
     zoneStatusClose(true);
@@ -165,7 +47,6 @@ document.addEventListener("layerscontentvisible", () => {
 });
 var dockDoors = new L.GeoJSON(null, {
     style: function (feature) {
-
         try {
             if (feature.properties.dockdoorData !== null && feature.properties.dockdoorData.length > 0) {
                 if (feature.properties.dockdoorData[0].atDoor) {
@@ -570,10 +451,10 @@ async function createDoorTripDataTable(table) {
         }
     });
 }
-async function removeTripsDoorAssignedDatatable(ldata, table) {
+async function removeTripsDoorAssignedDatatable(id, table) {
     if ($.fn.dataTable.isDataTable("#" + table)) {
         $('#' + table).DataTable().rows(function (idx, data, node) {
-            if (data === ldata.id) {
+            if (data.id === id) {
                 $('#' + table).DataTable().row(node).remove().draw();
             }
         })

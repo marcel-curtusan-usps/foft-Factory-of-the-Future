@@ -92,53 +92,27 @@ $('#Zone_Modal').on('shown.bs.modal', function () {
 
 var lastMachineStatuses = "";
 $.extend(fotfmanager.client, {
-    updateMachineStatus: async (machineStatuses) => {
-        let machineStatusesString = JSON.stringify(machineStatuses);
-        if (lastMachineStatuses != machineStatusesString) {
-            lastMachineStatuses = machineStatusesString;
-
-            let sparklineStatuses = convertToSparkline(machineStatusesString);
-            for (var tuple of machineStatuses) {
-
-                updateMachineZone(tuple.Item1, tuple.Item2);
-
-            }
-            // clears the sparkline graph cache if it is old data
-            clearSparklineCache();
-            updateAllMachineSparklines(sparklineStatuses, 0);
-        }
-    }
+    updateMachineStatus: async (machineData, Id) => { Promise.all([updateMachineZone(machineData,Id)]) }
 });
 
 var sparklineMinZoom = 2;
-async function updateMachineZone(machineupdate, id) {
+async function updateMachineZone(data, id) {
     try {
         if (id == baselayerid) {
-            if (polygonMachine.hasOwnProperty("_layers")) {
-                var layerindex = -0;
-                $.map(polygonMachine._layers, function (layer, i) {
-                    if (layer.hasOwnProperty("feature")) {
-                        if (layer.feature.properties.id === machineupdate.properties.id) {
-                            
-                            if (layer.feature.properties.name != machineupdate.properties.name) {
-                                layer.setTooltipContent(machineupdate.properties.name + "<br/>" + "Staffing: " + machineupdate.properties.CurrentStaff);
-                            }
-                            layer.feature.properties = machineupdate.properties;
-                            layerindex = layer._leaflet_id;
-                            return false;
-                        }
+            $.map(polygonMachine._layers, function (layer, i) {
+                if (layer.hasOwnProperty("feature") && layer.feature.properties.id === data.properties.id) {
+                    layer.feature.properties = data.properties;
+                    if (layer.feature.properties.name != data.properties.name) {
+                        layer.setTooltipContent(data.properties.name + "<br/>" + "Staffing: " + data.properties.CurrentStaff);
                     }
-                });
-                if (layerindex !== -0) {
-                    if ($('div[id=machine_div]').is(':visible') && $('div[id=machine_div]').attr("data-id") === machineupdate.properties.id) {
-                        LoadMachineTables(machineupdate.properties, 'machinetable');
+
+                    if ($('div[id=machine_div]').is(':visible') && $('div[id=machine_div]').attr("data-id") === data.properties.id) {
+                        LoadMachineTables(data.properties, 'machinetable');
                     }
-                    updateMPEZone(machineupdate.properties, layerindex);
+                    updateMPEZone(data.properties, layer._leaflet_id);
+                    return false;
                 }
-                else {
-                    polygonMachine.addData(machineupdate);
-                }
-            }
+            });
         }
     } catch (e) {
         console.log(e);
@@ -452,18 +426,18 @@ function formatmachinetoprow(properties) {
         zoneName: properties.name,
         zoneType: properties.Zone_Type,
         sortPlan: checkValue(properties.MPEWatchData.cur_sortplan) ? properties.MPEWatchData.cur_sortplan : "N/A",
-        opNum: properties.MPEWatchData.cur_operation_id.padStart(3, "0"),
+        opNum: properties.MPEWatchData.cur_operation_id,
         sortPlanStart: properties.MPEWatchData.current_run_start,
         sortPlanEnd: properties.MPEWatchData.current_run_end,
-        peicesFed: digits(properties.MPEWatchData.tot_sortplan_vol),
-        throughput: digits(properties.MPEWatchData.cur_thruput_ophr),
-        rpgVol: digits(properties.MPEWatchData.rpg_est_vol),
+        peicesFed: properties.MPEWatchData.tot_sortplan_vol,
+        throughput: properties.MPEWatchData.cur_thruput_ophr,
+        rpgVol: properties.MPEWatchData.rpg_est_vol,
         stateBadge: getstatebadge(properties),
         stateText: getstateText(properties),
         estComp: checkValue(properties.MPEWatchData.rpg_est_comp_time) ? properties.MPEWatchData.rpg_est_comp_time : "Estimate Not Available",
         rpgStart: moment(properties.MPEWatchData.rpg_start_dtm, "MM/DD/YYYY hh:mm:ss A").format("YYYY-MM-DD HH:mm:ss"),
         rpgEnd: moment(properties.MPEWatchData.rpg_end_dtm, "MM/DD/YYYY hh:mm:ss A").format("YYYY-MM-DD HH:mm:ss"),
-        expThroughput: digits(properties.MPEWatchData.expected_throughput),
+        expThroughput: properties.MPEWatchData.expected_throughput,
         fullBins: properties.MPEWatchData.bin_full_bins,
         arsRecirc: properties.MPEWatchData.ars_recrej3,
         sweepRecirc: properties.MPEWatchData.sweep_recrej3,
@@ -877,6 +851,8 @@ function GetMachinePerfGraph(dataproperties) {
                 }]
             },
             options: {
+                responsive: true,
+                maintainAspectRatio: false,
                 legend: { display: false },
                 title: {
                     display: true,

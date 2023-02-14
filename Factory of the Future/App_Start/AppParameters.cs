@@ -14,6 +14,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Net.Security;
 using System.Security.Cryptography.X509Certificates;
+using Factory_of_the_Future.Models;
 
 namespace Factory_of_the_Future
 {
@@ -67,7 +68,7 @@ namespace Factory_of_the_Future
         // public static ConcurrentDictionary<string, GeoMarker> TagsList { get; set; } = new ConcurrentDictionary<string, GeoMarker>();
         public static ConcurrentDictionary<string, ZoneInfo> ZoneInfo { get; set; } = new ConcurrentDictionary<string, ZoneInfo>();
         public static ConcurrentDictionary<string, string> DPSList { get; set; } = new ConcurrentDictionary<string, string>();
-        public static ConcurrentDictionary<string, string> MPEPerformanceList { get; set; } = new ConcurrentDictionary<string, string>();
+        public static ConcurrentDictionary<string, RunPerf> MPEPerformance { get; set; } = new ConcurrentDictionary<string, RunPerf>();
         public static ConcurrentDictionary<string, RPGPlan> MPEPRPGList { get; set; } = new ConcurrentDictionary<string, RPGPlan>();
         public static ConcurrentDictionary<string, string> DockdoorList { get; set; } = new ConcurrentDictionary<string, string>();
         public static ConcurrentDictionary<int, SV_Bullpen> SVZoneNameList { get; set; } = new ConcurrentDictionary<int, SV_Bullpen>();
@@ -169,9 +170,9 @@ namespace Factory_of_the_Future
                     // load max (y-axis) values for machines
                     GetMachineThroughputMax("MachineThroughputMax.csv");
                     //load the door and trip association 
-                    GetDoorTripAssociation();
+                    _ = GetDoorTripAssociation();
                     ///load default connection setting.
-                    GetConnectionDefaultAsync();
+                    _ = GetConnectionDefaultAsync();
                 }
               
 
@@ -181,7 +182,7 @@ namespace Factory_of_the_Future
                 new ErrorLogger().ExceptionLog(ex);
             }
         }
-        private static void GetDoorTripAssociation()
+        public static async Task GetDoorTripAssociation()
         {
             try
             {
@@ -358,32 +359,15 @@ namespace Factory_of_the_Future
                 if (!string.IsNullOrEmpty(file_content))
                 {
                     List<Connection> tempcon = JsonConvert.DeserializeObject<List<Connection>>(file_content);
-                    
+
                     AppParameters.AppSettings["MPE_WATCH_ID"] = "";
 
                     for (int i = 0; i < tempcon.Count; i++)
                     {
-                       
+
                         await Task.Run(() => RunningConnection.Add(tempcon[i])).ConfigureAwait(false);
-                        //if (ConnectionList.TryAdd(tempcon[i].Id, tempcon[i]))
-                        //{
-                        //    RunningConnection.Add(tempcon[i]);
-                        //}
-                        //if (tempcon[i].ConnectionName == "Quuppa" &&
-                        //    String.IsNullOrEmpty(QuuppaBaseUrl))
-                        //{
-                        //    int slashBeforeQpeIndex =
-                        //            tempcon[i].Url.IndexOf(@"/qpe/");
-                        //    if (slashBeforeQpeIndex != -1)
-                        //    {
-                        //        QuuppaBaseUrl = 
-                        //            tempcon[i].Url.Substring(0, 
-                        //            slashBeforeQpeIndex + 5);
-                        //    }
-                        //}
+
                     }
-                    //write to file
-                    //new FileIO().Write(string.Concat(AppParameters.CodeBase.Parent.FullName.ToString(), AppParameters.Appsetting), "AppSettings.json", JsonConvert.SerializeObject(AppParameters.AppSettings, Formatting.Indented));
                 }
             }
             catch (Exception e)
@@ -833,7 +817,7 @@ namespace Factory_of_the_Future
                 DockdoorList = new ConcurrentDictionary<string, string>();
                 SVZoneNameList = new ConcurrentDictionary<int, SV_Bullpen>();
                 DPSList = new ConcurrentDictionary<string, string>();
-                MPEPerformanceList = new ConcurrentDictionary<string, string>();
+                MPEPerformance = new ConcurrentDictionary<string, RunPerf>();
 
                 MPEPRPGList = new ConcurrentDictionary<string, RPGPlan>();
                 RouteTripsList = new ConcurrentDictionary<string, RouteTrips>();

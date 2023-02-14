@@ -13,6 +13,7 @@ using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Net.Http;
+using Factory_of_the_Future.Models;
 
 namespace Factory_of_the_Future
 {
@@ -77,9 +78,6 @@ namespace Factory_of_the_Future
         //60 seconds
         private readonly TimeSpan _60000updateInterval = TimeSpan.FromMilliseconds(60000);
 
-     
-
-
         //init timers
         //private FOTFManager(IHubConnectionContext<dynamic> clients)
         //{
@@ -122,48 +120,7 @@ namespace Factory_of_the_Future
         }
         #region
         //dock door 
-        internal void RemoveDoorData(string doorNumber)
-        {
-            try
-            {
-
-                foreach (CoordinateSystem cs in CoordinateSystem.Values)
-                {
-                    cs.Zones.Where(f => f.Value.Properties.ZoneType == "DockDoor"
-                    && f.Value.Properties.DoorNumber == doorNumber
-                    ).Select(y => y.Value).ToList().ForEach(DockDoor =>
-                    {
-                        DockDoor.Properties.DockDoorData = GetDigitalDockDoorList(DockDoor.Properties.DoorNumber);
-                        BroadcastDockDoorRemoveData(DockDoor, cs.Id);
-                    });
-                }
-            }
-            catch (Exception e)
-            {
-                new ErrorLogger().ExceptionLog(e);
-            }
-        }
-        internal void AddDoorData(string doorNumber)
-        {
-            try
-            {
-
-                foreach (CoordinateSystem cs in CoordinateSystem.Values)
-                {
-                    cs.Zones.Where(f => f.Value.Properties.ZoneType == "DockDoor"
-                    && f.Value.Properties.DoorNumber == doorNumber
-                    ).Select(y => y.Value).ToList().ForEach(DockDoor =>
-                    {
-                        DockDoor.Properties.DockDoorData = GetDigitalDockDoorList(DockDoor.Properties.DoorNumber);
-                        BroadcastDockDoorAddData(DockDoor, cs.Id);
-                    });
-                }
-            }
-            catch (Exception e)
-            {
-                new ErrorLogger().ExceptionLog(e);
-            }
-        }
+        
         internal void UpdateDoorData(string doorNumber)
         {
             try
@@ -210,6 +167,51 @@ namespace Factory_of_the_Future
                 Clients.Group("DockDoor_" + dockDoor.Properties.DoorNumber).updateDigitalDockDoorStatus(dockDoor.Properties.DockDoorData, id);
 
             }
+        }
+        #endregion
+
+        #region
+        //MPE data
+        internal void UpdateMpeData(string mpeId)
+        {
+            try
+            {
+                foreach (CoordinateSystem cs in CoordinateSystem.Values)
+                {
+                    cs.Zones.Where(f => f.Value.Properties.ZoneType == "Machine"
+                    && f.Value.Properties.Name == mpeId
+                    ).Select(y => y.Value).ToList().ForEach(MPE =>
+                    {
+                        MPE.Properties.MPEWatchData = GetMPEPerfData(mpeId);
+                        BroadcastMachineStatus(MPE, cs.Id);
+                    });
+                }
+            }
+            catch (Exception e)
+            {
+                new ErrorLogger().ExceptionLog(e);
+            }
+        }
+
+        private RunPerf GetMPEPerfData(string mpeId)
+        {
+            RunPerf PerfData = new RunPerf();
+            try
+            {
+
+                PerfData = AppParameters.MPEPerformance.Where(x => x.Key == mpeId).Select(y => y.Value).FirstOrDefault();
+                return PerfData;
+            }
+            catch (Exception ex)
+            {
+                new ErrorLogger().ExceptionLog(ex);
+                return PerfData;
+            }
+        }
+        private void BroadcastMachineStatus(GeoZone mPE, string id)
+        {
+            Clients.Group("MachineZones").updateMachineStatus(mPE, id);
+
         }
         #endregion
         public List<RouteTrips> GetDigitalDockDoorList(string id)
@@ -353,7 +355,7 @@ namespace Factory_of_the_Future
         {
             try
             {
-                return AppParameters.MPEPerformanceList.Select(y => y.Key).ToList();
+                return AppParameters.MPEPerformance.Select(y => y.Key).ToList();
             }
             catch (Exception e)
             {
@@ -1233,7 +1235,7 @@ namespace Factory_of_the_Future
                                          where TrySVTripStatus(trip)
                                          select trip)
                     {
-                        BroadcastSVTripsUpdate(trip);
+                        BroadcastTripsUpdate(trip);
 
                     }
 
@@ -1300,7 +1302,7 @@ namespace Factory_of_the_Future
                     if (AppParameters.RouteTripsList.TryRemove(routetripid, out RouteTrips r))
                     {
                         Task.Run(() => CheckNotification(trip.State, state, "routetrip", trip, trip.NotificationId));
-                        BroadcastSVTripsRemove(r.Id);
+                        BroadcastTripsRemove(r.Id);
                     }
                 }
                 return update;
@@ -1353,11 +1355,11 @@ namespace Factory_of_the_Future
                 AllContainer = null;
             }
         }
-        public void BroadcastSVTripsUpdate(RouteTrips trip)
+        public void BroadcastTripsUpdate(RouteTrips trip)
         {
             try
             {
-                Clients.Group("Trips").SVTripsUpdate(trip);
+                Clients.Group("Trips").TripsUpdate(trip);
                 //if (!string.IsNullOrEmpty(trip.DoorNumber))
                 //{
                 //    UpdateDoorZone(trip);
@@ -1370,12 +1372,12 @@ namespace Factory_of_the_Future
 
 
         }
-        public void BroadcastSVTripsAdd(RouteTrips trip)
+        public void BroadcastTripsAdd(RouteTrips trip)
         {
 
             try
             {
-                Clients.Group("Trips").SVTripsAdd(trip);
+                Clients.Group("Trips").TripsAdd(trip);
                 //if (!string.IsNullOrEmpty(trip.DoorNumber))
                 //{
                 //    UpdateDoorZone(trip);
@@ -1388,9 +1390,9 @@ namespace Factory_of_the_Future
 
 
         }
-        public void BroadcastSVTripsRemove(string id)
+        public void BroadcastTripsRemove(string id)
         {
-            Clients.All.SVTripsRemove(id);
+            Clients.All.TripsRemove(id);
         }
         internal void AddMap(string id, CoordinateSystem cSystem)
         {
@@ -1633,64 +1635,64 @@ namespace Factory_of_the_Future
             Clients.Group("AGVLocationZones").updateAGVLocationStatus(AGV_Location);
         }
 
-        private void UpdateMachineStatus(object state)
-        {
-            lock (updateMachineStatuslock)
-            {
-                List<Tuple<GeoZone, string>> machineStatuses = new
-                    List<Tuple<GeoZone, string>>();
-                if (!_updateMachineStatus)
-                {
-                    _updateMachineStatus = true;
-                    foreach (CoordinateSystem cs in CoordinateSystem.Values)
-                    {
-                        cs.Zones.Where(f => f.Value.Properties.ZoneType == "Machine" && f.Value.Properties.ZoneUpdate).Select(y => y.Value).ToList().ForEach(Machine =>
-                        {
-                            if (TryUpdateMachineStatus(Machine))
-                            {
+        //private void UpdateMachineStatus(object state)
+        //{
+        //    lock (updateMachineStatuslock)
+        //    {
+        //        List<Tuple<GeoZone, string>> machineStatuses = new
+        //            List<Tuple<GeoZone, string>>();
+        //        if (!_updateMachineStatus)
+        //        {
+        //            _updateMachineStatus = true;
+        //            foreach (CoordinateSystem cs in CoordinateSystem.Values)
+        //            {
+        //                cs.Zones.Where(f => f.Value.Properties.ZoneType == "Machine" && f.Value.Properties.ZoneUpdate).Select(y => y.Value).ToList().ForEach(Machine =>
+        //                {
+        //                    if (TryUpdateMachineStatus(Machine))
+        //                    {
 
-                                machineStatuses.Add(new Tuple<GeoZone, string>(Machine, cs.Id));
-                            }
+        //                        machineStatuses.Add(new Tuple<GeoZone, string>(Machine, cs.Id));
+        //                    }
 
-                        });
-                    }
-                    if (machineStatuses.Count > 0)
-                    {
-                        BroadcastMachineStatus(machineStatuses);
-                    }
+        //                });
+        //            }
+        //            if (machineStatuses.Count > 0)
+        //            {
+        //                BroadcastMachineStatus(machineStatuses);
+        //            }
 
-                    _updateMachineStatus = false;
-                }
-            }
-        }
+        //            _updateMachineStatus = false;
+        //        }
+        //    }
+        //}
 
-        private bool TryUpdateMachineStatus(GeoZone machine)
-        {
-            try
-            {
+        //private bool TryUpdateMachineStatus(GeoZone machine)
+        //{
+        //    try
+        //    {
 
-                machine.Properties.ZoneUpdate = false;
-                //MPE Performance
-                machine.Properties.MPEWatchData = GetMPEPerfData(machine.Properties.Name);
+        //        machine.Properties.ZoneUpdate = false;
+        //        //MPE Performance
+        //        machine.Properties.MPEWatchData = GetMPEPerfData(machine.Properties.Name);
 
-                //MPE P2P
-                if (!string.IsNullOrEmpty(machine.Properties.MPEWatchData.CurSortplan))
-                {
-                    machine.Properties.StaffingData = GetStaffingSortplan(machine.Properties.MPEWatchData.MpeType, machine.Properties.MPEWatchData.MpeNumber, machine.Properties.MPEWatchData.CurSortplan);
-                }
-                //MPE DPS
-                if (!string.IsNullOrEmpty(machine.Properties.MPEWatchData.CurSortplan))
-                {
-                    machine.Properties.DPSData = GetDPSData(machine.Properties.MPEWatchData.CurSortplan);
-                }
-                return true;
-            }
-            catch (Exception e)
-            {
-                new ErrorLogger().ExceptionLog(e);
-                return false;
-            }
-        }
+        //        //MPE P2P
+        //        if (!string.IsNullOrEmpty(machine.Properties.MPEWatchData.CurSortplan))
+        //        {
+        //            machine.Properties.StaffingData = GetStaffingSortplan(machine.Properties.MPEWatchData.MpeType, machine.Properties.MPEWatchData.MpeNumber, machine.Properties.MPEWatchData.CurSortplan);
+        //        }
+        //        //MPE DPS
+        //        if (!string.IsNullOrEmpty(machine.Properties.MPEWatchData.CurSortplan))
+        //        {
+        //            machine.Properties.DPSData = GetDPSData(machine.Properties.MPEWatchData.CurSortplan);
+        //        }
+        //        return true;
+        //    }
+        //    catch (Exception e)
+        //    {
+        //        new ErrorLogger().ExceptionLog(e);
+        //        return false;
+        //    }
+        //}
         private static StaffingSortplan GetStaffingSortplan(string machine_type, string machine_number, string sortplan)
         {
             StaffingSortplan StaffingSortplanData = new StaffingSortplan();
@@ -1716,25 +1718,7 @@ namespace Factory_of_the_Future
                 return StaffingSortplanData;
             }
         }
-        private static RunPerf GetMPEPerfData(string MPEName)
-        {
-            RunPerf PerfData = new RunPerf();
-            try
-            {
-
-                if (AppParameters.MPEPerformanceList.TryGetValue(MPEName, out string Perf))
-                {
-                    PerfData = JsonConvert.DeserializeObject<RunPerf>(Perf);
-                    return PerfData;
-                }
-                return PerfData;
-            }
-            catch (Exception ex)
-            {
-                new ErrorLogger().ExceptionLog(ex);
-                return PerfData;
-            }
-        }
+       
         private static DPS GetDPSData(string curSortplan)
         {
             DPS DPSData = new DPS();
@@ -1753,11 +1737,7 @@ namespace Factory_of_the_Future
                 return DPSData;
             }
         }
-        private void BroadcastMachineStatus(List<Tuple<GeoZone, string>> machineStatuses)
-        {
-            Clients.Group("MachineZones").updateMachineStatus(machineStatuses);
-
-        }
+      
         /* updates tag name after end user clicks on a vehicle, selects edit, and enters
            a new tag name and submits
         */

@@ -293,7 +293,7 @@ $('#API_Connection_Modal').on('shown.bs.modal', function () {
 
     //Hour 
     $('input[type=checkbox][name=hour_range]').change(() => {
-        if (!$('input[type=checkbox][name=hour_range]').is(':checked')) {
+        if (!$('input[type=checkbox][id=hour_range]').is(':checked')) {
             $('.hours_range_row').css("display", "none");
             $('input[id=hoursback_range]').val(0);
             $('.hoursbackvalue').html(0);
@@ -683,7 +683,7 @@ function Edit_Connection(Data) {
         $('input[id=hoursforward_range]').val($.isNumeric(Data.HoursForward) ? parseInt(Data.HoursForward, 10) : 0);
         $('.hours_range_row').css("display", "");
 
-        $('input[type=checkbox][name=hour_range]').prop('checked', true).change();
+        $('input[type=checkbox][id=hour_range]').prop('checked', true);
 
     }
     else {
@@ -693,7 +693,7 @@ function Edit_Connection(Data) {
         $('.hoursforwardvalue').html($.isNumeric(Data.HoursForward) ? parseInt(Data.HoursForward, 10) : 0);
         $('input[id=hoursforward_range]').val($.isNumeric(Data.HoursForward) ? parseInt(Data.HoursForward, 10) : 0);
         $('.hours_range_row').css("display", "none");
-        $('input[type=checkbox][name=hour_range]').prop('checked', false).change();
+        $('input[type=checkbox][id=hour_range]').prop('checked', false);
     }
     $('button[id=apisubmitBtn]').prop('disabled', true);
     $('button[id=apisubmitBtn]').off().on('click', function () {
@@ -705,8 +705,8 @@ function Edit_Connection(Data) {
                 UdpConnection: $('input[type=radio][id=udp_connection]').is(':checked'),
                 TcpIpConnection: $('input[type=radio][id=tcpip_connection]').is(':checked'),
                 WsConnection: $('input[type=radio][name=ws_connection]').is(':checked'),
-                HoursBack: $('input[type=checkbox][name=hour_range]').is(':checked') ? parseInt($('input[id=hoursback_range]').val()) : 0,
-                HoursForward: $('input[type=checkbox][name=hour_range]').is(':checked') ? parseInt($('input[id=hoursforward_range]').val()) : 0,
+                HoursBack: $('input[type=checkbox][id=hour_range]').is(':checked') ? parseInt($('input[id=hoursback_range]').val(), 10) : 0,
+                HoursForward: $('input[type=checkbox][id=hour_range]').is(':checked') ? parseInt($('input[id=hoursforward_range]').val(), 10) : 0,
                 DataRetrieve: $('select[name=data_retrieve] option:selected').val(),
                 ConnectionName: $('input[type=text][name=connection_name]').val(),
                 IpAddress: $('input[type=text][id=ip_address]').val(),

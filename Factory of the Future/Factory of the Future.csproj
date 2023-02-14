@@ -18,8 +18,8 @@
     <UseIISExpress>true</UseIISExpress>
     <Use64BitIISExpress />
     <IISExpressSSLPort>44368</IISExpressSSLPort>
-    <IISExpressAnonymousAuthentication>disabled</IISExpressAnonymousAuthentication>
-    <IISExpressWindowsAuthentication>enabled</IISExpressWindowsAuthentication>
+    <IISExpressAnonymousAuthentication>enabled</IISExpressAnonymousAuthentication>
+    <IISExpressWindowsAuthentication>disabled</IISExpressWindowsAuthentication>
     <IISExpressUseClassicPipelineMode />
     <UseGlobalApplicationHostFile />
     <NuGetPackageImportStamp>
@@ -594,6 +594,7 @@
     <Compile Include="Models\MachineData.cs" />
     <Compile Include="Models\Marker.cs" />
     <Compile Include="Models\MarkerGeometry.cs" />
+    <Compile Include="Models\RunPerf.cs" />
     <Compile Include="Models\RouteTrips.cs" />
     <Compile Include="Models\Tacs.cs" />
     <Compile Include="Models\Zone.cs" />
@@ -601,6 +602,8 @@
     <Compile Include="ProcessReceivedMessage\ContainerData.cs" />
     <Compile Include="ProcessReceivedMessage\DoorData.cs" />
     <Compile Include="ProcessReceivedMessage\ItineraryTrip_Update.cs" />
+    <Compile Include="ProcessReceivedMessage\MPEWatch_RPGPerf.cs" />
+    <Compile Include="ProcessReceivedMessage\MPEWatch_RPGPlan.cs" />
     <Compile Include="ProcessReceivedMessage\ProjectData.cs" />
     <Compile Include="ProcessReceivedMessage\Staffing.cs" />
     <Compile Include="ProcessReceivedMessage\TripData.cs" />

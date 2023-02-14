@@ -113,9 +113,11 @@ namespace Factory_of_the_Future
                             MPE_Watch_Id(_data);
                             break;
                         case "rpg_run_perf":
-                            MPEWatch_RPGPerf(_data, _connID);
+                            await Task.Run(() => new MPEWatch_RPGPerf().LoadAsync(_data, _Message_type, _connID)).ConfigureAwait(false);
+                           // MPEWatch_RPGPerf(_data, _connID);
                             break;
                         case "rpg_plan":
+                            //await Task.Run(() => new MPEWatch_RPGPlan().LoadAsync(_data, _Message_type, _connID)).ConfigureAwait(false);
                             MPEWatch_RPGPlan(_data, _connID);
                             break;
                         case "dps_run_estm":
@@ -1018,177 +1020,177 @@ namespace Factory_of_the_Future
                 new ErrorLogger().ExceptionLog(e);
             }
         }
-        private static void MPEWatch_RPGPerf(dynamic data, string conID)
-        {
-            try
-            {
-                string total_volume = "";
-                string estCompletionTime = "";
-                if (data != null)
-                {
-                    JToken tempData = JToken.Parse(data);
-                    JToken machineInfo = tempData.SelectToken("data");
-                    if (machineInfo != null && machineInfo.HasValues)
-                    {
-                        DateTime dtNow = DateTime.Now;
-                        string windowsTimeZoneId = "";
-                        if (!string.IsNullOrEmpty((string)AppParameters.AppSettings["FACILITY_TIMEZONE"]))
-                        {
-                            AppParameters.TimeZoneConvert.TryGetValue((string)AppParameters.AppSettings["FACILITY_TIMEZONE"], out windowsTimeZoneId);
-                        }
-                        foreach (JObject item in machineInfo.Children())
-                        {
-                            item["cur_sortplan"] = AppParameters.SortPlan_Name_Trimer(item["cur_sortplan"].ToString());
-                            item["cur_operation_id"] = !string.IsNullOrEmpty(item["cur_operation_id"].ToString()) ? item["cur_operation_id"].ToString() : "0";
-                            item["rpg_start_dtm"] = "";
-                            item["rpg_end_dtm"] = "";
-                            item["expected_throughput"] = "0";
-                            MPEWatch_FullBins(item);
+        //private static void MPEWatch_RPGPerf(dynamic data, string conID)
+        //{
+        //    try
+        //    {
+        //        string total_volume = "";
+        //        string estCompletionTime = "";
+        //        if (data != null)
+        //        {
+        //            JToken tempData = JToken.Parse(data);
+        //            JToken machineInfo = tempData.SelectToken("data");
+        //            if (machineInfo != null && machineInfo.HasValues)
+        //            {
+        //                DateTime dtNow = DateTime.Now;
+        //                string windowsTimeZoneId = "";
+        //                if (!string.IsNullOrEmpty((string)AppParameters.AppSettings["FACILITY_TIMEZONE"]))
+        //                {
+        //                    AppParameters.TimeZoneConvert.TryGetValue((string)AppParameters.AppSettings["FACILITY_TIMEZONE"], out windowsTimeZoneId);
+        //                }
+        //                foreach (JObject item in machineInfo.Children())
+        //                {
+        //                    item["cur_sortplan"] = AppParameters.SortPlan_Name_Trimer(item["cur_sortplan"].ToString());
+        //                    item["cur_operation_id"] = !string.IsNullOrEmpty(item["cur_operation_id"].ToString()) ? item["cur_operation_id"].ToString() : "0";
+        //                    item["rpg_start_dtm"] = "";
+        //                    item["rpg_end_dtm"] = "";
+        //                    item["expected_throughput"] = "0";
+        //                    MPEWatch_FullBins(item);
                             
-                            total_volume = item.ContainsKey("tot_sortplan_vol") ? item["tot_sortplan_vol"].ToString().Trim() : "0";
-                            int.TryParse(item.ContainsKey("rpg_est_vol") ? item["rpg_est_vol"].ToString().Trim() : "0", out int rpg_volume);
-                            double.TryParse(item.ContainsKey("rpg_est_vol") ? item["cur_thruput_ophr"].ToString().Trim() : "0", out double throughput);
-                            int.TryParse(item.ContainsKey("rpg_est_vol") ? item["tot_sortplan_vol"].ToString().Trim() : "0", out int piecesfed);
+        //                    total_volume = item.ContainsKey("tot_sortplan_vol") ? item["tot_sortplan_vol"].ToString().Trim() : "0";
+        //                    int.TryParse(item.ContainsKey("rpg_est_vol") ? item["rpg_est_vol"].ToString().Trim() : "0", out int rpg_volume);
+        //                    double.TryParse(item.ContainsKey("rpg_est_vol") ? item["cur_thruput_ophr"].ToString().Trim() : "0", out double throughput);
+        //                    int.TryParse(item.ContainsKey("rpg_est_vol") ? item["tot_sortplan_vol"].ToString().Trim() : "0", out int piecesfed);
 
-                            if (rpg_volume > 0 && throughput > 0)
-                            {
-                                if (!string.IsNullOrEmpty(windowsTimeZoneId))
-                                {
-                                    dtNow = TimeZoneInfo.ConvertTime(DateTime.Now, TimeZoneInfo.FindSystemTimeZoneById(windowsTimeZoneId));
-                                }
-                                double intMinuteToCompletion = (rpg_volume - piecesfed) / (throughput / 60);
-                                DateTime dtEstCompletion = dtNow.AddMinutes(intMinuteToCompletion);
-                                estCompletionTime = dtEstCompletion.ToString("yyyy-MM-dd HH:mm:ss");
-                                item["rpg_est_comp_time"] = estCompletionTime;
-                            }
-                            else
-                            {
-                                item["rpg_est_comp_time"] = "";
-                            }
-                            if (item.ContainsKey("rpg_expected_thruput"))
-                            {
-                                item["expected_throughput"] = !string.IsNullOrEmpty(item["rpg_expected_thruput"].ToString()) ? item["rpg_expected_thruput"].ToString().Split(' ').FirstOrDefault() : "0";
-                                if (!string.IsNullOrEmpty(item["expected_throughput"].ToString()) && item["expected_throughput"].ToString() != "0")
-                                {
-                                    int.TryParse(item.ContainsKey("cur_thruput_ophr") ? item["cur_thruput_ophr"].ToString().Trim() : "0", out int cur_thruput);
-                                    int.TryParse(item.ContainsKey("expected_throughput") ? item["expected_throughput"].ToString().Trim() : "0", out int expected_throughput);
-                                    double thrper = (double)cur_thruput / (double)expected_throughput * 100;
-                                    string throughputState = "1";
-                                    if (item["current_run_end"].ToString() != "" && item["current_run_end"].ToString() != "0")
-                                    {
-                                        throughputState = "0";
-                                    }
-                                    else if (thrper >= 100)
-                                    {
-                                        throughputState = "1";
-                                    }
-                                    else if (thrper >= 90)
-                                    {
-                                        throughputState = "2";
-                                    }
-                                    else if (thrper < 90)
-                                    {
-                                        throughputState = "3";
-                                    }
-                                    item["throughput_status"] = throughputState;
-                                }
-                            }
-                            else
-                            {
-                                if ((item["current_run_end"].ToString() == "" || item["current_run_end"].ToString() == "0") && item["current_run_start"].ToString() != "")
-                                {
-                                    // JObject results = new Oracle_DB_Calls().Get_RPG_Plan_Info(item);
-                                    JObject results = Get_RPG_Plan_Info(item);
-                                    if (results != null && results.HasValues)
-                                    {
-                                        item["rpg_start_dtm"] = results.ContainsKey("rpg_start_dtm") ? results["rpg_start_dtm"].ToString().Trim() : "";
-                                        item["rpg_end_dtm"] = results.ContainsKey("rpg_end_dtm") ? results["rpg_end_dtm"].ToString().Trim() : "";
-                                        item["expected_throughput"] = results.ContainsKey("expected_throughput") ? results["expected_throughput"].ToString().Trim() : "";
-                                        //item["throughput_status"] = "1";
-                                        if (!string.IsNullOrEmpty(item["expected_throughput"].ToString()) && item["expected_throughput"].ToString() != "0")
-                                        {
-                                            int.TryParse(item.ContainsKey("cur_thruput_ophr") ? item["cur_thruput_ophr"].ToString().Trim() : "0", out int cur_thruput);
-                                            int.TryParse(item.ContainsKey("expected_throughput") ? item["expected_throughput"].ToString().Trim() : "0", out int expected_throughput);
-                                            double thrper = (double)cur_thruput / (double)expected_throughput * 100;
-                                            string throughputState = "1";
-                                            if (thrper >= 100)
-                                            {
-                                                throughputState = "1";
-                                            }
-                                            else if (thrper >= 90)
-                                            {
-                                                throughputState = "2";
-                                            }
-                                            else if (thrper < 90)
-                                            {
-                                                throughputState = "3";
-                                            }
-                                            item["throughput_status"] = throughputState;
-                                        }
-                                    }
-                                }
-                            }
+        //                    if (rpg_volume > 0 && throughput > 0)
+        //                    {
+        //                        if (!string.IsNullOrEmpty(windowsTimeZoneId))
+        //                        {
+        //                            dtNow = TimeZoneInfo.ConvertTime(DateTime.Now, TimeZoneInfo.FindSystemTimeZoneById(windowsTimeZoneId));
+        //                        }
+        //                        double intMinuteToCompletion = (rpg_volume - piecesfed) / (throughput / 60);
+        //                        DateTime dtEstCompletion = dtNow.AddMinutes(intMinuteToCompletion);
+        //                        estCompletionTime = dtEstCompletion.ToString("yyyy-MM-dd HH:mm:ss");
+        //                        item["rpg_est_comp_time"] = estCompletionTime;
+        //                    }
+        //                    else
+        //                    {
+        //                        item["rpg_est_comp_time"] = "";
+        //                    }
+        //                    if (item.ContainsKey("rpg_expected_thruput"))
+        //                    {
+        //                        item["expected_throughput"] = !string.IsNullOrEmpty(item["rpg_expected_thruput"].ToString()) ? item["rpg_expected_thruput"].ToString().Split(' ').FirstOrDefault() : "0";
+        //                        if (!string.IsNullOrEmpty(item["expected_throughput"].ToString()) && item["expected_throughput"].ToString() != "0")
+        //                        {
+        //                            int.TryParse(item.ContainsKey("cur_thruput_ophr") ? item["cur_thruput_ophr"].ToString().Trim() : "0", out int cur_thruput);
+        //                            int.TryParse(item.ContainsKey("expected_throughput") ? item["expected_throughput"].ToString().Trim() : "0", out int expected_throughput);
+        //                            double thrper = (double)cur_thruput / (double)expected_throughput * 100;
+        //                            string throughputState = "1";
+        //                            if (item["current_run_end"].ToString() != "" && item["current_run_end"].ToString() != "0")
+        //                            {
+        //                                throughputState = "0";
+        //                            }
+        //                            else if (thrper >= 100)
+        //                            {
+        //                                throughputState = "1";
+        //                            }
+        //                            else if (thrper >= 90)
+        //                            {
+        //                                throughputState = "2";
+        //                            }
+        //                            else if (thrper < 90)
+        //                            {
+        //                                throughputState = "3";
+        //                            }
+        //                            item["throughput_status"] = throughputState;
+        //                        }
+        //                    }
+        //                    else
+        //                    {
+        //                        if ((item["current_run_end"].ToString() == "" || item["current_run_end"].ToString() == "0") && item["current_run_start"].ToString() != "")
+        //                        {
+        //                            // JObject results = new Oracle_DB_Calls().Get_RPG_Plan_Info(item);
+        //                            JObject results = Get_RPG_Plan_Info(item);
+        //                            if (results != null && results.HasValues)
+        //                            {
+        //                                item["rpg_start_dtm"] = results.ContainsKey("rpg_start_dtm") ? results["rpg_start_dtm"].ToString().Trim() : "";
+        //                                item["rpg_end_dtm"] = results.ContainsKey("rpg_end_dtm") ? results["rpg_end_dtm"].ToString().Trim() : "";
+        //                                item["expected_throughput"] = results.ContainsKey("expected_throughput") ? results["expected_throughput"].ToString().Trim() : "";
+        //                                //item["throughput_status"] = "1";
+        //                                if (!string.IsNullOrEmpty(item["expected_throughput"].ToString()) && item["expected_throughput"].ToString() != "0")
+        //                                {
+        //                                    int.TryParse(item.ContainsKey("cur_thruput_ophr") ? item["cur_thruput_ophr"].ToString().Trim() : "0", out int cur_thruput);
+        //                                    int.TryParse(item.ContainsKey("expected_throughput") ? item["expected_throughput"].ToString().Trim() : "0", out int expected_throughput);
+        //                                    double thrper = (double)cur_thruput / (double)expected_throughput * 100;
+        //                                    string throughputState = "1";
+        //                                    if (thrper >= 100)
+        //                                    {
+        //                                        throughputState = "1";
+        //                                    }
+        //                                    else if (thrper >= 90)
+        //                                    {
+        //                                        throughputState = "2";
+        //                                    }
+        //                                    else if (thrper < 90)
+        //                                    {
+        //                                        throughputState = "3";
+        //                                    }
+        //                                    item["throughput_status"] = throughputState;
+        //                                }
+        //                            }
+        //                        }
+        //                    }
 
-                            CheckMachineNotifications(item);
-                            string MpeName = string.Concat(item["mpe_type"].ToString().Trim(), "-", item["mpe_number"].ToString().PadLeft(3, '0'));
-                            string newMPEPerf = JsonConvert.SerializeObject(item, Formatting.Indented);
-                            AppParameters.MPEPerformanceList.AddOrUpdate(MpeName, newMPEPerf,
-                                  (key, oldValue) =>
-                                  {
-                                      return newMPEPerf;
-                                  });
+        //                    CheckMachineNotifications(item);
+        //                    string MpeName = string.Concat(item["mpe_type"].ToString().Trim(), "-", item["mpe_number"].ToString().PadLeft(3, '0'));
+        //                    string newMPEPerf = JsonConvert.SerializeObject(item, Formatting.Indented);
+        //                    AppParameters.MPEPerformanceList.AddOrUpdate(MpeName, newMPEPerf,
+        //                          (key, oldValue) =>
+        //                          {
+        //                              return newMPEPerf;
+        //                          });
 
-                            foreach (CoordinateSystem cs in FOTFManager.Instance.CoordinateSystem.Values)
-                            {
-                                cs.Zones.Where(f => f.Value.Properties.ZoneType == "Machine" &&
-                                f.Value.Properties.Name == MpeName).Select(y => y.Value).ToList().ForEach(existingVal =>
-                                {
-                                    string temp = JsonConvert.SerializeObject(existingVal.Properties.MPEWatchData, Formatting.None);
-                                    string tempItem = JsonConvert.SerializeObject(item, Formatting.None);
-                                    if (temp != tempItem)
-                                    {
-                                        existingVal.Properties.ZoneUpdate = true;
-                                    }
-                                });
-                            }
-                             //AppParameters.ZoneList.Where(r => r.Value.Properties.ZoneType == "Machine" && r.Value.Properties.Name == MpeName).Select(y => y.Key).ToList().ForEach(key =>
-                             //{
-                             //    if (AppParameters.ZoneList.TryGetValue(key, out GeoZone machineZone))
-                             //    {
-                             //        //convert to string
-                             //        string temp = JsonConvert.SerializeObject(machineZone.Properties.MPEWatchData, Formatting.None);
-                             //        string tempItem = JsonConvert.SerializeObject(item, Formatting.None);
-                             //        if (temp != tempItem)
-                             //        {
-                             //            machineZone.Properties.ZoneUpdate = true;
-                             //        }
+        //                    foreach (CoordinateSystem cs in FOTFManager.Instance.CoordinateSystem.Values)
+        //                    {
+        //                        cs.Zones.Where(f => f.Value.Properties.ZoneType == "Machine" &&
+        //                        f.Value.Properties.Name == MpeName).Select(y => y.Value).ToList().ForEach(existingVal =>
+        //                        {
+        //                            string temp = JsonConvert.SerializeObject(existingVal.Properties.MPEWatchData, Formatting.None);
+        //                            string tempItem = JsonConvert.SerializeObject(item, Formatting.None);
+        //                            if (temp != tempItem)
+        //                            {
+        //                                existingVal.Properties.ZoneUpdate = true;
+        //                            }
+        //                        });
+        //                    }
+        //                     //AppParameters.ZoneList.Where(r => r.Value.Properties.ZoneType == "Machine" && r.Value.Properties.Name == MpeName).Select(y => y.Key).ToList().ForEach(key =>
+        //                     //{
+        //                     //    if (AppParameters.ZoneList.TryGetValue(key, out GeoZone machineZone))
+        //                     //    {
+        //                     //        //convert to string
+        //                     //        string temp = JsonConvert.SerializeObject(machineZone.Properties.MPEWatchData, Formatting.None);
+        //                     //        string tempItem = JsonConvert.SerializeObject(item, Formatting.None);
+        //                     //        if (temp != tempItem)
+        //                     //        {
+        //                     //            machineZone.Properties.ZoneUpdate = true;
+        //                     //        }
                                      
-                             //    }
-                             //});
+        //                     //    }
+        //                     //});
 
-                        }
-                        Task.Run(() => UpdateConnection(conID, "good"));
-                    }
-                    else
-                    {
-                        Task.Run(() => UpdateConnection(conID, "error"));
-                    }
-                    machineInfo = null;
-                    data = null;
+        //                }
+        //                Task.Run(() => UpdateConnection(conID, "good"));
+        //            }
+        //            else
+        //            {
+        //                Task.Run(() => UpdateConnection(conID, "error"));
+        //            }
+        //            machineInfo = null;
+        //            data = null;
                   
-                }
-                else
-                {
-                    Task.Run(() => UpdateConnection(conID, "error"));
-                }
-            }
-            catch (Exception ex)
-            {
-                Task.Run(() => UpdateConnection(conID, "error"));
-                new ErrorLogger().ExceptionLog(ex);
-            }
+        //        }
+        //        else
+        //        {
+        //            Task.Run(() => UpdateConnection(conID, "error"));
+        //        }
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        Task.Run(() => UpdateConnection(conID, "error"));
+        //        new ErrorLogger().ExceptionLog(ex);
+        //    }
 
-        }
+        //}
         private static JObject Get_RPG_Plan_Info(JObject item)
         {
             try

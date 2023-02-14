@@ -312,49 +312,35 @@ function init_zones(zoneData, id) {
     var hasDockDoorZone = false;
     var hasMachineZone = false;
     var hasBinZone = false;
-
-
     $.each(zoneData, function () {
         if (/^ebr/i.test(this.properties.name)) {
-
             ebrAreas.addData(this);
         }
         else if (/^Staging/i.test(this.properties.name)) {
-
             stagingAreas.addData(this);
         }
         else if (/^Walkway/i.test(this.properties.name)) {
-
             walkwayAreas.addData(this);
         }
         else if (/^exit/i.test(this.properties.name)) {
-
             exitAreas.addData(this);
         }
         else if (/^(Poly|hol)/i.test(this.properties.name)) {
-
             polyholesAreas.addData(this);
         }
         else if (/^(DockDoor)/i.test(this.properties.Zone_Type)) {
             dockDoors.addData(this);
-    
             hasDockDoorZone = true;
-            //fotfmanager.server.joinGroup("DockDoorZones");
         }
         else if (/^(Machine)/i.test(this.properties.Zone_Type)) {
-
             polygonMachine.addData(this);
             hasMachineZone = true;
-            //fotfmanager.server.joinGroup("MachineZones");
         }
         else if (/^(Bin)/i.test(this.properties.Zone_Type)) {
-
             binzonepoly.addData(this);
             hasBinZone = true;
-            //fotfmanager.server.joinGroup("BinZones");
         }
         else if (/^(AGVLocation)/i.test(this.properties.Zone_Type)) {
-
             agvLocations.addData(this);
         }
         else if (/^(ViewPorts)/i.test(this.properties.Zone_Type)) {
@@ -362,11 +348,8 @@ function init_zones(zoneData, id) {
         }
         else if (/^(Bullpen)/i.test(this.properties.Zone_Type)) {
             stagingBullpenAreas.addData(this);
-            // fotfmanager.server.joinGroup("SVZones");
-
         }
         else {
-
             stagingAreas.addData(this);
         }
     })

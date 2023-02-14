@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json;
+﻿using Factory_of_the_Future.Models;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Newtonsoft.Json.Serialization;
 using System;
@@ -30,15 +31,6 @@ namespace Factory_of_the_Future
         public const string PostalCode = "postalCode";
         public const string Email = "mail";
     }
-
-    public enum ProcessType
-    {
-        None = 0,
-        WhenAll = 1,
-        WaitAll = 2,
-        Parallel = 3
-    }
-
     public class ADUser
     {
         public string UserId { get; set; } = "";
@@ -72,65 +64,6 @@ namespace Factory_of_the_Future
         public string Server_IpAddress { get; internal set; } = "";
         public string Software_Version { get; internal set; } = "";
     }
-    public class Locator
-    {
-        [JsonProperty("locationLocked")]
-        public bool LocationLocked { get; set; }
-
-        [JsonProperty("orientation")]
-        public List<double> Orientation { get; set; }
-
-        [JsonProperty("visible")]
-        public bool Visible { get; set; }
-
-        [JsonProperty("notes")]
-        public string Notes { get; set; }
-
-        [JsonProperty("focusingErrorDeg")]
-        public double FocusingErrorDeg { get; set; }
-
-        [JsonProperty("color")]
-        public string Color { get; set; }
-
-        [JsonProperty("isOrientationSetManually")]
-        public bool IsOrientationSetManually { get; set; }
-
-        [JsonProperty("associatedAreas")]
-        public List<string> AssociatedAreas { get; set; }
-
-        [JsonProperty("locationLockedX")]
-        public bool LocationLockedX { get; set; }
-
-        [JsonProperty("locatorChannel")]
-        public string LocatorChannel { get; set; }
-
-        [JsonProperty("locationLockedZ")]
-        public bool LocationLockedZ { get; set; }
-
-        [JsonProperty("locationLockedY")]
-        public bool LocationLockedY { get; set; }
-
-        [JsonProperty("locatorType")]
-        public string LocatorType { get; set; }
-
-        [JsonProperty("name")]
-        public string Name { get; set; }
-
-        [JsonProperty("location")]
-        public List<double> Location { get; set; }
-
-        [JsonProperty("id")]
-        public string Id { get; set; }
-        [JsonProperty("rawData")]
-        public string RawData { get; set; }
-        [JsonProperty("locatorUpdate")]
-        public bool LocatorUpdate { get; set; }
-    }
-
-
-
-   
-  
     public class Properties
     {
         [JsonProperty("id")]
@@ -170,7 +103,7 @@ namespace Factory_of_the_Future
         public string Bins { get; set; } = "";
 
         [JsonProperty("MPE_Bins")]
-        public List<string> MPEBins { get; set; } = new List<string>();
+        public IEnumerable<string> MPEBins { get; set; } = new List<string>();
         //[JsonProperty("SV_Zone_Data")]
         //public SVZoneData SVZoneData { get; set; } = new SVZoneData();
 
@@ -202,12 +135,10 @@ namespace Factory_of_the_Future
         public string RawData { get; set; } = "";
 
         [JsonProperty("MissionList")]
-        public List<Mission> MissionList { get; set; } = new List<Mission>();
+        public IEnumerable<Mission> MissionList { get; set; } = new List<Mission>();
         [JsonProperty("source")]
         public string Source { get; set; } = "";
     }
-
-
     public class RoutePath
     {
         [JsonProperty("name")]
@@ -222,7 +153,6 @@ namespace Factory_of_the_Future
         [JsonProperty("average_duration")]
         public string Average_Duration { get; set; } = "";
     }
-
     public class ZoneInfo
     {
         [JsonProperty("MPE_Type")]
@@ -290,8 +220,6 @@ namespace Factory_of_the_Future
         [JsonProperty("CriticalColor")]
         public string CriticalColor { get; set; } = "";
     }
-
- 
     public class TrackTagGroups
     {
         [JsonProperty("tagGroups")]
@@ -300,7 +228,6 @@ namespace Factory_of_the_Future
         [JsonProperty("allTags")]
         public bool AllTags { get; set; }
     }
-
     public class DoorTripAssociation {
         public string DoorNumber { get; set; }
         public string Route { get; set; }
@@ -392,95 +319,95 @@ namespace Factory_of_the_Future
         [JsonProperty("count")]
         public int Count { get; set; } = 0;
     }
-    public class RunPerf
-    {
-        [JsonProperty("mpe_type")]
-        public string MpeType { get; set; } = "";
+    //public class RunPerf
+    //{
+    //    [JsonProperty("mpe_type")]
+    //    public string MpeType { get; set; } = "";
 
-        [JsonProperty("mpe_number")]
-        public string MpeNumber { get; set; } = "";
+    //    [JsonProperty("mpe_number")]
+    //    public string MpeNumber { get; set; } = "";
 
-        [JsonProperty("bins")]
-        public string Bins { get; set; } = "";
+    //    [JsonProperty("bins")]
+    //    public string Bins { get; set; } = "";
 
-        [JsonProperty("cur_sortplan")]
-        public string CurSortplan { get; set; } = "";
+    //    [JsonProperty("cur_sortplan")]
+    //    public string CurSortplan { get; set; } = "";
 
-        [JsonProperty("cur_thruput_ophr")]
-        public string CurThruputOphr { get; set; } = "";
+    //    [JsonProperty("cur_thruput_ophr")]
+    //    public string CurThruputOphr { get; set; } = "";
 
-        [JsonProperty("tot_sortplan_vol")]
-        public string TotSortplanVol { get; set; } = "";
+    //    [JsonProperty("tot_sortplan_vol")]
+    //    public string TotSortplanVol { get; set; } = "";
 
-        [JsonProperty("rpg_est_vol")]
-        public string RpgEstVol { get; set; } = "";
+    //    [JsonProperty("rpg_est_vol")]
+    //    public string RpgEstVol { get; set; } = "";
 
-        [JsonProperty("act_vol_plan_vol_nbr")]
-        public string ActVolPlanVolNbr { get; set; } = "";
+    //    [JsonProperty("act_vol_plan_vol_nbr")]
+    //    public string ActVolPlanVolNbr { get; set; } = "";
 
-        [JsonProperty("current_run_start")]
-        public string CurrentRunStart { get; set; } = "";
+    //    [JsonProperty("current_run_start")]
+    //    public string CurrentRunStart { get; set; } = "";
 
-        [JsonProperty("current_run_end")]
-        public string CurrentRunEnd { get; set; } = "";
+    //    [JsonProperty("current_run_end")]
+    //    public string CurrentRunEnd { get; set; } = "";
 
-        [JsonProperty("cur_operation_id")]
-        public string CurOperationId { get; set; } = "";
+    //    [JsonProperty("cur_operation_id")]
+    //    public string CurOperationId { get; set; } = "";
 
-        [JsonProperty("bin_full_status")]
-        public string BinFullStatus { get; set; } = "";
+    //    [JsonProperty("bin_full_status")]
+    //    public string BinFullStatus { get; set; } = "";
 
-        [JsonProperty("bin_full_bins")]
-        public string BinFullBins { get; set; } = "";
+    //    [JsonProperty("bin_full_bins")]
+    //    public string BinFullBins { get; set; } = "";
 
-        [JsonProperty("throughput_status")]
-        public string ThroughputStatus { get; set; } = "";
+    //    [JsonProperty("throughput_status")]
+    //    public string ThroughputStatus { get; set; } = "";
 
-        [JsonProperty("unplan_maint_sp_status")]
-        public string UnplanMaintSpStatus { get; set; } = "";
+    //    [JsonProperty("unplan_maint_sp_status")]
+    //    public string UnplanMaintSpStatus { get; set; } = "";
 
-        [JsonProperty("op_started_late_status")]
-        public string OpStartedLateStatus { get; set; } = "";
+    //    [JsonProperty("op_started_late_status")]
+    //    public string OpStartedLateStatus { get; set; } = "";
 
-        [JsonProperty("op_running_late_status")]
-        public string OpRunningLateStatus { get; set; } = "";
+    //    [JsonProperty("op_running_late_status")]
+    //    public string OpRunningLateStatus { get; set; } = "";
 
-        [JsonProperty("sortplan_wrong_status")]
-        public string SortplanWrongStatus { get; set; } = "";
+    //    [JsonProperty("sortplan_wrong_status")]
+    //    public string SortplanWrongStatus { get; set; } = "";
 
-        [JsonProperty("unplan_maint_sp_timer")]
-        public string UnplanMaintSpTimer { get; set; } = "";
+    //    [JsonProperty("unplan_maint_sp_timer")]
+    //    public string UnplanMaintSpTimer { get; set; } = "";
 
-        [JsonProperty("op_started_late_timer")]
-        public string OpStartedLateTimer { get; set; } = "";
+    //    [JsonProperty("op_started_late_timer")]
+    //    public string OpStartedLateTimer { get; set; } = "";
 
-        [JsonProperty("rpg_start_dtm")]
-        public string RPGStartDtm { get; set; } = "";
+    //    [JsonProperty("rpg_start_dtm")]
+    //    public string RPGStartDtm { get; set; } = "";
 
-        [JsonProperty("rpg_end_dtm")]
-        public string RPGEndDtm { get; set; } = "";
+    //    [JsonProperty("rpg_end_dtm")]
+    //    public string RPGEndDtm { get; set; } = "";
 
-        [JsonProperty("expected_throughput")]
-        public string ExpectedThroughput { get; set; } = "";
+    //    [JsonProperty("expected_throughput")]
+    //    public string ExpectedThroughput { get; set; } = "";
 
-        [JsonProperty("op_running_late_timer")]
-        public string OpRunningLateTimer { get; set; } = "";
+    //    [JsonProperty("op_running_late_timer")]
+    //    public string OpRunningLateTimer { get; set; } = "";
 
-        [JsonProperty("sortplan_wrong_timer")]
-        public string SortplanWrongTimer { get; set; } = "";
+    //    [JsonProperty("sortplan_wrong_timer")]
+    //    public string SortplanWrongTimer { get; set; } = "";
 
-        [JsonProperty("rpg_est_comp_time")]
-        public string RpgEstCompTime { get; set; } = "";
+    //    [JsonProperty("rpg_est_comp_time")]
+    //    public string RpgEstCompTime { get; set; } = "";
 
-        [JsonProperty("hourly_data")]
-        public List<HourlyData> HourlyData { get; set; } = new List<HourlyData>();
+    //    [JsonProperty("hourly_data")]
+    //    public List<HourlyData> HourlyData { get; set; } = new List<HourlyData>();
 
-        [JsonProperty("ars_recrej3")]
-        public string ArsRecrej3 { get; set; } = "";
+    //    [JsonProperty("ars_recrej3")]
+    //    public string ArsRecrej3 { get; set; } = "";
 
-        [JsonProperty("sweep_recrej3")]
-        public string SweepRecrej3 { get; set; } = "";
-    }
+    //    [JsonProperty("sweep_recrej3")]
+    //    public string SweepRecrej3 { get; set; } = "";
+    //}
     public class DPS
     {
         [JsonProperty("run_start_modsday")]
@@ -555,8 +482,6 @@ namespace Factory_of_the_Future
         [JsonProperty("time_to_comp_actual_DateTime")]
         public string TimeToCompActualDateTime { get; set; } = "";
     }
-    
-
     public class NullToEmptyStringResolver : Newtonsoft.Json.Serialization.DefaultContractResolver
     {
         protected override IList<JsonProperty> CreateProperties(Type type, MemberSerialization memberSerialization)
@@ -595,220 +520,6 @@ namespace Factory_of_the_Future
             _MemberInfo.SetValue(target, value);
         }
     }
-
-    /// sv zone data
-
-    public class SVZoneData
-    {
-        [JsonProperty("SQLTypeName")]
-        public string SQLTypeName {get; set;} = "";
-        [JsonProperty("locationId")]
-        public int locationId { get; set; } = 0;
-        [JsonProperty("siteId")]
-        public string siteId { get; set; } = "";
-        [JsonProperty("locationName")]
-        public string locationName { get; set; } = "";
-        [JsonProperty("locationType")]
-        public string locationType { get; set; } = "";
-        [JsonProperty("updtUserId")]
-        public string updtUserId { get; set; } = "";
-        [JsonProperty("responseCode")]
-        public string responseCode { get; set; } = "";
-
-    }
-    //// trips
-    //public class RouteTrips
-    //{
-    //    [JsonProperty("routeTripId")]
-    //    public int RouteTripId { get; set; } = 0;
-
-    //    [JsonProperty("routeTripLegId")]
-    //    public int RouteTripLegId { get; set; } = 0;
-
-    //    [JsonProperty("route")]
-    //    public string Route { get; set; } = "";
-
-    //    [JsonProperty("trip")]
-    //    public string Trip { get; set; } = "";
-
-    //    [JsonProperty("tripDirectionInd")]
-    //    public string TripDirectionInd { get; set; } = "";
-
-    //    [JsonProperty("legNumber")]
-    //    public int LegNumber { get; set; }
-
-    //    [JsonProperty("serviceTypeCode")]
-    //    public string ServiceTypeCode { get; set; } = "";
-
-    //    [JsonProperty("legSiteId")]
-    //    public string LegSiteId { get; set; } = "";
-
-    //    [JsonProperty("legSiteName")]
-    //    public string LegSiteName { get; set; } = "";
-
-    //    [JsonProperty("tripSiteId")]
-    //    public string TripSiteId { get; set; } = "";
-
-    //    [JsonProperty("tripSiteName")]
-    //    public string TripSiteName { get; set; } = "";
-
-    //    [JsonProperty("scheduledDtm")]
-    //    public EventDtm ScheduledDtm { get; set; } = new EventDtm();
-    //    public DateTime ScheduledDtmfmt
-    //    {
-    //        get
-    //        {
-    //            return new DateTime(ScheduledDtm.Year, (ScheduledDtm.Month + 1), ScheduledDtm.DayOfMonth, ScheduledDtm.HourOfDay, ScheduledDtm.Minute, ScheduledDtm.Second);
-    //        }
-    //        set { return; }
-    //    }
-
-    //    [JsonProperty("legScheduledDtm")]
-    //    public EventDtm LegScheduledDtm { get; set; } = new EventDtm();
-
-    //    [JsonProperty("containerScans")]
-    //    public IEnumerable<Container> Containers { get; set; } = null;
-
-    //    [JsonProperty("Notloadedcontainers")]
-    //    public int NotloadedContainers { get; set; } = 0;
-
-    //    [JsonProperty("form5397Ind")]
-    //    public string Form5397Ind { get; set; } = "";
-
-    //    [JsonProperty("originAreaName")]
-    //    public string OriginAreaName { get; set; } = "";
-
-    //    [JsonProperty("originDistrictName")]
-    //    public string OriginDistrictName { get; set; } = "";
-
-    //    [JsonProperty("originSiteName")]
-    //    public string OriginSiteName { get; set; } = "";
-
-    //    [JsonProperty("originSiteId")]
-    //    public string OriginSiteId { get; set; } = "";
-
-    //    [JsonProperty("destAreaName")]
-    //    public string DestAreaName { get; set; } = "";
-
-    //    [JsonProperty("destDistrictName")]
-    //    public string DestDistrictName { get; set; } = "";
-
-    //    [JsonProperty("destSiteName")]
-    //    public string DestSiteName { get; set; } = "";
-
-    //    [JsonProperty("destSiteId")]
-    //    public string DestSiteId { get; set; } = "";
-
-    //    [JsonProperty("tourNumber")]
-    //    public int TourNumber { get; set; } = 0;
-
-    //    [JsonProperty("supplier")]
-    //    public string Supplier { get; set; } = "";
-
-    //    [JsonProperty("notUnloadedInd")]
-    //    public string NotUnloadedInd { get; set; } = "";
-
-    //    [JsonProperty("operDate")]
-    //    public EventDtm OperDate { get; set; } = new EventDtm();
-
-    //    [JsonProperty("initialOriginSiteId")]
-    //    public string InitialOriginSiteId { get; set; } = "";
-
-    //    [JsonProperty("initialOriginSiteName")]
-    //    public string InitialOriginSiteName { get; set; } = "";
-
-    //    [JsonProperty("finalDestSiteId")]
-    //    public string FinalDestSiteId { get; set; } = "";
-
-    //    [JsonProperty("finalDestSiteName")]
-    //    public string FinalDestSiteName { get; set; } = "";
-
-    //    [JsonProperty("isAODU")]
-    //    public string IsAODU { get; set; } = "";
-
-    //    [JsonProperty("id")]
-    //    public string Id { get; set; } = "";
-
-    //    [JsonProperty("tripMin")]
-    //    public int? TripMin { get; set; } = 0;
-
-    //    [JsonProperty("status")]
-    //    public string Status { get; set; } = "";
-
-    //    [JsonProperty("state")]
-    //    public string State { get; set; } = "";
-
-    //    [JsonProperty("notificationId")]
-    //    public string NotificationId { get; set; } = "";
-
-    //    [JsonProperty("legStatus")]
-    //    public string LegStatus { get; set; } = "";
-
-    //    [JsonProperty("trailerBarcode")]
-    //    public string TrailerBarcode { get; set; } = "";
-
-    //    [JsonProperty("actualDtm")]
-    //    public EventDtm ActualDtm { get; set; } = new EventDtm();
-
-    //    [JsonProperty("legActualDtm")]
-    //    public EventDtm LegActualDtm { get; set; } = new EventDtm();
-
-    //    [JsonProperty("driverFirstName")]
-    //    public string DriverFirstName { get; set; } = "";
-
-    //    [JsonProperty("driverLastName")]
-    //    public string DriverLastName { get; set; } = "";
-
-    //    [JsonProperty("driverPhoneNumber")]
-    //    public string DriverPhoneNumber { get; set; } = "";
-
-    //    [JsonProperty("driverBarcode")]
-    //    public string DriverBarcode { get; set; } = "";
-
-    //    [JsonProperty("driverId")]
-    //    public int? DriverId { get; set; } = 0;
-
-    //    [JsonProperty("doorId")]
-    //    public string DoorId { get; set; } = "";
-
-    //    [JsonProperty("doorNumber")]
-    //    public string DoorNumber { get; set; } = "";
-
-    //    [JsonProperty("vanNumber")]
-    //    public string VanNumber { get; set; } = "";
-
-    //    [JsonProperty("trailerLengthCode")]
-    //    public string TrailerLengthCode { get; set; } = "";
-
-    //    [JsonProperty("loadPercent")]
-    //    public int? LoadPercent { get; set; } = 0;
-
-    //    [JsonProperty("loadUnldStartDtm")]
-    //    public EventDtm LoadUnldStartDtm { get; set; } = new EventDtm();
-
-    //    [JsonProperty("loadUnldEndDtm")]
-    //    public EventDtm LoadUnldEndDtm { get; set; } = new EventDtm();
-
-    //    [JsonProperty("doorDtm")]
-    //    public EventDtm DoorDtm { get; set; } = new EventDtm();
-
-    //    [JsonProperty("legDoorDtm")]
-    //    public EventDtm LegDoorDtm { get; set; } = new EventDtm();
-
-    //    [JsonProperty("mspBarcode")]
-    //    public string MspBarcode { get; set; } = "";
-
-    //    [JsonProperty("destSite")]
-    //    public string DestSites { get; set; } = "";
-
-    //    [JsonProperty("rawData")]
-    //    public string RawData { get; set; } = "";
-    //    [JsonProperty("Trip_Update")]
-    //    public bool TripUpdate { get; set; } = false;
-    //    public List<Leg> Legs { get; set; } = new List<Leg>();
-    //}
-
-
     public class MissedSel
     {
         [JsonProperty("empId")]
@@ -832,7 +543,6 @@ namespace Factory_of_the_Future
         [JsonProperty("tacs")]
         public Tacs Tacs { get; set; }
     }
-
     public class TacsTags
     {
         [JsonProperty("processedSince")]
@@ -949,7 +659,6 @@ namespace Factory_of_the_Future
         [JsonProperty("MissionErrorTime")]
         public DateTime MISSIONERRORTIME { get; set; }
     }
-
     public class Notification
     {
         [JsonProperty("Delete")]
@@ -1021,10 +730,8 @@ namespace Factory_of_the_Future
         [JsonProperty("TypeTime")]
         public DateTime Type_Time { get; set; }
 
-    }
-
-   
-        public class RPGPlan
+    }  
+    public class RPGPlan
     {
         public DateTime mods_date { get; set; }
         public string machine_num { get; set; } = "";
@@ -1122,7 +829,6 @@ namespace Factory_of_the_Future
         [JsonProperty("agvInd")]
         public string AgvInd;
     }
-
     public class SV_Tours
     {
         [JsonProperty("siteId")]
@@ -1287,7 +993,6 @@ namespace Factory_of_the_Future
         public const string Browser_Name = "Browser_Name";
         public const string Browser_Version = "Browser_Version";
     }
-
     public class AuthenticationCookie
     {
         private static readonly string Name = FormsAuthentication.FormsCookieName;

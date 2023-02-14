@@ -53,6 +53,11 @@
                                     <input id="active_connection" type="checkbox" class="custom-control-input" name="active_connection" />
                                     <label class="custom-control-label" for="active_connection">Active Connection</label>
                                 </div>
+                                <div class="custom-control custom-switch">
+                                    <input id="hour_range" type="checkbox" class="custom-control-input" name="hour_range" />
+                                    <label class="custom-control-label" for="hour_range">Hour Range</label>
+
+                                </div>
                             </div>
                             <div class="custom-control custom-switch">
                             </div>
@@ -74,11 +79,7 @@
                                 <input id="ws_connection" type="radio" class="custom-control-input" name="connectionType" />
                                 <label class="custom-control-label" for="ws_connection">WS Connection</label>
                             </div>
-                            <div class="custom-control custom-switch">
-                                <input id="hour_range" type="radio" class="custom-control-input" name="hour_range" />
-                                <label class="custom-control-label" for="hour_range">Hour Range</label>
-
-                            </div>
+                            
                         </div>
                     </div>
                     <div class="row mb-3">
@@ -112,8 +113,8 @@
                         <div class="col-6">
                             <div class="d-flex justify-content-center my-2">
                                 <div class="w-100">
-                                    <label class="control-label">Hours Backwards: <span class="font-weight-bold text-primary ml-2 hoursbackvalue"></span></label>
-                                    <input type="range" class="custom-range" id="hoursback_range" min="0" max="60" value="0"/>
+                                    <label class="control-label" for="hoursback_range">Hours Backwards: <span class="font-weight-bold text-primary ml-2 hoursbackvalue"></span></label>
+                                    <input type="range" title="Hours Backwards" class="custom-range" id="hoursback_range" min="0" max="60" value="0"/>
                                 </div>
                             </div>
                         </div>
@@ -121,8 +122,8 @@
                         <div class="col-6">
                             <div class="d-flex justify-content-center my-2">
                                 <div class="w-100">
-                                    <label class="control-label">Hours Forward: <span class="font-weight-bold text-primary ml-2 hoursforwardvalue"></span></label>
-                                    <input type="range" class="custom-range" id="hoursforward_range" min="0" max="60" value="0"/>
+                                    <label class="control-label" for="hoursforward_range">Hours Forward: <span class="font-weight-bold text-primary ml-2 hoursforwardvalue"></span></label>
+                                    <input type="range" title="Hours Forward" class="custom-range" id="hoursforward_range" min="0" max="60" value="0"/>
                                 </div>
                             </div>
                         </div>

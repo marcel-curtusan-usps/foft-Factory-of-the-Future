@@ -1,14 +1,10 @@
 ﻿/**
  *use this for the trips
  */
-//remove trips
 $.extend(fotfmanager.client, {
- 
-});
-$.extend(fotfmanager.client, {
-    SVTripsAdd: async (tripsadd) => { Promise.all([addTrips(tripsadd)]) },
-    SVTripsUpdate: async (updatetripsstatus) => { Promise.all([updateTrips(updatetripsstatus)]) },
-    SVTripsRemove: async (tripid) => { Promise.all([ removeTrips(tripid)]) }
+    TripsAdd: async (tripsadd) => { Promise.all([addTrips(tripsadd)]) },
+    TripsUpdate: async (updatetripsstatus) => { Promise.all([updateTrips(updatetripsstatus)]) },
+    TripsRemove: async (tripid) => { Promise.all([ removeTrips(tripid)]) }
 });
 
 async function init_arrive_depart_trips() {
@@ -103,25 +99,27 @@ async function process_trips(trip)
         console.log(e);
     }
 }
-async function removeTrips(routetrip) {
-    removeTripsDoorAssignedDatatable(routetrip, "doortriptable")
-    let trname = $.find('tbody tr[data-id=' + routetrip + ']');
+async function removeTrips(id) {
+    removeTripsDoorAssignedDatatable(id, "doortriptable")
+    //let trname = $.find('tbody tr[data-id=' + id + ']');
 
-    if (trname.length > 0) {
-        for (let tr_name of trname) {
-            let tablename = $(tr_name).closest('table').attr('id');
-            $('#' + tablename).find('tbody tr[data-id=' + routetrip + ']').remove();
-        }
+    //if (trname.length > 0) {
+    //    for (let tr_name of trname) {
+    //        let tablename = $(tr_name).closest('table').attr('id');
+    //        $('#' + tablename).find('tbody tr[data-id=' + id + ']').remove();
+    //    }
+    //}
+    if ($('#tripSelector option[id=' + id + ']').length > 0) {
+        $('#tripSelector option[id=' + id + ']').remove();
     }
-    $('#tripSelector option[id=' + routetrip + ']').remove();
 }
 async function addTrips(trip) {
-    $('<option/>').attr("id", trip.id).val(trip.id).html(trip.legSiteName + " | " + trip.route + " - " + trip.trip + " | " + tripDirectiontext(trip)).appendTo('select[id=tripSelector]');
-    var selectList = $('#tripSelector option');
+    if ($('#tripSelector option[id=' + trip.id + ']').length === 0) {
+        $('<option/>').attr("id", trip.id).val(trip.id).html(trip.legSiteName + " | " + trip.route + " - " + trip.trip + " | " + tripDirectiontext(trip)).appendTo('select[id=tripSelector]');
 
-    selectList.sort(SortByValue);
+        $('#tripSelector').html($('#tripSelector option').sort(SortByValue));
+    }
 
-    $('#tripSelector').html(selectList);
 }
 async function updateTrips(trip) {
 
