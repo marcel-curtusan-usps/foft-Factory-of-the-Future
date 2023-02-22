@@ -217,7 +217,7 @@ namespace Factory_of_the_Future
                 //string start_time = string.Concat(DateTime.Now.ToString("yyyy-MM-dd'T'"), "00:00:00");
 
                 Uri parURL = new Uri(string.Format((string)AppParameters.AppSettings["SV_ITINERARY"], route, trip, string.Concat(start_time.ToString("yyyy-MM-dd'T'"), "00:00:00")));
-                string SV_Response = new SendMessage().Get(parURL);
+                string SV_Response = new SendMessage().Get(parURL, new JObject()) ;
                 if (!string.IsNullOrEmpty(SV_Response))
                 {
                     temp = SV_Response;

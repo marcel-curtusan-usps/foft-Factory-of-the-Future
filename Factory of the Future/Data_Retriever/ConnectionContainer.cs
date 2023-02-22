@@ -1,8 +1,11 @@
-﻿using Newtonsoft.Json;
+﻿using Factory_of_the_Future.Models;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Web;
 
@@ -81,12 +84,19 @@ namespace Factory_of_the_Future
                 {
                     if (Connection_item.ConnectionInfo.Id == updateConndata.Id)
                     {
-                        Connection_item.ConnectionInfo.LastupDate = DateTime.Now;
-                        Connection_item.ConnectionInfo.LastupdateByUsername = updateConndata.LastupdateByUsername;
-                        Connection_item.ConnectionInfo.ActiveConnection = updateConndata.ActiveConnection;
-                        Connection_item.ConnectionInfo.HoursBack = updateConndata.HoursBack;
-                        Connection_item.ConnectionInfo.HoursForward = updateConndata.HoursForward;
-                        updateFile = true;
+                        updateConndata.LastupDate = DateTime.Now;
+                        foreach (PropertyInfo prop in Connection_item.ConnectionInfo.GetType().GetProperties())
+                        {
+                            if (!new Regex("^(UdpConnection|TcpIpConnection|WsConnection|ApiConnection|ConstantRefresh|Status)$", RegexOptions.IgnoreCase).IsMatch(prop.Name))
+                            {
+                                if (prop.GetValue(Connection_item.ConnectionInfo, null).ToString() != prop.GetValue(updateConndata, null).ToString())
+                                {
+                                    updateFile = true;
+                                    prop.SetValue(Connection_item.ConnectionInfo, prop.GetValue(updateConndata, null));
+
+                                }
+                            }
+                        }
                         if (!updateConndata.ActiveConnection)
                         {
                             Connection_item.ConnectionInfo.DeactivatedDate = DateTime.Now;
@@ -94,25 +104,19 @@ namespace Factory_of_the_Future
                             Connection_item.ConnectionInfo.ActiveConnection = updateConndata.ActiveConnection;
                             if (updateConndata.UdpConnection)
                             {
-                                Connection_item.ConnectionInfo.UdpConnection = updateConndata.UdpConnection;
                                 Connection_item._StopUDPListener();
                             }
                             else if (updateConndata.TcpIpConnection)
                             {
-                                Connection_item.ConnectionInfo.TcpIpConnection = updateConndata.TcpIpConnection;
                                 Connection_item._StopTCPListener();
                             }
                             else if (updateConndata.WsConnection)
                             {
-                                Connection_item.ConnectionInfo.WsConnection = updateConndata.WsConnection;
                                 Connection_item.WSStop();
                             }
                             else if (updateConndata.ApiConnection)
                             {
                                 Connection_item.ConstantRefresh = false;
-                                Connection_item.ConnectionInfo.Url = updateConndata.Url;
-                                Connection_item.ConnectionInfo.DataRetrieve = updateConndata.DataRetrieve;
-                                Connection_item.ConnectionInfo.ApiConnection = updateConndata.ApiConnection;
                                 Connection_item.Stop();
                             }
 
@@ -169,6 +173,50 @@ namespace Factory_of_the_Future
                    
                     new FileIO().Write(string.Concat(AppParameters.CodeBase.Parent.FullName.ToString(), AppParameters.Appsetting), "Connection.json", AppParameters.ConnectionOutPutdata(Connection.Select(y => y.ConnectionInfo).ToList()));
 
+                }
+            }
+            catch (Exception e)
+            {
+                new ErrorLogger().ExceptionLog(e);
+            }
+            finally
+            {
+                Dispose();
+            }
+        }
+
+        internal async Task ConnectionUpdate(string connID, int status)
+        {
+            try
+            {
+                foreach (Api_Connection Connection_item in Connection)
+                {
+                    if (Connection_item.ConnectionInfo.Id == connID)
+                    {
+                        Connection_item.Status = status;
+                        switch (status)
+                        {
+                            case 0:
+                                Connection_item.ConnectionInfo.Status = "Active";
+                                break;
+                            case 1:
+                                Connection_item.ConnectionInfo.Status = "Running";
+                                break;
+                            case 2:
+                                Connection_item.ConnectionInfo.Status = "Deactived";
+                                break;
+                            case 3:
+                                Connection_item.ConnectionInfo.Status = "Invaild URL";
+                                break;
+                            case 4:
+                                Connection_item.ConnectionInfo.Status = "No data";
+                                break;
+                            default:
+                                break;
+                        }
+                        
+                        await Task.Run(() => FOTFManager.Instance.BroadcastQSMUpdate(Connection_item.ConnectionInfo)).ConfigureAwait(false);
+                    }
                 }
             }
             catch (Exception e)

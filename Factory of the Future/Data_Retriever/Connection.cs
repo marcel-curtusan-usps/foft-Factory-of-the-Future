@@ -13,6 +13,7 @@ using System.Threading.Tasks;
 using System.Collections.Generic;
 using System.Reactive;
 using System.Web.Http;
+using Factory_of_the_Future.Models;
 
 namespace Factory_of_the_Future 
 {
@@ -144,14 +145,11 @@ namespace Factory_of_the_Future
                 {
                     SleptTime += 1000;
                     Thread.Sleep(1000);
-                    NASS_CODE = string.Empty;
-                    fdb = string.Empty;
-                    lkey = string.Empty;
-                    formatUrl = string.Empty;
-                    responseData = string.Empty;
+         
                     if (!ConnectionInfo.ActiveConnection)
                     {
                         Status = 4;
+                        ConnectionInfo.Status = "No data";
                         break;
                     }
                     if (!ConstantRefresh)
@@ -163,7 +161,7 @@ namespace Factory_of_the_Future
                         FOTFManager.Instance.BroadcastQSMUpdate(ConnectionInfo);
                         break;
                     }
-                    if (Status == 4)
+                    if (Status == 2)
                     {
                         return;
                     }
@@ -175,7 +173,7 @@ namespace Factory_of_the_Future
                     Download();
                 }
 
-            } while (Status == 0 || Status == 1);
+            } while (Status == 0 || Status == 1 || Status == 3 || Status == 4);
 
         }
         public void _ThreadRefresh()
@@ -186,6 +184,7 @@ namespace Factory_of_the_Future
              * automatically redownload upon reaching
              * the timer interval.
              */
+            Status = 0;
             DownloadDatetime = DateTime.Now;
             Thread RefreshLoopThread = new Thread(new ThreadStart(DownloadLoop));
             RefreshLoopThread.IsBackground = true;
@@ -451,29 +450,29 @@ namespace Factory_of_the_Future
             FOTFManager.Instance.BroadcastQSMUpdate(ConnectionInfo);
             try
             {
-                 NASS_CODE = AppParameters.AppSettings.Property("FACILITY_NASS_CODE").Value.ToString();
+                 NASS_CODE = AppParameters.AppSettings["FACILITY_NASS_CODE"].ToString();
 
-                requestBody = null;
+                requestBody = new JObject();
                 DateTime dtNow = DateTime.Now;
                 fdb = string.Empty;
                 lkey = string.Empty;
                 formatUrl = string.Empty;
                 MessageType = ConnectionInfo.MessageType;
-                if (!string.IsNullOrEmpty((string)AppParameters.AppSettings.Property("FACILITY_TIMEZONE").Value))
+                if (!string.IsNullOrEmpty(AppParameters.AppSettings["FACILITY_TIMEZONE"].ToString()))
                 {
-                    if (AppParameters.TimeZoneConvert.TryGetValue((string)AppParameters.AppSettings.Property("FACILITY_TIMEZONE").Value, out string windowsTimeZoneId))
+                    if (AppParameters.TimeZoneConvert.TryGetValue(AppParameters.AppSettings["FACILITY_TIMEZONE"].ToString(), out string windowsTimeZoneId))
                     {
                         dtNow = TimeZoneInfo.ConvertTime(DateTime.Now, TimeZoneInfo.FindSystemTimeZoneById(windowsTimeZoneId));
 
                     }
                 }
-                if (!string.IsNullOrEmpty((string)AppParameters.AppSettings.Property("FACILITY_ID").Value))
+                if (!string.IsNullOrEmpty(AppParameters.AppSettings["FACILITY_ID"].ToString()))
                 {
-                    fdb = (string)AppParameters.AppSettings.Property("FACILITY_ID").Value;
+                    fdb = AppParameters.AppSettings["FACILITY_ID"].ToString();
                 }
-                if (!string.IsNullOrEmpty((string)AppParameters.AppSettings.Property("FACILITY_LKEY").Value))
+                if (!string.IsNullOrEmpty(AppParameters.AppSettings["FACILITY_LKEY"].ToString()))
                 {
-                    lkey = (string)AppParameters.AppSettings.Property("FACILITY_LKEY").Value;
+                    lkey = AppParameters.AppSettings["FACILITY_LKEY"].ToString();
                 }
                 if (ConnectionInfo.ConnectionName.ToUpper().StartsWith("MPEWatch".ToUpper()))
                 {
@@ -645,7 +644,7 @@ namespace Factory_of_the_Future
                         {
                             
 
-                            Task.Run(() => new ProcessRecvdMsg().StartProcess(new SendMessage().Get(uriResult), MessageType, ConnectionInfo.Id));
+                            Task.Run(() => new ProcessRecvdMsg().StartProcess(new SendMessage().Get(uriResult, requestBody), MessageType, ConnectionInfo.Id));
                         }
                         else
                         {

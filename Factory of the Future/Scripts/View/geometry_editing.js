@@ -332,7 +332,7 @@ function CreateZone(newlayer)
             $.connection.FOTFManager.server.addZone(JSON.stringify(togeo)).done(function (Data) {
                 if (!$.isEmptyObject(Data)) {
                     setTimeout(function () { sidebar.close('home'); }, 500);
-                    addCreatedZoneToMap(Data);
+                    //addCreatedZoneToMap(Data);
                     newlayer.layer.remove();
                 }
                 else {

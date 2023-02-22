@@ -1,4 +1,5 @@
 ﻿
+using Factory_of_the_Future.Models;
 using Microsoft.AspNet.SignalR;
 using Microsoft.AspNet.SignalR.Hubs;
 using Newtonsoft.Json.Linq;

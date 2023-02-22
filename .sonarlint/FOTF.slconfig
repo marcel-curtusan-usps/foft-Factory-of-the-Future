@@ -1,8 +1,8 @@
 {
   "ServerUri": "https://sonar.usps.gov/",
   "Organization": null,
-  "ProjectKey": "9209:fotfSmartFacility",
-  "ProjectName": "9209 - FOTF - Smart Facility",
+  "ProjectKey": "9209:Factory-of-the-Future",
+  "ProjectName": "9209 - Factory-of-the-Future",
   "Profiles": {
     "CSharp": {
       "ProfileKey": "cs-usps-level-1-38559",

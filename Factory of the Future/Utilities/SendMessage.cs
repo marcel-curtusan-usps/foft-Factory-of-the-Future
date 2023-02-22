@@ -5,6 +5,8 @@ using System.Net.Security;
 using System.Reflection;
 using System.Security.Cryptography.X509Certificates;
 using System.Threading.Tasks;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 namespace Factory_of_the_Future
 {
@@ -45,7 +47,7 @@ namespace Factory_of_the_Future
             }
             return "";
         }
-        internal string Get(Uri url)
+        internal string Get(Uri url, JToken requestBody)
         {
             try
             {
@@ -53,9 +55,17 @@ namespace Factory_of_the_Future
                 ServicePointManager.ServerCertificateValidationCallback = new RemoteCertificateValidationCallback(AcceptAllCertifications);
                 using (WebClient client = new WebClient())
                 {
-                    
+
                     //add header
-                    _responseDatastring = client.DownloadString(url);
+                    if (!requestBody.HasValues)
+                    {
+                        _responseDatastring = client.DownloadString(url);
+                    }
+                    else
+                    {
+                        _responseDatastring = client.UploadString(url, JsonConvert.SerializeObject(requestBody, Formatting.None) );
+                    }
+                    
                     _response_code = GetStatusCode(client);
                     _statusDescription = GetStatusMessage(client);
                     //get the response from Vendor
@@ -65,7 +75,7 @@ namespace Factory_of_the_Future
                     }
                     else
                     {
-                        return "[]";
+                        return "";
                     }
                 }
             }
@@ -79,15 +89,15 @@ namespace Factory_of_the_Future
                     if (!string.IsNullOrEmpty(_responseDatastring))
                     {
                         new ErrorLogger().CustomLog(_responseDatastring, string.Concat((string)AppParameters.AppSettings.Property("APPLICATION_NAME").Value, "UDP_InVaild_Message"));
-                        return "[]";
+                        return "";
                     }
                 }
-                return "[]";
+                return "";
             }
             catch (Exception e)
             {
                 new ErrorLogger().ExceptionLog(e);
-                return "[]";
+                return "";
             }
         }
         private bool AcceptAllCertifications(object sender, X509Certificate certificate, X509Chain chain, SslPolicyErrors sslPolicyErrors)

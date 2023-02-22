@@ -16,7 +16,7 @@ namespace Factory_of_the_Future
         public dynamic _data { get; protected set; }
         public string _Message_type { get; protected set; }
         public string _connID { get; protected set; }
-        public List<RunPerf> MPErunPerfData = null;
+        public List<RunPerf> NewMPEData = null;
         public RunPerf currentMachine_Info = null;
         private bool saveToFile;
 
@@ -43,65 +43,64 @@ namespace Factory_of_the_Future
                             AppParameters.TimeZoneConvert.TryGetValue((string)AppParameters.AppSettings["FACILITY_TIMEZONE"], out windowsTimeZoneId);
                         }
 
-                        MPErunPerfData = GetMPEPerfList(machineInfo);
-                        foreach (RunPerf machine_Info in MPErunPerfData)
+                        NewMPEData = GetMPEPerfList(machineInfo);
+                        foreach (RunPerf NewMachineInfo in NewMPEData)
                         {
-                            machine_Info.CurSortplan = AppParameters.SortPlan_Name_Trimer(machine_Info.CurSortplan);
-                            if (machine_Info.RpgEstVol > 0 && machine_Info.CurThruputOphr > 0)
+                            NewMachineInfo.CurSortplan = AppParameters.SortPlan_Name_Trimer(NewMachineInfo.CurSortplan);
+                            if (NewMachineInfo.RpgEstVol > 0 && NewMachineInfo.CurThruputOphr > 0)
                             {
                                 if (!string.IsNullOrEmpty(windowsTimeZoneId))
                                 {
                                     dtNow = TimeZoneInfo.ConvertTime(DateTime.Now, TimeZoneInfo.FindSystemTimeZoneById(windowsTimeZoneId));
-                                    double intMinuteToCompletion = (machine_Info.RpgEstVol - machine_Info.TotSortplanVol) / (machine_Info.CurThruputOphr / 60);
-                                    DateTime dtEstCompletion = dtNow.AddMinutes(intMinuteToCompletion);
-                                    machine_Info.RpgEstCompTime = dtNow.AddMinutes(intMinuteToCompletion);
+                                    double intMinuteToCompletion =(NewMachineInfo.RpgEstVol - NewMachineInfo.TotSortplanVol) / (NewMachineInfo.CurThruputOphr / 60);
+                                    NewMachineInfo.RpgEstCompTime = dtNow.AddMinutes(intMinuteToCompletion);
                                 }
                             }
-                            machine_Info.ExpectedThroughput = parseExpectedThruput(machine_Info.RpgExpectedThruput);
-                            RPGPlan rpgPlan = Get_RPGPlan_Info(machine_Info);
+                            NewMachineInfo.ExpectedThroughput = parseExpectedThruput(NewMachineInfo.RpgExpectedThruput);
+                            RPGPlan rpgPlan = Get_RPGPlan_Info(NewMachineInfo);
                             if (rpgPlan != null)
                             {
                                 //                item["rpg_start_dtm"] = results.ContainsKey("rpg_start_dtm") ? results["rpg_start_dtm"].ToString().Trim() : "";
                                 //                item["rpg_end_dtm"] = results.ContainsKey("rpg_end_dtm") ? results["rpg_end_dtm"].ToString().Trim() : "";
                                 //                item["expected_throughput"] = results.ContainsKey("expected_throughput") ? results["expected_throughput"].ToString().Trim() : "";
-                                machine_Info.RPGStartDtm = rpgPlan.rpg_start_dtm;
-                                machine_Info.RPGEndDtm = rpgPlan.rpg_start_dtm;
-                                machine_Info.ExpectedThroughput = Convert.ToInt32(rpgPlan.expected_throughput);
+                                NewMachineInfo.RPGStartDtm = rpgPlan.rpg_start_dtm;
+                                NewMachineInfo.RPGEndDtm = rpgPlan.rpg_start_dtm;
+                                NewMachineInfo.ExpectedThroughput = Convert.ToInt32(rpgPlan.expected_throughput);
                             }
-                            if (machine_Info.ExpectedThroughput != 0)
+                            if (NewMachineInfo.ExpectedThroughput != 0)
                             {
-                                double thrper = machine_Info.CurThruputOphr / machine_Info.ExpectedThroughput * 100;
-                                if (string.IsNullOrEmpty(machine_Info.CurrentRunEnd))
+                                double thrper = NewMachineInfo.CurThruputOphr / NewMachineInfo.ExpectedThroughput * 100;
+                                if (string.IsNullOrEmpty(NewMachineInfo.CurrentRunEnd))
                                 {
-                                    machine_Info.ThroughputStatus = 0;
+                                    NewMachineInfo.ThroughputStatus = 0;
                                 }
                                 else if (thrper >= 100)
                                 {
-                                    machine_Info.ThroughputStatus = 1;
+                                    NewMachineInfo.ThroughputStatus = 1;
                                 }
                                 else if (thrper >= 90)
                                 {
-                                    machine_Info.ThroughputStatus = 2;
+                                    NewMachineInfo.ThroughputStatus = 2;
                                 }
                                 else if (thrper < 90)
                                 {
-                                    machine_Info.ThroughputStatus = 3;
+                                    NewMachineInfo.ThroughputStatus = 3;
                                 }
                             }
                           
 
-                            if (AppParameters.MPEPerformance.ContainsKey(machine_Info.MpeId) && AppParameters.MPEPerformance.TryGetValue(machine_Info.MpeId, out currentMachine_Info))
+                            if (AppParameters.MPEPerformance.ContainsKey(NewMachineInfo.MpeId) && AppParameters.MPEPerformance.TryGetValue(NewMachineInfo.MpeId, out currentMachine_Info))
                             {
                                 bool update = false;
-                                foreach (PropertyInfo prop in machine_Info.GetType().GetProperties())
+                                foreach (PropertyInfo prop in NewMachineInfo.GetType().GetProperties())
                                 {
 
                                     if (!new Regex("^(RpgEstCompTime)$", RegexOptions.IgnoreCase).IsMatch(prop.Name))
                                     {
-                                        if (prop.GetValue(machine_Info, null).ToString() != prop.GetValue(currentMachine_Info, null).ToString())
+                                        if (prop.GetValue(NewMachineInfo, null).ToString() != prop.GetValue(currentMachine_Info, null).ToString())
                                         {
                                             update = true;
-                                            prop.SetValue(currentMachine_Info, prop.GetValue(machine_Info, null));
+                                            prop.SetValue(currentMachine_Info, prop.GetValue(NewMachineInfo, null));
 
                                         }
                                     }
@@ -113,9 +112,9 @@ namespace Factory_of_the_Future
                             }
                             else
                             {
-                                if (AppParameters.MPEPerformance.TryAdd(machine_Info.MpeId, machine_Info))
+                                if (AppParameters.MPEPerformance.TryAdd(NewMachineInfo.MpeId, NewMachineInfo))
                                 {
-                                    await Task.Run(() => FOTFManager.Instance.UpdateMpeData(machine_Info.MpeId)).ConfigureAwait(false);
+                                    await Task.Run(() => FOTFManager.Instance.UpdateMpeData(NewMachineInfo.MpeId)).ConfigureAwait(false);
                                 }
                             }
                         }
@@ -324,7 +323,7 @@ namespace Factory_of_the_Future
                         MpeType = item["mpe_type"].ToString(),
                         MpeNumber = !string.IsNullOrEmpty(item["mpe_number"].ToString()) ? Convert.ToInt32(item["mpe_number"].ToString()) : 0,
                         Bins = !string.IsNullOrEmpty(item["bins"].ToString()) ? Convert.ToInt32(item["bins"].ToString()) : 0,
-                        CurSortplan = item["cur_sortplan"].ToString(),
+                        CurSortplan = AppParameters.SortPlan_Name_Trimer(item["cur_sortplan"].ToString()),
                         CurThruputOphr = !string.IsNullOrEmpty(item["cur_thruput_ophr"].ToString()) ? Convert.ToInt32(item["cur_thruput_ophr"].ToString()) : 0,
                         TotSortplanVol = !string.IsNullOrEmpty(item["tot_sortplan_vol"].ToString()) ? Convert.ToInt32(item["tot_sortplan_vol"].ToString()) : 0,
                         RpgEstVol = !string.IsNullOrEmpty(item["rpg_est_vol"].ToString()) ? Convert.ToInt32(item["rpg_est_vol"].ToString()) : 0,
@@ -333,7 +332,7 @@ namespace Factory_of_the_Future
                         CurrentRunEnd = item["current_run_end"].ToString(),
                         CurOperationId = !string.IsNullOrEmpty(item["cur_operation_id"].ToString()) ? Convert.ToInt32(item["cur_operation_id"].ToString()) : 0,
                         BinFullStatus = !string.IsNullOrEmpty(item["bin_full_status"].ToString()) ? Convert.ToInt32(item["bin_full_status"].ToString()): 0 ,
-                        BinFullBins = item["bin_full_bins"].ToString(),
+                        BinFullBins = item["bin_full_bins"].ToString().Trim(),
                         ThroughputStatus = !string.IsNullOrEmpty(item["throughput_status"].ToString()) ? Convert.ToInt32(item["throughput_status"].ToString()) : 0,
                         UnplanMaintSpStatus = !string.IsNullOrEmpty(item["unplan_maint_sp_status"].ToString()) ? Convert.ToInt32(item["unplan_maint_sp_status"].ToString()) : 0,
                         OpStartedLateStatus = !string.IsNullOrEmpty(item["op_started_late_status"].ToString()) ? Convert.ToInt32(item["op_started_late_status"].ToString()) : 0,

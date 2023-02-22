@@ -183,6 +183,11 @@ namespace Factory_of_the_Future
                     ).Select(y => y.Value).ToList().ForEach(MPE =>
                     {
                         MPE.Properties.MPEWatchData = GetMPEPerfData(mpeId);
+                        if (!string.IsNullOrEmpty(MPE.Properties.MPEWatchData.CurSortplan))
+                        {
+                            MPE.Properties.StaffingData = GetStaffingSortplan(string.Concat(MPE.Properties.MPEWatchData.MpeType, MPE.Properties.MPEWatchData.MpeNumber, MPE.Properties.MPEWatchData.CurSortplan));
+                        }
+                        
                         BroadcastMachineStatus(MPE, cs.Id);
                     });
                 }
@@ -1693,23 +1698,12 @@ namespace Factory_of_the_Future
         //        return false;
         //    }
         //}
-        private static StaffingSortplan GetStaffingSortplan(string machine_type, string machine_number, string sortplan)
+        private Staff GetStaffingSortplan(string id)
         {
-            StaffingSortplan StaffingSortplanData = new StaffingSortplan();
+            Staff StaffingSortplanData = new Staff();
             try
             {
-
-                if (!string.IsNullOrEmpty(machine_type))
-                {
-                    sortplan = AppParameters.SortPlan_Name_Trimer(sortplan);
-                    int.TryParse(machine_number, out int number);
-                    string id = machine_type + "-" + number + "-" + sortplan;
-
-                    if (AppParameters.StaffingSortplansList.TryGetValue(id, out string sp))
-                    {
-                        StaffingSortplanData = JsonConvert.DeserializeObject<StaffingSortplan>(sp);
-                    }
-                }
+                AppParameters.StaffingSortplansList.TryGetValue(id, out StaffingSortplanData);
                 return StaffingSortplanData;
             }
             catch (Exception ex)
@@ -2160,7 +2154,7 @@ namespace Factory_of_the_Future
 
             try
             {
-                AppParameters.RunningConnection.EditAsync(JsonConvert.DeserializeObject<Connection>(data));
+              Task.Run(() => AppParameters.RunningConnection.EditAsync(JsonConvert.DeserializeObject<Connection>(data))).ConfigureAwait(false);
 
                 return null;
             }

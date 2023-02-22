@@ -27,7 +27,7 @@ namespace Factory_of_the_Future
                 _data = data;
                 _Message_type = Message_type;
                 _connID = connID;
-                if (!string.IsNullOrEmpty(_Message_type))
+                if (!string.IsNullOrEmpty(_Message_type) && !string.IsNullOrEmpty(_data))
                 {
                     switch (_Message_type)
                     {
@@ -43,7 +43,7 @@ namespace Factory_of_the_Future
                             TagPosition(_data, _connID);
                             break;
                         case "getProjectInfo":
-                            await Task.Run(() => new ProjectData().Load(_data, _Message_type, _connID)).ConfigureAwait(false);
+                            await Task.Run(() => new ProjectData().LoadAsync(_data, _Message_type, _connID)).ConfigureAwait(false);
                             // ProjectData(data, connID);
                             break;
                         ///*Quuppa Data End*/
@@ -72,7 +72,8 @@ namespace Factory_of_the_Future
                         ///*SELS RT Data End*/
                         ///*IV Data Start*/
                         case "getStaffBySite":
-                            Staffing(_data, _connID);
+                            await Task.Run(() => new StaffingData().LoadAsync(_data, _Message_type, _connID)).ConfigureAwait(false);
+                            //Staffing(_data, _connID);
                             break;
                         ///*IV Data End*/
                         ///*AGVM Data Start*/
@@ -132,86 +133,90 @@ namespace Factory_of_the_Future
                             break;
                     }
                 }
-            }
-            catch (Exception e)
-            {
-                new ErrorLogger().ExceptionLog(e);
-            }
-        }
-        private void Staffing(dynamic data ,string conID)
-        {
-            try
-            {
-                bool updatefile = false;
-                if (data != null )
-                {
-                    JToken tempData = JToken.Parse(data);
-                    IEnumerable<JToken> staff = tempData.SelectTokens("$..DATA[*]");
-                    JArray sortplanlist = new JArray();
-                    if (staff.Count() > 0)
-                    {
-                        foreach (JToken stafff_item in staff)
-                        {
-                            sortplanlist.Add(new JObject(new JProperty("mach_type", (string)stafff_item[0]),
-                                new JProperty("machine_no", (int)stafff_item[1]),
-                                new JProperty("sortplan", (string)stafff_item[2]),
-                                new JProperty("clerk", stafff_item[3]),
-                                new JProperty("mh", stafff_item[4])));
-                        }
-
-                    }
-                    else
-                    {
-                        Task.Run(() => UpdateConnection(conID, "error"));
-                    }
-                    if (sortplanlist.HasValues)
-                    {
-                        foreach (JObject Dataitem in sortplanlist.Children())
-                        {
-                            if (!string.IsNullOrEmpty((string)Dataitem["sortplan"]))
-                            {
-                                string mach_type = Dataitem.ContainsKey("mach_type") ? (string)Dataitem["mach_type"] : "";
-                                string machine_no = Dataitem.ContainsKey("machine_no") ? (string)Dataitem["machine_no"] : "";
-                                string sortplan = Dataitem.ContainsKey("sortplan") ? (string)Dataitem["sortplan"] : "";
-                                if (mach_type == "APBS")
-                                {
-                                    mach_type = "SPBSTS";
-                                }
-                                
-                                sortplan = AppParameters.SortPlan_Name_Trimer(sortplan);
-                                string mch_sortplan_id = mach_type + "-" + machine_no + "-" + sortplan;
-                                string newtempData = JsonConvert.SerializeObject(Dataitem, Formatting.None);
-                                AppParameters.StaffingSortplansList.AddOrUpdate(mch_sortplan_id, newtempData,
-                                     (key, existingVal) =>
-                                     {
-                                         updatefile = true;
-                                         return newtempData;
-                                     });
-                            }
-                        }
-                        Task.Run(() => UpdateConnection(conID, "good"));
-                    }
-                    else
-                    {
-                        Task.Run(() => UpdateConnection(conID, "error"));
-                    }
-                    if (updatefile)
-                    {
-                        new FileIO().Write(string.Concat(AppParameters.Logdirpath, AppParameters.ConfigurationFloder), "Staffing.json", JsonConvert.SerializeObject(AppParameters.StaffingSortplansList.Select(x => x.Value).ToList(), Formatting.Indented));
-                    }
-
-                }
                 else
                 {
-                    Task.Run(() => UpdateConnection(conID, "error"));
+                  await Task.Run(() => AppParameters.RunningConnection.ConnectionUpdate(connID, 4)).ConfigureAwait(false); 
                 }
             }
             catch (Exception e)
             {
-                Task.Run(() => UpdateConnection(conID, "error"));
                 new ErrorLogger().ExceptionLog(e);
             }
         }
+        //private void Staffing(dynamic data ,string conID)
+        //{
+        //    try
+        //    {
+        //        bool updatefile = false;
+        //        if (data != null )
+        //        {
+        //            JToken tempData = JToken.Parse(data);
+        //            IEnumerable<JToken> staff = tempData.SelectTokens("$..DATA[*]");
+        //            JArray sortplanlist = new JArray();
+        //            if (staff.Count() > 0)
+        //            {
+        //                foreach (JToken stafff_item in staff)
+        //                {
+        //                    sortplanlist.Add(new JObject(new JProperty("mach_type", (string)stafff_item[0]),
+        //                        new JProperty("machine_no", (int)stafff_item[1]),
+        //                        new JProperty("sortplan", (string)stafff_item[2]),
+        //                        new JProperty("clerk", stafff_item[3]),
+        //                        new JProperty("mh", stafff_item[4])));
+        //                }
+
+        //            }
+        //            else
+        //            {
+        //                Task.Run(() => UpdateConnection(conID, "error"));
+        //            }
+        //            if (sortplanlist.HasValues)
+        //            {
+        //                foreach (JObject Dataitem in sortplanlist.Children())
+        //                {
+        //                    if (!string.IsNullOrEmpty((string)Dataitem["sortplan"]))
+        //                    {
+        //                        string mach_type = Dataitem.ContainsKey("mach_type") ? (string)Dataitem["mach_type"] : "";
+        //                        string machine_no = Dataitem.ContainsKey("machine_no") ? (string)Dataitem["machine_no"] : "";
+        //                        string sortplan = Dataitem.ContainsKey("sortplan") ? (string)Dataitem["sortplan"] : "";
+        //                        if (mach_type == "APBS")
+        //                        {
+        //                            mach_type = "SPBSTS";
+        //                        }
+                                
+        //                        sortplan = AppParameters.SortPlan_Name_Trimer(sortplan);
+        //                        string mch_sortplan_id = mach_type + "-" + machine_no + "-" + sortplan;
+        //                        string newtempData = JsonConvert.SerializeObject(Dataitem, Formatting.None);
+        //                        AppParameters.StaffingSortplansList.AddOrUpdate(mch_sortplan_id, newtempData,
+        //                             (key, existingVal) =>
+        //                             {
+        //                                 updatefile = true;
+        //                                 return newtempData;
+        //                             });
+        //                    }
+        //                }
+        //                Task.Run(() => UpdateConnection(conID, "good"));
+        //            }
+        //            else
+        //            {
+        //                Task.Run(() => UpdateConnection(conID, "error"));
+        //            }
+        //            if (updatefile)
+        //            {
+        //                new FileIO().Write(string.Concat(AppParameters.Logdirpath, AppParameters.ConfigurationFloder), "Staffing.json", JsonConvert.SerializeObject(AppParameters.StaffingSortplansList.Select(x => x.Value).ToList(), Formatting.Indented));
+        //            }
+
+        //        }
+        //        else
+        //        {
+        //            Task.Run(() => UpdateConnection(conID, "error"));
+        //        }
+        //    }
+        //    catch (Exception e)
+        //    {
+        //        Task.Run(() => UpdateConnection(conID, "error"));
+        //        new ErrorLogger().ExceptionLog(e);
+        //    }
+        //}
         private void CameraData(dynamic data, string conID)
         {
             try

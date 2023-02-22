@@ -454,7 +454,7 @@ let machinetop_row_template =
     '<tr id="fullbin_tr" style="display: none;"><td>Full Bins</td><td colspan="2" style="white-space: normal; word-wrap:break-word;">{fullBins}</td></tr>' +
     '<tr id="arsrec_tr" style="display: none;"><td>ARS Recirc. Rejects</td><td colspan="2">{arsRecirc}</td></tr>' +
     '<tr id="sweeprec_tr" style="display: none;"><td>Sweep Recirc. Rejects</td><td colspan="2">{sweepRecirc}</td></tr>' +
-    '<tr id="machineChart_tr"><td colspan="3"><canvas id="machinechart"></canvas></td></tr>';
+    '<tr id="machineChart_tr"><td colspan="3"><canvas id="machinechart" width="470" height="250"></canvas></td></tr>';
 
 function formatdpstoprow(properties) {
     return $.extend(properties, {
@@ -851,8 +851,7 @@ function GetMachinePerfGraph(dataproperties) {
                 }]
             },
             options: {
-                responsive: true,
-                maintainAspectRatio: false,
+                responsive: false,
                 legend: { display: false },
                 title: {
                     display: true,

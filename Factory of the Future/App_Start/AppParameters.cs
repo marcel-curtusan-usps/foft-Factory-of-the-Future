@@ -45,7 +45,6 @@ namespace Factory_of_the_Future
         public static JObject AppSettings { get; set; } = new JObject();
         public static string ApplicationEnvironment { get; set; } = string.Empty;
         public static string HWSerialNumber { get; set; } = string.Empty;
-        public static string ProjectData { get; set; }
         public static string VersionInfo { get; set; } = string.Empty;
         public static string ServerHostname { get; set; } = string.Empty;
         public static string ServerIpAddress { get; set; } = string.Empty;
@@ -72,7 +71,7 @@ namespace Factory_of_the_Future
         public static ConcurrentDictionary<string, RPGPlan> MPEPRPGList { get; set; } = new ConcurrentDictionary<string, RPGPlan>();
         public static ConcurrentDictionary<string, string> DockdoorList { get; set; } = new ConcurrentDictionary<string, string>();
         public static ConcurrentDictionary<int, SV_Bullpen> SVZoneNameList { get; set; } = new ConcurrentDictionary<int, SV_Bullpen>();
-        public static ConcurrentDictionary<string, string> StaffingSortplansList { get; set; } = new ConcurrentDictionary<string, string>();
+        public static ConcurrentDictionary<string, Staff> StaffingSortplansList { get; set; } = new ConcurrentDictionary<string, Staff>();
         public static ConcurrentDictionary<string, RouteTrips> RouteTripsList { get; set; } = new ConcurrentDictionary<string, RouteTrips>();
         public static ConcurrentDictionary<string, Container> Containers { get; set; } = new ConcurrentDictionary<string, Container>();
         public static ConcurrentDictionary<string, Mission> MissionList { get; set; } = new ConcurrentDictionary<string, Mission>();
@@ -151,7 +150,6 @@ namespace Factory_of_the_Future
                             ApplicationEnvironment = "CAT";
                         }
                     }
-
                     if (string.IsNullOrEmpty(ApplicationEnvironment))
                     {
                         ApplicationEnvironment = "PROD";
@@ -449,48 +447,18 @@ namespace Factory_of_the_Future
                 new ErrorLogger().ExceptionLog(e);
             }
         }
-        //internal static void LoadIndoorapData(string fileName)
-        //{
-        //    try
-        //    {
-        //        string ProjectData = new FileIO().Read(string.Concat(Logdirpath, ConfigurationFloder), fileName);
-
-        //        if (!string.IsNullOrEmpty(ProjectData))
-        //        {
-        //            List<CoordinateSystem> cs = JsonConvert.DeserializeObject<List<CoordinateSystem>>(ProjectData);
-        //            foreach (CoordinateSystem csitem in cs)
-        //            {
-        //                if (!CoordinateSystem.TryAdd(csitem.Id, csitem)) 
-        //                {
-        //                    new ErrorLogger().CustomLog("Unable to CoordinateSystem" + csitem.Name, string.Concat((string)AppParameters.AppSettings.Property("APPLICATION_NAME").Value, "_Applogs"));
-
-        //                }
-        //            }
-        //            //Task.Run(() => new ProcessRecvdMsg().StartProcess(ProjectData, "getProjectInfo", ""));
-        //        }
-        //    }
-        //    catch (Exception e)
-        //    {
-        //        new ErrorLogger().ExceptionLog(e);
-        //    }
-        //}
         internal static void LoadTempIndoorapData(string fileName)
         {
             try
             {
                 if (Logdirpath != null)
                 {
-                    string ProjectDataString = new FileIO().Read(string.Concat(Logdirpath, ConfigurationFloder), fileName);
+                    string data = new FileIO().Read(string.Concat(Logdirpath, ConfigurationFloder), fileName);
 
-                    if (!string.IsNullOrEmpty(ProjectDataString))
+                    if (!string.IsNullOrEmpty(data))
                     {
-                        AppParameters.ProjectData = ProjectDataString;
-                        Task.Run(() => new ProcessRecvdMsg().StartProcess(ProjectData, "getProjectInfo", ""));
+                        Task.Run(() => new ProcessRecvdMsg().StartProcess(data, "getProjectInfo", ""));
                     }
-                    //else
-                    //{
-                    //    LoadTempIndoorapData("ProjectData.json");
-                    //}
                 }
             }
             catch (Exception e)
@@ -498,95 +466,6 @@ namespace Factory_of_the_Future
                 new ErrorLogger().ExceptionLog(e);
             }
         }
-        //internal static void LoadData(string FileName)
-        //{
-        //    try
-        //    {
-        //        if (Logdirpath != null)
-        //        {
-        //            string file_content = new FileIO().Read(string.Concat(Logdirpath, ConfigurationFloder), FileName);
-
-        //            if (!string.IsNullOrEmpty(file_content))
-        //            {
-        //                if (FileName.StartsWith("Connection.json"))
-        //                {
-        //                    List<Connection> tempcon = JsonConvert.DeserializeObject<List<Connection>>(file_content);
-        //                    for (int i = 0; i < tempcon.Count; i++)
-        //                    {
-        //                        if (ConnectionList.TryAdd(tempcon[i].Id, tempcon[i]))
-        //                        {
-        //                            RunningConnection.Add(tempcon[i]);
-        //                        }
-        //                    }
-        //                }
-        //                if (FileName.StartsWith("Zones.json"))
-        //                {
-        //                    List<ZoneInfo> tempzone = JsonConvert.DeserializeObject<List<ZoneInfo>>(file_content);
-        //                    for (int i = 0; i < tempzone.Count; i++)
-        //                    {
-        //                        if (!ZoneInfo.ContainsKey(tempzone[i].Id))
-        //                        {
-        //                            if (ZoneInfo.TryAdd(tempzone[i].Id, tempzone[i]))
-        //                            {
-
-        //                            }
-        //                        }
-        //                    }
-        //                }
-        //                //if (FileName.StartsWith("CustomZones.json"))
-        //                //{
-        //                //    List<GeoZone> tempzone = JsonConvert.DeserializeObject<List<GeoZone>>(file_content);
-
-        //                //    for (int i = 0; i < tempzone.Count; i++)
-        //                //    {
-        //                //        if (!ZoneList.ContainsKey(tempzone[i].Properties.Id))
-        //                //        {
-        //                //            tempzone[i].Properties.Source = "user";
-        //                //            if (ZoneList.TryAdd(tempzone[i].Properties.Id, tempzone[i]))
-        //                //            {
-
-        //                //            }
-        //                //        }
-        //                //    }
-        //                //}
-        //                //if (FileName.StartsWith("Markers.json"))
-        //                //{
-        //                //    List<GeoMarker> tempMarker = JsonConvert.DeserializeObject<List<GeoMarker>>(file_content);
-        //                //    for (int i = 0; i < tempMarker.Count; i++)
-        //                //    {
-        //                //        if (!TagsList.ContainsKey(tempMarker[i].Properties.Id))
-        //                //        {
-        //                //            tempMarker[i].Properties.Source = "user";
-        //                //            if (TagsList.TryAdd(tempMarker[i].Properties.Id, tempMarker[i]))
-        //                //            {
-
-        //                //            }
-        //                //        }
-        //                //    }
-        //                //}
-        //                //Notification
-        //                if (FileName.StartsWith("Notification.json"))
-        //                {
-        //                    List<NotificationConditions> tempnotification = JsonConvert.DeserializeObject<List<NotificationConditions>>(file_content);
-        //                    for (int i = 0; i < tempnotification.Count; i++)
-        //                    {
-        //                        if (!NotificationConditionsList.ContainsKey(tempnotification[i].Id))
-        //                        {
-        //                            if (NotificationConditionsList.TryAdd(tempnotification[i].Id, tempnotification[i]))
-        //                            {
-
-        //                            }
-        //                        }
-        //                    }
-        //                }
-        //            }
-        //        }
-        //    }
-        //    catch (Exception e)
-        //    {
-        //        new ErrorLogger().ExceptionLog(e);
-        //    }
-        //}
         private static string GetLocalIpAddress()
         {
             try
@@ -696,34 +575,6 @@ namespace Factory_of_the_Future
                                                         eventDtm.ContainsKey("second") ? (int)eventDtm.Property("second").Value : 0);
 
         }
-        public static bool IsValidJson(string strInput)
-        {
-            strInput = strInput.Trim();
-            if ((strInput.StartsWith("{") && strInput.EndsWith("}")) || //For object
-                (strInput.StartsWith("[") && strInput.EndsWith("]"))) //For array
-            {
-                try
-                {
-                    var obj = JToken.Parse(strInput);
-                    return true;
-                }
-                catch (JsonReaderException jex)
-                {
-                    //Exception in parsing json
-                    new ErrorLogger().ExceptionLog(jex);
-                    return false;
-                }
-                catch (Exception ex) //some other exception
-                {
-                    new ErrorLogger().ExceptionLog(ex);
-                    return false;
-                }
-            }
-            else
-            {
-                return false;
-            }
-        }
         public static int Get_TripMin(EventDtm scheduledDtm)
         {
             try
@@ -813,7 +664,7 @@ namespace Factory_of_the_Future
         {
             try
             {
-                StaffingSortplansList = new ConcurrentDictionary<string, string>();
+                StaffingSortplansList = new ConcurrentDictionary<string, Staff>();
                 DockdoorList = new ConcurrentDictionary<string, string>();
                 SVZoneNameList = new ConcurrentDictionary<int, SV_Bullpen>();
                 DPSList = new ConcurrentDictionary<string, string>();

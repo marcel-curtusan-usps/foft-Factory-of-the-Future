@@ -25,16 +25,17 @@
   {
     "outputFileName": "Content/supportCSSBundle.css",
     "inputFiles": [
-      "Content/bootstrap-icons.css",
-      "Content/bootstrap.css",
-      "Content/selectize.bootstrap4.css",
-      "Content/easy-button.css",
-      "Content/_base.css",
-      "Content/leaflet.css",
-      "Content/leaflet-sidebar.css",
-      "Content/leaflet-geoman.css",
-      "Content/Site.css",
-      "Content/Filter.css"
+        "Content/bootstrap-icons.css",
+        "Content/bootstrap.css",
+        "Content/selectize.bootstrap4.css",
+        "Content/easy-button.css",
+        "Content/_base.css",
+        "Content/leaflet.css",
+        "Content/leaflet-sidebar.css",
+        "Content/leaflet-geoman.css",
+        "Content/Chart.css",
+        "Content/Site.css",
+        "Content/Filter.css"
     ]
   }
 ]

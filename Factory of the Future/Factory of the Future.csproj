@@ -581,6 +581,7 @@
     </Compile>
     <Compile Include="Models\BackgroundImage.cs" />
     <Compile Include="Models\Cameras.cs" />
+    <Compile Include="Models\Connection.cs" />
     <Compile Include="Models\Container.cs" />
     <Compile Include="Models\ContainerHistory.cs" />
     <Compile Include="Models\CoordinateSystem.cs" />
@@ -596,6 +597,7 @@
     <Compile Include="Models\MarkerGeometry.cs" />
     <Compile Include="Models\RunPerf.cs" />
     <Compile Include="Models\RouteTrips.cs" />
+    <Compile Include="Models\Staff.cs" />
     <Compile Include="Models\Tacs.cs" />
     <Compile Include="Models\Zone.cs" />
     <Compile Include="Models\ZoneGeometry.cs" />
@@ -605,7 +607,7 @@
     <Compile Include="ProcessReceivedMessage\MPEWatch_RPGPerf.cs" />
     <Compile Include="ProcessReceivedMessage\MPEWatch_RPGPlan.cs" />
     <Compile Include="ProcessReceivedMessage\ProjectData.cs" />
-    <Compile Include="ProcessReceivedMessage\Staffing.cs" />
+    <Compile Include="ProcessReceivedMessage\StaffingData.cs" />
     <Compile Include="ProcessReceivedMessage\TripData.cs" />
     <Compile Include="Transaction_Concentrator\ClientMessages.cs" />
     <Compile Include="Transaction_Concentrator\ProcessorMessage.cs" />
