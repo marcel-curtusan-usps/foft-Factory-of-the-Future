@@ -63,9 +63,9 @@ namespace Factory_of_the_Future
                                 //                item["rpg_start_dtm"] = results.ContainsKey("rpg_start_dtm") ? results["rpg_start_dtm"].ToString().Trim() : "";
                                 //                item["rpg_end_dtm"] = results.ContainsKey("rpg_end_dtm") ? results["rpg_end_dtm"].ToString().Trim() : "";
                                 //                item["expected_throughput"] = results.ContainsKey("expected_throughput") ? results["expected_throughput"].ToString().Trim() : "";
-                                NewMachineInfo.RPGStartDtm = rpgPlan.rpg_start_dtm;
-                                NewMachineInfo.RPGEndDtm = rpgPlan.rpg_start_dtm;
-                                NewMachineInfo.ExpectedThroughput = Convert.ToInt32(rpgPlan.expected_throughput);
+                                NewMachineInfo.RPGStartDtm = rpgPlan.RpgStartDtm;
+                                NewMachineInfo.RPGEndDtm = rpgPlan.RpgEndDtm;
+                                NewMachineInfo.ExpectedThroughput = Convert.ToInt32(rpgPlan.RpgExpectedThruput);
                             }
                             if (NewMachineInfo.ExpectedThroughput != 0)
                             {
@@ -271,11 +271,11 @@ namespace Factory_of_the_Future
             RPGPlan tempRPG = new RPGPlan();
             try
             {
-                tempRPG = AppParameters.MPEPRPGList.Where(x => x.Value.mpe_type == machine_Info.MpeType &&
-                          Convert.ToInt32(x.Value.machine_num) == machine_Info.MpeNumber &&
-                          x.Value.sort_program_name == machine_Info.CurSortplan &&
-                          Convert.ToInt32((x.Value.mail_operation_nbr).ToString().PadRight(6, '0')) == Convert.ToInt32(machine_Info.CurOperationId.ToString().PadRight(6, '0')) &&
-                          (DateTime.Now >= x.Value.rpg_start_dtm.AddMinutes(-15) && DateTime.Now <= x.Value.rpg_end_dtm.AddMinutes(+15))
+                tempRPG = AppParameters.MPEPRPGList.Where(x => x.Value.MpeType == machine_Info.MpeType &&
+                          Convert.ToInt32(x.Value.MachineNum) == machine_Info.MpeNumber &&
+                          x.Value.SortProgramName == machine_Info.CurSortplan &&
+                          Convert.ToInt32((x.Value.MailOperationNbr).ToString().PadRight(6, '0')) == Convert.ToInt32(machine_Info.CurOperationId.ToString().PadRight(6, '0')) &&
+                          (DateTime.Now >= x.Value.RpgStartDtm.AddMinutes(-15) && DateTime.Now <= x.Value.RpgEndDtm.AddMinutes(+15))
                           ).Select(l => l.Value).FirstOrDefault();
 
                 if (tempRPG == null)
@@ -362,11 +362,11 @@ namespace Factory_of_the_Future
         {
             try
             {
-                RPGPlan tempRPG = AppParameters.MPEPRPGList.Where(x => x.Value.mpe_type == item["mpe_type"].ToString() &&
-                             Convert.ToInt32(x.Value.machine_num) == (int)item["mpe_number"] &&
-                             x.Value.sort_program_name == item["cur_sortplan"].ToString() &&
-                             Convert.ToInt32((x.Value.mail_operation_nbr).ToString().PadRight(6, '0')) == Convert.ToInt32(((int)item["cur_operation_id"]).ToString().PadRight(6, '0')) &&
-                             (DateTime.Now >= x.Value.rpg_start_dtm.AddMinutes(-15) && DateTime.Now <= x.Value.rpg_end_dtm.AddMinutes(+15))
+                RPGPlan tempRPG = AppParameters.MPEPRPGList.Where(x => x.Value.MpeType == item["mpe_type"].ToString() &&
+                             Convert.ToInt32(x.Value.MachineNum) == (int)item["mpe_number"] &&
+                             x.Value.SortProgramName == item["cur_sortplan"].ToString() &&
+                             Convert.ToInt32((x.Value.MailOperationNbr).ToString().PadRight(6, '0')) == Convert.ToInt32(((int)item["cur_operation_id"]).ToString().PadRight(6, '0')) &&
+                             (DateTime.Now >= x.Value.RpgStartDtm.AddMinutes(-15) && DateTime.Now <= x.Value.RpgEndDtm.AddMinutes(+15))
                              ).Select(l => l.Value).FirstOrDefault();
 
 

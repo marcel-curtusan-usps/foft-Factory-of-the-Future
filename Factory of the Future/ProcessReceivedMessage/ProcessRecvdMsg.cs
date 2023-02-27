@@ -118,8 +118,14 @@ namespace Factory_of_the_Future
                            // MPEWatch_RPGPerf(_data, _connID);
                             break;
                         case "rpg_plan":
-                            //await Task.Run(() => new MPEWatch_RPGPlan().LoadAsync(_data, _Message_type, _connID)).ConfigureAwait(false);
-                            MPEWatch_RPGPlan(_data, _connID);
+                            //await Task.Run(() => new MPEWatch_RPGPlan().LoadAsync(_data)).ConfigureAwait(false);
+                            if (string.IsNullOrEmpty(_data) == false)
+                            {
+                                using (var mpeWatch = new MPEWatch_RPGPlan())
+                                {
+                                    mpeWatch.LoadAsync(_data);
+                                }
+                            }
                             break;
                         case "dps_run_estm":
                             MPEWatch_DPSEst(_data, _connID);
@@ -1196,33 +1202,33 @@ namespace Factory_of_the_Future
         //    }
 
         //}
-        private static JObject Get_RPG_Plan_Info(JObject item)
-        {
-            try
-            {
-                RPGPlan tempRPG = AppParameters.MPEPRPGList.Where(x => x.Value.mpe_type == item["mpe_type"].ToString() &&
-                             Convert.ToInt32(x.Value.machine_num) == (int)item["mpe_number"] &&
-                             x.Value.sort_program_name == item["cur_sortplan"].ToString() &&
-                             Convert.ToInt32((x.Value.mail_operation_nbr).ToString().PadRight(6,'0')) == Convert.ToInt32(((int)item["cur_operation_id"]).ToString().PadRight(6,'0')) &&
-                             (DateTime.Now >= x.Value.rpg_start_dtm.AddMinutes(-15) && DateTime.Now <= x.Value.rpg_end_dtm.AddMinutes(+15))
-                             ).Select(l => l.Value).FirstOrDefault();
+        //private static JObject Get_RPG_Plan_Info(JObject item)
+        //{
+        //    try
+        //    {
+        //        RPGPlan tempRPG = AppParameters.MPEPRPGList.Where(x => x.Value.mpe_type == item["mpe_type"].ToString() &&
+        //                     Convert.ToInt32(x.Value.machine_num) == (int)item["mpe_number"] &&
+        //                     x.Value.sort_program_name == item["cur_sortplan"].ToString() &&
+        //                     Convert.ToInt32((x.Value.mail_operation_nbr).ToString().PadRight(6,'0')) == Convert.ToInt32(((int)item["cur_operation_id"]).ToString().PadRight(6,'0')) &&
+        //                     (DateTime.Now >= x.Value.rpg_start_dtm.AddMinutes(-15) && DateTime.Now <= x.Value.rpg_end_dtm.AddMinutes(+15))
+        //                     ).Select(l => l.Value).FirstOrDefault();
 
 
-                if (tempRPG == null)
-                {
-                    return null;
-                }
-                else
-                {
-                    return JObject.Parse(JsonConvert.SerializeObject(tempRPG, Formatting.Indented));
-                }
-            }
-            catch (Exception ex)
-            {
-                new ErrorLogger().ExceptionLog(ex);
-                return null;
-            }
-        }
+        //        if (tempRPG == null)
+        //        {
+        //            return null;
+        //        }
+        //        else
+        //        {
+        //            return JObject.Parse(JsonConvert.SerializeObject(tempRPG, Formatting.Indented));
+        //        }
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        new ErrorLogger().ExceptionLog(ex);
+        //        return null;
+        //    }
+        //}
         private static void MPEWatch_FullBins(JObject data)
         {
             try
@@ -1299,91 +1305,91 @@ namespace Factory_of_the_Future
                 new ErrorLogger().ExceptionLog(ex);
             }
         }
-        private static void MPEWatch_RPGPlan(dynamic data, string conID)
-        {
-            try
-            {
-                if (data != null)
-                {
-                    JToken tempData = JToken.Parse(data);
-                    JToken planInfo = tempData.SelectToken("data");
-                    if (planInfo != null && planInfo.HasValues)
-                    {
-                        List<RPGPlan> RPG_collection = planInfo.ToObject<List<RPGPlan>>();
-                        foreach (RPGPlan RPG_item in RPG_collection)
-                        {
-                            if (!string.IsNullOrEmpty(RPG_item.line_4_text))
-                            {
-                                RPG_item.expected_throughput = !string.IsNullOrEmpty(RPG_item.line_4_text) ? RPG_item.line_4_text.Split(' ').FirstOrDefault() : "0";
-                            }
-                            else
-                            {
-                                RPG_item.expected_throughput = !string.IsNullOrEmpty(RPG_item.rpg_expected_thruput) ? RPG_item.rpg_expected_thruput.Split(' ').FirstOrDefault() : "0";
-                            }
+        //private static void MPEWatch_RPGPlan(dynamic data, string conID)
+        //{
+        //    try
+        //    {
+        //        if (data != null)
+        //        {
+        //            JToken tempData = JToken.Parse(data);
+        //            JToken planInfo = tempData.SelectToken("data");
+        //            if (planInfo != null && planInfo.HasValues)
+        //            {
+        //                List<RPGPlan> RPG_collection = planInfo.ToObject<List<RPGPlan>>();
+        //                foreach (RPGPlan RPG_item in RPG_collection)
+        //                {
+        //                    if (!string.IsNullOrEmpty(RPG_item.line_4_text))
+        //                    {
+        //                        RPG_item.expected_throughput = !string.IsNullOrEmpty(RPG_item.line_4_text) ? RPG_item.line_4_text.Split(' ').FirstOrDefault() : "0";
+        //                    }
+        //                    else
+        //                    {
+        //                        RPG_item.expected_throughput = !string.IsNullOrEmpty(RPG_item.rpg_expected_thruput) ? RPG_item.rpg_expected_thruput.Split(' ').FirstOrDefault() : "0";
+        //                    }
           
-                            RPG_item.sort_program_name = AppParameters.SortPlan_Name_Trimer(RPG_item.sort_program_name);
+        //                    RPG_item.sort_program_name = AppParameters.SortPlan_Name_Trimer(RPG_item.sort_program_name);
+        
+        //                    string RPGKey = AppParameters.MPEPRPGList.Where(x => x.Value.mpe_type == RPG_item.mpe_type &&
+        //                    x.Value.machine_num == RPG_item.machine_num &&
+        //                    x.Value.sort_program_name == RPG_item.sort_program_name &&
+        //                    x.Value.mail_operation_nbr == RPG_item.mail_operation_nbr &&
+        //                    x.Value.rpg_start_dtm == RPG_item.rpg_start_dtm
+        //                    )
+        //                       .Select(l => l.Key).FirstOrDefault();
 
-                            string RPGKey = AppParameters.MPEPRPGList.Where(x => x.Value.mpe_type == RPG_item.mpe_type &&
-                            x.Value.machine_num == RPG_item.machine_num &&
-                            x.Value.sort_program_name == RPG_item.sort_program_name &&
-                            x.Value.mail_operation_nbr == RPG_item.mail_operation_nbr &&
-                            x.Value.rpg_start_dtm == RPG_item.rpg_start_dtm
-                            )
-                               .Select(l => l.Key).FirstOrDefault();
+        //                    if (!string.IsNullOrEmpty(RPGKey))
+        //                    {
+        //                        if (AppParameters.MPEPRPGList.TryGetValue(RPGKey, out RPGPlan OldRPG_item))
+        //                        {
+        //                            if (!AppParameters.MPEPRPGList.TryUpdate(RPGKey, RPG_item, OldRPG_item))
+        //                            {
+        //                                new ErrorLogger().CustomLog("Unable to update RPG Data" + RPG_item.mpe_name + " " + RPG_item.mpe_type + " " + RPG_item.machine_num, string.Concat((string)AppParameters.AppSettings.Property("APPLICATION_NAME").Value, "_Applogs"));
+        //                            }
+        //                        }
+        //                    }
+        //                    else
+        //                    {
+        //                        string newKey = Guid.NewGuid().ToString();
+        //                        if (!AppParameters.MPEPRPGList.TryAdd(newKey, RPG_item))
+        //                        {
+        //                            new ErrorLogger().CustomLog("Unable to update RPG Data" + RPG_item.mpe_name + " " + RPG_item.mpe_type + " " + RPG_item.machine_num, string.Concat((string)AppParameters.AppSettings.Property("APPLICATION_NAME").Value, "_Applogs"));
+        //                        }
 
-                            if (!string.IsNullOrEmpty(RPGKey))
-                            {
-                                if (AppParameters.MPEPRPGList.TryGetValue(RPGKey, out RPGPlan OldRPG_item))
-                                {
-                                    if (!AppParameters.MPEPRPGList.TryUpdate(RPGKey, RPG_item, OldRPG_item))
-                                    {
-                                        new ErrorLogger().CustomLog("Unable to update RPG Data" + RPG_item.mpe_name + " " + RPG_item.mpe_type + " " + RPG_item.machine_num, string.Concat((string)AppParameters.AppSettings.Property("APPLICATION_NAME").Value, "_Applogs"));
-                                    }
-                                }
-                            }
-                            else
-                            {
-                                string newKey = Guid.NewGuid().ToString();
-                                if (!AppParameters.MPEPRPGList.TryAdd(newKey, RPG_item))
-                                {
-                                    new ErrorLogger().CustomLog("Unable to update RPG Data" + RPG_item.mpe_name + " " + RPG_item.mpe_type + " " + RPG_item.machine_num, string.Concat((string)AppParameters.AppSettings.Property("APPLICATION_NAME").Value, "_Applogs"));
-                                }
+        //                    }
+        //                }
+        //                Task.Run(() => UpdateConnection(conID, "good"));
+        //            }
+        //            else
+        //            {
+        //                Task.Run(() => UpdateConnection(conID, "error"));
+        //            }
+        //            planInfo = null;
+        //            data = null;
+        //            tempData = null;
 
-                            }
-                        }
-                        Task.Run(() => UpdateConnection(conID, "good"));
-                    }
-                    else
-                    {
-                        Task.Run(() => UpdateConnection(conID, "error"));
-                    }
-                    planInfo = null;
-                    data = null;
-                    tempData = null;
-
-                }
-                else
-                {
-                    Task.Run(() => UpdateConnection(conID, "error"));
-                }
-                //remove old data
-                if (AppParameters.MPEPRPGList.Keys.Count > 0)
-                    {
-                        foreach (string existingkey in AppParameters.MPEPRPGList.Where(f => f.Value.rpg_start_dtm.Date <= DateTime.Now.AddDays(-2).Date).Select(y => y.Key))
-                        {
-                            if (!AppParameters.MPEPRPGList.TryRemove(existingkey, out RPGPlan existingValue))
-                            {
-                                new ErrorLogger().CustomLog("Unable to update RPG Data" + existingValue.mpe_name + " " + existingValue.mpe_type + " " + existingValue.machine_num, string.Concat((string)AppParameters.AppSettings.Property("APPLICATION_NAME").Value, "_Applogs"));
-                            }
-                        }
-                    }
+        //        }
+        //        else
+        //        {
+        //            Task.Run(() => UpdateConnection(conID, "error"));
+        //        }
+        //        //remove old data
+        //        if (AppParameters.MPEPRPGList.Keys.Count > 0)
+        //            {
+        //                foreach (string existingkey in AppParameters.MPEPRPGList.Where(f => f.Value.rpg_start_dtm.Date <= DateTime.Now.AddDays(-2).Date).Select(y => y.Key))
+        //                {
+        //                    if (!AppParameters.MPEPRPGList.TryRemove(existingkey, out RPGPlan existingValue))
+        //                    {
+        //                        new ErrorLogger().CustomLog("Unable to update RPG Data" + existingValue.mpe_name + " " + existingValue.mpe_type + " " + existingValue.machine_num, string.Concat((string)AppParameters.AppSettings.Property("APPLICATION_NAME").Value, "_Applogs"));
+        //                    }
+        //                }
+        //            }
                 
-            }
-            catch (Exception ex)
-            {
-                new ErrorLogger().ExceptionLog(ex);
-            }
-        }
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        new ErrorLogger().ExceptionLog(ex);
+        //    }
+        //}
         private static void MPEWatch_DPSEst(dynamic data, string conID)
         {
             try

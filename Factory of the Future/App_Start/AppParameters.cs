@@ -68,7 +68,7 @@ namespace Factory_of_the_Future
         public static ConcurrentDictionary<string, ZoneInfo> ZoneInfo { get; set; } = new ConcurrentDictionary<string, ZoneInfo>();
         public static ConcurrentDictionary<string, string> DPSList { get; set; } = new ConcurrentDictionary<string, string>();
         public static ConcurrentDictionary<string, RunPerf> MPEPerformance { get; set; } = new ConcurrentDictionary<string, RunPerf>();
-        public static ConcurrentDictionary<string, RPGPlan> MPEPRPGList { get; set; } = new ConcurrentDictionary<string, RPGPlan>();
+        public static ConcurrentDictionary<string, RPGPlan> MPEPRPGList = new ConcurrentDictionary<string, RPGPlan>();
         public static ConcurrentDictionary<string, string> DockdoorList { get; set; } = new ConcurrentDictionary<string, string>();
         public static ConcurrentDictionary<int, SV_Bullpen> SVZoneNameList { get; set; } = new ConcurrentDictionary<int, SV_Bullpen>();
         public static ConcurrentDictionary<string, Staff> StaffingSortplansList { get; set; } = new ConcurrentDictionary<string, Staff>();
