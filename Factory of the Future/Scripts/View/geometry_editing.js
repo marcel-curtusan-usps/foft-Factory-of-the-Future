@@ -29,32 +29,32 @@ $('#Remove_Layer_Modal').on('hidden.bs.modal', function () {
 $('#Remove_Layer_Modal').on('shown.bs.modal', function () {
 });
 
-function addCreatedZoneToMap(newZone) {
-    switch (newZone.properties.Zone_Type) {
-        case "AGVLocation":
-            agvLocations.addData(newZone);
-            break;
-        case "Machine":
-            polygonMachine.addData(newZone);
-            break;
-        case "Bullpen":
-            stagingBullpenAreas.addData(newZone);
-            break;
-        case "ViewPorts":
-            viewPortsAreas.addData(newZone);
-            break;
-        case "Bin":
-            binzonepoly.addData(newZone);
-            break;
-        case "DockDoor":
-            dockDoors.addData(newZone);
-            break;
+//function addCreatedZoneToMap(newZone) {
+//    switch (newZone.properties.Zone_Type) {
+//        case "AGVLocation":
+//            agvLocations.addData(newZone);
+//            break;
+//        case "Machine":
+//            polygonMachine.addData(newZone);
+//            break;
+//        case "Bullpen":
+//            stagingBullpenAreas.addData(newZone);
+//            break;
+//        case "ViewPorts":
+//            viewPortsAreas.addData(newZone);
+//            break;
+//        case "Bin":
+//            binzonepoly.addData(newZone);
+//            break;
+//        case "DockDoor":
+//            dockDoors.addData(newZone);
+//            break;
 
-    }
-}
+//    }
+//}
 ////this for later
 function init_geometry_editing() {
-    var draw_options = {
+    let draw_options = {
         position: 'bottomright',
         oneBlock: false,
         snappingOption: false,
@@ -75,49 +75,26 @@ function init_geometry_editing() {
         $('div[id=layer_div]').css('display', 'block');
         $('select[name=zone_type]').prop('disabled', false);
         VaildateForm("");
-        if (e.shape === "Polygon") {
-            $('select[name=zone_type] option[value=Area]').remove();
-            $('select[name=zone_type] option[value=AGVLocation]').remove();
-            $('select[name=zone_type] option[value=Bin]').remove();
-            $('select[name=zone_type] option[value=Camera]').remove();
-            $('select[name=zone_type] option[value=DockDoor]').remove();
-            $('select[name=zone_type] option[value=Machine]').remove();
-            $('select[name=zone_type] option[value=Bullpen]').remove();
-            $('select[name=zone_type] option[value=ViewPorts]').remove();
-            $('<option/>').val("Area").html("Area Zone").appendTo('select[id=zone_type]');
-            $('<option/>').val("AGVLocation").html("AGV Location Zone").appendTo('select[id=zone_type]');
-            $('<option/>').val("Machine").html("Machine Zone").appendTo('select[id=zone_type]');
-            $('<option/>').val("Bullpen").html("Staging Bullpen Zone").appendTo('select[id=zone_type]');
-            $('<option/>').val("ViewPorts").html("View Ports").appendTo('select[id=zone_type]');
-            $('<option/>').val("Bullpen").html("Bullpen Zone").appendTo('select[id=zone_type]');
+        $('select[name=zone_type]').empty();
+        $('<option/>').val("").html("").appendTo('select[id=zone_type]');
+        if (/(Polygon|Rectangle)/i.test(e.shape)) {
+            if (/(Polygon)/i.test(e.shape)) {
+                $('<option/>').val("Area").html("Area Zone").appendTo('select[id=zone_type]');
+                $('<option/>').val("AGVLocationZone").html("AGV Location Zone").appendTo('select[id=zone_type]');
+                $('<option/>').val("MPEZone").html("MPE Zone").appendTo('select[id=zone_type]');
+                $('<option/>').val("ViewPortsZone").html("View Ports").appendTo('select[id=zone_type]');
+                $('<option/>').val("BullpenZone").html("Bullpen Zone").appendTo('select[id=zone_type]')
+            }
+            if (/(Rectangle)/i.test(e.shape)) {
+                $('<option/>').val("BinZone").html("Bin Zone").appendTo('select[id=zone_type]');
+                $('<option/>').val("DockDoorZone").html("Dock Door Zone").appendTo('select[id=zone_type]');
+            }
             CreateZone(e);
             sidebar.open('home');
         }
-        if (e.shape === "Rectangle") {
-            $('select[name=zone_type] option[value=Area]').remove();
-            $('select[name=zone_type] option[value=AGVLocation]').remove();
-            $('select[name=zone_type] option[value=Bin]').remove();
-            $('select[name=zone_type] option[value=Camera]').remove();
-            $('select[name=zone_type] option[value=DockDoor]').remove();
-            $('select[name=zone_type] option[value=Machine]').remove();
-            $('select[name=zone_type] option[value=ViewPorts]').remove();
-            $('select[name=zone_type] option[value=Bullpen]').remove();
-            $('<option/>').val("Bin").html("BIN Zone").appendTo('select[id=zone_type]');
-            $('<option/>').val("DockDoor").html("Dock Door Zone").appendTo('select[id=zone_type]');
-           
-            CreateBinZone(e);
-            sidebar.open('home');
-        }
         if (e.shape === "Marker") {
-            $('select[name=zone_type] option[value=Area]').remove();
-            $('select[name=zone_type] option[value=AGVLocation]').remove();
-            $('select[name=zone_type] option[value=Bin]').remove();
-            $('select[name=zone_type] option[value=Camera]').remove();
-            $('select[name=zone_type] option[value=DockDoor]').remove();
-            $('select[name=zone_type] option[value=Machine]').remove();
-            $('select[name=zone_type] option[value=ViewPorts]').remove();
-            $('select[name=zone_type] option[value=Bulllpen]').remove();
-            $('<option/>').val("Camera").html("Camera").appendTo('select[id=zone_type]');
+            $('select[name=zone_type]').empty();
+            $('<option/>').val("CameraMarker").html("Camera").appendTo('select[id=zone_type]');
             CreateCamera(e);
             sidebar.open('home');
         }
@@ -146,32 +123,67 @@ function init_geometry_editing() {
     $('select[name=zone_type]').change(function () {
         if (!checkValue($('select[name=zone_type]').val())) {
             $('select[name=zone_type]').removeClass('is-valid').addClass('is-invalid');
-            $('span[id=error_zone_type]').text("Please Select Zone Type");
+            $('span[id=error_zone_type]').text("Please Select Type");
+            VaildateForm('');
         }
         else {
             $('select[name=zone_type]').removeClass('is-invalid').addClass('is-valid');
             $('span[id=error_zone_type]').text("");
             VaildateForm($('select[name=zone_type] option:selected').val());
         }
-    });
-    //mpe select
-    $('select[name=zone_select_name]').change(function () {
         if (!checkValue($('select[name=zone_select_name]').val())) {
             $('select[name=zone_select_name]').removeClass('is-valid').addClass('is-invalid');
-            $('input[type=text][name=zone_name]').val("")
-            $('span[id=error_zone_name]').text("Please Enter Name");
-         
+            $('span[id=error_zone_select_name]').text("Please Select Name");
         }
         else {
             $('select[name=zone_select_name]').removeClass('is-invalid').addClass('is-valid');
-            $('span[id=error_zone_name]').text("");
-            $('input[type=text][name=zone_name]').removeClass('is-invalid').addClass('is-valid');
-
+            $('span[id=error_zone_select_name]').text("");
         }
-        if ($('select[name=zone_type] option:selected').val() === "Bullpen") {
-
-            enableSVZoneSubmit();
+    });
+    $('select[id=zone_select_name]').change(function () {
+        if (/Not Listed$/.test($('select[name=zone_select_name] option:selected').val())) {
+            $('#manual_row').css('display', 'block');
+            if (!checkValue($('input[type=text][name=manual_name]').val())) {
+                $('input[type=text][name=manual_name]').css("border-color", "#FF0000").removeClass('is-valid').addClass('is-invalid');
+                $('span[id=error_manual_name]').text("Please Enter Name");
+            }
+            else {
+                $('input[type=text][name=manual_name]').css("border-color", "#2eb82e").removeClass('is-invalid').addClass('is-valid');
+                $('span[id=error_manual_name]').text("");
+            }
+            if (!checkValue($('input[type=text][name=manual_number]').val())) {
+                $('input[type=text][name=manual_number]').css("border-color", "#FF0000").removeClass('is-valid').addClass('is-invalid');
+                $('span[id=error_manual_number]').text("Please Enter Number");
+            }
+            else {
+                $('input[type=text][name=manual_number]').css("border-color", "#2eb82e").removeClass('is-invalid').addClass('is-valid');
+                $('span[id=error_manual_number]').text("");
+            }
         }
+        else {
+            $('#manual_row').css('display', 'none');
+        }
+        if ($('select[name=zone_select_name] option:selected').val() === '') {
+            $('button[id=zonesubmitBtn]').prop('disabled', true);
+            $('select[id=zone_select_name]').removeClass('is-valid').addClass('is-invalid');
+            $('span[id=error_zone_select_name]').text("Please Select Name");
+        }
+        else {
+            $('select[id=zone_select_name]').removeClass('is-invalid').addClass('is-valid');
+            $('span[id=error_zone_select_name]').text("");
+            if (/Camera/i.test($('select[name=zone_type] option:selected').val())) {
+
+                enableCameraSubmit();
+            }
+            else if (/Bin/i.test($('select[name=zone_type] option:selected').val())) {
+
+                enableBinZoneSubmit();
+            }
+            else {
+                enableZoneSubmit();
+            }
+        }
+
     });
     //bins name
     $('textarea[id=bin_bins]').keyup(function () {
@@ -185,17 +197,57 @@ function init_geometry_editing() {
         }
         enableBinZoneSubmit();
     });
-   //zone name
-    $('input[type=text][name=zone_name]').keyup(function () {
-        if (!checkValue($('input[type=text][name=zone_name]').val())) {
-            $('input[type=text][name=zone_name]').removeClass('is-valid').addClass('is-invalid');
-            $('span[id=error_zone_name]').text("Please Enter Name");
+    ////zone name
+    // $('input[type=text][name=zone_name]').keyup(function () {
+    //     if (!checkValue($('input[type=text][name=zone_name]').val())) {
+    //         $('input[type=text][name=zone_name]').removeClass('is-valid').addClass('is-invalid');
+    //         $('span[id=error_zone_name]').text("Please Enter Name");
+    //     }
+    //     else {
+    //         $('input[type=text][name=zone_name]').removeClass('is-invalid').addClass('is-valid');
+    //         $('span[id=error_zone_name]').text("");
+    //     }
+
+    //     if ($('select[name=zone_type] option:selected').val() === "Camera") {
+
+    //         enableCameraSubmit();
+    //     }
+    //     else if ($('select[name=zone_type] option:selected').val() === "Bin") {
+
+    //         enableBinZoneSubmit();
+    //     }
+    //     else if ($('select[name=zone_type] option:selected').val() === "Bullpen") {
+
+    //         enableSVZoneSubmit();
+    //     }
+    //     else {
+    //         enableZoneSubmit();
+    //     }
+
+    // });
+    //Camera URL
+    $('select[name=cameraLocation]').change(function () {
+        if (!checkValue($('select[name=cameraLocation]').val())) {
+            $('select[name=cameraLocation]').removeClass('is-valid').addClass('is-invalid');
+            $('span[id=error_cameraLocation]').text("Please Select Type");
+            ;
         }
         else {
-            $('input[type=text][name=zone_name]').removeClass('is-invalid').addClass('is-valid');
-            $('span[id=error_zone_name]').text("");
+            $('select[name=cameraLocation]').removeClass('is-invalid').addClass('is-valid');
+            $('span[id=error_cameraLocation]').text("");
         }
-
+        enableCameraSubmit();
+    });
+    //machine name
+    $('input[type=text][name=manual_name]').keyup(function () {
+        if (!checkValue($('input[type=text][name=manual_name]').val())) {
+            $('input[type=text][name=manual_name]').css("border-color", "#FF0000").removeClass('is-valid').addClass('is-invalid');
+            $('span[id=error_manual_name]').text("Please Enter Machine Name");
+        }
+        else {
+            $('input[type=text][name=manual_name]').css("border-color", "#2eb82e").removeClass('is-invalid').addClass('is-valid');
+            $('span[id=error_manual_name]').text("");
+        }
         if ($('select[name=zone_type] option:selected').val() === "Camera") {
 
             enableCameraSubmit();
@@ -211,65 +263,37 @@ function init_geometry_editing() {
         else {
             enableZoneSubmit();
         }
+    });
+    $('input[type=text][name=manual_number]').keyup(function () {
+        if (!checkValue($('input[type=text][name=manual_number]').val())) {
+            $('input[type=text][name=manual_number]').css("border-color", "#FF0000").removeClass('is-valid').addClass('is-invalid');
+            $('span[id=error_manual_number]').text("Please Enter Machine Name");
+        }
+        else {
+            $('input[type=text][name=manual_number]').css("border-color", "#2eb82e").removeClass('is-invalid').addClass('is-valid');
+            $('span[id=error_manual_number]').text("");
+        }
+        if ($('select[name=zone_type] option:selected').val() === "Camera") {
 
-    });
-    //Camera URL
-    $('select[name=cameraLocation]').change(function () {
-        if (!checkValue($('select[name=cameraLocation]').val())) {
-            $('select[name=cameraLocation]').removeClass('is-valid').addClass('is-invalid');
-            $('span[id=error_cameraLocation]').text("Please Select Type");
-            $('input[type=text][name=zone_name]').val("")
-            $('input[type=text][name=zone_name]').removeClass('is-invalid').removeClass('is-valid');
-            $('span[id=error_zone_name]').text("");
+            enableCameraSubmit();
+        }
+        else if ($('select[name=zone_type] option:selected').val() === "Bin") {
+
+            enableBinZoneSubmit();
+        }
+        else if ($('select[name=zone_type] option:selected').val() === "Bullpen") {
+
+            enableSVZoneSubmit();
         }
         else {
-            $('select[name=cameraLocation]').removeClass('is-invalid').addClass('is-valid');
-            $('span[id=error_cameraLocation]').text("");
-            $('input[type=text][name=zone_name]').val($('select[name=cameraLocation] option:selected').val())
-            $('input[type=text][name=zone_name]').removeClass('is-invalid').addClass('is-valid');
-            $('span[id=error_zone_name]').text("");
+            enableZoneSubmit();
         }
-        enableCameraSubmit();
-    });
-    //machine name
-    $('input[type=text][name=new_machine_name]').keyup(function () {
-        if (!checkValue($('input[type=text][name=new_machine_name]').val())) {
-            $('input[type=text][name=new_machine_name]').css("border-color", "#FF0000").removeClass('is-valid').addClass('is-invalid');
-            $('span[id=error_new_machine_name]').text("Please Enter Machine Name");
-        }
-        else {
-            $('input[type=text][name=new_machine_name]').css("border-color", "#2eb82e").removeClass('is-invalid').addClass('is-valid');
-            $('span[id=error_new_machine_name]').text("");
-        }
-        enableZoneSubmit();
-    });
-    $('input[type=text][name=new_machine_number]').keyup(function () {
-        if (!checkValue($('input[type=text][name=new_machine_number]').val())) {
-            $('input[type=text][name=new_machine_number]').css("border-color", "#FF0000").removeClass('is-valid').addClass('is-invalid');
-            $('span[id=error_new_machine_number]').text("Please Enter Machine Name");
-        }
-        else {
-            $('input[type=text][name=new_machine_number]').css("border-color", "#2eb82e").removeClass('is-invalid').addClass('is-valid');
-            $('span[id=error_new_machine_number]').text("");
-        }
-        enableZoneSubmit();
     });
 }
 function enableBinZoneSubmit() {
     if ($('select[name=zone_type]').hasClass('is-valid') &&
-        $('input[type=text][name=zone_name]').hasClass('is-valid') &&
+        $('select[id=zone_select_name]').hasClass('is-valid') &&
         $('textarea[id=bin_bins]').hasClass('is-valid')
-    ) {
-        $('button[id=zonesubmitBtn]').prop('disabled', false);
-    }
-    else {
-        $('button[id=zonesubmitBtn]').prop('disabled', true);
-    }
-}
-
-function enableSVZoneSubmit() {
-    if ($('select[name=zone_type]').hasClass('is-valid') &&
-        $('input[type=text][name=zone_name]').hasClass('is-valid')
     ) {
         $('button[id=zonesubmitBtn]').prop('disabled', false);
     }
@@ -279,7 +303,6 @@ function enableSVZoneSubmit() {
 }
 function enableCameraSubmit() {
     if ($('select[name=cameraLocation]').hasClass('is-valid') &&
-        $('input[type=text][name=zone_name]').hasClass('is-valid') &&
         $('select[name=zone_type]').hasClass('is-valid')
     ) {
         $('button[id=zonesubmitBtn]').prop('disabled', false);
@@ -289,14 +312,15 @@ function enableCameraSubmit() {
     }
 }
 function enableZoneSubmit() {
-    if ($('select[name=zone_select_name] option:selected').val() == '**Machine Not Listed' &&
-        !$('input[type=text][name=new_machine_name]').hasClass('is-valid') &&
-        !$('input[type=text][name=new_machine_number]').hasClass('is-valid')) {
+    if ($('select[name=zone_type]').hasClass('is-valid') &&
+        /Not Listed$/i.test($('select[name=zone_select_name] option:selected').val()) &&
+        $('input[type=text][name=manual_name]').hasClass('is-valid') &&
+        $('input[type=text][name=manual_number]').hasClass('is-valid'))
+    {
         $('button[id=zonesubmitBtn]').prop('disabled', true);
     }
-    else if ($('select[name=zone_type]').hasClass('is-valid') &&
-        $('input[type=text][name=zone_name]').hasClass('is-valid')
-    ) {
+    else if ($('select[name=zone_type]').hasClass('is-valid') && !/Not Listed$/i.test($('select[name=zone_select_name] option:selected').val()))
+    {
         $('button[id=zonesubmitBtn]').prop('disabled', false);
     }
     else {
@@ -307,50 +331,6 @@ function CreateZone(newlayer)
 {
     try {
         map.setView(newlayer.layer._bounds.getCenter());
-        VaildateForm("");
-
-        var togeo = newlayer.layer.toGeoJSON();
-        var geoProp = {
-            Zone_Type: "",
-            floorid: baselayerid,
-            name: "",
-            visible: true
-        }
-        $('button[id=zonesubmitBtn][type=button]').off().on('click', function () {
-            togeo.properties = geoProp;
-            togeo.properties.Zone_Type = $('select[name=zone_type] option:selected').val();
-            //togeo.properties.name = $('input[id=zone_name]').is(':visible') ? $('input[id=zone_name]').val() : $('select[name=zone_select_name] option:selected').val();
-
-
-            togeo.properties.name = $('input[id=zone_name]').is(':visible')
-                ? $('input[id=zone_name]').val()
-                : $('select[name=zone_select_name] option:selected').val() == "**Machine Not Listed"
-                    ? $('input[id=new_machine_name]').val() + "-" + $('input[id=new_machine_number]').val().padStart(3, '0')
-                    : $('select[name=zone_select_name] option:selected').val();
-
-
-            $.connection.FOTFManager.server.addZone(JSON.stringify(togeo)).done(function (Data) {
-                if (!$.isEmptyObject(Data)) {
-                    setTimeout(function () { sidebar.close('home'); }, 500);
-                    //addCreatedZoneToMap(Data);
-                    newlayer.layer.remove();
-                }
-                else {
-                    newlayer.layer.remove();
-                }
-            });
-            $('input[id=new_machine_name]').val('');
-            $('input[id=new_machine_number]').val('');
-        });
-
-    } catch (e) {
-        console.log(e);
-    }
-}
-function CreateBinZone(newlayer) {
-    try {
-        map.setView(newlayer.layer._bounds.getCenter());
-        sidebar.open('home');
         var togeo = newlayer.layer.toGeoJSON();
         var geoProp = {
             Zone_Type: "",
@@ -362,19 +342,19 @@ function CreateBinZone(newlayer) {
         $('button[id=zonesubmitBtn][type=button]').off().on('click', function () {
             togeo.properties = geoProp;
             togeo.properties.Zone_Type = $('select[name=zone_type] option:selected').val();
-            togeo.properties.name = $('input[id=zone_name]').is(':visible') ? $('input[id=zone_name]').val() : $('select[name=zone_select_name] option:selected').val() ;
-            togeo.properties.bins = $('textarea[id="bin_bins"]').val();
-
+            if (/Bin/i.test($('select[name=zone_type] option:selected').val())) {
+                togeo.properties.bins = $('textarea[id="bin_bins"]').val();
+            }
+            if (/Not Listed$/.test($('select[name=zone_select_name] option:selected').val())) {
+                togeo.properties.name = $('input[id=manual_name]').val() + "-" + $('input[id=manual_number]').val().padStart(3, '0');
+            }
+            else {
+                togeo.properties.name = $('select[name=zone_select_name] option:selected').val();
+            }
             $.connection.FOTFManager.server.addZone(JSON.stringify(togeo)).done(function (Data) {
-                if (!$.isEmptyObject(Data)) {
-                    var tempObj = { data: Data }
-                    setTimeout(function () { sidebar.close('home'); }, 500);
-                    init_zones(tempObj, baselayerid);
-                    newlayer.layer.remove();
-                }
-                else {
-                    newlayer.layer.remove();
-                }
+                setTimeout(function () { sidebar.close('home'); }, 500);
+                newlayer.layer.remove();
+
             });
         });
 
@@ -382,6 +362,41 @@ function CreateBinZone(newlayer) {
         console.log(e);
     }
 }
+//function CreateBinZone(newlayer) {
+//    try {
+//        map.setView(newlayer.layer._bounds.getCenter());
+//        sidebar.open('home');
+//        var togeo = newlayer.layer.toGeoJSON();
+//        var geoProp = {
+//            Zone_Type: "",
+//            floorid: baselayerid,
+//            name: "",
+//            bins: "",
+//            visible: true
+//        }
+//        $('button[id=zonesubmitBtn][type=button]').off().on('click', function () {
+//            togeo.properties = geoProp;
+//            togeo.properties.Zone_Type = $('select[name=zone_type] option:selected').val();
+//            togeo.properties.name = $('input[id=zone_name]').is(':visible') ? $('input[id=zone_name]').val() : $('select[name=zone_select_name] option:selected').val() ;
+//            togeo.properties.bins = $('textarea[id="bin_bins"]').val();
+
+//            $.connection.FOTFManager.server.addZone(JSON.stringify(togeo)).done(function (Data) {
+//                if (!$.isEmptyObject(Data)) {
+//                    var tempObj = { data: Data }
+//                    setTimeout(function () { sidebar.close('home'); }, 500);
+//                    init_zones(tempObj, baselayerid);
+//                    newlayer.layer.remove();
+//                }
+//                else {
+//                    newlayer.layer.remove();
+//                }
+//            });
+//        });
+
+//    } catch (e) {
+//        console.log(e);
+//    }
+//}
 function CreateCamera(newlayer)
 {
     VaildateForm("Camera");
@@ -394,25 +409,14 @@ function CreateCamera(newlayer)
         Tag_Type: "",
         visible: true
     }
-    $('input[id=zone_name]').css('display', 'block');
-    $('select[id=zone_select_name]').css('display', 'none');
-    fotfmanager.server.getCameraList().done(function (cameradata) {
-        if (cameradata.length > 0) {
-            $('select[id=cameraLocation]').empty();
-            $('<option/>').val("").html("").appendTo('select[id=cameraLocation]');
-            $.each(cameradata, function () {
-                $('<option/>').val(this.CAMERA_NAME).html(this.CAMERA_NAME + "/" + this.DESCRIPTION).appendTo('select[id=cameraLocation]');
-            })
-        }
-    });
+
     $('button[id=zonesubmitBtn][type=button]').off().on('click', function () {
         togeo.properties = geoProp;
-        togeo.properties.name = $('input[id=zone_name]').val();
+        togeo.properties.name = $('select[name=cameraLocation] option:selected').val();
         togeo.properties.Tag_Type = $('select[name=zone_type] option:selected').val();
         $.connection.FOTFManager.server.addMarker(JSON.stringify(togeo)).done(function (Data) {
             if (!$.isEmptyObject(Data)) {
                 setTimeout(function () { sidebar.close('home'); }, 500);
-                cameras.addData(Data, baselayerid);
                 newlayer.layer.remove();
             }
             else {
@@ -424,16 +428,11 @@ function CreateCamera(newlayer)
 function RemoveZoneItem(removeLayer)
 {
     try {
-        var layerId = removeLayer.layer.feature.properties.id;
         sidebar.close();
-        fotfmanager.server.removeZone(layerId).done(function (Data) {
-            if (!$.isEmptyObject(Data)) {
-                setTimeout(function () { $("#Remove_Layer_Modal").modal('hide'); }, 500);
-                if (Data.properties.Zone_Type === "DockDoor") {
-                    removeDockDoor(removeLayer.layer._leaflet_id);
-                }
-                
-            }
+        fotfmanager.server.removeZone(removeLayer.layer.feature.properties.id).done(function (Data) {
+
+            setTimeout(function () { $("#Remove_Layer_Modal").modal('hide'); }, 500);
+
         });
     } catch (e) {
         console.log();
@@ -441,14 +440,9 @@ function RemoveZoneItem(removeLayer)
 }
 function RemoveMarkerItem(removeLayer) {
     try {
-        var layerId = removeLayer.layer.feature.properties.id;
         sidebar.close();
-        fotfmanager.server.removeMarker(layerId).done(function (Data) {
-            if (!$.isEmptyObject(Data)) {
-                setTimeout(function () { $("#Remove_Layer_Modal").modal('hide'); }, 500);
-                removeFromMapView(removeLayer.layer.id);
-                removecamfromalllist(removeLayer.layer.id);
-            }
+        fotfmanager.server.removeMarker(removeLayer.layer.feature.properties.id).done(function (Data) {
+            setTimeout(function () { $("#Remove_Layer_Modal").modal('hide'); }, 500);
         });
     } catch (e) {
         console.log();
@@ -466,17 +460,14 @@ function removeFromMapView(id)
 }
 function VaildateForm(FormType)
 {
-    $('select[name=zone_type]').val(FormType);
     $('select[name=zone_type]').prop('disabled', false);
-    $('input[name=zone_name]').prop('disabled', false);
-    $('input[id=zone_name]').css('display', 'block');
-    $('select[id=zone_select_name]').css('display', 'none');
+    $('div[id=div_zone_select_name]').css('display', 'none');
+    $('select[id=zone_select_name]').empty();
+    $('<option/>').val("").html("").appendTo('select[id=zone_select_name]');
     $('select[id=zone_select_name]').val("");
-    $('input[name=zone_name]').val("");
-    $('select[name=cameraLocation]').val("");
     $('#camerainfo').css("display", "none");
     $('#binzoneinfo').css("display", "none");
-    $('#new_machine_manual_row').css('display', 'none');
+    $('#manual_row').css('display', 'none');
     if (!checkValue($('select[name=zone_type]').val())) {
         $('select[name=zone_type]').removeClass('is-valid').addClass('is-invalid');
         $('span[id=error_zone_type]').text("Please Select Zone Type");
@@ -485,99 +476,41 @@ function VaildateForm(FormType)
         $('select[name=zone_type]').removeClass('is-invalid').addClass('is-valid');
         $('span[id=error_zone_type]').text("");
     }
-    //zone_name
-    if (!checkValue($('input[type=text][name=zone_name]').val())) {
-        $('input[type=text][name=zone_name]').removeClass('is-valid').addClass('is-invalid');
-        $('span[id=error_zone_name]').text("Please Enter Name");
-    }
-    else {
-        $('input[type=text][name=zone_name]').removeClass('is-invalid').addClass('is-valid');
-        $('span[id=error_zone_name]').text("");
-    }
-    if (/Machine/i.test(FormType)) {
+    if (/(MPEZone|Machine)/i.test(FormType)) {
         fotfmanager.server.getMPEList().done(function (mpedata) {
             if (mpedata.length > 0) {
                 //sort 
                 mpedata.sort(SortByName);
                 mpedata.push('**Machine Not Listed');
-                $('input[id=zone_name]').css('display', 'none');
-                $('select[id=zone_select_name]').css('display', 'block');
-                $('select[id=zone_select_name]').empty();
-                $('<option/>').val("").html("").appendTo('select[id=zone_select_name]');
-                $('select[id=zone_select_name]').val("");
                 $.each(mpedata, function () {
                     $('<option/>').val(this).html(this).appendTo('#zone_select_name');
                 })
                 $('select[name=zone_select_name]').removeClass('is-valid').addClass('is-invalid');
             }
-        });
-
-        $('select[id=zone_select_name]').change(function () {
-            if ($('select[name=zone_select_name] option:selected').val() == '**Machine Not Listed') {
-                $('#new_machine_manual_row').css('display', '');
-                if (!checkValue($('input[type=text][name=new_machine_name]').val())) {
-                    $('input[type=text][name=new_machine_name]').css("border-color", "#FF0000").removeClass('is-valid').addClass('is-invalid');
-                    $('span[id=error_new_machine_name]').text("Please Enter Machine Name");
-                }
-                else {
-                    $('input[type=text][name=new_machine_name]').css("border-color", "#2eb82e").removeClass('is-invalid').addClass('is-valid');
-                    $('span[id=error_new_machine_name]').text("");
-                }
-                if (!checkValue($('input[type=text][name=new_machine_number]').val())) {
-                    $('input[type=text][name=new_machine_number]').css("border-color", "#FF0000").removeClass('is-valid').addClass('is-invalid');
-                    $('span[id=error_new_machine_number]').text("Please Enter Machine Name");
-                }
-                else {
-                    $('input[type=text][name=new_machine_number]').css("border-color", "#2eb82e").removeClass('is-invalid').addClass('is-valid');
-                    $('span[id=error_new_machine_number]').text("");
-                }
-            }
-            else {
-                $('#new_machine_manual_row').css('display', 'none');
-            }
-            if ($('select[name=zone_select_name] option:selected').val() == '') {
-                $('button[id=zonesubmitBtn]').prop('disabled', true);
-            }
-            else {
-                $('button[id=zonesubmitBtn]').prop('disabled', false);
-            }
-            enableZoneSubmit();
-        });
-
-        
+        });        
     }
-    if (/DockDoor/i.test(FormType)) {
-        $('input[name=zone_name]').val("");
+    if (/(DockDoor|DockDoorZone)/i.test(FormType)) {
         $('textarea[id="bin_bins"]').val("");
         fotfmanager.server.getDockDoorList().done(function (DockDoordata) {
             if (DockDoordata.length > 0) {
                 //sort 
                 DockDoordata.sort(SortByNumber);
-                $('input[id=zone_name]').css('display', 'none');
-                $('select[id=zone_select_name]').css('display', 'block');
-                $('select[id=zone_select_name]').empty();
-                $('<option/>').val("").html("").appendTo('select[id=zone_select_name]');
-                $('select[id=zone_select_name]').val("");
+                DockDoordata.push('**Dock Door Not Listed');
                 $.each(DockDoordata, function () {
                     $('<option/>').val(this).html(this).appendTo('select[id=zone_select_name]');
                 })
             }
         });
     }
-    if (/bin/i.test(FormType)) {
-        $('#camerainfo').css("display", "none");
+    if (/(Bin|BinZone)/i.test(FormType)) {
+
         $('#binzoneinfo').css("display", "block");
-        $('input[name=zone_name]').val("");
         $('textarea[id="bin_bins"]').val("");
         fotfmanager.server.getMPEList().done(function (mpedata) {
             if (mpedata.length > 0) {
                 //sort 
                 mpedata.sort(SortByName);
-                $('input[id=zone_name]').css('display', 'none');
-                $('select[id=zone_select_name]').css('display', 'block');
-                $('select[id=zone_select_name]').empty();
-                $('<option/>').val("").html("").appendTo('select[id=zone_select_name]');
-                $('select[id=zone_select_name]').val("");
+                mpedata.push('**Machine Not Listed');
                 $.each(mpedata, function () {
                     $('<option/>').val(this).html(this).appendTo('select[id=zone_select_name]');
                 })
@@ -591,62 +524,36 @@ function VaildateForm(FormType)
             $('textarea[id=bin_bins]').removeClass('is-invalid').addClass('is-valid');
             $('span[id=error_bin_bins]').text("");
         }
-        if (!checkValue($('select[name=zone_type]').val())) {
-            $('select[name=zone_type]').removeClass('is-valid').addClass('is-invalid');
-            $('span[id=error_zone_type]').text("Please Select Zone Type");
-        }
-        else {
-            $('select[name=zone_type]').removeClass('is-invalid').addClass('is-valid');
-            $('span[id=error_zone_type]').text("");
-        }
         enableBinZoneSubmit();
     }
-
-    if (/Bullpen/i.test(FormType)) {
-        var parsedSV = null;
-        var z = null;
+    if (/(Bullpen|BullpenZone)/i.test(FormType)) {
         fotfmanager.server.getSVZoneNameList().done(function (svdata) {
 
             if (svdata.length > 0) {
                 //sort 
-                svdata.sort(SortByLocationName);
-                $('input[id=zone_name]').css('display', 'none');
-                $('select[id=zone_select_name]').css('display', 'block');
-                $('select[id=zone_select_name]').empty();
-                $('<option/>').val("").html("").appendTo('select[id=zone_select_name]');
-                $('select[id=zone_select_name]').val("");
+                svdata.sort(SortByName);
+                svdata.push('**Bullpen Not Listed');
                 $.each(svdata, function () {
-                    $('<option/>').val(this.locationName).html(this.locationName).appendTo('select[id=zone_select_name]');
+                    $('<option/>').val(this).html(this).appendTo('select[id=zone_select_name]');
                 })
             }
             $('select[name=zone_type]').prop('disabled', true);
-            $('input[name=zone_name]').prop('disabled', true);
-            $('input[name=zone_name]').val("");
-
-            $('input[type=text][name=zone_name]').removeClass('is-invalid').removeClass('is-valid');
-            $('span[id=error_zone_name]').text("");
-
-            if (!checkValue($('select[name=zone_type]').val())) {
-                $('select[name=zone_type]').removeClass('is-valid').addClass('is-invalid');
-                $('span[id=error_zone_type]').text("Please Select Zone Type");
-            }
-            else {
-                $('select[name=zone_type]').removeClass('is-invalid').addClass('is-valid');
-                $('span[id=error_zone_type]').text("");
-            }
             enableSVZoneSubmit();
         });
     }
-    if (/camera/i.test(FormType)) {
+    if (/(Camera|CameraMarker)/i.test(FormType)) {
+        fotfmanager.server.getCameraList().done(function (cameradata) {
+            if (cameradata.length > 0) {
+                $('select[id=cameraLocation]').empty();
+                $('<option/>').val("").html("").appendTo('select[id=cameraLocation]');
+                $.each(cameradata, function () {
+                    $('<option/>').val(this.CAMERA_NAME).html(this.CAMERA_NAME + "/" + this.DESCRIPTION).appendTo('select[id=cameraLocation]');
+                })
+            }
+        });
         $('#camerainfo').css("display", "block");
         $('#binzoneinfo').css("display", "none");
-      
         $('select[name=zone_type]').prop('disabled', true);
-        $('input[name=zone_name]').prop('disabled', true);
-        $('input[name=zone_name]').val("");
-
-        $('input[type=text][name=zone_name]').removeClass('is-invalid').removeClass('is-valid');
-        $('span[id=error_zone_name]').text("");
         //Camera URL
         if ($('select[name=cameraLocation]').val() === "") {
             $('select[name=cameraLocation]').removeClass('is-valid').addClass('is-invalid');
@@ -656,14 +563,9 @@ function VaildateForm(FormType)
             $('input[type=text][name=cameraLocation]').css("border-color", "#2eb82e").removeClass('is-invalid').addClass('is-valid');
             $('span[id=error_cameraLocation]').text("");
         }
-        if (!checkValue($('select[name=zone_type]').val())) {
-            $('select[name=zone_type]').removeClass('is-valid').addClass('is-invalid');
-            $('span[id=error_zone_type]').text("Please Select Zone Type");
-        }
-        else {
-            $('select[name=zone_type]').removeClass('is-invalid').addClass('is-valid');
-            $('span[id=error_zone_type]').text("");
-        }
         enableCameraSubmit();
+    }
+    else {
+        $('div[id=div_zone_select_name]').css('display', 'block');
     }
 }

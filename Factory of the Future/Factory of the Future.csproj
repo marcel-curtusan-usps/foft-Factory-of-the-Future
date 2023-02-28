@@ -583,6 +583,7 @@
     <Compile Include="Models\ContainerHistory.cs" />
     <Compile Include="Models\CoordinateSystem.cs" />
     <Compile Include="Models\DarvisCameraAlert.cs" />
+    <Compile Include="Models\DeliveryPointSequence.cs" />
     <Compile Include="Models\EventDtm.cs" />
     <Compile Include="Models\GeoLine.cs" />
     <Compile Include="Models\GeoMarker.cs" />
@@ -596,16 +597,19 @@
     <Compile Include="Models\RunPerf.cs" />
     <Compile Include="Models\RouteTrips.cs" />
     <Compile Include="Models\Staff.cs" />
+    <Compile Include="Models\SVBullpen.cs" />
     <Compile Include="Models\Tacs.cs" />
     <Compile Include="Models\Zone.cs" />
     <Compile Include="Models\ZoneGeometry.cs" />
     <Compile Include="ProcessReceivedMessage\ContainerData.cs" />
     <Compile Include="ProcessReceivedMessage\DoorData.cs" />
     <Compile Include="ProcessReceivedMessage\ItineraryTrip_Update.cs" />
+    <Compile Include="ProcessReceivedMessage\MPEWatch_DPS.cs" />
     <Compile Include="ProcessReceivedMessage\MPEWatch_RPGPerf.cs" />
     <Compile Include="ProcessReceivedMessage\MPEWatch_RPGPlan.cs" />
     <Compile Include="ProcessReceivedMessage\ProjectData.cs" />
     <Compile Include="ProcessReceivedMessage\StaffingData.cs" />
+    <Compile Include="ProcessReceivedMessage\SV_Zone.cs" />
     <Compile Include="ProcessReceivedMessage\TripData.cs" />
     <Compile Include="Transaction_Concentrator\ClientMessages.cs" />
     <Compile Include="Transaction_Concentrator\ProcessorMessage.cs" />

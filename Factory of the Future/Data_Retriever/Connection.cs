@@ -562,16 +562,15 @@ namespace Factory_of_the_Future
                 {
                     if (ConnectionInfo.MessageType.ToUpper().EndsWith("Stills".ToUpper()))
                     {
-                        Dictionary<string, string> cameraImages = new Dictionary<string, string>();
                         foreach (CoordinateSystem cs in FOTFManager.Instance.CoordinateSystem.Values)
                         {
                             cs.Locators.Where(f => f.Value.Properties.TagType != null &&
-                                f.Value.Properties.TagType == "Camera").Select(y => y.Value).ToList().ForEach(Camera =>
+                                f.Value.Properties.TagType.StartsWith("Camera")).Select(y => y.Value).ToList().ForEach(Camera =>
                                 {
                                     try
                                     {
-                                    //Update when change to FQN
-                                    formatUrl = string.Format(ConnectionInfo.Url, Camera.Properties.Name.Trim());
+                                        //Update when change to FQN
+                                        formatUrl = string.Format(ConnectionInfo.Url, Camera.Properties.Name.Trim());
                                         string imageBase64 = AppParameters.NoImage;
                                         if (!string.IsNullOrEmpty(formatUrl))
                                         {
@@ -582,10 +581,15 @@ namespace Factory_of_the_Future
                                                     client.Headers.Add(HttpRequestHeader.ContentType, "application/octet-stream");
                                                     byte[] result = client.DownloadData(formatUrl);
                                                     imageBase64 = "data:image/jpeg;base64," + Convert.ToBase64String(result);
+
+
                                                 }
                                             }
-                                            cameraImages.Add(Camera.Properties.Name, imageBase64);
-
+                                        }
+                                        if (Camera.Properties.CameraData.Base64Image != imageBase64)
+                                        {
+                                            Camera.Properties.CameraData.Base64Image = imageBase64;
+                                            Task.Run(() => FOTFManager.Instance.BroadcastCameraStatus(Camera, cs.Id)).ConfigureAwait(false);
                                         }
                                     }
                                     catch (Exception e)
@@ -595,7 +599,7 @@ namespace Factory_of_the_Future
                                 });
                         }
                         DownloadDatetime = dtNow;
-                        Task.Run(() => new ProcessRecvdMsg().StartProcess(cameraImages, MessageType, ConnectionInfo.Id));
+                        //Task.Run(() => new ProcessRecvdMsg().StartProcess(cameraImages, MessageType, ConnectionInfo.Id));
                         Status = 0;
                         return;
                     }

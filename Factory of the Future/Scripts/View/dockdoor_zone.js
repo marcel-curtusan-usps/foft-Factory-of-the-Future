@@ -118,7 +118,7 @@ var dockDoors = new L.GeoJSON(null, {
         }
     },
     onEachFeature: function (feature, layer) {
-
+        layer.zoneId = feature.properties.id;
         let dockdookflash = "";
         let doorNumberdisplay = feature.properties.doorNumber.toString();
 

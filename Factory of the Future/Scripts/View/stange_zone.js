@@ -2,33 +2,71 @@
  this is for stage zone
  */
 $.extend(fotfmanager.client, {
-    addZone: async (addZoneData, floorId, zonetype) => { addZone(addZoneData, floorId, zonetype) },
-    removeZone: async (removeZoneData, floorId, zonetype) => { removeZone(removeZoneData, floorId, zonetype) },
-    updateZone: async (updateZoneData, floorId, zonetype) => { updateZone(updateZoneData, floorId, zonetype) }
+    addZone: async (addZoneData, floorId, zonetype) => { Promise.all([ addZone([addZoneData], floorId, zonetype)]) },
+    removeZone: async (removeZoneData, floorId, zonetype) => { Promise.all([removeZone(removeZoneData, floorId)]) }
 });
 async function addZone(data, floorId, zonetype) {
     try {
-        //
+        if (floorId === baselayerid) {
+            $.each(data, function () {
+                if (/^ebr/i.test(this.properties.name)) {
+                    ebrAreas.addData(this);
+                }
+                else if (/^Staging/i.test(this.properties.name)) {
+                    stagingAreas.addData(this);
+                }
+                else if (/^Walkway/i.test(this.properties.name)) {
+                    walkwayAreas.addData(this);
+                }
+                else if (/^exit/i.test(this.properties.name)) {
+                    exitAreas.addData(this);
+                }
+                else if (/^(Poly|hol)/i.test(this.properties.name)) {
+                    polyholesAreas.addData(this);
+                }
+                else if (/^(DockDoor)/i.test(this.properties.Zone_Type)) {
+                    dockDoors.addData(this);
+                }
+                else if (/^(MPEZone)/i.test(this.properties.Zone_Type)) {
+                    polygonMachine.addData(this);
+                }
+                else if (/^(BinZone)/i.test(this.properties.Zone_Type)) {
+                    binzonepoly.addData(this);
+                }
+                else if (/^(AGVLocationZone)/i.test(this.properties.Zone_Type)) {
+                    agvLocations.addData(this);
+                }
+                else if (/^(ViewPortsZone)/i.test(this.properties.Zone_Type)) {
+                    viewPortsAreas.addData(this);
+                }
+                else if (/^(BullpenZone)/i.test(this.properties.Zone_Type)) {
+                    stagingBullpenAreas.addData(this);
+                }
+                else {
+                    stagingAreas.addData(this);
+                }
+            })
+        }
     } catch (e) {
         console.log(e);
     }
 }
-async function removeZone(data, floorId, zonetype) {
+async function removeZone(data, floorId) {
     try {
-        //
-    } catch (e) {
-        console.log(e);
-    }
-}
-async function updateZone(data, floorId, zonetype) {
-    try {
-        //
+        if (floorId === baselayerid) {
+            map.eachLayer(function (layer) {
+                if (layer.zoneId === data.properties.id) {
+                    map.removeLayer(layer)
+                }
+            });
+        }
     } catch (e) {
         console.log(e);
     }
 }
 
-var exitAreas = new L.GeoJSON(null, {
+
+let exitAreas = new L.GeoJSON(null, {
     style: function (feature) {
         return style = {
             weight: 1,
@@ -40,6 +78,7 @@ var exitAreas = new L.GeoJSON(null, {
         };
     },
     onEachFeature: function (feature, layer) {
+        layer.zoneId = feature.properties.id;
         $zoneSelect[0].selectize.addOption({ value: feature.properties.id, text: feature.properties.name });
         $zoneSelect[0].selectize.addItem(feature.properties.id);
         $zoneSelect[0].selectize.setValue(-1, true);
@@ -72,7 +111,7 @@ var exitAreas = new L.GeoJSON(null, {
 
     }
 })
-var polyholesAreas = new L.GeoJSON(null, {
+let polyholesAreas = new L.GeoJSON(null, {
     style: function (feature) {
         return style = {
             weight: 0,
@@ -84,6 +123,7 @@ var polyholesAreas = new L.GeoJSON(null, {
         };
     },
     onEachFeature: function (feature, layer) {
+        layer.zoneId = feature.properties.id;
         $zoneSelect[0].selectize.addOption({ value: feature.properties.id, text: feature.properties.name });
         $zoneSelect[0].selectize.addItem(feature.properties.id);
         $zoneSelect[0].selectize.setValue(-1, true);
@@ -115,7 +155,7 @@ var polyholesAreas = new L.GeoJSON(null, {
         layer.bringToBack();
     },
 });
-var ebrAreas = new L.GeoJSON(null, {
+let ebrAreas = new L.GeoJSON(null, {
     style: function (feature) {
         return {
             weight: 1,
@@ -127,6 +167,7 @@ var ebrAreas = new L.GeoJSON(null, {
         };
     },
     onEachFeature: function (feature, layer) {
+        layer.zoneId = feature.properties.id;
         $zoneSelect[0].selectize.addOption({ value: feature.properties.id, text: feature.properties.name });
         $zoneSelect[0].selectize.addItem(feature.properties.id);
         $zoneSelect[0].selectize.setValue(-1, true);
@@ -158,7 +199,7 @@ var ebrAreas = new L.GeoJSON(null, {
         layer.bringToBack();
     },
 });
-var walkwayAreas = new L.GeoJSON(null, {
+let walkwayAreas = new L.GeoJSON(null, {
     style: function (feature) {
         return style = {
             weight: 1,
@@ -170,6 +211,7 @@ var walkwayAreas = new L.GeoJSON(null, {
         };
     },
     onEachFeature: function (feature, layer) {
+        layer.zoneId = feature.properties.id;
         $zoneSelect[0].selectize.addOption({ value: feature.properties.id, text: feature.properties.name });
         $zoneSelect[0].selectize.addItem(feature.properties.id);
         $zoneSelect[0].selectize.setValue(-1, true);
@@ -201,7 +243,7 @@ var walkwayAreas = new L.GeoJSON(null, {
         layer.bringToBack();
     },
 });
-var stagingAreas = new L.GeoJSON(null, {
+let stagingAreas = new L.GeoJSON(null, {
     style: function (feature) {
         return style = {
             weight: 1,
@@ -213,6 +255,7 @@ var stagingAreas = new L.GeoJSON(null, {
         };
     },
     onEachFeature: function (feature, layer) {
+        layer.zoneId = feature.properties.id;
         $zoneSelect[0].selectize.addOption({ value: feature.properties.id, text: feature.properties.name });
         $zoneSelect[0].selectize.addItem(feature.properties.id);
         $zoneSelect[0].selectize.setValue(-1, true);
@@ -309,9 +352,9 @@ $('#zoneselect').change(function (e) {
 });
 function init_zones(zoneData, id) {
     //Get Zones list
-    var hasDockDoorZone = false;
-    var hasMachineZone = false;
-    var hasBinZone = false;
+    let hasDockDoorZone = false;
+    let hasMachineZone = false;
+    let hasBinZone = false;
     $.each(zoneData, function () {
         if (/^ebr/i.test(this.properties.name)) {
             ebrAreas.addData(this);
@@ -332,21 +375,21 @@ function init_zones(zoneData, id) {
             dockDoors.addData(this);
             hasDockDoorZone = true;
         }
-        else if (/^(Machine)/i.test(this.properties.Zone_Type)) {
+        else if (/^(MPEZone|Machine)/i.test(this.properties.Zone_Type)) {
             polygonMachine.addData(this);
             hasMachineZone = true;
         }
-        else if (/^(Bin)/i.test(this.properties.Zone_Type)) {
+        else if (/^(BinZone)/i.test(this.properties.Zone_Type)) {
             binzonepoly.addData(this);
             hasBinZone = true;
         }
-        else if (/^(AGVLocation)/i.test(this.properties.Zone_Type)) {
+        else if (/^(AGVLocationZone)/i.test(this.properties.Zone_Type)) {
             agvLocations.addData(this);
         }
-        else if (/^(ViewPorts)/i.test(this.properties.Zone_Type)) {
+        else if (/^(ViewPortsZone)/i.test(this.properties.Zone_Type)) {
             viewPortsAreas.addData(this);
         }
-        else if (/^(Bullpen)/i.test(this.properties.Zone_Type)) {
+        else if (/^(BullpenZone)/i.test(this.properties.Zone_Type)) {
             stagingBullpenAreas.addData(this);
         }
         else {
@@ -354,7 +397,7 @@ function init_zones(zoneData, id) {
         }
     })
     if (hasDockDoorZone) { fotfmanager.server.joinGroup("DockDoorZones"); }
-    if (hasMachineZone) { fotfmanager.server.joinGroup("MachineZones"); }
+    if (hasMachineZone) { fotfmanager.server.joinGroup("MPEZones"); }
     if (hasBinZone) { fotfmanager.server.joinGroup("BinZones"); }
     // setGreyedOut();
     fotfmanager.server.joinGroup("Zones");

@@ -111,7 +111,7 @@ namespace Factory_of_the_Future
         public int MPENumber { get; set; }
 
         [JsonProperty("DPSData")]
-        public DPS DPSData { get; set; } = new DPS();
+        public DeliveryPointSequence DPSData { get; set; } = new DeliveryPointSequence();
 
         [JsonProperty("staffingData")]
         public Staff StaffingData { get; set; } = new Staff();
@@ -241,169 +241,7 @@ namespace Factory_of_the_Future
         [JsonProperty("count")]
         public int Count { get; set; } = 0;
     }
-    //public class RunPerf
-    //{
-    //    [JsonProperty("mpe_type")]
-    //    public string MpeType { get; set; } = "";
 
-    //    [JsonProperty("mpe_number")]
-    //    public string MpeNumber { get; set; } = "";
-
-    //    [JsonProperty("bins")]
-    //    public string Bins { get; set; } = "";
-
-    //    [JsonProperty("cur_sortplan")]
-    //    public string CurSortplan { get; set; } = "";
-
-    //    [JsonProperty("cur_thruput_ophr")]
-    //    public string CurThruputOphr { get; set; } = "";
-
-    //    [JsonProperty("tot_sortplan_vol")]
-    //    public string TotSortplanVol { get; set; } = "";
-
-    //    [JsonProperty("rpg_est_vol")]
-    //    public string RpgEstVol { get; set; } = "";
-
-    //    [JsonProperty("act_vol_plan_vol_nbr")]
-    //    public string ActVolPlanVolNbr { get; set; } = "";
-
-    //    [JsonProperty("current_run_start")]
-    //    public string CurrentRunStart { get; set; } = "";
-
-    //    [JsonProperty("current_run_end")]
-    //    public string CurrentRunEnd { get; set; } = "";
-
-    //    [JsonProperty("cur_operation_id")]
-    //    public string CurOperationId { get; set; } = "";
-
-    //    [JsonProperty("bin_full_status")]
-    //    public string BinFullStatus { get; set; } = "";
-
-    //    [JsonProperty("bin_full_bins")]
-    //    public string BinFullBins { get; set; } = "";
-
-    //    [JsonProperty("throughput_status")]
-    //    public string ThroughputStatus { get; set; } = "";
-
-    //    [JsonProperty("unplan_maint_sp_status")]
-    //    public string UnplanMaintSpStatus { get; set; } = "";
-
-    //    [JsonProperty("op_started_late_status")]
-    //    public string OpStartedLateStatus { get; set; } = "";
-
-    //    [JsonProperty("op_running_late_status")]
-    //    public string OpRunningLateStatus { get; set; } = "";
-
-    //    [JsonProperty("sortplan_wrong_status")]
-    //    public string SortplanWrongStatus { get; set; } = "";
-
-    //    [JsonProperty("unplan_maint_sp_timer")]
-    //    public string UnplanMaintSpTimer { get; set; } = "";
-
-    //    [JsonProperty("op_started_late_timer")]
-    //    public string OpStartedLateTimer { get; set; } = "";
-
-    //    [JsonProperty("rpg_start_dtm")]
-    //    public string RPGStartDtm { get; set; } = "";
-
-    //    [JsonProperty("rpg_end_dtm")]
-    //    public string RPGEndDtm { get; set; } = "";
-
-    //    [JsonProperty("expected_throughput")]
-    //    public string ExpectedThroughput { get; set; } = "";
-
-    //    [JsonProperty("op_running_late_timer")]
-    //    public string OpRunningLateTimer { get; set; } = "";
-
-    //    [JsonProperty("sortplan_wrong_timer")]
-    //    public string SortplanWrongTimer { get; set; } = "";
-
-    //    [JsonProperty("rpg_est_comp_time")]
-    //    public string RpgEstCompTime { get; set; } = "";
-
-    //    [JsonProperty("hourly_data")]
-    //    public List<HourlyData> HourlyData { get; set; } = new List<HourlyData>();
-
-    //    [JsonProperty("ars_recrej3")]
-    //    public string ArsRecrej3 { get; set; } = "";
-
-    //    [JsonProperty("sweep_recrej3")]
-    //    public string SweepRecrej3 { get; set; } = "";
-    //}
-    public class DPS
-    {
-        [JsonProperty("run_start_modsday")]
-        public string RunStartModsday { get; set; } = "";
-
-        [JsonProperty("sortplan_name_perf")]
-        public string SortplanNamePerf { get; set; } = "";
-
-        [JsonProperty("current_operation_id")]
-        public string CurrentOperationId { get; set; } = "";
-
-        [JsonProperty("pieces_fed_1st_cnt")]
-        public string PiecesFed1stCnt { get; set; } = "";
-
-        [JsonProperty("pieces_rejected_1st_cnt")]
-        public string PiecesRejected1stCnt { get; set; } = "";
-
-        [JsonProperty("pieces_to_2nd_pass")]
-        public string PiecesTo2ndPass { get; set; } = "";
-
-        [JsonProperty("op_time_1st")]
-        public string OpTime1st { get; set; } = "";
-
-        [JsonProperty("thruput_1st_pass")]
-        public string Thruput1stPass { get; set; } = "";
-
-        [JsonProperty("pieces_fed_2nd_cnt")]
-        public string PiecesFed2ndCnt { get; set; } = "";
-
-        [JsonProperty("pieces_rejected_2nd_cnt")]
-        public string PiecesRejected2ndCnt { get; set; } = "";
-
-        [JsonProperty("op_time_2nd")]
-        public string OpTime2nd { get; set; } = "";
-
-        [JsonProperty("thruput_2nd_pass")]
-        public string Thruput2ndPass { get; set; } = "";
-
-        [JsonProperty("pieces_remaining")]
-        public string PiecesRemaining { get; set; } = "";
-
-        [JsonProperty("thruput_optimal_cfg")]
-        public string ThruputOptimalCfg { get; set; } = "";
-
-        [JsonProperty("time_to_comp_optimal")]
-        public string TimeToCompOptimal { get; set; } = "";
-
-        [JsonProperty("thruput_actual")]
-        public string ThruputActual { get; set; } = "";
-
-        [JsonProperty("time_to_comp_actual")]
-        public string TimeToCompActual { get; set; } = "";
-
-        [JsonProperty("rpg_2nd_pass_end")]
-        public string Rpg2ndPassEnd { get; set; } = "";
-
-        [JsonProperty("time_to_2nd_pass_optimal")]
-        public string TimeTo2ndPassOptimal { get; set; } = "";
-
-        [JsonProperty("rec_2nd_pass_start_optimal")]
-        public string Rec2ndPassStartOptimal { get; set; } = "";
-
-        [JsonProperty("time_to_2nd_pass_actual")]
-        public string TimeTo2ndPassActual { get; set; } = "";
-
-        [JsonProperty("rec_2nd_pass_start_actual")]
-        public string Rec2ndPassStartActual { get; set; } = "";
-
-        [JsonProperty("time_to_comp_optimal_DateTime")]
-        public string TimeToCompOptimalDateTime { get; set; } = "";
-
-        [JsonProperty("time_to_comp_actual_DateTime")]
-        public string TimeToCompActualDateTime { get; set; } = "";
-    }
     public class NullToEmptyStringResolver : Newtonsoft.Json.Serialization.DefaultContractResolver
     {
         protected override IList<JsonProperty> CreateProperties(Type type, MemberSerialization memberSerialization)
@@ -780,41 +618,7 @@ namespace Factory_of_the_Future
         [JsonProperty("updtUserId")]
         public string UpdtUserId;
     }
-    public class SV_Bullpen
-    {
-        [JsonProperty("SQLTypeName")]
-        public string SQLTypeName;
 
-        [JsonProperty("locationId")]
-        public int LocationId;
-
-        [JsonProperty("siteId")]
-        public string SiteId;
-
-        [JsonProperty("locationName")]
-        public string LocationName;
-
-        [JsonProperty("locationType")]
-        public string LocationType;
-
-        [JsonProperty("updtUserId")]
-        public string UpdtUserId;
-
-        [JsonProperty("bullpenType")]
-        public string BullpenType;
-
-        [JsonProperty("responseCode")]
-        public int ResponseCode;
-
-        [JsonProperty("mpeName")]
-        public string MpeName;
-
-        [JsonProperty("binStart")]
-        public int? BinStart;
-
-        [JsonProperty("binEnd")]
-        public int? BinEnd;
-    }
     public class PropertyRenameAndIgnoreSerializerContractResolver : DefaultContractResolver
     {
         private readonly Dictionary<Type, HashSet<string>> _ignores;

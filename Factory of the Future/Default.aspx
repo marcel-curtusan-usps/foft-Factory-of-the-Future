@@ -841,32 +841,33 @@
                                                 <option value="Machine">Machine Zone</option>
                                                 <option value="Bullpen">Bullpen Zone</option>
                                                 <option value="ViewPorts">View Ports</option>
-
                                             </select>
                                             <span id="error_zone_type" class="text-danger"></span>
                                         </div>
-                                        <div class="col-6">
-                                            <label class="control-label">Name</label>
-                                            <input id="zone_name" type="text" class="form-control" name="zone_name" style="display: block;">
-                                            <select id="zone_select_name" type="text" title="Zone Select Name" class="form-control" name="zone_select_name" style="display: none;">
+                                        <div class="col-6" id="div_zone_select_name">
+                                            <label class="control-label" for="zone_select_name">Name</label>
+                                            <select id="zone_select_name" type="text" title="Zone Name" class="form-control" name="zone_select_name">
                                                 <option value=""></option>
                                             </select>
-                                            <span id="error_zone_name" class="text-danger"></span>
+                                            <span id="error_zone_select_name" class="text-danger"></span>
                                         </div>
-                                        <div class="row mr-0 ml-0" id="new_machine_manual_row" style="display:none;">
-                                            <div class="form-group col">
-                                                <label class="control-label">Name</label><input id="new_machine_name" type="text" class="form-control" name="new_machine_name"/><span id="error_new_machine_name" class="text-danger"></span>
-                                            </div>
-                                            <div class="form-group col-4">
-                                                <label class="control-label">Number</label><input id="new_machine_number" type="text" class="form-control" name="new_machine_number"/><span id="error_new_machine_number" class="text-danger"></span>
-                                            </div>
-                                        </div>
-
                                     </div>
-                                    <div id="camerainfo" style="display: none;">
+                                    <div class="row mr-0 ml-0" id="manual_row" style="display: none;">
+                                        <div class="form-group col-8">
+                                            <label class="control-label" for="manual_name">Name</label>
+                                            <input id="manual_name" type="text" class="form-control" name="manual_name" />
+                                            <span id="error_manual_name" class="text-danger"></span>
+                                        </div>
+                                        <div class="form-group col-4">
+                                            <label class="control-label" for="manual_number">Number</label>
+                                            <input id="manual_number" type="text" class="form-control" name="manual_number" />
+                                            <span id="error_manual_number" class="text-danger"></span>
+                                        </div>
+                                    </div>
+                                    <div class="row mr-0 ml-0" id="camerainfo" style="display: none;">
                                         <div class="row mb-3">
                                             <div class="form-group col">
-                                                <label class="control-label">Camera URL</label>
+                                                <label class="control-label" for="cameraLocation">Camera URL</label>
                                                 <select id="cameraLocation" class="form-control" name="cameraLocation">
                                                     <option value=""></option>
                                                 </select>
@@ -874,10 +875,10 @@
                                             </div>
                                         </div>
                                     </div>
-                                    <div id="binzoneinfo" style="display: none;">
+                                    <div class="row mr-0 ml-0" id="binzoneinfo" style="display: none;">
                                         <div class="row mb-3">
                                             <div class="col">
-                                                <label class="control-label">Bins</label>
+                                                <label class="control-label" for="bin_bins">Bins</label>
                                                 <textarea id="bin_bins" type="text" rows="3" class="form-control"></textarea>
                                                 <span id="error_bin_bins" class="text-danger"></span>
                                             </div>

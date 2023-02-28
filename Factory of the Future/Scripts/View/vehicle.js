@@ -75,6 +75,7 @@ let piv_vehicles = new L.GeoJSON(null, {
         })
     },
     onEachFeature: function (feature, layer) {
+        layer.markerId = feature.properties.id;
         let obstructedState = '';
         $zoneSelect[0].selectize.addOption({ value: feature.properties.id, text: feature.properties.name });
         $zoneSelect[0].selectize.addItem(feature.properties.id);
@@ -123,6 +124,7 @@ let agv_vehicles = new L.GeoJSON(null, {
         })
     },
     onEachFeature: function (feature, layer) {
+        layer.markerId = feature.properties.id;
         var obstructedState = '';
         $zoneSelect[0].selectize.addOption({ value: feature.properties.id, text: feature.properties.name });
         $zoneSelect[0].selectize.addItem(feature.properties.id);

@@ -43,24 +43,24 @@ let lastAlertStatus = null;
 let alertTurnoffThreshold = 60 * 1000;
 let alertsOn = false; 
 let camerathumbnailsupdating = false;
-setInterval(() => {
-    let thisTime = Date.now();
-    let timeSinceLastUpdateBlink = thisTime - lastAlertBlinkChange;
-    if (timeSinceLastUpdateBlink >= (flashRate - flashCheckRate)) {
-        // keep waiting until update is done
-        if (camerathumbnailsupdating) return;
-        camerathumbnailsupdating = true;
-        let timeSinceLastUpdate = thisTime - lastUpdateCamera;
-        if (timeSinceLastUpdate >= alertTurnoffThreshold) {
-            alertsOn = false;
-        }
-        else {
-            alertsOn = true;
-        }
-        updateAllCameras(thisTime);
-        camerathumbnailsupdating = false;
-    }
-}, flashCheckRate);
+//setInterval(() => {
+//    let thisTime = Date.now();
+//    let timeSinceLastUpdateBlink = thisTime - lastAlertBlinkChange;
+//    if (timeSinceLastUpdateBlink >= (flashRate - flashCheckRate)) {
+//        // keep waiting until update is done
+//        if (camerathumbnailsupdating) return;
+//        camerathumbnailsupdating = true;
+//        let timeSinceLastUpdate = thisTime - lastUpdateCamera;
+//        if (timeSinceLastUpdate >= alertTurnoffThreshold) {
+//            alertsOn = false;
+//        }
+//        else {
+//            alertsOn = true;
+//        }
+//        updateAllCameras(thisTime);
+//        camerathumbnailsupdating = false;
+//    }
+//}, flashCheckRate);
 let lastUpdateCamera = 0;
 function alertChanged(prevDarvisAlerts, darvisAlerts) {
     if (prevDarvisAlerts && !darvisAlerts) return true;
@@ -438,6 +438,7 @@ let cameras = new L.GeoJSON(null, {
         });
     },
     onEachFeature: function (feature, layer) {
+        layer.markerId = feature.properties.id;
         layer.on('click', function (e) {
             View_Web_Camera(feature.properties);
         });

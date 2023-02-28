@@ -657,7 +657,7 @@ function SortBySiteName(a, b) {
     return ((aName < bName) ? -1 : ((aName > bName) ? 1 : 0));
 }
 function SortByLocationName(a, b) {
-    let aName = a.toLowerCase();
+    let aName = a.locationName.toLowerCase();
     let bName = b.locationName.toLowerCase();
     return ((aName < bName) ? -1 : ((aName > bName) ? 1 : 0));
 }

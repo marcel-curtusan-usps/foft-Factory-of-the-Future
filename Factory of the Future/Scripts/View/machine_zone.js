@@ -58,6 +58,27 @@ $('#Zone_Modal').on('shown.bs.modal', function () {
 
         enablezoneSubmit();
     });
+    //GPIO
+    $('input[type=text][name=GPIO]').keyup(function () {
+        if (!checkValue($('input[type=text][name=GPIO]').val())) {
+            $('input[type=text][name=GPIO]').css("border-color", "#FF0000").removeClass('is-valid').addClass('is-invalid');
+            $('span[id=errorgpio]').text("Please Enter GPIO ");
+        }
+        else {
+            $('input[type=text][name=GPIO]').css("border-color", "#2eb82e").removeClass('is-invalid').addClass('is-valid');
+            $('span[id=errorgpio]').text("");
+        }
+
+        enablezoneSubmit();
+    });
+    if (!checkValue($('input[type=text][name=GPIO]').val())) {
+        $('input[type=text][name=GPIO]').css("border-color", "#FF0000").removeClass('is-valid').addClass('is-invalid');
+        $('span[id=errorgpio]').text("Please Enter Machine Number");
+    }
+    else {
+        $('input[type=text][name=GPIO]').css("border-color", "#2eb82e").removeClass('is-invalid').addClass('is-valid');
+        $('span[id=errorgpio]').text("");
+    }
     //Request Type Validation
     if (!checkValue($('input[type=text][name=machine_number]').val())) {
         $('input[type=text][name=machine_number]').css("border-color", "#FF0000").removeClass('is-valid').addClass('is-invalid');
@@ -238,7 +259,7 @@ const polyObj = {
             
     },
     onEachFeature: function (feature, layer) {
-        
+        layer.zoneId = feature.properties.id;
         if (feature.properties.sparkline) {
             updateMachineSparklineTooltip(feature, layer);
         }
@@ -425,7 +446,7 @@ function formatmachinetoprow(properties) {
         zoneId: properties.id,
         zoneName: properties.name,
         zoneType: properties.Zone_Type,
-        sortPlan: checkValue(properties.MPEWatchData.cur_sortplan) ? properties.MPEWatchData.cur_sortplan : "N/A",
+        sortPlan: Vaildatesortplan(properties.MPEWatchData.cur_sortplan),// ? properties.MPEWatchData.cur_sortplan : "N/A",
         opNum: properties.MPEWatchData.cur_operation_id,
         sortPlanStart: properties.MPEWatchData.current_run_start,
         sortPlanEnd: properties.MPEWatchData.current_run_end,
@@ -434,7 +455,7 @@ function formatmachinetoprow(properties) {
         rpgVol: properties.MPEWatchData.rpg_est_vol,
         stateBadge: getstatebadge(properties),
         stateText: getstateText(properties),
-        estComp: checkValue(properties.MPEWatchData.rpg_est_comp_time) ? properties.MPEWatchData.rpg_est_comp_time : "Estimate Not Available",
+        estComp: VaildateEstComplete(properties.MPEWatchData.rpg_est_comp_time),// checkValue(properties.MPEWatchData.rpg_est_comp_time) ? properties.MPEWatchData.rpg_est_comp_time : "Estimate Not Available",
         rpgStart: moment(properties.MPEWatchData.rpg_start_dtm, "MM/DD/YYYY hh:mm:ss A").format("YYYY-MM-DD HH:mm:ss"),
         rpgEnd: moment(properties.MPEWatchData.rpg_end_dtm, "MM/DD/YYYY hh:mm:ss A").format("YYYY-MM-DD HH:mm:ss"),
         expThroughput: properties.MPEWatchData.expected_throughput,
@@ -442,6 +463,33 @@ function formatmachinetoprow(properties) {
         arsRecirc: properties.MPEWatchData.ars_recrej3,
         sweepRecirc: properties.MPEWatchData.sweep_recrej3,
     });
+}
+function Vaildatesortplan(sortplan) {
+    try {
+        if (sortplan.length > 3) {
+            return sortplan;
+        }
+        else {
+            return "N/A"
+        }
+    }
+    catch (e) {
+
+    }
+}
+function VaildateEstComplete(estComplet)
+{
+    try {
+        let est = moment(estComplet);
+        if (est._isValid && est.year() === moment().year) {
+            return est.format("MM/DD/YYYY HH:mm");
+        }
+        else {
+            return "Estimate Not Available";
+        }
+    } catch (e) {
+
+    }
 }
 let machinetop_row_template =
     '<tr data-id="{zoneId}"><td>{zoneType}</td><td>{zoneName}</td><td><span class="badge badge-pill {stateBadge}" style="font-size: 12px;">{stateText}</span></td></tr>' +
@@ -641,6 +689,7 @@ async function Edit_Machine_Info(id) {
                     $('input[type=text][name=machine_number]').val(Data.MPE_Number);
                     $('input[type=text][name=zone_ldc]').val(Data.Zone_LDC);
                     $('input[type=text][name=machine_id]').val(Data.id);
+                    $('input[type=text][name=GPIO]').val(Data.GpioNumber);
 
                     $('button[id=machinesubmitBtn]').off().on('click', function () {
                         try {
@@ -661,6 +710,7 @@ async function Edit_Machine_Info(id) {
                                 MPE_Type: machineName,//$('input[type=text][name=machine_name]').val(),
                                 MPE_Number: machineNumber,//$('input[type=text][name=machine_number]').val(),
                                 Zone_LDC: $('input[type=text][name=zone_ldc]').val(),
+                                GPIO:"",
                                 floorId: baselayerid
                             };
 

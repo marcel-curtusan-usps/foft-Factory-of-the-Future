@@ -215,7 +215,7 @@ namespace Factory_of_the_Future
         }
         private void BroadcastMachineStatus(GeoZone mPE, string id)
         {
-            Clients.Group("MachineZones").updateMachineStatus(mPE, id);
+            Clients.Group("MPEZones").updateMachineStatus(mPE, id);
 
         }
         #endregion
@@ -276,7 +276,7 @@ namespace Factory_of_the_Future
                 {
                     newtempgZone.Properties.MPEBins = null;
                 }
-                if (Regex.IsMatch(newtempgZone.Properties.ZoneType, "(Machine|Bin)", RegexOptions.IgnoreCase))
+                if (Regex.IsMatch(newtempgZone.Properties.ZoneType, "^(MPE|Bin)", RegexOptions.IgnoreCase))
                 {
                     //get the MPE Number
                     if (int.TryParse(string.Join(string.Empty, Regex.Matches(newtempgZone.Properties.Name, @"\d+").OfType<Match>().Select(m => m.Value)).ToString(), out int n))
@@ -286,7 +286,7 @@ namespace Factory_of_the_Future
                     //get the MPE Name
                     newtempgZone.Properties.MPEType = string.Join(string.Empty, Regex.Matches(newtempgZone.Properties.Name, @"\p{L}+").OfType<Match>().Select(m => m.Value));
                 }
-                if (Regex.IsMatch(newtempgZone.Properties.ZoneType, "(DockDoor)", RegexOptions.IgnoreCase))
+                if (Regex.IsMatch(newtempgZone.Properties.ZoneType, "^(DockDoor)", RegexOptions.IgnoreCase))
                 {
                     //get the DockDoor Number
                     if (int.TryParse(string.Join(string.Empty, Regex.Matches(newtempgZone.Properties.Name, @"\d+").OfType<Match>().Select(m => m.Value)).ToString(), out int n))
@@ -298,13 +298,14 @@ namespace Factory_of_the_Future
                   
                 }
 
-                BroadcastAddZone(newtempgZone, newtempgZone.Properties.FloorId, newtempgZone.Properties.ZoneType);
+         
                 if (CoordinateSystem.ContainsKey(newtempgZone.Properties.FloorId))
                 {
                     if (CoordinateSystem.TryGetValue(newtempgZone.Properties.FloorId, out CoordinateSystem cs))
                     {
                         if (cs.Zones.TryAdd(newtempgZone.Properties.Id, newtempgZone))
                         {
+                            BroadcastAddZone(newtempgZone, newtempgZone.Properties.FloorId, newtempgZone.Properties.ZoneType);
                             new FileIO().Write(string.Concat(AppParameters.Logdirpath, AppParameters.ConfigurationFloder), "Project_Data.json", AppParameters.ZoneOutPutdata(CoordinateSystem.Select(x => x.Value).ToList()));
                             return null;
                         }
@@ -320,22 +321,22 @@ namespace Factory_of_the_Future
         }
         private void BroadcastAddZone(GeoZone Zone, string floorId, string zoneType)
         {
-            Clients.Group(zoneType).addZone(Zone, floorId, zoneType);
+            Clients.All.addZone(Zone, floorId, zoneType);
         }
         private void BroadcastRemoveZone(GeoZone Zone, string floorId, string zoneType)
         {
-            Clients.Group(zoneType).removeZone(Zone, floorId, zoneType);
+            Clients.All.removeZone(Zone, floorId, zoneType);
         }
         private void BroadcastUpdateZone(GeoZone Zone, string floorId, string zoneType)
         {
             Clients.Group(zoneType).updateZone(Zone, floorId, zoneType);
         }
 
-        internal IEnumerable<SV_Bullpen> GetSVZoneNameList()
+        internal IEnumerable<string> GetSVZoneNameList()
         {
             try
             {
-                return AppParameters.SVZoneNameList.Select(y => y.Value).ToList();
+                return AppParameters.SVZoneNameList.Select(y => y.Value.LocationName).ToList();
             }
             catch (Exception e)
             {
@@ -437,9 +438,17 @@ namespace Factory_of_the_Future
 
         //}
 
-        public void BroadcastCameraStatus(GeoMarker Cameras, string id)
+        public void BroadcastCameraStatus(GeoMarker marker, string floorId)
         {
-            Clients.Group("CameraMarkers").updateCameraStatus(Cameras, id);
+            Clients.All.updateCameraStatus(marker, floorId);
+        }
+        public void BroadcastAddMarker(GeoMarker marker, string floorId)
+        {
+            Clients.All.addMarker(marker, floorId);
+        }
+        public void BroadcastRemoveMarker(GeoMarker marker, string floorId)
+        {
+            Clients.All.removeMarker(marker, floorId);
         }
         //public void UpdateCameraImages(object state)
         //{
@@ -648,6 +657,7 @@ namespace Factory_of_the_Future
                     {
                         if (cs.Locators.TryAdd(newtempgMarker.Properties.Id, newtempgMarker))
                         {
+                            BroadcastAddMarker(newtempgMarker, newtempgMarker.Properties.FloorId);
                             new FileIO().Write(string.Concat(AppParameters.Logdirpath, AppParameters.ConfigurationFloder), "Project_Data.json", AppParameters.ZoneOutPutdata(CoordinateSystem.Select(x => x.Value).ToList()));
                             return newtempgMarker;
                         }
@@ -687,31 +697,17 @@ namespace Factory_of_the_Future
         {
             try
             {
-                bool removeMarker = false;
                 GeoMarker markerinfo = null;
                 foreach (CoordinateSystem cs in CoordinateSystem.Values)
                 {
                     if (cs.Locators.ContainsKey(data))
                     {
-                        if (cs.Locators.TryGetValue(data, out markerinfo))
+                        if (cs.Locators.TryRemove(data, out markerinfo))
                         {
-                            if (markerinfo.Properties.Source == "other")
-                            {
-                                markerinfo.Properties.TagVisible = false;
-                                markerinfo.Properties.TagUpdate = true;
-                            }
-                            else
-                            {
-                                removeMarker = true;
-                            }
+                            BroadcastRemoveMarker(markerinfo, markerinfo.Properties.FloorId);
+                            new FileIO().Write(string.Concat(AppParameters.Logdirpath, AppParameters.ConfigurationFloder), "Project_Data.json", AppParameters.ZoneOutPutdata(CoordinateSystem.Select(x => x.Value).ToList()));
                         }
-                        if (removeMarker)
-                        {
-                            if (cs.Locators.TryRemove(data, out markerinfo))
-                            {
-                                new FileIO().Write(string.Concat(AppParameters.Logdirpath, AppParameters.ConfigurationFloder), "Project_Data.json", AppParameters.ZoneOutPutdata(CoordinateSystem.Select(x => x.Value).ToList()));
-                            }
-                        }
+
                     }
                 }
                 return markerinfo;
@@ -727,35 +723,37 @@ namespace Factory_of_the_Future
         {
             try
             {
-                bool removeZone = false;
-                GeoZone ZoneInfo = null;
                 foreach (CoordinateSystem cs in CoordinateSystem.Values)
                 {
                     if (cs.Zones.ContainsKey(data))
                     {
-                        if (cs.Zones.TryGetValue(data, out ZoneInfo))
+                        if (cs.Zones.TryRemove(data, out GeoZone ZoneInfo))
                         {
-                            if (ZoneInfo.Properties.Source == "other")
-                            {
-                                ZoneInfo.Properties.Visible = false;
-                                ZoneInfo.Properties.ZoneUpdate = true;
-                            }
-                            else
-                            {
-                                removeZone = true;
-                            }
+                            BroadcastRemoveZone(ZoneInfo, ZoneInfo.Properties.FloorId, ZoneInfo.Properties.ZoneType);
+                            new FileIO().Write(string.Concat(AppParameters.Logdirpath, AppParameters.ConfigurationFloder), "Project_Data.json", AppParameters.ZoneOutPutdata(CoordinateSystem.Select(x => x.Value).ToList()));
                         }
-                        if (removeZone)
-                        {
-                            if (cs.Zones.TryRemove(data, out ZoneInfo))
-                            {
-                                new FileIO().Write(string.Concat(AppParameters.Logdirpath, AppParameters.ConfigurationFloder), "Project_Data.json", AppParameters.ZoneOutPutdata(CoordinateSystem.Select(x => x.Value).ToList()));
-                            }
-                        }
+                        //if (cs.Zones.TryGetValue(data, out ZoneInfo))
+                        //{
+                        //    if (ZoneInfo.Properties.Source == "other")
+                        //    {
+                        //        ZoneInfo.Properties.Visible = false;
+                        //        ZoneInfo.Properties.ZoneUpdate = true;
+                        //    }
+                        //    else
+                        //    {
+                        //        removeZone = true;
+                        //    }
+                        //}
+                        //if (removeZone)
+                        //{
+                        //    if (cs.Zones.TryRemove(data, out ZoneInfo))
+                        //    {
+                        //        new FileIO().Write(string.Concat(AppParameters.Logdirpath, AppParameters.ConfigurationFloder), "Project_Data.json", AppParameters.ZoneOutPutdata(CoordinateSystem.Select(x => x.Value).ToList()));
+                        //    }
+                        //}
                     }
                 }
-
-                return ZoneInfo;
+                return null;
             }
             catch (Exception e)
             {
@@ -1713,16 +1711,16 @@ namespace Factory_of_the_Future
             }
         }
        
-        private static DPS GetDPSData(string curSortplan)
+        private static DeliveryPointSequence GetDPSData(string curSortplan)
         {
-            DPS DPSData = new DPS();
+            DeliveryPointSequence DPSData = new DeliveryPointSequence();
             try
             {
                 string tempsortplan = curSortplan.Length >= 7 ? curSortplan.Substring(0, 7) : curSortplan;
-                if (AppParameters.DPSList.TryGetValue(tempsortplan, out string sortplan))
-                {
-                    DPSData = JsonConvert.DeserializeObject<DPS>(sortplan);
-                }
+                //if (AppParameters.DPSList.TryGetValue(tempsortplan, out string sortplan))
+                //{
+                //    DPSData = JsonConvert.DeserializeObject<Delivery_Point_Sequence>(sortplan);
+                //}
                 return DPSData;
             }
             catch (Exception ex)
@@ -2037,7 +2035,6 @@ namespace Factory_of_the_Future
         {
             Clients.Group("VehiclsMarkers").updateVehicleTagStatus(marker, id);
         }
-
         private void UpdatePersonTagStatus(object state)
         {
             lock (updatePersonTagStatuslock)

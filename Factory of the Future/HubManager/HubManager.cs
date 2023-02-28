@@ -188,7 +188,7 @@ namespace Factory_of_the_Future
         /// </summary>
         /// <returns></returns>
 
-        public IEnumerable<SV_Bullpen> GetSVZoneNameList()
+        public IEnumerable<string> GetSVZoneNameList()
         {
             return _managerHub.GetSVZoneNameList();
         }
@@ -311,7 +311,7 @@ namespace Factory_of_the_Future
                 Task.Run(() => LeaveGroup("PeopleMarkers"));
                 Task.Run(() => LeaveGroup("VehiclsMarkers"));
                 Task.Run(() => LeaveGroup("CameraMarkers"));
-                Task.Run(() => LeaveGroup("MachineZones"));
+                Task.Run(() => LeaveGroup("MPEZones"));
                 Task.Run(() => LeaveGroup("Zones"));
                 Task.Run(() => LeaveGroup("BinZones"));
                 Task.Run(() => LeaveGroup("DockDoorZones"));

@@ -115,7 +115,6 @@ namespace Factory_of_the_Future
                             break;
                         case "rpg_run_perf":
                             await Task.Run(() => new MPEWatch_RPGPerf().LoadAsync(_data, _Message_type, _connID)).ConfigureAwait(false);
-                           // MPEWatch_RPGPerf(_data, _connID);
                             break;
                         case "rpg_plan":
                             //await Task.Run(() => new MPEWatch_RPGPlan().LoadAsync(_data)).ConfigureAwait(false);
@@ -128,12 +127,12 @@ namespace Factory_of_the_Future
                             }
                             break;
                         case "dps_run_estm":
-                            MPEWatch_DPSEst(_data, _connID);
+                            await Task.Run(() => new MPEWatch_DPS().LoadAsync(_data, _Message_type, _connID)).ConfigureAwait(false);
                             break;
                         ///*MPEWatch Data End*/
                         
                         case "getSVZones":
-                            SVZones(_data, _connID);
+                            await Task.Run(() => new SV_Zone().LoadAsync(_data, _Message_type, _connID)).ConfigureAwait(false);
                             break;
                         default:
                             break;
@@ -705,170 +704,6 @@ namespace Factory_of_the_Future
         //        return temp;
         //    }
         //}
-        private static void SVZones(dynamic data, string conID)
-        {
-
-            try
-            {
-                if (data != null)
-                {
-                    List<SV_Bullpen> SV_Bullpen = JsonConvert.DeserializeObject<List<SV_Bullpen>>(data);
-                    if (SV_Bullpen.Count > 0)
-                    {
-                        foreach (SV_Bullpen Bullpen_item in SV_Bullpen)
-                        {
-
-                            AppParameters.SVZoneNameList.AddOrUpdate(Bullpen_item.LocationId, Bullpen_item,
-                               (key, oldValue) =>
-                               {
-                                   return Bullpen_item;
-                               });
-                        }
-                        //JToken tempData = JToken.Parse(data);
-                        //if (tempData != null && tempData.HasValues)
-                        //{
-                        //    foreach (JObject item in tempData.Children())
-                        //    {
-                        //        string svzone_id = item.ContainsKey("locationId") ? item["locationId"].ToString() : "";
-                        //        string zoneName = item["locationName"].ToString();
-                        //        if (!string.IsNullOrEmpty(svzone_id))
-                        //        {
-
-                        //            AppParameters.SVZoneNameList.AddOrUpdate(svzone_id, zoneName,
-                        //               (key, oldValue) =>
-                        //               {
-                        //                   return zoneName;
-                        //               });
-                        //        }
-                        //    }
-                        //}
-                        Task.Run(() => UpdateConnection(conID, "good"));
-                    }
-                    else
-                    {
-                        Task.Run(() => UpdateConnection(conID, "error"));
-                    }
-                }
-            }
-
-            catch (Exception e)
-            {
-                Task.Run(() => UpdateConnection(conID, "error"));
-                new ErrorLogger().ExceptionLog(e);
-            }
-        }
-        //private static void Doors(dynamic data, string conID)
-        //{
-        //    try
-        //    {
-        //        if (data != null)
-        //        {
-        //            JToken tempData = JToken.Parse(data);
-        //            if (tempData !=null && tempData.HasValues)
-        //            {
-        //                foreach (JObject item in tempData.Children())
-        //                {
-        //                    string dockdoor_id = item.ContainsKey("doorNumber") ? item["doorNumber"].ToString() : "";
-        //                    if (!string.IsNullOrEmpty(dockdoor_id))
-        //                    {
-        //                        string doorInfo = JsonConvert.SerializeObject(item, Formatting.None);
-        //                        AppParameters.DockdoorList.AddOrUpdate(dockdoor_id, doorInfo,
-        //                           (key, oldValue) =>
-        //                           {
-        //                               return doorInfo;
-        //                           });
-        //                        doorInfo = null;
-        //                    }
-
-        //                    string routetripid = "";
-        //                    if (item.ContainsKey("routeTripId") && item.ContainsKey("routeTripLegId") && item.ContainsKey("tripDirectionInd"))
-        //                    {
-        //                        routetripid = string.Concat(item["routeTripId"].ToString(), item["routeTripLegId"].ToString(), item["tripDirectionInd"].ToString());
-        //                    }
-
-        //                    if (!string.IsNullOrEmpty(routetripid))
-        //                    {
-        //                        if (AppParameters.RouteTripsList.ContainsKey(routetripid) && AppParameters.RouteTripsList.TryGetValue(routetripid, out RouteTrips trip))
-        //                        {
-        //                            trip.DoorId = item["doorId"].ToString();
-        //                            trip.DoorNumber = item["doorNumber"].ToString();
-        //                            trip.Status = "ACTIVE";
-        //                            Task.Run(() => FOTFManager.Instance.UpdateDoorZone(trip));
-
-        //                        }
-        //                        else if (!AppParameters.RouteTripsList.ContainsKey(routetripid))
-        //                        {
-
-        //                            item["id"] = routetripid;
-        //                            item["rawData"] = JsonConvert.SerializeObject(item, Formatting.None);
-        //                            RouteTrips newRTData = item.ToObject<RouteTrips>();
-        //                            newRTData.Status = "ACTIVE";
-        //                            newRTData.TripMin = AppParameters.Get_TripMin(newRTData.ScheduledDtm);
-        //                            Task.Run(() => AddTriptoList(routetripid, newRTData));
-        //                            Task.Run(() => FOTFManager.Instance.UpdateDoorZone(newRTData));
-        //                        }
-        //                    }
-        //                    else
-        //                    {
-        //                        Task.Run(() => FOTFManager.Instance.UpdateDoorZone(item.ToObject<RouteTrips>()));
-        //                    }
-                           
-        //                }
-        //                Task.Run(() => UpdateConnection(conID, "good"));
-        //            }
-        //            else
-        //            {
-        //                Task.Run(() => UpdateConnection(conID, "error"));
-        //            }
-        //        }
-        //        else
-        //        {
-        //            Task.Run(() => UpdateConnection(conID, "error"));
-        //        }
-        //        data = null;
-        //    }
-        //    catch (Exception e)
-        //    {
-        //        Task.Run(() => UpdateConnection(conID, "error"));
-        //        new ErrorLogger().ExceptionLog(e);
-        //    }
-        //}
-        //private static void UpdateDoorZone(RouteTrips trip)
-        //{
-        //    try
-        //    {
-
-        //        foreach (CoordinateSystem cs in AppParameters.CoordinateSystem.Values)
-        //        {
-        //            cs.Zones.Where(f => f.Value.Properties.ZoneType == "DockDoor"
-        //            && f.Value.Properties.DoorNumber == trip.DoorNumber
-        //            ).Select(y => y.Value).ToList().ForEach(DockDoor =>
-        //            {
-        //                //if(DockDoor.Properties.DockDoorData.RawData != trip.RawData)
-        //                //{
-        //                //   // DockDoor.Properties.ZoneUpdate = true;
-        //                //    FOTFManager.Instance.BroadcastDockdoorZoneStatus(trip, cs.Id);
-        //                //}
-        //                DockDoor.Properties.DockDoorData = FOTFManager.Instance.GetDigitalDockDoorList(DockDoor.Properties.DoorNumber);
-        //                FOTFManager.Instance.BroadcastDockDoorStatus(DockDoor, cs.Id);
-        //            });
-        //        }
-
-        //        //AppParameters.ZoneList.Where(r => r.Value.Properties.ZoneType == "DockDoor" 
-        //        //&& r.Value.Properties.DoorNumber == trip.DoorNumber).Select(y => y.Key).ToList().ForEach(key =>
-        //        //{
-        //        //    if (AppParameters.ZoneList.TryGetValue(key, out GeoZone doorZone))
-        //        //    {
-        //        //        doorZone.Properties.DockDoorData = trip;
-        //        //        doorZone.Properties.ZoneUpdate = true;
-        //        //    }
-        //        //});
-        //    }
-        //    catch (Exception e)
-        //    {
-        //        new ErrorLogger().ExceptionLog(e);
-        //    }
-        //}
         private static void TacsVsSels(dynamic data, string message_type, string conID)
         {
             // "processedSince": "21-08-12 09:08:42",
@@ -1390,77 +1225,77 @@ namespace Factory_of_the_Future
         //        new ErrorLogger().ExceptionLog(ex);
         //    }
         //}
-        private static void MPEWatch_DPSEst(dynamic data, string conID)
-        {
-            try
-            {
-                if (data != null)
-                {
-                    JToken tempData = JToken.Parse(data);
-                    JToken dpsInfo = tempData.SelectToken("data");
-                    if (dpsInfo != null && dpsInfo.HasValues)
-                    {
-                        int time_to_comp_optimal = 0;
-                        int time_to_comp_actual = 0;
-                        string time_to_comp_optimal_DateTime = "";
-                        string time_to_comp_actual_DateTime = "";
-                        DateTime dtNow = DateTime.Now;
-                        if (!string.IsNullOrEmpty((string)AppParameters.AppSettings["FACILITY_TIMEZONE"]))
-                        {
-                            if (AppParameters.TimeZoneConvert.TryGetValue((string)AppParameters.AppSettings["FACILITY_TIMEZONE"], out string windowsTimeZoneId))
-                            {
-                                dtNow = TimeZoneInfo.ConvertTime(dtNow, TimeZoneInfo.FindSystemTimeZoneById(windowsTimeZoneId));
-                            }
-                        }
-                        foreach (JObject item in dpsInfo.Children())
-                        {
-                            string strSortPlan = item.ContainsKey("sortplan_name_perf") ? item["sortplan_name_perf"].ToString().Trim() : "";
-                            string[] strSortPlanList = strSortPlan.Split(',').Select(x => x.Trim()).ToArray();
+        //private static void MPEWatch_DPSEst(dynamic data, string conID)
+        //{
+        //    try
+        //    {
+        //        if (data != null)
+        //        {
+        //            JToken tempData = JToken.Parse(data);
+        //            JToken dpsInfo = tempData.SelectToken("data");
+        //            if (dpsInfo != null && dpsInfo.HasValues)
+        //            {
+        //                int time_to_comp_optimal = 0;
+        //                int time_to_comp_actual = 0;
+        //                string time_to_comp_optimal_DateTime = "";
+        //                string time_to_comp_actual_DateTime = "";
+        //                DateTime dtNow = DateTime.Now;
+        //                if (!string.IsNullOrEmpty((string)AppParameters.AppSettings["FACILITY_TIMEZONE"]))
+        //                {
+        //                    if (AppParameters.TimeZoneConvert.TryGetValue((string)AppParameters.AppSettings["FACILITY_TIMEZONE"], out string windowsTimeZoneId))
+        //                    {
+        //                        dtNow = TimeZoneInfo.ConvertTime(dtNow, TimeZoneInfo.FindSystemTimeZoneById(windowsTimeZoneId));
+        //                    }
+        //                }
+        //                foreach (JObject item in dpsInfo.Children())
+        //                {
+        //                    string strSortPlan = item.ContainsKey("sortplan_name_perf") ? item["sortplan_name_perf"].ToString().Trim() : "";
+        //                    string[] strSortPlanList = strSortPlan.Split(',').Select(x => x.Trim()).ToArray();
 
-                            int.TryParse(item.ContainsKey("time_to_comp_optimal") ? item["time_to_comp_optimal"].ToString().Trim() : "0", out time_to_comp_optimal);
-                            DateTime dtCompOptimal = dtNow.AddSeconds(time_to_comp_optimal);
-                            time_to_comp_optimal_DateTime = dtCompOptimal.ToString("yyyy-MM-dd HH:mm:ss");
-                            item["time_to_comp_optimal_DateTime"] = time_to_comp_optimal_DateTime;
+        //                    int.TryParse(item.ContainsKey("time_to_comp_optimal") ? item["time_to_comp_optimal"].ToString().Trim() : "0", out time_to_comp_optimal);
+        //                    DateTime dtCompOptimal = dtNow.AddSeconds(time_to_comp_optimal);
+        //                    time_to_comp_optimal_DateTime = dtCompOptimal.ToString("yyyy-MM-dd HH:mm:ss");
+        //                    item["time_to_comp_optimal_DateTime"] = time_to_comp_optimal_DateTime;
 
-                            int.TryParse(item.ContainsKey("time_to_comp_actual") ? item["time_to_comp_actual"].ToString().Trim() : "0", out time_to_comp_actual);
-                            DateTime dtCompActual = dtNow.AddSeconds(time_to_comp_actual);
-                            time_to_comp_actual_DateTime = dtCompActual.ToString("MM/dd/yyyy HH:mm:ss");
-                            item["time_to_comp_actual_DateTime"] = time_to_comp_actual_DateTime;
-                            for (int i = 0; i < strSortPlanList.Length; i++)
-                            {
-                                string newDPS = JsonConvert.SerializeObject(item, Formatting.Indented);
-                                AppParameters.DPSList.AddOrUpdate(strSortPlanList[i].Substring(0, 7), newDPS,
-                                    (key, oldValue) =>
-                                    {
-                                        return newDPS;
-                                    });
+        //                    int.TryParse(item.ContainsKey("time_to_comp_actual") ? item["time_to_comp_actual"].ToString().Trim() : "0", out time_to_comp_actual);
+        //                    DateTime dtCompActual = dtNow.AddSeconds(time_to_comp_actual);
+        //                    time_to_comp_actual_DateTime = dtCompActual.ToString("MM/dd/yyyy HH:mm:ss");
+        //                    item["time_to_comp_actual_DateTime"] = time_to_comp_actual_DateTime;
+        //                    for (int i = 0; i < strSortPlanList.Length; i++)
+        //                    {
+        //                        string newDPS = JsonConvert.SerializeObject(item, Formatting.Indented);
+        //                        AppParameters.DPSList.AddOrUpdate(strSortPlanList[i].Substring(0, 7), newDPS,
+        //                            (key, oldValue) =>
+        //                            {
+        //                                return newDPS;
+        //                            });
 
-                            }
+        //                    }
                             
-                        }
+        //                }
 
-                        Task.Run(() => UpdateConnection(conID, "good"));
-                    }
-                    else
-                    {
-                        Task.Run(() => UpdateConnection(conID, "error"));
-                    }
-                    tempData = null;
-                    dpsInfo = null;
-                    data = null;
-                }
-                else
-                {
-                    Task.Run(() => UpdateConnection(conID, "error"));
-                }
+        //                Task.Run(() => UpdateConnection(conID, "good"));
+        //            }
+        //            else
+        //            {
+        //                Task.Run(() => UpdateConnection(conID, "error"));
+        //            }
+        //            tempData = null;
+        //            dpsInfo = null;
+        //            data = null;
+        //        }
+        //        else
+        //        {
+        //            Task.Run(() => UpdateConnection(conID, "error"));
+        //        }
 
-            }
-            catch (Exception ex)
-            {
-                new ErrorLogger().ExceptionLog(ex);
-                Task.Run(() => UpdateConnection(conID, "error"));
-            }
-        }
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        new ErrorLogger().ExceptionLog(ex);
+        //        Task.Run(() => UpdateConnection(conID, "error"));
+        //    }
+        //}
         private static void ERRORWITHWORK(JObject data)
         {
             try

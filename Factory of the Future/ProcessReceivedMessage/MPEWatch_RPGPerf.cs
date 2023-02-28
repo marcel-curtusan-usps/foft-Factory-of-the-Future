@@ -19,6 +19,7 @@ namespace Factory_of_the_Future
         public List<RunPerf> NewMPEData = null;
         public RunPerf currentMachine_Info = null;
         private bool saveToFile;
+        private double intMinuteToCompletion = 0.0;
 
         internal async Task<bool> LoadAsync(dynamic data, string message_type, string connID)
         {
@@ -46,13 +47,12 @@ namespace Factory_of_the_Future
                         NewMPEData = GetMPEPerfList(machineInfo);
                         foreach (RunPerf NewMachineInfo in NewMPEData)
                         {
-                            NewMachineInfo.CurSortplan = AppParameters.SortPlan_Name_Trimer(NewMachineInfo.CurSortplan);
                             if (NewMachineInfo.RpgEstVol > 0 && NewMachineInfo.CurThruputOphr > 0)
                             {
                                 if (!string.IsNullOrEmpty(windowsTimeZoneId))
                                 {
                                     dtNow = TimeZoneInfo.ConvertTime(DateTime.Now, TimeZoneInfo.FindSystemTimeZoneById(windowsTimeZoneId));
-                                    double intMinuteToCompletion =(NewMachineInfo.RpgEstVol - NewMachineInfo.TotSortplanVol) / (NewMachineInfo.CurThruputOphr / 60);
+                                    intMinuteToCompletion = (NewMachineInfo.RpgEstVol - NewMachineInfo.TotSortplanVol) / (NewMachineInfo.CurThruputOphr / 60);
                                     NewMachineInfo.RpgEstCompTime = dtNow.AddMinutes(intMinuteToCompletion);
                                 }
                             }
@@ -95,7 +95,7 @@ namespace Factory_of_the_Future
                                 foreach (PropertyInfo prop in NewMachineInfo.GetType().GetProperties())
                                 {
 
-                                    if (!new Regex("^(RpgEstCompTime)$", RegexOptions.IgnoreCase).IsMatch(prop.Name))
+                                    if (!new Regex("^(MpeNumber|MpeType|MpeId)$", RegexOptions.IgnoreCase).IsMatch(prop.Name))
                                     {
                                         if (prop.GetValue(NewMachineInfo, null).ToString() != prop.GetValue(currentMachine_Info, null).ToString())
                                         {

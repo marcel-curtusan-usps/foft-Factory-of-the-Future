@@ -15,6 +15,7 @@ var binzonepoly = new L.GeoJSON(null, {
         };
     },
     onEachFeature: function (feature, layer) {
+        layer.zoneId = feature.properties.id;
         var flash = "";
         if (feature.properties.MPE_Bins.length > 0)
         {

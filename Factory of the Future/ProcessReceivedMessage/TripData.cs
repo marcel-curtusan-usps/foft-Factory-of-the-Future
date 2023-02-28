@@ -29,7 +29,7 @@ namespace Factory_of_the_Future
             _connID = connID;
             try
             {
-                if (data != null)
+                if (!string.IsNullOrEmpty(data))
                 {
                     tempData = JToken.Parse(_data);
                     if (tempData != null && tempData.HasValues)

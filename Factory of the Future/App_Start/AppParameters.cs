@@ -66,11 +66,11 @@ namespace Factory_of_the_Future
         //public static ConcurrentDictionary<string, GeoZone> ZoneList { get; set; } = new ConcurrentDictionary<string, GeoZone>();
         // public static ConcurrentDictionary<string, GeoMarker> TagsList { get; set; } = new ConcurrentDictionary<string, GeoMarker>();
         public static ConcurrentDictionary<string, ZoneInfo> ZoneInfo { get; set; } = new ConcurrentDictionary<string, ZoneInfo>();
-        public static ConcurrentDictionary<string, string> DPSList { get; set; } = new ConcurrentDictionary<string, string>();
+        public static ConcurrentDictionary<string, DeliveryPointSequence> DPSList { get; set; } = new ConcurrentDictionary<string, DeliveryPointSequence>();
         public static ConcurrentDictionary<string, RunPerf> MPEPerformance { get; set; } = new ConcurrentDictionary<string, RunPerf>();
         public static ConcurrentDictionary<string, RPGPlan> MPEPRPGList = new ConcurrentDictionary<string, RPGPlan>();
         public static ConcurrentDictionary<string, string> DockdoorList { get; set; } = new ConcurrentDictionary<string, string>();
-        public static ConcurrentDictionary<int, SV_Bullpen> SVZoneNameList { get; set; } = new ConcurrentDictionary<int, SV_Bullpen>();
+        public static ConcurrentDictionary<int, SVBullpen> SVZoneNameList { get; set; } = new ConcurrentDictionary<int, SVBullpen>();
         public static ConcurrentDictionary<string, Staff> StaffingSortplansList { get; set; } = new ConcurrentDictionary<string, Staff>();
         public static ConcurrentDictionary<string, RouteTrips> RouteTripsList { get; set; } = new ConcurrentDictionary<string, RouteTrips>();
         public static ConcurrentDictionary<string, Container> Containers { get; set; } = new ConcurrentDictionary<string, Container>();
@@ -666,8 +666,8 @@ namespace Factory_of_the_Future
             {
                 StaffingSortplansList = new ConcurrentDictionary<string, Staff>();
                 DockdoorList = new ConcurrentDictionary<string, string>();
-                SVZoneNameList = new ConcurrentDictionary<int, SV_Bullpen>();
-                DPSList = new ConcurrentDictionary<string, string>();
+                SVZoneNameList = new ConcurrentDictionary<int, SVBullpen>();
+                DPSList = new ConcurrentDictionary<string, DeliveryPointSequence>();
                 MPEPerformance = new ConcurrentDictionary<string, RunPerf>();
 
                 MPEPRPGList = new ConcurrentDictionary<string, RPGPlan>();
