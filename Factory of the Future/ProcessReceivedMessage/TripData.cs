@@ -102,7 +102,7 @@ namespace Factory_of_the_Future
                                     //get trip Itinerary
                                     if (true)
                                     {
-                                        await Task.Run(() => new ItineraryTrip_Update(GetItinerary(rt.Route, rt.Trip, AppParameters.AppSettings["FACILITY_NASS_CODE"].ToString(), AppParameters.GetSvDate(rt.OperDate)), rt.Id)).ConfigureAwait(false);
+                                        await Task.Run(() => new ItineraryTrip_Update(GetItinerary(rt.Route, rt.Trip, AppParameters.AppSettings["FACILITY_NASS_CODE"].ToString(), new Utility().GetSvDate(rt.OperDate)), rt.Id)).ConfigureAwait(false);
                                     }
                                 }
                             }
@@ -150,7 +150,7 @@ namespace Factory_of_the_Future
             try
             {
                 if (AppParameters.DoorTripAssociation.ContainsKey(string.Concat(route, trip))
-                    && AppParameters.DoorTripAssociation.TryGetValue(string.Concat(route, trip), out DoorTripAssociation dr))
+                    && AppParameters.DoorTripAssociation.TryGetValue(string.Concat(route, trip), out DoorTrip dr))
                 {
                     dr.DoorNumber = doorNumber;
                     dr.Route = route;
@@ -158,7 +158,7 @@ namespace Factory_of_the_Future
                 }
                 else
                 {
-                    if (AppParameters.DoorTripAssociation.TryAdd(string.Concat(route, trip), new DoorTripAssociation { DoorNumber = doorNumber, Route = route, Trip = trip }))
+                    if (AppParameters.DoorTripAssociation.TryAdd(string.Concat(route, trip), new DoorTrip { DoorNumber = doorNumber, Route = route, Trip = trip }))
                     {
                         new FileIO().Write(string.Concat(AppParameters.Logdirpath, AppParameters.ConfigurationFloder), "DoorTripAssociation.json", JsonConvert.SerializeObject(AppParameters.DoorTripAssociation.Select(x => x.Value).ToList(), Formatting.Indented, new JsonSerializerSettings() { ContractResolver = new NullToEmptyStringResolver() }));
                     }

@@ -11,18 +11,23 @@ namespace Factory_of_the_Future
     internal class MPEWatch_RPGPlan :IDisposable
     {
         private bool disposedValue;
-
-        public MPEWatch_RPGPlan()
-        {
-        }
-
+        public dynamic _data { get; protected set; }
+        public string _Message_type { get; protected set; }
+        public string _connID { get; protected set; }
+        private bool saveToFile;
+        public JToken tempData = null;
+        public JToken planInfo = null;
         //internal async Task LoadAsync(dynamic data/*, string connID*/)
-        internal void LoadAsync(dynamic data/*, string connID*/)
+        internal async Task<bool> LoadAsync(dynamic data, string message_type, string connID)
         {
+            saveToFile = false;
+            _data = data;
+            _Message_type = message_type;
+            _connID = connID;
             try
             {
-                JToken tempData = JToken.Parse(data);
-                JToken planInfo = tempData.SelectToken("data");
+                tempData = JToken.Parse(data);
+                planInfo = tempData.SelectToken("data");
                 if (planInfo != null && planInfo.HasValues)
                 {
                     var newPlanData = GetMPEPlanList(planInfo);
@@ -35,11 +40,16 @@ namespace Factory_of_the_Future
 
                 //remove old data
                 RemoveOldDataFromMPEPRPGList();
-
+                return saveToFile;
             }
             catch (Exception ex)
             {
                 new ErrorLogger().ExceptionLog(ex);
+                return saveToFile;
+            }
+            finally
+            {
+                Dispose();
             }
         }
 
@@ -132,7 +142,7 @@ namespace Factory_of_the_Future
                     MPEPlanData.Add(new RPGPlan
                     {
                         MachineNum = !string.IsNullOrEmpty(item["machine_num"].ToString()) || item["machine_num"].ToString() == "0"? Convert.ToInt32(item["machine_num"]) : 0,
-                        SortProgramName = AppParameters.SortPlan_Name_Trimer(item["sort_program_name"].ToString()),
+                        SortProgramName = new Utility().SortPlan_Name_Trimer(item["sort_program_name"].ToString()),
                         RpgStartDtm = (DateTime)item["rpg_start_dtm"],
                         RpgEndDtm = (DateTime)item["rpg_end_dtm"],
                         RpgPiecesFed = !string.IsNullOrEmpty(item["rpg_pieces_fed"].ToString()) || item["rpg_pieces_fed"].ToString() == "0"? Convert.ToInt32(item["rpg_pieces_fed"].ToString()) : 0,
@@ -144,7 +154,7 @@ namespace Factory_of_the_Future
                         MpeName = item["mpe_name"].ToString(),
                         Id = string.Concat(item["mpe_name"].ToString(),
                              !string.IsNullOrEmpty(item["machine_num"].ToString())? item["machine_num"].ToString() : "0",
-                             AppParameters.SortPlan_Name_Trimer(item["sort_program_name"].ToString()),
+                             new Utility().SortPlan_Name_Trimer(item["sort_program_name"].ToString()),
                              !string.IsNullOrEmpty(item["mail_operation_nbr"].ToString())? item["mail_operation_nbr"].ToString() : "0",
                              ConvertDateTimeToId((DateTime)item["rpg_start_dtm"]))
                     });

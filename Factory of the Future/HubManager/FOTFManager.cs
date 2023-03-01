@@ -178,7 +178,7 @@ namespace Factory_of_the_Future
             {
                 foreach (CoordinateSystem cs in CoordinateSystem.Values)
                 {
-                    cs.Zones.Where(f => f.Value.Properties.ZoneType == "Machine"
+                    cs.Zones.Where(f => f.Value.Properties.ZoneType.EndsWith("Machine") || f.Value.Properties.ZoneType.EndsWith("MPEZone")
                     && f.Value.Properties.Name == mpeId
                     ).Select(y => y.Value).ToList().ForEach(MPE =>
                     {
@@ -440,7 +440,7 @@ namespace Factory_of_the_Future
 
         public void BroadcastCameraStatus(GeoMarker marker, string floorId)
         {
-            Clients.All.updateCameraStatus(marker, floorId);
+            Clients.Group("CameraMarkers").updateCameraStatus(marker, floorId);
         }
         public void BroadcastAddMarker(GeoMarker marker, string floorId)
         {
@@ -1266,7 +1266,7 @@ namespace Factory_of_the_Future
                 if (trip.State != "REMOVE")
                 {
                     //trip minutes 
-                    int tripInMin = AppParameters.Get_TripMin(trip.ScheduledDtm);
+                    int tripInMin = new Utility().Get_TripMin(trip.ScheduledDtm);//AppParameters.Get_TripMin(trip.ScheduledDtm);
                     if (tripInMin != trip.TripMin)
                     {
                         trip.TripMin = tripInMin;
@@ -1449,7 +1449,7 @@ namespace Factory_of_the_Future
                        newNotifi.Type_Status = trip.State;
                        newNotifi.Notification_ID = noteification_id;
                        newNotifi.Notification_Update = true;
-                       newNotifi.Type_Time = AppParameters.GetSvDate(trip.ScheduledDtm);
+                       newNotifi.Type_Time = new Utility().GetSvDate(trip.ScheduledDtm);
                        AppParameters.NotificationList.TryAdd(noteification_id, newNotifi);
 
                    });
@@ -1503,7 +1503,7 @@ namespace Factory_of_the_Future
             try
             {
                 if (AppParameters.DoorTripAssociation.ContainsKey(string.Concat(route, trip))
-                    && AppParameters.DoorTripAssociation.TryGetValue(string.Concat(route, trip), out DoorTripAssociation dr))
+                    && AppParameters.DoorTripAssociation.TryGetValue(string.Concat(route, trip), out DoorTrip dr))
                 {
                     if (dr.DoorNumber != doorNumber)
                     {
@@ -1523,7 +1523,7 @@ namespace Factory_of_the_Future
                 }
                 else
                 {
-                    if (AppParameters.DoorTripAssociation.TryAdd(string.Concat(route, trip), new DoorTripAssociation { DoorNumber = doorNumber, Route = route, Trip = trip }))
+                    if (AppParameters.DoorTripAssociation.TryAdd(string.Concat(route, trip), new DoorTrip { DoorNumber = doorNumber, Route = route, Trip = trip }))
                     {
                         update = true;
                     }

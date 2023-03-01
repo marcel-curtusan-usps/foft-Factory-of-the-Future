@@ -18,7 +18,7 @@ let overlayMaps = {
     "Badge": tagsMarkersGroup,
     "AGV Locations": agvLocations,
     "MPE Work Areas": polygonMachine,
-    "MPE Sparklines": machineSparklines,
+  /*  "MPE Sparklines": machineSparklines,*/
     "MPE Bins": binzonepoly,
     "Dock Doors": dockDoors,
     "Staging Areas": stagingAreas,
@@ -216,7 +216,7 @@ map.on('baselayerchange', function (e) {
         polyholesAreas.clearLayers();
         dockDoors.clearLayers();
         polygonMachine.clearLayers();
-        machineSparklines.clearLayers();
+     /*  *//* machineSparklines.clearLayers();*/
         binzonepoly.clearLayers();
         agvLocations.clearLayers();
         viewPortsAreas.clearLayers();
@@ -251,7 +251,7 @@ function setLayerCheckUncheckEvents() {
 }
 var lastMapZoom = null;
 map.on('zoomend', function () {
-    setTimeout(checkSparklineVisibility, 100);
+    //setTimeout(checkSparklineVisibility, 100);
     //updateAllCameras(Date.now());
     UpdateCameraZoom();
     if (map.getZoom() != 2) {

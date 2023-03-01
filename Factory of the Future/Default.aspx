@@ -1840,7 +1840,7 @@
     <!--geometry js-->
     <script src="Scripts/View/geometry_editing.js"></script>
     <!--Views for sparklines/graphs for machine processing equipment details-->
-    <script src="Scripts/View/machine_sparkline.js"></script>
+  <%--  <script src="Scripts/View/machine_sparkline.js"></script>--%>
     <!--Load Indoor Map settings for the site-->
     <script src="Scripts/View/indoorMap.js"></script>
     <!--24 Hour Clock js-->

@@ -7,21 +7,26 @@ using System.Threading;
 
 namespace Factory_of_the_Future
 {
-    public class FileIO
+    public class FileIO :IDisposable
     {
+        private bool disposedValue;
+        public string filecontect { get; protected set; } = "";
+        public List<FileInfo> filesList = null;
+        public DirectoryInfo maindir = null;
+        public FileStream file = null;
         internal string Read(string DirectoryPath, string FileName)
         {
-            string filecontect = string.Empty;
+
             try
             {
-                DirectoryInfo maindir = new DirectoryInfo(DirectoryPath);
+                maindir = new DirectoryInfo(DirectoryPath);
                 if (!maindir.Exists)
                 {
                     return filecontect;
                 }
                 else
                 {
-                    List<FileInfo> filesList = maindir.GetFiles(FileName, SearchOption.TopDirectoryOnly).Select(x => x).ToList();
+                   filesList = maindir.GetFiles(FileName, SearchOption.TopDirectoryOnly).Select(x => x).ToList();
 
                     if (filesList.Count > 0)
                     {
@@ -35,7 +40,7 @@ namespace Factory_of_the_Future
                                     using (StreamReader msr = new StreamReader(fileStream))
                                     {
                                         filecontect = msr.ReadToEnd().ToString();
-                                    }                                     
+                                    }
                                 }
                                 catch (Exception e)
                                 {
@@ -56,13 +61,18 @@ namespace Factory_of_the_Future
                 new ErrorLogger().ExceptionLog(ex);
                 return filecontect;
             }
+            finally
+            {
+                Dispose();
+            }
         }
 
         internal void Write(string DirectoryPath, string FileName, string data)
         {
+            filecontect = data;
             try
             {
-                DirectoryInfo maindir = new DirectoryInfo(DirectoryPath);
+                maindir = new DirectoryInfo(DirectoryPath);
                 if (!maindir.Exists)
                 {
                     Directory.CreateDirectory(maindir.FullName);
@@ -70,7 +80,7 @@ namespace Factory_of_the_Future
                 }
                 if (maindir.Exists)
                 {
-                    List<FileInfo> filesList = maindir.GetFiles(FileName, SearchOption.TopDirectoryOnly).Select(x => x).ToList();
+                    filesList = maindir.GetFiles(FileName, SearchOption.TopDirectoryOnly).Select(x => x).ToList();
                     if (filesList.Count > 0)
                     {
                         foreach (FileInfo _file in filesList)
@@ -79,20 +89,20 @@ namespace Factory_of_the_Future
                             {
                                 if (Path.GetFileName(_file.Name).Contains("txt"))
                                 {
-                                    FileStream file = new FileStream(_file.FullName.ToString(), FileMode.Append, FileAccess.Write, FileShare.ReadWrite);
+                                    file = new FileStream(_file.FullName.ToString(), FileMode.Append, FileAccess.Write, FileShare.ReadWrite);
                                     using (StreamWriter sr = new StreamWriter(file, Encoding.UTF8))
                                     {
                                         file = null;
-                                        sr.WriteLine(data);
+                                        sr.WriteLine(filecontect);
                                     }
                                 }
                                 else
                                 {
-                                    FileStream file = new FileStream(maindir.FullName.ToString() + "\\" + FileName, FileMode.Create, FileAccess.ReadWrite, FileShare.ReadWrite);
+                                    file = new FileStream(maindir.FullName.ToString() + "\\" + FileName, FileMode.Create, FileAccess.ReadWrite, FileShare.ReadWrite);
                                     using (StreamWriter sr = new StreamWriter(file, Encoding.UTF8))
                                     {
                                         file = null;
-                                        sr.WriteLine(data);
+                                        sr.WriteLine(filecontect);
                                     }
                                 }
                             }
@@ -100,7 +110,7 @@ namespace Factory_of_the_Future
                     }
                     else if (filesList.Count == 0)
                     {
-                        FileStream file = new FileStream(maindir.FullName.ToString() + "\\" + FileName, FileMode.Create, FileAccess.ReadWrite, FileShare.ReadWrite);
+                        file = new FileStream(maindir.FullName.ToString() + "\\" + FileName, FileMode.Create, FileAccess.ReadWrite, FileShare.ReadWrite);
                         using (StreamWriter sr = new StreamWriter(file, Encoding.UTF8))
                         {
                             file = null;
@@ -115,30 +125,39 @@ namespace Factory_of_the_Future
             }
         }
 
-        protected virtual bool IsFileLocked(FileInfo file)
+        protected virtual void Dispose(bool disposing)
         {
-            FileStream stream = null;
+            if (!disposedValue)
+            {
+                if (disposing)
+                {
+                    // TODO: dispose managed state (managed objects)
+                
+                }
 
-            try
-            {
-                stream = file.Open(FileMode.Open, FileAccess.Read, FileShare.None);
-            }
-            catch (IOException)
-            {
-                //the file is unavailabel because it is:
-                //still being written to
-                //or being processed by another thread
-                //or does not exist (has already been processed)
-                return true;
-            }
-            finally
-            {
-                if (stream != null)
-                    stream.Close();
-            }
+                // TODO: free unmanaged resources (unmanaged objects) and override finalizer
+                // TODO: set large fields to null
+                disposedValue = true;
+                filecontect = string.Empty;
+                filesList = null;
+                maindir = null;
+                file = null;
 
-            //file is not locked
-            return false;
+            }
+        }
+
+        // // TODO: override finalizer only if 'Dispose(bool disposing)' has code to free unmanaged resources
+        // ~FileIO()
+        // {
+        //     // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
+        //     Dispose(disposing: false);
+        // }
+
+        public void Dispose()
+        {
+            // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
+            Dispose(disposing: true);
+            GC.SuppressFinalize(this);
         }
     }
 }

@@ -396,9 +396,15 @@ function init_zones(zoneData, id) {
             stagingAreas.addData(this);
         }
     })
-    if (hasDockDoorZone) { fotfmanager.server.joinGroup("DockDoorZones"); }
-    if (hasMachineZone) { fotfmanager.server.joinGroup("MPEZones"); }
-    if (hasBinZone) { fotfmanager.server.joinGroup("BinZones"); }
+    if (hasDockDoorZone) {
+        fotfmanager.server.joinGroup("DockDoorZones");
+    }
+    if (hasMachineZone) {
+        fotfmanager.server.joinGroup("MPEZones");
+    }
+    if (hasBinZone) {
+        fotfmanager.server.joinGroup("BinZones");
+    }
     // setGreyedOut();
     fotfmanager.server.joinGroup("Zones");
     fotfmanager.server.joinGroup("QSM");

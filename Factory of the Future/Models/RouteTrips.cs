@@ -119,7 +119,7 @@ namespace Factory_of_the_Future
         [JsonProperty("tripMin")]
         public int TripMin {
             get {
-                return AppParameters.Get_TripMin(ScheduledDtm);
+                return new Utility().Get_TripMin(ScheduledDtm);
             }
             set {
                 return;

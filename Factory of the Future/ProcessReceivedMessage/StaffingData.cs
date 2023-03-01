@@ -93,7 +93,7 @@ namespace Factory_of_the_Future
                     {
                         MachType = (string)staff_item[0],
                         MachineNo = (int)staff_item[1],
-                        Sortplan = AppParameters.SortPlan_Name_Trimer((string)staff_item[2]),
+                        Sortplan = new Utility().SortPlan_Name_Trimer(staff_item[2].ToString()),
                         Clerk = (double)staff_item[3],
                         Mh = (double)staff_item[4]
                     });

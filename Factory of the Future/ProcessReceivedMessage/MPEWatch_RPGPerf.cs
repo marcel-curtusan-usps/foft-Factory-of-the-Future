@@ -323,7 +323,7 @@ namespace Factory_of_the_Future
                         MpeType = item["mpe_type"].ToString(),
                         MpeNumber = !string.IsNullOrEmpty(item["mpe_number"].ToString()) ? Convert.ToInt32(item["mpe_number"].ToString()) : 0,
                         Bins = !string.IsNullOrEmpty(item["bins"].ToString()) ? Convert.ToInt32(item["bins"].ToString()) : 0,
-                        CurSortplan = AppParameters.SortPlan_Name_Trimer(item["cur_sortplan"].ToString()),
+                        CurSortplan = new Utility().SortPlan_Name_Trimer(item["cur_sortplan"].ToString()),
                         CurThruputOphr = !string.IsNullOrEmpty(item["cur_thruput_ophr"].ToString()) ? Convert.ToInt32(item["cur_thruput_ophr"].ToString()) : 0,
                         TotSortplanVol = !string.IsNullOrEmpty(item["tot_sortplan_vol"].ToString()) ? Convert.ToInt32(item["tot_sortplan_vol"].ToString()) : 0,
                         RpgEstVol = !string.IsNullOrEmpty(item["rpg_est_vol"].ToString()) ? Convert.ToInt32(item["rpg_est_vol"].ToString()) : 0,
@@ -442,6 +442,9 @@ namespace Factory_of_the_Future
                 // TODO: free unmanaged resources (unmanaged objects) and override finalizer
                 // TODO: set large fields to null
                 disposedValue = true;
+                _data = string.Empty;
+                _Message_type = string.Empty;
+                _connID = string.Empty;
             }
         }
 

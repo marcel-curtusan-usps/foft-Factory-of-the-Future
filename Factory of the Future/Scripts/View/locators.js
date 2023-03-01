@@ -7,6 +7,9 @@ async function init_locators(marker, id) {
     $.each(marker, function () {
         Promise.all([AddMarker(this, this.properties.floorId)]);
     });
+    fotfmanager.server.joinGroup("PeopleMarkers");
+    fotfmanager.server.joinGroup("VehiclsMarkers");
+    fotfmanager.server.joinGroup("CameraMarkers");
 }
 async function AddMarker(data, floorId) {
     try {

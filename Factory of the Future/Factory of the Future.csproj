@@ -18,8 +18,8 @@
     <UseIISExpress>true</UseIISExpress>
     <Use64BitIISExpress />
     <IISExpressSSLPort>44368</IISExpressSSLPort>
-    <IISExpressAnonymousAuthentication>disabled</IISExpressAnonymousAuthentication>
-    <IISExpressWindowsAuthentication>enabled</IISExpressWindowsAuthentication>
+    <IISExpressAnonymousAuthentication>enabled</IISExpressAnonymousAuthentication>
+    <IISExpressWindowsAuthentication>disabled</IISExpressWindowsAuthentication>
     <IISExpressUseClassicPipelineMode />
     <UseGlobalApplicationHostFile />
     <NuGetPackageImportStamp>
@@ -529,6 +529,7 @@
     <Compile Include="AGV\Models\ProcessMessage.cs" />
     <Compile Include="App_Start\AppParameters.cs" />
     <Compile Include="App_Start\BackgroundThread.cs" />
+    <Compile Include="App_Start\Load.cs" />
     <Compile Include="Controllers\DockDoorController.cs" />
     <Compile Include="AGV\Controllers\EITSController.cs" />
     <Compile Include="Data_Retention\DataRetentionProcess.cs" />
@@ -633,6 +634,7 @@
     <Compile Include="Utilities\SendMessage.cs" />
     <Compile Include="Utilities\SetData.cs" />
     <Compile Include="Utilities\System_Information.cs" />
+    <Compile Include="Utilities\Utility.cs" />
     <Compile Include="WS_Listener\WSHandler.cs" />
   </ItemGroup>
   <ItemGroup>

@@ -228,7 +228,7 @@ namespace Factory_of_the_Future
         [JsonProperty("allTags")]
         public bool AllTags { get; set; }
     }
-    public class DoorTripAssociation {
+    public class DoorTrip {
         public string DoorNumber { get; set; }
         public string Route { get; set; }
         public string Trip { get; set; }

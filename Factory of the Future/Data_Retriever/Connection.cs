@@ -636,7 +636,6 @@ namespace Factory_of_the_Future
                 {
                     formatUrl = string.Format(ConnectionInfo.Url, ConnectionInfo.MessageType);
                 }
-
                 if (!string.IsNullOrEmpty(formatUrl))
                 {
                     try

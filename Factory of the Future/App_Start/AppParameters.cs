@@ -62,7 +62,7 @@ namespace Factory_of_the_Future
        // public static ConcurrentDictionary<string, CoordinateSystem> CoordinateSystem { get; set; } = new ConcurrentDictionary<string, CoordinateSystem>();  
         public static ConcurrentDictionary<string, Cameras> CameraInfoList { get; set; } = new ConcurrentDictionary<string, Cameras>();
         //public static ConcurrentDictionary<string, Connection> ConnectionList { get; set; } = new ConcurrentDictionary<string, Connection>();
-        public static ConcurrentDictionary<string, DoorTripAssociation> DoorTripAssociation { get; set; } = new ConcurrentDictionary<string, DoorTripAssociation>();
+        public static ConcurrentDictionary<string, DoorTrip> DoorTripAssociation { get; set; } = new ConcurrentDictionary<string, DoorTrip>();
         //public static ConcurrentDictionary<string, GeoZone> ZoneList { get; set; } = new ConcurrentDictionary<string, GeoZone>();
         // public static ConcurrentDictionary<string, GeoMarker> TagsList { get; set; } = new ConcurrentDictionary<string, GeoMarker>();
         public static ConcurrentDictionary<string, ZoneInfo> ZoneInfo { get; set; } = new ConcurrentDictionary<string, ZoneInfo>();
@@ -97,9 +97,6 @@ namespace Factory_of_the_Future
             {
                 System.Reflection.Assembly assembly = System.Reflection.Assembly.GetExecutingAssembly();
                 CodeBase = new DirectoryInfo(new Uri(assembly.CodeBase).LocalPath).Parent;
-               
-                
-
                 //SetCameraMapping();
                 //get version
                 FileVersionInfo fvi = FileVersionInfo.GetVersionInfo(assembly.Location);
@@ -168,44 +165,15 @@ namespace Factory_of_the_Future
                     // load max (y-axis) values for machines
                     GetMachineThroughputMax("MachineThroughputMax.csv");
                     //load the door and trip association 
-                    _ = GetDoorTripAssociation();
+                    Task.Run(() => new Load().GetDoorTripAssociationAsync()).ConfigureAwait(false);
                     ///load default connection setting.
-                    _ = GetConnectionDefaultAsync();
-                }
-              
+                    Task.Run(() => new Load().GetConnectionDefaultAsync()).ConfigureAwait(false);
 
+                }
             }
             catch (Exception ex)
             {
                 new ErrorLogger().ExceptionLog(ex);
-            }
-        }
-        public static async Task GetDoorTripAssociation()
-        {
-            try
-            {
-                string file_content = new FileIO().Read(string.Concat(Logdirpath, ConfigurationFloder), "DoorTripAssociation.json");
-
-                if (!string.IsNullOrEmpty(file_content))
-                {
-                    JToken tempData = JToken.Parse(file_content);
-       
-                    if (tempData.HasValues)
-                    {
-                        List<DoorTripAssociation> tempdata = tempData.ToObject<List<DoorTripAssociation>>();
-                        for (int i = 0; i < tempdata.Count; i++)
-                        {
-                            if (DoorTripAssociation.TryAdd(string.Concat(tempdata[i].Route, tempdata[i].Trip), tempdata[i]))
-                            {
-                                //
-                            } 
-                        }
-                    }
-                }
-            }
-            catch (Exception e)
-            {
-                new ErrorLogger().ExceptionLog(e);
             }
         }
         private static void GetMPEWatchSite()
@@ -339,32 +307,6 @@ namespace Factory_of_the_Future
                         {
                             NotificationConditionsList.TryAdd(tempnotification[i].Id, tempnotification[i]);
                         }
-                    }
-                }
-            }
-            catch (Exception e)
-            {
-                new ErrorLogger().ExceptionLog(e);
-            }
-        }
-
-        public static async Task GetConnectionDefaultAsync()
-        {
-            try
-            {
-                string file_content = new FileIO().Read(string.Concat(CodeBase.Parent.FullName.ToString(), Appsetting), "Connection.json");
-
-                if (!string.IsNullOrEmpty(file_content))
-                {
-                    List<Connection> tempcon = JsonConvert.DeserializeObject<List<Connection>>(file_content);
-
-                    AppParameters.AppSettings["MPE_WATCH_ID"] = "";
-
-                    for (int i = 0; i < tempcon.Count; i++)
-                    {
-
-                        await Task.Run(() => RunningConnection.Add(tempcon[i])).ConfigureAwait(false);
-
                     }
                 }
             }
@@ -575,39 +517,6 @@ namespace Factory_of_the_Future
                                                         eventDtm.ContainsKey("second") ? (int)eventDtm.Property("second").Value : 0);
 
         }
-        public static int Get_TripMin(EventDtm scheduledDtm)
-        {
-            try
-            {
-                DateTime dtNow = DateTime.Now;
-                if (AppParameters.TimeZoneConvert.TryGetValue((string)AppParameters.AppSettings.Property("FACILITY_TIMEZONE").Value, out string windowsTimeZoneId))
-                {
-                    dtNow = TimeZoneInfo.ConvertTime(dtNow, TimeZoneInfo.FindSystemTimeZoneById(windowsTimeZoneId));
-                }
-                DateTime tripDtm = new DateTime(scheduledDtm.Year,
-                                                scheduledDtm.Month + 1,
-                                                scheduledDtm.DayOfMonth,
-                                                scheduledDtm.HourOfDay,
-                                                scheduledDtm.Minute,
-                                                scheduledDtm.Second);
-                return (int)Math.Ceiling(tripDtm.Subtract(dtNow).TotalMinutes);
-            }
-            catch (Exception e)
-            {
-                new ErrorLogger().ExceptionLog(e);
-                return 0;
-            }
-        }
-        public static DateTime GetSvDate(EventDtm scheduledDtm)
-        {
-            DateTime tripDtm = new DateTime(scheduledDtm.Year,
-                                             scheduledDtm.Month + 1,
-                                             scheduledDtm.DayOfMonth,
-                                             scheduledDtm.HourOfDay,
-                                             scheduledDtm.Minute,
-                                             scheduledDtm.Second);
-            return tripDtm;
-        }
         public static int Get_TagTTL(DateTime positionTS, DateTime tagTS)
         {
             try
@@ -634,32 +543,6 @@ namespace Factory_of_the_Future
                 return 0;
             }
         }
-        public static string SortPlan_Name_Trimer(string sortplan)
-        {
-            string sortplan_name = "";
-            try
-            {
-                if (!string.IsNullOrEmpty(sortplan))
-                {
-                    int dotindex = sortplan.IndexOf(".", 1);
-                    if ((dotindex == -1))
-                    {
-                        sortplan_name = sortplan;
-                    }
-                    else
-                    {
-                        sortplan_name = sortplan.Substring(0, dotindex);
-                    }
-                }
-                return sortplan_name;
-            }
-            catch (Exception e)
-            {
-                new ErrorLogger().ExceptionLog(e);
-                return "";
-            }
-        }
-
         internal static void ResetParameters()
         {
             try
