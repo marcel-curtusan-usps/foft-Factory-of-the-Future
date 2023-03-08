@@ -183,6 +183,10 @@ namespace Factory_of_the_Future
         {
             return _managerHub.GetDigitalDockDoorList(id);
         }
+        public IEnumerable<RunPerf> GetMPEStatusList(string id)
+        {
+            return _managerHub.GetMPEStatusList(id);
+        }
         /// <summary>
         /// Get SV Zones
         /// </summary>

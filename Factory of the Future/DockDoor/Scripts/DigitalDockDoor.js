@@ -227,7 +227,7 @@ $(function () {
     });
 });
 $.urlParam = function (name) {
-    var results = new RegExp('[\?&]' + name + '=([^&#]*)', 'i').exec(window.location.search);
+    let results = new RegExp('[\?&]' + name + '=([^&#]*)', 'i').exec(window.location.search);
     doornumber = (results !== null) ? results[1] || 0 : "No Door Selected";
     return doornumber;
 }

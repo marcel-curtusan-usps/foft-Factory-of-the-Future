@@ -259,7 +259,14 @@ function getMachineStyle(data) {
 }
 let polygonMachine = new L.GeoJSON(null, {
     style: function (feature) {
-        return getMachineStyle(feature.properties.MPEWatchData);
+        return{
+            weight: 1,
+            opacity: 1,
+            color: '#3573b1',
+            fillOpacity: 0.2,
+            fillColor: GetMacineBackground(feature.properties.MPEWatchData),
+            lastOpacity: 0.2
+        };
     },
     onEachFeature: function (feature, layer) {
         layer.zoneId = feature.properties.id;
@@ -305,37 +312,13 @@ let polygonMachine = new L.GeoJSON(null, {
     }
 });
 async function updateMPEZone(properties, index) {
-    var sortplan = properties.MPEWatchData.hasOwnProperty("cur_sortplan") ? properties.MPEWatchData.cur_sortplan : "";
-    var endofrun = properties.MPEWatchData.hasOwnProperty("current_run_end") ? properties.MPEWatchData.current_run_end == "0" ? "" : properties.MPEWatchData.current_run_end : "";
-    var startofrun = properties.MPEWatchData.hasOwnProperty("current_run_start") ? properties.MPEWatchData.current_run_start : "";
-    var opacityValue = 1;
-    var fillOpacityValue = .5;
-    if (properties.transparent) {
-        opacityValue = 0;
-        fillOpacityValue = 0;
-    }
-    if (checkValue(sortplan) && !checkValue(endofrun)) {
-        var thpCode = properties.MPEWatchData.hasOwnProperty("throughput_status") ? properties.MPEWatchData.throughput_status : "0";
-        var fillColor = GetMacineBackground(properties.MPEWatchData, startofrun);
-        polygonMachine._layers[index].setStyle({
-            weight: 1,
-            opacity: opacityValue,
-            fillOpacity: fillOpacityValue,
-            fillColor: fillColor,
-            lastOpacity: fillOpacityValue
-        });
-    }
-    else {
-        if (polygonMachine._layers[index].options.fillColor !== '#989ea4') { //'gray'
-            polygonMachine._layers[index].setStyle({
-                weight: 1,
-                opacity: 1,
-                fillOpacity: 0.2,
-                fillColor: '#989ea4',//'gray'
-                lastOpacity: 0.2
-            });
-        }
-    }
+    polygonMachine._layers[index].setStyle({
+        weight: 1,
+        opacity: 1,
+        fillOpacity: 0.2,
+        fillColor: GetMacineBackground(properties.MPEWatchData),//'gray'
+        lastOpacity: 0.2
+    });
 }
 async function LoadMachineTables(dataproperties, table) {
     try {
@@ -450,8 +433,8 @@ function formatmachinetoprow(properties) {
         zoneType: properties.Zone_Type,
         sortPlan: Vaildatesortplan(properties.MPEWatchData),// ? properties.MPEWatchData.cur_sortplan : "N/A",
         opNum: properties.MPEWatchData.cur_operation_id,
-        sortPlanStart: properties.MPEWatchData.current_run_start,
-        sortPlanEnd: properties.MPEWatchData.current_run_end,
+        sortPlanStart: VaildateMPEtime(properties.MPEWatchData.current_run_start),
+        sortPlanEnd: VaildateMPEtime(properties.MPEWatchData.current_run_end),
         peicesFed: properties.MPEWatchData.tot_sortplan_vol,
         throughput: properties.MPEWatchData.cur_thruput_ophr,
         rpgVol: properties.MPEWatchData.rpg_est_vol,
@@ -468,7 +451,7 @@ function formatmachinetoprow(properties) {
 }
 function Vaildatesortplan(data) {
     try {
-        if (!!data && data.cur_sortplan.length > 3) {
+        if (!!data && data.current_run_start.length > 3) {
             return data.cur_sortplan;
         }
         else {
@@ -479,12 +462,25 @@ function Vaildatesortplan(data) {
 
     }
 }
+function VaildateMPEtime(data) {
+    try {
+        let time = moment(data);
+        if (time._isValid && time.year() === moment().year()) {
+            return time.format("MM/DD/YYYY hh:mm:ss A");
+        }
+        else {
+            return " ";
+        }
+    } catch (e) {
+
+    }
+}
 function VaildateEstComplete(estComplet)
 {
     try {
         let est = moment(estComplet);
-        if (est._isValid && est.year() === moment().year) {
-            return est.format("MM/DD/YYYY HH:mm");
+        if (est._isValid && est.year() === moment().year()) {
+            return est.format("MM/DD/YYYY hh:mm:ss A");
         }
         else {
             return "Estimate Not Available";
@@ -756,43 +752,42 @@ function enablezoneSubmit() {
         $('button[id=machinesubmitBtn]').prop('disabled', true);
     }
 }
-function GetMacineBackground(mpeWatchData, starttime) {
-    var OkColor = '#3573b1';
-    var WarningColor = '#ffc107';
-    var AlertColor = '#dc3545';
-    var bkColor = OkColor;
+function GetMacineBackground(mpeWatchData) {
+    let NotRunningbkColor = '#989ea4';
+    let RunningColor = '#3573b1';
+    let WarningColor = '#ffc107';
+    let AlertColor = '#dc3545';
+    let bkColor = RunningColor;
     try {
-        var throughput_status = mpeWatchData.hasOwnProperty("throughput_status") ? mpeWatchData.throughput_status : "0";
-        var unplan_maint_sp_status = mpeWatchData.hasOwnProperty("unplan_maint_sp_status") ? mpeWatchData.unplan_maint_sp_status : "0";
-        var op_started_late_status = mpeWatchData.hasOwnProperty("op_started_late_status") ? mpeWatchData.op_started_late_status : "0";
-        var op_running_late_status = mpeWatchData.hasOwnProperty("op_running_late_status") ? mpeWatchData.op_running_late_status : "0";
-        var sortplan_wrong_status = mpeWatchData.hasOwnProperty("sortplan_wrong_status") ? mpeWatchData.sortplan_wrong_status : "0";
-
-        var curtime = moment().format('YYYY-MM-DD HH:mm:ss');
-        if (!$.isEmptyObject(timezone)) {
-            if (timezone.hasOwnProperty("Facility_TimeZone")) {
-                curtime = moment().tz(timezone.Facility_TimeZone).format('YYYY-MM-DD HH:mm:ss');
-            }
+        if (mpeWatchData.cur_sortplan === "0") {
+            return NotRunningbkColor;
         }
-        var dt = moment(curtime);
-        var st = moment(starttime);
-        var timeduration = moment.duration(dt.diff(st));
-        var minutes = parseInt(timeduration.asMinutes());
-        if (minutes > 15) {
-            if (throughput_status == "3") {
+        else {
+            let curtime = moment();
+            if (!$.isEmptyObject(timezone)) {
+                if (timezone.hasOwnProperty("Facility_TimeZone")) {
+                    curtime = moment().tz(timezone.Facility_TimeZone);
+                }
+            }
+            let st = moment(mpeWatchData.current_run_start);
+            let timeduration = moment.duration(curtime.diff(st));
+            let minutes = parseInt(timeduration.asMinutes());
+            if (minutes > 15) {
+                if (mpeWatchData.throughput_status == 3) {
+                    return AlertColor;
+                }
+                else if (mpeWatchData.throughput_status == 2) {
+                    bkColor = WarningColor;
+                }
+            }
+            if (mpeWatchData.unplan_maint_sp_status === 2 || mpeWatchData.op_started_late_status === 2 || mpeWatchData.op_running_late_status === 2 || mpeWatchData.sortplan_wrong_status === 2) {
                 return AlertColor;
             }
-            else if (throughput_status == "2") {
-                bkColor = WarningColor;
+            if (mpeWatchData.unplan_maint_sp_status === 1 || mpeWatchData.op_started_late_status === 1 || mpeWatchData.op_running_late_status === 1 || mpeWatchData.sortplan_wrong_status === 1) {
+                return WarningColor;
             }
+            return bkColor;
         }
-        if (unplan_maint_sp_status == "2" || op_started_late_status == "2" || op_running_late_status == "2" || sortplan_wrong_status == "2") {
-            return AlertColor;
-        }
-        if (unplan_maint_sp_status == "1" || op_started_late_status == "1" || op_running_late_status == "1" || sortplan_wrong_status == "1") {
-            return WarningColor;
-        }
-        return bkColor;
     }
     catch (e) {
         console.log(e);
@@ -881,10 +876,10 @@ function FormatMachineRowColors(mpeWatchData, starttime) {
     }
 }
 function GetMachinePerfGraph(dataproperties) {
-    var xValues = [];
-    var yValues = [];
-    var total = 0;
-    for (var i = 0; i < dataproperties.MPEWatchData.hourly_data.length; i++) {
+    let xValues = [];
+    let yValues = [];
+    let total = 0;
+    for (let i = 0; i < dataproperties.MPEWatchData.hourly_data.length; i++) {
         xValues.unshift(dataproperties.MPEWatchData.hourly_data[i].count);
         total += dataproperties.MPEWatchData.hourly_data[i].count;
         yValues.unshift(dataproperties.MPEWatchData.hourly_data[i].hour);

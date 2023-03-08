@@ -304,6 +304,8 @@
     <Content Include="favicon.ico" />
     <Content Include="Global.asax" />
     <Content Include="Default.aspx" />
+    <Content Include="MPE\MPE.aspx" />
+    <Content Include="MPE\Scripts\mpe.js" />
     <Content Include="OracleQuery\Get_Tag_Dwell_Query.txt" />
     <Content Include="OracleQuery\Oracle.ManagedDataAccess.dll" />
     <Content Include="OracleQuery\UserSessionIN_Query.txt" />
@@ -532,6 +534,7 @@
     <Compile Include="App_Start\Load.cs" />
     <Compile Include="Controllers\DockDoorController.cs" />
     <Compile Include="AGV\Controllers\EITSController.cs" />
+    <Compile Include="Controllers\MPE_PerfController.cs" />
     <Compile Include="Data_Retention\DataRetentionProcess.cs" />
     <Compile Include="App_Start\WebApiConfig.cs" />
     <Compile Include="Controllers\IncomingDataController.cs" />
@@ -602,9 +605,17 @@
     <Compile Include="Models\Tacs.cs" />
     <Compile Include="Models\Zone.cs" />
     <Compile Include="Models\ZoneGeometry.cs" />
+    <Compile Include="MPE\MPE.aspx.cs">
+      <DependentUpon>MPE.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="MPE\MPE.aspx.designer.cs">
+      <DependentUpon>MPE.aspx</DependentUpon>
+    </Compile>
     <Compile Include="ProcessReceivedMessage\ContainerData.cs" />
     <Compile Include="ProcessReceivedMessage\DoorData.cs" />
     <Compile Include="ProcessReceivedMessage\ItineraryTrip_Update.cs" />
+    <Compile Include="ProcessReceivedMessage\MPEFullBin.cs" />
     <Compile Include="ProcessReceivedMessage\MPEWatch_DPS.cs" />
     <Compile Include="ProcessReceivedMessage\MPEWatch_RPGPerf.cs" />
     <Compile Include="ProcessReceivedMessage\MPEWatch_RPGPlan.cs" />

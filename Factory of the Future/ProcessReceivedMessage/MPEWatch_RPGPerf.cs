@@ -47,6 +47,9 @@ namespace Factory_of_the_Future
                         NewMPEData = GetMPEPerfList(machineInfo);
                         foreach (RunPerf NewMachineInfo in NewMPEData)
                         {
+                            //full bin check 
+                            await Task.Run(() => new MPEFullBin().LoadAsync(NewMachineInfo.MpeType, NewMachineInfo.MpeNumber, NewMachineInfo.BinFullBins)).ConfigureAwait(false);
+                           
                             if (NewMachineInfo.RpgEstVol > 0 && NewMachineInfo.CurThruputOphr > 0)
                             {
                                 if (!string.IsNullOrEmpty(windowsTimeZoneId))
@@ -67,28 +70,6 @@ namespace Factory_of_the_Future
                                 NewMachineInfo.RPGEndDtm = rpgPlan.RpgEndDtm;
                                 NewMachineInfo.ExpectedThroughput = Convert.ToInt32(rpgPlan.RpgExpectedThruput);
                             }
-                            if (NewMachineInfo.ExpectedThroughput != 0)
-                            {
-                                double thrper = NewMachineInfo.CurThruputOphr / NewMachineInfo.ExpectedThroughput * 100;
-                                if (string.IsNullOrEmpty(NewMachineInfo.CurrentRunEnd))
-                                {
-                                    NewMachineInfo.ThroughputStatus = 0;
-                                }
-                                else if (thrper >= 100)
-                                {
-                                    NewMachineInfo.ThroughputStatus = 1;
-                                }
-                                else if (thrper >= 90)
-                                {
-                                    NewMachineInfo.ThroughputStatus = 2;
-                                }
-                                else if (thrper < 90)
-                                {
-                                    NewMachineInfo.ThroughputStatus = 3;
-                                }
-                            }
-                          
-
                             if (AppParameters.MPEPerformance.ContainsKey(NewMachineInfo.MpeId) && AppParameters.MPEPerformance.TryGetValue(NewMachineInfo.MpeId, out currentMachine_Info))
                             {
                                 bool update = false;
@@ -271,26 +252,26 @@ namespace Factory_of_the_Future
             RPGPlan tempRPG = new RPGPlan();
             try
             {
-                tempRPG = AppParameters.MPEPRPGList.Where(x => x.Value.MpeType == machine_Info.MpeType &&
-                          Convert.ToInt32(x.Value.MachineNum) == machine_Info.MpeNumber &&
-                          x.Value.SortProgramName == machine_Info.CurSortplan &&
-                          Convert.ToInt32((x.Value.MailOperationNbr).ToString().PadRight(6, '0')) == Convert.ToInt32(machine_Info.CurOperationId.ToString().PadRight(6, '0')) &&
-                          (DateTime.Now >= x.Value.RpgStartDtm.AddMinutes(-15) && DateTime.Now <= x.Value.RpgEndDtm.AddMinutes(+15))
-                          ).Select(l => l.Value).FirstOrDefault();
+                if (AppParameters.MPEPRPGList.Any())
+                {
+                    tempRPG = AppParameters.MPEPRPGList.Where(x => x.Value.MpeType == machine_Info.MpeType &&
+                              x.Value.MachineNum == machine_Info.MpeNumber &&
+                              x.Value.SortProgramName == machine_Info.CurSortplan &&
+                              Convert.ToInt32((x.Value.MailOperationNbr).ToString().PadRight(6, '0')) == Convert.ToInt32(machine_Info.CurOperationId.ToString().PadRight(6, '0')) &&
+                              (DateTime.Now >= x.Value.RpgStartDtm.AddMinutes(-15) && DateTime.Now <= x.Value.RpgEndDtm.AddMinutes(+15))
+                              ).Select(l => l.Value).FirstOrDefault();
 
-                if (tempRPG == null)
-                {
-                    return null;
+                    if (tempRPG != null)
+                    {
+                        return tempRPG;
+                    }
                 }
-                else
-                {
-                    return tempRPG;
-                }
+                return null;
             }
             catch (Exception e)
             {
                 new ErrorLogger().ExceptionLog(e);
-                return tempRPG;
+                return null;
             }
         }
 
@@ -318,7 +299,13 @@ namespace Factory_of_the_Future
             try
             {
                 foreach (JObject item in machineInfo.Children()) {
-                    MPErunPerfData.Add( new RunPerf
+                    //if the MPE is not running then reset the time.
+                    if (item["cur_sortplan"].ToString() == "0")
+                    {
+                        item["current_run_start"] = "0001-01-01 00:00:00";
+                        item["current_run_end"] = "0001-01-01 00:00:00";
+                    }
+                    MPErunPerfData.Add(new RunPerf
                     {
                         MpeType = item["mpe_type"].ToString(),
                         MpeNumber = !string.IsNullOrEmpty(item["mpe_number"].ToString()) ? Convert.ToInt32(item["mpe_number"].ToString()) : 0,
@@ -331,7 +318,7 @@ namespace Factory_of_the_Future
                         CurrentRunStart = item["current_run_start"].ToString(),
                         CurrentRunEnd = item["current_run_end"].ToString(),
                         CurOperationId = !string.IsNullOrEmpty(item["cur_operation_id"].ToString()) ? Convert.ToInt32(item["cur_operation_id"].ToString()) : 0,
-                        BinFullStatus = !string.IsNullOrEmpty(item["bin_full_status"].ToString()) ? Convert.ToInt32(item["bin_full_status"].ToString()): 0 ,
+                        BinFullStatus = !string.IsNullOrEmpty(item["bin_full_status"].ToString()) ? Convert.ToInt32(item["bin_full_status"].ToString()) : 0,
                         BinFullBins = item["bin_full_bins"].ToString().Trim(),
                         ThroughputStatus = !string.IsNullOrEmpty(item["throughput_status"].ToString()) ? Convert.ToInt32(item["throughput_status"].ToString()) : 0,
                         UnplanMaintSpStatus = !string.IsNullOrEmpty(item["unplan_maint_sp_status"].ToString()) ? Convert.ToInt32(item["unplan_maint_sp_status"].ToString()) : 0,
@@ -347,7 +334,8 @@ namespace Factory_of_the_Future
                         ArsRecrej3 = !string.IsNullOrEmpty(item["ars_recrej3"].ToString()) ? Convert.ToInt32(item["ars_recrej3"].ToString()) : 0,
                         SweepRecrej3 = !string.IsNullOrEmpty(item["sweep_recrej3"].ToString()) ? Convert.ToInt32(item["sweep_recrej3"].ToString()) : 0,
                         MpeId = string.Concat(item["mpe_type"].ToString().Trim(), "-", Convert.ToInt32(item["mpe_number"].ToString()).ToString().PadLeft(3, '0'))
-                }); 
+                    });
+                   
                 }
                 return MPErunPerfData;
             }
@@ -385,50 +373,6 @@ namespace Factory_of_the_Future
                 return null;
             }
         }
-        private static void MPEWatch_FullBins(JObject data)
-        {
-            try
-            {
-                string MpeType = data["mpe_type"].ToString().Trim();
-                string MpeNumber = data["mpe_number"].ToString().PadLeft(3, '0');
-                List<string> FullBins = !string.IsNullOrEmpty(data["bin_full_bins"].ToString()) ? data["bin_full_bins"].ToString().Split(',').Select(p => p.Trim().TrimStart('0')).ToList() : new List<string>();
-
-                foreach (CoordinateSystem cs in FOTFManager.Instance.CoordinateSystem.Values)
-                {
-                    foreach (string key in cs.Zones.Where(f => f.Value.Properties.ZoneType == "Bin" &&
-                    f.Value.Properties.MPEType.Trim() == MpeType && f.Value.Properties.MPENumber.ToString().PadLeft(3, '0') == MpeNumber).Select(y => y.Key).ToList())
-                    {
-                        List<string> FullBinList = new List<string>();
-                        if (cs.Zones.TryGetValue(key, out GeoZone binZone))
-                        {
-                            binZone.Properties.MPEBins = null;
-                            for (int i = 0; i < FullBins.Count; i++)
-                            {
-                                if (binZone.Properties.Bins.Split(',').Select(p => p.Trim()).ToList().Contains(FullBins[i]))
-                                {
-                                    FullBinList.Add(FullBins[i]);
-                                }
-                            }
-                            binZone.Properties.MPEBins = FullBinList;
-                            binZone.Properties.ZoneUpdate = true;
-                        }
-                        else
-                        {
-                            if (binZone.Properties.MPEBins.Count() != FullBinList.Count())
-                            {
-                                binZone.Properties.MPEBins = FullBinList;
-                                binZone.Properties.ZoneUpdate = true;
-                            }
-                        }
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                new ErrorLogger().ExceptionLog(ex);
-            }
-        }
-
 
         protected virtual void Dispose(bool disposing)
         {

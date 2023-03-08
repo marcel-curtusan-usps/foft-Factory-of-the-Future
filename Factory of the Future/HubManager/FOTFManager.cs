@@ -118,9 +118,22 @@ namespace Factory_of_the_Future
                 new ErrorLogger().ExceptionLog(e);
             }
         }
+
+        internal IEnumerable<RunPerf> GetMPEStatusList(string mpeID)
+        {
+            try
+            {
+                return AppParameters.MPEPerformance.Where(x => x.Value.MpeId == mpeID).Select(y => y.Value).ToList();
+            }
+            catch (Exception e)
+            {
+                new ErrorLogger().ExceptionLog(e);
+                return null;
+            }
+        }
         #region
         //dock door 
-        
+
         internal void UpdateDoorData(string doorNumber)
         {
             try
@@ -178,8 +191,7 @@ namespace Factory_of_the_Future
             {
                 foreach (CoordinateSystem cs in CoordinateSystem.Values)
                 {
-                    cs.Zones.Where(f => f.Value.Properties.ZoneType.EndsWith("Machine") || f.Value.Properties.ZoneType.EndsWith("MPEZone")
-                    && f.Value.Properties.Name == mpeId
+                    cs.Zones.Where(f => f.Value.Properties.Name == mpeId
                     ).Select(y => y.Value).ToList().ForEach(MPE =>
                     {
                         MPE.Properties.MPEWatchData = GetMPEPerfData(mpeId);
@@ -189,6 +201,7 @@ namespace Factory_of_the_Future
                         }
                         
                         BroadcastMachineStatus(MPE, cs.Id);
+                        BroadcastMPEStatus(MPE.Properties.MPEWatchData, mpeId);
                     });
                 }
             }
@@ -197,6 +210,8 @@ namespace Factory_of_the_Future
                 new ErrorLogger().ExceptionLog(e);
             }
         }
+
+      
 
         private RunPerf GetMPEPerfData(string mpeId)
         {
@@ -217,6 +232,10 @@ namespace Factory_of_the_Future
         {
             Clients.Group("MPEZones").updateMachineStatus(mPE, id);
 
+        }
+        private void BroadcastMPEStatus(RunPerf mPEWatchData, string mpeId)
+        {
+            Clients.Group("MPE_"+ mpeId).updateMPEStatus(mPEWatchData);
         }
         #endregion
         public List<RouteTrips> GetDigitalDockDoorList(string id)
@@ -268,15 +287,8 @@ namespace Factory_of_the_Future
                 newtempgZone.Properties.StaffingData = null;
                 newtempgZone.Properties.DPSData = null;
                 newtempgZone.Properties.ZoneUpdate = true;
-                if (newtempgZone.Properties.ZoneType == "Bin")
-                {
-                    newtempgZone.Properties.MPEBins = new List<string>();
-                }
-                else
-                {
-                    newtempgZone.Properties.MPEBins = null;
-                }
-                if (Regex.IsMatch(newtempgZone.Properties.ZoneType, "^(MPE|Bin)", RegexOptions.IgnoreCase))
+               
+                if (Regex.IsMatch(newtempgZone.Properties.ZoneType, "^(MPE|Machine|Bin)", RegexOptions.IgnoreCase))
                 {
                     //get the MPE Number
                     if (int.TryParse(string.Join(string.Empty, Regex.Matches(newtempgZone.Properties.Name, @"\d+").OfType<Match>().Select(m => m.Value)).ToString(), out int n))
@@ -1220,7 +1232,7 @@ namespace Factory_of_the_Future
             }
         }
 
-        private void BroadcastBinZoneStatus(GeoZone binZone, string id)
+        internal void BroadcastBinZoneStatus(GeoZone binZone, string id)
         {
             Clients.Group("BinZones").updateBinZoneStatus(binZone, id);
         }

@@ -1,8 +1,8 @@
 ﻿$.extend(fotfmanager.client, {
     updateBinZoneStatus: async (binzoneupdate, id) => { updateBinZone(binzoneupdate, id) }
 });
-
-var binzonepoly = new L.GeoJSON(null, {
+let flash = "";
+let binzonepoly = new L.GeoJSON(null, {
     style: function (feature) {
         return {
             weight: 1,
@@ -16,10 +16,8 @@ var binzonepoly = new L.GeoJSON(null, {
     },
     onEachFeature: function (feature, layer) {
         layer.zoneId = feature.properties.id;
-        var flash = "";
-        if (feature.properties.MPE_Bins.length > 0)
-        {
-                flash = "doorflash";
+        if (feature.properties.MPE_Bins !== null && feature.properties.MPE_Bins.length > 0) {
+            flash = "doorflash";
         }
         $zoneSelect[0].selectize.addOption({ value: feature.properties.id, text: feature.properties.name });
         $zoneSelect[0].selectize.addItem(feature.properties.id);
