@@ -304,6 +304,7 @@
     <Content Include="favicon.ico" />
     <Content Include="Global.asax" />
     <Content Include="Default.aspx" />
+    <Content Include="MPE\Content\mpe.css" />
     <Content Include="MPE\MPE.aspx" />
     <Content Include="MPE\Scripts\mpe.js" />
     <Content Include="OracleQuery\Get_Tag_Dwell_Query.txt" />

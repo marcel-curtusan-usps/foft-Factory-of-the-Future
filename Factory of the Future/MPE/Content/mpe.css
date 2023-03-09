@@ -1,0 +1,12 @@
+﻿.col-name {
+    width: 335px;
+    font-size: calc(0.1em + 2.6vw);
+}
+.col-actual {
+    width: 815px;
+    font-size: calc(0.1em + 2.6vw);
+}
+.col-planned {
+    width: 644px;
+    font-size: calc(0.1em + 2.6vw);
+}
