@@ -10,75 +10,106 @@ namespace Factory_of_the_Future.Models
     {
 
         [JsonProperty("run_start_modsday")]
-        public string RunStartModsday { get; set; } = "";
+        public DateTime RunStartModsday { get; set; } = new DateTime(1, 1, 1, 0, 0, 0);
 
         [JsonProperty("sortplan_name_perf")]
         public string SortplanNamePerf { get; set; } = "";
-
+        //[JsonProperty("sortplan_1st_pass")]
+        //public string Sortplan1stPass
+        //{
+        //    get
+        //    {
+        //        return SortplanNamePerf.Split(',').Select(x => x.Trim()).ToArray()[0];
+        //    }
+        //    set { return; }
+        //}
+        //[JsonProperty("sortplan_2nd_pass")]
+        //public string Sortplan2ndPass
+        //{
+        //    get
+        //    {
+        //        return SortplanNamePerf.Split(',').Select(x => x.Trim()).ToArray()[1];
+        //    }
+        //    set { return; }
+        //}
         [JsonProperty("current_operation_id")]
-        public string CurrentOperationId { get; set; } = "";
+        public int CurrentOperationId { get; set; } = 0;
 
         [JsonProperty("pieces_fed_1st_cnt")]
-        public string PiecesFed1stCnt { get; set; } = "";
+        public int PiecesFed1stCnt { get; set; } = 0;
 
         [JsonProperty("pieces_rejected_1st_cnt")]
-        public string PiecesRejected1stCnt { get; set; } = "";
+        public int PiecesRejected1stCnt { get; set; } = 0;
 
         [JsonProperty("pieces_to_2nd_pass")]
-        public string PiecesTo2ndPass { get; set; } = "";
+        public int PiecesTo2ndPass { get; set; } = 0;
 
         [JsonProperty("op_time_1st")]
-        public string OpTime1st { get; set; } = "";
+        public int OpTime1st { get; set; } = 0;
 
         [JsonProperty("thruput_1st_pass")]
-        public string Thruput1stPass { get; set; } = "";
+        public int Thruput1stPass { get; set; } = 0;
 
         [JsonProperty("pieces_fed_2nd_cnt")]
-        public string PiecesFed2ndCnt { get; set; } = "";
+        public int PiecesFed2ndCnt { get; set; } = 0;
 
         [JsonProperty("pieces_rejected_2nd_cnt")]
-        public string PiecesRejected2ndCnt { get; set; } = "";
+        public int PiecesRejected2ndCnt { get; set; } = 0;
 
         [JsonProperty("op_time_2nd")]
-        public string OpTime2nd { get; set; } = "";
+        public int OpTime2nd { get; set; } = 0;
 
         [JsonProperty("thruput_2nd_pass")]
-        public string Thruput2ndPass { get; set; } = "";
+        public int Thruput2ndPass { get; set; } = 0;
 
         [JsonProperty("pieces_remaining")]
-        public string PiecesRemaining { get; set; } = "";
+        public int PiecesRemaining { get; set; } = 0;
 
         [JsonProperty("thruput_optimal_cfg")]
-        public string ThruputOptimalCfg { get; set; } = "";
+        public int ThruputOptimalCfg { get; set; } = 0;
 
         [JsonProperty("time_to_comp_optimal")]
         public int TimeToCompOptimal { get; set; } = 0;
 
         [JsonProperty("thruput_actual")]
-        public string ThruputActual { get; set; } = "";
+        public int ThruputActual { get; set; } = 0;
 
         [JsonProperty("time_to_comp_actual")]
         public int TimeToCompActual { get; set; } = 0;
 
         [JsonProperty("rpg_2nd_pass_end")]
-        public string Rpg2ndPassEnd { get; set; } = "";
+        public DateTime Rpg2ndPassEnd { get; set; } = new DateTime(1, 1, 1, 0, 0, 0);
 
         [JsonProperty("time_to_2nd_pass_optimal")]
-        public string TimeTo2ndPassOptimal { get; set; } = "";
+        public int TimeTo2ndPassOptimal { get; set; } = 0;
 
         [JsonProperty("rec_2nd_pass_start_optimal")]
-        public string Rec2ndPassStartOptimal { get; set; } = "";
+        public DateTime Rec2ndPassStartOptimal { get; set; } = new DateTime(1, 1, 1, 0, 0, 0);
 
         [JsonProperty("time_to_2nd_pass_actual")]
-        public string TimeTo2ndPassActual { get; set; } = "";
+        public int TimeTo2ndPassActual { get; set; } = 0;
 
         [JsonProperty("rec_2nd_pass_start_actual")]
-        public string Rec2ndPassStartActual { get; set; } = "";
+        public DateTime Rec2ndPassStartActual { get; set; } = new DateTime(1, 1, 1, 0, 0, 0);
 
         [JsonProperty("time_to_comp_optimal_DateTime")]
-        public DateTime TimeToCompOptimalDateTime { get; set; } 
+        public DateTime TimeToCompOptimalDateTime
+        {
+            get
+            {
+                return DateTime.Now.AddSeconds(TimeToCompOptimal);
+            }
+            set { return; }
+        }
 
         [JsonProperty("time_to_comp_actual_DateTime")]
-        public DateTime TimeToCompActualDateTime { get; set; }
+        public DateTime TimeToCompActualDateTime
+        {
+            get
+            {
+                return DateTime.Now.AddSeconds(TimeToCompOptimal);
+            }
+            set { return; }
+        }
     }
 }

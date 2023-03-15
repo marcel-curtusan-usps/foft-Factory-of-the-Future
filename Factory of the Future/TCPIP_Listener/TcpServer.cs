@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Factory_of_the_Future.Models;
+using System;
 using System.Collections.Concurrent;
 using System.Diagnostics;
 using System.Linq;
@@ -21,36 +22,36 @@ namespace Factory_of_the_Future
         /// </summary>
         /// <param name="address">IP address</param>
         /// <param name="port">Port number</param>
-        public TcpServer(IPAddress address, int port, string conid) : this(new IPEndPoint(address, port), conid) { }
+        public TcpServer(IPAddress address, int port, Connection conn) : this(new IPEndPoint(address, port), conn) { }
         /// <summary>
         /// Initialize TCP server with a given IP address and port number
         /// </summary>
         /// <param name="address">IP address</param>
         /// <param name="port">Port number</param>
-        public TcpServer(string address, int port, string conid) : this(new IPEndPoint(IPAddress.Parse(address), port), conid) { }
+        public TcpServer(string address, int port, Connection conn) : this(new IPEndPoint(IPAddress.Parse(address), port), conn) { }
         /// <summary>
         /// Initialize TCP server with a given DNS endpoint
         /// </summary>
         /// <param name="endpoint">DNS endpoint</param>
-        public TcpServer(DnsEndPoint endpoint, string conid) : this(endpoint as EndPoint, endpoint.Host, endpoint.Port, conid) { }
+        public TcpServer(DnsEndPoint endpoint, Connection conn) : this(endpoint as EndPoint, endpoint.Host, endpoint.Port, conn) { }
         /// <summary>
         /// Initialize TCP server with a given IP endpoint
         /// </summary>
         /// <param name="endpoint">IP endpoint</param>
-        public TcpServer(IPEndPoint endpoint, string conid) : this(endpoint as EndPoint, endpoint.Address.ToString(), endpoint.Port, conid) { }
+        public TcpServer(IPEndPoint endpoint, Connection conn) : this(endpoint as EndPoint, endpoint.Address.ToString(), endpoint.Port, conn) { }
         /// <summary>
         /// Initialize TCP server with a given endpoint, address and port
         /// </summary>
         /// <param name="endpoint">Endpoint</param>
         /// <param name="address">Server address</param>
         /// <param name="port">Server port</param>
-        private TcpServer(EndPoint endpoint, string address, int port,string id)
+        private TcpServer(EndPoint endpoint, string address, int port, Connection conn)
         {
             Id = Guid.NewGuid();
             Address = address;
             Port = port;
             Endpoint = endpoint;
-            Conid = id;
+            Conn = conn;
         }
 
         /// <summary>
@@ -60,7 +61,7 @@ namespace Factory_of_the_Future
         /// <summary>
         /// Connection Id
         /// </summary>
-        public string Conid { get; }
+        public Connection Conn { get; }
         /// <summary>
         /// TCP server address
         /// </summary>
@@ -462,19 +463,34 @@ namespace Factory_of_the_Future
         /// <summary>
         /// Handle server starting notification
         /// </summary>
-        protected virtual void OnStarting() { }
+        protected virtual void OnStarting() {
+            Conn.Status = "Strating";
+            FOTFManager.Instance.BroadcastQSMUpdate(Conn);
+        }
         /// <summary>
         /// Handle server started notification
         /// </summary>
-        protected virtual void OnStarted() { }
+        protected virtual void OnStarted() {
+            Conn.Status = "Running";
+            Conn.ActiveConnection = true;
+            FOTFManager.Instance.BroadcastQSMUpdate(Conn);
+        }
         /// <summary>
         /// Handle server stopping notification
         /// </summary>
-        protected virtual void OnStopping() { }
+        protected virtual void OnStopping() {
+            Conn.Status = " Stopping";
+            Conn.ActiveConnection = false;
+            FOTFManager.Instance.BroadcastQSMUpdate(Conn);
+        }
         /// <summary>
         /// Handle server stopped notification
         /// </summary>
-        protected virtual void OnStopped() { }
+        protected virtual void OnStopped() {
+            Conn.Status = " Stopped/Deactived";
+            Conn.ActiveConnection = false;
+            FOTFManager.Instance.BroadcastQSMUpdate(Conn);
+        }
 
         /// <summary>
         /// Handle session connecting notification

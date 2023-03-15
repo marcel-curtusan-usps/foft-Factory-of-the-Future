@@ -18,6 +18,8 @@ namespace Factory_of_the_Future
         public string _connID { get; protected set; }
         public List<RunPerf> NewMPEData = null;
         public RunPerf currentMachine_Info = null;
+        public JToken tempData = null;
+        public JToken machineInfo = null;
         private bool saveToFile;
         private double intMinuteToCompletion = 0.0;
 
@@ -31,10 +33,10 @@ namespace Factory_of_the_Future
             {
                 string total_volume = "";
                 string estCompletionTime = "";
-                if (data != null)
+                if (_data != null)
                 {
-                    JToken tempData = JToken.Parse(data);
-                    JToken machineInfo = tempData.SelectToken("data");
+                    tempData = JToken.Parse(_data);
+                    machineInfo = tempData.SelectToken("data");
                     if (machineInfo != null && machineInfo.HasValues)
                     {
                         DateTime dtNow = DateTime.Now;
@@ -45,57 +47,60 @@ namespace Factory_of_the_Future
                         }
 
                         NewMPEData = GetMPEPerfList(machineInfo);
-                        foreach (RunPerf NewMachineInfo in NewMPEData)
+                        if (NewMPEData.Any())
                         {
-                            //full bin check 
-                            await Task.Run(() => new MPEFullBin().LoadAsync(NewMachineInfo.MpeType, NewMachineInfo.MpeNumber, NewMachineInfo.BinFullBins)).ConfigureAwait(false);
-                           
-                            if (NewMachineInfo.RpgEstVol > 0 && NewMachineInfo.CurThruputOphr > 0)
+                            foreach (RunPerf NewMachineInfo in NewMPEData)
                             {
-                                if (!string.IsNullOrEmpty(windowsTimeZoneId))
-                                {
-                                    dtNow = TimeZoneInfo.ConvertTime(DateTime.Now, TimeZoneInfo.FindSystemTimeZoneById(windowsTimeZoneId));
-                                    intMinuteToCompletion = (NewMachineInfo.RpgEstVol - NewMachineInfo.TotSortplanVol) / (NewMachineInfo.CurThruputOphr / 60);
-                                    NewMachineInfo.RpgEstCompTime = dtNow.AddMinutes(intMinuteToCompletion);
-                                }
-                            }
-                            NewMachineInfo.ExpectedThroughput = parseExpectedThruput(NewMachineInfo.RpgExpectedThruput);
-                            RPGPlan rpgPlan = Get_RPGPlan_Info(NewMachineInfo);
-                            if (rpgPlan != null)
-                            {
-                                //                item["rpg_start_dtm"] = results.ContainsKey("rpg_start_dtm") ? results["rpg_start_dtm"].ToString().Trim() : "";
-                                //                item["rpg_end_dtm"] = results.ContainsKey("rpg_end_dtm") ? results["rpg_end_dtm"].ToString().Trim() : "";
-                                //                item["expected_throughput"] = results.ContainsKey("expected_throughput") ? results["expected_throughput"].ToString().Trim() : "";
-                                NewMachineInfo.RPGStartDtm = rpgPlan.RpgStartDtm;
-                                NewMachineInfo.RPGEndDtm = rpgPlan.RpgEndDtm;
-                                NewMachineInfo.ExpectedThroughput = Convert.ToInt32(rpgPlan.RpgExpectedThruput);
-                            }
-                            if (AppParameters.MPEPerformance.ContainsKey(NewMachineInfo.MpeId) && AppParameters.MPEPerformance.TryGetValue(NewMachineInfo.MpeId, out currentMachine_Info))
-                            {
-                                bool update = false;
-                                foreach (PropertyInfo prop in NewMachineInfo.GetType().GetProperties())
-                                {
+                                //full bin check 
+                                await Task.Run(() => new MPEFullBin().LoadAsync(NewMachineInfo.MpeType, NewMachineInfo.MpeNumber, NewMachineInfo.BinFullBins)).ConfigureAwait(false);
 
-                                    if (!new Regex("^(MpeNumber|MpeType|MpeId)$", RegexOptions.IgnoreCase).IsMatch(prop.Name))
+                                if (NewMachineInfo.RpgEstVol > 0 && NewMachineInfo.CurThruputOphr > 0)
+                                {
+                                    if (!string.IsNullOrEmpty(windowsTimeZoneId))
                                     {
-                                        if (prop.GetValue(NewMachineInfo, null).ToString() != prop.GetValue(currentMachine_Info, null).ToString())
-                                        {
-                                            update = true;
-                                            prop.SetValue(currentMachine_Info, prop.GetValue(NewMachineInfo, null));
-
-                                        }
+                                        dtNow = TimeZoneInfo.ConvertTime(DateTime.Now, TimeZoneInfo.FindSystemTimeZoneById(windowsTimeZoneId));
+                                        intMinuteToCompletion = (NewMachineInfo.RpgEstVol - NewMachineInfo.TotSortplanVol) / (NewMachineInfo.CurThruputOphr / 60);
+                                        NewMachineInfo.RpgEstCompTime = dtNow.AddMinutes(intMinuteToCompletion);
                                     }
                                 }
-                                if (update)
+                                NewMachineInfo.ExpectedThroughput = parseExpectedThruput(NewMachineInfo.RpgExpectedThruput);
+                                RPGPlan rpgPlan = Get_RPGPlan_Info(NewMachineInfo);
+                                if (rpgPlan != null)
                                 {
-                                    await Task.Run(() => FOTFManager.Instance.UpdateMpeData(currentMachine_Info.MpeId)).ConfigureAwait(false);
+                                    //                item["rpg_start_dtm"] = results.ContainsKey("rpg_start_dtm") ? results["rpg_start_dtm"].ToString().Trim() : "";
+                                    //                item["rpg_end_dtm"] = results.ContainsKey("rpg_end_dtm") ? results["rpg_end_dtm"].ToString().Trim() : "";
+                                    //                item["expected_throughput"] = results.ContainsKey("expected_throughput") ? results["expected_throughput"].ToString().Trim() : "";
+                                    NewMachineInfo.RPGStartDtm = rpgPlan.RpgStartDtm;
+                                    NewMachineInfo.RPGEndDtm = rpgPlan.RpgEndDtm;
+                                    NewMachineInfo.ExpectedThroughput = Convert.ToInt32(rpgPlan.RpgExpectedThruput);
                                 }
-                            }
-                            else
-                            {
-                                if (AppParameters.MPEPerformance.TryAdd(NewMachineInfo.MpeId, NewMachineInfo))
+                                if (AppParameters.MPEPerformance.ContainsKey(NewMachineInfo.MpeId) && AppParameters.MPEPerformance.TryGetValue(NewMachineInfo.MpeId, out currentMachine_Info))
                                 {
-                                    await Task.Run(() => FOTFManager.Instance.UpdateMpeData(NewMachineInfo.MpeId)).ConfigureAwait(false);
+                                    bool update = false;
+                                    foreach (PropertyInfo prop in NewMachineInfo.GetType().GetProperties())
+                                    {
+
+                                        if (!new Regex("^(MpeNumber|MpeType|MpeId)$", RegexOptions.IgnoreCase).IsMatch(prop.Name))
+                                        {
+                                            if (prop.GetValue(NewMachineInfo, null).ToString() != prop.GetValue(currentMachine_Info, null).ToString())
+                                            {
+                                                update = true;
+                                                prop.SetValue(currentMachine_Info, prop.GetValue(NewMachineInfo, null));
+
+                                            }
+                                        }
+                                    }
+                                    if (update)
+                                    {
+                                        await Task.Run(() => FOTFManager.Instance.UpdateMpeData(currentMachine_Info.MpeId)).ConfigureAwait(false);
+                                    }
+                                }
+                                else
+                                {
+                                    if (AppParameters.MPEPerformance.TryAdd(NewMachineInfo.MpeId, NewMachineInfo))
+                                    {
+                                        await Task.Run(() => FOTFManager.Instance.UpdateMpeData(NewMachineInfo.MpeId)).ConfigureAwait(false);
+                                    }
                                 }
                             }
                         }
@@ -389,6 +394,8 @@ namespace Factory_of_the_Future
                 _data = string.Empty;
                 _Message_type = string.Empty;
                 _connID = string.Empty;
+                tempData = null;
+                machineInfo = null;
             }
         }
 

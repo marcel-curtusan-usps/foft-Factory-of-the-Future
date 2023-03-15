@@ -809,7 +809,10 @@ function GetStaffRowStyle(currStaff, planStaff) {
     return "";
 }
 function digits(num) {
-    return num.replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,");
+    if (!!num) {
+        return num.replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,");
+    }
+    
 }
 function checkValue(value) {
     switch (value) {

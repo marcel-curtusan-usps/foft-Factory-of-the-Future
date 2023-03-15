@@ -55,7 +55,7 @@ namespace Factory_of_the_Future
 
         public IEnumerable<Connection> AddAPI(string data)
         {
-            return (IEnumerable<Connection>)_managerHub.AddAPIAsync(data);
+            return _managerHub.AddAPI(data);
         }
 
         public List<ThroughputValues> GetMachineThroughputMaximums()

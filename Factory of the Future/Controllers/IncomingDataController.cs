@@ -1,5 +1,9 @@
-﻿using Newtonsoft.Json.Linq;
+﻿using Factory_of_the_Future.Models;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
+using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using System.Web.Http;
 
@@ -28,20 +32,81 @@ namespace Factory_of_the_Future.Controllers
             {
                 return BadRequest(ModelState);
             }
-            if (request_data != null)
+            Connection connection = AppParameters.RunningConnection.Connection.Where(f => f.ConnectionInfo.ConnectionName.StartsWith("AGVM")).Select(y => y.ConnectionInfo).FirstOrDefault();
+            if (connection != null)
             {
-                //start data process
-                if (request_data.HasValues)
-                {
-                    //Send data to be processed.
-                    Task.Run(() => new ProcessRecvdMsg().StartProcess(request_data,request_data["MESSAGE"].ToString(),""));
-                }
+                connection.ApiConnected = true;
+                connection.ActiveConnection = true;
+                connection.Status = "Running";
+                toProcesser(request_data, connection.Id);
+                FOTFManager.Instance.BroadcastQSMUpdate(connection);
             }
             else
             {
-                return CreatedAtRoute("DefaultApi", new { message = "Invalid Data in the Request." }, 0);
+                connection = CreateConnection();
+                if (connection != null) {
+                    connection.ApiConnected = true;
+                    connection.ActiveConnection = true;
+                    connection.Status = "Running";
+                    toProcesser(request_data, connection.Id);
+                    FOTFManager.Instance.BroadcastQSMUpdate(connection);
+                }
+                else
+                {
+                    return CreatedAtRoute("DefaultApi", new { message = "Invalid Data in the Request." }, 0);
+                }
+               
             }
             return CreatedAtRoute("DefaultApi", new { id = "0" }, 0);
+        }
+
+        private Connection CreateConnection()
+        {
+
+            try
+            {
+                Connection con = new Connection()
+                {
+                    ActiveConnection = true,
+                    ConnectionName = "AGVM",
+                    ApiConnection = true,
+                    Status = "Running",
+                    IpAddress = "127.0.0.1",
+                    CreatedDate = DateTime.Now,
+                    DataRetrieve = 0,
+                    Url = "http://" + AppParameters.ServerIpAddress + "/api/IncomingData",
+                    Port = 80, 
+                    MessageType = "AGVM Data Listener",
+                    LasttimeApiConnected = DateTime.Now,
+                };
+                FOTFManager.Instance.AddAPI(JsonConvert.SerializeObject(con, Formatting.Indented));
+                return con;
+            }
+            catch (Exception e)
+            {
+                new ErrorLogger().ExceptionLog(e);
+                return null;
+            }
+        }
+
+        private void toProcesser(JToken request_data, string connectionID)
+        {
+            try
+            {
+                if (request_data != null)
+                {
+                    //start data process
+                    if (request_data.HasValues)
+                    {
+                        //Send data to be processed.
+                        Task.Run(() => new ProcessRecvdMsg().StartProcess(request_data, request_data["MESSAGE"].ToString(), connectionID));
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                new ErrorLogger().ExceptionLog(e);
+            }
         }
 
         // PUT: api/IncomingData/5

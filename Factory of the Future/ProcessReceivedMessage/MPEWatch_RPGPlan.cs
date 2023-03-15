@@ -185,6 +185,11 @@ namespace Factory_of_the_Future
                 //planInfo = null;
                 //newPlanData = null;
                 disposedValue = true;
+                _data = null;
+                _Message_type = string.Empty;
+                _connID = string.Empty;
+                tempData = null;
+                planInfo = null;
             }
         }
 

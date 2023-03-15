@@ -36,7 +36,7 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <CodeAnalysisRuleSet>..\.sonarlint\9209_fotfsmartfacilitycsharp.ruleset</CodeAnalysisRuleSet>
+    <CodeAnalysisRuleSet>Factory of the Future-3.ruleset</CodeAnalysisRuleSet>
     <PlatformTarget>AnyCPU</PlatformTarget>
     <RunCodeAnalysis>true</RunCodeAnalysis>
     <CodeAnalysisIgnoreGeneratedCode>false</CodeAnalysisIgnoreGeneratedCode>
@@ -49,7 +49,7 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <CodeAnalysisRuleSet>..\.sonarlint\9209_fotfsmartfacilitycsharp.ruleset</CodeAnalysisRuleSet>
+    <CodeAnalysisRuleSet>Factory of the Future-3.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Microsoft.AspNet.SignalR.Core, Version=2.4.2.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
@@ -187,7 +187,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <AdditionalFiles Include="..\.sonarlint\9209_fotfsmartfacility\CSharp\SonarLint.xml">
+    <AdditionalFiles Include="..\.sonarlint\9209_factory-of-the-future\CSharp\SonarLint.xml">
       <Link>SonarLint.xml</Link>
     </AdditionalFiles>
     <Content Include="Content\bootstrap-grid.css" />
@@ -366,6 +366,7 @@
     <None Include="compilerconfig.json.defaults">
       <DependentUpon>compilerconfig.json</DependentUpon>
     </None>
+    <Content Include="Factory of the Future-3.ruleset" />
     <None Include="Properties\PublishProfiles\FolderProfile.pubxml" />
     <None Include="Scripts\jquery-3.6.0.intellisense.js" />
     <Content Include="Scripts\jquery-3.6.0.js" />
@@ -535,7 +536,9 @@
     <Compile Include="App_Start\Load.cs" />
     <Compile Include="Controllers\DockDoorController.cs" />
     <Compile Include="AGV\Controllers\EITSController.cs" />
+    <Compile Include="Controllers\MPE_DPSController.cs" />
     <Compile Include="Controllers\MPE_PerfController.cs" />
+    <Compile Include="Controllers\RFIDController.cs" />
     <Compile Include="Data_Retention\DataRetentionProcess.cs" />
     <Compile Include="App_Start\WebApiConfig.cs" />
     <Compile Include="Controllers\IncomingDataController.cs" />
@@ -613,6 +616,7 @@
     <Compile Include="MPE\MPE.aspx.designer.cs">
       <DependentUpon>MPE.aspx</DependentUpon>
     </Compile>
+    <Compile Include="ProcessReceivedMessage\CameraData.cs" />
     <Compile Include="ProcessReceivedMessage\ContainerData.cs" />
     <Compile Include="ProcessReceivedMessage\DoorData.cs" />
     <Compile Include="ProcessReceivedMessage\ItineraryTrip_Update.cs" />
@@ -621,6 +625,7 @@
     <Compile Include="ProcessReceivedMessage\MPEWatch_RPGPerf.cs" />
     <Compile Include="ProcessReceivedMessage\MPEWatch_RPGPlan.cs" />
     <Compile Include="ProcessReceivedMessage\ProjectData.cs" />
+    <Compile Include="ProcessReceivedMessage\RFIdData.cs" />
     <Compile Include="ProcessReceivedMessage\StaffingData.cs" />
     <Compile Include="ProcessReceivedMessage\SV_Zone.cs" />
     <Compile Include="ProcessReceivedMessage\TripData.cs" />

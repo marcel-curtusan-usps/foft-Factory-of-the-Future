@@ -382,7 +382,7 @@ namespace Factory_of_the_Future
             {
                 if (ConnectionInfo.Port > 0)
                 {
-                    server = new MulticastUdpServer(IPAddress.Any, (int)ConnectionInfo.Port, ID);
+                    server = new MulticastUdpServer(IPAddress.Any, ConnectionInfo.Port, ConnectionInfo.Id);
                     server.Start();
                     Status = 1;
                 }
@@ -396,7 +396,8 @@ namespace Factory_of_the_Future
             {
                 if (ConnectionInfo.Port > 0)
                 {
-                    tcpServer = new TcpServer(AppParameters.ServerIpAddress, (int)ConnectionInfo.Port, ID);
+                    ConnectionInfo.IpAddress = AppParameters.ServerIpAddress;
+                    tcpServer = new TcpServer(ConnectionInfo.IpAddress, ConnectionInfo.Port, ConnectionInfo);
                     tcpServer.Start();
                     Status = 1;
                 }
@@ -647,7 +648,7 @@ namespace Factory_of_the_Future
                         {
                             
 
-                            Task.Run(() => new ProcessRecvdMsg().StartProcess(new SendMessage().Get(uriResult, requestBody), MessageType, ConnectionInfo.Id));
+                            Task.Run(() => new ProcessRecvdMsg().StartProcess(new SendMessage().Get(uriResult, requestBody), MessageType, ConnectionInfo.Id)).ConfigureAwait(false);
                         }
                         else
                         {

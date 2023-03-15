@@ -557,6 +557,9 @@ function createConnectionDataTable(table) {
                 if (data.ApiConnected) {
                     $(row).find('td:eq(3)').css('background-color', 'green');
                 }
+                else if (data.TcpIpConnection) {
+                    $(row).find('td:eq(3)').css('background-color', 'green');
+                }
                 else {
                     $(row).find('td:eq(3)').css('background-color', 'red');
                 }
@@ -757,6 +760,29 @@ function GetConnectionStatus(data) {
     }
     else {
         return "Disabled";
+    }
+}
+function enableudpSubmit() {
+    if ($('input[type=text][name=message_type]').hasClass('is-valid') &&
+        $('input[type=text][name=port_number]').hasClass('is-valid') &&
+        /* $('input[type=text][name=admin_email_recepient]').hasClass('is-valid') &&*/
+        $('input[type=text][name=connection_name]').hasClass('is-valid')
+    ) {
+        $('button[id=apisubmitBtn]').prop('disabled', false);
+    }
+    else {
+        $('button[id=apisubmitBtn]').prop('disabled', true);
+    }
+}
+function enabletcpipSubmit() {
+    if ($('input[type=text][name=message_type]').hasClass('is-valid') &&
+        $('input[type=text][name=port_number]').hasClass('is-valid') &&
+        $('input[type=text][name=connection_name]').hasClass('is-valid')
+    ) {
+        $('button[id=apisubmitBtn]').prop('disabled', false);
+    }
+    else {
+        $('button[id=apisubmitBtn]').prop('disabled', true);
     }
 }
 function enableConnectionSubmit() {

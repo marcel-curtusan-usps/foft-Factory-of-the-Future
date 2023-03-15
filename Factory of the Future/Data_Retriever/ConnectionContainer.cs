@@ -18,11 +18,12 @@ namespace Factory_of_the_Future
         public bool updateFile;
         public Connection _conn { get; protected set; }
         public Api_Connection NewConnection { get; protected set; }
-        public void Add(Connection con)
+        public void Add(Connection con, bool saveToFile)
         {
             try
             {
                 NewConnection = new Api_Connection();
+                con.Status = "Idle/Active";
                 if (con.ConnectionName.ToLower() == "MPEWatch".ToLower())
                 {
                     con.IpAddress = "";
@@ -55,15 +56,22 @@ namespace Factory_of_the_Future
                     }
                     else if (con.ApiConnection)
                     {
-                        NewConnection.ConstantRefresh = true;
-                        NewConnection._ThreadDownload();
-                        NewConnection._ThreadRefresh();
+                        if (con.DataRetrieve != 0)
+                        {
+                            NewConnection.ConstantRefresh = true;
+                            NewConnection._ThreadDownload();
+                            NewConnection._ThreadRefresh();
+                        }
                     }
                 }
                 else
                 {
                     NewConnection.Status = 2;
                     NewConnection.ConnectionInfo.Status = "Deactived";
+                }
+                if (saveToFile)
+                {
+                    new FileIO().Write(string.Concat(AppParameters.CodeBase.Parent.FullName.ToString(), AppParameters.Appsetting), "Connection.json", AppParameters.ConnectionOutPutdata(Connection.Select(y => y.ConnectionInfo).ToList()));
                 }
             }
             catch (Exception e)
@@ -149,15 +157,18 @@ namespace Factory_of_the_Future
                             }
                             else if (updateConndata.ApiConnection)
                             {
-                                Connection_item.ConstantRefresh = true;
-                                Connection_item.ConnectionInfo.Url = updateConndata.Url;
-                                Connection_item.ConnectionInfo.DataRetrieve = updateConndata.DataRetrieve;
-                                Connection_item.ConnectionInfo.ApiConnection = updateConndata.ApiConnection;
-                                if (Connection_item.Status == 2)
+                                if (updateConndata.DataRetrieve != 0)
                                 {
                                     Connection_item.ConstantRefresh = true;
-                                    Connection_item._ThreadDownload();
-                                    Connection_item._ThreadRefresh();
+                                    Connection_item.ConnectionInfo.Url = updateConndata.Url;
+                                    Connection_item.ConnectionInfo.DataRetrieve = updateConndata.DataRetrieve;
+                                    Connection_item.ConnectionInfo.ApiConnection = updateConndata.ApiConnection;
+                                    if (Connection_item.Status == 2)
+                                    {
+                                        Connection_item.ConstantRefresh = true;
+                                        Connection_item._ThreadDownload();
+                                        Connection_item._ThreadRefresh();
+                                    }
                                 }
 
                             }
@@ -170,9 +181,7 @@ namespace Factory_of_the_Future
                 }
                 if (updateFile)
                 {
-                   
                     new FileIO().Write(string.Concat(AppParameters.CodeBase.Parent.FullName.ToString(), AppParameters.Appsetting), "Connection.json", AppParameters.ConnectionOutPutdata(Connection.Select(y => y.ConnectionInfo).ToList()));
-
                 }
             }
             catch (Exception e)

@@ -451,7 +451,7 @@ function formatmachinetoprow(properties) {
 }
 function Vaildatesortplan(data) {
     try {
-        if (!!data && data.current_run_start.length > 3) {
+        if (!!data && data.cur_sortplan.length > 3) {
             return data.cur_sortplan;
         }
         else {
@@ -505,14 +505,14 @@ let machinetop_row_template =
 function formatdpstoprow(properties) {
     return $.extend(properties, {
         dpssortplans: properties.sortplan_name_perf,
-        piecesfedfirstpass: digits(properties.pieces_fed_1st_cnt),
-        piecesrejectedfirstpass: digits(properties.pieces_rejected_1st_cnt),
-        piecestosecondpass: digits(properties.pieces_to_2nd_pass),
-        piecesfedsecondpass: digits(properties.pieces_fed_2nd_cnt),
-        piecesrejectedsecondpass: digits(properties.pieces_rejected_2nd_cnt),
-        piecesremainingsecondpass: digits(properties.pieces_remaining),
-        timetocompleteactual: digits(properties.time_to_comp_actual),
-        timeleftsecondpassactual: digits(properties.time_to_2nd_pass_actual),
+        piecesfedfirstpass: properties.pieces_fed_1st_cnt,
+        piecesrejectedfirstpass: properties.pieces_rejected_1st_cnt,
+        piecestosecondpass: properties.pieces_to_2nd_pass,
+        piecesfedsecondpass: properties.pieces_fed_2nd_cnt,
+        piecesrejectedsecondpass: properties.pieces_rejected_2nd_cnt,
+        piecesremainingsecondpass: properties.pieces_remaining,
+        timetocompleteactual: properties.time_to_comp_actual,
+        timeleftsecondpassactual: properties.time_to_2nd_pass_actual,
         recomendedstartactual: properties.rec_2nd_pass_start_actual,
         completiondateTime: properties.time_to_comp_actual_DateTime,
     });

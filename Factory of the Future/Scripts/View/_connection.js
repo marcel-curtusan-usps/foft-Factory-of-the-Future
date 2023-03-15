@@ -118,29 +118,8 @@ function onUpdateWS() {
         onRegularConnection();
     }
 }
-function enableudpSubmit() {
-    if ($('input[type=text][name=message_type]').hasClass('is-valid') &&
-        $('input[type=text][name=port_number]').hasClass('is-valid') &&
-       /* $('input[type=text][name=admin_email_recepient]').hasClass('is-valid') &&*/
-        $('input[type=text][name=connection_name]').hasClass('is-valid')
-    ) {
-        $('button[id=apisubmitBtn]').prop('disabled', false);
-    }
-    else {
-        $('button[id=apisubmitBtn]').prop('disabled', true);
-    }
-}
-function enabletcpipSubmit() {
-    if ($('input[type=text][name=message_type]').hasClass('is-valid') &&
-        $('input[type=text][name=port_number]').hasClass('is-valid') &&
-        $('input[type=text][name=connection_name]').hasClass('is-valid')
-    ) {
-        $('button[id=apisubmitBtn]').prop('disabled', false);
-    }
-    else {
-        $('button[id=apisubmitBtn]').prop('disabled', true);
-    }
-}
+
+
 
 function onRegularConnection() {
     $('input[type=text][name=url]').prop("disabled", false);

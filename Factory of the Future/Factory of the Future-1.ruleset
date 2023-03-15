@@ -1,0 +1,5 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<RuleSet Name="SonarQube - 9209 - Factory-of-the-Future USPS - Level 1" ToolsVersion="16.0">
+  <Include Path="..\.sonarlint\9209_factory-of-the-futurecsharp.ruleset" Action="Default" />
+  <Include Path="..\.sonarlint\9209_fotfsmartfacilitycsharp.ruleset" Action="Default" />
+</RuleSet>

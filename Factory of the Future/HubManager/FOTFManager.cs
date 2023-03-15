@@ -197,6 +197,7 @@ namespace Factory_of_the_Future
                         MPE.Properties.MPEWatchData = GetMPEPerfData(mpeId);
                         if (!string.IsNullOrEmpty(MPE.Properties.MPEWatchData.CurSortplan))
                         {
+                            MPE.Properties.DPSData = GetDPSData(MPE.Properties.MPEWatchData.CurSortplan);
                             MPE.Properties.StaffingData = GetStaffingSortplan(string.Concat(MPE.Properties.MPEWatchData.MpeType, MPE.Properties.MPEWatchData.MpeNumber, MPE.Properties.MPEWatchData.CurSortplan));
                         }
                         
@@ -1729,10 +1730,8 @@ namespace Factory_of_the_Future
             try
             {
                 string tempsortplan = curSortplan.Length >= 7 ? curSortplan.Substring(0, 7) : curSortplan;
-                //if (AppParameters.DPSList.TryGetValue(tempsortplan, out string sortplan))
-                //{
-                //    DPSData = JsonConvert.DeserializeObject<Delivery_Point_Sequence>(sortplan);
-                //}
+                AppParameters.DPSList.TryGetValue(tempsortplan, out DPSData);
+                
                 return DPSData;
             }
             catch (Exception ex)
@@ -2143,11 +2142,11 @@ namespace Factory_of_the_Future
                 return null;
             }
         }
-        internal async Task<IEnumerable<Connection>> AddAPIAsync(string data)
+        internal IEnumerable<Connection> AddAPI(string data)
         {
             try
             {
-                await Task.Run(() => AppParameters.RunningConnection.Add(JsonConvert.DeserializeObject<Connection>(data))).ConfigureAwait(false);
+                Task.Run(() => AppParameters.RunningConnection.Add(JsonConvert.DeserializeObject<Connection>(data), true)).ConfigureAwait(false);
                // AppParameters.RunningConnection.Add(JsonConvert.DeserializeObject<Connection>(data));
 
                 return null;

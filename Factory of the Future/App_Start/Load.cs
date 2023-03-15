@@ -55,7 +55,7 @@ namespace Factory_of_the_Future
 
                     for (int i = 0; i < tempcon.Count; i++)
                     {
-                        await Task.Run(() => AppParameters.RunningConnection.Add(tempcon[i])).ConfigureAwait(false);
+                        await Task.Run(() => AppParameters.RunningConnection.Add(tempcon[i], false)).ConfigureAwait(false);
                     }
                 }
             }

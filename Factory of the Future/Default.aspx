@@ -138,6 +138,7 @@
                             <label class="control-label">Retrieve Occurrences</label>
                             <select id="data_retrieve" class="form-control pb-1" name="data_retrieve">
                                 <option value=""></option>
+                                <option value="0">Listener</option>
                                 <option value="250">250 Millisecond</option>
                                 <option value="500">500 Millisecond</option>
                                 <option value="1000">1 Second</option>

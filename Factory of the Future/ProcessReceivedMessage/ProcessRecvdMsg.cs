@@ -32,11 +32,13 @@ namespace Factory_of_the_Future
                     switch (_Message_type)
                     {
                         ///*Web cameras*/
-                        case "Cameras":
-                            CameraData(_data, _connID);
+                        case "RFID":
+                            await Task.Run(() => new RFIdData().LoadAsync(_data, _Message_type, _connID)).ConfigureAwait(false);
                             break;
-                        case "getCameraStills":
-                            CameraStillsData(_data, _connID);
+                        ///*Web cameras*/
+                        case "Cameras":
+                            await Task.Run(() => new CameraData().LoadAsync(_data, _Message_type, _connID)).ConfigureAwait(false);
+                          //  CameraData(_data, _connID);
                             break;
                         /*Quuppa Data Start*/
                         case "getTagPosition":
@@ -118,19 +120,11 @@ namespace Factory_of_the_Future
                             break;
                         case "rpg_plan":
                             await Task.Run(() => new MPEWatch_RPGPlan().LoadAsync(_data, _Message_type, _connID)).ConfigureAwait(false);
-                            //if (string.IsNullOrEmpty(_data) == false)
-                            //{
-                            //    using (var mpeWatch = new MPEWatch_RPGPlan())
-                            //    {
-                            //        mpeWatch.LoadAsync(_data);
-                            //    }
-                            //}
                             break;
                         case "dps_run_estm":
                             await Task.Run(() => new MPEWatch_DPS().LoadAsync(_data, _Message_type, _connID)).ConfigureAwait(false);
                             break;
                         ///*MPEWatch Data End*/
-                        
                         case "getSVZones":
                             await Task.Run(() => new SV_Zone().LoadAsync(_data, _Message_type, _connID)).ConfigureAwait(false);
                             break;
@@ -222,315 +216,6 @@ namespace Factory_of_the_Future
         //        new ErrorLogger().ExceptionLog(e);
         //    }
         //}
-        private void CameraData(dynamic data, string conID)
-        {
-            try
-            {
-                if (data != null)
-                {
-                    List<Cameras> newCameras = JsonConvert.DeserializeObject<List<Cameras>>(data);
-                    if (newCameras.Count > 0)
-                    {
-                        foreach (Cameras camera_item in newCameras)
-                        {
-                            //camera_item.Base64 = GetImgae(camera_item);
-                            if (AppParameters.CameraInfoList.TryGetValue(camera_item.CameraName, out Cameras existingValue))
-                            {
-                                existingValue.FacilitySubtypeDesc = camera_item.FacilitySubtypeDesc;
-                                existingValue.AuthKey = camera_item.AuthKey;
-                                existingValue.Description = camera_item.Description;
-                                existingValue.FacilitiyLatitudeNum = camera_item.FacilitiyLatitudeNum;
-                                existingValue.FacilitiyLongitudeNum = camera_item.FacilitiyLongitudeNum;
-                                existingValue.FacilityDisplayName = camera_item.FacilityDisplayName;
-                                existingValue.FacilityPhysAddrTxt = camera_item.FacilityPhysAddrTxt;
-                                existingValue.GeoProcDivisionNm = camera_item.GeoProcDivisionNm;
-                                existingValue.GeoProcRegionNm = camera_item.GeoProcRegionNm;
-                                existingValue.LocaleKey = camera_item.LocaleKey;
-                                existingValue.ModelNum = camera_item.ModelNum;
-                                existingValue.Reachable = camera_item.Reachable;
-                                existingValue.Base64Image = AppParameters.NoImage;
-                                existingValue.Alerts = null;
-
-                                foreach (CoordinateSystem cs in FOTFManager.Instance.CoordinateSystem.Values)
-                                {
-                                    cs.Locators.Where(f => f.Value.Properties.TagType != null &&
-                                    f.Value.Properties.TagType == "Camera").Select(y => y.Value).ToList().ForEach(Camera =>
-                                    {
-                                        if (Camera.Properties.Name == camera_item.CameraName)
-                                        {
-                                            Camera.Properties.CameraData.FacilitySubtypeDesc = camera_item.FacilitySubtypeDesc;
-                                            Camera.Properties.CameraData.AuthKey = camera_item.AuthKey;
-                                            Camera.Properties.CameraData.Description = camera_item.Description;
-                                            Camera.Properties.CameraData.FacilitiyLatitudeNum = camera_item.FacilitiyLatitudeNum;
-                                            Camera.Properties.CameraData.FacilitiyLongitudeNum = camera_item.FacilitiyLongitudeNum;
-                                            Camera.Properties.CameraData.FacilityDisplayName = camera_item.FacilityDisplayName;
-                                            Camera.Properties.CameraData.FacilityPhysAddrTxt = camera_item.FacilityPhysAddrTxt;
-                                            Camera.Properties.CameraData.GeoProcDivisionNm = camera_item.GeoProcDivisionNm;
-                                            Camera.Properties.CameraData.GeoProcRegionNm = camera_item.GeoProcRegionNm;
-                                            Camera.Properties.CameraData.LocaleKey = camera_item.LocaleKey;
-                                            Camera.Properties.CameraData.ModelNum = camera_item.ModelNum;
-                                            Camera.Properties.CameraData.Reachable = camera_item.Reachable;
-                                            if (Camera.Properties.CameraData.Base64Image == null)
-                                            {
-                                                Camera.Properties.CameraData.Base64Image = AppParameters.NoImage;
-                                            }
-                                            Camera.Properties.CameraData.Alerts = null;
-                                        }
-                                    });
-                                }
-                            }
-                            else
-                            {
-                                if (!AppParameters.CameraInfoList.TryAdd(camera_item.CameraName, camera_item))
-                                {
-                                    new ErrorLogger().CustomLog("Unable to Able to add Camera" + camera_item.CameraName, string.Concat((string)AppParameters.AppSettings.Property("APPLICATION_NAME").Value, "_Applogs"));
-                                }
-                            }
-                        }
-                        Task.Run(() => UpdateConnection(conID, "good"));
-                    }
-                    else
-                    {
-                        Task.Run(() => UpdateConnection(conID, "error"));
-                    }
-                }
-               
-            }
-            catch (Exception e)
-            {
-                Task.Run(() => UpdateConnection(conID, "error"));
-                new ErrorLogger().ExceptionLog(e);
-            }
-        }
-
-        private void CameraStillsData(dynamic data, string conID)
-        {
-            if (data != null)
-            {
-                try
-                {
-                    foreach (CoordinateSystem cs in FOTFManager.Instance.CoordinateSystem.Values)
-                    {
-                        cs.Locators.Where(f => f.Value.Properties.TagType != null &&
-                        f.Value.Properties.TagType == "Camera").Select(y => y.Value).ToList().ForEach(Camera =>
-                        {
-                            if (data.TryGetValue(Camera.Properties.Name, out string camImage))
-                            {
-                                if (Camera.Properties.CameraData.Base64Image != camImage)
-                                {
-                                    Camera.Properties.CameraData.Base64Image = camImage;
-                                    Camera.Properties.TagUpdate = true;
-                                    FOTFManager.Instance.BroadcastCameraStatus(Camera, cs.Id);
-                                }
-                            }
-                        });
-                    }
-                }
-                catch (Exception ex)
-                {
-                    new ErrorLogger().ExceptionLog(ex);
-                }
-            }
-        }
-
-
-        private string GetImgae(Cameras camera_item)
-        {
-            try
-            {
-                string formatUrl = string.Concat("http://", camera_item.CameraName, "/axis-cgi/jpg/image.cgi?resolution=640x480");
-                HttpWebRequest request = (HttpWebRequest)HttpWebRequest.Create(formatUrl);
-                using (HttpWebResponse Response = (HttpWebResponse)request.GetResponse())
-                {
-                    if (Response.StatusCode == HttpStatusCode.OK)
-                    {
-                        using (StreamReader reader = new System.IO.StreamReader(Response.GetResponseStream(), ASCIIEncoding.ASCII))
-                        {
-                            return "";
-                        }
-                    }
-                }
-                return "";
-            }
-            catch (Exception e)
-            {
-
-                new ErrorLogger().ExceptionLog(e);
-                return "";
-            }
-        }
-
-        private static void Container(dynamic data, string conID)
-        {
-
-            try
-            {
-
-                if (data != null)
-                {
-                    List<Container> Containers = JsonConvert.DeserializeObject<List<Container>>(data);
-                    if (Containers.Count > 0)
-                    {
-                        string siteId = (string)AppParameters.AppSettings["FACILITY_NASS_CODE"];
-
-                        foreach (Container d in Containers)
-                        {
-                            if (d.PlacardBarcode.StartsWith("99M"))
-                            {
-                                d.MailClass = "99M";
-                                d.MailClassDisplay = "Mailer";
-                                d.OriginName = "Mailer";
-                                d.Origin = "";
-                                d.Dest = "";
-                                d.DestinationName = "";
-                            }
-                            int sortindex = 0;
-                            foreach (ContainerHistory scan in d.ContainerHistory.OrderBy(o => o.EventDtmfmt))
-                            {
-                                if (d.EventDtm.Year == 1)
-                                {
-                                    d.EventDtm = scan.EventDtmfmt;
-                                }
-                                sortindex++;
-                                scan.sortind = sortindex;
-                                d.BinDisplay = scan.Event == "PASG" ? scan.BinName : "";
-                                if (scan.SiteId == siteId)
-                                {
-
-                                    if (scan.Event == "PASG")
-                                    {
-                                        d.hasAssignScans = true;
-                                    }
-                                    if ((scan.Event == "CLOS" || scan.Event == "BCLS"))
-                                    {
-                                        d.hasCloseScans = true;
-                                    }
-                                    if (scan.Event == "LOAD")
-                                    {
-                                        d.hasLoadScans = true;
-                                        d.Trailer = scan.Trailer;
-                                    }
-                                    if (scan.Event == "UNLD")
-                                    {
-                                        d.hasUnloadScans = true;
-                                        d.Trailer = scan.Trailer;
-                                    }
-                                    if (scan.Event == "PRINT")
-                                    {
-                                        d.hasPrintScans = true;
-                                    }
-                                    if (scan.Event == "TERM")
-                                    {
-                                        d.containerTerminate = true;
-                                    }
-                                    if (!string.IsNullOrEmpty(scan.Location) && scan.SiteType == "Origin" && scan.Event == "PASG" && scan.Location != d.Location)
-                                    {
-                                        d.Location = scan.Location;
-                                    }
-
-                                }
-                                if (scan.Event == "TERM")
-                                {
-                                    d.containerTerminate = true;
-                                }
-                                if (scan.Event == "UNLD" && scan.RedirectInd == "Y" && d.Dest == siteId)
-                                {
-                                    d.containerRedirectedDest = true;
-                                }
-
-                                if (scan.Event == "UNLD" && scan.SiteType == "Destination")
-                                {
-                                    if (scan.SiteId == d.Dest)
-                                    {
-                                        d.containerAtDest = true;
-                                    }
-                                }
-                                if (scan.Event == "UNLD" && scan.SiteType == "Via")
-                                {
-                                    if (scan.SiteId != d.Dest)
-                                    {
-                                        d.containerRedirectedDest = true;
-                                        d.hasUnloadScans = true;
-                                        d.Location = "X-Dock";
-                                    }
-                                }
-                            }
-                            // Global.DockDoor_List.AddOrUpdate(vr_door_item.DoorNumber, vr_door_item, (key, existingVal) =>
-                            // {
-                            AppParameters.Containers.AddOrUpdate(d.PlacardBarcode, d, (Key, exisitingContainer) =>
-                            {
-                                foreach (PropertyInfo prop in exisitingContainer.GetType().GetProperties())
-                                {
-                                    if (!new Regex("^(BinDisplay|ContainerHistory|BinName)$", RegexOptions.IgnoreCase).IsMatch(prop.Name))
-                                    {
-                                        if (prop.GetValue(d, null).ToString() != prop.GetValue(exisitingContainer, null).ToString())
-                                        {
-                                            prop.SetValue(exisitingContainer, prop.GetValue(d, null));
-                                        }
-                                    }
-                                }
-                                exisitingContainer.ContainerHistory = d.ContainerHistory;
-                                return exisitingContainer;
-                            });
-                            //{
-                             
-                            //    exisitingContainer.hasAssignScans = d.hasAssignScans;
-                            //    exisitingContainer.hasCloseScans = d.hasCloseScans;
-                            //    exisitingContainer.hasLoadScans = d.hasLoadScans;
-                            //    exisitingContainer.hasUnloadScans = d.hasUnloadScans;
-                            //    exisitingContainer.hasPrintScans = d.hasPrintScans;
-                            //    exisitingContainer.containerTerminate = d.containerTerminate;
-                            //    exisitingContainer.Location = d.Location;
-                            //    exisitingContainer.containerTerminate = d.containerTerminate;
-                            //    exisitingContainer.containerRedirectedDest = d.containerRedirectedDest;
-                            //    exisitingContainer.containerAtDest = d.containerAtDest;
-                            //    exisitingContainer.containerRedirectedDest = d.containerRedirectedDest;
-                            //    exisitingContainer.ContainerHistory = d.ContainerHistory;
-                            //}
-                            //else
-                            //{
-                            //    AppParameters.Containers.TryAdd(d.PlacardBarcode, d);
-                            //}
-
-                        }
-                        Containers = null;
-                        data = null;
-                        Task.Run(() => UpdateConnection(conID, "good"));
-                    }
-                    else
-                    {
-                        Task.Run(() => UpdateConnection(conID, "error"));
-                    }
-                }
-                else
-                {
-                    Task.Run(() => UpdateConnection(conID, "error"));
-                }
-
-                if (AppParameters.Containers.Count > 0)
-                {
-                    foreach (string m in AppParameters.Containers.Where(r => DateTime.Now.Subtract(r.Value.EventDtm).TotalDays >= 3).Select(y => y.Key))
-                    {
-                        AppParameters.Containers.TryRemove(m, out Container outc);
-
-                    }
-                }
-                CheckScanNotification();
-            }
-            catch (Exception e)
-            {
-                Task.Run(() => UpdateConnection(conID, "error"));
-                new ErrorLogger().ExceptionLog(e);
-            }
-            finally
-            {
-
-                GC.Collect(GC.MaxGeneration, GCCollectionMode.Forced);
-                GC.WaitForPendingFinalizers();
-                GC.Collect(GC.MaxGeneration, GCCollectionMode.Forced);
-            }
-
-        }
         //private static void Trips(dynamic data, string message_type, string conID)
         //{
 
@@ -665,23 +350,6 @@ namespace Factory_of_the_Future
         //    }
         //}
 
-        private static bool getDefaultDockDoor(string rt, out string door)
-        {
-            string _door = ""; 
-            try
-            {
-                _door = AppParameters.DoorTripAssociation.Where(f => f.Key == rt).Select(y => y.Value.DoorNumber).FirstOrDefault();
-                door = !string.IsNullOrEmpty(_door) ? _door.Trim() : "";
-
-                return true;
-            }
-            catch (Exception e)
-            {
-                door = !string.IsNullOrEmpty(_door) ? _door.Trim() : "";
-                new ErrorLogger().ExceptionLog(e);
-                return false;
-            }
-        }
 
         //private static string GetItinerary(string route, string trip, string nasscode, DateTime start_time)
         //{

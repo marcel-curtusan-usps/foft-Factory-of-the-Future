@@ -185,7 +185,7 @@ async function buildDataTable(data)
                 dataArray.push(tabledataObject);
             }
         }
-        if (/rpg_end_dtm/i.test(key)) {
+        if (/cur_sortplan/i.test(key)) {
             tabledataObject = {
                 "order": 1,
                 "Name": "Sort Program",
