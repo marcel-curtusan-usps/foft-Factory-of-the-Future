@@ -251,24 +251,24 @@ namespace Factory_of_the_Future
                     if (Connection_item.ConnectionInfo.Id == connection.Id)
                     {
                         NewConnection = Connection_item;
-                        if (Connection_item.ConnectionInfo.UdpConnection)
+                        if (NewConnection.ConnectionInfo.UdpConnection)
                         {
-                            Connection_item._StopUDPListener();
+                            NewConnection._StopUDPListener();
                             conStoped = true;
                         }
-                        else if (Connection_item.ConnectionInfo.TcpIpConnection)
+                        else if (NewConnection.ConnectionInfo.TcpIpConnection)
                         {
-                            Connection_item._StopTCPListener();
+                            NewConnection._StopTCPListener();
                             conStoped = true;
                         }
-                        else if (Connection_item.ConnectionInfo.WsConnection)
+                        else if (NewConnection.ConnectionInfo.WsConnection)
                         {
-                            Connection_item.WSStop();
+                            NewConnection.WSStop();
                             conStoped = true;
                         }
-                        else if (Connection_item.ConnectionInfo.ApiConnection)
+                        else if (NewConnection.ConnectionInfo.ApiConnection)
                         {
-                            Connection_item.Stop();
+                            NewConnection.Stop();
                             conStoped = true;
                         }
                       
@@ -277,7 +277,7 @@ namespace Factory_of_the_Future
                 if (conStoped)
                 {
                     AppParameters.RunningConnection.Connection.Remove(NewConnection);
-                    await Task.Run(() => FOTFManager.Instance.BroadcastRemoveConnection(connection)).ConfigureAwait(false);
+                    await Task.Run(() => FOTFManager.Instance.BroadcastRemoveConnection(NewConnection.ConnectionInfo)).ConfigureAwait(false);
                 }
             }
             catch (Exception e)

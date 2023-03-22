@@ -615,6 +615,47 @@ namespace Factory_of_the_Future
                     }
 
                 }
+                else if (ConnectionInfo.ConnectionName.ToUpper().StartsWith("MPE_Alerts".ToUpper()))
+                {
+                        foreach (CoordinateSystem cs in FOTFManager.Instance.CoordinateSystem.Values)
+                        {
+                            cs.Zones.Where(f => f.Value.Properties.ZoneType != null &&
+                                f.Value.Properties.ZoneType.StartsWith("MPE")).Select(y => y.Value).ToList().ForEach(MPE =>
+                                {
+                                    try
+                                    {
+                                        //Update when change to FQN
+                                        formatUrl = string.Format(ConnectionInfo.Url, MPE.Properties.GpioNumber);
+                                        int result = 0;
+                                        if (!string.IsNullOrEmpty(formatUrl))
+                                        {
+                                            if (ConnectionInfo.ActiveConnection)
+                                            {
+                                                using (WebClient client = new WebClient())
+                                                {
+                                                    client.Headers.Add(HttpRequestHeader.ContentType, "application/octet-stream");
+                                                    result = int.Parse(client.DownloadString(formatUrl));
+                                                }
+                                            }
+                                        }
+                                        if (MPE.Properties.GpioValue != result)
+                                        {
+                                            MPE.Properties.GpioValue = result;
+                                            Task.Run(() => FOTFManager.Instance.BroadcastBinZoneStatus(MPE, cs.Id)).ConfigureAwait(false);
+                                        }
+                                    }
+                                    catch (Exception e)
+                                    {
+                                        new ErrorLogger().ExceptionLog(e);
+                                    }
+                                });
+                        }
+                        DownloadDatetime = dtNow;
+                        //Task.Run(() => new ProcessRecvdMsg().StartProcess(cameraImages, MessageType, ConnectionInfo.Id));
+                        Status = 0;
+                        return;
+
+                }
                 else if (ConnectionInfo.ConnectionName.ToUpper().StartsWith("IV".ToUpper()))
                 {
                     if (!string.IsNullOrEmpty(lkey))

@@ -33,6 +33,7 @@ $(function () {
     User = $.parseJSON(localStorage.getItem('User'));  
     if (!$.isEmptyObject(User)) {
         $(document).prop('title', User.Facility_Name + ' ' + User.ApplicationAbbr);
+        $('#fotf-site-facility-name').empty();
         $('#fotf-site-facility-name').append(User.Facility_Name);
         $(document).prop('title', User.Facility_Name + ' ' + User.ApplicationFullName);
         map.attributionControl.setPrefix("USPS " + User.ApplicationFullName + " (" + User.SoftwareVersion + ") | " + User.Facility_Name);
@@ -113,7 +114,7 @@ $(function () {
             }
         }
         if (/^Admin/i.test(User.Role)) {
-
+         
             ConnectionNameLoad($.parseJSON(User.AppSetting))
             
             sidebar.addPanel({
@@ -229,7 +230,7 @@ $(function () {
     $.connection.hub.qs = { 'page_type': "CF".toUpperCase() };
     $.connection.hub.start({ waitForPageLoad: false })
         .done(function () {
-
+            fotfmanager.server.joinGroup("QSM");
             if (/^(Admin|OIE)/i.test(User.Role)) {
                 init_geometry_editing();
             }
@@ -536,6 +537,7 @@ $(function () {
 
 
 function Page_Update(data) {
+    $('#fotf-site-facility-name').empty();
     $('#fotf-site-facility-name').append(data.FACILITY_NAME);
     $(document).prop('title', data.FACILITY_NAME + ' ' + data.APPLICATION_NAME);
 }

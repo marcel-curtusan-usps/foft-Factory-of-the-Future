@@ -407,5 +407,5 @@ function init_zones(zoneData, id) {
     }
     // setGreyedOut();
     fotfmanager.server.joinGroup("Zones");
-    fotfmanager.server.joinGroup("QSM");
+  
 }

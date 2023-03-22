@@ -275,7 +275,7 @@ async function removeConnection(data) {
 }
 async function addConnection(data) {
     try {
-        loadConnectionDatatable(data, "connectiontable");
+        loadConnectionDatatable([data], "connectiontable");
     } catch (e) {
         console.log(e);
     }
@@ -426,9 +426,7 @@ function createConnectionDataTable(table) {
 }
 function loadConnectionDatatable(data, table) {
     if ($.fn.dataTable.isDataTable("#" + table)) {
-        if (!$.isEmptyObject(data)) {
-            $('#' + table).DataTable().rows.add(data).draw();
-        }
+        $('#' + table).DataTable().rows.add(data).draw();
     }
 }
 function updateConnectionDataTable(newdata, table) {
@@ -495,7 +493,7 @@ function Add_Connection() {
             DataRetrieve: $('select[name=data_retrieve] option:selected').val(),
             ConnectionName: $('select[name=connection_name] option:selected').val(),
             IpAddress: $('input[type=text][name=ip_address]').val(),
-            Port: $('input[type=text][name=port_number]').val(),
+            Port: $.isNumeric($('input[type=text][name=port_number]').val()) ? parseInt($('input[id=hoursback_range]').val(), 10) : 0,
             Url: $('input[type=text][name=url]').val(),
             MessageType: $('select[name=message_type] option:selected').val(),
             CreatedByUsername: User.UserId,
