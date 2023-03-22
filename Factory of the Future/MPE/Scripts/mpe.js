@@ -178,7 +178,7 @@ async function buildDataTable(data)
                 "order": 5,
                 "Name": "End Time",
                 "Planned": VaildateEstComplete(data.rpg_end_dtm),
-                "Actual": "Estimated " + VaildateEstComplete(data.rpg_est_comp_time),
+                "Actual": VaildateEstComplete(data.rpg_est_comp_time),
             }
             if (CurrentTripMin === 0) {
                 CountTimer = startTimer(data.rpg_est_comp_time);
@@ -281,7 +281,7 @@ function VaildateEstComplete(estComplet) {
     try {
         let est = moment(estComplet);
         if (est._isValid && est.year() === moment().year()) {
-            return est.format("MM/DD/YYYY hh:mm:ss A");
+            return est.format("hh:mm:ss");
         }
         else {
             return "Not Available";

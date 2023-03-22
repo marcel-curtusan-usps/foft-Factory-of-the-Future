@@ -10,21 +10,26 @@ using System.Web.Http;
 
 namespace Factory_of_the_Future
 {
-    public class SV_DB_Call
+    public class SV_DB_Call : IDisposable
     {
-        internal static JObject GetData(JObject request_data)
+        private bool disposedValue;
+        private JObject result = new JObject();
+        private DirectoryInfo maindir = null;
+        private string query = string.Empty;
+
+        internal JObject GetData(JObject request_data)
         {
-            JObject result = new JObject();
+            
             try
             {
-                if (!string.IsNullOrEmpty((string)AppParameters.AppSettings.Property("ORACONNSVSTRING").Value))
+                if (!string.IsNullOrEmpty(AppParameters.AppSettings["ORACONNSVSTRING"].ToString()))
                 {
-                    DirectoryInfo maindir = new DirectoryInfo(AppParameters.CodeBase.Parent.FullName.ToString());
+                    maindir = new DirectoryInfo(AppParameters.CodeBase.Parent.FullName.ToString());
                     if (maindir.Exists)
                     {
                         if (request_data.ContainsKey("QueryName") && string.IsNullOrEmpty(request_data["QueryName"].ToString()))
                         {
-                            string query = new FileIO().Read(string.Concat(maindir, AppParameters.ORAQuery), request_data["QueryName"].ToString());
+                            query = new FileIO().Read(string.Concat(maindir, AppParameters.ORAQuery), request_data["QueryName"].ToString());
                             if (!string.IsNullOrEmpty(query))
                             {
                                 using (OracleConnection connection = new OracleConnection(AppParameters.Decrypt((string)AppParameters.AppSettings.Property("ORACONNSVSTRING").Value)))
@@ -51,7 +56,7 @@ namespace Factory_of_the_Future
                                                         }
                                                         else
                                                         {
-                                                            command.Parameters.Add(string.Concat(":", property.Key) ?? "", OracleDbType.TimeStamp, DateTime.ParseExact(((DateTime)property.Value).ToString("yyyy-MM-dd HH:mm:ss.fff"), "yyyy-MM-dd HH:mm:ss.fff", null), ParameterDirection.Input);
+                                                            command.Parameters.Add(string.Concat(":", property.Key) ?? "", OracleDbType.TimeStamp,(DateTime)property.Value, ParameterDirection.Input);
                                                         }
                                                     }
                                                 }
@@ -70,6 +75,7 @@ namespace Factory_of_the_Future
                                                 }
                                             }
                                             odr.Close();
+                                            return result;
                                         }
                                         catch (OracleException oe)
                                         {
@@ -84,12 +90,46 @@ namespace Factory_of_the_Future
                         }
                     }
                 }
+                return result;
             }
             catch (Exception ex)
             {
                 new ErrorLogger().ExceptionLog(ex);
+                return result;
             }
-            return result;
+ 
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (!disposedValue)
+            {
+                if (disposing)
+                {
+                    // TODO: dispose managed state (managed objects)
+                }
+
+                // TODO: free unmanaged resources (unmanaged objects) and override finalizer
+                // TODO: set large fields to null
+                disposedValue = true;
+                result = new JObject();
+                maindir = null;
+                query = string.Empty;
+            }
+        }
+
+        // // TODO: override finalizer only if 'Dispose(bool disposing)' has code to free unmanaged resources
+        // ~SV_DB_Call()
+        // {
+        //     // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
+        //     Dispose(disposing: false);
+        // }
+
+        public void Dispose()
+        {
+            // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
+            Dispose(disposing: true);
+            GC.SuppressFinalize(this);
         }
     }
 }

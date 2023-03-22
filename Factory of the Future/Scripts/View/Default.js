@@ -52,7 +52,8 @@ $(function () {
                     '<table class="table table-sm table-hover table-condensed mb-1" id="connectiontable" style="border-collapse:collapse;">' +
                     '<thead class="thead-dark">' +
                     '<tr>' +
-                    '<th class="row-connection-name"><span class="ml-p5rem">Name</span></th><th class="row-connection-type">Message Type</th>' +
+                    '<th class="row-connection-name"><span class="ml-p5rem">Name</span></th>' +
+                    '<th class="row-connection-type">Message Type</th>' +
                     '<th class="row-connection-port">Port</th>' +
                     '<th class="row-connection-status">Status</th>' +
                     '<th class="row-connection-action"><span class="ml-p25rem">Action</span></th>' +
@@ -74,7 +75,6 @@ $(function () {
             $('button[name=machineinfoedit]').css('display', 'block');
             //setup connection list
             init_connection($.parseJSON(User.ConnectionList));
-         
         }
         if (User.hasOwnProperty("FacilityTimeZone")) {
             if (checkValue(User.FacilityTimeZone)) {
@@ -113,6 +113,9 @@ $(function () {
             }
         }
         if (/^Admin/i.test(User.Role)) {
+
+            ConnectionNameLoad($.parseJSON(User.AppSetting))
+            
             sidebar.addPanel({
                 id: 'setting',
                 tab: '<span class="iconCenter"><i class="pi-iconGearFill"></i></span>',
@@ -506,12 +509,12 @@ $(function () {
     //    var id = tr.attr('data-id');
     //    Edit_Connection(id);
     //});
-    $(document).on('click', '.connectiondelete', function () {
-        var td = $(this);
-        var tr = $(td).closest('tr'),
-            id = tr.attr('data-id');
-        Remove_Connection(id);
-    });
+    //$(document).on('click', '.connectiondelete', function () {
+    //    var td = $(this);
+    //    var tr = $(td).closest('tr'),
+    //        id = tr.attr('data-id');
+    //    Remove_Connection(id);
+    //});
     $(document).on('click', '.camera_view', function () {
         let td = $(this);
         let tr = $(td).closest('tr');

@@ -504,6 +504,9 @@ async function LoadDockDoorTable(data) {
         $('button[name=container_counts]').text(0 + "/" + 0);
         $('span[name=doornumberid]').text(data.doorNumber);
         $('select[id=tripSelector]').val("");
+        $('span[name=doorview]').empty();
+        $("<a/>").attr({ target: "_blank", href: window.location.origin + '/Dockdoor/Dockdoor.aspx?DockDoor=' + data.doorNumber, style:'color:white;' }).html("View").appendTo($('span[name=doorview]'));
+   /*     $('span[name=doorview]').text('<a herf="' + window.location.origin +'/dockdoor/dockdoor.aspx?dockdoor=' + data.doorNumber +'">View<a/>');*/
         $('span[name=doorstatus]').text("Unknown");
         $zoneSelect[0].selectize.setValue(-1, true);
         $zoneSelect[0].selectize.setValue(data.id, true);

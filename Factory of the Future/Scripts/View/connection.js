@@ -1,12 +1,20 @@
 ﻿$.extend(fotfmanager.client, {
-    updateQSMStatus: async (Connectionupdate) => { updateConnection(Connectionupdate) }
+    updateQSMStatus: async (Connectionupdate) => { Promise.all([updateConnection(Connectionupdate)]) },
+    removeConnection: async (Connectionremove) => { Promise.all([removeConnection(Connectionremove)])},
+    addConnection: async (Connectionadd) => { Promise.all([addConnection(Connectionadd)]) }
 });
+let connTypeRadio = null;
 //on close clear all inputs
 $('#API_Connection_Modal').on('hidden.bs.modal', function () {
     $(this)
         .find("input[type=text],textarea,select")
         .css({ "border-color": "#D3D3D3" })
         .val('')
+        .prop('disabled', false)
+        .end()
+        .find("input[type=radio]")
+        .prop('disabled', false)
+        .prop('checked', false).change()
         .end()
         .find("span[class=text]")
         .css("border-color", "#FF0000")
@@ -14,7 +22,8 @@ $('#API_Connection_Modal').on('hidden.bs.modal', function () {
         .text("")
         .end()
         .find('input[type=checkbox]')
-        .prop('checked', false).change();
+        .prop('checked', false).change()
+        .end();
     sidebar.open('connections');
 });
 //on open set rules
@@ -22,6 +31,7 @@ $('#API_Connection_Modal').on('shown.bs.modal', function () {
     sidebar.close('connections');
     $('span[id=error_apisubmitBtn]').text("");
     $('button[id=apisubmitBtn]').prop('disabled', true);
+    $('select[name=message_type]').prop('disabled', true);
 
     $('.hoursforwardvalue').html($('input[id=hoursforward_range]').val());
     $('input[id=hoursforward_range]').on('input change', () => {
@@ -31,126 +41,65 @@ $('#API_Connection_Modal').on('shown.bs.modal', function () {
     $('input[id=hoursback_range]').on('input change', () => {
         $('.hoursbackvalue').html($('input[id=hoursback_range]').val());
     });
-    //Connection name Validation
-    if (!checkValue($('input[type=text][name=connection_name]').val())) {
-        $('input[type=text][name=connection_name]').css("border-color", "#FF0000").removeClass('is-valid').addClass('is-invalid');
-        $('span[id=error_connection_name]').text("Please Enter Connection Name");
+
+    //Connection name Keyup
+    if (!checkValue($('select[name=connection_name] option:selected').html())) {
+        $('select[name=connection_name]').css("border-color", "#FF0000").removeClass('is-valid').addClass('is-invalid');
+        $('span[id=error_connection_name]').text("Please Select Connection Name");
     }
     else {
-        $('input[type=text][name=connection_name]').css("border-color", "#2eb82e").removeClass('is-invalid').addClass('is-valid');
+        $('select[name=connection_name]').css("border-color", "#2eb82e").removeClass('is-invalid').addClass('is-valid');
         $('span[id=error_connection_name]').text("");
     }
-    //ip address Keyup
-    $('input[type=text][name=ip_address]').keyup(function () {
-        if (IPAddress_validator($('input[type=text][name=ip_address]').val()) ===
-            "Invalid IP Address") {
-            $('input[type=text][name=ip_address]').css("border-color", "#FF0000").removeClass('is-valid').addClass('is-invalid');
-            $('span[id=ip_address]').text("Please Enter Connection Name");
-        }
-        else {
-            $('input[type=text][name=ip_address]').css("border-color", "#2eb82e").removeClass('is-invalid').addClass('is-valid');
-            $('span[id=error_ip_address]').text("");
-        }
-        if ($('input[type=checkbox][name=udp_connection]').is(':checked')) {
 
-            enableudpSubmit();
-        }
-        else if ($('input[type=checkbox][name=tcpip_connection]').is(':checked')) {
-
-            enabletcpipSubmit();
-        }
-        else if ($('input[type=checkbox][name=ws_connection]').is(':checked')) {
-            enablewsSubmit();
-        }
-        else {
-            enableConnectionSubmit();
-        }
-    });
-    //Connection name Keyup
-    $('input[type=text][name=connection_name]').keyup(function () {
-        if (!checkValue($('input[type=text][name=connection_name]').val())) {
-            $('input[type=text][name=connection_name]').css("border-color", "#FF0000").removeClass('is-valid').addClass('is-invalid');
-            $('span[id=error_connection_name]').text("Please Enter Connection Name");
+    $('select[name=connection_name]').change(function () {
+        filtermessage_type();
+        if (!checkValue($('select[name=connection_name] option:selected').html())) {
+            $('select[name=connection_name]').css("border-color", "#FF0000").removeClass('is-valid').addClass('is-invalid');
+            $('span[id=error_connection_name]').text("Please Select Connection Name");
+            $('select[name=message_type]').prop('disabled', true);
+            enableMessagetype();
         }
         else {
-            $('input[type=text][name=connection_name]').css("border-color", "#2eb82e").removeClass('is-invalid').addClass('is-valid');
+            $('select[name=connection_name]').css("border-color", "#2eb82e").removeClass('is-invalid').addClass('is-valid');
             $('span[id=error_connection_name]').text("");
+            enableMessagetype();
         }
-        if ($('input[type=checkbox][name=udp_connection]').is(':checked')) {
-
-            enableudpSubmit();
-        } else if ($('input[type=checkbox][name=tcpip_connection]').is(':checked')) {
-
-            enabletcpipSubmit();
+      
+        if (/^(udp|tcp)/i.test(connTypeRadio)) {
+            enabletcpipudpSubmit();
         }
-        else if ($('input[type=checkbox][name=ws_connection]').is(':checked')) {
-            enablewsSubmit();
-        }
-        else {
-            enableConnectionSubmit();
+        else if (/^(api)/i.test(connTypeRadio)) {
+            enableaipSubmit();
         }
     });
 
     //message Type Validation
-    if (!checkValue($('input[type=text][name=message_type]').val())) {
-        $('input[type=text][name=message_type]').css("border-color", "#FF0000").removeClass('is-valid').addClass('is-invalid');
-        $('span[id=error_message_type]').text("Please Enter Message Type");
+    if (!checkValue($('select[name=message_type] option:selected').val())) {
+        $('select[name=message_type]').css("border-color", "#FF0000").removeClass('is-valid').addClass('is-invalid');
+        $('span[id=error_message_type]').text("Select Connection Name Frist");
     }
     else {
-        $('input[type=text][name=message_type]').css("border-color", "#2eb82e").removeClass('is-invalid').addClass('is-valid');
+        $('select[name=message_type]').css("border-color", "#2eb82e").removeClass('is-invalid').addClass('is-valid');
         $('span[id=error_message_type]').text("");
     }
-    //message Type Keyup
-    $('input[type=text][name=message_type]').keyup(function () {
-        if (!checkValue($('input[type=text][name=message_type]').val())) {
-            $('input[type=text][name=message_type]').css("border-color", "#FF0000").removeClass('is-valid').addClass('is-invalid');
+    $('select[name=message_type]').change(function () {
+        if (!checkValue($('select[name=message_type] option:selected').val())) {
+            $('select[name=message_type]').css("border-color", "#FF0000").removeClass('is-valid').addClass('is-invalid');
             $('span[id=error_message_type]').text("Please Enter Message Type");
         }
         else {
-            $('input[type=text][name=message_type]').css("border-color", "#2eb82e").removeClass('is-invalid').addClass('is-valid');
+            $('select[name=message_type]').css("border-color", "#2eb82e").removeClass('is-invalid').addClass('is-valid');
             $('span[id=error_message_type]').text("");
         }
-        if ($('input[type=checkbox][name=udp_connection]').is(':checked')) {
-            enableudpSubmit();
-        } else if ($('input[type=checkbox][name=tcpip_connection]').is(':checked')) {
-
-            enabletcpipSubmit();
+        if (/^(udp|tcp)/i.test(connTypeRadio)) {
+            enabletcpipudpSubmit();
         }
-        else if ($('input[type=checkbox][name=ws_connection]').is(':checked')) {
-
-            enablewsSubmit();
-        }
-        else {
-            enableConnectionSubmit();
-        }
-    });
-    $('input[type=text][name=port_number]').keyup(function () {
-        if (!checkValue($('input[type=text][name=port_number]').val())) {
-            $('input[type=text][name=port_number]').css("border-color", "#FF0000").removeClass('is-valid').addClass('is-invalid');
-            $('span[id=port_number]').text("Please Enter Message Type");
-        }
-        else {
-            $('input[type=text][name=port_number]').css("border-color", "#2eb82e").removeClass('is-invalid').addClass('is-valid');
-            $('span[id=port_number]').text("");
-        }
-        if ($('input[type=checkbox][name=udp_connection]').is(':checked')) {
-            enableudpSubmit();
-        } else if ($('input[type=checkbox][name=tcpip_connection]').is(':checked')) {
-
-            enabletcpipSubmit();
-        }
-        else if ($('input[type=checkbox][name=ws_connection]').is(':checked')) {
-
-            enablewsSubmit();
-        }
-        else {
-            enableConnectionSubmit();
+        else if (/^(api)/i.test(connTypeRadio)) {
+            enableaipSubmit();
         }
     });
     //Data Retrieve Occurrences Validation
-    if ($('input[type=checkbox][name=ws_connection]').is(':checked')) {
-
-    }
     if (!checkValue($('select[name=data_retrieve] option:selected').val())) {
         $('select[name=data_retrieve]').css("border-color", "#FF0000").removeClass('is-valid').addClass('is-invalid');
         $('span[id=error_data_retrieve]').text("Select Data Retrieve Occurrences");
@@ -161,9 +110,6 @@ $('#API_Connection_Modal').on('shown.bs.modal', function () {
     }
     //Data Retrieve Occurrences Keyup
     $('select[name=data_retrieve]').change(function () {
-        if ($('input[type=checkbox][name=ws_connection]').is(':checked')) {
-
-        }
         if (!checkValue($('select[name=data_retrieve] option:selected').val())) {
             $('select[name=data_retrieve]').css("border-color", "#FF0000").removeClass('is-valid').addClass('is-invalid');
             $('span[id=error_data_retrieve]').text("Select Data Retrieve Occurrences");
@@ -172,17 +118,11 @@ $('#API_Connection_Modal').on('shown.bs.modal', function () {
             $('select[name=data_retrieve]').css("border-color", "#2eb82e").removeClass('is-invalid').addClass('is-valid');
             $('span[id=error_data_retrieve]').text("");
         }
-        if ($('input[type=checkbox][name=udp_connection]').is(':checked')) {
-            enableudpSubmit();
-        } else if ($('input[type=checkbox][name=tcpip_connection]').is(':checked')) {
-
-            enabletcpipSubmit();
+        if (/^(udp|tcp)/i.test(connTypeRadio)) {
+            enabletcpipudpSubmit();
         }
-        else if ($('input[type=checkbox][name=ws_connection]').is(':checked')) {
-            enablewsSubmit();
-        }
-        else {
-            enableConnectionSubmit();
+        else if (/^(api)/i.test(connTypeRadio)) {
+            enableaipSubmit();
         }
     });
     // Address Validation
@@ -204,17 +144,11 @@ $('#API_Connection_Modal').on('shown.bs.modal', function () {
             $('input[type=text][name=ip_address]').css({ "border-color": "#2eb82e" }).removeClass('is-invalid').addClass('is-valid');
             $('span[id=error_ip_address]').text("");
         }
-        if ($('input[type=checkbox][name=udp_connection]').is(":checked")) {
-            enableudpSubmit();
-        } else if ($('input[type=checkbox][name=tcpip_connection]').is(':checked')) {
-
-            enabletcpipSubmit();
+        if (/^(udp|tcp)/i.test(connTypeRadio)) {
+            enabletcpipudpSubmit();
         }
-        else if ($('input[type=checkbox][name=ws_connection]').is(":checked")) {
-            enablewsSubmit();
-        }
-        else {
-            enableConnectionSubmit();
+        else if (/^(api)/i.test(connTypeRadio)) {
+            enableaipSubmit();
         }
     });
     //port Validation
@@ -246,17 +180,11 @@ $('#API_Connection_Modal').on('shown.bs.modal', function () {
             $('input[type=text][name=port_number]').css({ "border-color": "#FF0000" }).removeClass('is-valid').addClass('is-invalid');
             $('span[id=error_port_number]').text("Please Enter Port Number!");
         }
-        if ($('input[type=checkbox][name=udp_connection]').is(':checked')) {
-            enableudpSubmit();
-        } else if ($('input[type=checkbox][name=tcpip_connection]').is(':checked')) {
-
-            enabletcpipSubmit();
+        if (/^(udp|tcp)/i.test(connTypeRadio)) {
+            enabletcpipudpSubmit();
         }
-        else if ($('input[type=checkbox][name=ws_connection]').is(':checked')) {
-            enablewsSubmit();
-        }
-        else {
-            enableConnectionSubmit();
+        else if (/^(api)/i.test(connTypeRadio)) {
+            enableaipSubmit();
         }
     });
     //Vendor URL
@@ -277,17 +205,11 @@ $('#API_Connection_Modal').on('shown.bs.modal', function () {
             $('input[type=text][name=url]').css("border-color", "#2eb82e").removeClass('is-invalid').addClass('is-valid');
             $('span[id=error_url]').text("");
         }
-        if ($('input[type=checkbox][name=udp_connection]').is(':checked')) {
-            enableudpSubmit();
-        } else if ($('input[type=checkbox][name=tcpip_connection]').is(':checked')) {
-
-            enabletcpipSubmit();
+        if (/^(udp|tcp)/i.test(connTypeRadio)) {
+            enabletcpipudpSubmit();
         }
-        else if ($('input[type=checkbox][name=ws_connection]').is(':checked')) {
-            enablewsSubmit();
-        }
-        else {
-            enableConnectionSubmit();
+        else if (/^(api)/i.test(connTypeRadio)) {
+            enableaipSubmit();
         }
     });
 
@@ -306,143 +228,26 @@ $('#API_Connection_Modal').on('shown.bs.modal', function () {
     });
     //radio check
     if ($("input[type=radio][name='connectionType']").change(() => {
+        connTypeRadio = $('input[type=radio][name=connectionType]:checked').attr('id');
 
-        if ($(this).id === "udp_connection") {
-            $('input[type=checkbox][name=tcpip_connection]').prop("checked", false);
-            $('input[type=checkbox][name=ws_connection]').prop("checked", false);
-            $('input[type=text][name=url]').prop("disabled", true);
-            $('input[type=text][name=url]').val('');
-            $('input[type=text][name=url]').css("border-color", "#D3D3D3").removeClass('is-valid').removeClass('is-invalid');
-            $('span[id=error_url]').text("");
-            $('input[type=text][name=ip_address]').prop("disabled", true);
-            $('input[type=text][name=ip_address]').val('');
-            $('input[type=text][name=ip_address]').css("border-color", "#D3D3D3").removeClass('is-valid').removeClass('is-invalid');
-            $('span[id=error_ip_address]').text("");
-            $('input[type=text][name=hostanme]').prop("disabled", true);
-            $('input[type=text][name=hostanme]').val('');
-            $('input[type=text][name=hostanme]').css("border-color", "#D3D3D3").removeClass('is-valid').removeClass('is-invalid');
-            $('span[id=error_hostanme]').text("");
-            $('select[name=data_retrieve]').prop("disabled", true);
-            $('select[name=data_retrieve]').val(' ');
-            $('select[name=data_retrieve]').css("border-color", "#D3D3D3").removeClass('is-valid').removeClass('is-invalid');
-            $('span[id=error_data_retrieve]').text("");
+        if (/^(udp|tcp)/i.test(connTypeRadio)) {
+            onudptcpipConnection();
         }
-    }))
-        if ($('input[type=checkbox][name=udp_connection]').is(':checked')) {
-            $('input[type=text][name=url]').prop("disabled", true);
-            $('input[type=text][name=url]').val('');
-            $('input[type=text][name=url]').css("border-color", "#D3D3D3").removeClass('is-valid').removeClass('is-invalid');
-            $('span[id=error_url]').text("");
-            //$('input[type=text][name=outgoingapikey]').prop("disabled", true);
-            //$('input[type=text][name=outgoingapikey]').val('');
-            //$('input[type=text][name=outgoingapikey]').css("border-color", "#D3D3D3").removeClass('is-valid').removeClass('is-invalid');
-            //$('span[id=error_outgoingapikey]').text("");
-            $('input[type=text][name=ip_address]').prop("disabled", true);
-            $('input[type=text][name=ip_address]').val('');
-            $('input[type=text][name=ip_address]').css("border-color", "#D3D3D3").removeClass('is-valid').removeClass('is-invalid');
-            $('span[id=error_ip_address]').text("");
-            $('input[type=text][name=hostanme]').prop("disabled", true);
-            $('input[type=text][name=hostanme]').val('');
-            $('input[type=text][name=hostanme]').css("border-color", "#D3D3D3").removeClass('is-valid').removeClass('is-invalid');
-            $('span[id=error_hostanme]').text("");
-            $('select[name=data_retrieve]').prop("disabled", true);
-            $('select[name=data_retrieve]').val(' ');
-            $('select[name=data_retrieve]').css("border-color", "#D3D3D3").removeClass('is-valid').removeClass('is-invalid');
-            $('span[id=error_data_retrieve]').text("");
+        else if (/^(api)/i.test(connTypeRadio)) {
+            onAPIConnection();
         }
-    if ($('input[type=checkbox][name=tcpip_connection]').is(':checked')) {
-        $('input[type=text][name=url]').prop("disabled", true);
-        $('input[type=text][name=url]').val('');
-        $('input[type=text][name=url]').css("border-color", "#D3D3D3").removeClass('is-valid').removeClass('is-invalid');
-        $('span[id=error_url]').text("");
-        $('input[type=text][name=ip_address]').prop("disabled", true);
-        $('input[type=text][name=ip_address]').val('');
-        $('input[type=text][name=ip_address]').css("border-color", "#D3D3D3").removeClass('is-valid').removeClass('is-invalid');
-        $('span[id=error_ip_address]').text("");
-        $('input[type=text][name=hostanme]').prop("disabled", true);
-        $('input[type=text][name=hostanme]').val('');
-        $('input[type=text][name=hostanme]').css("border-color", "#D3D3D3").removeClass('is-valid').removeClass('is-invalid');
-        $('span[id=error_hostanme]').text("");
-        $('select[name=data_retrieve]').prop("disabled", true);
-        $('select[name=data_retrieve]').val(' ');
-        $('select[name=data_retrieve]').css("border-color", "#D3D3D3").removeClass('is-valid').removeClass('is-invalid');
-        $('span[id=error_data_retrieve]').text("");
-    }
-    $('input[type=checkbox][name=udp_connection]').change(() => {
-        if (!$('input[type=checkbox][name=udp_connection]').is(':checked')) {
-            onRegularConnection();
+    }));
+    if ($("input[type=checkbox][name='active_connection']").change(() => {
+        connTypeRadio = $('input[type=radio][name=connectionType]:checked').attr('id');
+
+        if (/^(udp|tcp)/i.test(connTypeRadio)) {
+            onudptcpipConnection();
         }
-        else {
-            $('input[type=checkbox][name=tcpip_connection]').prop("checked", false);
-            $('input[type=checkbox][name=ws_connection]').prop("checked", false);
-            $('input[type=text][name=url]').prop("disabled", true);
-            $('input[type=text][name=url]').val('');
-            $('input[type=text][name=url]').css("border-color", "#D3D3D3").removeClass('is-valid').removeClass('is-invalid');
-            $('span[id=error_url]').text("");
-            //$('input[type=text][name=outgoingapikey]').prop("disabled", true);
-            //$('input[type=text][name=outgoingapikey]').val('');
-            //$('input[type=text][name=outgoingapikey]').css("border-color", "#D3D3D3").removeClass('is-valid').removeClass('is-invalid');
-            //$('span[id=error_outgoingapikey]').text("");
-            $('input[type=text][name=ip_address]').prop("disabled", true);
-            $('input[type=text][name=ip_address]').val('');
-            $('input[type=text][name=ip_address]').css("border-color", "#D3D3D3").removeClass('is-valid').removeClass('is-invalid');
-            $('span[id=error_ip_address]').text("");
-            $('input[type=text][name=hostanme]').prop("disabled", true);
-            $('input[type=text][name=hostanme]').val('');
-            $('input[type=text][name=hostanme]').css("border-color", "#D3D3D3").removeClass('is-valid').removeClass('is-invalid');
-            $('span[id=error_hostanme]').text("");
-            $('select[name=data_retrieve]').prop("disabled", true);
-            $('select[name=data_retrieve]').val(' ');
-            $('select[name=data_retrieve]').css("border-color", "#D3D3D3").removeClass('is-valid').removeClass('is-invalid');
-            $('span[id=error_data_retrieve]').text("");
-            // enableUdpSubmit();
+        else if (/^(api)/i.test(connTypeRadio)) {
+            onAPIConnection();
         }
-    });
-    $('input[type=checkbox][name=tcpip_connection]').change(() => {
-        if (!$('input[type=checkbox][name=tcpip_connection]').is(':checked')) {
-            onRegularConnection();
-        }
-        else {
-            $('input[type=checkbox][name=udp_connection]').prop("checked", false);
-            $('input[type=checkbox][name=ws_connection]').prop("checked", false);
-            $('input[type=text][name=url]').prop("disabled", true);
-            $('input[type=text][name=url]').val('');
-            $('input[type=text][name=url]').css("border-color", "#D3D3D3").removeClass('is-valid').removeClass('is-invalid');
-            $('span[id=error_url]').text("");
-            //$('input[type=text][name=outgoingapikey]').prop("disabled", true);
-            //$('input[type=text][name=outgoingapikey]').val('');
-            //$('input[type=text][name=outgoingapikey]').css("border-color", "#D3D3D3").removeClass('is-valid').removeClass('is-invalid');
-            //$('span[id=error_outgoingapikey]').text("");
-            $('input[type=text][name=ip_address]').prop("disabled", true);
-            $('input[type=text][name=ip_address]').val('');
-            $('input[type=text][name=ip_address]').css("border-color", "#D3D3D3").removeClass('is-valid').removeClass('is-invalid');
-            $('span[id=error_ip_address]').text("");
-            $('input[type=text][name=hostanme]').prop("disabled", true);
-            $('input[type=text][name=hostanme]').val('');
-            $('input[type=text][name=hostanme]').css("border-color", "#D3D3D3").removeClass('is-valid').removeClass('is-invalid');
-            $('span[id=error_hostanme]').text("");
-            $('select[name=data_retrieve]').prop("disabled", true);
-            $('select[name=data_retrieve]').val(' ');
-            $('select[name=data_retrieve]').css("border-color", "#D3D3D3").removeClass('is-valid').removeClass('is-invalid');
-            $('span[id=error_data_retrieve]').text("");
-            enabletcpipSubmit();
-        }
-    });
-    if ($('input[type=radio][id=udp_connection]').is(':checked')) {
-        $('input[type=radio][id=hour_range]').prop('disabled', true);
-        enableudpSubmit();
-    }
-    else if ($('input[type=radio][id=tcpip_connection]').is(':checked')) {
-        $('input[type=radio][id=hour_range]').prop('disabled', true);
-        enabletcpipSubmit();
-    }
-    else if ($('input[type=radio][id=ws_connection]').is(':checked')) {
-        $('input[type=radio][id=hour_range]').prop('disabled', true);
-        enablewsSubmit();
-    }
-    else {
-        enableConnectionSubmit();
-    }
+    }));
+
     //$('input[type=checkbox][name=ws_connection]').change(() => {
     //    onUpdateWS();
     //});
@@ -454,9 +259,23 @@ $('#RemoveConfirmationModal').on('shown.bs.modal', function () {
 $('#RemoveConfirmationModal').on('hidden.bs.modal', function () {
     sidebar.open('connections');
 });
-async function updateConnection(Connectionupdate) {
+async function updateConnection(data) {
     try {
-        updateConnectionDataTable(Connectionupdate, "connectiontable");
+        updateConnectionDataTable(data, "connectiontable");
+    } catch (e) {
+        console.log(e);
+    }
+}
+async function removeConnection(data) {
+    try {
+        removeConnectionDataTable(data, "connectiontable");
+    } catch (e) {
+        console.log(e);
+    }
+}
+async function addConnection(data) {
+    try {
+        loadConnectionDatatable(data, "connectiontable");
     } catch (e) {
         console.log(e);
     }
@@ -480,14 +299,29 @@ function createConnectionDataTable(table) {
         "Status": "",
         "Action": ""
     }]
-    var columns = [];
-    var tempc = {};
+    let columns = [];
+    let tempc = {};
     $.each(arrayColums[0], function (key, value) {
         tempc = {};
         if (/ConnectionName/i.test(key)) {
             tempc = {
                 "title": 'Name',
-                "mDataProp": key
+                "mDataProp": key,
+                "className":"row-connection-type",
+                "mRender": function (data, type, full) {
+                    if (full.ApiConnection) {
+                        return full.ConnectionName + ' <span class="badge badge-pill float-right badge-info">API</span>';
+                    }
+                    else if (full.UdpConnection) {
+                        return full.ConnectionName + ' <span class="badge badge-pill float-right badge-info">UDP</span>';
+                    }
+                    else if (full.TcpIpConnection) {
+                        return full.ConnectionName + ' <span class="badge badge-pill float-right badge-info">TCP/IP</span>';
+                    }
+                    else if (full.WsConnection) {
+                        return full.ConnectionName + ' <span class="badge badge-pill float-right badge-info">WebScoket</span>';
+                    }
+                }
             }
         }
         else if (/MessageType/i.test(key)) {
@@ -549,23 +383,27 @@ function createConnectionDataTable(table) {
             zeroRecords: "No Data",
         },
         aoColumns: columns,
-        columnDefs: [],
+        columnDefs: [
+        ],
         sorting: [[0, "asc"]],
         rowCallback: function (row, data, index) {
             $(row).find('td:eq(0)').css('text-align', 'left');
             if (data.ActiveConnection) {
                 if (data.ApiConnected) {
-                    $(row).find('td:eq(3)').css('background-color', 'green');
+                    $(row).find('td:eq(3)').css('background-color', '#17C671');
                 }
                 else if (data.TcpIpConnection) {
-                    $(row).find('td:eq(3)').css('background-color', 'green');
+                    $(row).find('td:eq(3)').css('background-color', '#17C671');
+                }
+                else if (data.UdpConnection) {
+                    $(row).find('td:eq(3)').css('background-color', '#17C671');
                 }
                 else {
-                    $(row).find('td:eq(3)').css('background-color', 'red');
+                    $(row).find('td:eq(3)').css('background-color', '#FF604E');
                 }
             }
             else {
-                $(row).find('td:eq(3)').css('background-color', 'orange');
+                $(row).find('td:eq(3)').css('background-color', '#FFB400');
             }
 
 
@@ -607,15 +445,39 @@ function updateConnectionDataTable(newdata, table) {
         }
     }
 }
-function removeConnectionDataTable(table) {
+function removeConnectionDataTable(removedata, table) {
     if ($.fn.dataTable.isDataTable("#" + table)) {
         $('#' + table).DataTable().rows(function (idx, data, node) {
-            $('#' + table).DataTable().row(node).remove().draw();
+            if (data.Id === removedata.Id) {
+                $('#' + table).DataTable().row(node).remove().draw();
+            }
         })
+    }
+}
+function ConnectionNameLoad(data) {
+    try {
+        let connName = $.parseJSON(data.CONNECTIONNAME);
+        if (!$.isEmptyObject(connName)) {
+            $('<option/>').val("blank").html("").appendTo('#connection_name');
+            $('<option data-messagetype=blank>').val("").html("").appendTo('#message_type');
+            $.each(connName, function (key, value) {
+                $('<option/>').val(this.Name).html(this.Description + " (" + this.Name + ")").appendTo('#connection_name');
+                let name = this.Name;
+                $(this.MessageTypes).each(function (key, value) {
+                    $('<option data-messagetype=' + name + '>').val(this.Code).html(this.Description).appendTo('#message_type');
+
+                });
+            });
+        };
+      
+    } catch (e) {
+        console.log(e);
     }
 }
 //end table function 
 function Add_Connection() {
+    $('div[id="serveripmenu"]').css("display", "");
+    $('div[id="endpointurl"]').css("display", "");
     $('#modalHeader_ID').text('Add Connection');
     $('button[id=apisubmitBtn]').off().on('click', function () {
         $('button[id=apisubmitBtn]').prop('disabled', true);
@@ -623,33 +485,26 @@ function Add_Connection() {
         $('input[type=checkbox][name=udp_connection]').prop('disabled', false);
         $('input[type=checkbox][name=tcpip_connection]').prop('disabled', false);
         let jsonObject = {
-            ActiveConnection: $('input[type=checkbox][name=active_connection]').is(':checked'),
-            ApiConnection: $('input[type=checkbox][name=api_connection]').is(':checked'),
-            UdpConnection: $('input[type=checkbox][name=udp_connection]').is(':checked'),
-            TcpIpConnection: $('input[type=checkbox][name=tcpip_connection]').is(':checked'),
-            WsConnection: $('input[type=checkbox][name=ws_connection]').is(':checked'),
+            ActiveConnection: $('input[type=checkbox][name=active_connection]').prop('checked'),
+            ApiConnection: $('input[type=radio][id=api_connection]').prop('checked'),
+            UdpConnection: $('input[type=radio][id=udp_connection]').prop('checked'),
+            TcpIpConnection: $('input[type=radio][id=tcpip_connection]').prop('checked'),
+            WsConnection: $('input[type=radio][id=ws_connection]').prop('checked'),
             HoursBack: parseInt($('input[id=hoursback_range]').val(), 10),
             HoursForward: parseInt($('input[id=hoursforward_range]').val(), 10),
             DataRetrieve: $('select[name=data_retrieve] option:selected').val(),
-            ConnectionName: $('input[type=text][name=connection_name]').val(),
+            ConnectionName: $('select[name=connection_name] option:selected').val(),
             IpAddress: $('input[type=text][name=ip_address]').val(),
             Port: $('input[type=text][name=port_number]').val(),
             Url: $('input[type=text][name=url]').val(),
-            MessageType: $('input[type=text][name=message_type]').val(),
-            /*AdminEmailRecepient: $('input[type=text][name=admin_email_recepient').val(),*/
+            MessageType: $('select[name=message_type] option:selected').val(),
             CreatedByUsername: User.UserId,
             NassCode: User.Facility_NASS_Code,
         };
         if (!$.isEmptyObject(jsonObject)) {
             fotfmanager.server.addAPI(JSON.stringify(jsonObject)).done(function (Data) {
-                if (Data.length === 1) {
-                    updateConnection(Data[0]);
-                    $('span[id=error_apisubmitBtn]').text(Data[0].ConnectionName + " " + Data[0].MessageType + " Connection has been Added");
-                    setTimeout(function () { $("#API_Connection_Modal").modal('hide'); sidebar.open('connections'); }, 1500);
-                }
-                else {
-                    $('span[id=error_apisubmitBtn]').text("Error Adding Connection");
-                }
+                $('span[id=error_apisubmitBtn]').text(jsonObject.ConnectionName + " " + jsonObject.MessageType + " Connection has been Added");
+                setTimeout(function () { $("#API_Connection_Modal").modal('hide'); sidebar.open('connections'); }, 1500);
             });
         }
     });
@@ -658,25 +513,29 @@ function Add_Connection() {
 function Edit_Connection(Data) {
     $('#modalHeader_ID').text('Edit Connection');
     $('input[type=checkbox][id=active_connection]').prop('checked', Data.ActiveConnection);
-    $('input[type=text][id=connection_name]').val(Data.ConnectionName);
     $('input[type=text][id=ip_address]').val(Data.IpAddress);
     $('input[type=text][id=hostname]').val(Data.Hostname);
     $('input[type=text][id=port_number]').val(Data.Port);
     $('input[type=text][id=url]').val(Data.Url);
-    $('input[type=text][id=message_type]').val(Data.MessageType);
+    filtermessage_type(Data.ConnectionName, Data.MessageType)
     $('select[name=data_retrieve]').val(Data.DataRetrieve);
+    $('input[type=radio]').prop('disabled', true);
     if (Data.ApiConnection) {
         $('input[type=radio][id=api_connection]').prop('checked', Data.ApiConnection);
+        onAPIConnection()
     }
     if (Data.UdpConnection) {
         $('input[type=radio][id=udp_connection]').prop('checked', Data.UdpConnection);
+        onudptcpipConnection()
     }
     if (Data.TcpIpConnection) {
         $('input[type=radio][id=tcpip_connection]').prop('checked', Data.TcpIpConnection);
+        onudptcpipConnection()
     }
     if (Data.WsConnection) {
         $('input[type=radio][id=ws_connection]').prop('checked', Data.WsConnection);
     }
+    connTypeRadio = $('input[type=radio][name=connectionType]:checked').attr('id');
     if (Data.HoursBack > 0 || Data.HoursForward > 0) {
 
         $('.hoursbackvalue').html($.isNumeric(Data.HoursBack) ? parseInt(Data.HoursBack, 10) : 0);
@@ -685,7 +544,6 @@ function Edit_Connection(Data) {
         $('.hoursforwardvalue').html($.isNumeric(Data.HoursForward) ? parseInt(Data.HoursForward, 10) : 0);
         $('input[id=hoursforward_range]').val($.isNumeric(Data.HoursForward) ? parseInt(Data.HoursForward, 10) : 0);
         $('.hours_range_row').css("display", "");
-
         $('input[type=checkbox][id=hour_range]').prop('checked', true);
 
     }
@@ -711,11 +569,11 @@ function Edit_Connection(Data) {
                 HoursBack: $('input[type=checkbox][id=hour_range]').is(':checked') ? parseInt($('input[id=hoursback_range]').val(), 10) : 0,
                 HoursForward: $('input[type=checkbox][id=hour_range]').is(':checked') ? parseInt($('input[id=hoursforward_range]').val(), 10) : 0,
                 DataRetrieve: $('select[name=data_retrieve] option:selected').val(),
-                ConnectionName: $('input[type=text][name=connection_name]').val(),
+                ConnectionName: $('select[name=connection_name] option:selected').val(),
                 IpAddress: $('input[type=text][id=ip_address]').val(),
                 Port: $('input[type=text][name=port_number]').val(),
                 Url: $('input[type=text][name=url]').val(),
-                MessageType: $('input[type=text][name=message_type]').val(),
+                MessageType: $('select[name=message_type] option:selected').val(),
                 LastupdateByUsername: User.UserId,
                 Id: Data.Id
             }
@@ -731,12 +589,11 @@ function Edit_Connection(Data) {
     });
     $('#API_Connection_Modal').modal();
 }
-function Remove_Connection(id) {
+function Remove_Connection(data) {
     try {
+        let ConnectionRemove = data;
         $('button[id=remove_server_connection]').off().on('click', function () {
-            let jsonObject = { Id: id };
-            fotfmanager.server.removeAPI(JSON.stringify(jsonObject)).done(function (Data) {
-                $("#api_" + id).remove();
+            fotfmanager.server.removeAPI(JSON.stringify(ConnectionRemove)).done(function (Data) {
                 setTimeout(function () {
                     $("#RemoveConfirmationModal").modal('hide');
                     sidebar.open('connections');
@@ -762,43 +619,114 @@ function GetConnectionStatus(data) {
         return "Disabled";
     }
 }
-function enableudpSubmit() {
-    if ($('input[type=text][name=message_type]').hasClass('is-valid') &&
-        $('input[type=text][name=port_number]').hasClass('is-valid') &&
-        /* $('input[type=text][name=admin_email_recepient]').hasClass('is-valid') &&*/
-        $('input[type=text][name=connection_name]').hasClass('is-valid')
-    ) {
-        $('button[id=apisubmitBtn]').prop('disabled', false);
-    }
-    else {
-        $('button[id=apisubmitBtn]').prop('disabled', true);
-    }
-}
-function enabletcpipSubmit() {
-    if ($('input[type=text][name=message_type]').hasClass('is-valid') &&
-        $('input[type=text][name=port_number]').hasClass('is-valid') &&
-        $('input[type=text][name=connection_name]').hasClass('is-valid')
-    ) {
-        $('button[id=apisubmitBtn]').prop('disabled', false);
-    }
-    else {
-        $('button[id=apisubmitBtn]').prop('disabled', true);
-    }
-}
-function enableConnectionSubmit() {
-    //AGV connections
-    if ($('input[type=text][name=ip_address]').hasClass('is-valid') &&
-        $('input[type=text][name=url]').hasClass('is-valid') &&
-        $('input[type=text][name=message_type]').hasClass('is-valid') &&
+function enabletcpipudpSubmit() {
+    if ($('select[name=message_type]').hasClass('is-valid') &&
         $('select[name=data_retrieve]').hasClass('is-valid') &&
-        $('input[type=text][name=connection_name]').hasClass('is-valid')
+        $('input[type=text][name=port_number]').hasClass('is-valid') &&
+        $('select[name=connection_name]').hasClass('is-valid')
     ) {
         $('button[id=apisubmitBtn]').prop('disabled', false);
     }
     else {
         $('button[id=apisubmitBtn]').prop('disabled', true);
+    }
+}
+function enableaipSubmit() {
+    if ($('input[type=text][name=url]').hasClass('is-valid') &&
+        $('select[name=message_type]').hasClass('is-valid') &&
+        $('select[name=data_retrieve]').hasClass('is-valid') &&
+        $('select[name=connection_name]').hasClass('is-valid')
+    ) {
+        $('button[id=apisubmitBtn]').prop('disabled', false);
+    }
+    else {
+        $('button[id=apisubmitBtn]').prop('disabled', true);
+    }
+}
+function enableMessagetype() {
+    if (!checkValue($('select[name=message_type] option:selected').val())) {
+        $('select[name=message_type]').css("border-color", "#FF0000").removeClass('is-valid').addClass('is-invalid');
+        $('span[id=error_message_type]').text("Select Connection Name Frist");
+    }
+    else {
+        $('select[name=message_type]').css("border-color", "#2eb82e").removeClass('is-invalid').addClass('is-valid');
+        $('span[id=error_message_type]').text("");
     }
 }
 function SortByConnectionName(a, b) {
     return a.ConnectionName < b.ConnectionName ? -1 : a.ConnectionName > b.ConnectionName ? 1 : 0;
+}
+function filtermessage_type(name, type) {
+    let conectionName = !!name ? name :$("#connection_name").find('option:selected').val(); 
+    $("#option-container").children().appendTo("#message_type"); 
+    let toMove = $("#message_type").children("[data-messagetype!='" + conectionName + "']"); 
+    toMove.appendTo("#option-container"); 
+    $("#message_type").removeAttr("disabled");
+    if (!!name) {
+        $('select[id=connection_name]').val(name);
+        $('select[id=connection_name]').prop('disabled', true);
+    }
+    if (!!type) {
+        $('select[id=message_type]').val(type);
+        $('select[id=message_type]').prop('disabled', true);
+    }
+};
+function onAPIConnection() {
+    $('div[id="serveripmenu"]').css("display", "none");
+    $('div[id="endpointurl"]').css("display", "");
+    $('input[type=text][name=url]').prop("disabled", false);
+    $('select[name=data_retrieve]').prop("disabled", false);
+    if (!checkValue($('input[type=text][name=url]').val())) {
+        $('input[type=text][name=url]').css("border-color", "#FF0000").removeClass('is-valid').addClass('is-invalid');
+        $('span[id=error_url]').text("Please Enter API URL");
+    } else {
+        $('input[type=text][name=url]').css("border-color", "#2eb82e").removeClass('is-invalid').addClass('is-valid');
+        $('span[id=error_url]').text("");
+    }
+    if (!checkValue($('select[name=data_retrieve] option:selected').val())) {
+        $('select[name=data_retrieve]').css("border-color", "#FF0000").removeClass('is-valid').addClass('is-invalid');
+        $('span[id=error_data_retrieve]').text("Select Data Retrieve Occurrences");
+    }
+    else {
+        $('select[name=data_retrieve]').css("border-color", "#2eb82e").removeClass('is-invalid').addClass('is-valid');
+        $('span[id=error_data_retrieve]').text("");
+    }
+    enableaipSubmit();
+}
+function onudptcpipConnection() {
+    $('div[id="endpointurl"]').css("display", "none");
+    $('div[id="serveripmenu"]').css("display", "");
+    $('input[type=text][name=url]').prop("disabled", false);
+
+    $('input[type=text][name=hostanme]').prop("disabled", false);
+    $('input[type=text][name=hostanme]').val('');
+    $('input[type=text][name=hostanme]').css("border-color", "#D3D3D3").removeClass('is-valid').removeClass('is-invalid');
+    $('span[id=error_hostanme]').text("");
+    if (!checkValue($('input[type=text][name=ip_address]').val())) {
+        $('input[type=text][name=ip_address]').css("border-color", "#FF0000").removeClass('is-valid').addClass('is-invalid');
+        $('span[id=error_ip_address]').text("Please Enter Valid IP address");
+    }
+    else {
+        $('input[type=text][name=ip_address]').css("border-color", "#2eb82e").removeClass('is-invalid').addClass('is-valid');
+        $('span[id=error_ip_address]').text("");
+    }
+    if (!checkValue($('input[type=text][name=port_number]').val())) {
+        $('input[type=text][name=port_number]').css({ "border-color": "#FF0000" }).removeClass('is-valid').addClass('is-invalid');
+        $('span[id=error_port_number]').text("Please Enter Port Number");
+    }
+    else {
+        $('input[type=text][name=port_number]').css("border-color", "#2eb82e").removeClass('is-invalid').addClass('is-valid');
+        $('span[id=error_port_number]').text("");
+    }
+    $('select[name=data_retrieve]').prop("disabled", true);
+    $('select[name=data_retrieve]').val('0');
+    if (!checkValue($('select[name=data_retrieve] option:selected').val())) {
+        $('select[name=data_retrieve]').css("border-color", "#FF0000").removeClass('is-valid').addClass('is-invalid');
+        $('span[id=error_data_retrieve]').text("Select Data Retrieve Occurrences");
+    }
+    else {
+        $('select[name=data_retrieve]').css("border-color", "#2eb82e").removeClass('is-invalid').addClass('is-valid');
+        $('span[id=error_data_retrieve]').text("");
+    }
+    enabletcpipudpSubmit();
 }

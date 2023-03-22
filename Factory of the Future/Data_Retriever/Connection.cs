@@ -20,95 +20,95 @@ namespace Factory_of_the_Future
     public delegate void OnWsMessage(string msg);
     public delegate void OnWsEvent();
     public delegate void ThreadListenerCall();
-    class MulticastUdpServer : UdpServer
-    {
-        public MulticastUdpServer(IPAddress address, int port, string conid) : base(address, port, conid) { }
+    //class MulticastUdpServer : UdpServer
+    //{
+    //    public MulticastUdpServer(IPAddress address, int port, string conid) : base(address, port, conid) { }
 
-        protected override void OnStarted()
-        {
-            // Start receive datagrams
-            ReceiveAsync();
-        }
+    //    protected override void OnStarted()
+    //    {
+    //        // Start receive datagrams
+    //        ReceiveAsync();
+    //    }
 
-        protected override void OnReceived(EndPoint endpoint, byte[] buffer, long offset, long size)
-        {
-            //Console.WriteLine("Incoming: " + Encoding.UTF8.GetString(buffer, (int)offset, (int)size));
+    //    protected override void OnReceived(EndPoint endpoint, byte[] buffer, long offset, long size)
+    //    {
+    //        //Console.WriteLine("Incoming: " + Encoding.UTF8.GetString(buffer, (int)offset, (int)size));
 
-            // Echo the message back to the sender
-            //SendAsync(endpoint, buffer, 0, size);
+    //        // Echo the message back to the sender
+    //        //SendAsync(endpoint, buffer, 0, size);
 
-            string incomingData = Encoding.UTF8.GetString(buffer, (int)offset, (int)size);
-            //foreach (Connection m in AppParameters.ConnectionList.Where(x => x.Value.Id == conid).Select(y => y.Value))
-            //{
-            //    try
-            //    {
-            //        if (!string.IsNullOrEmpty(incomingData))
-            //        {
-            //            if (AppParameters.IsValidJson(incomingData))
-            //            {
-            //                JToken incomingDataJobject = JToken.Parse(incomingData);
-            //                if (incomingDataJobject.HasValues && incomingDataJobject != null)
-            //                {
-            //                    JToken temp1 = new JObject(
-            //                            new JProperty("code", "0"),
-            //                            new JProperty("command", "UDP_Client"),
-            //                            new JProperty("outputFormatId", "DefFormat002"),
-            //                            new JProperty("outputFormatName", "Location JSON"),
-            //                            new JProperty("message", m.MessageType),
-            //                            new JProperty("responseTS", DateTimeOffset.Now.ToUnixTimeMilliseconds()),
-            //                            new JProperty("status", "0"),
-            //                            new JProperty("tags", new JArray(incomingDataJobject))
-            //                            );
-            //                    m.ApiConnected = true;
-            //                    m.LasttimeApiConnected = DateTime.Now;
-            //                    m.UpdateStatus = true;
-            //                    Task.Run(() => new ProcessRecvdMsg().StartProcess(JsonConvert.SerializeObject(temp1, Formatting.None), m.MessageType, conid));
-            //                }
-            //            }
-            //            else
-            //            {
-            //                new ErrorLogger().CustomLog(incomingData, string.Concat((string)AppParameters.AppSettings.Property("APPLICATION_NAME").Value, "UDP_InVaild_Message"));
-            //            }
+    //        string incomingData = Encoding.UTF8.GetString(buffer, (int)offset, (int)size);
+    //        //foreach (Connection m in AppParameters.ConnectionList.Where(x => x.Value.Id == conid).Select(y => y.Value))
+    //        //{
+    //        //    try
+    //        //    {
+    //        //        if (!string.IsNullOrEmpty(incomingData))
+    //        //        {
+    //        //            if (AppParameters.IsValidJson(incomingData))
+    //        //            {
+    //        //                JToken incomingDataJobject = JToken.Parse(incomingData);
+    //        //                if (incomingDataJobject.HasValues && incomingDataJobject != null)
+    //        //                {
+    //        //                    JToken temp1 = new JObject(
+    //        //                            new JProperty("code", "0"),
+    //        //                            new JProperty("command", "UDP_Client"),
+    //        //                            new JProperty("outputFormatId", "DefFormat002"),
+    //        //                            new JProperty("outputFormatName", "Location JSON"),
+    //        //                            new JProperty("message", m.MessageType),
+    //        //                            new JProperty("responseTS", DateTimeOffset.Now.ToUnixTimeMilliseconds()),
+    //        //                            new JProperty("status", "0"),
+    //        //                            new JProperty("tags", new JArray(incomingDataJobject))
+    //        //                            );
+    //        //                    m.ApiConnected = true;
+    //        //                    m.LasttimeApiConnected = DateTime.Now;
+    //        //                    m.UpdateStatus = true;
+    //        //                    Task.Run(() => new ProcessRecvdMsg().StartProcess(JsonConvert.SerializeObject(temp1, Formatting.None), m.MessageType, conid));
+    //        //                }
+    //        //            }
+    //        //            else
+    //        //            {
+    //        //                new ErrorLogger().CustomLog(incomingData, string.Concat((string)AppParameters.AppSettings.Property("APPLICATION_NAME").Value, "UDP_InVaild_Message"));
+    //        //            }
 
-            //        }
-            //        else
-            //        {
-            //            m.ApiConnected = false;
-            //            m.LasttimeApiConnected = DateTime.Now;
-            //            m.UpdateStatus = true;
-            //        }
-            //    }
-            //    catch (Exception e)
-            //    {
-            //        new ErrorLogger().ExceptionLog(e);
-            //        new ErrorLogger().CustomLog(incomingData, string.Concat((string)AppParameters.AppSettings.Property("APPLICATION_NAME").Value, "UDP_InVaild_Message"));
-            //        m.ApiConnected = false;
-            //        m.LasttimeApiConnected = DateTime.Now;
-            //        m.UpdateStatus = true;
-            //    }
-            //}
-            ReceiveAsync();
+    //        //        }
+    //        //        else
+    //        //        {
+    //        //            m.ApiConnected = false;
+    //        //            m.LasttimeApiConnected = DateTime.Now;
+    //        //            m.UpdateStatus = true;
+    //        //        }
+    //        //    }
+    //        //    catch (Exception e)
+    //        //    {
+    //        //        new ErrorLogger().ExceptionLog(e);
+    //        //        new ErrorLogger().CustomLog(incomingData, string.Concat((string)AppParameters.AppSettings.Property("APPLICATION_NAME").Value, "UDP_InVaild_Message"));
+    //        //        m.ApiConnected = false;
+    //        //        m.LasttimeApiConnected = DateTime.Now;
+    //        //        m.UpdateStatus = true;
+    //        //    }
+    //        //}
+    //        ReceiveAsync();
 
-        }
+    //    }
 
-        protected override void OnSent(EndPoint endpoint, long sent)
-        {
-            // Continue receive datagrams
-            ReceiveAsync();
-        }
+    //    protected override void OnSent(EndPoint endpoint, long sent)
+    //    {
+    //        // Continue receive datagrams
+    //        ReceiveAsync();
+    //    }
 
-        protected override void OnError(SocketError error)
-        {
-            //foreach (Connection m in AppParameters.ConnectionList.Where(x => x.Value.Id == conid).Select(y => y.Value))
-            //{
-            //    m.ApiConnected = false;
-            //    m.LasttimeApiConnected = DateTime.Now;
-            //    m.UpdateStatus = true;
-            //    new ErrorLogger().CustomLog(string.Concat("UDP server caught an error with code", error), string.Concat((string)AppParameters.AppSettings.Property("APPLICATION_NAME").Value, "UDP_InVaild_Message"));
+    //    protected override void OnError(SocketError error)
+    //    {
+    //        //foreach (Connection m in AppParameters.ConnectionList.Where(x => x.Value.Id == conid).Select(y => y.Value))
+    //        //{
+    //        //    m.ApiConnected = false;
+    //        //    m.LasttimeApiConnected = DateTime.Now;
+    //        //    m.UpdateStatus = true;
+    //        //    new ErrorLogger().CustomLog(string.Concat("UDP server caught an error with code", error), string.Concat((string)AppParameters.AppSettings.Property("APPLICATION_NAME").Value, "UDP_InVaild_Message"));
 
-            //}
-        }
-    }
+    //        //}
+    //    }
+    //}
 
     public class Api_Connection : IDisposable
     {
@@ -121,7 +121,7 @@ namespace Factory_of_the_Future
         public DateTime DownloadDatetime;
         //public bool Connected;
         public UdpClient client;
-        public UdpServer server;
+        public UdpServer udpserver;
         public TcpServer tcpServer;
         public WebSocketInstanceHandler webSocketIntanceHandler;
         internal Connection ConnectionInfo;
@@ -248,9 +248,9 @@ namespace Factory_of_the_Future
         private void UDPStart()
         {
             //Start UDP server
-            if (server != null)
+            if (udpserver != null)
             {
-                server.Start();
+                udpserver.Start();
             }
             else
             {
@@ -340,9 +340,9 @@ namespace Factory_of_the_Future
         public void UDPStop()
         {
             //stop UDP server
-            if (server != null)
+            if (udpserver != null)
             {
-                server.Stop();
+                udpserver.Stop();
                 Stopping = true;
                 Status = 2;
             }
@@ -382,8 +382,9 @@ namespace Factory_of_the_Future
             {
                 if (ConnectionInfo.Port > 0)
                 {
-                    server = new MulticastUdpServer(IPAddress.Any, ConnectionInfo.Port, ConnectionInfo.Id);
-                    server.Start();
+                    ConnectionInfo.IpAddress = AppParameters.ServerIpAddress;
+                    udpserver = new UdpServer(ConnectionInfo.IpAddress, ConnectionInfo.Port, ConnectionInfo);
+                    udpserver.Start();
                     Status = 1;
                 }
             }

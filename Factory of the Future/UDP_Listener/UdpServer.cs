@@ -1,4 +1,7 @@
-﻿using System;
+﻿using Factory_of_the_Future.Models;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
+using System;
 using System.Diagnostics;
 using System.Net;
 using System.Net.Sockets;
@@ -18,22 +21,24 @@ namespace Factory_of_the_Future
         /// </summary>
         /// <param name="address">IP address</param>
         /// <param name="port">Port number</param>
-        public UdpServer(IPAddress address, int port, string conid) : this(new IPEndPoint(address, port), conid) { }
+        public UdpServer(IPAddress address, int port, Connection conn) : this(new IPEndPoint(address, port), address.ToString(), port, conn) { }
         /// <summary>
         /// Initialize UDP server with a given IP address and port number
         /// </summary>
         /// <param name="address">IP address</param>
         /// <param name="port">Port number</param>
-        public UdpServer(string address, int port, string conid) : this(new IPEndPoint(IPAddress.Parse(address), port),conid) { }
+        public UdpServer(string address, int port, Connection conn) : this(new IPEndPoint(IPAddress.Parse(address), port), address, port, conn) { }
         /// <summary>
         /// Initialize UDP server with a given IP endpoint
         /// </summary>
         /// <param name="endpoint">IP endpoint</param>
-        public UdpServer(IPEndPoint endpoint, string id)
+        public UdpServer(IPEndPoint endpoint, string address, int port, Connection conn)
         {
             Id = Guid.NewGuid();
+            Address = address;
+            Port = port;
             Endpoint = endpoint;
-            conid = id;
+            Conn = conn;
         }
 
         /// <summary>
@@ -43,7 +48,15 @@ namespace Factory_of_the_Future
         /// <summary>
         /// Connection Id
         /// </summary>
-        public string conid { get; }
+        public Connection Conn { get; }
+        /// <summary>
+        /// UDP server address
+        /// </summary>
+        public string Address { get; }
+        /// <summary>
+        /// UDP server port
+        /// </summary>
+        public int Port { get; }
         /// <summary>
         /// IP endpoint
         /// </summary>
@@ -712,19 +725,34 @@ namespace Factory_of_the_Future
         /// <summary>
         /// Handle server starting notification
         /// </summary>
-        protected virtual void OnStarting() { }
+        protected virtual void OnStarting() {
+            Conn.Status = "Strating";
+            FOTFManager.Instance.BroadcastQSMUpdate(Conn);
+        }
         /// <summary>
         /// Handle server started notification
         /// </summary>
-        protected virtual void OnStarted() { }
+        protected virtual void OnStarted() {
+            Conn.Status = "Running";
+            Conn.ActiveConnection = true;
+            FOTFManager.Instance.BroadcastQSMUpdate(Conn);
+        }
         /// <summary>
         /// Handle server stopping notification
         /// </summary>
-        protected virtual void OnStopping() { }
+        protected virtual void OnStopping() {
+            Conn.Status = " Stopping";
+            Conn.ActiveConnection = false;
+            FOTFManager.Instance.BroadcastQSMUpdate(Conn);
+        }
         /// <summary>
         /// Handle server stopped notification
         /// </summary>
-        protected virtual void OnStopped() { }
+        protected virtual void OnStopped() {
+            Conn.Status = " Stopped/Deactived";
+            Conn.ActiveConnection = false;
+            FOTFManager.Instance.BroadcastQSMUpdate(Conn);
+        }
 
         /// <summary>
         /// Handle datagram received notification
@@ -736,7 +764,38 @@ namespace Factory_of_the_Future
         /// <remarks>
         /// Notification is called when another datagram was received from some endpoint
         /// </remarks>
-        protected virtual void OnReceived(EndPoint endpoint, byte[] buffer, long offset, long size) { }
+        protected virtual void OnReceived(EndPoint endpoint, byte[] buffer, long offset, long size) {
+            string incomingData = Encoding.UTF8.GetString(buffer, (int)offset, (int)size);
+            try
+            {
+                if (!string.IsNullOrEmpty(incomingData))
+                {
+
+                    JToken incomingDataJobject = JToken.Parse(incomingData);
+                    if (incomingDataJobject.HasValues && incomingDataJobject != null)
+                    {
+                        JToken temp1 = new JObject
+                        {
+                            ["code"] = "0",
+                            ["command"] = "UDP_Client",
+                            ["outputFormatId"] = "DefFormat002",
+                            ["outputFormatName"] = "Location JSON",
+                            ["message"] = Conn.MessageType,
+                            ["responseTS"] = DateTimeOffset.Now.ToUnixTimeMilliseconds(),
+                            ["status"] = "0",
+                            ["tags"] = new JArray(incomingDataJobject)
+                        };
+                        Task.Run(() => new ProcessRecvdMsg().StartProcess(JsonConvert.SerializeObject(temp1, Formatting.None), Conn.MessageType, Conn.Id));
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                new ErrorLogger().ExceptionLog(e);
+                new ErrorLogger().CustomLog(incomingData, string.Concat((string)AppParameters.AppSettings.Property("APPLICATION_NAME").Value, "UDP_InVaild_Message"));
+            }
+
+        }
         /// <summary>
         /// Handle datagram sent notification
         /// </summary>
@@ -752,7 +811,10 @@ namespace Factory_of_the_Future
         /// Handle error notification
         /// </summary>
         /// <param name="error">Socket error code</param>
-        protected virtual void OnError(SocketError error) { }
+        protected virtual void OnError(SocketError error) {
+            Conn.Status = "No data";
+            FOTFManager.Instance.BroadcastQSMUpdate(Conn);
+        }
 
         #endregion
 

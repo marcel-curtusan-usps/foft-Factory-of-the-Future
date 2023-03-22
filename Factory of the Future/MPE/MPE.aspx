@@ -6,6 +6,7 @@
 <head runat="server">
     <link href="../Content/bootstrap.min.css" rel="stylesheet" />
     <link href="Content/mpe.css" rel="stylesheet" />
+    <link href="../Content/supportCSSBundle.css" rel="stylesheet" />
     <title>MPE</title>
 </head>
 <body>
@@ -13,15 +14,21 @@
         <div class="card-header">
             <div class="container-fluid">
                 <div class="row justify-content-md-center">
-                    <div class="col-5 float-right" style="padding: 0rem;">
+                    <div class="col-2 float-right" style="padding: 0rem;">
                         <label class="control-label" style="font-size: 3rem;" id="mpeName_text"></label>
                         <label class="control-label" style="font-size: 3rem; font-weight: bolder;" id="mpeName"></label>
                     </div>
-                    <div class="col-5" style="padding: 0rem;">
+                    <div class="col-2" style="padding: 0rem;">
                         <label class="control-label float-right" style="font-size: 3rem;" id="opn_text">Operation:</label>
                     </div>
-                    <div class="col" style="padding: 0rem;">
-                        <label class="control-label float-right" style="font-size: 3rem; font-weight: bolder;" id="opn"></label>
+                    <div class="col-2" style="padding: 0rem;">
+                        <label class="control-label float-left" style="font-size: 3rem; font-weight: bolder;" id="opn"></label>
+                    </div>
+                    <div class="col-3 text-center align-content-center" style="padding: 0rem;">
+                        <i class="bi-clock-history mt-2 mr-2"></i>
+                    </div>
+                    <div class="col-2" style="padding: 0rem;">
+                        <label class="control-label float-right" style="font-size: 3rem; font-weight: bolder;" id="countdown"></label>
                     </div>
                 </div>
                  <%-- <div class="row">
@@ -60,11 +67,12 @@
             <div class="container-fluid">
                 <div class="row">
                     <div class="col-10" style="padding: 0rem;">
-                        <label class="control-label float-left" style="font-size: 3rem;" id="countdowntext">Planned Sort Program End Time Countdown:</label>
+
+                        <label class="control-label float-left" style="font-size: 3rem;" id="countdowntext"></label>
 
                     </div>
                     <div class="col" style="padding: 0rem;">
-                        <label class="control-label float-right" style="font-size: 3rem; font-weight: bolder;" id="countdown"></label>
+      
                     </div>
                 </div>
                 <div class="row">

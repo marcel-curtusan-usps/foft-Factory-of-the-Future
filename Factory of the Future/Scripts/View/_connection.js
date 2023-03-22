@@ -121,41 +121,7 @@ function onUpdateWS() {
 
 
 
-function onRegularConnection() {
-    $('input[type=text][name=url]').prop("disabled", false);
-    if (!checkValue($('input[type=text][name=url]').val())) {
-        $('input[type=text][name=url]').css("border-color", "#FF0000").removeClass('is-valid').addClass('is-invalid');
-        $('span[id=error_url]').text("Please Enter API URL");
-    } else {
-        $('input[type=text][name=url]').css("border-color", "#2eb82e").removeClass('is-invalid').addClass('is-valid');
-        $('span[id=error_url]').text("");
-    }
-  
-    $('input[type=text][name=hostanme]').prop("disabled", false);
-    //
-    $('select[name=data_retrieve]').prop("disabled", false);
-    if ($('input[type=checkbox][name=ws_connection]').is(':checked')) {
 
-    }
-    else if (!checkValue($('select[name=data_retrieve] option:selected').val())) {
-        $('select[name=data_retrieve]').css("border-color", "#FF0000").removeClass('is-valid').addClass('is-invalid');
-        $('span[id=error_data_retrieve]').text("Select Data Retrieve Occurrences");
-    }
-    else {
-        $('select[name=data_retrieve]').css("border-color", "#2eb82e").removeClass('is-invalid').addClass('is-valid');
-        $('span[id=error_data_retrieve]').text("");
-    }
-    $('input[type=text][name=ip_address]').prop("disabled", false);
-    if (!checkValue($('input[type=text][name=ip_address]').val())) {
-        $('input[type=text][name=ip_address]').css("border-color", "#FF0000").removeClass('is-valid').addClass('is-invalid');
-        $('span[id=error_ip_address]').text("Please Enter Valid IP address");
-    }
-    else {
-        $('input[type=text][name=ip_address]').css("border-color", "#2eb82e").removeClass('is-invalid').addClass('is-valid');
-        $('span[id=error_ip_address]').text("");
-    }
-    enableConnectionSubmit();
-}
 //on open set rules
 $('#API_Connection_Modal').on('shown.bs.modal', function () {
     $('span[id=error_apisubmitBtn]').text("");
@@ -446,61 +412,17 @@ $('#API_Connection_Modal').on('shown.bs.modal', function () {
             $('.hours_range_row').css("display", "");
         }
     });
-    if ($('input[type=checkbox][name=udp_connection]').is(':checked')) {
-        $('input[type=text][name=url]').prop("disabled", true);
-        $('input[type=text][name=url]').val('');
-        $('input[type=text][name=url]').css("border-color", "#D3D3D3").removeClass('is-valid').removeClass('is-invalid');
-        $('span[id=error_url]').text("");
-        //$('input[type=text][name=outgoingapikey]').prop("disabled", true);
-        //$('input[type=text][name=outgoingapikey]').val('');
-        //$('input[type=text][name=outgoingapikey]').css("border-color", "#D3D3D3").removeClass('is-valid').removeClass('is-invalid');
-        //$('span[id=error_outgoingapikey]').text("");
-        $('input[type=text][name=ip_address]').prop("disabled", true);
-        $('input[type=text][name=ip_address]').val('');
-        $('input[type=text][name=ip_address]').css("border-color", "#D3D3D3").removeClass('is-valid').removeClass('is-invalid');
-        $('span[id=error_ip_address]').text("");
-        $('input[type=text][name=hostanme]').prop("disabled", true);
-        $('input[type=text][name=hostanme]').val('');
-        $('input[type=text][name=hostanme]').css("border-color", "#D3D3D3").removeClass('is-valid').removeClass('is-invalid');
-        $('span[id=error_hostanme]').text("");
-        $('select[name=data_retrieve]').prop("disabled", true);
-        $('select[name=data_retrieve]').val(' ');
-        $('select[name=data_retrieve]').css("border-color", "#D3D3D3").removeClass('is-valid').removeClass('is-invalid');
-        $('span[id=error_data_retrieve]').text("");
-    }
-    if ($('input[type=checkbox][name=tcpip_connection]').is(':checked')) {
-        $('input[type=text][name=url]').prop("disabled", true);
-        $('input[type=text][name=url]').val('');
-        $('input[type=text][name=url]').css("border-color", "#D3D3D3").removeClass('is-valid').removeClass('is-invalid');
-        $('span[id=error_url]').text("");
-        $('input[type=text][name=ip_address]').prop("disabled", true);
-        $('input[type=text][name=ip_address]').val('');
-        $('input[type=text][name=ip_address]').css("border-color", "#D3D3D3").removeClass('is-valid').removeClass('is-invalid');
-        $('span[id=error_ip_address]').text("");
-        $('input[type=text][name=hostanme]').prop("disabled", true);
-        $('input[type=text][name=hostanme]').val('');
-        $('input[type=text][name=hostanme]').css("border-color", "#D3D3D3").removeClass('is-valid').removeClass('is-invalid');
-        $('span[id=error_hostanme]').text("");
-        $('select[name=data_retrieve]').prop("disabled", true);
-        $('select[name=data_retrieve]').val(' ');
-        $('select[name=data_retrieve]').css("border-color", "#D3D3D3").removeClass('is-valid').removeClass('is-invalid');
-        $('span[id=error_data_retrieve]').text("");
-    }
-    $('input[type=checkbox][name=udp_connection]').change(() => {
-        if (!$('input[type=checkbox][name=udp_connection]').is(':checked')) {
-            onRegularConnection();
-        }
-        else {
-            $('input[type=checkbox][name=tcpip_connection]').prop("checked", false);
-            $('input[type=checkbox][name=ws_connection]').prop("checked", false);
+    //radio check
+    if ($("input[type=radio][name='connectionType']").change(() => {
+        let connTypeRadio = $('input[type=radio][name=connectionType]:checked').attr('id');
+        if (/^(udp|tcp)/i.test(connTypeRadio)) {
+            $('div[id="serveripmenu"]').css("display", "");
+            //$('input[type=checkbox][name=tcpip_connection]').prop("checked", false);
+            //$('input[type=checkbox][name=ws_connection]').prop("checked", false);
             $('input[type=text][name=url]').prop("disabled", true);
             $('input[type=text][name=url]').val('');
             $('input[type=text][name=url]').css("border-color", "#D3D3D3").removeClass('is-valid').removeClass('is-invalid');
             $('span[id=error_url]').text("");
-            //$('input[type=text][name=outgoingapikey]').prop("disabled", true);
-            //$('input[type=text][name=outgoingapikey]').val('');
-            //$('input[type=text][name=outgoingapikey]').css("border-color", "#D3D3D3").removeClass('is-valid').removeClass('is-invalid');
-            //$('span[id=error_outgoingapikey]').text("");
             $('input[type=text][name=ip_address]').prop("disabled", true);
             $('input[type=text][name=ip_address]').val('');
             $('input[type=text][name=ip_address]').css("border-color", "#D3D3D3").removeClass('is-valid').removeClass('is-invalid');
@@ -510,42 +432,20 @@ $('#API_Connection_Modal').on('shown.bs.modal', function () {
             $('input[type=text][name=hostanme]').css("border-color", "#D3D3D3").removeClass('is-valid').removeClass('is-invalid');
             $('span[id=error_hostanme]').text("");
             $('select[name=data_retrieve]').prop("disabled", true);
-            $('select[name=data_retrieve]').val(' ');
+            $('select[name=data_retrieve]').val('0');
             $('select[name=data_retrieve]').css("border-color", "#D3D3D3").removeClass('is-valid').removeClass('is-invalid');
             $('span[id=error_data_retrieve]').text("");
-           // enableUdpSubmit();
         }
-    });
-    $('input[type=checkbox][name=tcpip_connection]').change(() => {
-        if (!$('input[type=checkbox][name=tcpip_connection]').is(':checked')) {
-            onRegularConnection();
-        }
-        else {
-            $('input[type=checkbox][name=udp_connection]').prop("checked", false);
-            $('input[type=checkbox][name=ws_connection]').prop("checked", false);
-            $('input[type=text][name=url]').prop("disabled", true);
+        else if (/^(api)/i.test(connTypeRadio)) {
+            $('div[id="serveripmenu"]').css("display", "none");
+            $('input[type=text][name=url]').prop("disabled", false);
             $('input[type=text][name=url]').val('');
-            $('input[type=text][name=url]').css("border-color", "#D3D3D3").removeClass('is-valid').removeClass('is-invalid');
-            $('span[id=error_url]').text("");
-            //$('input[type=text][name=outgoingapikey]').prop("disabled", true);
-            //$('input[type=text][name=outgoingapikey]').val('');
-            //$('input[type=text][name=outgoingapikey]').css("border-color", "#D3D3D3").removeClass('is-valid').removeClass('is-invalid');
-            //$('span[id=error_outgoingapikey]').text("");
-            $('input[type=text][name=ip_address]').prop("disabled", true);
-            $('input[type=text][name=ip_address]').val('');
-            $('input[type=text][name=ip_address]').css("border-color", "#D3D3D3").removeClass('is-valid').removeClass('is-invalid');
-            $('span[id=error_ip_address]').text("");
-            $('input[type=text][name=hostanme]').prop("disabled", true);
-            $('input[type=text][name=hostanme]').val('');
-            $('input[type=text][name=hostanme]').css("border-color", "#D3D3D3").removeClass('is-valid').removeClass('is-invalid');
-            $('span[id=error_hostanme]').text("");
-            $('select[name=data_retrieve]').prop("disabled", true);
-            $('select[name=data_retrieve]').val(' ');
-            $('select[name=data_retrieve]').css("border-color", "#D3D3D3").removeClass('is-valid').removeClass('is-invalid');
-            $('span[id=error_data_retrieve]').text("");
-            enabletcpipSubmit();
+            $('select[name=data_retrieve]').prop("disabled", false);
+            $('select[name=data_retrieve]').val('');
+            onAPIConnection();
         }
-    });
+    }))
+
     if ($('input[type=checkbox][name=udp_connection]').is(':checked')) {
         enableudpSubmit();
     }

@@ -323,6 +323,7 @@ async function updateMPEZone(properties, index) {
 async function LoadMachineTables(dataproperties, table) {
     try {
         if (!$.isEmptyObject(dataproperties)) {
+            $('span[name=mpeview]').empty();
             $('div[id=machine_div]').attr("data-id", dataproperties.id);
             hideSidebarLayerDivs();
             $('div[id=machine_div]').css('display', 'block');
@@ -330,7 +331,9 @@ async function LoadMachineTables(dataproperties, table) {
             if (/machinetable/i.test(table)) {
 
                 $zoneSelect[0].selectize.setValue(dataproperties.id, true);
-                $('button[name=machineinfoedit]').attr('id', dataproperties.id)
+                $('button[name=machineinfoedit]').attr('id', dataproperties.id);
+                $("<a/>").attr({ target: "_blank", href: window.location.origin + '/MPE/MPE.aspx?MPEStatus=' + dataproperties.name, style: 'color:white;'}).html("View").appendTo($('span[name=mpeview]'));
+                $('button[name=machineinfoedit]').attr('id', dataproperties.id);
                 $('div[id=dps_div]').css('display', 'none');
                 let machinetop_Table = $('table[id=' + table + ']');
                 let machinetop_Table_Body = machinetop_Table.find('tbody');
@@ -353,8 +356,8 @@ async function LoadMachineTables(dataproperties, table) {
                 if (dataproperties.MPEWatchData.cur_operation_id == "918" || dataproperties.MPEWatchData.cur_operation_id == "919") {
                     LoadMachineTables(dataproperties, "dpstable");
                 }
-                var staffdata = dataproperties.hasOwnProperty("staffingData") ? dataproperties.staffingData : "";
-                var MachineCurrentStaff = [];
+                let staffdata = dataproperties.hasOwnProperty("staffingData") ? dataproperties.staffingData : "";
+                let MachineCurrentStaff = [];
                 GetPeopleInZone(dataproperties.id, staffdata, MachineCurrentStaff);
                 if (dataproperties.MPEWatchData.hasOwnProperty("current_run_end")) {
                     if (dataproperties.MPEWatchData.current_run_end == "" || dataproperties.MPEWatchData.current_run_end == "0") {

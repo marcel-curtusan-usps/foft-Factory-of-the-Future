@@ -2,7 +2,7 @@
 
 <!DOCTYPE html>
 
-<html lang="en" xmlns="http://www.w3.org/1999/xhtml" >
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
 <head runat="server">
     <title>USPS CF</title>
     <meta http-equiv="Pragma" content="no-cache" />
@@ -41,9 +41,11 @@
                 </div>
                 <div class="modal-body1">
                     <div class="row mb-3">
-                        <div class="col">
+                        <div class="col-6">
                             <label class="control-label">Connection Name</label>
-                            <input id="connection_name" type="text" class="form-control" name="connection_name" />
+                            <select id="connection_name" class="form-control pb-1" title="Connection Names" name="connection_name">
+                            </select>
+                            <%--         <input id="connection_name" type="text" class="form-control" name="connection_name" />--%>
                             <span id="error_connection_name" class="text-danger"></span>
                         </div>
                         <div class="col">
@@ -71,7 +73,7 @@
                                 <input id="udp_connection" type="radio" class="custom-control-input" name="connectionType" />
                                 <label class="custom-control-label" for="udp_connection">UDP Connection</label>
                             </div>
-                             <div class="custom-control custom-switch">
+                            <div class="custom-control custom-switch">
                                 <input id="tcpip_connection" type="radio" class="custom-control-input" name="connectionType" />
                                 <label class="custom-control-label" for="tcpip_connection">TCP/IP Server</label>
                             </div>
@@ -79,10 +81,10 @@
                                 <input id="ws_connection" type="radio" class="custom-control-input" name="connectionType" />
                                 <label class="custom-control-label" for="ws_connection">WS Connection</label>
                             </div>
-                            
+
                         </div>
                     </div>
-                    <div class="row mb-3">
+                    <div class="row mb-3" id="serveripmenu">
                         <div class="form-group col-4">
                             <label class="control-label">Host Name</label>
                             <input id="hostanme" type="text" class="form-control" name="hostanme" />
@@ -99,7 +101,7 @@
                             <span id="error_port_number" class="text-danger"></span>
                         </div>
                     </div>
-                    <div class="row mb-3">
+                    <div class="row mb-3"  id="endpointurl">
                         <div class="form-group col">
                             <label class="control-label">URL</label>
                             <input id="url" type="text" class="form-control" name="url" />
@@ -114,7 +116,7 @@
                             <div class="d-flex justify-content-center my-2">
                                 <div class="w-100">
                                     <label class="control-label" for="hoursback_range">Hours Backwards: <span class="font-weight-bold text-primary ml-2 hoursbackvalue"></span></label>
-                                    <input type="range" title="Hours Backwards" class="custom-range" id="hoursback_range" min="0" max="60" value="0"/>
+                                    <input type="range" title="Hours Backwards" class="custom-range" id="hoursback_range" min="0" max="60" value="0" />
                                 </div>
                             </div>
                         </div>
@@ -123,7 +125,7 @@
                             <div class="d-flex justify-content-center my-2">
                                 <div class="w-100">
                                     <label class="control-label" for="hoursforward_range">Hours Forward: <span class="font-weight-bold text-primary ml-2 hoursforwardvalue"></span></label>
-                                    <input type="range" title="Hours Forward" class="custom-range" id="hoursforward_range" min="0" max="60" value="0"/>
+                                    <input type="range" title="Hours Forward" class="custom-range" id="hoursforward_range" min="0" max="60" value="0" />
                                 </div>
                             </div>
                         </div>
@@ -131,7 +133,10 @@
                     <div class="row mb-3">
                         <div class="form-group col">
                             <label class="control-label">Message Type</label>
-                            <input id="message_type" type="text" class="form-control" name="message_type" />
+                            <select id="message_type" class="form-control pb-1" name="message_type">
+                            </select>
+                            <span id="option-container" style="visibility: hidden; position:absolute;"></span>
+                          <%--  <input id="message_type" type="text" class="form-control" name="message_type" />--%>
                             <span id="error_message_type" class="text-danger"></span>
                         </div>
                         <div class="form-group col">
@@ -169,7 +174,7 @@
         </div>
     </div>
 
-     <div class="modal fade" id="FloorPlan_Modal" tabindex="-1" role="dialog" data-backdrop="static" aria-labelledby="FloorPlan_Modal_Label">
+    <div class="modal fade" id="FloorPlan_Modal" tabindex="-1" role="dialog" data-backdrop="static" aria-labelledby="FloorPlan_Modal_Label">
         <div class="modal-dialog modal-xl">
             <div class="modal-content bg-white">
                 <div class="modal-header1">
@@ -180,7 +185,7 @@
                 </div>
                 <div class="modal-body1">
                     <div class="form-row">
-                        <div class="col-6">   
+                        <div class="col-6">
                             <label class="control-label" for="floorname">Image</label>
                             <div class="input-group">
                                 <div class="custom-file">
@@ -222,9 +227,13 @@
                     </div>
                 </div>
                 <div class="modal-footer1">
-                    <div class="col"><button class="btn btn-outline-secondary float-left" type="button" data-dismiss="modal">Close</button></div>
+                    <div class="col">
+                        <button class="btn btn-outline-secondary float-left" type="button" data-dismiss="modal">Close</button>
+                    </div>
                     <div class="col text-center"><span class="text-info" id="error_btnUpload"></span></div>
-                    <div class="col"><button class="btn btn-outline-success float-right" type="button" id="btnUpload">Upload</button></div>
+                    <div class="col">
+                        <button class="btn btn-outline-success float-right" type="button" id="btnUpload">Upload</button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -238,19 +247,20 @@
                         <h4 class="modal-title1" id="notification_SetupHeader">Add New Notification</h4>
                     </div>
                     <button class="col-1 close" type="button" data-dismiss="modal" aria-label="Close">
-                        <i class="pi-iconExit float-right mt-2 mr-2"></i></button>
+                        <i class="pi-iconExit float-right mt-2 mr-2"></i>
+                    </button>
                 </div>
                 <div class="modal-body1">
                     <div class="row mb-3">
                         <div class="col-6">
                             <label class="control-label">Name</label>
-                            <input id="condition_name" type="text" class="form-control" name="condition_name"/>
+                            <input id="condition_name" type="text" class="form-control" name="condition_name" />
                             <span id="error_condition_name" class="text-danger"></span>
                         </div>
                         <div class="col-6">
                             <label class="control-label">Condition Options</label><div class="custom-control custom-switch">
                                 <div class="custom-control custom-switch">
-                                    <input id="condition_active" type="checkbox" class="custom-control-input" name="condition_active"/>
+                                    <input id="condition_active" type="checkbox" class="custom-control-input" name="condition_active" />
                                     <label class="custom-control-label" for="condition_active">Active Condition</label>
                                 </div>
                             </div>
@@ -281,7 +291,7 @@
                             <div class="d-flex justify-content-center my-2">
                                 <div class="w-75">
                                     <label class="control-label">Warning Condition: <span class="font-weight-bold text-primary ml-2 warning_conditionpickvalue"></span></label>
-                                    <input type="range" class="custom-range" id="warning_condition" min="0" max="60" value="0"/>
+                                    <input type="range" class="custom-range" id="warning_condition" min="0" max="60" value="0" />
                                 </div>
                             </div>
 
@@ -362,13 +372,13 @@
                             <div class="form-group row">
                                 <div class="col">
                                     <label class="col-form-label">Attribute:</label>
-                                    <input class="form-control" disabled="disabled" id="modalKeyID"/>
+                                    <input class="form-control" disabled="disabled" id="modalKeyID" />
                                 </div>
                             </div>
                             <div class="form-group row valuediv" style="display: block">
                                 <div class="col">
                                     <label class="col-form-label">Value:</label>
-                                    <input class="form-control" id="modalValueID"/>
+                                    <input class="form-control" id="modalValueID" />
                                     <span class="text-info" id="error_modalValueID"></span>
                                 </div>
                             </div>
@@ -587,14 +597,14 @@
                         </div>
                         <div class="form-group col-4">
                             <label class="control-label">TAG Name</label>
-                            <input id="tag_name" type="text" class="form-control" name="tag_name" disabled ="disabled"/>
+                            <input id="tag_name" type="text" class="form-control" name="tag_name" disabled="disabled" />
                             <span id="error_tag_name" class="text-danger"></span>
                         </div>
                     </div>
                     <div class="row mr-0 ml-0">
                         <div class="form-group col-6">
                             <label class="control-label">Tag MAC</label>
-                            <input id="tag_id" type="text" class="form-control" name="tag_id" disabled ="disabled" />
+                            <input id="tag_id" type="text" class="form-control" name="tag_id" disabled="disabled" />
                             <span id="error_tag_id" class="text-danger"></span>
                         </div>
                     </div>
@@ -639,20 +649,20 @@
                     </div>
                     <div class="row mr-0 ml-0" id="machine_manual_row">
                         <div class="form-group col">
-                            <label class="control-label">Name</label><input id="machine_name" type="text" class="form-control" name="machine_name"/><span id="errormachine_name" class="text-danger"></span>
+                            <label class="control-label">Name</label><input id="machine_name" type="text" class="form-control" name="machine_name" /><span id="errormachine_name" class="text-danger"></span>
                         </div>
                         <div class="form-group col-4">
-                            <label class="control-label">Number</label><input id="machine_number" type="text" class="form-control" name="machine_number"/><span id="error_machine_number" class="text-danger"></span>
+                            <label class="control-label">Number</label><input id="machine_number" type="text" class="form-control" name="machine_number" /><span id="error_machine_number" class="text-danger"></span>
                         </div>
                     </div>
                     <div class="row mr-0 ml-0">
                         <div class="form-group col-4">
-                            <label class="control-label">Zone LDC</label><input id="zone_ldc" type="text" class="form-control" name="zone_ldc"/><span id="errorzone_ldc" class="text-danger"></span>
+                            <label class="control-label">Zone LDC</label><input id="zone_ldc" type="text" class="form-control" name="zone_ldc" /><span id="errorzone_ldc" class="text-danger"></span>
                         </div>
                     </div>
-                     <div class="row mr-0 ml-0">
+                    <div class="row mr-0 ml-0">
                         <div class="form-group col-4">
-                            <label class="control-label">GPIO Number</label><input id="gpio" type="text" class="form-control" name="GPIO"/><span id="errorgpio" class="text-danger"></span>
+                            <label class="control-label">GPIO Number</label><input id="gpio" type="text" class="form-control" name="GPIO" /><span id="errorgpio" class="text-danger"></span>
                         </div>
                     </div>
 
@@ -669,8 +679,8 @@
             </div>
         </div>
     </div>
-    
-    <div class="modal fade" id="TagName_Modal" tabindex="-1" role="dialog"  style="z-index: 12000;" 
+
+    <div class="modal fade" id="TagName_Modal" tabindex="-1" role="dialog" style="z-index: 12000;"
         data-backdrop="static" aria-labelledby="TagName_Modal_Label">
         <div class="modal-dialog modal-xl">
             <div class="modal-content bg-white">
@@ -701,7 +711,7 @@
                     <div class="col">
                         <button class="btn btn-primary float-right" type="button" id="edittagsubmitBtn">Save</button>
                     </div>
-                    
+
                 </div>
             </div>
         </div>
@@ -776,10 +786,10 @@
     <div class="leaflet-sidebar leaflet-control leaflet-sidebar-left leaflet-touch collapsed" id="sidebar">
         <div class="leaflet-sidebar-content">
             <h1 id="fotf-site-facility-name" class="leaflet-sidebar-header d-flex">
-                 <span class="slantedLogoDivider"></span>
+                <span class="slantedLogoDivider"></span>
                 <i id="fotf-sidebar-close" class="leaflet-sidebar-close pi-iconExit"></i>
             </h1>
-           
+
             <!-- Sidebar panel Home - Zone Selector -->
             <div class="leaflet-sidebar-pane overflow-auto" id="home">
                 <div id="div_zoneSelect">
@@ -901,6 +911,9 @@
                     <div id="machine_div" data-id="" class="card bg-white mt-2 pb-1" style="display: none;">
                         <div class="card-header pl-1">
                             <h6 class="control-label sectionHeader ml-1 mb-1 d-flex justify-content-between">Machine Info
+                                      <span class="d-flex justify-content-between">
+                                          <span class="btn btn-secondary border-0 badge-info badge" name="mpeview"></span>
+                                      </span>
                                 <button type="button" class="btn btn-secondary border-0 badge-info badge machineinfoedit" name="machineinfoedit" style="display: none" data-id="0" data-toggle="tooltip" data-container="body" data-placement="top">Edit</button>
                             </h6>
                         </div>
@@ -950,7 +963,10 @@
                         <div class="card bg-white mt-2 pb-1">
                             <div class="card-header pl-1 border-bottom">
                                 <h6 class="control-label sectionHeader ml-1 mb-1 d-flex justify-content-between">Dock Door
-                                <span class="btn btn-secondary border-0 badge-info badge" name="doornumberid"></span>
+                                     <span class="d-flex justify-content-between">
+                                         <span class="btn btn-secondary border-0 badge-info badge" name="doorview"></span>
+                                     </span>
+                                    <span class="btn btn-secondary border-0 badge-info badge" name="doornumberid"></span>
                                     <span class="d-flex justify-content-between">Status:
                                     <span class="btn btn-secondary border-0 badge-info badge" name="doorstatus"></span>
                                     </span>
@@ -972,16 +988,16 @@
                             <div class="card-body pb-0">
                                 <div class="table-responsive">
                                     <table class="table table-sm table-hover mb-0 border-bottom" id="doortriptable">
-                                         <thead class="thead-dark">
-                                                    <tr>
-                                                        <th class="row-cts-schd"><span class="ml-p25rem">Schd</span></th>
-                                                        <th class="row-cts-depart">Deprt</th>
-                                                        <th class="row-cts-rt">Route-Trip</th>
-                                                        <th class="row-cts-door">Door</th>
-                                                        <th class="row-cts-leg">Direction</th>
-                                                        <th class="row-cts-dest">Dest</th>
-                                                    </tr>
-                                                </thead>
+                                        <thead class="thead-dark">
+                                            <tr>
+                                                <th class="row-cts-schd"><span class="ml-p25rem">Schd</span></th>
+                                                <th class="row-cts-depart">Deprt</th>
+                                                <th class="row-cts-rt">Route-Trip</th>
+                                                <th class="row-cts-door">Door</th>
+                                                <th class="row-cts-leg">Direction</th>
+                                                <th class="row-cts-dest">Dest</th>
+                                            </tr>
+                                        </thead>
                                         <tbody></tbody>
                                     </table>
                                 </div>
@@ -1006,14 +1022,14 @@
                         <div class="card-header pl-1 d-flex flex-row">
                             <h6 class="control-label sectionHeader ml-1">Vehicle Info</h6>
                             <div class="custom-control custom-switch ml-3">
-                                <input id="followvehicle" type="checkbox" class="custom-control-input" name="followvehicle"/>
+                                <input id="followvehicle" type="checkbox" class="custom-control-input" name="followvehicle" />
                                 <label class="vehicleInfo custom-control-label" for="followvehicle">Follow Vehicle</label>
-                                
+
                             </div>
                             <div>
                             </div>
                         </div>
-                               
+
                         <div id="div_vehicle">
                             <div class="table-responsive">
                                 <table class="table table-sm table-hover mb-0 border-bottom" id="vehicletable">
@@ -1023,11 +1039,11 @@
                             </div>
                         </div>
                         <div class="card-header pl-1 d-flex flex-row" id="vehicle-info-edit-row">
-                                <h6 class="control-label sectionHeader ml-1 mb-1 d-flex justify-content-between">
-                              
-                                <button type="button" class="btn btn-secondary border-0 badge-info badge vehicleinfoedit" name="vehicleinfoedit"  data-id="0" data-toggle="tooltip" data-container="body" data-placement="top">Edit</button>
+                            <h6 class="control-label sectionHeader ml-1 mb-1 d-flex justify-content-between">
 
-                            </h6> 
+                                <button type="button" class="btn btn-secondary border-0 badge-info badge vehicleinfoedit" name="vehicleinfoedit" data-id="0" data-toggle="tooltip" data-container="body" data-placement="top">Edit</button>
+
+                            </h6>
                         </div>
                         <div id="div_vehicle_mission">
                             <div class="table-responsive">
@@ -1423,8 +1439,7 @@
                             </div>
                             <div class="card w-100">
                                 <div class="card-header pl-1">
-                                    <h6 class="sectionHeader ml-1 mb-1">
-                                        Missing Assigned Scan
+                                    <h6 class="sectionHeader ml-1 mb-1">Missing Assigned Scan
                                         <button class="btn btn-link" data-toggle="collapse" data-target="#missingassigned">
                                             <i class="bi bi-arrows-collapse"></i>
                                         </button>
@@ -1445,8 +1460,7 @@
                             </div>
                             <div class="card w-100">
                                 <div class="card-header pl-1">
-                                    <h6 class="sectionHeader ml-1 mb-1">
-                                        Missing Arrival Scan
+                                    <h6 class="sectionHeader ml-1 mb-1">Missing Arrival Scan
                                         <button class="btn btn-link" data-toggle="collapse" data-target="#missingarrival">
                                             <i class="bi bi-arrows-collapse"></i>
                                         </button>
@@ -1802,7 +1816,7 @@
     <script src="Scripts/View/default.js"></script>
     <!--Load application settings for the site-->
     <script src="Scripts/View/application_setting.js"></script>
-     <!--Load Image Upload for the site-->
+    <!--Load Image Upload for the site-->
     <script src="Scripts/View/floorplan.js"></script>
     <!--Notification-->
     <script src="Scripts/View/notification.js"></script>
@@ -1841,7 +1855,7 @@
     <!--geometry js-->
     <script src="Scripts/View/geometry_editing.js"></script>
     <!--Views for sparklines/graphs for machine processing equipment details-->
-  <%--  <script src="Scripts/View/machine_sparkline.js"></script>--%>
+    <%--  <script src="Scripts/View/machine_sparkline.js"></script>--%>
     <!--Load Indoor Map settings for the site-->
     <script src="Scripts/View/indoorMap.js"></script>
     <!--24 Hour Clock js-->

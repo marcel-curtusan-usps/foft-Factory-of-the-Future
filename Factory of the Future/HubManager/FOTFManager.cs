@@ -282,12 +282,6 @@ namespace Factory_of_the_Future
                 newtempgZone.Properties.Id = Guid.NewGuid().ToString();
                 newtempgZone.Properties.RawData = "";
                 newtempgZone.Properties.Source = "user";
-                newtempgZone.Properties.MPEWatchData = null;
-                newtempgZone.Properties.MissionList = null;
-                newtempgZone.Properties.DockDoorData = null;
-                newtempgZone.Properties.StaffingData = null;
-                newtempgZone.Properties.DPSData = null;
-                newtempgZone.Properties.ZoneUpdate = true;
                
                 if (Regex.IsMatch(newtempgZone.Properties.ZoneType, "^(MPE|Machine|Bin)", RegexOptions.IgnoreCase))
                 {
@@ -298,6 +292,12 @@ namespace Factory_of_the_Future
                     }
                     //get the MPE Name
                     newtempgZone.Properties.MPEType = string.Join(string.Empty, Regex.Matches(newtempgZone.Properties.Name, @"\p{L}+").OfType<Match>().Select(m => m.Value));
+                    newtempgZone.Properties.MPEWatchData = GetMPEPerfData(newtempgZone.Properties.Name);
+                    if (!string.IsNullOrEmpty(newtempgZone.Properties.MPEWatchData.CurSortplan))
+                    {
+                        newtempgZone.Properties.DPSData = GetDPSData(newtempgZone.Properties.MPEWatchData.CurSortplan);
+                        newtempgZone.Properties.StaffingData = GetStaffingSortplan(string.Concat(newtempgZone.Properties.MPEWatchData.MpeType, newtempgZone.Properties.MPEWatchData.MpeNumber, newtempgZone.Properties.MPEWatchData.CurSortplan));
+                    }
                 }
                 if (Regex.IsMatch(newtempgZone.Properties.ZoneType, "^(DockDoor)", RegexOptions.IgnoreCase))
                 {
@@ -307,11 +307,8 @@ namespace Factory_of_the_Future
                         newtempgZone.Properties.DoorNumber = n.ToString();
                     }
                     newtempgZone.Properties.DockDoorData = GetDigitalDockDoorList(newtempgZone.Properties.DoorNumber);
-
-                  
+ 
                 }
-
-         
                 if (CoordinateSystem.ContainsKey(newtempgZone.Properties.FloorId))
                 {
                     if (CoordinateSystem.TryGetValue(newtempgZone.Properties.FloorId, out CoordinateSystem cs))
@@ -1601,6 +1598,14 @@ namespace Factory_of_the_Future
         {
             Clients.Group("QSM").UpdateQSMStatus(qSMitem);
         }
+        public void BroadcastAddConnection(Connection Connectionitem)
+        {
+            Clients.Group("QSM").AddConnection(Connectionitem);
+        }
+        public void BroadcastRemoveConnection(Connection Connectionitem)
+        {
+            Clients.Group("QSM").RemoveConnection(Connectionitem);
+        }
         private void UpdateAGVLocationStatus(object state)
         {
             lock (updateAGVLocationStatuslock)
@@ -2146,9 +2151,10 @@ namespace Factory_of_the_Future
         {
             try
             {
-                Task.Run(() => AppParameters.RunningConnection.Add(JsonConvert.DeserializeObject<Connection>(data), true)).ConfigureAwait(false);
-               // AppParameters.RunningConnection.Add(JsonConvert.DeserializeObject<Connection>(data));
-
+                if (!string.IsNullOrEmpty(data))
+                {
+                    Task.Run(() => AppParameters.RunningConnection.Add(JsonConvert.DeserializeObject<Connection>(data), true)).ConfigureAwait(false);
+                }
                 return null;
             }
             catch (Exception e)
@@ -2162,8 +2168,10 @@ namespace Factory_of_the_Future
 
             try
             {
-              Task.Run(() => AppParameters.RunningConnection.EditAsync(JsonConvert.DeserializeObject<Connection>(data))).ConfigureAwait(false);
-
+                if (!string.IsNullOrEmpty(data))
+                {
+                    Task.Run(() => AppParameters.RunningConnection.EditAsync(JsonConvert.DeserializeObject<Connection>(data))).ConfigureAwait(false);
+                }
                 return null;
             }
             catch (Exception e)
@@ -2176,7 +2184,11 @@ namespace Factory_of_the_Future
         {
             try
             {
-                AppParameters.RunningConnection.Remove(JsonConvert.DeserializeObject<Connection>(data));
+                if (!string.IsNullOrEmpty(data))
+                {
+                  Task.Run(() => AppParameters.RunningConnection.Remove(JsonConvert.DeserializeObject<Connection>(data))).ConfigureAwait(false); 
+                }
+
                 return null;
             }
             catch (Exception e)

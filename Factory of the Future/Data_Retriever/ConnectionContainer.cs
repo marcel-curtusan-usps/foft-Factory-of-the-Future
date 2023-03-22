@@ -18,10 +18,11 @@ namespace Factory_of_the_Future
         public bool updateFile;
         public Connection _conn { get; protected set; }
         public Api_Connection NewConnection { get; protected set; }
-        public void Add(Connection con, bool saveToFile)
+        public async Task Add(Connection con, bool saveToFile)
         {
             try
             {
+                updateFile = saveToFile;
                 NewConnection = new Api_Connection();
                 con.Status = "Idle/Active";
                 if (con.ConnectionName.ToLower() == "MPEWatch".ToLower())
@@ -38,6 +39,7 @@ namespace Factory_of_the_Future
                     });
                 }
                 NewConnection.ID = con.Id;
+                NewConnection.Status = 0;
                 NewConnection.ConnectionInfo = con;
                 Connection.Add(NewConnection);
                 if (con.ActiveConnection)
@@ -69,8 +71,9 @@ namespace Factory_of_the_Future
                     NewConnection.Status = 2;
                     NewConnection.ConnectionInfo.Status = "Deactived";
                 }
-                if (saveToFile)
+                if (updateFile)
                 {
+                    await Task.Run(() => FOTFManager.Instance.BroadcastAddConnection(NewConnection.ConnectionInfo)).ConfigureAwait(false);
                     new FileIO().Write(string.Concat(AppParameters.CodeBase.Parent.FullName.ToString(), AppParameters.Appsetting), "Connection.json", AppParameters.ConnectionOutPutdata(Connection.Select(y => y.ConnectionInfo).ToList()));
                 }
             }
@@ -238,9 +241,49 @@ namespace Factory_of_the_Future
             }
         }
 
-        internal void Remove(Connection connection)
+        internal async Task Remove(Connection connection)
         {
-            throw new NotImplementedException();
+            bool conStoped = false;
+            try
+            {
+                foreach (Api_Connection Connection_item in Connection)
+                {
+                    if (Connection_item.ConnectionInfo.Id == connection.Id)
+                    {
+                        NewConnection = Connection_item;
+                        if (Connection_item.ConnectionInfo.UdpConnection)
+                        {
+                            Connection_item._StopUDPListener();
+                            conStoped = true;
+                        }
+                        else if (Connection_item.ConnectionInfo.TcpIpConnection)
+                        {
+                            Connection_item._StopTCPListener();
+                            conStoped = true;
+                        }
+                        else if (Connection_item.ConnectionInfo.WsConnection)
+                        {
+                            Connection_item.WSStop();
+                            conStoped = true;
+                        }
+                        else if (Connection_item.ConnectionInfo.ApiConnection)
+                        {
+                            Connection_item.Stop();
+                            conStoped = true;
+                        }
+                      
+                    }
+                }
+                if (conStoped)
+                {
+                    AppParameters.RunningConnection.Connection.Remove(NewConnection);
+                    await Task.Run(() => FOTFManager.Instance.BroadcastRemoveConnection(connection)).ConfigureAwait(false);
+                }
+            }
+            catch (Exception e)
+            {
+                new ErrorLogger().ExceptionLog(e);
+            }
         }
         protected virtual void Dispose(bool disposing)
         {
@@ -256,6 +299,7 @@ namespace Factory_of_the_Future
                 disposedValue = true;
                 _conn = null;
                 NewConnection = null;
+                updateFile = false;
             }
         }
 

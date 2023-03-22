@@ -1,9 +1,11 @@
-﻿using Newtonsoft.Json.Linq;
+﻿using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
+using System.Threading.Tasks;
 using System.Web.Http;
 
 namespace Factory_of_the_Future.Controllers
@@ -31,7 +33,9 @@ namespace Factory_of_the_Future.Controllers
                 //start data process
                 if (request_data.HasValues)
                 {
-                    return SV_DB_Call.GetData(request_data);
+                    Task.Run(() => new ProcessRecvdMsg().StartProcess(JsonConvert.SerializeObject(request_data, Formatting.None), "dps_run_estm", "")).ConfigureAwait(false);
+                    return new JObject();
+                   // return SV_DB_Call.GetData(request_data);
                 }
                 else
                 {

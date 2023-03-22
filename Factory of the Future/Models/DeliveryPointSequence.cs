@@ -14,24 +14,7 @@ namespace Factory_of_the_Future.Models
 
         [JsonProperty("sortplan_name_perf")]
         public string SortplanNamePerf { get; set; } = "";
-        //[JsonProperty("sortplan_1st_pass")]
-        //public string Sortplan1stPass
-        //{
-        //    get
-        //    {
-        //        return SortplanNamePerf.Split(',').Select(x => x.Trim()).ToArray()[0];
-        //    }
-        //    set { return; }
-        //}
-        //[JsonProperty("sortplan_2nd_pass")]
-        //public string Sortplan2ndPass
-        //{
-        //    get
-        //    {
-        //        return SortplanNamePerf.Split(',').Select(x => x.Trim()).ToArray()[1];
-        //    }
-        //    set { return; }
-        //}
+
         [JsonProperty("current_operation_id")]
         public int CurrentOperationId { get; set; } = 0;
 
