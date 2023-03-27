@@ -12,6 +12,7 @@ using System.Web.Security;
 
 namespace Factory_of_the_Future
 {
+
     public static class BoolFlag
     {
         public const string Yes = "Y";

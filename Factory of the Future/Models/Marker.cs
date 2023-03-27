@@ -21,7 +21,7 @@ namespace Factory_of_the_Future
         public bool Visible { get; set; } = false;
 
         [JsonProperty("zones")]
-        public List<Zone> Zones { get; set; }
+        public List<string> Zones { get; set; } = new List<string>(); 
 
         [JsonProperty("color")]
         public string Color { get; set; } = "";
@@ -30,7 +30,7 @@ namespace Factory_of_the_Future
         public bool TagVisible { get; set; } = false;
 
         [JsonProperty("tagVisibleMils")]
-        public int TagVisibleMils { get; set; }
+        public int TagVisibleMils { get; set; } = 0;
 
         [JsonProperty("isWearingTag")]
         public bool IsWearingTag { get; set; }
@@ -42,16 +42,16 @@ namespace Factory_of_the_Future
         public string CraftName { get; set; } = "";
 
         [JsonProperty("positionTS")]
-        public DateTime PositionTS { get; set; }
+        public DateTime PositionTS { get; set; } = DateTime.MinValue;
 
         [JsonProperty("Tag_TS")]
-        public DateTime TagTS { get; set; }
+        public DateTime TagTS { get; set; } = DateTime.MinValue;
 
         [JsonProperty("Tag_Type")]
         public string TagType { get; set; } = "";
 
         [JsonProperty("Tag_Update")]
-        public bool TagUpdate { get; set; }
+        public bool TagUpdate { get; set; } 
 
         [JsonProperty("empId")]
         public string EmpId { get; set; } = "";
@@ -72,7 +72,7 @@ namespace Factory_of_the_Future
 
         [JsonProperty("tacs")]
         //public string Tacs { get; set; } = "";
-        public Tacs Tacs { get; set; }
+        public Tacs Tacs { get; set; } = new Tacs(); 
 
         [JsonProperty("sels")]
         public string Sels { get; set; } = "";
@@ -84,13 +84,13 @@ namespace Factory_of_the_Future
         public string RawData { get; set; } = "";
 
         [JsonProperty("Camera_Data")]
-        public Cameras CameraData { get; set; }
+        public Cameras CameraData { get; set; } = new Cameras();
 
         [JsonProperty("Vehicle_Status_Data")]
-        public VehicleStatus Vehicle_Status_Data { get; set; }
+        public VehicleStatus Vehicle_Status_Data { get; set; } = new VehicleStatus();
 
         [JsonProperty("Mission")]
-        public Mission Misison { get; set; }
+        public Mission Missison { get; set; } = new Mission();
 
         [JsonProperty("source")]
         public string Source { get; set; } = "";
@@ -99,7 +99,7 @@ namespace Factory_of_the_Future
         public string NotificationId { get; set; } = "";
 
         [JsonProperty("routePath")]
-        public GeoLine RoutePath { get; set; }
-        public List<DarvisCameraAlert> DarvisAlerts { get; internal set; }
+        public GeoLine RoutePath { get; set; } = new GeoLine();
+        public List<DarvisCameraAlert> DarvisAlerts { get; internal set; } = new List<DarvisCameraAlert>();
     }
 }

@@ -1,6 +1,7 @@
 ﻿using Newtonsoft.Json.Linq;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Web.Http;
 using System.Web.Http.Description;
 
@@ -35,21 +36,30 @@ namespace Factory_of_the_Future.Controllers
         //{
         //    return "value";
         //}
-        //// POST api/<controller>
-        //public void Post([FromBody] string value)
-        //{
-        //    try
-        //    {
-        //        if (string.IsNullOrEmpty(value))
-        //        {
-        //        }
-
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        new ErrorLogger().ExceptionLog(ex);
-        //    }
-        //}
+        // POST api/<controller>
+        [ResponseType(typeof(JObject))]
+        public async Task<IHttpActionResult> PostAsync([FromBody] JToken request_data)
+        {
+            //handle bad requests
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+            if (request_data != null)
+            {
+                //start data process
+                if (request_data.HasValues)
+                {
+                    //Send data to be processed.
+                    await Task.Run(() => new ProcessRecvdMsg().StartProcess(request_data, "getTagPosition", "")).ConfigureAwait(false);
+                }
+            }
+            else
+            {
+                return CreatedAtRoute("DefaultApi", new { message = "Invalid Data in the Request." }, 0);
+            }
+            return CreatedAtRoute("DefaultApi", new { id = "0" }, 0);
+        }
 
         //// PUT api/<controller>/5
         //public void Put(int id, [FromBody] string value)

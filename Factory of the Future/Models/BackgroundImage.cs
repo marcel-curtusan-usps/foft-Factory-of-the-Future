@@ -19,40 +19,40 @@ namespace Factory_of_the_Future
         public bool Visible { get; set; }
 
         [JsonProperty("otherCoordSys")]
-        public string OtherCoordSys { get; set; }
+        public string OtherCoordSys { get; set; } = "";
 
         [JsonProperty("rotation")]
-        public int Rotation { get; set; }
+        public int Rotation { get; set; } = 0;
 
         [JsonProperty("base64")]
         public string Base64 { get; set; } = "";
 
         [JsonProperty("origoY")]
-        public double OrigoY { get; set; }
+        public double OrigoY { get; set; } = 0.0;
 
         [JsonProperty("origoX")]
-        public double OrigoX { get; set; }
+        public double OrigoX { get; set; } = 0.0;
 
         [JsonProperty("heightMeter")]
-        public double HeightMeter { get; set; }
+        public double HeightMeter { get; set; } = 0.0;
 
         [JsonProperty("yMeter")]
-        public double YMeter { get; set; }
+        public double YMeter { get; set; } = 0.0;
 
         [JsonProperty("alpha")]
-        public int Alpha { get; set; }
+        public int Alpha { get; set; } = 0;
 
         [JsonProperty("id")]
-        public string Id { get; set; }
+        public string Id { get; set; } = "";
 
         [JsonProperty("name")]
-        public string Name { get; set; }
+        public string Name { get; set; } = "";
 
         [JsonProperty("metersPerPixelY")]
-        public double MetersPerPixelY { get; set; }
+        public double MetersPerPixelY { get; set; } = 0.0;
 
         [JsonProperty("metersPerPixelX")]
-        public double MetersPerPixelX { get; set; }
+        public double MetersPerPixelX { get; set; } = 0.0;
         [JsonProperty("updateStatus")]
         public bool UpdateStatus { get; set; } = false;
 

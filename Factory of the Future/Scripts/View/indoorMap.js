@@ -304,8 +304,8 @@ map.addControl(new timedisplay());
 // Add Layer Popover - Proposed
 var layersControl = L.control.layers(baseLayers, overlayMaps, {
     sortLayers: true, sortFunction: function (layerA, layerB, nameA, nameB) {
-        if (nameA.toUpperCase().includes("FLOOR")) {
-            if (nameA.toUpperCase().includes("MAIN")) {
+        if ( /FLOOR/i.test(nameA)) {
+            if (/MAIN/i.test(nameA)) {
                 return -1;
             }
             else {
@@ -435,10 +435,7 @@ async function init_mapSetup(MapData) {
     try {
         fotfmanager.server.getMap().done(function (MapData) {
             if (MapData.length > 0) {
-                //map.attributionControl.setPrefix("USPS " + MapData[0].backgroundImages.applicationFullName + " (" + MapData[0].backgroundImages.softwareVersion + ")");
-                //$('#fotf-site-facility-name').append(MapData[0].backgroundImages.facilityName);
-                //map.attributionControl.addAttribution(MapData[0].backgroundImages.facilityName);
-                //$(document).prop('title', MapData[0].backgroundImages.facilityName + ' ' + MapData[0].backgroundImages.applicationAbbr);
+
                 $.each(MapData, function (index) {
                     //set new image
                     let img = new Image();
@@ -446,7 +443,7 @@ async function init_mapSetup(MapData) {
                     img.src = this.backgroundImages.base64;
                     //create he bound of the image.
                     let bounds = [[this.backgroundImages.yMeter, this.backgroundImages.xMeter], [this.backgroundImages.heightMeter + this.backgroundImages.yMeter, this.backgroundImages.widthMeter + this.backgroundImages.xMeter]];
-                    var trackingarea = L.polygon(bounds, {});
+                    let trackingarea = L.polygon(bounds, {});
                     if (index === 0) {
                         mainfloor.options.id = this.id;
                         mainfloor.setUrl(img.src);
@@ -454,13 +451,11 @@ async function init_mapSetup(MapData) {
                         mainfloor.setBounds(trackingarea.getBounds());
                         //center image
                         map.setView(trackingarea.getBounds().getCenter(), 1.5);
-                        //init_zones(this.zones, this.id);
-                        //init_locators(this.locators, this.id);
+
                     }
                     else {
                         layersControl.addBaseLayer(L.imageOverlay(img.src, trackingarea.getBounds(), { id: this.id, zindex: index }), this.backgroundImages.name);
-                        //init_zones(this.zones, this.id);
-                        //init_locators(this.locators, this.id);
+
                     }
                 });
                 init_arrive_depart_trips();

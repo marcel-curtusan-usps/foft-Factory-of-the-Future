@@ -1975,11 +1975,6 @@ namespace Factory_of_the_Future
             }
         }
 
-        private void BroadcastVehiclesUpdate(List<GeoMarker> vehicles, string id)
-        {
-            Clients.Group("VehiclsMarkers").updateVehicles(vehicles, id);
-        }
-
         internal void UpdateDoorZone(string DoorNumber)
         {
             try
@@ -2118,9 +2113,13 @@ namespace Factory_of_the_Future
             }
         }
 
-        private void BroadcastPersonTagStatus(GeoMarker Marker, string id)
+        public void BroadcastPersonTagStatus(GeoMarker Marker, string id)
         {
             Clients.Group("PeopleMarkers").updatePersonTagStatus(Marker, id);
+        }
+        public void BroadcastMarkerCoordinatesUpdate(MarkerGeometry Coordinates, string floorid, string markerid)
+        {
+            Clients.Group("PeopleMarkers").updateMarkerCoordinates(Coordinates, floorid, markerid);
         }
         public List<ThroughputValues> GetMachineThroughputMaximums()
         {

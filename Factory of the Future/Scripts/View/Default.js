@@ -935,15 +935,15 @@ async function zonecurrentStaff() {
                 let MachineCurrentStaff = [];
                 if (tagsMarkersGroup.hasOwnProperty("_layers")) {
                     $.map(tagsMarkersGroup._layers, function (layer, i) {
-                        if (/person/i.test(layer.feature.properties.Tag_Type) && layer.feature.properties.zones != null) {
+                        if (/person/i.test(layer.feature.properties.Tag_Type) && layer.feature.properties.zones !== null && layer.feature.properties.zones.length > 0) {
                             
                             $.map(layer.feature.properties.zones, function (p_zone) {
 
-                                if (p_zone.id == Machinelayer.feature.properties.id) {
+                                if (p_zone == Machinelayer.feature.properties.id) {
                                     
                                                MachineCurrentStaff.push({
                                                     name: checkValue(layer.feature.properties.craftName) ? layer.feature.properties.craftName : layer.feature.properties.id,
-                                                    nameId: checkValue(layer.feature.properties.id) ? layer.feature.properties.id : layer.feature.properties.id,
+                                                    nameId:layer.feature.properties.id,
                                                     id: layer.feature.properties.id
                                                 })
                                

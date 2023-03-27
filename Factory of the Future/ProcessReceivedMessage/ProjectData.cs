@@ -1,7 +1,11 @@
-﻿using Newtonsoft.Json;
+﻿using Factory_of_the_Future.Models;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
+using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
@@ -16,6 +20,10 @@ namespace Factory_of_the_Future
         public JToken tempData = null;
         public JToken CoordinateSystem = null;
         public CoordinateSystem tempCoordinateSystem = null;
+        public QuuppaCoordinateSystem qc = null;
+        public ConcurrentDictionary<string, GeoMarker> templocators = null;
+        public ConcurrentDictionary<string, GeoZone> tempZones = null;
+        public bool update = false;
         internal async Task<bool> LoadAsync(string data, string message_type, string connID)
         {
             bool saveToFile = false;
@@ -31,64 +39,149 @@ namespace Factory_of_the_Future
                     {
                         if (((JObject)tempData).ContainsKey("coordinateSystems"))
                         {
-                            //if (FOTFManager.Instance.FirstOrDefault().Key == "temp")
-                            //{
-                            //    AppParameters.CoordinateSystem.TryRemove("temp", out tempCoordinateSystem);
-                            //}
-                            // loop though the Coordinate system
-                            CoordinateSystem = tempData.SelectToken("coordinateSystems");
-                            for (int i = 0; i < CoordinateSystem.Count(); i++)
+                            qc = tempData.ToObject<QuuppaCoordinateSystem>();
+                            foreach (Quuppa_CoordinateSystem qcitem in qc.CoordinateSystems)
                             {
-                                if (FOTFManager.Instance.CoordinateSystem.ContainsKey(CoordinateSystem[i]["id"].ToString()))
+                                qcitem.BackgroundImages[0].Name = qcitem.Name;
+                                if (FOTFManager.Instance.CoordinateSystem.ContainsKey(qcitem.Id))
                                 {
-                                    if (FOTFManager.Instance.CoordinateSystem.TryGetValue(CoordinateSystem[i]["id"].ToString(), out CoordinateSystem updateCS))
+                                    foreach (CoordinateSystem cs in FOTFManager.Instance.CoordinateSystem.Values)
                                     {
-                                        //the background image
-                                        LoadBackgroundImage(CoordinateSystem[i].SelectToken("backgroundImages"), updateCS.Id, CoordinateSystem[i]["name"].ToString(), out saveToFile);
-                                        //this is for Zones
-                                        LoadZones(CoordinateSystem[i].SelectToken("zones"), updateCS.Id, out saveToFile);
-                                        //this is for Locators
-                                        LoadLocators(CoordinateSystem[i].SelectToken("locators"), updateCS.Id, out saveToFile);
+                                        if (cs.Id == qcitem.Id)
+                                        {
+                                            //background image proccess 
+                                            foreach (var qcbkgitem in qcitem.BackgroundImages)
+                                            {
+                                           
+                                                if (cs.BackgroundImage.Id == qcbkgitem.Id)
+                                                {
+                                                    update = false;
+                                                    foreach (PropertyInfo prop in qcitem.BackgroundImages.GetType().GetProperties())
+                                                    {
+                                                        if (prop.GetValue(qcitem.BackgroundImages, null).ToString() != prop.GetValue(cs.BackgroundImage, null).ToString())
+                                                        {
+                                                            prop.SetValue(cs.BackgroundImage, prop.GetValue(qcitem.BackgroundImages, null));
+                                                        }
+                                                    }
+                                                    if (update)
+                                                    {
+                                                        _ = Task.Run(() => new FileIO().Write(string.Concat(AppParameters.Logdirpath, AppParameters.ConfigurationFloder), "Project_Data.json", AppParameters.ZoneOutPutdata(FOTFManager.Instance.CoordinateSystem.Select(x => x.Value).ToList())));
+                                                    }
+                                                }
+                                            }
 
+                                            //zones 
+                                            tempZones = getZoness(qcitem.qcZones, qcitem.Id);
+                                            foreach (var newzone in tempZones)
+                                            {
+                                                if (cs.Zones.ContainsKey(newzone.Key) && cs.Zones.TryGetValue(newzone.Key, out GeoZone currentZone))
+                                                {
+
+                                                    //geomatry update
+                                                    update = false;
+                                                    if (JsonConvert.SerializeObject(currentZone.Geometry.Coordinates, Formatting.None) != JsonConvert.SerializeObject(newzone.Value.Geometry.Coordinates, Formatting.None))
+                                                    {
+                                                        currentZone.Geometry.Coordinates = newzone.Value.Geometry.Coordinates;
+                                                        update = true;
+                                                    }
+                                                
+                                                    //properties update
+                                                    foreach (PropertyInfo prop in currentZone.Properties.GetType().GetProperties())
+                                                    {
+                                                        if (!new Regex("^(Zone_Update|Quuppa_Override|MPEWatchData|bins|MPE_Bins|DPSData|staffingData|GpioNumber|GpioValue|MissionList|source)$", RegexOptions.IgnoreCase).IsMatch(prop.Name))
+                                                        {
+                                                            if (prop.GetValue(newzone.Value.Properties, null).ToString() != prop.GetValue(currentZone.Properties, null).ToString())
+                                                            {
+                                                                prop.SetValue(currentZone.Properties, prop.GetValue(newzone.Value.Properties, null));
+                                                                update = true;
+                                                            }
+                                                        }
+                                                    }
+                                                    if (update)
+                                                    {
+                                                        _ = Task.Run(() => new FileIO().Write(string.Concat(AppParameters.Logdirpath, AppParameters.ConfigurationFloder), "Project_Data.json", AppParameters.ZoneOutPutdata(FOTFManager.Instance.CoordinateSystem.Select(x => x.Value).ToList())));
+                                                    }
+
+                                                }
+                                                else
+                                                {
+                                                    if (cs.Zones.TryAdd(newzone.Key, newzone.Value))
+                                                    {
+                                                        //add new zone
+                                                        _ = Task.Run(() => new FileIO().Write(string.Concat(AppParameters.Logdirpath, AppParameters.ConfigurationFloder), "Project_Data.json", AppParameters.ZoneOutPutdata(FOTFManager.Instance.CoordinateSystem.Select(x => x.Value).ToList())));
+                                                    }
+                                                }
+                                            }
+
+                                            //locators
+                                            templocators = getLocators(qcitem.Locators, qcitem.Id); getLocators(qcitem.Locators, qcitem.Id);
+                                            foreach (var newlocator in templocators)
+                                            {
+                                                if (cs.Locators.ContainsKey(newlocator.Key) && cs.Locators.TryGetValue(newlocator.Key, out GeoMarker currentMarker))
+                                                {
+                                                    update = false;
+                                                    //geomatry update
+                                                    if (JsonConvert.SerializeObject(currentMarker.Geometry.Coordinates, Formatting.None) != JsonConvert.SerializeObject(newlocator.Value.Geometry.Coordinates, Formatting.None))
+                                                    {
+                                                        currentMarker.Geometry.Coordinates = newlocator.Value.Geometry.Coordinates;
+                                                        update = true;
+                                                    }
+                                                    //properties update
+                                                    foreach (PropertyInfo prop in currentMarker.Properties.GetType().GetProperties())
+                                                    {
+                                                        if (!new Regex("^(Id|RFid|Zones|TagVisible|TagVisibleMils|IsWearingTag|CraftName|PositionTS|TagTS|TagUpdate|EmpId|Emptype|EmpName|IsLdcAlert|CurrentLDCs|Tacs|Sels|RawData|CameraData|Vehicle_Status_Data|Missison|Source|NotificationId|RoutePath)$", RegexOptions.IgnoreCase).IsMatch(prop.Name))
+                                                        {
+                                                            if (prop.GetValue(newlocator.Value.Properties, null).ToString() != prop.GetValue(currentMarker.Properties, null).ToString())
+                                                            {
+                                                                prop.SetValue(currentMarker.Properties, prop.GetValue(newlocator.Value.Properties, null));
+                                                            }
+                                                        }
+                                                    }
+                                                    if (update)
+                                                    {
+                                                        _ = Task.Run(() => new FileIO().Write(string.Concat(AppParameters.Logdirpath, AppParameters.ConfigurationFloder), "Project_Data.json", AppParameters.ZoneOutPutdata(FOTFManager.Instance.CoordinateSystem.Select(x => x.Value).ToList())));
+                                                    }
+                                                }
+                                                else
+                                                {
+                                                    if (cs.Locators.TryAdd(newlocator.Key, newlocator.Value))
+                                                    {
+                                                        //add new zone
+                                                        _ = Task.Run(() => new FileIO().Write(string.Concat(AppParameters.Logdirpath, AppParameters.ConfigurationFloder), "Project_Data.json", AppParameters.ZoneOutPutdata(FOTFManager.Instance.CoordinateSystem.Select(x => x.Value).ToList())));
+                                                    }
+                                                }
+                                            }
+
+
+                                        }
                                     }
                                 }
                                 else
                                 {
-                                    CoordinateSystem CSystem = new CoordinateSystem
+                                    // this will add new floors
+                                    if (FOTFManager.Instance.CoordinateSystem.TryAdd(qcitem.Id, new CoordinateSystem
                                     {
-                                        Name = CoordinateSystem[i]["name"].ToString(),
-                                        Id = CoordinateSystem[i]["id"].ToString()
-                                    };
-                                    ///this is used to add new Coordinate System images
-                                    if (FOTFManager.Instance.CoordinateSystem.TryAdd(CSystem.Id, CSystem))
+                                        Name = qcitem.Name,
+                                        Id = qcitem.Id,
+                                        BackgroundImage = JToken.Parse(JsonConvert.SerializeObject(qcitem.BackgroundImages.FirstOrDefault(), Formatting.Indented)).ToObject<BackgroundImage>(),
+                                        Locators = getLocators(qcitem.Locators, qcitem.Id),
+                                        Zones = getZoness(qcitem.qcZones, qcitem.Id) 
+                                    }))
                                     {
-                                        //the background image
-                                        LoadBackgroundImage(CoordinateSystem[i].SelectToken("backgroundImages"), CSystem.Id, CSystem.Name, out saveToFile);
-                                        //this is for Zones
-                                        LoadZones(CoordinateSystem[i].SelectToken("zones"), CSystem.Id, out saveToFile);
-                                        //this is for Locators
-                                        LoadLocators(CoordinateSystem[i].SelectToken("locators"), CSystem.Id, out saveToFile);
-                                    }
-                                    else
-                                    {
-                                        new ErrorLogger().CustomLog("Unable to add CoordinateSystem " + CSystem.Id, string.Concat((string)AppParameters.AppSettings.Property("APPLICATION_NAME").Value, "_Applogs"));
+                                        //update file with map data.
+                                        _ = Task.Run(() => new FileIO().Write(string.Concat(AppParameters.Logdirpath, AppParameters.ConfigurationFloder), "Project_Data.json", AppParameters.ZoneOutPutdata(FOTFManager.Instance.CoordinateSystem.Select(x => x.Value).ToList())));
+
                                     }
                                 }
                             }
+
                         }
                     }
                     else
                     {
                         for (int i = 0; i < tempData.Count(); i++)
                         {
-                            if (((JObject)tempData).ContainsKey("coordinateSystems"))
-                            {
-                                tempCoordinateSystem = tempData["coordinateSystems"][0].ToObject<CoordinateSystem>();
-                            }
-                            else
-                            {
-                                tempCoordinateSystem = tempData[i].ToObject<CoordinateSystem>();
-                            }
+                            tempCoordinateSystem = tempData[i].ToObject<CoordinateSystem>();
                             FOTFManager.Instance.AddMap(tempCoordinateSystem.Id, tempCoordinateSystem);
                         }
                     }
@@ -107,6 +200,100 @@ namespace Factory_of_the_Future
             }
         }
 
+        private ConcurrentDictionary<string, GeoMarker> getLocators(List<Locator> locators, string id)
+        {
+            ConcurrentDictionary<string, GeoMarker> temp = new ConcurrentDictionary<string, GeoMarker>();
+            try
+            {
+                foreach (Locator item in locators)
+                {
+                    temp.TryAdd(item.Id, new GeoMarker {
+                        Geometry = new MarkerGeometry
+                        {
+                            Coordinates = item.Location
+                        },
+                         Properties = new Marker
+                         {
+                             Id = item.Id,
+                             Name = item.Name,
+                             FloorId =id,
+                             TagType = GetTagType(item.Name),
+                             CraftName = GetCraftName(item.Name),
+                             BadgeId = GetBadgeId(item.Name),
+                             Color = item.Color,
+                             TagVisible =item.Visible
+                         }
+                    });
+                }
+                return temp;
+            }
+            catch (Exception e)
+            {
+                new ErrorLogger().ExceptionLog(e);
+                return temp;
+            }
+        }
+
+        private ConcurrentDictionary<string, GeoZone> getZoness(List<qcZone> zones, string id)
+        {
+            ConcurrentDictionary<string, GeoZone> temp = new ConcurrentDictionary<string, GeoZone>();
+            try
+            {
+                foreach (qcZone item in zones)
+                {
+                    temp.TryAdd(item.Id, new GeoZone
+                    {
+                        Geometry = QuuppaZoneGeometry( item.PolygonData),
+                        Properties = new Properties
+                        {
+                            Id = item.Id,
+                            FloorId = id,
+                            Name = item.Name,
+                            ZoneType = GetZoneType(item.Name),
+                            Color = item.Color,
+                            Visible = item.Visible,
+                            DoorNumber = GetNumber(item.Name).ToString(),
+                            MPENumber = GetNumber(item.Name),
+                            MPEType = GetMpeType(item.Name)//string.Join(string.Empty, Regex.Matches(item.Name, @"\p{L}+").OfType<Match>().Select(m => m.Value)),
+                        }
+                    });
+                }
+                return temp;
+            }
+            catch (Exception e)
+            {
+                new ErrorLogger().ExceptionLog(e);
+                return temp;
+            }
+        }
+
+        private string GetMpeType(string name)
+        {
+            try
+            {
+
+                return string.Join(string.Empty, Regex.Matches(name, @"\p{L}+").OfType<Match>().Select(m => m.Value));
+            }
+            catch (Exception e)
+            {
+                new ErrorLogger().ExceptionLog(e);
+                return "";
+            }
+        }
+
+        private int GetNumber(string name)
+        {
+            try
+            {
+                int.TryParse(string.Join(string.Empty, Regex.Matches(name, @"\d+").OfType<Match>().Select(m => m.Value)).ToString(), out int n);
+                return n;
+            }
+            catch (Exception e)
+            {
+                new ErrorLogger().ExceptionLog(e);
+                return 0;
+            }
+        }
 
         private string GetZoneType(string name)
         {
@@ -177,32 +364,37 @@ namespace Factory_of_the_Future
                 return null;
             }
         }
-        private static void LoadBackgroundImage(JToken backgroundImages, string csid, string csname, out bool saveToFile)
+        private ZoneGeometry QuuppaZoneGeometry(string zoneitem)
         {
-            saveToFile = false;
             try
             {
-                if (backgroundImages != null && backgroundImages.Count() > 0)
-                {
-                    foreach (JObject bgItem in backgroundImages.Children())
-                    {
-                        BackgroundImage newbckimg = bgItem.ToObject<BackgroundImage>();
-                        newbckimg.Name = csname;
-                        newbckimg.CoordinateSystemId = csid;
-                        FOTFManager.Instance.CoordinateSystem[csid].BackgroundImage = newbckimg;
-                        newbckimg.UpdateStatus = true;
-                        saveToFile = true;
+                JObject geometry = new JObject();
+                JArray temp = new JArray();
 
+                string[] polygonDatasplit = zoneitem.Split('|');
+                if (polygonDatasplit.Length > 0)
+                {
+                    JArray xyar = new JArray();
+                    foreach (var polygonitem in polygonDatasplit)
+                    {
+                        string[] polygonitemsplit = polygonitem.Split(',');
+                        xyar.Add(new JArray(Convert.ToDouble(polygonitemsplit[0]), Convert.ToDouble(polygonitemsplit[1])));
                     }
+                    temp.Add(xyar);
                 }
+
+                geometry["coordinates"] = temp;
+
+                ZoneGeometry result = geometry.ToObject<ZoneGeometry>();
+
+                return result;
             }
             catch (Exception e)
             {
                 new ErrorLogger().ExceptionLog(e);
-                saveToFile = false;
+                return null;
             }
         }
-
         private void LoadZones(JToken zoneslist, string csid, out bool saveToFile)
         {
             saveToFile = false;
@@ -457,6 +649,7 @@ namespace Factory_of_the_Future
                 return "";
             }
         }
+
         private MarkerGeometry GetQuuppaTagGeometry(JToken tagitemsplit)
         {
 
@@ -500,7 +693,9 @@ namespace Factory_of_the_Future
                 tempData = null;
                 CoordinateSystem = null;
                 tempCoordinateSystem = null;
-            }
+                templocators = null;
+                tempZones = null;
+    }
         }
 
         // // TODO: override finalizer only if 'Dispose(bool disposing)' has code to free unmanaged resources

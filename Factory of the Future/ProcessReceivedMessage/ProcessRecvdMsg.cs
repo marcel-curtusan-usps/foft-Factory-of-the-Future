@@ -41,8 +41,9 @@ namespace Factory_of_the_Future
                           //  CameraData(_data, _connID);
                             break;
                         /*Quuppa Data Start*/
-                        case "getTagPosition":
-                            TagPosition(_data, _connID);
+                        case "getTagData":
+                            await Task.Run(() => new TagData().LoadAsync(_data, _Message_type, _connID)).ConfigureAwait(false);
+                           // TagPosition(_data, _connID);
                             break;
                         case "getProjectInfo":
                             await Task.Run(() => new ProjectData().LoadAsync(_data, _Message_type, _connID)).ConfigureAwait(false);
@@ -1003,7 +1004,7 @@ namespace Factory_of_the_Future
                             {
                                 cs.Locators.Where(f => f.Key == tag_id[i]).Select(y => y.Value).ToList().ForEach(existingValue =>
                                 {
-                                    existingValue.Properties.Misison = null;
+                                    existingValue.Properties.Missison = null;
                                     existingValue.Properties.TagUpdate = true;
                                 });
                             }
@@ -1071,7 +1072,7 @@ namespace Factory_of_the_Future
                                 {
                                     cs.Locators.Where(f => f.Key == tag_id[i]).Select(y => y.Value).ToList().ForEach(existingValue =>
                                     {
-                                        existingValue.Properties.Misison = null;
+                                        existingValue.Properties.Missison = null;
                                         existingValue.Properties.Vehicle_Status_Data.ERRORCODE = (string)data["errorCode".ToUpper()];
                                         existingValue.Properties.Vehicle_Status_Data.ERRORCODE_DISCRIPTION = (string)data["error_Discription".ToUpper()];
                                         existingValue.Properties.Vehicle_Status_Data.TIME = (DateTime)data["time".ToUpper()];
@@ -1132,7 +1133,7 @@ namespace Factory_of_the_Future
                             {
                                 cs.Locators.Where(f => f.Key == tag_id[i]).Select(y => y.Value).ToList().ForEach(existingValue =>
                                 {
-                                    existingValue.Properties.Misison = null;
+                                    existingValue.Properties.Missison = null;
                                     existingValue.Properties.TagUpdate = true;
                                 });
                             }
@@ -1237,7 +1238,7 @@ namespace Factory_of_the_Future
                                 cs.Locators.Where(f => f.Key == tag_id[i]).Select(y => y.Value).ToList().ForEach(existingValue =>
                                 {
 
-                                    existingValue.Properties.Misison = AppParameters.MissionList.Where(r => r.Value.VEHICLE == tempMission.VEHICLE
+                                    existingValue.Properties.Missison = AppParameters.MissionList.Where(r => r.Value.VEHICLE == tempMission.VEHICLE
                                     && r.Value.STATE == tempMission.STATE
                                     && r.Value.REQUEST_ID == tempMission.REQUEST_ID).Select(y => y.Value).FirstOrDefault();
                                     existingValue.Properties.TagUpdate = true;
@@ -1346,7 +1347,7 @@ namespace Factory_of_the_Future
                                 cs.Locators.Where(f => f.Key == tag_id[i]).Select(y => y.Value).ToList().ForEach(existingValue =>
                                 {
 
-                                    existingValue.Properties.Misison = AppParameters.MissionList.Where(r => r.Value.VEHICLE == tempMission.VEHICLE
+                                    existingValue.Properties.Missison = AppParameters.MissionList.Where(r => r.Value.VEHICLE == tempMission.VEHICLE
                                     && r.Value.STATE == tempMission.STATE
                                     && r.Value.REQUEST_ID == tempMission.REQUEST_ID).Select(y => y.Value).FirstOrDefault();
                                     existingValue.Properties.TagUpdate = true;
@@ -2092,7 +2093,7 @@ namespace Factory_of_the_Future
                                                JToken positionTs = tagitem.ContainsKey("positionTS") ? tagitem["positionTS"] : tagitem["locationTS"];
                                                geoLmarker.Properties.PositionTS = AppParameters.UnixTimeStampToDateTime((long)positionTs);
                                                geoLmarker.Properties.TagTS = responseTS;
-                                               geoLmarker.Properties.Zones = tagitem["zones"].ToObject<List<Zone>>();
+                                               //geoLmarker.Properties.Zones = tagitem["zones"].ToObject<List<Zone>>();
                                                string tempName = tagitem.ContainsKey("name") ? tagitem["name"].ToString() : tagitem["tagName"].ToString();
                                                if (geoLmarker.Properties.Name != tempName)
                                                {

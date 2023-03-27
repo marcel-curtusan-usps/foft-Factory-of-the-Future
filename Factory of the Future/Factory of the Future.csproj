@@ -536,6 +536,7 @@
     <Compile Include="App_Start\Load.cs" />
     <Compile Include="Controllers\DockDoorController.cs" />
     <Compile Include="AGV\Controllers\EITSController.cs" />
+    <Compile Include="Controllers\LocationTagsController.cs" />
     <Compile Include="Controllers\MPE_DPSController.cs" />
     <Compile Include="Controllers\MPE_PerfController.cs" />
     <Compile Include="Controllers\RFIDController.cs" />
@@ -601,6 +602,8 @@
     <Compile Include="Models\MachineData.cs" />
     <Compile Include="Models\Marker.cs" />
     <Compile Include="Models\MarkerGeometry.cs" />
+    <Compile Include="Models\QuuppaCoordinateSystem.cs" />
+    <Compile Include="Models\QuuppaTag.cs" />
     <Compile Include="Models\RPGPlan.cs" />
     <Compile Include="Models\RunPerf.cs" />
     <Compile Include="Models\RouteTrips.cs" />
@@ -628,6 +631,7 @@
     <Compile Include="ProcessReceivedMessage\RFIdData.cs" />
     <Compile Include="ProcessReceivedMessage\StaffingData.cs" />
     <Compile Include="ProcessReceivedMessage\SV_Zone.cs" />
+    <Compile Include="ProcessReceivedMessage\TagData.cs" />
     <Compile Include="ProcessReceivedMessage\TripData.cs" />
     <Compile Include="Transaction_Concentrator\ClientMessages.cs" />
     <Compile Include="Transaction_Concentrator\ProcessorMessage.cs" />

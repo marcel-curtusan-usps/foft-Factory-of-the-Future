@@ -789,7 +789,7 @@ function GetMacineBackground(mpeWatchData) {
             if (mpeWatchData.unplan_maint_sp_status === 1 || mpeWatchData.op_started_late_status === 1 || mpeWatchData.op_running_late_status === 1 || mpeWatchData.sortplan_wrong_status === 1) {
                 return WarningColor;
             }
-            return bkColor;
+            return NotRunningbkColor;
         }
     }
     catch (e) {

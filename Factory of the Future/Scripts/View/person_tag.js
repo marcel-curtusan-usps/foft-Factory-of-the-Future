@@ -2,48 +2,95 @@
 this is for the person details.
  */
 $.extend(fotfmanager.client, {
-    updatePersonTagStatus: async (tagupdate,id) => { updatePersonTag(tagupdate, id) }
+    updatePersonTagStatus: async (tagupdate, id) => { updatePersonTag(tagupdate, id) },
+    updateMarkerCoordinates: async (coordinates, floorid, markerid) => { Promise.all([MarkerCoordinates(coordinates, floorid,markerid)]) }
 });
+
+async function MarkerCoordinates(Coordinates, flid, mkid)
+{
+    try {
+        if (flid === baselayerid) {
+            map.whenReady(() => {
+                if (map.hasOwnProperty("_layers")) {
+                    $.map(map._layers, function (layer, i) {
+                        if (layer.hasOwnProperty("markerId") && layer.markerId === mkid) {
+                            layer.feature.geometry = Coordinates
+                            Promise.all([MarkerCoordinatesUpdate(layer)]);
+                            return false;
+                        }
+                    });
+                }
+            });
+        }
+    } catch (e) {
+        console.log();
+    }
+}
+async function MarkerCoordinatesUpdate(layer)
+{
+    try {
+        let newLatLng = new L.latLng(layer.feature.geometry.coordinates[1], layer.feature.geometry.coordinates[0]);
+        layer.slideTo(newLatLng, { duration: 2000 });
+        return false;
+    } catch (e) {
+        console.log();
+    }
+};
 async function updatePersonTag(tagpositionupdate,id) {
     try {
         if (id == baselayerid) {
-            if (tagsMarkersGroup.hasOwnProperty("_layers")) {
+            let layerindex = -0;
 
-
-                var layerindex = -0;
-                $.map(tagsMarkersGroup._layers, function (layer) {
-
-                    if (layer.hasOwnProperty("feature")) {
-                        if (layer.feature.properties.id === tagpositionupdate.properties.id) {
-                            layer.feature.properties = tagpositionupdate.properties;
-                            layer.feature.geometry = tagpositionupdate.geometry.coordinates;
-                            layerindex = layer._leaflet_id;
-
-                            if (layer.feature.properties.tacs != null) {
-                                if (tagpositionupdate.properties.tacs != null) {
-                                    layer.feature.properties.tacs.isOvertime = true;
-                                }
+            map.whenReady(() => {
+                if (map.hasOwnProperty("_layers")) {
+                    $.map(map._layers, function (layer, i) {
+                        if (layer.hasOwnProperty("feature")) {
+                            if (layer.feature.properties.id === tagpositionupdate.properties.id) {
+                                layerindex = layer._leaflet_id;
+                                layer.feature.geometry = tagpositionupdate.geometry.coordinates;
+                                layer.feature.properties = tagpositionupdate.properties;
+                                Promise.all([updateTagLocation(layerindex)]);
+                                return false;
                             }
+                        }
+                    });
+                }
+            });
+            if (layerindex === -0) {
+                tagsMarkersGroup.addData(tagpositionupdate);
+            }
+            //if (tagsMarkersGroup.hasOwnProperty("_layers")) {
+            //    $.map(tagsMarkersGroup._layers, function (layer) {
+
+            //        if (layer.hasOwnProperty("feature")) {
+            //            if (layer.feature.properties.id === tagpositionupdate.properties.id) {
+            //                layer.feature.properties = tagpositionupdate.properties;
+            //                layer.feature.geometry = tagpositionupdate.geometry.coordinates;
+            //                layerindex = layer._leaflet_id;
+
+            //                if (layer.feature.properties.tacs != null) {
+            //                    if (tagpositionupdate.properties.tacs != null) {
+            //                        layer.feature.properties.tacs.isOvertime = true;
+            //                    }
+            //                }
 
 
-                            Promise.all([updateTagLocation(layerindex)]);
+            //                Promise.all([updateTagLocation(layerindex)]);
                             
 
-                            return false;
-                        }
-                    }
-                });
-                if (layerindex === -0) {
-                    tagsMarkersGroup.addData(tagpositionupdate);
-                }
-            }
+            //                return false;
+            //            }
+            //        }
+            //    });
+               
+            //}
         }
 
     } catch (e) {
         console.log(e);
     }
 }
-var tagsMarkersGroup = new L.GeoJSON(null, {
+let tagsMarkersGroup = new L.GeoJSON(null, {
     pointToLayer: function (feature, latlng) {
         return new L.circleMarker(latlng, {
             radius: 8,
@@ -53,6 +100,7 @@ var tagsMarkersGroup = new L.GeoJSON(null, {
         })
     },
     onEachFeature: function (feature, layer) {
+        layer.markerId = feature.properties.id;
         var VisiblefillOpacity = feature.properties.tagVisibleMils < 80000 ? "" : "tooltip-hidden";
         var isOT = false;
         var isOTAuth = false;
@@ -125,7 +173,7 @@ async function updateTagLocation(layerindex)
         }
         if (tagsMarkersGroup._layers[layerindex].feature.properties.tagVisibleMils < 80000) {
             //if the distance from the current location is more then 10000 meters the do not so the slide to
-            var newLatLng = new L.latLng(tagsMarkersGroup._layers[layerindex].feature.geometry[1], tagsMarkersGroup._layers[layerindex].feature.geometry[0]);
+            let newLatLng = new L.latLng(tagsMarkersGroup._layers[layerindex].feature.geometry[1], tagsMarkersGroup._layers[layerindex].feature.geometry[0]);
        
             tagsMarkersGroup._layers[layerindex].slideTo(newLatLng, { duration: 2000 });
             
