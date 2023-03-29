@@ -167,9 +167,9 @@ namespace Factory_of_the_Future
         //    return _managerHub.GetZonesList();
         //}
 
-        public IEnumerable<GeoZone> EditZone(string data)
+        public void EditZone(string data)
         {
-            return _managerHub.EditZone(data);
+           Task.Run(() => _managerHub.EditZoneAsync(data)).ConfigureAwait(false);
         }
         /// <summary>
         /// Get dock door Zones

@@ -719,7 +719,7 @@ async function Edit_Machine_Info(id) {
                                 jsonObject.id = Data.id;
                                 fotfmanager.server.editZone(JSON.stringify(jsonObject)).done(function (updatedData) {
 
-                                    $('span[id=error_machinesubmitBtn]').text(updatedData[0].properties.MPE_Type + " Zone has been Updated.");
+                                    $('span[id=error_machinesubmitBtn]').text(" Zone has been Updated.");
                                     setTimeout(function () { $("#Zone_Modal").modal('hide'); }, 1500);
 
                                 });

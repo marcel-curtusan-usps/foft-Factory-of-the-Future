@@ -9,7 +9,7 @@ using System.Web.Http;
 
 namespace Factory_of_the_Future.Controllers
 {
-    public class IncomingDataController : ApiController
+    public class IncomingDataController : ApiController, IDisposable
     {
         // GET: api/IncomingData
         [AcceptVerbs("GET", "HEAD")]
@@ -106,6 +106,10 @@ namespace Factory_of_the_Future.Controllers
             catch (Exception e)
             {
                 new ErrorLogger().ExceptionLog(e);
+            }
+            finally
+            {
+                Dispose();
             }
         }
 

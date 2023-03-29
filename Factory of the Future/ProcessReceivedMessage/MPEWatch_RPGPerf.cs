@@ -54,15 +54,15 @@ namespace Factory_of_the_Future
                                 //full bin check 
                                 await Task.Run(() => new MPEFullBin().LoadAsync(NewMachineInfo.MpeType, NewMachineInfo.MpeNumber, NewMachineInfo.BinFullBins)).ConfigureAwait(false);
 
-                                if (NewMachineInfo.RpgEstVol > 0 && NewMachineInfo.CurThruputOphr > 0)
-                                {
-                                    if (!string.IsNullOrEmpty(windowsTimeZoneId))
-                                    {
-                                        dtNow = TimeZoneInfo.ConvertTime(DateTime.Now, TimeZoneInfo.FindSystemTimeZoneById(windowsTimeZoneId));
-                                        intMinuteToCompletion = (NewMachineInfo.RpgEstVol - NewMachineInfo.TotSortplanVol) / (NewMachineInfo.CurThruputOphr / 60);
-                                        NewMachineInfo.RpgEstCompTime = dtNow.AddMinutes(intMinuteToCompletion);
-                                    }
-                                }
+                                //if (NewMachineInfo.RpgEstVol > 0 && NewMachineInfo.CurThruputOphr > 0)
+                                //{
+                                //    if (!string.IsNullOrEmpty(windowsTimeZoneId))
+                                //    {
+                                //        dtNow = TimeZoneInfo.ConvertTime(DateTime.Now, TimeZoneInfo.FindSystemTimeZoneById(windowsTimeZoneId));
+                                //        intMinuteToCompletion = (NewMachineInfo.RpgEstVol - NewMachineInfo.TotSortplanVol) / (NewMachineInfo.CurThruputOphr / 60);
+                                //        NewMachineInfo.RpgEstCompTime = dtNow.AddMinutes(intMinuteToCompletion);
+                                //    }
+                                //}
                                 NewMachineInfo.ExpectedThroughput = parseExpectedThruput(NewMachineInfo.RpgExpectedThruput);
                                 RPGPlan rpgPlan = Get_RPGPlan_Info(NewMachineInfo);
                                 if (rpgPlan != null)

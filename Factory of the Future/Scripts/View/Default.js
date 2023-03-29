@@ -80,7 +80,7 @@ $(function () {
         if (User.hasOwnProperty("FacilityTimeZone")) {
             if (checkValue(User.FacilityTimeZone)) {
                 timezone = { Facility_TimeZone: User.FacilityTimeZone }
-                cBlock();
+                Promise.all([cBlock()]);
             }
         }
         if (User.hasOwnProperty("Environment")) {
@@ -875,11 +875,11 @@ function formatSVmonthdayTime(t) {
         return "";
     }
 }
-function cBlock() {
-    let t = moment().tz(timezone.Facility_TimeZone)
+async function cBlock() {
+  
+    let t = moment().tz(timezone.Facility_TimeZone);
     $('#localTime').val(moment(t).format('H:mm:ss'));
     $('#twentyfourmessage').text(GetTwentyFourMessage(t));
-   
     if ($("#tfhcContent").length > 0) {
         SetClockHands(t);
     }
@@ -891,7 +891,7 @@ function cBlock() {
             }
         }
     }
-    setTimeout(cBlock, 1000);
+    Promise.all([setTimeout(cBlock, 1000)]);
     Promise.all([zonecurrentStaff()]);
 }
 // current zone staff
