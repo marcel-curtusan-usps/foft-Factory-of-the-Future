@@ -56,11 +56,11 @@ namespace Factory_of_the_Future
                                                 if (cs.BackgroundImage.Id == qcbkgitem.Id)
                                                 {
                                                     update = false;
-                                                    foreach (PropertyInfo prop in qcitem.BackgroundImages.GetType().GetProperties())
+                                                    foreach (PropertyInfo prop in qcbkgitem.GetType().GetProperties())
                                                     {
-                                                        if (prop.GetValue(qcitem.BackgroundImages, null).ToString() != prop.GetValue(cs.BackgroundImage, null).ToString())
+                                                        if (prop.GetValue(qcbkgitem, null).ToString() != prop.GetValue(cs.BackgroundImage, null).ToString())
                                                         {
-                                                            prop.SetValue(cs.BackgroundImage, prop.GetValue(qcitem.BackgroundImages, null));
+                                                            prop.SetValue(cs.BackgroundImage, prop.GetValue(qcbkgitem, null));
                                                         }
                                                     }
                                                     if (update)

@@ -626,7 +626,9 @@ namespace Factory_of_the_Future
                 jsonResolver.IgnoreProperty(typeof(Marker), "Tag_TS");
                 jsonResolver.IgnoreProperty(typeof(Marker), "Tag_Update");
                 jsonResolver.IgnoreProperty(typeof(Marker), "Raw_Data");
-                //jsonResolver.IgnoreProperty(typeof(Marker), "Camera_Data");
+                jsonResolver.IgnoreProperty(typeof(Marker), "Camera_Data");
+                jsonResolver.IgnoreProperty(typeof(Marker), "routePath");
+                jsonResolver.IgnoreProperty(typeof(Marker), "DarvisAlerts");
                 jsonResolver.IgnoreProperty(typeof(Marker), "Vehicle_Status_Data");
                 jsonResolver.IgnoreProperty(typeof(Marker), "positionTS");
                 jsonResolver.IgnoreProperty(typeof(Marker), "tacs");

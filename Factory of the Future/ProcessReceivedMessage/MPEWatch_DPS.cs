@@ -116,7 +116,7 @@ namespace Factory_of_the_Future
                 {
                     MPEDPSData.Add(new DeliveryPointSequence
                     {
-                        RunStartModsday = DateTime.Parse(item["run_start_modsday"].ToString()),//(DateTime)item["run_start_modsday"],
+                        RunStartModsday = item["run_start_modsday"].ToString() == "0" ? DateTime.MinValue : DateTime.Parse(item["run_start_modsday"].ToString()),//(DateTime)item["run_start_modsday"],
                         SortplanNamePerf = item["sortplan_name_perf"].ToString(),
                         CurrentOperationId = Convert.ToInt32(item["current_operation_id"].ToString()),
                         PiecesFed1stCnt = Convert.ToInt32(item["pieces_fed_1st_cnt"].ToString()),
@@ -133,11 +133,11 @@ namespace Factory_of_the_Future
                         TimeToCompOptimal = Convert.ToInt32(item["time_to_comp_optimal"].ToString()),
                         ThruputActual = Convert.ToInt32(item["thruput_actual"].ToString()),
                         TimeToCompActual = Convert.ToInt32(item["time_to_comp_actual"].ToString()),
-                        Rpg2ndPassEnd = DateTime.Parse(item["rpg_2nd_pass_end"].ToString()),// (DateTime)item["rpg_2nd_pass_end"],
+                        Rpg2ndPassEnd = item["rpg_2nd_pass_end"].ToString() == "0" ? DateTime.MinValue : DateTime.Parse(item["rpg_2nd_pass_end"].ToString()) ,// (DateTime)item["rpg_2nd_pass_end"],
                         TimeTo2ndPassOptimal = Convert.ToInt32(item["time_to_2nd_pass_optimal"].ToString()),
-                        Rec2ndPassStartOptimal = DateTime.Parse(item["rec_2nd_pass_start_optimal"].ToString()),// (DateTime)item["rec_2nd_pass_start_optimal"],
+                        Rec2ndPassStartOptimal = item["rec_2nd_pass_start_optimal"].ToString() == "0" ? DateTime.MinValue : DateTime.Parse(item["rec_2nd_pass_start_optimal"].ToString()),// (DateTime)item["rec_2nd_pass_start_optimal"],
                         TimeTo2ndPassActual = Convert.ToInt32(item["time_to_2nd_pass_actual"].ToString()),
-                        Rec2ndPassStartActual = DateTime.Parse(item["rec_2nd_pass_start_actual"].ToString()),//(DateTime)item["rec_2nd_pass_start_actual"]
+                        Rec2ndPassStartActual = item["rec_2nd_pass_start_actual"].ToString() == "0" ? DateTime.MinValue : DateTime.Parse(item["rec_2nd_pass_start_actual"].ToString()),//(DateTime)item["rec_2nd_pass_start_actual"]
                     });
 
                 }

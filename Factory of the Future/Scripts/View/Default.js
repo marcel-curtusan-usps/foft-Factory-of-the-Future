@@ -3,7 +3,7 @@ if (!String.prototype.supplant) {
     String.prototype.supplant = function (o) {
         return this.replace(/{([^{}]*)}/g,
             function (a, b) {
-                var r = o[b];
+                let r = o[b];
                 return typeof r === 'string' || typeof r === 'number' ? r : a;
             }
         );
@@ -21,6 +21,7 @@ let timezone = {};
 let condition = false;
 
 $(function () {
+    new Promise(() => setInterval(() => { cBlock() }), 1000);
     $(".bi").on("click", function () {
         $(this).toggleClass("bi-arrows-expand");
         $(this).toggleClass("bi-arrows-collapse");
@@ -30,7 +31,7 @@ $(function () {
     $(window).resize(function () {
         setHeight();
     });
-    User = $.parseJSON(localStorage.getItem('User'));  
+    User = $.parseJSON(localStorage.getItem('User'));
     if (!$.isEmptyObject(User)) {
         $(document).prop('title', User.Facility_Name + ' ' + User.ApplicationAbbr);
         $('#fotf-site-facility-name').empty();
@@ -876,9 +877,8 @@ function formatSVmonthdayTime(t) {
     }
 }
 async function cBlock() {
-  
-    let t = moment().tz(timezone.Facility_TimeZone);
-    $('#localTime').val(moment(t).format('H:mm:ss'));
+    let t = moment($.now());//let dt =;settime(moment(User.CurrentDateTime));
+    $('#localTime').val(t.format('H:mm:ss'));
     $('#twentyfourmessage').text(GetTwentyFourMessage(t));
     if ($("#tfhcContent").length > 0) {
         SetClockHands(t);
@@ -891,9 +891,10 @@ async function cBlock() {
             }
         }
     }
-    Promise.all([setTimeout(cBlock, 1000)]);
+
     Promise.all([zonecurrentStaff()]);
 }
+
 // current zone staff
 //TODO: look in to this more.
 async function zonecurrentStaff() {

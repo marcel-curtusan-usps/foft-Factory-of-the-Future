@@ -131,7 +131,8 @@ namespace Factory_of_the_Future
                     int itemindex = _sessions.FindIndex(r => r.Session_ID == HttpContext.Current.Session.SessionID);
                     if (itemindex != -1)
                     {
-                       // new User_Log().LogoutUser(AppParameters.CodeBase.Parent.FullName.ToString(), _sessions[itemindex]);
+                        // new User_Log().LogoutUser(AppParameters.CodeBase.Parent.FullName.ToString(), _sessions[itemindex]);
+                        Task.Run(() => RemoveUserToListAsync(HttpContext.Current.Session)).ConfigureAwait(false);
                         _sessions.Remove(_sessions[itemindex]);
                     }
                     Session["SessionID"] = null;
@@ -144,6 +145,7 @@ namespace Factory_of_the_Future
             {
                 try
                 {
+                    HttpCookie authCookie;
                     Session[SessionKey.UserRole] = GetUserRole(GetGroupNames(HttpContext.Current.Request.LogonUserIdentity.Groups));
                     Session[SessionKey.AceId] = Regex.Replace(HttpContext.Current.Request.LogonUserIdentity.Name, @"(USA\\|ENG\\)", "").Trim();
                     Session[SessionKey.Session_ID] = HttpContext.Current.Session.SessionID;
@@ -164,13 +166,15 @@ namespace Factory_of_the_Future
                     Session[SessionKey.Browser_Type] = HttpContext.Current.Request.Browser.Type;
                     Session[SessionKey.Browser_Name] = HttpContext.Current.Request.Browser.Browser;
                     Session[SessionKey.Browser_Version] = HttpContext.Current.Request.Browser.Version;
-                    AddUserToList(Session);
+                    authCookie = AuthenticationCookie.Create(Session[SessionKey.AceId].ToString(), Converter.ObjectToString(Session), true);
+                    Task.Run(() => AddUserToListAsync(Session)).ConfigureAwait(false);
+                    Response.Cookies.Add(authCookie);
                 }
                 catch (Exception ex)
                 {
                     new ErrorLogger().ExceptionLog(ex);
                 }
-                //HttpCookie authCookie;
+             
                 //ADUser adUser = new ADUser
                 //{
                 //    UserId = Regex.Replace(HttpContext.Current.Request.LogonUserIdentity.Name, @"(USA\\|ENG\\)", "").Trim(),
@@ -202,30 +206,30 @@ namespace Factory_of_the_Future
                 //Session[SessionKey.ApplicationFullName] = AppParameters.AppSettings["APPLICATION_FULLNAME"].ToString();
                 //Session[SessionKey.ApplicationAbbr] = AppParameters.AppSettings["APPLICATION_NAME"].ToString();
                 //Session[SessionKey.IsAuthenticated] = HttpContext.Current.Request.IsAuthenticated;
-                //authCookie = AuthenticationCookie.Create(adUser.UserId, Converter.ObjectToString(adUser), true);
+         
                 //Task.Run(() => AddUserToList(adUser));
 
-                //Response.Cookies.Add(authCookie);
+               
 
             }
         }
 
-        private void AddUserToList(HttpSessionState session)
+        private async Task AddUserToListAsync(HttpSessionState session)
         {
             try
             {
-                _ = Task.Run(() => new UserLog().LoginUser(session));
+               await Task.Run(() => new UserLog().LoginUser(session)).ConfigureAwait(false);
             }
             catch (Exception e)
             {
                 new ErrorLogger().ExceptionLog(e);
             }
         }
-        private void RemoveUserToList(HttpSessionState session)
+        private async Task RemoveUserToListAsync(HttpSessionState session)
         {
             try
             {
-                _ = Task.Run(() => new UserLog().LogoutUser(session));
+               await Task.Run(() => new UserLog().LogoutUser(session)).ConfigureAwait(false);
             }
             catch (Exception e)
             {
