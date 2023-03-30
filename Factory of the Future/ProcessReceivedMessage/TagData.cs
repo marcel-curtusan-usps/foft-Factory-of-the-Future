@@ -51,16 +51,16 @@ namespace Factory_of_the_Future
                                     },
                                     Properties = new Marker
                                     {
-                                        Id = qtitem.TagId,
-                                        Name = qtitem.TagName,
+                                        Id = !string.IsNullOrEmpty(qtitem.TagId) ? qtitem.TagId : "",
+                                        Name = !string.IsNullOrEmpty(qtitem.TagName) ? qtitem.TagName : "",
                                         PositionTS = AppParameters.UnixTimeStampToDateTime(qtitem.LocationTS),
                                         TagTS = AppParameters.UnixTimeStampToDateTime(tagData.ResponseTS),
                                         FloorId = qtitem.LocationCoordSysId,
                                         TagType = GetTagType(qtitem.TagName),
                                         CraftName = GetCraftName(qtitem.TagName),
                                         BadgeId = GetBadgeId(qtitem.TagName),
-                                        Color = qtitem.Color,
-                                        Zones = qtitem.LocationZoneIds,
+                                        Color = !string.IsNullOrEmpty(qtitem.Color) ? qtitem.Color : "",
+                                        Zones =  qtitem.LocationZoneIds,
                                         TagVisible = !(qtitem.LocationMovementStatus == "noData")
                                     }
                                 };
@@ -81,7 +81,7 @@ namespace Factory_of_the_Future
                                         //properties update
                                         foreach (PropertyInfo prop in currentMarker.Properties.GetType().GetProperties())
                                         {
-                                            if (!new Regex("^(Id|RFid|IsWearingTag|Zones|CraftName|TagUpdate|EmpId|Emptype|EmpName|IsLdcAlert|CurrentLDCs|Tacs|Sels|RawData|CameraData|Vehicle_Status_Data|Missison|Source|NotificationId|RoutePath)$", RegexOptions.IgnoreCase).IsMatch(prop.Name))
+                                            if (!new Regex("^(Id|RFid|IsWearingTag|Zones|CraftName|TagUpdate|EmpId|Emptype|EmpName|IsLdcAlert|CurrentLDCs|Tacs|Sels|RawData|CameraData|Camera_Data|Vehicle_Status_Data|Missison|Source|NotificationId|RoutePath)$", RegexOptions.IgnoreCase).IsMatch(prop.Name))
                                             {
                                              if (prop.GetValue(marker.Properties, null).ToString() != prop.GetValue(currentMarker.Properties, null).ToString())
                                                 {
@@ -146,8 +146,8 @@ namespace Factory_of_the_Future
                             },
                             Properties = new Marker
                             {
-                                Id = qtitem.TagId,
-                                Name = qtitem.TagName,
+                                Id = !string.IsNullOrEmpty(qtitem.TagId) ? qtitem.TagId : "",
+                                Name = !string.IsNullOrEmpty(qtitem.TagName) ? qtitem.TagName : "",
                                 PositionTS = AppParameters.UnixTimeStampToDateTime(qtitem.LocationTS),
                                 TagTS = AppParameters.UnixTimeStampToDateTime(qtitem.LocationTS),
                                 FloorId = qtitem.LocationCoordSysId,
