@@ -113,7 +113,8 @@ $('#Zone_Modal').on('shown.bs.modal', function () {
 
 var lastMachineStatuses = "";
 $.extend(fotfmanager.client, {
-    updateMachineStatus: async (machineData, Id) => { Promise.all([updateMachineZone(machineData,Id)]) }
+    updateMachineStatus: async (machineData, Id) => { Promise.all([updateMachineZone(machineData, Id)]) },
+    updateMPEAlertStatus: async (mpeAlertData, Id) => { Promise.all([updateMPEAlertData(mpeAlertData, Id)]) }
 });
 
 var sparklineMinZoom = 2;
@@ -131,6 +132,21 @@ async function updateMachineZone(data, id) {
                         LoadMachineTables(data.properties, 'machinetable');
                     }
                     updateMPEZone(data.properties, layer._leaflet_id);
+                    return false;
+                }
+            });
+        }
+    } catch (e) {
+        console.log(e);
+    }
+}
+
+async function updateMPEAlertData(data, id) {
+    try {
+        if (id == baselayerid) {
+            $.map(polygonMachine._layers, function (layer, i) {
+                if (layer.hasOwnProperty("feature") && layer.feature.properties.id === id) {
+                    layer.feature.properties.GpioValue = data;
                     updateMPEAlert(layer._leaflet_id);
                     return false;
                 }
@@ -140,6 +156,7 @@ async function updateMachineZone(data, id) {
         console.log(e);
     }
 }
+
 $(function () {
     $('button[name=machineinfoedit]').off().on('click', function () {
         /* close the sidebar */

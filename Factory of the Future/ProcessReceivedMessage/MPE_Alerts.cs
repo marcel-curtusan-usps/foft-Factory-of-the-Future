@@ -45,7 +45,7 @@ namespace Factory_of_the_Future.ProcessReceivedMessage
                                     if (mpeList[i].Properties.GpioValue != gpioValue)
                                     {
                                         mpeList[i].Properties.GpioValue = gpioValue;
-                                        await Task.Run(() => FOTFManager.Instance.BroadcastBinZoneStatus(mpeList[i], cs.Id)).ConfigureAwait(false);
+                                        await Task.Run(() => FOTFManager.Instance.BroadcastMachineAlertStatus(gpioValue, cs.Id)).ConfigureAwait(false);
                                     }
                                 }
                             }

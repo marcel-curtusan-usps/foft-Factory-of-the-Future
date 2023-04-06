@@ -234,6 +234,11 @@ namespace Factory_of_the_Future
             Clients.Group("MPEZones").updateMachineStatus(mPE, id);
 
         }
+        internal void BroadcastMachineAlertStatus(int mPE, string id)
+        {
+            Clients.Group("MPEZones").updateMPEAlertStatus(mPE, id);
+
+        }
         private void BroadcastMPEStatus(RunPerf mPEWatchData, string mpeId)
         {
             Clients.Group("MPE_"+ mpeId).updateMPEStatus(mPEWatchData);
