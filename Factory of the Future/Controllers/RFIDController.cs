@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json.Linq;
+﻿using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -37,7 +38,9 @@ namespace Factory_of_the_Future.Controllers
                 if (request_data.HasValues)
                 {
                     //Send data to be processed.
-                    Task.Run(() => new ProcessRecvdMsg().StartProcess(request_data, "RFID", ""));
+                    var requestDataToString = JsonConvert.SerializeObject(request_data, Formatting.Indented);
+                    Task.Run(() => new ProcessRecvdMsg().StartProcess(requestDataToString, "RFID", ""));
+                    //Task.Run(() => new ProcessRecvdMsg().StartProcess(request_data, "RFID", ""));
                 }
             }
             else

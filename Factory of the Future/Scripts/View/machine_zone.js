@@ -131,6 +131,7 @@ async function updateMachineZone(data, id) {
                         LoadMachineTables(data.properties, 'machinetable');
                     }
                     updateMPEZone(data.properties, layer._leaflet_id);
+                    updateMPEAlert(layer._leaflet_id);
                     return false;
                 }
             });
@@ -320,6 +321,30 @@ async function updateMPEZone(properties, index) {
         lastOpacity: 0.2
     });
 }
+
+async function updateMPEAlert(layerindex) {
+    //add flashing to the MPE 
+    if (polygonMachine._layers[layerindex].feature.properties.GpioValue === 1) {
+        if (polygonMachine._layers[layerindex].hasOwnProperty("_tooltip")) {
+            if (polygonMachine._layers[layerindex]._tooltip.hasOwnProperty("_container")) {
+                if (!polygonMachine._layers[layerindex]._tooltip._container.classList.contains('obstructedflash')) {
+                    polygonMachine._layers[layerindex]._tooltip._container.classList.add('obstructedflash');
+                }
+            }
+        }
+    }
+    else {
+        if (polygonMachine._layers[layerindex].hasOwnProperty("_tooltip")) {
+            if (polygonMachine._layers[layerindex]._tooltip.hasOwnProperty("_container")) {
+                if (polygonMachine._layers[layerindex]._tooltip._container.classList.contains('obstructedflash')) {
+                    polygonMachine._layers[layerindex]._tooltip._container.classList.remove('obstructedflash');
+                }
+            }
+        }
+    }
+    return true;
+}
+
 async function LoadMachineTables(dataproperties, table) {
     try {
         if (!$.isEmptyObject(dataproperties)) {
@@ -691,6 +716,7 @@ async function Edit_Machine_Info(id) {
                     $('input[type=text][name=zone_ldc]').val(Data.Zone_LDC);
                     $('input[type=text][name=machine_id]').val(Data.id);
                     $('input[type=text][name=GPIO]').val(Data.GpioNumber);
+                    $('input[type=text][name=GPIOValue]').val(Data.GpioValue);
 
                     $('button[id=machinesubmitBtn]').off().on('click', function () {
                         try {

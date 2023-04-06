@@ -1,12 +1,14 @@
 ﻿using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Web;
 
-namespace Factory_of_the_Future
+namespace Factory_of_the_Future.ProcessReceivedMessage
 {
-    internal class RFIdData : IDisposable
+    public class MPE_Alerts : IDisposable
     {
         private bool disposedValue;
         public string _data { get; protected set; }
@@ -14,46 +16,43 @@ namespace Factory_of_the_Future
         public string _connID { get; protected set; }
         public JToken tempData = null;
         private bool saveToFile;
-        private bool disposedValue1;
 
         internal async Task<bool> LoadAsync(string data, string message_type, string connID)
         {
-            saveToFile = false;
             _data = data;
             _Message_type = message_type;
             _connID = connID;
             try
             {
-                if (_data != null)
+                if (!string.IsNullOrEmpty(_data))
                 {
-                    //if (_data.GetType() == typeof(System.String))
-                    //{
-                    //    tempData = JToken.Parse(_data);
-                    //}
-                    //else
-                    //{
-                    //    tempData = _data;
-                    //}
-                  
-                    if (tempData != null && tempData.HasValues)
+                    var machineGpioStatusList = JsonConvert.DeserializeObject<Dictionary<string, int>>(_data);
+                    if (machineGpioStatusList.Any() == true && machineGpioStatusList.Count > 0)
                     {
-                        //AppParameters.RFiD.TryAdd(Guid.NewGuid().ToString(), JsonConvert.SerializeObject(tempData, Formatting.Indented));
-                        AppParameters.RFiD.TryAdd(Guid.NewGuid().ToString(), _data);
-                        new FileIO().Write(string.Concat(AppParameters.Logdirpath, AppParameters.ConfigurationFloder), "RFiD_Data_" + DateTime.Now.ToString("yyyyMMdd") + ".json", JsonConvert.SerializeObject(AppParameters.NotificationConditionsList.Select(x => x.Value).ToList(), Formatting.Indented));
-                    }
-                    if (AppParameters.RFiD.Count() > 2000)
-                    {
-                        foreach (string item in AppParameters.RFiD.Keys)
+                        foreach (CoordinateSystem cs in FOTFManager.Instance.CoordinateSystem.Values)
                         {
-                            if (AppParameters.RFiD.TryRemove(item, out string removedItem))
+                            var mpeList = cs.Zones.Where(f => f.Value.Properties.ZoneType == "Machine" || f.Value.Properties.ZoneType == "MPEZone")
+                                .Select(y => y.Value)
+                                .ToList();
+
+                            /*Traverse the list returned from API to find the match of machines in the current map
+                             if found then update the GpioValue in the MPEList object  */
+                            for (int i = 0; i < mpeList.Count; i++)
                             {
-                                //
+                                var parsedMPEName = mpeList[i].Properties.Name;
+                                if (machineGpioStatusList.TryGetValue(parsedMPEName, out int gpioValue))
+                                {
+                                    if (mpeList[i].Properties.GpioValue != gpioValue)
+                                    {
+                                        mpeList[i].Properties.GpioValue = gpioValue;
+                                        await Task.Run(() => FOTFManager.Instance.BroadcastBinZoneStatus(mpeList[i], cs.Id)).ConfigureAwait(false);
+                                    }
+                                }
                             }
                         }
-
                     }
                 }
-                        return saveToFile;
+                return saveToFile;
             }
             catch (Exception e)
             {
@@ -66,9 +65,10 @@ namespace Factory_of_the_Future
             }
         }
 
+
         protected virtual void Dispose(bool disposing)
         {
-            if (!disposedValue1)
+            if (!disposedValue)
             {
                 if (disposing)
                 {
@@ -77,8 +77,8 @@ namespace Factory_of_the_Future
 
                 // TODO: free unmanaged resources (unmanaged objects) and override finalizer
                 // TODO: set large fields to null
-                disposedValue1 = true;
-                _data = null;
+                disposedValue = true;
+                _data = string.Empty;
                 _Message_type = string.Empty;
                 _connID = string.Empty;
                 tempData = null;
@@ -86,7 +86,7 @@ namespace Factory_of_the_Future
         }
 
         // // TODO: override finalizer only if 'Dispose(bool disposing)' has code to free unmanaged resources
-        // ~RFIdData()
+        // ~SV_Zone()
         // {
         //     // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
         //     Dispose(disposing: false);

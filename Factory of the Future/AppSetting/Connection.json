@@ -376,5 +376,32 @@
     "WsConnection": false,
     "ApiConnection": false,
     "Url": ""
+  },
+  {
+    "ActiveConnection": true,
+    "AdminEmailRecepient": "",
+    "ConnectionName": "MPE_Alerts",
+    "CreatedByUsername": "",
+    "CreatedDate": "2023-04-05T17:38:03.6651165-04:00",
+    "DataRetrieve": 180000,
+    "DeactivatedByUsername": "",
+    "DeactivatedDate": "0001-01-01T00:00:00",
+    "Hostname": "",
+    "HoursBack": 0,
+    "HoursForward": 0,
+    "Https": false,
+    "Id": "1fe2cde3-9a4d-4932-8b61-766de1fa3003",
+    "IpAddress": "",
+    "LastupDate": "2023-04-05T17:38:03.6701333-04:00",
+    "LastupdateByUsername": "q6qr00",
+    "MessageType": "macro",
+    "NassCode": "",
+    "OutgoingApikey": "",
+    "Port": 0,
+    "UdpConnection": false,
+    "TcpIpConnection": false,
+    "WsConnection": false,
+    "ApiConnection": true,
+    "Url": "http://56.85.210.217:5000/calls"
   }
 ]

@@ -27,71 +27,77 @@ namespace Factory_of_the_Future
                 if (!string.IsNullOrEmpty(_data))
                 {
                     tempData = JToken.Parse(_data);
-                    if (tempData.HasValues && tempData.Type != JTokenType.Array)
+                   
+                    for (int i = 0; i < tempData.Count(); i++)
                     {
-                        if (((JObject)tempData).ContainsKey("coordinateSystems"))
-                        {
-                            //if (FOTFManager.Instance.FirstOrDefault().Key == "temp")
-                            //{
-                            //    AppParameters.CoordinateSystem.TryRemove("temp", out tempCoordinateSystem);
-                            //}
-                            // loop though the Coordinate system
-                            CoordinateSystem = tempData.SelectToken("coordinateSystems");
-                            for (int i = 0; i < CoordinateSystem.Count(); i++)
-                            {
-                                if (FOTFManager.Instance.CoordinateSystem.ContainsKey(CoordinateSystem[i]["id"].ToString()))
-                                {
-                                    if (FOTFManager.Instance.CoordinateSystem.TryGetValue(CoordinateSystem[i]["id"].ToString(), out CoordinateSystem updateCS))
-                                    {
-                                        //the background image
-                                        LoadBackgroundImage(CoordinateSystem[i].SelectToken("backgroundImages"), updateCS.Id, CoordinateSystem[i]["name"].ToString(), out saveToFile);
-                                        //this is for Zones
-                                        LoadZones(CoordinateSystem[i].SelectToken("zones"), updateCS.Id, out saveToFile);
-                                        //this is for Locators
-                                        LoadLocators(CoordinateSystem[i].SelectToken("locators"), updateCS.Id, out saveToFile);
+                        tempCoordinateSystem = tempData[i].ToObject<CoordinateSystem>();
+                        FOTFManager.Instance.AddMap(tempCoordinateSystem.Id, tempCoordinateSystem);
+                    }
+                    //if (tempData.HasValues && tempData.Type != JTokenType.Array)
+                    //{
+                    //    if (((JObject)tempData).ContainsKey("coordinateSystems"))
+                    //    {
+                    //        //if (FOTFManager.Instance.FirstOrDefault().Key == "temp")
+                    //        //{
+                    //        //    AppParameters.CoordinateSystem.TryRemove("temp", out tempCoordinateSystem);
+                    //        //}
+                    //        // loop though the Coordinate system
+                    //        CoordinateSystem = tempData.SelectToken("coordinateSystems");
+                    //        for (int i = 0; i < CoordinateSystem.Count(); i++)
+                    //        {
+                    //            if (FOTFManager.Instance.CoordinateSystem.ContainsKey(CoordinateSystem[i]["id"].ToString()))
+                    //            {
+                    //                if (FOTFManager.Instance.CoordinateSystem.TryGetValue(CoordinateSystem[i]["id"].ToString(), out CoordinateSystem updateCS))
+                    //                {
+                    //                    //the background image
+                    //                    LoadBackgroundImage(CoordinateSystem[i].SelectToken("backgroundImages"), updateCS.Id, CoordinateSystem[i]["name"].ToString(), out saveToFile);
+                    //                    //this is for Zones
+                    //                    LoadZones(CoordinateSystem[i].SelectToken("zones"), updateCS.Id, out saveToFile);
+                    //                    //this is for Locators
+                    //                    LoadLocators(CoordinateSystem[i].SelectToken("locators"), updateCS.Id, out saveToFile);
 
-                                    }
-                                }
-                                else
-                                {
-                                    CoordinateSystem CSystem = new CoordinateSystem
-                                    {
-                                        Name = CoordinateSystem[i]["name"].ToString(),
-                                        Id = CoordinateSystem[i]["id"].ToString()
-                                    };
-                                    ///this is used to add new Coordinate System images
-                                    if (FOTFManager.Instance.CoordinateSystem.TryAdd(CSystem.Id, CSystem))
-                                    {
-                                        //the background image
-                                        LoadBackgroundImage(CoordinateSystem[i].SelectToken("backgroundImages"), CSystem.Id, CSystem.Name, out saveToFile);
-                                        //this is for Zones
-                                        LoadZones(CoordinateSystem[i].SelectToken("zones"), CSystem.Id, out saveToFile);
-                                        //this is for Locators
-                                        LoadLocators(CoordinateSystem[i].SelectToken("locators"), CSystem.Id, out saveToFile);
-                                    }
-                                    else
-                                    {
-                                        new ErrorLogger().CustomLog("Unable to add CoordinateSystem " + CSystem.Id, string.Concat((string)AppParameters.AppSettings.Property("APPLICATION_NAME").Value, "_Applogs"));
-                                    }
-                                }
-                            }
-                        }
-                    }
-                    else
-                    {
-                        for (int i = 0; i < tempData.Count(); i++)
-                        {
-                            if (((JObject)tempData).ContainsKey("coordinateSystems"))
-                            {
-                                tempCoordinateSystem = tempData["coordinateSystems"][0].ToObject<CoordinateSystem>();
-                            }
-                            else
-                            {
-                                tempCoordinateSystem = tempData[i].ToObject<CoordinateSystem>();
-                            }
-                            FOTFManager.Instance.AddMap(tempCoordinateSystem.Id, tempCoordinateSystem);
-                        }
-                    }
+                    //                }
+                    //            }
+                    //            else
+                    //            {
+                    //                CoordinateSystem CSystem = new CoordinateSystem
+                    //                {
+                    //                    Name = CoordinateSystem[i]["name"].ToString(),
+                    //                    Id = CoordinateSystem[i]["id"].ToString()
+                    //                };
+                    //                ///this is used to add new Coordinate System images
+                    //                if (FOTFManager.Instance.CoordinateSystem.TryAdd(CSystem.Id, CSystem))
+                    //                {
+                    //                    //the background image
+                    //                    LoadBackgroundImage(CoordinateSystem[i].SelectToken("backgroundImages"), CSystem.Id, CSystem.Name, out saveToFile);
+                    //                    //this is for Zones
+                    //                    LoadZones(CoordinateSystem[i].SelectToken("zones"), CSystem.Id, out saveToFile);
+                    //                    //this is for Locators
+                    //                    LoadLocators(CoordinateSystem[i].SelectToken("locators"), CSystem.Id, out saveToFile);
+                    //                }
+                    //                else
+                    //                {
+                    //                    new ErrorLogger().CustomLog("Unable to add CoordinateSystem " + CSystem.Id, string.Concat((string)AppParameters.AppSettings.Property("APPLICATION_NAME").Value, "_Applogs"));
+                    //                }
+                    //            }
+                    //        }
+                    //    }
+                    //}
+                    //else
+                    //{
+                    //    for (int i = 0; i < tempData.Count(); i++)
+                    //    {
+                    //if (((JObject)tempData).ContainsKey("coordinateSystems"))
+                    //        {
+                    //            tempCoordinateSystem = tempData["coordinateSystems"][0].ToObject<CoordinateSystem>();
+                    //        }
+                    //        else
+                    //        {
+                    //            tempCoordinateSystem = tempData[i].ToObject<CoordinateSystem>();
+                    //        }
+                    //        FOTFManager.Instance.AddMap(tempCoordinateSystem.Id, tempCoordinateSystem);
+                       // }
+                //}
 
                 }
                 return saveToFile;

@@ -404,6 +404,7 @@ function init_zones(zoneData, id) {
     }
     if (hasBinZone) {
         fotfmanager.server.joinGroup("BinZones");
+        console.log("Joined the group Binzones");
     }
     // setGreyedOut();
     fotfmanager.server.joinGroup("Zones");
