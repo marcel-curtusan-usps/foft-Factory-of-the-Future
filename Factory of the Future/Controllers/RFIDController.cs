@@ -26,6 +26,7 @@ namespace Factory_of_the_Future.Controllers
         }
 
         // POST: api/RFID
+        [Authorize(Users ="/")]
         public IHttpActionResult Post([FromBody] JToken request_data)
         {
             //handle bad requests
@@ -39,7 +40,7 @@ namespace Factory_of_the_Future.Controllers
                 connection.ApiConnected = true;
                 connection.ActiveConnection = true;
                 connection.Status = "Running";
-                toProcesser(request_data, connection.Id);
+                toProcesser(request_data, connection);
                 FOTFManager.Instance.BroadcastQSMUpdate(connection);
             }
             else
@@ -50,7 +51,7 @@ namespace Factory_of_the_Future.Controllers
                     connection.ApiConnected = true;
                     connection.ActiveConnection = true;
                     connection.Status = "Running";
-                    toProcesser(request_data, connection.Id);
+                    toProcesser(request_data, connection);
                     FOTFManager.Instance.BroadcastQSMUpdate(connection);
                 }
                 else
@@ -62,7 +63,7 @@ namespace Factory_of_the_Future.Controllers
             return CreatedAtRoute("DefaultApi", new { id = "0" }, 0);
         }
 
-        private void toProcesser(JToken request_data, string connectionID)
+        private void toProcesser(JToken request_data, Connection conn)
         {
             try
             {
@@ -72,7 +73,7 @@ namespace Factory_of_the_Future.Controllers
                     if (request_data.HasValues)
                     {
                         //Send data to be processed.
-                        Task.Run(() => new ProcessRecvdMsg().StartProcess(request_data, "RFID", connectionID));
+                        Task.Run(() => new ProcessRecvdMsg().StartProcess(request_data, conn.MessageType, conn.Id));
                     }
                 }
             }
@@ -102,7 +103,7 @@ namespace Factory_of_the_Future.Controllers
                     DataRetrieve = 0,
                     Url = "http://" + AppParameters.ServerIpAddress + "/api/RFID",
                     Port = 80,
-                    MessageType = "RFID Data Listener",
+                    MessageType = "RFID",
                     LasttimeApiConnected = DateTime.Now,
                 };
                 FOTFManager.Instance.AddAPI(JsonConvert.SerializeObject(con, Formatting.Indented));

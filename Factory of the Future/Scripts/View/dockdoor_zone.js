@@ -19,7 +19,7 @@ async function UpdateDockDoorData(data, floorId, zoneId) {
         if (baselayerid === floorId) {
             map.whenReady(() => {
                 $.map(map._layers, function (layer, i) {
-                    if (layer.hasOwnProperty("feature") && layer.feature.properties.id === data.properties.id) {
+                    if (layer.hasOwnProperty("feature") && layer.zoneId === zoneId) {
                         layer.feature.properties = data.properties;
                         layer.setTooltipContent(data.properties.doorNumber.toString() + getDoorTripIndc(data.properties.dockdoorData));
                         if ($('div[id=dockdoor_div]').is(':visible') &&
@@ -45,7 +45,7 @@ document.addEventListener("layerscontentvisible", () => {
     zoneStatusClose(true);
     
 });
-var dockDoors = new L.GeoJSON(null, {
+let dockDoors = new L.GeoJSON(null, {
     style: function (feature) {
         try {
             if (feature.properties.dockdoorData !== null && feature.properties.dockdoorData.length > 0) {

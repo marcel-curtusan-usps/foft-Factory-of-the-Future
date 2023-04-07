@@ -19,6 +19,8 @@ namespace Factory_of_the_Future
                 routeTemplate: "api/{controller}/{id}",
                 defaults: new { id = RouteParameter.Optional }
             );
+            // Web API filters
+            config.Filters.Add(new AuthorizeAttribute());
         }
     }
 }
