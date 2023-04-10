@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json;
+﻿using Factory_of_the_Future.ProcessReceivedMessage;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
@@ -20,7 +21,7 @@ namespace Factory_of_the_Future
         public dynamic _data { get; protected set; }
         public string _Message_type { get; protected set; }
         public string _connID { get; protected set; }
-        public async Task StartProcess(dynamic data, string Message_type, string connID)
+        public async Task StartProcess(string data, string Message_type, string connID)
         {
             try
             {
@@ -128,6 +129,9 @@ namespace Factory_of_the_Future
                         ///*MPEWatch Data End*/
                         case "getSVZones":
                             await Task.Run(() => new SV_Zone().LoadAsync(_data, _Message_type, _connID)).ConfigureAwait(false);
+                            break;
+                        case "macro":
+                            await Task.Run(() => new MPE_Alerts().LoadAsync(_data, _Message_type, _connID)).ConfigureAwait(false);
                             break;
                         default:
                             break;

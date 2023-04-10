@@ -229,9 +229,14 @@ namespace Factory_of_the_Future
                 return PerfData;
             }
         }
-        private void BroadcastMachineStatus(GeoZone mPE, string id)
+        internal void BroadcastMachineStatus(GeoZone mPE, string id)
         {
             Clients.Group("MPEZones").updateMachineStatus(mPE, id);
+
+        }
+        internal void BroadcastMachineAlertStatus(int mPE, string id)
+        {
+            Clients.Group("MPEZones").updateMPEAlertStatus(mPE, id);
 
         }
         private void BroadcastMPEStatus(RunPerf mPEWatchData, string mpeId)

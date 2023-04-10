@@ -113,7 +113,8 @@ $('#Zone_Modal').on('shown.bs.modal', function () {
 
 var lastMachineStatuses = "";
 $.extend(fotfmanager.client, {
-    updateMachineStatus: async (machineData, Id) => { Promise.all([updateMachineZone(machineData,Id)]) }
+    updateMachineStatus: async (machineData, Id) => { Promise.all([updateMachineZone(machineData, Id)]) },
+    updateMPEAlertStatus: async (mpeAlertData, Id) => { Promise.all([updateMPEAlertData(mpeAlertData, Id)]) }
 });
 
 var sparklineMinZoom = 2;
@@ -139,6 +140,23 @@ async function updateMachineZone(data, id) {
         console.log(e);
     }
 }
+
+async function updateMPEAlertData(data, id) {
+    try {
+        if (id == baselayerid) {
+            $.map(polygonMachine._layers, function (layer, i) {
+                if (layer.hasOwnProperty("feature") && layer.feature.properties.id === id) {
+                    layer.feature.properties.GpioValue = data;
+                    updateMPEAlert(layer._leaflet_id);
+                    return false;
+                }
+            });
+        }
+    } catch (e) {
+        console.log(e);
+    }
+}
+
 $(function () {
     $('button[name=machineinfoedit]').off().on('click', function () {
         /* close the sidebar */
@@ -320,6 +338,30 @@ async function updateMPEZone(properties, index) {
         lastOpacity: 0.2
     });
 }
+
+async function updateMPEAlert(layerindex) {
+    //add flashing to the MPE 
+    if (polygonMachine._layers[layerindex].feature.properties.GpioValue === 1) {
+        if (polygonMachine._layers[layerindex].hasOwnProperty("_tooltip")) {
+            if (polygonMachine._layers[layerindex]._tooltip.hasOwnProperty("_container")) {
+                if (!polygonMachine._layers[layerindex]._tooltip._container.classList.contains('obstructedflash')) {
+                    polygonMachine._layers[layerindex]._tooltip._container.classList.add('obstructedflash');
+                }
+            }
+        }
+    }
+    else {
+        if (polygonMachine._layers[layerindex].hasOwnProperty("_tooltip")) {
+            if (polygonMachine._layers[layerindex]._tooltip.hasOwnProperty("_container")) {
+                if (polygonMachine._layers[layerindex]._tooltip._container.classList.contains('obstructedflash')) {
+                    polygonMachine._layers[layerindex]._tooltip._container.classList.remove('obstructedflash');
+                }
+            }
+        }
+    }
+    return true;
+}
+
 async function LoadMachineTables(dataproperties, table) {
     try {
         if (!$.isEmptyObject(dataproperties)) {
@@ -691,6 +733,7 @@ async function Edit_Machine_Info(id) {
                     $('input[type=text][name=zone_ldc]').val(Data.Zone_LDC);
                     $('input[type=text][name=machine_id]').val(Data.id);
                     $('input[type=text][name=GPIO]').val(Data.GpioNumber);
+                    $('input[type=text][name=GPIOValue]').val(Data.GpioValue);
 
                     $('button[id=machinesubmitBtn]').off().on('click', function () {
                         try {
