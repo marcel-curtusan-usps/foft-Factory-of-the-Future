@@ -376,32 +376,5 @@
     "WsConnection": false,
     "ApiConnection": true,
     "Url": "http://56.72.36.160/api/RFID"
-  },
-  {
-    "ActiveConnection": true,
-    "AdminEmailRecepient": "",
-    "ConnectionName": "RFID",
-    "CreatedByUsername": "",
-    "CreatedDate": "2023-03-30T13:50:58.8585612-04:00",
-    "DataRetrieve": 0,
-    "DeactivatedByUsername": "",
-    "DeactivatedDate": "0001-01-01T00:00:00",
-    "Hostname": "",
-    "HoursBack": 0,
-    "HoursForward": 0,
-    "Https": false,
-    "Id": "bb4aa722-57f1-44aa-8ed7-6175c2ebe8c5",
-    "IpAddress": "127.0.0.1",
-    "LastupDate": "0001-01-01T00:00:00",
-    "LastupdateByUsername": "",
-    "MessageType": "RFID Data Listener",
-    "NassCode": "",
-    "OutgoingApikey": "",
-    "Port": 80,
-    "UdpConnection": false,
-    "TcpIpConnection": false,
-    "WsConnection": false,
-    "ApiConnection": true,
-    "Url": "http://56.72.36.160/api/RFID"
   }
 ]

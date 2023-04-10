@@ -25,8 +25,6 @@ namespace Factory_of_the_Future.Controllers
             return "value";
         }
 
-        // POST: api/RFID
-        [Authorize(Users ="/")]
         public IHttpActionResult Post([FromBody] JToken request_data)
         {
             //handle bad requests
@@ -34,7 +32,7 @@ namespace Factory_of_the_Future.Controllers
             {
                 return BadRequest(ModelState);
             }
-            Connection connection = AppParameters.RunningConnection.Connection.Where(f => f.ConnectionInfo.ConnectionName.StartsWith("AGVM")).Select(y => y.ConnectionInfo).FirstOrDefault();
+            Connection connection = AppParameters.RunningConnection.Connection.Where(f => f.ConnectionInfo.ConnectionName.StartsWith("RFID")).Select(y => y.ConnectionInfo).FirstOrDefault();
             if (connection != null)
             {
                 connection.ApiConnected = true;

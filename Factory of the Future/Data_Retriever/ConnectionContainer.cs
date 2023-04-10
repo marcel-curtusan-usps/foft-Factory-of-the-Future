@@ -278,6 +278,11 @@ namespace Factory_of_the_Future
                 {
                     AppParameters.RunningConnection.Connection.Remove(NewConnection);
                     await Task.Run(() => FOTFManager.Instance.BroadcastRemoveConnection(NewConnection.ConnectionInfo)).ConfigureAwait(false);
+                    updateFile = true;
+                }
+                if (updateFile)
+                {
+                    new FileIO().Write(string.Concat(AppParameters.CodeBase.Parent.FullName.ToString(), AppParameters.Appsetting), "Connection.json", AppParameters.ConnectionOutPutdata(Connection.Select(y => y.ConnectionInfo).ToList()));
                 }
             }
             catch (Exception e)

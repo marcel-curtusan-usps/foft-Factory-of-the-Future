@@ -18,8 +18,8 @@
     <UseIISExpress>true</UseIISExpress>
     <Use64BitIISExpress />
     <IISExpressSSLPort>44368</IISExpressSSLPort>
-    <IISExpressAnonymousAuthentication>disabled</IISExpressAnonymousAuthentication>
-    <IISExpressWindowsAuthentication>enabled</IISExpressWindowsAuthentication>
+    <IISExpressAnonymousAuthentication>enabled</IISExpressAnonymousAuthentication>
+    <IISExpressWindowsAuthentication>disabled</IISExpressWindowsAuthentication>
     <IISExpressUseClassicPipelineMode />
     <UseGlobalApplicationHostFile />
     <NuGetPackageImportStamp>
@@ -546,6 +546,8 @@
     <Compile Include="App_Start\SwaggerConfig.cs" />
     <Compile Include="Controllers\DockDoorController.cs" />
     <Compile Include="AGV\Controllers\EITSController.cs" />
+    <Compile Include="Controllers\LocationTagsController.cs" />
+    <Compile Include="Controllers\MPEAlertsController.cs" />
     <Compile Include="Controllers\MPE_DPSController.cs" />
     <Compile Include="Controllers\MPE_PerfController.cs" />
     <Compile Include="Controllers\RFIDController.cs" />
