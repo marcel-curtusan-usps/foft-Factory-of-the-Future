@@ -58,14 +58,15 @@ namespace Factory_of_the_Future
                                                     update = false;
                                                     foreach (PropertyInfo prop in qcbkgitem.GetType().GetProperties())
                                                     {
-                                                        if (prop.GetValue(qcbkgitem, null).ToString() != prop.GetValue(cs.BackgroundImage, null).ToString())
+                                                        if (prop.GetValue(qcbkgitem, null) != prop.GetValue(cs.BackgroundImage, null))
                                                         {
                                                             prop.SetValue(cs.BackgroundImage, prop.GetValue(qcbkgitem, null));
+                                                            update = true;
                                                         }
                                                     }
                                                     if (update)
                                                     {
-                                                        _ = Task.Run(() => new FileIO().Write(string.Concat(AppParameters.Logdirpath, AppParameters.ConfigurationFloder), "Project_Data.json", AppParameters.ZoneOutPutdata(FOTFManager.Instance.CoordinateSystem.Select(x => x.Value).ToList())));
+                                                        _ = Task.Run(() => new FileIO().Write(string.Concat(AppParameters.Logdirpath, AppParameters.ConfigurationFloder), "Project_Data.json", AppParameters.ZoneOutPutdata(FOTFManager.Instance.CoordinateSystem.Select(x => x.Value).ToList()))).ConfigureAwait(false);
                                                     }
                                                 }
                                             }

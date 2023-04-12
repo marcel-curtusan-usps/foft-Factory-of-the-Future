@@ -405,7 +405,7 @@ namespace Factory_of_the_Future
                     {
                         JToken tempData = JToken.Parse(data);
                         //JArray ja = JArray.Parse(data);
-                        foreach(JObject item in tempData)
+                        foreach(JObject item in tempData.Cast<JObject>())
                         {
                             string badgeID = !string.IsNullOrEmpty(item["tagId"].ToString()) ? item["tagId"].ToString() : "";
 
@@ -1790,7 +1790,7 @@ namespace Factory_of_the_Future
             saveToFile = false;
             try
             {
-                if (locatorlist != null && locatorlist.Count() > 0)
+                if (locatorlist != null && locatorlist.Any())
                 {
                     foreach (JToken locatorsitem in locatorlist)
                     {
@@ -1814,7 +1814,7 @@ namespace Factory_of_the_Future
             saveToFile = false;
             try
             {
-                if (zoneslist != null && zoneslist.Count() > 0)
+                if (zoneslist != null && zoneslist.Any())
                 {
                     foreach (JToken zoneitem in zoneslist)
                     {
@@ -1840,7 +1840,7 @@ namespace Factory_of_the_Future
             saveToFile = false;
             try
             {
-                if (backgroundImages != null && backgroundImages.Count() > 0)
+                if (backgroundImages != null && backgroundImages.Any())
                 {
                     BackgroundImage newbckimg = backgroundImages.ToObject<BackgroundImage>();
                     FOTFManager.Instance.CoordinateSystem[csid].BackgroundImage = newbckimg;
@@ -1859,9 +1859,9 @@ namespace Factory_of_the_Future
             saveToFile = false;
             try
             {
-                if (backgroundImages != null && backgroundImages.Count() > 0)
+                if (backgroundImages != null && backgroundImages.Any())
                 {
-                    foreach (JObject bgItem in backgroundImages.Children())
+                    foreach (JObject bgItem in backgroundImages.Children().Cast<JObject>())
                     {
                         BackgroundImage newbckimg = bgItem.ToObject<BackgroundImage>();
                         //newbckimg.FacilityName = !string.IsNullOrEmpty(AppParameters.AppSettings["FACILITY_NAME"].ToString()) ? AppParameters.AppSettings["FACILITY_NAME"].ToString() : "Site Not Configured";
@@ -1887,9 +1887,9 @@ namespace Factory_of_the_Future
             saveToFile = false;
             try
             {
-                if (zoneslist != null && zoneslist.Count() > 0)
+                if (zoneslist != null && zoneslist.Any())
                 {
-                    foreach (JObject zoneitem in zoneslist.Children())
+                    foreach (JObject zoneitem in zoneslist.Children().Cast<JObject>())
                     {
                         bool zoneUpdate = false;
                       
@@ -1983,9 +1983,9 @@ namespace Factory_of_the_Future
             saveToFile = false;
             try
             {
-                if (locatorlist != null && locatorlist.Count() > 0)
+                if (locatorlist != null && locatorlist.Any())
                 {
-                    foreach (JObject locatorsitem in locatorlist.Children())
+                    foreach (JObject locatorsitem in locatorlist.Children().Cast<JObject>())
                     {
                         bool locatorupdate = false;
                         if (FOTFManager.Instance.CoordinateSystem[csid].Locators.TryGetValue(locatorsitem["id"].ToString(), out GeoMarker geoLmarker))
@@ -2067,11 +2067,11 @@ namespace Factory_of_the_Future
                     {
                         //this is for tags
                         JToken tags = tempData.SelectToken("tags");
-                        if (tags.Count() > 0)
+                        if (tags.Any())
                         {
                             DateTime responseTS = AppParameters.UnixTimeStampToDateTime((long)tempData["responseTS"]);
                         
-                            foreach (JObject tagitem in tags.Children())
+                            foreach (JObject tagitem in tags.Children().Cast<JObject>())
                             {
                                 bool update = false;
                                 tagitem["rawData"] = JsonConvert.SerializeObject(tagitem, Formatting.None);
@@ -2858,7 +2858,7 @@ namespace Factory_of_the_Future
                     if (msgJson[0].ToString() == "detections")
                     {
                         JArray cameraData = (JArray)msgJson[1]["data"];
-                        foreach (JObject jo in cameraData)
+                        foreach (JObject jo in cameraData.Cast<JObject>())
                         {
                             string camera_id = jo["camera_id"].ToString();
 
@@ -2868,16 +2868,16 @@ namespace Factory_of_the_Future
                             JArray newDetections = (JArray)jo["detections"]["new"];
                             JArray removedDetections = (JArray)jo["detections"]["removed"];
                             JArray updatedDetections = (JArray)jo["detections"]["updated"];
-                            foreach (JObject newObject in newDetections)
+                            foreach (JObject newObject in newDetections.Cast<JObject>())
                             {
 
                                 ProcessNewOrExistingCameraData(newObject, ref alertList, camera_id, true);
                             }
-                            foreach (JToken object_id in removedDetections)
+                            foreach (JToken object_id in removedDetections.Cast<JObject>())
                             {
 
                             }
-                            foreach (JObject updatedObject in updatedDetections)
+                            foreach (JObject updatedObject in updatedDetections.Cast<JObject>())
                             {
                                 ProcessNewOrExistingCameraData(updatedObject, ref alertList, camera_id, false);
                             }
@@ -2912,7 +2912,7 @@ namespace Factory_of_the_Future
             if (thisObject.ContainsKey("zones"))
             {
                 JArray zones = (JArray)thisObject["zones"];
-                foreach (JObject zo in zones)
+                foreach (JObject zo in zones.Cast<JObject>())
                 {
                     string zoName = zo["name"].ToString();
 

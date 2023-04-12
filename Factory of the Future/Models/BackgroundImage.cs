@@ -10,10 +10,10 @@ namespace Factory_of_the_Future
     {
 
         [JsonProperty("widthMeter")]
-        public double WidthMeter { get; set; }
+        public Double WidthMeter { get; set; } = 0.0;
 
         [JsonProperty("xMeter")]
-        public double XMeter { get; set; }
+        public Double XMeter { get; set; } = 0.0;
 
         [JsonProperty("visible")]
         public bool Visible { get; set; }

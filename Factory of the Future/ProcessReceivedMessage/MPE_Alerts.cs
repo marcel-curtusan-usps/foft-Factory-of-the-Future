@@ -15,7 +15,7 @@ namespace Factory_of_the_Future.ProcessReceivedMessage
         public string _Message_type { get; protected set; }
         public string _connID { get; protected set; }
         public JToken tempData = null;
-        private bool saveToFile;
+        public bool saveToFile;
 
         internal async Task<bool> LoadAsync(string data, string message_type, string connID)
         {
@@ -27,7 +27,7 @@ namespace Factory_of_the_Future.ProcessReceivedMessage
                 if (!string.IsNullOrEmpty(_data))
                 {
                     var machineGpioStatusList = JsonConvert.DeserializeObject<Dictionary<string, int>>(_data);
-                    if (machineGpioStatusList.Any() == true && machineGpioStatusList.Count > 0)
+                    if (machineGpioStatusList.Any() && machineGpioStatusList.Count > 0)
                     {
                         foreach (CoordinateSystem cs in FOTFManager.Instance.CoordinateSystem.Values)
                         {

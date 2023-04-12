@@ -84,6 +84,11 @@ namespace Factory_of_the_Future
               ipAddress = request.ServerVariables["REMOTE_ADDR"];
 
             }
+            if (Regex.IsMatch(request.Path, "(\"/api/RFID\")", RegexOptions.IgnoreCase))
+            {
+                var identity = new GenericIdentity("APIUser");
+                SetPrincipal(new GenericPrincipal(identity, null));
+            }
         }
 
         private static void SetPrincipal(IPrincipal principal)
