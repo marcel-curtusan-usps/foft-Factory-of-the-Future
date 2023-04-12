@@ -56,44 +56,9 @@ namespace Factory_of_the_Future.Controllers
         }
 
         // GET api/<controller>/5
-        public string Get(string name)
+        public string Get(int id)
         {
-            var MPEGpioValues = new List<GPIOStatus>();
-            try
-            {
-                foreach (CoordinateSystem cs in FOTFManager.Instance.CoordinateSystem.Values)
-                {
-                    cs.Zones.Where(f => (f.Value.Properties.ZoneType == "Machine" || f.Value.Properties.ZoneType == "MPEZone") && f.Value.Properties.Name == name)
-                        .Select(y => y.Value)
-                        .ToList().ForEach(mpeList =>
-                        {
-                            MPEGpioValues.Add(new GPIOStatus
-                            {
-                                MachineId = mpeList.Properties.Name,
-                                GpioStatus = mpeList.Properties.GpioValue
-                            });
-                        });
-                }
-
-                if (MPEGpioValues.Any())
-                {
-                    return JsonConvert.SerializeObject(MPEGpioValues);
-                }
-                else
-                {
-                    return "";
-                }
-
-            }
-            catch (Exception e)
-            {
-                new ErrorLogger().ExceptionLog(e);
-                return "";
-            }
-            finally
-            {
-
-            }
+            return "value";
         }
         // POST api/<controller>
         public async Task<IHttpActionResult> PostAsync([FromBody] JToken request_data)
@@ -119,14 +84,14 @@ namespace Factory_of_the_Future.Controllers
             return CreatedAtRoute("DefaultApi", new { id = "0" }, 0);
         }
 
-        //// PUT api/<controller>/5
-        //public void Put(int id, [FromBody] string value)
-        //{
-        //}
+        // PUT api/<controller>/5
+        public void Put(int id, [FromBody] string value)
+        {
+        }
 
-        //// DELETE api/<controller>/5
-        //public void Delete(int id)
-        //{
-        //}
+        // DELETE api/<controller>/5
+        public void Delete(int id)
+        {
+        }
     }
 }

@@ -123,11 +123,8 @@ namespace Factory_of_the_Future
         [JsonProperty("doorNumber")]
         public string DoorNumber { get; set; }  = "";
 
-        [JsonProperty("GpioNumber")]
-        public int GpioNumber { get; set; } = -1;
-
         [JsonProperty("GpioValue")]
-        public int GpioValue { get; set; } = -1;
+        public int GpioValue { get; set; } = 0;
 
         [JsonProperty("dockdoorData")]
         public IEnumerable<RouteTrips> DockDoorData { get; set; } = new List<RouteTrips>();

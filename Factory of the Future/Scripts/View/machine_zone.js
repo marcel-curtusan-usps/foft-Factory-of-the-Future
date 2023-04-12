@@ -114,7 +114,7 @@ $('#Zone_Modal').on('shown.bs.modal', function () {
 var lastMachineStatuses = "";
 $.extend(fotfmanager.client, {
     updateMachineStatus: async (machineData, Id) => { Promise.all([updateMachineZone(machineData, Id)]) },
-    updateMPEAlertStatus: async (mpeAlertData, Id) => { Promise.all([updateMPEAlertData(status, floorId, zoneId)]) }
+    updateMPEAlertStatus: async (status,floorId, zoneId) => { Promise.all([updateMPEAlertData(status, floorId, zoneId)]) }
 });
 
 var sparklineMinZoom = 2;
@@ -161,9 +161,20 @@ async function updateMPEAlertData(data, floorId, zoneId) {
         if (baselayerid === floorId) {
             map.whenReady(() => {
                 $.map(map._layers, function (layer, i) {
-                    if (layer.hasOwnProperty("feature") && layer.zoneId === zoneId) {
+                    if (layer.hasOwnProperty("zoneId") && layer.zoneId === zoneId) {
                         layer.feature.properties.GpioValue = data;
-                  
+                        if (data === 1 && layer.hasOwnProperty("_tooltip") && layer._tooltip.hasOwnProperty("_container")) {
+                            if (!layer._tooltip._container.classList.contains('obstructedflash')) {
+                                layer._tooltip._container.classList.add('obstructedflash');
+                            }
+                        }
+                        else {
+                            if (layer.hasOwnProperty("_tooltip") && layer._tooltip.hasOwnProperty("_container")) {
+                                if (layer._tooltip._container.classList.contains('obstructedflash')) {
+                                    layer._tooltip._container.classList.remove('obstructedflash');
+                                }
+                            }
+                        }
                         return false;
                     }
                 });
@@ -307,7 +318,12 @@ let polygonMachine = new L.GeoJSON(null, {
         };
     },
     onEachFeature: function (feature, layer) {
+
         layer.zoneId = feature.properties.id;
+        let locationFlash = "";
+        if (feature.properties.GpioValue === 1) {
+            locationFlash = "obstructedflash";
+        }
         if (feature.properties.sparkline) {
             updateMachineSparklineTooltip(feature, layer);
         }
@@ -336,7 +352,7 @@ let polygonMachine = new L.GeoJSON(null, {
                 interactive: true,
                 direction: getMPEZoneTooltipDirection(),
                 opacity: 1,
-                className: 'location'
+                className: 'location ' + locationFlash
             }).openTooltip();
         }
     },
@@ -752,7 +768,6 @@ async function Edit_Machine_Info(id) {
                     $('input[type=text][name=machine_number]').val(Data.MPE_Number);
                     $('input[type=text][name=zone_ldc]').val(Data.Zone_LDC);
                     $('input[type=text][name=machine_id]').val(Data.id);
-                    $('input[type=text][name=GPIO]').val(Data.GpioNumber);
                     $('input[type=text][name=GPIOValue]').val(Data.GpioValue);
 
                     $('button[id=machinesubmitBtn]').off().on('click', function () {

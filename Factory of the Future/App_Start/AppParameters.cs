@@ -615,6 +615,7 @@ namespace Factory_of_the_Future
                 jsonResolver.IgnoreProperty(typeof(Properties), "dockdoorData");
                 jsonResolver.IgnoreProperty(typeof(Properties), "Zone_Update");
                 jsonResolver.IgnoreProperty(typeof(Properties), "MissionList");
+                jsonResolver.IgnoreProperty(typeof(Properties), "GpioValue");
                 jsonResolver.IgnoreProperty(typeof(Properties), "rawData");
                 //jsonResolver.IgnoreProperty(typeof(Marker), "CameraData");
                 jsonResolver.IgnoreProperty(typeof(Marker), "zones");
