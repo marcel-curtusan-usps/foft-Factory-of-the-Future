@@ -401,9 +401,9 @@ namespace Factory_of_the_Future
             saveToFile = false;
             try
             {
-                if (zoneslist != null && zoneslist.Count() > 0)
+                if (zoneslist != null && zoneslist.Any())
                 {
-                    foreach (JObject zoneitem in zoneslist.Children())
+                    foreach (JObject zoneitem in zoneslist.Children().Cast<JObject>())
                     {
                         bool zoneUpdate = false;
 
@@ -495,9 +495,9 @@ namespace Factory_of_the_Future
             saveToFile = false;
             try
             {
-                if (locatorlist != null && locatorlist.Count() > 0)
+                if (locatorlist != null && locatorlist.Any())
                 {
-                    foreach (JObject locatorsitem in locatorlist.Children())
+                    foreach (JObject locatorsitem in locatorlist.Children().Cast<JObject>())
                     {
                         bool locatorupdate = false;
                         if (FOTFManager.Instance.CoordinateSystem[csid].Locators.TryGetValue(locatorsitem["id"].ToString(), out GeoMarker geoLmarker))
