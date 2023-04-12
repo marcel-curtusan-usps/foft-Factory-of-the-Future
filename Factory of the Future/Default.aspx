@@ -14,6 +14,7 @@
         //Access Code-Behind Data in Javascript
         localStorage.setItem('User', JSON.stringify(<%=Session_Info%>));
     </script>
+    <base href="Default.aspx" />
     <link href="Content/supportCSSBundle.min.css" rel="stylesheet" />
 </head>
 <body class="loadingFOTFBody">
@@ -1573,12 +1574,22 @@
                         </div>
                     </div>
                     <div class="card w-100 mb-3">
-                        <h6 class="card-header sectionHeader ml-2 mb-1 px-0">User Survey
-                        </h6>
+                        <h6 class="card-header sectionHeader ml-2 mb-1 px-0">Swagger API </h6>
+                        <div class="card-body ml-np5rem">
+                            <div class="input-group mb-2 mx-3">
+                                <!-- API Buttons -->
+                                <div role="group" class="d-flex btn-block" aria-label="Connected Facilities API ">
+                                    <a type="button" class="btn btn-light flex-fill mr-3" href="./swagger/ui/index" target="_blank">Swagger API</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card w-100 mb-3">
+                        <h6 class="card-header sectionHeader ml-2 mb-1 px-0">User Survey</h6>
                         <div class="card-body ml-np5rem">
                             <div class="input-group mb-2 mx-3">
                                 <!-- FOTF Survey Buttons -->
-                                <div role="group" class="d-flex btn-block" aria-label="Factory of the Future Surveys">
+                                <div role="group" class="d-flex btn-block" aria-label="Connected Facilities Surveys">
                                     <a type="button" class="btn btn-light flex-fill mr-3" href="https://forms.office.com/g/X1RWUniffh" target="_blank">Feedback</a>
                                     <a type="button" class="btn btn-light flex-fill mr-np5rem" href="https://forms.office.com/g/8e3MgW7yt5" target="_blank">Suggestions</a>
                                 </div>
@@ -1586,8 +1597,7 @@
                         </div>
                     </div>
                     <div class="card w-100 mb-3">
-                        <h6 class="card-header sectionHeader ml-2 mb-1 px-0">User Guide
-                        </h6>
+                        <h6 class="card-header sectionHeader ml-2 mb-1 px-0">User Guide</h6>
                         <div class="card-body mr-np5rem">
                             <div class="input-group mb-2 mx-3">
                                 <!-- User Guide Buttons -->
