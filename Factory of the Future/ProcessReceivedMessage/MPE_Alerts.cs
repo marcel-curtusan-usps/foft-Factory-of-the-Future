@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json;
+﻿using Factory_of_the_Future.Models;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
@@ -15,7 +16,8 @@ namespace Factory_of_the_Future.ProcessReceivedMessage
         public string _Message_type { get; protected set; }
         public string _connID { get; protected set; }
         public JToken tempData = null;
-        public bool saveToFile;
+        public List<GPIOStatus> newGPIOStatus = null;
+        private bool saveToFile;
 
         internal async Task<bool> LoadAsync(string data, string message_type, string connID)
         {
@@ -26,27 +28,41 @@ namespace Factory_of_the_Future.ProcessReceivedMessage
             {
                 if (!string.IsNullOrEmpty(_data))
                 {
-                    var machineGpioStatusList = JsonConvert.DeserializeObject<Dictionary<string, int>>(_data);
-                    if (machineGpioStatusList.Any() && machineGpioStatusList.Count > 0)
+                    tempData = JToken.Parse(_data);
+                    if (tempData != null && tempData.HasValues)
                     {
-                        foreach (CoordinateSystem cs in FOTFManager.Instance.CoordinateSystem.Values)
+                        newGPIOStatus = tempData.ToObject<List<GPIOStatus>>();// JsonConvert.DeserializeObject<Dictionary<string, int>>(_data);
+                        if (newGPIOStatus.Any())
                         {
-                            var mpeList = cs.Zones.Where(f => f.Value.Properties.ZoneType == "Machine" || f.Value.Properties.ZoneType == "MPEZone")
-                                .Select(y => y.Value)
-                                .ToList();
-
-                            /*Traverse the list returned from API to find the match of machines in the current map
-                             if found then update the GpioValue in the MPEList object  */
-                            for (int i = 0; i < mpeList.Count; i++)
+                            foreach (GPIOStatus GPIOitem in newGPIOStatus)
                             {
-                                var parsedMPEName = mpeList[i].Properties.Name;
-                                if (machineGpioStatusList.TryGetValue(parsedMPEName, out int gpioValue))
+                                foreach (CoordinateSystem cs in FOTFManager.Instance.CoordinateSystem.Values)
                                 {
-                                    if (mpeList[i].Properties.GpioValue != gpioValue)
-                                    {
-                                        mpeList[i].Properties.GpioValue = gpioValue;
-                                        await Task.Run(() => FOTFManager.Instance.BroadcastMachineAlertStatus(gpioValue, cs.Id)).ConfigureAwait(false);
-                                    }
+                                    cs.Zones.Where(f => (f.Value.Properties.ZoneType == "Machine" || f.Value.Properties.ZoneType == "MPEZone") && f.Value.Properties.Name == GPIOitem.MachineId)
+                                            .Select(y => y.Value)
+                                            .ToList().ForEach(async zone => {
+                                                if (zone.Properties.GpioValue != GPIOitem.GpioStatus)
+                                                {
+                                                    zone.Properties.GpioValue = GPIOitem.GpioStatus;
+                                                    await Task.Run(() => FOTFManager.Instance.BroadcastMachineAlertStatus(GPIOitem.GpioStatus, cs.Id, zone.Properties.Id)).ConfigureAwait(false);
+                                                }  
+
+                                            });
+
+                                    /*Traverse the list returned from API to find the match of machines in the current map
+                                     if found then update the GpioValue in the MPEList object  */
+                                    //for (int i = 0; i < mpeList.Count; i++)
+                                    //{
+                                    //    var parsedMPEName = mpeList[i].Properties.Name;
+                                    //    if (newGPIOStatus.TryGetValue(parsedMPEName, out int gpioValue))
+                                    //    {
+                                    //        if (mpeList[i].Properties.GpioValue != gpioValue)
+                                    //        {
+                                    //            mpeList[i].Properties.GpioValue = gpioValue;
+                                             
+                                    //        }
+                                    //    }
+                                    //}
                                 }
                             }
                         }
