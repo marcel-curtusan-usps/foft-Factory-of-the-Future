@@ -114,7 +114,7 @@ $('#Zone_Modal').on('shown.bs.modal', function () {
 var lastMachineStatuses = "";
 $.extend(fotfmanager.client, {
     updateMachineStatus: async (machineData, Id) => { Promise.all([updateMachineZone(machineData, Id)]) },
-    updateMPEAlertStatus: async (mpeAlertData, Id) => { Promise.all([updateMPEAlertData(mpeAlertData, Id)]) }
+    updateMPEAlertStatus: async (mpeAlertData, Id) => { Promise.all([updateMPEAlertData(status, floorId, zoneId)]) }
 });
 
 var sparklineMinZoom = 2;
@@ -141,20 +141,40 @@ async function updateMachineZone(data, id) {
     }
 }
 
-async function updateMPEAlertData(data, id) {
+//async function updateMPEAlertData(data, id) {
+//    try {
+//        if (id == baselayerid) {
+//            $.map(polygonMachine._layers, function (layer, i) {
+//                if (layer.hasOwnProperty("feature") && layer.feature.properties.id === id) {
+//                    layer.feature.properties.GpioValue = data;
+//                    updateMPEAlert(layer._leaflet_id);
+//                    return false;
+//                }
+//            });
+//        }
+//    } catch (e) {
+//        console.log(e);
+//    }
+//}
+async function updateMPEAlertData(data, floorId, zoneId) {
     try {
-        if (id == baselayerid) {
-            $.map(polygonMachine._layers, function (layer, i) {
-                if (layer.hasOwnProperty("feature") && layer.feature.properties.id === id) {
-                    layer.feature.properties.GpioValue = data;
-                    updateMPEAlert(layer._leaflet_id);
-                    return false;
-                }
+        if (baselayerid === floorId) {
+            map.whenReady(() => {
+                $.map(map._layers, function (layer, i) {
+                    if (layer.hasOwnProperty("feature") && layer.zoneId === zoneId) {
+                        layer.feature.properties.GpioValue = data;
+                  
+                        return false;
+                    }
+                });
+
             });
         }
-    } catch (e) {
+    }
+    catch (e) {
         console.log(e);
     }
+
 }
 
 $(function () {

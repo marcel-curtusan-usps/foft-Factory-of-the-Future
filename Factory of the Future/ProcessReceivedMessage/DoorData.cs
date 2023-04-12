@@ -33,7 +33,7 @@ namespace Factory_of_the_Future
             {
                 if (_data != null)
                 {
-                    tempData = JToken.Parse(data);
+                    tempData = JToken.Parse(_data);
                     if (tempData != null && tempData.HasValues)
                     {
                         doortempData = tempData.ToObject<List<RouteTrips>>();
