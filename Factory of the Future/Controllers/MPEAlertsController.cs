@@ -11,6 +11,7 @@ using System.Web.Http;
 
 namespace Factory_of_the_Future.Controllers
 {
+    [Route("MPE Alerts")]
     public class MPEAlertsController : ApiController
     {
         // GET api/<controller>
@@ -55,11 +56,6 @@ namespace Factory_of_the_Future.Controllers
             }
         }
 
-        // GET api/<controller>/5
-        public string Get(int id)
-        {
-            return "value";
-        }
         // POST api/<controller>
         public async Task<IHttpActionResult> PostAsync([FromBody] JToken request_data)
         {

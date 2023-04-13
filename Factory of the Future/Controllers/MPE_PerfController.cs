@@ -5,6 +5,7 @@ using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
 using System.Web.Http;
+using Factory_of_the_Future.Models;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
@@ -13,19 +14,35 @@ namespace Factory_of_the_Future.Controllers
     public class MPE_PerfController : ApiController
     {
         // GET: api/MPE_Perf
-        public IEnumerable<string> Get()
+        public IEnumerable<RunPerf> Get()
         {
-            return new string[] { "value1", "value2" };
+            try
+            {
+                return AppParameters.MPEPerformance.Select(y => y.Value).ToList();
+            }
+            catch (Exception e)
+            {
+                new ErrorLogger().ExceptionLog(e);
+                return null;
+            }
         }
 
         // GET: api/MPE_Perf/5
-        public string Get(int id)
+        public IEnumerable<RunPerf> Get(int id, string name)
         {
-            return "value";
-        }
 
-        // POST: api/MPE_Perf
-        public IHttpActionResult Post([FromBody] JToken request_data)
+            try
+            {
+                return AppParameters.MPEPerformance.Where(f => f.Value.MpeNumber == id && f.Value.MpeId.ToString() == name).Select(y => y.Value).ToList();
+            }
+            catch (Exception e)
+            {
+                new ErrorLogger().ExceptionLog(e);
+                return null;
+            }
+        }
+            // POST: api/MPE_Perf
+            public IHttpActionResult Post([FromBody] JToken request_data)
         {
             //handle bad requests
             if (!ModelState.IsValid)
