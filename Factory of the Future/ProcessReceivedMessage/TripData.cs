@@ -46,6 +46,7 @@ namespace Factory_of_the_Future
                                     //remove trip
                                     FOTFManager.Instance.BroadcastTripsRemove(rt.Id);
                                 }
+                                continue;
                             }
                             else
                             {
@@ -58,6 +59,7 @@ namespace Factory_of_the_Future
                                         {
                                             FOTFManager.Instance.BroadcastTripsRemove(rt.Id);
                                         }
+                                        continue;
                                     }
                                 }
                                 else
@@ -100,7 +102,7 @@ namespace Factory_of_the_Future
 
                                     }
                                     //get trip Itinerary
-                                    if (true)
+                                    if (!rt.Legs.Any())
                                     {
                                         await Task.Run(() => new ItineraryTrip_Update(GetItinerary(rt.Route, rt.Trip, AppParameters.AppSettings["FACILITY_NASS_CODE"].ToString(), new Utility().GetSvDate(rt.OperDate)), rt.Id)).ConfigureAwait(false);
                                     }

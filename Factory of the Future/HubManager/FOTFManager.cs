@@ -145,7 +145,7 @@ namespace Factory_of_the_Future
                     ).Select(y => y.Value).ToList().ForEach(DockDoor =>
                     {
                         DockDoor.Properties.DockDoorData = GetDigitalDockDoorList(DockDoor.Properties.DoorNumber);
-                        BroadcastDockDoorUpdateData(DockDoor, cs.Id);
+                        BroadcastDockDoorUpdateData(DockDoor, cs.Id, DockDoor.Properties.Id);
                     });
                 }
             }
@@ -154,12 +154,12 @@ namespace Factory_of_the_Future
                 new ErrorLogger().ExceptionLog(e);
             }
         }
-        public void BroadcastDockDoorUpdateData(GeoZone dockDoor, string id)
+        public void BroadcastDockDoorUpdateData(GeoZone dockDoor, string floorId, string zoneId)
         {
-            Clients.Group("DockDoorZones").updateDockDoorData(dockDoor, id, dockDoor.Properties.Id);
+            Clients.Group("DockDoorZones").updateDockDoorData(dockDoor, floorId, zoneId);
             if (dockDoor.Properties.DockDoorData.Any())
             {
-                Clients.Group("DockDoor_" + dockDoor.Properties.DoorNumber).updateDigitalDockDoorStatus(dockDoor.Properties.DockDoorData, id);
+                Clients.Group("DockDoor_" + dockDoor.Properties.DoorNumber).updateDigitalDockDoorStatus(dockDoor.Properties.DockDoorData);
 
             }
         }
@@ -1992,7 +1992,7 @@ namespace Factory_of_the_Future
                     ).Select(y => y.Value).ToList().ForEach(DockDoor =>
                     {
                         DockDoor.Properties.DockDoorData = GetDigitalDockDoorList(DockDoor.Properties.DoorNumber);
-                        BroadcastDockDoorStatus(DockDoor, cs.Id);
+                        BroadcastDockDoorStatus(DockDoor, cs.Id, DockDoor.Properties.Id);
                     });
                 }
             }
@@ -2001,12 +2001,12 @@ namespace Factory_of_the_Future
                 new ErrorLogger().ExceptionLog(e);
             }
         }
-        public void BroadcastDockDoorStatus(GeoZone dockDoor, string id)
+        public void BroadcastDockDoorStatus(GeoZone dockDoor, string floorId, string zoneId )
         {
-            Clients.Group("DockDoorZones").updateDockDoorStatus(dockDoor, id);
+            Clients.Group("DockDoorZones").updateDockDoorData(dockDoor, floorId, zoneId);
             if (dockDoor.Properties.DockDoorData.Any())
             {
-                Clients.Group("DockDoor_" + dockDoor.Properties.DoorNumber).updateDigitalDockDoorStatus(dockDoor.Properties.DockDoorData, id);
+                Clients.Group("DockDoor_" + dockDoor.Properties.DoorNumber).updateDigitalDockDoorStatus(dockDoor.Properties.DockDoorData);
 
             }
         }

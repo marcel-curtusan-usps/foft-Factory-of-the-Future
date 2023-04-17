@@ -1,4 +1,5 @@
-﻿$.extend(fotfmanager.client, {
+﻿/// <reference path="indoormap.js" />
+$.extend(fotfmanager.client, {
     updateQSMStatus: async (Connectionupdate) => { Promise.all([updateConnection(Connectionupdate)]) },
     removeConnection: async (Connectionremove) => { Promise.all([removeConnection(Connectionremove)])},
     addConnection: async (Connectionadd) => { Promise.all([addConnection(Connectionadd)]) }
