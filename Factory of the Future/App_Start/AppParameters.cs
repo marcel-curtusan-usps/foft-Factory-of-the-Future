@@ -391,7 +391,7 @@ namespace Factory_of_the_Future
                 new ErrorLogger().ExceptionLog(e);
             }
         }
-        internal static void LoadTempIndoorapData(string fileName)
+        internal static async void LoadTempIndoorapData(string fileName)
         {
             try
             {
@@ -401,7 +401,7 @@ namespace Factory_of_the_Future
 
                     if (!string.IsNullOrEmpty(data))
                     {
-                        Task.Run(() => new ProcessRecvdMsg().StartProcess(data, "getProjectInfo", ""));
+                       await Task.Run(() => new ProcessRecvdMsg().StartProcess(data, "getProjectInfo", "")).ConfigureAwait(false);
                     }
                 }
             }

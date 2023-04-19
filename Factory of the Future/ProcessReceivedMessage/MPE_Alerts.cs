@@ -17,9 +17,8 @@ namespace Factory_of_the_Future.ProcessReceivedMessage
         public string _connID { get; protected set; }
         public JToken tempData = null;
         public List<GPIOStatus> newGPIOStatus = null;
-        private bool saveToFile;
 
-        internal async Task<bool> LoadAsync(string data, string message_type, string connID)
+        internal Task LoadAsync(string data, string message_type, string connID)
         {
             _data = data;
             _Message_type = message_type;
@@ -68,19 +67,20 @@ namespace Factory_of_the_Future.ProcessReceivedMessage
                         }
                     }
                 }
-                return saveToFile;
+               // return saveToFile;
             }
             catch (Exception e)
             {
                 new ErrorLogger().ExceptionLog(e);
-                return saveToFile;
+               // return saveToFile;
             }
             finally
             {
                 Dispose();
             }
-        }
 
+            return Task.CompletedTask;
+        }
 
         protected virtual void Dispose(bool disposing)
         {

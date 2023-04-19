@@ -35,7 +35,7 @@ namespace Factory_of_the_Future.Controllers
             if (request_data != null)
             {
                 //Send data to be processed.
-                Task.Run(() => new ProcessRecvdMsg().StartProcess(JsonConvert.SerializeObject(request_data, Formatting.None), "trips", ""));
+                Task.Run(() => new ProcessRecvdMsg().StartProcess(JsonConvert.SerializeObject(request_data, Formatting.None), "trips", "")).ConfigureAwait(false);
             }
             else
             {

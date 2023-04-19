@@ -61,7 +61,7 @@ namespace Factory_of_the_Future.Controllers
             return CreatedAtRoute("DefaultApi", new { id = "0" }, 0);
         }
 
-        private void toProcesser(JToken request_data, Connection conn)
+        private async void toProcesser(JToken request_data, Connection conn)
         {
             try
             {
@@ -71,7 +71,7 @@ namespace Factory_of_the_Future.Controllers
                     if (request_data.HasValues)
                     {
                         //Send data to be processed.
-                        Task.Run(() => new ProcessRecvdMsg().StartProcess(request_data, conn.MessageType, conn.Id));
+                       await Task.Run(() => new ProcessRecvdMsg().StartProcess(request_data, conn.MessageType, conn.Id)).ConfigureAwait(false);
                     }
                 }
             }

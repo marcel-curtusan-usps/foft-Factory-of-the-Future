@@ -53,7 +53,7 @@ namespace Factory_of_the_Future
                             ["status"] = "0",
                             ["tags"] = new JArray(incomingDataJobject)
                         };
-                        Task.Run(() => new ProcessRecvdMsg().StartProcess(JsonConvert.SerializeObject(temp1, Formatting.None), Conn.MessageType, Conn.Id));
+                        Task.Run(() => new ProcessRecvdMsg().StartProcess(JsonConvert.SerializeObject(temp1, Formatting.None), Conn.MessageType, Conn.Id)).ConfigureAwait(false);
                     }
                 }
             }
