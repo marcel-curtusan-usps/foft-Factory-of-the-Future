@@ -100,7 +100,7 @@ namespace Factory_of_the_Future.Controllers
                     {
                         //Send data to be processed.
                         var requestDataToString = JsonConvert.SerializeObject(request_data, Formatting.Indented);
-                        await Task.Run(() => new ProcessRecvdMsg().StartProcess(requestDataToString, request_data["MESSAGE"].ToString(), connectionID));
+                        await Task.Run(() => new ProcessRecvdMsg().StartProcess(requestDataToString, request_data["MESSAGE"].ToString(), connectionID)).ConfigureAwait(false);
                         //Task.Run(() => new ProcessRecvdMsg().StartProcess(request_data, request_data["MESSAGE"].ToString(), connectionID));
                     }
                 }

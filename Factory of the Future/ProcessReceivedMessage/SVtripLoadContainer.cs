@@ -17,8 +17,7 @@ namespace Factory_of_the_Future
         public string siteId { get; protected set; } = string.Empty;
         public SVtripLoadContainers Containers { get; protected set; }
         public JToken tempData = null;
-        private bool saveToFile;
-        internal async Task<bool> LoadAsync(dynamic data, string message_type, string connID)
+        internal async Task LoadAsync(dynamic data, string message_type, string connID)
         {
             _data = data;
             _Message_type = message_type;
@@ -39,12 +38,10 @@ namespace Factory_of_the_Future
                         }
                     }
                 }
-                return saveToFile;
             }
             catch (Exception e)
             {
                 new ErrorLogger().ExceptionLog(e);
-                return saveToFile;
             }
             finally { 
                 Dispose(); 
