@@ -67,10 +67,10 @@ namespace Factory_of_the_Future
                                                 while (odr.Read())
                                                 {
                                                     JObject objrow = new JObject();
-                                                    for (int i = 0; i < odr.FieldCount; i++)
-                                                    {
-                                                        objrow.Add(new JProperty(odr.GetName(i), odr[i]));
-                                                    }
+                                                    //for (int i = 0; i < odr.FieldCount; i++)
+                                                    //{
+                                                    //    objrow.Add(new JProperty(odr.GetName(i), odr[i]));
+                                                    //}
                                                     result.Add(objrow);
                                                 }
                                             }
@@ -80,8 +80,6 @@ namespace Factory_of_the_Future
                                         catch (OracleException oe)
                                         {
                                             new ErrorLogger().ExceptionLog(oe);
-                                            JObject objrow = new JObject();
-                                            objrow.Add(new JProperty(oe.DataSource,oe.Message));
                                         }
                                        
                                     }

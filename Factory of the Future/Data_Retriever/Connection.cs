@@ -523,6 +523,16 @@ namespace Factory_of_the_Future
                 }
                 else if (ConnectionInfo.ConnectionName.ToUpper().StartsWith("SV".ToUpper()))
                 {
+                    //if (AppParameters.SVcontainerTypeCode.Any())
+                    //{
+                    //    Uri rurl = new Uri(AppParameters.AppSettings["SV_CODETYPE"].ToString());
+                    //    Uri ruriResult;
+                    //    bool rURLValid = Uri.TryCreate(formatUrl, UriKind.Absolute, out ruriResult) && (rurl.Scheme == Uri.UriSchemeHttp || rurl.Scheme == Uri.UriSchemeHttps);
+                    //    if (rURLValid)
+                    //    {
+                    //        Task.Run(() => new ProcessRecvdMsg().StartProcess(new SendMessage().Get(ruriResult, requestBody), "SVcontainerTypeCode", ConnectionInfo.Id)).ConfigureAwait(false);
+                    //    }
+                    //}
 
                     if (ConnectionInfo.HoursBack > 0 && ConnectionInfo.HoursForward >= 0)
                     {
@@ -599,7 +609,7 @@ namespace Factory_of_the_Future
                 {
                     if (!string.IsNullOrEmpty(lkey))
                     {
-                        requestBody = new JObject(new JProperty("lkey", lkey));
+                        requestBody = new JObject {["lkey"] = lkey };
                         formatUrl = string.Format(ConnectionInfo.Url, ConnectionInfo.MessageType);
                     }
                 }

@@ -76,7 +76,7 @@ namespace Factory_of_the_Future.Controllers
                     DataRetrieve = 0,
                     Url = "http://" + AppParameters.ServerIpAddress + "/api/IncomingData",
                     Port = 80, 
-                    MessageType = "AGVM Data Listener",
+                    MessageType = "data_listener",
                     LasttimeApiConnected = DateTime.Now,
                 };
                 FOTFManager.Instance.AddAPI(JsonConvert.SerializeObject(con, Formatting.Indented));

@@ -63,9 +63,9 @@ namespace Factory_of_the_Future
                     }
                     else
                     {
-                        _responseDatastring = client.UploadString(url, JsonConvert.SerializeObject(requestBody, Formatting.None) );
+                        _responseDatastring = client.UploadString(url, JsonConvert.SerializeObject(requestBody, Formatting.None));
                     }
-                    
+
                     _response_code = GetStatusCode(client);
                     _statusDescription = GetStatusMessage(client);
                     //get the response from Vendor
@@ -98,6 +98,10 @@ namespace Factory_of_the_Future
             {
                 new ErrorLogger().ExceptionLog(e);
                 return "";
+            }
+            finally
+            { 
+             Dispose();
             }
         }
         private bool AcceptAllCertifications(object sender, X509Certificate certificate, X509Chain chain, SslPolicyErrors sslPolicyErrors)

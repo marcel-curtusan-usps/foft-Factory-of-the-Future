@@ -1343,10 +1343,10 @@ namespace Factory_of_the_Future
                     IEnumerable<Container> TripContainer = AppParameters.Containers.Where(r => !string.IsNullOrEmpty(r.Value.Dest)
                    && Regex.IsMatch(r.Value.Dest, destSites, RegexOptions.IgnoreCase)
                    && r.Value.Origin != r.Value.Dest
-                   && r.Value.hasLoadScans == false
-                   && r.Value.containerTerminate == false
-                   && r.Value.containerAtDest == false
-                   && r.Value.hasCloseScans == true).Select(y => y.Value).ToList();
+                   && !r.Value.hasLoadScans
+                   && !r.Value.containerTerminate 
+                   && !r.Value.containerAtDest 
+                   && r.Value.hasCloseScans).Select(y => y.Value).ToList();
                     NotloadedContainers = TripContainer.Count();
                     AllContainer = TripContainer;
                     if (!string.IsNullOrEmpty(trailerBarcode))
@@ -1380,7 +1380,7 @@ namespace Factory_of_the_Future
                 Clients.Group("Trips").TripsUpdate(trip);
                 //if (!string.IsNullOrEmpty(trip.DoorNumber))
                 //{
-                //    UpdateDoorZone(trip);
+                //    UpdateDoorZone(trip.DoorNumber);
                 //}
             }
             catch (Exception e)

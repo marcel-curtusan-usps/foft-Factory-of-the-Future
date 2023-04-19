@@ -293,6 +293,7 @@ async function init_connection(ConnectionList) {
 }
 //start table function
 function createConnectionDataTable(table) {
+    let Actioncolumn = true;
     let arrayColums = [{
         "ConnectionName": "",
         "MessageType": "",
@@ -308,7 +309,6 @@ function createConnectionDataTable(table) {
             tempc = {
                 "title": 'Name',
                 "mDataProp": key,
-                "className":"row-connection-type",
                 "mRender": function (data, type, full) {
                     if (full.ApiConnection) {
                         return full.ConnectionName + ' <span class="badge badge-pill float-right badge-info">API</span>';
@@ -349,7 +349,15 @@ function createConnectionDataTable(table) {
                 "title": "Action",
                 "mDataProp": key,
                 "mRender": function (data, type, full) {
-                    return '<button class="btn btn-light btn-sm mx-1 pi-iconEdit connectionedit" name="connectionedit"></button>' + '<button class="btn btn-light btn-sm mx-1 pi-trashFill connectiondelete" name="connectiondelete"></button>'
+                    if (/^Admin/i.test(User.Role)) {
+                        Actioncolumn = true;
+                        return '<button class="btn btn-light btn-sm mx-1 pi-iconEdit connectionedit" name="connectionedit"></button>' +
+                            '<button class="btn btn-light btn-sm mx-1 pi-trashFill connectiondelete" name="connectiondelete"></button>'
+                    }
+                    else {
+                        Actioncolumn = false;
+                        return "";
+                    }
                 }
             }
         }
@@ -377,14 +385,17 @@ function createConnectionDataTable(table) {
         bdeferRender: true,
         bpaging: false,
         bPaginate: false,
-        bAutoWidth: true,
+        autoWidth: true,
         bInfo: false,
         destroy: true,
         language: {
             zeroRecords: "No Data",
         },
         aoColumns: columns,
-        columnDefs: [
+        columnDefs: [{
+            target: 4,
+            visible: Actioncolumn
+        },
         ],
         sorting: [[0, "asc"]],
         rowCallback: function (row, data, index) {
@@ -409,7 +420,7 @@ function createConnectionDataTable(table) {
 
 
         }
-    });
+    })
     // Edit/remove record
     $('#' + table + ' tbody').on('click', 'button', function () {
         let td = $(this);

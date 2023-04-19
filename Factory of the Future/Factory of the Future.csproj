@@ -624,6 +624,8 @@
     <Compile Include="Models\RouteTrips.cs" />
     <Compile Include="Models\Staff.cs" />
     <Compile Include="Models\SVBullpen.cs" />
+    <Compile Include="Models\SVCodeTypes.cs" />
+    <Compile Include="Models\SVtripLoadContainer.cs" />
     <Compile Include="Models\Tacs.cs" />
     <Compile Include="Models\Zone.cs" />
     <Compile Include="Models\ZoneGeometry.cs" />
@@ -637,7 +639,9 @@
     <Compile Include="ProcessReceivedMessage\CameraData.cs" />
     <Compile Include="ProcessReceivedMessage\ContainerData.cs" />
     <Compile Include="ProcessReceivedMessage\DoorData.cs" />
+    <Compile Include="ProcessReceivedMessage\GetItineraryTrip.cs" />
     <Compile Include="ProcessReceivedMessage\ItineraryTrip_Update.cs" />
+    <Compile Include="ProcessReceivedMessage\LoadContainers.cs" />
     <Compile Include="ProcessReceivedMessage\MPEFullBin.cs" />
     <Compile Include="ProcessReceivedMessage\MPEWatch_DPS.cs" />
     <Compile Include="ProcessReceivedMessage\MPEWatch_RPGPerf.cs" />
@@ -646,6 +650,8 @@
     <Compile Include="ProcessReceivedMessage\ProjectData.cs" />
     <Compile Include="ProcessReceivedMessage\RFIdData.cs" />
     <Compile Include="ProcessReceivedMessage\StaffingData.cs" />
+    <Compile Include="ProcessReceivedMessage\SVcontainerTypeCode.cs" />
+    <Compile Include="ProcessReceivedMessage\SVtripLoadContainer.cs" />
     <Compile Include="ProcessReceivedMessage\SV_Zone.cs" />
     <Compile Include="ProcessReceivedMessage\TagData.cs" />
     <Compile Include="ProcessReceivedMessage\TripData.cs" />

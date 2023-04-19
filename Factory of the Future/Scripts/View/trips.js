@@ -290,6 +290,7 @@ $(document).on('click', '.routetripdetails', function () {
     var button = $(this);
     var routetripid = button.attr('data-routetrip');
     if (checkValue(routetripid)) {
+        CreateTripconatinerdetails("detailscontainertable");
         LoadRouteTripDetails(routetripid);
     }
 });
@@ -313,6 +314,7 @@ function LoadRouteTripDetails(id) {
         fotfmanager.server.getRouteTripsInfo(id).done(function (routetrip) {
             if (routetrip.length > 0) {
                 routetrip = routetrip[0];
+                Promise.all([LoadTripconatinerdetails(routetrip.Contaniers)])
                 let DirectionInd = routetrip.tripDirectionInd === "I" ? "Inbound Trip Details" : "Outbound Trip Details";
                 $('#modalRouteTripDetailsHeader_ID').text(DirectionInd);
                 $('#RouteTripDetailscard').empty();
@@ -328,6 +330,46 @@ function LoadRouteTripDetails(id) {
         $("#RouteTripDetails_Modal").modal();
     } catch (e) {
         console.log(e);
+    }
+}
+function CreateTripconatinerdetails(table) {
+    let arrayColums = [{
+        "placardBarcode": "",
+        "origin": "",
+        "dest": "",
+        "trailer": "",
+        "location": ""
+    }]
+    let columns = [];
+    let tempc = {};
+    $.each(arrayColums[0], function (key, value) {
+        tempc = {
+            "title": capitalize_Words(key.replace(/\_/, ' ')),
+            "mDataProp": key
+        }
+        columns.push(tempc);
+
+    });
+    $('#' + table).DataTable({
+        dom: 'Bfrtip',
+        bFilter: false,
+        bdeferRender: true,
+        bpaging: false,
+        bPaginate: false,
+        autoWidth: true,
+        bInfo: false,
+        destroy: true,
+        language: {
+            zeroRecords: "No Data",
+        },
+        aoColumns: columns,
+        columnDefs: []
+    })
+}
+async function LoadTripconatinerdetails(data, table)
+{
+    if ($.fn.dataTable.isDataTable("#" + table)) {
+        $('#' + table).DataTable().rows.add(data).draw();
     }
 }
 function routedetailsform(properties) {

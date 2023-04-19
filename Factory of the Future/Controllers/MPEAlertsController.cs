@@ -11,7 +11,6 @@ using System.Web.Http;
 
 namespace Factory_of_the_Future.Controllers
 {
-    [Route("MPE Alerts")]
     public class MPEAlertsController : ApiController
     {
         // GET api/<controller>

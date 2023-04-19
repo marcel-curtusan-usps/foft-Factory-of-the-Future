@@ -769,15 +769,38 @@
                     </div>
                     <button class="col-1 close" type="button" data-dismiss="modal" aria-label="Close"><i class="pi-iconExit float-right mt-2 mr-2"></i></button>
                 </div>
-                <div class="modal-body" id="RouteTripDetailscard">
+                <div class="modal-body" >
+                    <div class="card-body pb-0" id="RouteTripDetailscard">
+                    </div>
                     <div class="card-body pb-0">
+                        <div class="table-responsive">
+                            <table class="table table-striped table-sm table-hover mb-0 border-bottom" id="detailscontainertable">
+                                <thead class="thead-dark">
+                                    <tr>
+                                        <th style="width: 4%;">Site</th>
+                                        <th style="width: 10%;">Site Name</th>
+                                        <th style="width: 9%;">Site Type</th>
+                                        <th style="width: 7%;">Event</th>
+                                        <th style="width: 15%;">Event Time</th>
+                                        <th style="width: 10%;">Location</th>
+                                        <th style="width: 5%;">Bin</th>
+                                        <th style="width: 10%;">Trailer</th>
+                                        <th style="width: 5%;">Route</th>
+                                        <th style="width: 5%;">Trip</th>
+                                        <th style="width: 10%;">Source</th>
+                                        <th style="width: 10%;">User</th>
+                                    </tr>
+                                </thead>
+                                <tbody></tbody>
+                            </table>
+                        </div>
                     </div>
                 </div>
                 <div class="modal-footer1">
                     <div class="col">
                         <button class="btn btn-outline-secondary float-left" type="button" data-dismiss="modal">Close</button>
                     </div>
-                    <div class="col text-center"><span class="text-info" id="error_containerdetailsubmitBtn"></span></div>
+                 
                 </div>
             </div>
         </div>
@@ -1674,10 +1697,10 @@
             <!-- Bottom tab group -->
             <ul class="mb-3">
                 <li class="" title="User Profile"><a class="iconCenter" href="#userprofile" role="tab"><i class="pi-iconUserProfile"></i></a></li>
-                <li class="" title="AGV Notification"><a class="iconCenter" href="#agvnotificationinfo" role="tab"><i id="agvnotificaion" class="pi-iconVehicle" title="AGV Notification"><span class="badge badge-notify bell-notification" id="agvnotificaion_number"></span></i></a></li>
-                <li class="" title="Trips Notification"><a class="iconCenter" href="#tripsnotificationinfo" role="tab"><i id="tripsnotificaion" class="pi-iconDockTruck"><span class="badge badge-notify bell-notification" id="tripsnotificaion_number"></span></i></a></li>
-                <li class="" title="MPE Notification"><a class="iconCenter" href="#mpenotificationinfo" role="tab"><i id="mpenotification" class="pi-iconMachine"><span class="badge badge-notify bell-notification" id="mpenotification_number"></span></i></a></li>
-                <li class="" title="Report Information"><a class="iconCenter" href="#reports" role="tab"><i class="pi-iconStaffing"></i></a></li>
+                <li class="" style="display: none;" title="AGV Notification"><a class="iconCenter" href="#agvnotificationinfo" role="tab"><i id="agvnotificaion" class="pi-iconVehicle" title="AGV Notification"><span class="badge badge-notify bell-notification" id="agvnotificaion_number"></span></i></a></li>
+                <li class="" style="display: none;" title="Trips Notification"><a class="iconCenter" href="#tripsnotificationinfo" role="tab"><i id="tripsnotificaion" class="pi-iconDockTruck"><span class="badge badge-notify bell-notification" id="tripsnotificaion_number"></span></i></a></li>
+                <li class="" style="display: none;" title="MPE Notification"><a class="iconCenter" href="#mpenotificationinfo" role="tab"><i id="mpenotification" class="pi-iconMachine"><span class="badge badge-notify bell-notification" id="mpenotification_number"></span></i></a></li>
+                <li class="" style="display: none;" title="Report Information"><a class="iconCenter" href="#reports" role="tab"><i class="pi-iconStaffing"></i></a></li>
                 <li class="" title=""><a class="iconCenter" href="#home" role="tab"><i class="pi-iconMenuOpen"></i></a></li>
                 <!--<li class="" title="View Ports"><a class="" href="#viewports" role="tab"><i class="pi-iconViewport"></i></a></li>-->
             </ul>

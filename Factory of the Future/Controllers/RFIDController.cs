@@ -101,7 +101,7 @@ namespace Factory_of_the_Future.Controllers
                     DataRetrieve = 0,
                     Url = "http://" + AppParameters.ServerIpAddress + "/api/RFID",
                     Port = 80,
-                    MessageType = "RFID",
+                    MessageType = "data_listener",
                     LasttimeApiConnected = DateTime.Now,
                 };
                 FOTFManager.Instance.AddAPI(JsonConvert.SerializeObject(con, Formatting.Indented));

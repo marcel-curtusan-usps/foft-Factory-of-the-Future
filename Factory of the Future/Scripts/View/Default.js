@@ -45,8 +45,8 @@ $(function () {
                 tab: '<span class="iconCenter"><i class="pi-iconDiagramOutline"></i></span>',
                 position: 'top',
                 pane: '<div class="btn-toolbar" role="toolbar" id="connection_div">' +
-                    '<div id="div_agvnotification" class="container-fluid">' +
-                    '<h4 class="ml-p5rem" >Connections</h4>' +
+                    '<div id="div_connectionNotification" class="container-fluid">' +
+                    '<h4 class="ml-p5rem">Connections</h4>' +
                     '<button type="button" class="btn btn-primary float-left mb-2 ml-p5rem" name="addconnection">Add</button>' +
                     '<div class="card w-100 bg-white mt-2 pb-1">' +
                     '<div class="card-body">' +
