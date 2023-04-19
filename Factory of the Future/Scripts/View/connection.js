@@ -389,13 +389,13 @@ function createConnectionDataTable(table) {
         bInfo: false,
         destroy: true,
         language: {
-            zeroRecords: "No Data",
+            zeroRecords: "No Data"
         },
         aoColumns: columns,
         columnDefs: [{
             target: 4,
             visible: Actioncolumn
-        },
+        }
         ],
         sorting: [[0, "asc"]],
         rowCallback: function (row, data, index) {
@@ -509,7 +509,7 @@ function Add_Connection() {
             Url: $('input[type=text][name=url]').val(),
             MessageType: $('select[name=message_type] option:selected').val(),
             CreatedByUsername: User.UserId,
-            NassCode: User.Facility_NASS_Code,
+            NassCode: User.Facility_NASS_Code
         };
         if (!$.isEmptyObject(jsonObject)) {
             fotfmanager.server.addAPI(JSON.stringify(jsonObject)).done(function (Data) {

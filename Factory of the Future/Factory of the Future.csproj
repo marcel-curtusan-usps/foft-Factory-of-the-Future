@@ -510,7 +510,6 @@
     <Content Include="Scripts\View\tag_search.js" />
     <Content Include="Scripts\View\trips.js" />
     <Content Include="Scripts\View\camera_video.js" />
-    <Content Include="Scripts\View\_connection.js" />
     <Content Include="Scripts\View\dockdoor_zone.js" />
     <Content Include="Scripts\View\geometry_editing.js" />
     <Content Include="Scripts\View\locators.js" />

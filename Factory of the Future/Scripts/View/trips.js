@@ -360,7 +360,7 @@ function CreateTripconatinerdetails(table) {
         bInfo: false,
         destroy: true,
         language: {
-            zeroRecords: "No Data",
+            zeroRecords: "No Data"
         },
         aoColumns: columns,
         columnDefs: []
@@ -404,7 +404,7 @@ function routedetailsform(properties) {
         destseal: checkValue(properties.destSeal) ? properties.destSeal : "",
         delayreason: checkValue(properties.delayCode) ? properties.delayCode : "",
         origcomment: checkValue(properties.destComments) ? properties.destComments : "",
-        destcomment: checkValue(properties.originComments) ? properties.originComments : "",
+        destcomment: checkValue(properties.originComments) ? properties.originComments : ""
     });
 }
 function GetServiceTypeCode(data)

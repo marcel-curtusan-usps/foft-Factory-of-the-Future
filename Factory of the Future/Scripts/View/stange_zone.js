@@ -153,7 +153,7 @@ let polyholesAreas = new L.GeoJSON(null, {
             className: 'location'
         }).openTooltip();
         layer.bringToBack();
-    },
+    }
 });
 let ebrAreas = new L.GeoJSON(null, {
     style: function (feature) {
@@ -197,7 +197,7 @@ let ebrAreas = new L.GeoJSON(null, {
             className: 'location'
         }).openTooltip();
         layer.bringToBack();
-    },
+    }
 });
 let walkwayAreas = new L.GeoJSON(null, {
     style: function (feature) {
@@ -241,7 +241,7 @@ let walkwayAreas = new L.GeoJSON(null, {
             className: 'location'
         }).openTooltip();
         layer.bringToBack();
-    },
+    }
 });
 let stagingAreas = new L.GeoJSON(null, {
     style: function (feature) {

@@ -49,7 +49,7 @@ var agvLocations = new L.GeoJSON(null, {
         layer.bindTooltip(Get_location_Code(feature.properties.name), {
             direction: 'center',
             interactive: true,
-            opacity: 0.9,
+            opacity: 0.9
         }).openTooltip();
         agvLocations.bringToFront();
     }

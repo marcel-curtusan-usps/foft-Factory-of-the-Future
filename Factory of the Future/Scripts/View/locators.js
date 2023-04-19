@@ -48,7 +48,7 @@ let locatorMarker = new L.GeoJSON(null, {
     pointToLayer: function (feature, latlng) {
         let locaterIcon = L.divIcon({
             id: feature.properties.id,
-            className: 'bi-broadcast',
+            className: 'bi-broadcast'
             
         });
         return L.marker(latlng, {

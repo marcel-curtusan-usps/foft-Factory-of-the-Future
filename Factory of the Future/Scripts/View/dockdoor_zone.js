@@ -8,7 +8,7 @@ $(function () {
     $('button[name=tripSelectorbtn]').off().on('click', function () {
         let jsonObject = {
             RouteTrip: $('select[name=tripSelector] option:selected').val(),
-            DoorNumber: $('span[name=doornumberid]').text(),
+            DoorNumber: $('span[name=doornumberid]').text()
         };
         fotfmanager.server.updateRouteTripDoorAssigment(jsonObject).done();
     });
@@ -203,7 +203,7 @@ function formatctscontainerrow(properties, zoneid) {
         location: checkValue(properties.location) ? properties.location : "",
         placard: properties.placardBarcode,
         status: properties.constainerStatus,
-        backgroundcolorstatus: properties.constainerStatus === "Unloaded" ? "table-secondary" : properties.constainerStatus === "Close" ? "table-primary" : properties.constainerStatus === "Loaded" ? "table-success" : "table-danger",
+        backgroundcolorstatus: properties.constainerStatus === "Unloaded" ? "table-secondary" : properties.constainerStatus === "Close" ? "table-primary" : properties.constainerStatus === "Loaded" ? "table-success" : "table-danger"
     });
 }
 let container_row_template = '<tr>' +

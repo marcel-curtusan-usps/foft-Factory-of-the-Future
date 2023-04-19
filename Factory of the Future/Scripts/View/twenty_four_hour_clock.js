@@ -61,7 +61,7 @@ function Initiate24HourClock() {
     $('#twentyfourmessage').popover({
         html: true,
         trigger: 'click',
-        content: $('#tfhcContent'),
+        content: $('#tfhcContent')
     });
 
     $('#twentyfourmessage').on('click', function () {

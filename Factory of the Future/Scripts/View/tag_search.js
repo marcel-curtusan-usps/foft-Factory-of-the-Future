@@ -15,7 +15,7 @@ async function startSearch(sc) {
 
                                     if (!/red/i.test(layer.options.fillColor)) {
                                         layer.setStyle({
-                                            fillColor: '#dc3545', //'red',
+                                            fillColor: '#dc3545' //'red',
                                         });
                                     }
                                 }

@@ -285,7 +285,7 @@ $(function () {
     $('#legendToggle').popover({
         html: true,
         trigger: 'click',
-        content: $('#legendContent'),
+        content: $('#legendContent')
     });
     $('#legendToggle').on('click', function () {
         // close the sidebar
@@ -305,7 +305,7 @@ $(function () {
     $('#faqToggle').popover({
         html: true,
         trigger: 'click',
-        content: $('#faqContent'),
+        content: $('#faqContent')
     });
     $('#faqToggle').on('click', function () {
         // close the sidebar
@@ -314,7 +314,7 @@ $(function () {
     // SelectizeJs Init for searching select boxes.
     let options = {
         create: false,
-        sortField: "text",
+        sortField: "text"
     }
     $('.selectize-dropdown').click(function (e) {
         e.stopPropagation();        // To fix zone select scroll bug. May need to be revisited
@@ -796,7 +796,7 @@ function formatstafftoprow(properties) {
         staffId: properties.id,
         staffNameId: properties.hasOwnProperty("currentstaff") ? properties.currentstaff : 0,
         planstaff: properties.hasOwnProperty("planstaff") ? properties.planstaff : 0,
-        style: GetStaffRowStyle(properties.hasOwnProperty("currentstaff") ? properties.currentstaff : 0, properties.hasOwnProperty("planstaff") ? properties.planstaff : 0),
+        style: GetStaffRowStyle(properties.hasOwnProperty("currentstaff") ? properties.currentstaff : 0, properties.hasOwnProperty("planstaff") ? properties.planstaff : 0)
     });
 }
 function GetStaffRowStyle(currStaff, planStaff) {

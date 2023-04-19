@@ -619,7 +619,7 @@ async function GetUserInfo() {
                             staffId: properties.id,
                             instaff: properties.hasOwnProperty("instaff") ? properties.instaff : 0,
                             planstaff: properties.hasOwnProperty("planstaff") ? properties.planstaff : 0,
-                            outstaff: properties.hasOwnProperty("outstaff") ? properties.outstaff : 0,
+                            outstaff: properties.hasOwnProperty("outstaff") ? properties.outstaff : 0
                         });
                     }
                     $.each(staffing, function () {

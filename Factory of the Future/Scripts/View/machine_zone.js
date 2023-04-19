@@ -527,7 +527,7 @@ function formatmachinetoprow(properties) {
         expThroughput: properties.MPEWatchData.expected_throughput,
         fullBins: properties.MPEWatchData.bin_full_bins,
         arsRecirc: properties.MPEWatchData.ars_recrej3,
-        sweepRecirc: properties.MPEWatchData.sweep_recrej3,
+        sweepRecirc: properties.MPEWatchData.sweep_recrej3
     });
 }
 function Vaildatesortplan(data) {
@@ -595,7 +595,7 @@ function formatdpstoprow(properties) {
         timetocompleteactual: properties.time_to_comp_actual,
         timeleftsecondpassactual: properties.time_to_2nd_pass_actual,
         recomendedstartactual: properties.rec_2nd_pass_start_actual,
-        completiondateTime: properties.time_to_comp_actual_DateTime,
+        completiondateTime: properties.time_to_comp_actual_DateTime
     });
 }
 let dpstop_row_template =
@@ -994,8 +994,8 @@ function GetMachinePerfGraph(dataproperties) {
 
                         label: function (tooltipItem, data) {
                             return tooltipItem.yLabel.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",") + " pieces";
-                        },
-                    },
+                        }
+                    }
                 },
                 scales: {
                     xAxes: [{
