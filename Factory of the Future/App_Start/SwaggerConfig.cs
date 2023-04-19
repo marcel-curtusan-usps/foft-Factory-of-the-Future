@@ -14,13 +14,18 @@ namespace Factory_of_the_Future
             var thisAssembly = typeof(SwaggerConfig).Assembly;
 
             GlobalConfiguration.Configuration
-                .EnableSwagger(c =>
+                .EnableSwagger(c => 
                     {
                         // By default, the service root url is inferred from the request used to access the docs.
                         // However, there may be situations (e.g. proxy and load-balanced environments) where this does not
                         // resolve correctly. You can workaround this by providing your own code to determine the root URL.
                         //
                         //c.RootUrl(req => GetRootUrlFromAppConfig());
+                        c.RootUrl(req =>
+                        {
+                            var url = req.RequestUri.Scheme + "://" + req.RequestUri.Authority + System.Web.VirtualPathUtility.ToAbsolute("~");
+                            return url;
+                        });
 
                         // If schemes are not explicitly provided in a Swagger 2.0 document, then the scheme used to access
                         // the docs is taken as the default. If your API supports multiple schemes and you want to be explicit

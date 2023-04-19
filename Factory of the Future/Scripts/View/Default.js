@@ -147,7 +147,7 @@ $(function () {
                             '</div>' +
                                 '<div class="card-body">' +
                                     '<div class="table-responsive fixedHeader" style="max-height: calc(100vh - 100px); ">' +
-                                        '<table class="table table-sm table-hover table-condensed" id="app_settingtable" style="border-collapse:collapse;">' +
+                                        '<table class="tableSettings table-sm table-hover table-condensed" id="app_settingtable" style="border-collapse:collapse;">' +
                                         '<thead class="thead-dark">' +
                                         '<tr>' +
                                         '<th class="row-name"><span class="ml-p25rem">Name</span></th><th class="row-value">ID</th><th class="row-action">Action</th>' +
@@ -887,7 +887,7 @@ async function cBlock() {
     if (visible) {
         if (visible.classList.length) {
             if (visible.classList.contains('active')) {
-                GetUserInfo();
+                //GetUserInfo();
             }
         }
     }

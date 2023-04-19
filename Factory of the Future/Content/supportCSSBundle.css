@@ -17747,6 +17747,54 @@ a.text-dark:hover, a.text-dark:focus {
 .control-icon.pm-disabled {
     filter: opacity(0.6);
 }
+/*
+ * DOM element rendering detection
+ * https://davidwalsh.name/detect-node-insertion
+ */
+@keyframes chartjs-render-animation {
+	from { opacity: 0.99; }
+	to { opacity: 1; }
+}
+
+.chartjs-render-monitor {
+	animation: chartjs-render-animation 0.001s;
+}
+
+/*
+ * DOM element resizing detection
+ * https://github.com/marcj/css-element-queries
+ */
+.chartjs-size-monitor,
+.chartjs-size-monitor-expand,
+.chartjs-size-monitor-shrink {
+	position: absolute;
+	direction: ltr;
+	left: 0;
+	top: 0;
+	right: 0;
+	bottom: 0;
+	overflow: hidden;
+	pointer-events: none;
+	visibility: hidden;
+	z-index: -1;
+}
+
+.chartjs-size-monitor-expand > div {
+	position: absolute;
+	width: 1000000px;
+	height: 1000000px;
+	left: 0;
+	top: 0;
+}
+
+.chartjs-size-monitor-shrink > div {
+	position: absolute;
+	width: 200%;
+	height: 200%;
+	left: 0;
+	top: 0;
+}
+
 html, body {
   width: 100%;
   height: 100%;
@@ -17960,11 +18008,12 @@ table thead tr th {
     background-color: #343a40;
     color: #fff;
 }*/
-td.thead-dark {
-  background-color: #343a40;
-  color: #fff;
-  font-weight: bold;
-  border-bottom: 1px solid #595959; }
+/*td.thead-dark {*/
+.thead-dark {
+background-color: #343a40;
+color: #fff;
+font-weight: bold;
+border-bottom: 1px solid #595959; }
 
 .table td {
   white-space: nowrap;
@@ -17972,14 +18021,36 @@ td.thead-dark {
   overflow: hidden;
   text-overflow: ellipsis; }
 
+.tableSettings {
+    table-layout: auto; 
+    width: 100%;
+}
+
+    .tableSettings thead-dark {
+        background-color: #343a40;
+        color: #fff;
+        font-weight: bold;
+        border-bottom: 1px solid #595959;
+    }
+
+    .tableSettings td {
+        max-width: 0px;
+        white-space: nowrap;
+        vertical-align: middle;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
 .fixedHeader {
   overflow-y: auto;
   height: 100%; }
 
-.fixedHeader thead th {
-  position: sticky;
-  top: -1px;
-  z-index: 999; }
+/*.fixedHeader thead th {*/
+.fixedHeader thead {
+    position: sticky;
+    top: -1px;
+    z-index: 999;
+}
 
 /* Set table height depending on devices height */
 @media (min-height: 1080px) {

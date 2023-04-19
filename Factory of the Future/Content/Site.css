@@ -211,11 +211,12 @@ table thead tr th {
     background-color: #343a40;
     color: #fff;
 }*/
-td.thead-dark {
-  background-color: #343a40;
-  color: #fff;
-  font-weight: bold;
-  border-bottom: 1px solid #595959; }
+/*td.thead-dark {*/
+.thead-dark {
+background-color: #343a40;
+color: #fff;
+font-weight: bold;
+border-bottom: 1px solid #595959; }
 
 .table td {
   white-space: nowrap;
@@ -223,14 +224,36 @@ td.thead-dark {
   overflow: hidden;
   text-overflow: ellipsis; }
 
+.tableSettings {
+    table-layout: auto; 
+    width: 100%;
+}
+
+    .tableSettings thead-dark {
+        background-color: #343a40;
+        color: #fff;
+        font-weight: bold;
+        border-bottom: 1px solid #595959;
+    }
+
+    .tableSettings td {
+        max-width: 0px;
+        white-space: nowrap;
+        vertical-align: middle;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
 .fixedHeader {
   overflow-y: auto;
   height: 100%; }
 
-.fixedHeader thead th {
-  position: sticky;
-  top: -1px;
-  z-index: 999; }
+/*.fixedHeader thead th {*/
+.fixedHeader thead {
+    position: sticky;
+    top: -1px;
+    z-index: 999;
+}
 
 /* Set table height depending on devices height */
 @media (min-height: 1080px) {

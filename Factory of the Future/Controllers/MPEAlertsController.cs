@@ -13,9 +13,10 @@ namespace Factory_of_the_Future.Controllers
 {
     public class MPEAlertsController : ApiController
     {
-        // GET api/<controller>
+        // GET api/MPEAlerts
         //public IEnumerable<GPIOStatus> Get()
-        public string Get()
+        //[Route("MPEAlerts")]
+        public List<GPIOStatus> Get()
         {
             var MPEGpioValues = new List<GPIOStatus>();
             try
@@ -36,18 +37,51 @@ namespace Factory_of_the_Future.Controllers
 
                 if (MPEGpioValues.Any())
                 {
-                    return JsonConvert.SerializeObject(MPEGpioValues);
+                    //return JsonConvert.SerializeObject(MPEGpioValues);
+                    return MPEGpioValues;
                 }
                 else
                 {
-                    return "";
+                    return MPEGpioValues;
                 }
 
             }
             catch (Exception e)
             {
                 new ErrorLogger().ExceptionLog(e);
-                return "";
+                return MPEGpioValues;
+            }
+            finally
+            {
+                MPEGpioValues = null;
+            }
+        }
+
+        // GET: api/MPEalerts/uss-001
+        [Route("MPEAlerts/{mpeName}")]
+        public int Get(string mpeName)
+        {
+            var MPEGpioValues = new GPIOStatus();
+            try
+            {
+                foreach (CoordinateSystem cs in FOTFManager.Instance.CoordinateSystem.Values)
+                {
+                     MPEGpioValues = cs.Zones.Where(f => (f.Value.Properties.ZoneType == "Machine" || f.Value.Properties.ZoneType == "MPEZone") && f.Value.Properties.Name == mpeName.ToUpper())
+                        .Select(m => new GPIOStatus
+                        {
+                            MachineId = m.Value.Properties.Name,
+                            GpioStatus = m.Value.Properties.GpioValue
+
+                        }).FirstOrDefault();
+                }
+
+                return MPEGpioValues.GpioStatus;
+
+            }
+            catch (Exception e)
+            {
+                new ErrorLogger().ExceptionLog(e);
+                return MPEGpioValues.GpioStatus;
             }
             finally
             {
