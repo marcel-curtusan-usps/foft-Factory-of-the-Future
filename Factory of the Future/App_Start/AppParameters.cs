@@ -391,13 +391,14 @@ namespace Factory_of_the_Future
                 new ErrorLogger().ExceptionLog(e);
             }
         }
-        internal static async void LoadTempIndoorapData(string fileName)
+        internal static async Task LoadTempIndoorapData(string fileName)
         {
+            string data = string.Empty;
             try
             {
                 if (Logdirpath != null)
                 {
-                    string data = new FileIO().Read(string.Concat(Logdirpath, ConfigurationFloder), fileName);
+                    data = new FileIO().Read(string.Concat(Logdirpath, ConfigurationFloder), fileName);
 
                     if (!string.IsNullOrEmpty(data))
                     {
@@ -408,6 +409,10 @@ namespace Factory_of_the_Future
             catch (Exception e)
             {
                 new ErrorLogger().ExceptionLog(e);
+            }
+            finally 
+            {
+                data = string.Empty; 
             }
         }
         private static string GetLocalIpAddress()

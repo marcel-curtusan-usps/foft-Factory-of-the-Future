@@ -21,7 +21,7 @@ namespace Factory_of_the_Future
         public dynamic _data { get; protected set; }
         public string _Message_type { get; protected set; }
         public string _connID { get; protected set; }
-        public async void StartProcess(dynamic data, string Message_type, string connID)
+        public async Task StartProcess(dynamic data, string Message_type, string connID)
         {
             try
             {
