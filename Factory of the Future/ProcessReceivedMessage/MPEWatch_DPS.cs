@@ -22,7 +22,7 @@ namespace Factory_of_the_Future
         private DateTime dtNow = DateTime.Now;
         public DeliveryPointSequence currentDPS_Info = null;
         public List<DeliveryPointSequence> NewMPEDPS = null;
-        internal async Task<bool> LoadAsync(dynamic data, string message_type, string connID)
+        internal Task LoadAsync(dynamic data, string message_type, string connID)
         {
             _data = data;
             _Message_type = message_type;
@@ -94,17 +94,17 @@ namespace Factory_of_the_Future
                     }
             
                 }
-                return saveToFile;
             }
             catch (Exception e)
             {
                 new ErrorLogger().ExceptionLog(e);
-                return saveToFile;
             }
             finally
             {
                 Dispose();
             }
+
+            return Task.CompletedTask;
         }
 
         private List<DeliveryPointSequence> GetMPEDPSList(JToken dpsInfo)

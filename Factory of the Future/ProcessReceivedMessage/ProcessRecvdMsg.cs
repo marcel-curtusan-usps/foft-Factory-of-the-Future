@@ -377,7 +377,7 @@ namespace Factory_of_the_Future
         //        return temp;
         //    }
         //}
-        private static void TacsVsSels(dynamic data, string message_type, string conID)
+        private void TacsVsSels(dynamic data, string message_type, string conID)
         {
             // "processedSince": "21-08-12 09:08:42",
             //"missedSelsCount": 561,
@@ -465,44 +465,9 @@ namespace Factory_of_the_Future
                     }
 
 
-
-                            //    if (AppParameters.TagsList.TryGetValue(MissedSelitem.TagId, out GeoMarker geoLmarker))
-                            //    {
-                            //        geoLmarker.Properties.Tacs = JsonConvert.SerializeObject(MissedSelitem.Tacs, Formatting.None);
-                            //        geoLmarker.Properties.IsWearingTag = false;
-                            //        geoLmarker.Properties.EmpId = MissedSelitem.EmpId;
-                            //        geoLmarker.Properties.CraftName = GetCraftName(MissedSelitem.TagName);
-                            //        geoLmarker.Properties.BadgeId = GetBadgeId(MissedSelitem.TagName);
-                            //        geoLmarker.Properties.TagUpdate = true;
-                            //    }
-                            //    else
-                            //    {
-                            //        GeoMarker Lmarker = new GeoMarker();
-                            //        Lmarker.Geometry.Coordinates = new List<double> { 0, 0 };
-                            //        Lmarker.Properties.Id = MissedSelitem.TagId;
-                            //        Lmarker.Properties.Name = MissedSelitem.TagName;
-                            //        Lmarker.Properties.EmpId = MissedSelitem.EmpId;
-                            //        Lmarker.Properties.TagType = "Person";
-                            //        Lmarker.Properties.CraftName = GetCraftName(MissedSelitem.TagName);
-                            //        Lmarker.Properties.BadgeId = GetBadgeId(MissedSelitem.TagName);
-                            //        Lmarker.Properties.PositionTS = AppParameters.UnixTimeStampToDateTime((long)MissedSelitem.ProcessedTs);
-                            //        Lmarker.Properties.TagVisible = false;
-                            //        Lmarker.Properties.IsWearingTag = false;
-                            //        Lmarker.Properties.TagUpdate = true;
-                            //        if (!AppParameters.TagsList.TryAdd(MissedSelitem.TagId, Lmarker))
-                            //        {
-                            //            new ErrorLogger().CustomLog("Unable to Add Marker" + MissedSelitem.TagId, string.Concat((string)AppParameters.AppSettings.Property("APPLICATION_NAME").Value, "_Applogs"));
-                            //        }
-                            //    }
-                        //}
-                        Task.Run(() => UpdateConnection(conID, "good"));
-                    //}
                     
                 }
-                else
-                {
-                    Task.Run(() => UpdateConnection(conID, "error"));
-                }
+               
 
             }
             catch (Exception e)
@@ -510,15 +475,9 @@ namespace Factory_of_the_Future
                 new ErrorLogger().ExceptionLog(e);
                 Task.Run(() => UpdateConnection(conID, "error"));
             }
-             finally
-            {
-                data = null;
-                GC.Collect(GC.MaxGeneration, GCCollectionMode.Forced);
-                GC.WaitForPendingFinalizers();
-                GC.Collect(GC.MaxGeneration, GCCollectionMode.Forced);
-            }
+            
         }
-        private static void MPE_Watch_Id(string data)
+        private void MPE_Watch_Id(string data)
         {
             try
             {
@@ -969,7 +928,7 @@ namespace Factory_of_the_Future
         //        Task.Run(() => UpdateConnection(conID, "error"));
         //    }
         //}
-        private static void ERRORWITHWORK(JObject data)
+        private void ERRORWITHWORK(JObject data)
         {
             try
             {
@@ -1055,7 +1014,7 @@ namespace Factory_of_the_Future
                 data = null;
             }
         }
-        private static void ERRORWITHOUTWORK(JObject data)
+        private void ERRORWITHOUTWORK(JObject data)
         {
             try
             {
@@ -1099,7 +1058,7 @@ namespace Factory_of_the_Future
                 data = null;
             }
         }
-        private static void SUCCESSFULDROP(JObject data)
+        private void SUCCESSFULDROP(JObject data)
         {
             try
             {
@@ -1187,7 +1146,7 @@ namespace Factory_of_the_Future
                 data = null;
             }
         }
-        private static void SUCCESSFULPICKUP(JObject data)
+        private void SUCCESSFULPICKUP(JObject data)
         {
             try
             {
@@ -1284,7 +1243,7 @@ namespace Factory_of_the_Future
                 data = null;
             }
         }
-        private static void MATCHEDWITHWORK(JObject data)
+        private void MATCHEDWITHWORK(JObject data)
         {
             try
             {
@@ -1390,7 +1349,7 @@ namespace Factory_of_the_Future
                 new ErrorLogger().ExceptionLog(e);
             }
         }
-        private static void MOVEREQUEST(JObject data)
+        private void MOVEREQUEST(JObject data)
         {
             try
             {
@@ -1479,7 +1438,7 @@ namespace Factory_of_the_Future
                 new ErrorLogger().ExceptionLog(e);
             }
         }
-        private static void FLEET_STATUS(JObject data)
+        private void FLEET_STATUS(JObject data)
         {
             bool update = false;
             try
@@ -1594,7 +1553,7 @@ namespace Factory_of_the_Future
                 new ErrorLogger().ExceptionLog(e);
             }
         }
-        private static MarkerGeometry GetVehicleGeometry(string x, string y)
+        private MarkerGeometry GetVehicleGeometry(string x, string y)
         {
             try
             {
@@ -1619,7 +1578,7 @@ namespace Factory_of_the_Future
                 return null;
             }
         }
-        private static string CheckNotification(string currentState, string NewState, string type, Marker properties, string noteification_Id)
+        private string CheckNotification(string currentState, string NewState, string type, Marker properties, string noteification_Id)
         {
             string noteification_id = "";
             try
@@ -1666,513 +1625,7 @@ namespace Factory_of_the_Future
             }
         }
 
-        //internal static void ProjectData(dynamic jsonObject, string conID)
-        //{
-        //    bool saveToFile = false;
-        //    try
-        //    {
-        //        if (jsonObject != null)
-        //        {
-        //            JToken tempData = JToken.Parse(jsonObject);
-        //            if (tempData.HasValues)
-        //            {
-        //                if (tempData.Type != JTokenType.Array)
-        //                {
-        //                    if (((JObject)tempData).ContainsKey("coordinateSystems"))
-        //                    {
-        //                        if (AppParameters.CoordinateSystem.FirstOrDefault().Key == "temp")
-        //                        {
-        //                            AppParameters.CoordinateSystem.TryRemove("temp", out CoordinateSystem tep);
-        //                        }
-        //                        // loop though the Coordinate system
-        //                        JToken CoordinateSystem = tempData.SelectToken("coordinateSystems");
-        //                        for (int i = 0; i < CoordinateSystem.Count(); i++)
-        //                        {
-        //                            if (AppParameters.CoordinateSystem.ContainsKey(CoordinateSystem[i]["id"].ToString()))
-        //                            {
-        //                                if (AppParameters.CoordinateSystem.TryGetValue(CoordinateSystem[i]["id"].ToString(), out CoordinateSystem updateCS))
-        //                                {
-        //                                    //the background image
-        //                                    LoadBcagroundImage(CoordinateSystem[i].SelectToken("backgroundImages"), updateCS.Id, CoordinateSystem[i]["name"].ToString(), out saveToFile);
-        //                                    //this is for Zones
-        //                                    LoadZones(CoordinateSystem[i].SelectToken("zones"), updateCS.Id, out saveToFile);
-        //                                    //this is for Locators
-        //                                    LoadLocators(CoordinateSystem[i].SelectToken("locators"), updateCS.Id, out saveToFile);
-
-        //                                }
-        //                            }
-        //                            else
-        //                            {
-        //                                CoordinateSystem CSystem = new CoordinateSystem
-        //                                {
-        //                                    Name = CoordinateSystem[i]["name"].ToString(),
-        //                                    Id = CoordinateSystem[i]["id"].ToString()
-        //                                };
-        //                                ///this is used to add new Coordinate System images
-        //                                if (AppParameters.CoordinateSystem.TryAdd(CSystem.Id, CSystem))
-        //                                {
-        //                                    //the background image
-        //                                    LoadBcagroundImage(CoordinateSystem[i].SelectToken("backgroundImages"), CSystem.Id, CSystem.Name, out saveToFile);
-        //                                    //this is for Zones
-        //                                    LoadZones(CoordinateSystem[i].SelectToken("zones"), CSystem.Id, out saveToFile);
-        //                                    //this is for Locators
-        //                                    LoadLocators(CoordinateSystem[i].SelectToken("locators"), CSystem.Id, out saveToFile);
-        //                                }
-        //                                else
-        //                                {
-        //                                    new ErrorLogger().CustomLog("Unable to add CoordinateSystem " + CSystem.Id, string.Concat((string)AppParameters.AppSettings.Property("APPLICATION_NAME").Value, "_Applogs"));
-        //                                }
-        //                            }
-        //                        }
-        //                        Task.Run(() => UpdateConnection(conID, "good"));
-        //                    }
-        //                }
-        //                else
-        //                {
-        //                    for (int i = 0; i < tempData.Count(); i++)
-        //                    {
-        //                        if (AppParameters.CoordinateSystem.ContainsKey(tempData[i]["id"].ToString()))
-        //                        {
-        //                            if (AppParameters.CoordinateSystem.TryGetValue(tempData[i]["id"].ToString(), out CoordinateSystem updateCS))
-        //                            {
-        //                                //the background image
-        //                                LoadlocalBcagroundImage(tempData[i].SelectToken("backgroundImages"), updateCS.Id, tempData[i]["name"].ToString(), out saveToFile);
-        //                                //this is for Zones
-        //                                LoadlocalZones(tempData[i].SelectToken("zones"), updateCS.Id, out saveToFile);
-        //                                //this is for Locators
-        //                                LoadlocalLocators(tempData[i].SelectToken("locators"), updateCS.Id, out saveToFile);
-
-        //                            }
-        //                        }
-        //                        else
-        //                        {
-        //                            CoordinateSystem CSystem = new CoordinateSystem
-        //                            {
-        //                                Name = tempData[i]["name"].ToString(),
-        //                                Id = tempData[i]["id"].ToString()
-        //                            };
-        //                            ///this is used to add new Coordinate System images
-        //                            if (AppParameters.CoordinateSystem.TryAdd(CSystem.Id, CSystem))
-        //                            {
-        //                                //the background image
-        //                                LoadlocalBcagroundImage(tempData[i].SelectToken("backgroundImages"), CSystem.Id, CSystem.Name, out saveToFile);
-        //                                //this is for Zones
-        //                                LoadlocalZones(tempData[i].SelectToken("zones"), CSystem.Id, out saveToFile);
-        //                                //this is for Locators
-        //                                LoadlocalLocators(tempData[i].SelectToken("locators"), CSystem.Id, out saveToFile);
-        //                            }
-        //                            else
-        //                            {
-        //                                new ErrorLogger().CustomLog("Unable to add CoordinateSystem " + CSystem.Id, string.Concat((string)AppParameters.AppSettings.Property("APPLICATION_NAME").Value, "_Applogs"));
-        //                            }
-        //                        }
-        //                    }
-        //                }
-        //            }
-        //            //log Project Data to locale drive.
-        //            if (saveToFile)
-        //            {
-        //                new FileIO().Write(string.Concat(AppParameters.Logdirpath, AppParameters.ConfigurationFloder), "Project_Data.json", AppParameters.ZoneOutPutdata(AppParameters.CoordinateSystem.Select(x => x.Value).ToList()));
-
-        //           //     new FileIO().Write(string.Concat(AppParameters.Logdirpath, AppParameters.ConfigurationFloder), "Project_Data.json", JsonConvert.SerializeObject(AppParameters.CoordinateSystem, Formatting.Indented));
-        //            }
-        //        }
-        //    }
-        //    catch (Exception e)
-        //    {
-        //        Task.Run(() => UpdateConnection(conID, "error"));
-        //        new ErrorLogger().ExceptionLog(e);
-        //    }
-            
-        //}
-        private static void LoadlocalLocators(JToken locatorlist, string csid, out bool saveToFile)
-        {
-            saveToFile = false;
-            try
-            {
-                if (locatorlist != null && locatorlist.Any())
-                {
-                    foreach (JToken locatorsitem in locatorlist)
-                    {
-                        GeoMarker Lmarker = locatorsitem.FirstOrDefault().ToObject<GeoMarker>();
-                        if (FOTFManager.Instance.CoordinateSystem[csid].Locators.TryAdd(Lmarker.Properties.Id, Lmarker))
-                        {
-                            Lmarker.Properties.TagUpdate = true;
-                        }
-                    }
-                }
-            }
-            catch (Exception e)
-            {
-                new ErrorLogger().ExceptionLog(e);
-                saveToFile = false;
-            }
-        }
-
-        private static void LoadlocalZones(JToken zoneslist, string csid, out bool saveToFile)
-        {
-            saveToFile = false;
-            try
-            {
-                if (zoneslist != null && zoneslist.Any())
-                {
-                    foreach (JToken zoneitem in zoneslist)
-                    {
-                        GeoZone newGZone = zoneitem.FirstOrDefault().ToObject<GeoZone>();
-                        if (FOTFManager.Instance.CoordinateSystem[csid].Zones.TryAdd(newGZone.Properties.Id, newGZone))
-                        {
-                            newGZone.Properties.ZoneUpdate = true;
-                        }
-
-                    }
-                }
-
-            }
-            catch (Exception e)
-            {
-                new ErrorLogger().ExceptionLog(e);
-                saveToFile = false;
-            }
-        }
-  
-        private static void LoadlocalBcagroundImage(JToken backgroundImages, string csid, string csname, out bool saveToFile)
-        {
-            saveToFile = false;
-            try
-            {
-                if (backgroundImages != null && backgroundImages.Any())
-                {
-                    BackgroundImage newbckimg = backgroundImages.ToObject<BackgroundImage>();
-                    FOTFManager.Instance.CoordinateSystem[csid].BackgroundImage = newbckimg;
-                    newbckimg.UpdateStatus = true;
-                }
-            }
-            catch (Exception e)
-            {
-                new ErrorLogger().ExceptionLog(e);
-                saveToFile = false;
-            }
-        }
-
-        private static void LoadBcagroundImage(JToken backgroundImages, string csid, string csname, out bool saveToFile)
-        {
-            saveToFile = false;
-            try
-            {
-                if (backgroundImages != null && backgroundImages.Any())
-                {
-                    foreach (JObject bgItem in backgroundImages.Children().Cast<JObject>())
-                    {
-                        BackgroundImage newbckimg = bgItem.ToObject<BackgroundImage>();
-                        //newbckimg.FacilityName = !string.IsNullOrEmpty(AppParameters.AppSettings["FACILITY_NAME"].ToString()) ? AppParameters.AppSettings["FACILITY_NAME"].ToString() : "Site Not Configured";
-                        //newbckimg.ApplicationFullName = AppParameters.AppSettings["APPLICATION_FULLNAME"].ToString();
-                        //newbckimg.ApplicationAbbr = AppParameters.AppSettings["APPLICATION_NAME"].ToString();
-                        newbckimg.Name = csname;
-                        newbckimg.CoordinateSystemId = csid;
-                        FOTFManager.Instance.CoordinateSystem[csid].BackgroundImage = newbckimg;
-                        newbckimg.UpdateStatus = true;
-                        saveToFile = true;
-
-                    }
-                }
-            }
-            catch (Exception e)
-            {
-                new ErrorLogger().ExceptionLog(e);
-                saveToFile = false;
-            }
-        }
-        private static void LoadZones(JToken zoneslist, string csid, out bool saveToFile)
-        {
-            saveToFile = false;
-            try
-            {
-                if (zoneslist != null && zoneslist.Any())
-                {
-                    foreach (JObject zoneitem in zoneslist.Children().Cast<JObject>())
-                    {
-                        bool zoneUpdate = false;
-                      
-                        if (FOTFManager.Instance.CoordinateSystem[csid].Zones.TryGetValue(zoneitem["id"].ToString(), out GeoZone gZone))
-                        {
-                            ZoneGeometry tempGeometry = GetQuuppaZoneGeometry(zoneitem["polygonData"]);
-                            if (JsonConvert.SerializeObject(gZone.Geometry.Coordinates, Formatting.None) != JsonConvert.SerializeObject(tempGeometry.Coordinates, Formatting.None))
-                            {
-                                gZone.Geometry.Coordinates = tempGeometry.Coordinates;
-                                zoneUpdate = true;
-                                saveToFile = true;
-                            }
-                            if (!gZone.Properties.QuuppaOverride)
-                            {
-                                if (gZone.Properties.Name != zoneitem["name"].ToString())
-                                {
-                                    gZone.Properties.Name = zoneitem["name"].ToString();
-                                    zoneUpdate = true;
-                                    saveToFile = true;
-                                }
-                            }
-                            string temptype = GetZoneType(gZone.Properties.Name);
-                            if (temptype != gZone.Properties.ZoneType)
-                            {
-                                gZone.Properties.Name = temptype;
-                                zoneUpdate = true;
-                                saveToFile = true;
-                            }
-                            if (zoneUpdate)
-                            {
-                                gZone.Properties.ZoneUpdate = true;
-                                saveToFile = true;
-                                saveToFile = true;
-                            }
-                        }
-                        else
-                        {
-                            GeoZone newGZone = new GeoZone
-                            {
-                                Geometry = GetQuuppaZoneGeometry(zoneitem["polygonData"])
-                            };
-                            newGZone.Properties.FloorId = csid;
-                            newGZone.Properties.Id = zoneitem["id"].ToString();
-                            newGZone.Properties.Name = zoneitem["name"].ToString();
-                            newGZone.Properties.Color = zoneitem["color"].ToString();
-                            newGZone.Properties.Visible = (bool)zoneitem["visible"];
-                            newGZone.Properties.ZoneType = GetZoneType(newGZone.Properties.Name);
-                            newGZone.Properties.Source = "other";
-
-                            if (newGZone.Properties.ZoneType.StartsWith("DockDoor"))
-                            {
-                                //get the DockDoor Number
-                                if (int.TryParse(string.Join(string.Empty, Regex.Matches(newGZone.Properties.Name, @"\d+").OfType<Match>().Select(m => m.Value)).ToString(), out int n))
-                                {
-                                    newGZone.Properties.DoorNumber = n.ToString();
-                                }
-                            }
-
-                            if (newGZone.Properties.ZoneType == "Machine")
-                            {
-                         
-                                //get the MPE Number
-                                if (int.TryParse(string.Join(string.Empty, Regex.Matches(newGZone.Properties.Name, @"\d+").OfType<Match>().Select(m => m.Value)).ToString(), out int n))
-                                {
-                                    newGZone.Properties.MPENumber = n;
-                                }
-                                //get the MPE Name
-                                newGZone.Properties.MPEType = string.Join(string.Empty, Regex.Matches(newGZone.Properties.Name, @"\p{L}+").OfType<Match>().Select(m => m.Value));
-                            }
-                           
-                            if (FOTFManager.Instance.CoordinateSystem[csid].Zones.TryAdd(newGZone.Properties.Id, newGZone))
-                            {
-                                newGZone.Properties.ZoneUpdate = true;
-                                saveToFile = true;
-                                //new ErrorLogger().CustomLog("Unable to Add Zone" + newGZone.Properties.Id, string.Concat((string)AppParameters.AppSettings.Property("APPLICATION_NAME").Value, "_Applogs"));
-                            }
-                        }
-
-                    }
-                }
-                
-            }
-            catch (Exception e)
-            {
-                new ErrorLogger().ExceptionLog(e);
-                saveToFile = false;
-            }
-        }
-        private static void LoadLocators(JToken locatorlist, string csid, out bool saveToFile)
-        {
-            saveToFile = false;
-            try
-            {
-                if (locatorlist != null && locatorlist.Any())
-                {
-                    foreach (JObject locatorsitem in locatorlist.Children().Cast<JObject>())
-                    {
-                        bool locatorupdate = false;
-                        if (FOTFManager.Instance.CoordinateSystem[csid].Locators.TryGetValue(locatorsitem["id"].ToString(), out GeoMarker geoLmarker))
-                        {
-                            // check if position changed
-
-                            MarkerGeometry tempGeometry = GetQuuppaTagGeometry(locatorsitem["location"]);
-                            if (JsonConvert.SerializeObject(geoLmarker.Geometry.Coordinates, Formatting.None) != JsonConvert.SerializeObject(tempGeometry.Coordinates, Formatting.None))
-                            {
-                                geoLmarker.Geometry.Coordinates = tempGeometry.Coordinates;
-                                locatorupdate = true;
-                            }
-
-                            if (geoLmarker.Properties.Name != locatorsitem["name"].ToString())
-                            {
-                                geoLmarker.Properties.Name = "Locator";
-                                string tempTagype = GetTagType(geoLmarker.Properties.Name);
-                                if (geoLmarker.Properties.TagType != tempTagype)
-                                {
-                                    geoLmarker.Properties.TagType = tempTagype;
-                                    locatorupdate = true;
-                                    saveToFile = true;
-                                }
-                                if (geoLmarker.Properties.TagType == "Person" ||
-                                    geoLmarker.Properties.TagType == "Vehicle")
-                                {
-                                    geoLmarker.Properties.CraftName = GetCraftName(geoLmarker.Properties.Name);
-                                    geoLmarker.Properties.BadgeId = GetBadgeId(geoLmarker.Properties.Name);
-                                    locatorupdate = true;
-                                    saveToFile = true;
-                                }
-
-                                locatorupdate = true;
-                            }
-                            if (locatorupdate)
-                            {
-                                geoLmarker.Properties.TagUpdate = true;
-                                saveToFile = true;
-                            }
-
-                        }
-                        else
-                        {
-                            GeoMarker Lmarker = new GeoMarker
-                            {
-                                Type = "Feature"
-                            };
-                            Lmarker.Properties.Id = locatorsitem["id"].ToString();
-                            Lmarker.Properties.Name = locatorsitem.ContainsKey("name") ? locatorsitem["name"].ToString() : "Locator";
-                            Lmarker.Properties.Color = locatorsitem.ContainsKey("color") ? locatorsitem["color"].ToString() : "";
-                            Lmarker.Properties.TagType = GetTagType(Lmarker.Properties.Name);
-                            Lmarker.Geometry = GetQuuppaTagGeometry(locatorsitem["location"]);
-                            Lmarker.Properties.TagVisible = (bool)locatorsitem["visible"];
-                            Lmarker.Properties.Source = "other";
-                            if (FOTFManager.Instance.CoordinateSystem[csid].Locators.TryAdd(Lmarker.Properties.Id, Lmarker))
-                            {
-                                Lmarker.Properties.TagUpdate = true;
-                                saveToFile = true;
-                            }
-
-                        }
-                    }
-                }
-            }
-            catch (Exception e)
-            {
-                new ErrorLogger().ExceptionLog(e);
-                saveToFile = false;
-            }
-        }
-        private void TagPosition(dynamic data, string conID)
-        {
-            try
-            {
-                if (data != null)
-                {
-                    JToken tempData = JToken.Parse(data);
-                    if (((JObject)tempData).ContainsKey("tags"))
-                    {
-                        //this is for tags
-                        JToken tags = tempData.SelectToken("tags");
-                        if (tags.Any())
-                        {
-                            DateTime responseTS = AppParameters.UnixTimeStampToDateTime((long)tempData["responseTS"]);
-                        
-                            foreach (JObject tagitem in tags.Children().Cast<JObject>())
-                            {
-                                bool update = false;
-                                tagitem["rawData"] = JsonConvert.SerializeObject(tagitem, Formatting.None);
-                                string tagid = tagitem.ContainsKey("id") ? tagitem["id"].ToString() : tagitem["tagId"].ToString();
-                                //new tag data format version of Quuppa = "locationCoordSysId": "20a2d551-4b2a-4b4f-ab80-0caa4b250b38"
-                                //old tag data format version of Quuppa "coordinateSystemId": "e11a3dd5-2e97-405c-9dfd-e63eb810964f",
-                                foreach (CoordinateSystem cs in FOTFManager.Instance.CoordinateSystem.Values)
-                                {
-                                    List<string> tag_id = cs.Locators.Where(f => f.Key == tagid).Select(y => y.Key).ToList();
-                                    if (tag_id.Count > 0)
-                                    {
-                                        cs.Locators.Where(f => f.Key == tag_id[0]).Select(y => y.Value).ToList().ForEach(geoLmarker =>
-                                           {
-                                               // check if position changed
-                                               JToken position = tagitem.ContainsKey("smoothedPosition") ? tagitem["smoothedPosition"] : tagitem["location"];
-                                               MarkerGeometry tempGeometry = GetQuuppaTagGeometry(position);
-                                               if (JsonConvert.SerializeObject(geoLmarker.Geometry.Coordinates, Formatting.None) != JsonConvert.SerializeObject(tempGeometry.Coordinates, Formatting.None))
-                                               {
-                                                   geoLmarker.Geometry.Coordinates = tempGeometry.Coordinates;
-                                                   update = true;
-                                               }
-
-                                               JToken positionTs = tagitem.ContainsKey("positionTS") ? tagitem["positionTS"] : tagitem["locationTS"];
-                                               geoLmarker.Properties.PositionTS = AppParameters.UnixTimeStampToDateTime((long)positionTs);
-                                               geoLmarker.Properties.TagTS = responseTS;
-                                               //geoLmarker.Properties.Zones = tagitem["zones"].ToObject<List<Zone>>();
-                                               string tempName = tagitem.ContainsKey("name") ? tagitem["name"].ToString() : tagitem["tagName"].ToString();
-                                               if (geoLmarker.Properties.Name != tempName)
-                                               {
-                                                   geoLmarker.Properties.Name = tempName;
-                                                   string tempTagype = GetTagType(geoLmarker.Properties.Name);
-                                                   if (geoLmarker.Properties.TagType != tempTagype)
-                                                   {
-                                                       geoLmarker.Properties.TagType = tempTagype;
-                                                       update = true;
-                                                   }
-                                                   if (geoLmarker.Properties.TagType == "Person" ||
-                                                   geoLmarker.Properties.TagType == "Vehicle")
-                                                   {
-                                                       geoLmarker.Properties.CraftName = GetCraftName(geoLmarker.Properties.Name);
-                                                       geoLmarker.Properties.BadgeId = GetBadgeId(geoLmarker.Properties.Name);
-                                                       update = true;
-                                                   }
-
-                                                   update = true;
-                                               }
-                                               if (update)
-                                               {
-                                                   geoLmarker.Properties.TagUpdate = true;
-                                               }
-                                           });
-                                    }
-                                    else
-                                    {
-                                        GeoMarker Lmarker = new GeoMarker();
-                                        Lmarker.Properties.Id = tagid;
-                                        Lmarker.Properties.Name = tagitem.ContainsKey("name") ? tagitem["name"].ToString() : tagitem["tagName"].ToString();
-                                        Lmarker.Properties.Color = tagitem["color"].ToString();
-                                        Lmarker.Properties.TagType = GetTagType(Lmarker.Properties.Name);
-                                        if (Lmarker.Properties.TagType == "Person" ||
-                                            Lmarker.Properties.TagType == "Vehicle")
-                                        {
-                                            Lmarker.Properties.CraftName = GetCraftName(Lmarker.Properties.Name);
-                                            Lmarker.Properties.BadgeId = GetBadgeId(Lmarker.Properties.Name);
-                                        }
-                                        Lmarker.Properties.TagTS = responseTS;
-                                        JToken positionTs = tagitem.ContainsKey("positionTS") ? tagitem["positionTS"] : tagitem["locationTS"];
-                                        Lmarker.Properties.PositionTS = AppParameters.UnixTimeStampToDateTime((long)positionTs);
-                                        JToken position = tagitem.ContainsKey("smoothedPosition") ? tagitem["smoothedPosition"] : tagitem["location"];
-                                        Lmarker.Geometry = GetQuuppaTagGeometry(position);
-                                        Lmarker.Properties.RawData = tagitem["rawData"].ToString();
-                                        Lmarker.Properties.TagVisible = tagitem.ContainsKey("locationMovementStatus") && (tagitem["locationMovementStatus"].ToString() != "noData");
-                                        Lmarker.Properties.TagUpdate = true;
-                                        if (!cs.Locators.TryAdd(Lmarker.Properties.Id, Lmarker))
-                                        {
-                                            new ErrorLogger().CustomLog("Unable to Add Marker" + tagid, string.Concat((string)AppParameters.AppSettings.Property("APPLICATION_NAME").Value, "_Applogs"));
-                                        }
-                                    }
-                                }
-
-                            }    
-                            Task.Run(() => UpdateConnection(conID, "good"));
-                        }
-                    }
-                    if (!((JObject)tempData).ContainsKey("tags") && ((JObject)tempData).ContainsKey("status"))
-                    {
-                        if (tempData["status"].ToString() == "GeneralFailure")
-                        {
-                            Task.Run(() => UpdateConnection(conID, "error"));
-                        } 
-                    }
-               
-                }
-            }
-            catch (Exception e)
-            {
-                Task.Run(() => UpdateConnection(conID, "error"));
-                new ErrorLogger().ExceptionLog(e);
-            }
-        }
-        internal static void UpdateConnection(string conId,string type)
+        internal void UpdateConnection(string conId,string type)
         {
             try
             {
@@ -2193,7 +1646,7 @@ namespace Factory_of_the_Future
                 new ErrorLogger().ExceptionLog(e);
             }
         }
-        internal static string GetBadgeId(string name)
+        internal string GetBadgeId(string name)
         {
             try
             {
@@ -2214,7 +1667,7 @@ namespace Factory_of_the_Future
                 return "";
             }
         }
-        internal static string GetCraftName(string name)
+        internal string GetCraftName(string name)
         {
             try
             {
@@ -2235,100 +1688,8 @@ namespace Factory_of_the_Future
                 return "";
             }
         }
-        private static MarkerGeometry GetQuuppaTagGeometry(JToken tagitemsplit)
-        {
-            try
-            {
-                JObject geometry = new JObject();
-                JArray temp = new JArray();
-                if (tagitemsplit.HasValues)
-                {
-                  temp = new JArray(tagitemsplit[0], tagitemsplit[1]);
-                }
-                else
-                {
-                    temp = new JArray(0.0, 0.0);
-                }
-                geometry["coordinates"] = temp;
-                MarkerGeometry result = geometry.ToObject<MarkerGeometry>();
-                return result;
-            }
-            catch (Exception e)
-            {
-                new ErrorLogger().ExceptionLog(e);
-                return null;
-            }
-        }
-        private static ZoneGeometry GetQuuppaZoneGeometry(JToken zoneitem)
-        {
-            try
-            {
-                JObject geometry = new JObject();
-                JArray temp = new JArray();
 
-                string[] polygonDatasplit = zoneitem.ToString().Split('|');
-                if (polygonDatasplit.Length > 0)
-                {
-                    JArray xyar = new JArray();
-                    foreach (var polygonitem in polygonDatasplit)
-                    {
-                        string[] polygonitemsplit = polygonitem.Split(',');
-                        xyar.Add(new JArray(Convert.ToDouble(polygonitemsplit[0]), Convert.ToDouble(polygonitemsplit[1])));
-                    }
-                    temp.Add(xyar);
-                }
-
-                geometry["coordinates"] = temp;
-
-                ZoneGeometry result = geometry.ToObject<ZoneGeometry>();
-
-                return result;
-            }
-            catch (Exception e)
-            {
-                new ErrorLogger().ExceptionLog(e);
-                return null;
-            }
-        }
-        private static string GetZoneType(string value)
-        {
-            try
-            {
-                if (!string.IsNullOrEmpty(value))
-                {
-                    if (Regex.IsMatch(value, (string)AppParameters.AppSettings["AGV_ZONE"], RegexOptions.IgnoreCase))
-                    {
-                        return "AGVLocation";
-                    }
-                    else if (Regex.IsMatch(value, (string)AppParameters.AppSettings["DOCKDOOR_ZONE"], RegexOptions.IgnoreCase))
-                    {
-                        return "DockDoor";
-                    }
-                    else if (Regex.IsMatch(value, (string)AppParameters.AppSettings["MANUAL_ZONE"], RegexOptions.IgnoreCase))
-                    {
-                        return "Area";
-                    }
-                    else if (Regex.IsMatch(value, (string)AppParameters.AppSettings["VIEWPORTS"], RegexOptions.IgnoreCase))
-                    {
-                        return "ViewPorts";
-                    }
-                    else
-                    {
-                        return "Machine";
-                    }
-                }
-                else
-                {
-                    return "None";
-                }
-            }
-            catch (Exception e)
-            {
-                new ErrorLogger().ExceptionLog(e);
-                return "None";
-            }
-        }
-        private static string GetTagType(string value)
+        private string GetTagType(string value)
         {
             try
             {
@@ -2367,7 +1728,7 @@ namespace Factory_of_the_Future
             }
         }
 
-        private static void CheckMachineNotifications(JObject machineData)
+        private  void CheckMachineNotifications(JObject machineData)
         {
  
             try
@@ -2411,7 +1772,7 @@ namespace Factory_of_the_Future
             }
         }
 
-        private static void UpdateDeleteMachineNotifications(string notificationID, string notificationName, string timerName, string duration, string notificationValue, string timerValue)
+        private  void UpdateDeleteMachineNotifications(string notificationID, string notificationName, string timerName, string duration, string notificationValue, string timerValue)
         {
             if (AppParameters.NotificationList.TryGetValue(notificationID, out Notification ojbMerge))
             {
@@ -2431,7 +1792,7 @@ namespace Factory_of_the_Future
             }
         }
 
-        private static void AddNewMachineNotification(JObject machineData, string zoneID, string notificationID, string notificationType, string durationtext, string durationTime)
+        private  void AddNewMachineNotification(JObject machineData, string zoneID, string notificationID, string notificationType, string durationtext, string durationTime)
         {
             try
             {
@@ -2469,7 +1830,7 @@ namespace Factory_of_the_Future
             }
         }
 
-        private static string GetMachineNotificationDurationText(string durationSeconds)
+        private  string GetMachineNotificationDurationText(string durationSeconds)
         {
             string durartionText = "";
             if (Double.TryParse(durationSeconds, out Double dblSeconds))
@@ -2493,7 +1854,7 @@ namespace Factory_of_the_Future
             return durartionText;
         }
 
-        private static void CheckOPStartingLateNotification(JObject machineData, string zoneID, string machine)
+        private  void CheckOPStartingLateNotification(JObject machineData, string zoneID, string machine)
         {
             string notification_name = "op_started_late_status";
             string notification_timer = "op_started_late_timer";
@@ -2511,7 +1872,7 @@ namespace Factory_of_the_Future
             }
         }
 
-        private static void CheckUnplannedMaintNotification(JObject machineData, string zoneID, string machine)
+        private  void CheckUnplannedMaintNotification(JObject machineData, string zoneID, string machine)
         {
             string notification_name = "unplan_maint_sp_status";
             string notification_timer = "unplan_maint_sp_timer";
@@ -2529,7 +1890,7 @@ namespace Factory_of_the_Future
             }
         }
 
-        private static void CheckSortplanWrongNotification(JObject machineData, string zoneID, string machine)
+        private  void CheckSortplanWrongNotification(JObject machineData, string zoneID, string machine)
         {
             string notification_name = "sortplan_wrong_status";
             string notification_timer = "sortplan_wrong_timer";
@@ -2547,7 +1908,7 @@ namespace Factory_of_the_Future
             }
         }
 
-        private static void CheckOPRunningLateNatification(JObject machineData, string zoneID, string machine)
+        private  void CheckOPRunningLateNatification(JObject machineData, string zoneID, string machine)
         {
             string notification_name = "op_running_late_status";
             string notification_timer = "op_running_late_timer";
@@ -2565,7 +1926,7 @@ namespace Factory_of_the_Future
             }
         }
 
-        private static void CheckMachineThroughPutNotification(JObject machineData, string zoneID, string machine)
+        private void CheckMachineThroughPutNotification(JObject machineData, string zoneID, string machine)
         {
             string notificationID = machine + "_throughput_status";
             string throughput_status = machineData.ContainsKey("throughput_status") ? machineData["throughput_status"].ToString().Trim() : "0";
@@ -2626,7 +1987,7 @@ namespace Factory_of_the_Future
             }
         }
 
-        private static void CheckScanNotification()
+        private void CheckScanNotification()
         {
             string loadAfterDepartTypeName = "Load After Depart";
             string missingLoadTypeName = "Missing Closed Scan";
@@ -2742,7 +2103,7 @@ namespace Factory_of_the_Future
             }
         }
 
-        private static void AddScanNotification(string notificationType, string notificationID, string scanID, string typeName, int minutes)
+        private  void AddScanNotification(string notificationType, string notificationID, string scanID, string typeName, int minutes)
         {
             
             foreach (NotificationConditions newCondition in AppParameters.NotificationConditionsList.Where(r => Regex.IsMatch(notificationType, r.Value.Conditions, RegexOptions.IgnoreCase)
@@ -2797,7 +2158,7 @@ namespace Factory_of_the_Future
             }
         }
 
-        private static void RemoveScanNotification(string notification_id)
+        private  void RemoveScanNotification(string notification_id)
         {
             foreach (Notification _notification in AppParameters.NotificationList.Where(x => Regex.IsMatch(notification_id, x.Value.Notification_ID, RegexOptions.IgnoreCase)).Select(x => x.Value).ToList())
             {
@@ -2809,7 +2170,7 @@ namespace Factory_of_the_Future
             }
     }
 
-        private static void RemoveOldScanNotification(string scanNotificationType)
+        private  void RemoveOldScanNotification(string scanNotificationType)
         {
             foreach (Notification _notification in AppParameters.NotificationList.Where(x => Regex.IsMatch(scanNotificationType, x.Value.Type, RegexOptions.IgnoreCase)).Select(x => x.Value).ToList())
             {

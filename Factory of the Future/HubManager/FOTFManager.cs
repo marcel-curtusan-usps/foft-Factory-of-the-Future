@@ -1734,7 +1734,7 @@ namespace Factory_of_the_Future
             }
         }
        
-        private static DeliveryPointSequence GetDPSData(string curSortplan)
+        private DeliveryPointSequence GetDPSData(string curSortplan)
         {
             DeliveryPointSequence DPSData = new DeliveryPointSequence();
             try

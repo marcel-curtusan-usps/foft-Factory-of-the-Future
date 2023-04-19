@@ -16,7 +16,7 @@ namespace Factory_of_the_Future
         public string _connID { get; protected set; }
         private bool saveToFile;
         private List<Cameras> newCameras = new List<Cameras>();
-        internal async Task<bool> LoadAsync(dynamic data, string message_type, string connID)
+        internal Task<bool> LoadAsync(dynamic data, string message_type, string connID)
         {
             saveToFile = false;
             _data = data;
@@ -51,12 +51,12 @@ namespace Factory_of_the_Future
                         }
                     }
                 }
-                return saveToFile;
+                return Task.FromResult(saveToFile);
             }
             catch (Exception e)
             {
                 new ErrorLogger().ExceptionLog(e);
-                return saveToFile;
+                return Task.FromResult(saveToFile);
             }
             finally
             {
