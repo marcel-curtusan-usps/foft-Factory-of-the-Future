@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Web.Http;
 
@@ -59,29 +60,32 @@ namespace Factory_of_the_Future.Controllers
 
         // GET: api/MPEalerts/uss-001
         [Route("MPEAlerts/{mpeName}")]
-        public int Get(string mpeName)
+        public List<GPIOStatus> Get(string mpeName)
         {
-            var MPEGpioValues = new GPIOStatus();
+            var MPEGpioValues = new List<GPIOStatus>();
             try
             {
                 foreach (CoordinateSystem cs in FOTFManager.Instance.CoordinateSystem.Values)
                 {
-                     MPEGpioValues = cs.Zones.Where(f => (f.Value.Properties.ZoneType == "Machine" || f.Value.Properties.ZoneType == "MPEZone") && f.Value.Properties.Name == mpeName.ToUpper())
-                        .Select(m => new GPIOStatus
+                    cs.Zones.Where(f => (f.Value.Properties.ZoneType == "Machine" || f.Value.Properties.ZoneType == "MPEZone") && Regex.IsMatch(f.Value.Properties.Name, "(" + mpeName + ")", RegexOptions.IgnoreCase))
+                           .Select(y => y.Value)
+                        .ToList().ForEach(mpeList =>
                         {
-                            MachineId = m.Value.Properties.Name,
-                            GpioStatus = m.Value.Properties.GpioValue
-
-                        }).FirstOrDefault();
+                            MPEGpioValues.Add(new GPIOStatus
+                            {
+                                MachineId = mpeList.Properties.Name,
+                                GpioStatus = mpeList.Properties.GpioValue
+                            });
+                        });
                 }
 
-                return MPEGpioValues.GpioStatus;
+                return MPEGpioValues;
 
             }
             catch (Exception e)
             {
                 new ErrorLogger().ExceptionLog(e);
-                return MPEGpioValues.GpioStatus;
+                return MPEGpioValues;
             }
             finally
             {

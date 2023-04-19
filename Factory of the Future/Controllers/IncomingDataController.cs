@@ -38,7 +38,7 @@ namespace Factory_of_the_Future.Controllers
                 connection.ApiConnected = true;
                 connection.ActiveConnection = true;
                 connection.Status = "Running";
-                toProcesser(request_data, connection.Id);
+                ToProcesser(request_data, connection.Id).ConfigureAwait(false);
                 FOTFManager.Instance.BroadcastQSMUpdate(connection);
             }
             else
@@ -48,7 +48,7 @@ namespace Factory_of_the_Future.Controllers
                     connection.ApiConnected = true;
                     connection.ActiveConnection = true;
                     connection.Status = "Running";
-                    toProcesser(request_data, connection.Id);
+                    ToProcesser(request_data, connection.Id).ConfigureAwait(false);
                     FOTFManager.Instance.BroadcastQSMUpdate(connection);
                 }
                 else
@@ -89,7 +89,7 @@ namespace Factory_of_the_Future.Controllers
             }
         }
 
-        private void toProcesser(JToken request_data, string connectionID)
+        private async Task ToProcesser(JToken request_data, string connectionID)
         {
             try
             {
@@ -100,7 +100,7 @@ namespace Factory_of_the_Future.Controllers
                     {
                         //Send data to be processed.
                         var requestDataToString = JsonConvert.SerializeObject(request_data, Formatting.Indented);
-                        Task.Run(() => new ProcessRecvdMsg().StartProcess(requestDataToString, request_data["MESSAGE"].ToString(), connectionID));
+                        await Task.Run(() => new ProcessRecvdMsg().StartProcess(requestDataToString, request_data["MESSAGE"].ToString(), connectionID));
                         //Task.Run(() => new ProcessRecvdMsg().StartProcess(request_data, request_data["MESSAGE"].ToString(), connectionID));
                     }
                 }

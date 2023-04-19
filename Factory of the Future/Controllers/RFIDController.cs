@@ -38,7 +38,7 @@ namespace Factory_of_the_Future.Controllers
                 connection.ApiConnected = true;
                 connection.ActiveConnection = true;
                 connection.Status = "Running";
-                toProcesser(request_data, connection);
+                ToProcesser(request_data, connection).ConfigureAwait(false);
                 FOTFManager.Instance.BroadcastQSMUpdate(connection);
             }
             else
@@ -49,7 +49,7 @@ namespace Factory_of_the_Future.Controllers
                     connection.ApiConnected = true;
                     connection.ActiveConnection = true;
                     connection.Status = "Running";
-                    toProcesser(request_data, connection);
+                    ToProcesser(request_data, connection).ConfigureAwait(false);
                     FOTFManager.Instance.BroadcastQSMUpdate(connection);
                 }
                 else
@@ -61,7 +61,7 @@ namespace Factory_of_the_Future.Controllers
             return CreatedAtRoute("DefaultApi", new { id = "0" }, 0);
         }
 
-        private async void toProcesser(JToken request_data, Connection conn)
+        private async Task ToProcesser(JToken request_data, Connection conn)
         {
             try
             {
