@@ -310,6 +310,8 @@ function createConnectionDataTable(table) {
                 "title": 'Name',
                 "mDataProp": key,
                 "mRender": function (data, type, full) {
+
+                    Promise.All(addSideButton(full.ConnectionName));
                     if (full.ApiConnection) {
                         return full.ConnectionName + ' <span class="badge badge-pill float-right badge-info">API</span>';
                     }
@@ -435,6 +437,16 @@ function createConnectionDataTable(table) {
             Remove_Connection(row.data());
         }
     });
+}
+async function addSideButton(name) {
+    if (/^MPE/i.test(name)) {
+        $('#MPESideButton').css("display", "block");
+    }
+    else if (/^AGV/i.test(name)) {
+        $('#AGVSideButton').css("display", "block");
+    } else if (/^SV/i.test(name)) {
+        $('#TripSideButton').css("display", "block");
+    }
 }
 function loadConnectionDatatable(data, table) {
     if ($.fn.dataTable.isDataTable("#" + table)) {

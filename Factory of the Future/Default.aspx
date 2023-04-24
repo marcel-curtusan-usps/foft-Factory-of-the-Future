@@ -1596,7 +1596,7 @@
                             </div>
                         </div>
                     </div>
-                    <div class="card w-100 mb-3">
+                    <div class="card w-100 mb-3" id="swaggercard" style="display:none">
                         <h6 class="card-header sectionHeader ml-2 mb-1 px-0">Swagger API </h6>
                         <div class="card-body ml-np5rem">
                             <div class="input-group mb-2 mx-3">
@@ -1631,7 +1631,7 @@
                             </div>
                         </div>
                     </div>
-                    <div class="card w-100 mb-3">
+                    <div class="card w-100 mb-3" id="BEsearch" style="display:none">
                         <div class="row mx-0 mb-2">
                             <h6 class="card-header sectionHeader ml-2 px-0 py-0 mt-3">Badge / Equipment Search</h6>
                             <div class="input-group flex-fill px-0 mt-2 mx-3 mr-p5rem">
@@ -1697,10 +1697,10 @@
             <!-- Bottom tab group -->
             <ul class="mb-3">
                 <li class="" title="User Profile"><a class="iconCenter" href="#userprofile" role="tab"><i class="pi-iconUserProfile"></i></a></li>
-                <li class="" style="display: none;" title="AGV Notification"><a class="iconCenter" href="#agvnotificationinfo" role="tab"><i id="agvnotificaion" class="pi-iconVehicle" title="AGV Notification"><span class="badge badge-notify bell-notification" id="agvnotificaion_number"></span></i></a></li>
-                <li class="" style="display: none;" title="Trips Notification"><a class="iconCenter" href="#tripsnotificationinfo" role="tab"><i id="tripsnotificaion" class="pi-iconDockTruck"><span class="badge badge-notify bell-notification" id="tripsnotificaion_number"></span></i></a></li>
-                <li class="" style="display: none;" title="MPE Notification"><a class="iconCenter" href="#mpenotificationinfo" role="tab"><i id="mpenotification" class="pi-iconMachine"><span class="badge badge-notify bell-notification" id="mpenotification_number"></span></i></a></li>
-                <li class="" style="display: none;" title="Report Information"><a class="iconCenter" href="#reports" role="tab"><i class="pi-iconStaffing"></i></a></li>
+                <li class="" id="AGVSideButton" style="display: none;" title="AGV Notification"><a class="iconCenter" href="#agvnotificationinfo" role="tab"><i id="agvnotificaion" class="pi-iconVehicle" title="AGV Notification"><span class="badge badge-notify bell-notification" id="agvnotificaion_number"></span></i></a></li>
+                <li class="" id="TripSideButton" style="display: none;" title="Trips Notification"><a class="iconCenter" href="#tripsnotificationinfo" role="tab"><i id="tripsnotificaion" class="pi-iconDockTruck"><span class="badge badge-notify bell-notification" id="tripsnotificaion_number"></span></i></a></li>
+                <li class="" id="MPESideButton" style="display: none;" title="MPE Notification"><a class="iconCenter" href="#mpenotificationinfo" role="tab"><i id="mpenotification" class="pi-iconMachine"><span class="badge badge-notify bell-notification" id="mpenotification_number"></span></i></a></li>
+                <li class="" title="Report Information"><a class="iconCenter" href="#reports" role="tab"><i class="pi-iconStaffing"></i></a></li>
                 <li class="" title=""><a class="iconCenter" href="#home" role="tab"><i class="pi-iconMenuOpen"></i></a></li>
                 <!--<li class="" title="View Ports"><a class="" href="#viewports" role="tab"><i class="pi-iconViewport"></i></a></li>-->
             </ul>
