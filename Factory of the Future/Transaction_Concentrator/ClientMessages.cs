@@ -1,7 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Web;
 
 namespace Factory_of_the_Future.Transaction_Concentrator
 {
@@ -56,7 +53,7 @@ namespace Factory_of_the_Future.Transaction_Concentrator
             TC_System_Hour_and_Minute = DateTime.Now.ToString("HHmm").PadLeft(4, ' ');
             MPE_ID = "".PadLeft(2, '0');
             MPE_Name = message.MPE_Name;
-            Message_format = Sequence_Number + Request_Code +  TC_System_Month_and_Day + TC_System_Year + TC_System_Hour_and_Minute+ MPE_ID + MPE_Name;
+            Message_format = Sequence_Number + Request_Code + TC_System_Month_and_Day + TC_System_Year + TC_System_Hour_and_Minute + MPE_ID + MPE_Name;
         }
     }
     public class Host_Status

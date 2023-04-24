@@ -309,9 +309,7 @@ function createConnectionDataTable(table) {
             tempc = {
                 "title": 'Name',
                 "mDataProp": key,
-                "mRender": function (data, type, full) {
-
-                    Promise.All(addSideButton(full.ConnectionName));
+                "mRender": function (data, type, full) {              
                     if (full.ApiConnection) {
                         return full.ConnectionName + ' <span class="badge badge-pill float-right badge-info">API</span>';
                     }
@@ -419,6 +417,7 @@ function createConnectionDataTable(table) {
             else {
                 $(row).find('td:eq(3)').css('background-color', '#FFB400');
             }
+            Promise.all([addSideButton(data.ConnectionName)]);
 
 
         }
@@ -625,20 +624,6 @@ function Remove_Connection(data) {
         $('#RemoveConfirmationModal').modal();
     } catch (e) {
         console.log(e);
-    }
-}
-
-function GetConnectionStatus(data) {
-    if (data.ActiveConnection) {
-        if (data.ApiConnected) {
-            return "Online";
-        }
-        else {
-            return "Off-Line";
-        }
-    }
-    else {
-        return "Disabled";
     }
 }
 function enabletcpipudpSubmit() {

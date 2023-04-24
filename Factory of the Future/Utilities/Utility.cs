@@ -1,7 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Web;
 
 namespace Factory_of_the_Future
 {
@@ -39,7 +36,7 @@ namespace Factory_of_the_Future
             scheduledDtm = data;
             try
             {
-             
+
                 tripDtm = new DateTime(scheduledDtm.Year,
                                                 scheduledDtm.Month + 1,
                                                 scheduledDtm.DayOfMonth,
@@ -77,7 +74,7 @@ namespace Factory_of_the_Future
                 new ErrorLogger().ExceptionLog(e);
                 return DateTime.Now;
             }
-        
+
         }
         internal string SortPlan_Name_Trimer(string sortplan)
         {
@@ -139,6 +136,6 @@ namespace Factory_of_the_Future
             GC.SuppressFinalize(this);
         }
 
-      
+
     }
 }

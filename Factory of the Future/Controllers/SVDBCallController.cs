@@ -1,10 +1,6 @@
 ﻿using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Net;
-using System.Net.Http;
 using System.Threading.Tasks;
 using System.Web.Http;
 
@@ -27,7 +23,7 @@ namespace Factory_of_the_Future.Controllers
         // POST: api/SVDBCall
         public JObject Post([FromBody] JObject request_data)
         {
-            
+
             if (request_data != null)
             {
                 //start data process
@@ -35,7 +31,7 @@ namespace Factory_of_the_Future.Controllers
                 {
                     Task.Run(() => new ProcessRecvdMsg().StartProcess(JsonConvert.SerializeObject(request_data, Formatting.None), "dps_run_estm", "")).ConfigureAwait(false);
                     return new JObject();
-                   // return SV_DB_Call.GetData(request_data);
+                    // return SV_DB_Call.GetData(request_data);
                 }
                 else
                 {
@@ -49,7 +45,7 @@ namespace Factory_of_the_Future.Controllers
         }
 
         // PUT: api/SVDBCall/5
-        public void Put(int id, [FromBody]string value)
+        public void Put(int id, [FromBody] string value)
         {
         }
 

@@ -20,7 +20,7 @@ namespace Factory_of_the_Future
         public JToken tempData = null;
         public List<RouteTrips> temp;
         public RouteTrips currentRTData = null;
-       
+
 
         internal async Task<bool> LoadAsync(string data, string message_type, string connID)
         {
@@ -37,7 +37,7 @@ namespace Factory_of_the_Future
                         temp = tempData.ToObject<List<RouteTrips>>();
                         foreach (RouteTrips rt in temp)
                         {
-                            
+
                             if ((Regex.IsMatch(rt.LegStatus, "(CANCELED|DEPARTED|OMITTED)", RegexOptions.IgnoreCase)
                                 || Regex.IsMatch(rt.Status, "(CANCELED|DEPARTED|OMITTED)", RegexOptions.IgnoreCase)))
                             {
@@ -92,9 +92,9 @@ namespace Factory_of_the_Future
                                         }
                                         if (update)
                                         {
-                                           await Task.Run(() => FOTFManager.Instance.BroadcastTripsUpdate(currentRTData)).ConfigureAwait(false);
+                                            await Task.Run(() => FOTFManager.Instance.BroadcastTripsUpdate(currentRTData)).ConfigureAwait(false);
                                         }
-                                        
+
                                     }
                                     else if (AppParameters.RouteTripsList.TryAdd(rt.Id, rt))
                                     {

@@ -1,9 +1,7 @@
 ﻿using Factory_of_the_Future.Models;
 using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 using Newtonsoft.Json.Serialization;
 using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -96,7 +94,7 @@ namespace Factory_of_the_Future
 
         [JsonProperty("MPEWatchData")]
         public RunPerf MPEWatchData { get; set; } = new RunPerf();
-   
+
         [JsonProperty("MPE_Type")]
         public string MPEType { get; set; } = "";
 
@@ -119,9 +117,9 @@ namespace Factory_of_the_Future
 
         [JsonProperty("CurrentStaff")]
         public int CurrentStaff { get; set; }
-        
+
         [JsonProperty("doorNumber")]
-        public string DoorNumber { get; set; }  = "";
+        public string DoorNumber { get; set; } = "";
 
         [JsonProperty("GpioValue")]
         public int GpioValue { get; set; } = 0;
@@ -180,7 +178,7 @@ namespace Factory_of_the_Future
         public bool ActiveCondition { get; set; }
 
         [JsonProperty("CreatedDate")]
-        public DateTime CreatedDate{ get; set; }
+        public DateTime CreatedDate { get; set; }
 
         [JsonProperty("CreatedByUsername")]
         public string CreatedByUsername { get; set; } = "";
@@ -201,7 +199,7 @@ namespace Factory_of_the_Future
         public string Conditions { get; set; } = "";
 
         [JsonProperty("Warning")]
-        public int Warning { get; set; } 
+        public int Warning { get; set; }
 
         [JsonProperty("WarningAction")]
         public string WarningAction { get; set; } = "";
@@ -210,7 +208,7 @@ namespace Factory_of_the_Future
         public string WarningColor { get; set; } = "";
 
         [JsonProperty("Critical")]
-        public int Critical { get; set; } 
+        public int Critical { get; set; }
 
         [JsonProperty("CriticalAction")]
         public string CriticalAction { get; set; } = "";
@@ -226,7 +224,8 @@ namespace Factory_of_the_Future
         [JsonProperty("allTags")]
         public bool AllTags { get; set; }
     }
-    public class DoorTrip {
+    public class DoorTrip
+    {
         public string DoorNumber { get; set; }
         public string Route { get; set; }
         public string Trip { get; set; }
@@ -488,7 +487,7 @@ namespace Factory_of_the_Future
         [JsonProperty("TypeTime")]
         public DateTime Type_Time { get; set; }
 
-    }  
+    }
     //public class RPGPlan
     //{
     //    public DateTime mods_date { get; set; }

@@ -34,7 +34,7 @@ namespace Factory_of_the_Future
                     //{
                     //    tempData = _data;
                     //}
-                  
+
                     if (tempData != null && tempData.HasValues)
                     {
                         //AppParameters.RFiD.TryAdd(Guid.NewGuid().ToString(), JsonConvert.SerializeObject(tempData, Formatting.Indented));
@@ -53,7 +53,7 @@ namespace Factory_of_the_Future
 
                     }
                 }
-                        return saveToFile;
+                return saveToFile;
             }
             catch (Exception e)
             {

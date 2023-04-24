@@ -12,7 +12,7 @@ namespace Factory_of_the_Future
         private string _routetripid { get; set; }
         private StringBuilder destsites = new StringBuilder();
         private bool disposedValue;
-        private JToken Itinerary  { get; set; }
+        private JToken Itinerary { get; set; }
         private JToken legs { get; set; }
 
         public ItineraryTrip_Update(string Itineraryitem, string routetripid)

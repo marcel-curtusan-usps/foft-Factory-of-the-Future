@@ -15,7 +15,7 @@ namespace Factory_of_the_Future
                 {
                     if (logdirpath != null && logdirpath.Root.Exists)
                     {
-                     
+
                         if (logdirpath.FullName == AppParameters.CodeBase.Parent.FullName)
                         {
                             AppParameters.ActiveServer = false;
@@ -30,8 +30,8 @@ namespace Factory_of_the_Future
                             AppParameters.Logdirpath = logdirpath;
                             return true;
                         }
-                      
-                      
+
+
                     }
                     else
                     {

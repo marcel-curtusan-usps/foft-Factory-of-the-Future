@@ -1,9 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
-using Factory_of_the_Future.Models;
+﻿using Factory_of_the_Future.Models;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace Factory_of_the_Future
 {
@@ -16,7 +16,7 @@ namespace Factory_of_the_Future
         {
             try
             {
-               file_content = new FileIO().Read(string.Concat(AppParameters.Logdirpath, AppParameters.ConfigurationFloder), "DoorTripAssociation.json");
+                file_content = new FileIO().Read(string.Concat(AppParameters.Logdirpath, AppParameters.ConfigurationFloder), "DoorTripAssociation.json");
 
                 if (!string.IsNullOrEmpty(file_content))
                 {

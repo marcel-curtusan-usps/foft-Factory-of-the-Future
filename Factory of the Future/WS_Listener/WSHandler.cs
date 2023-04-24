@@ -1,21 +1,15 @@
 ﻿
 using System;
-using System.Collections.Generic;
-using System.Net;
-using System.Security.Authentication;
-using System.Security.Cryptography.X509Certificates;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
 using System.Collections.Concurrent;
+using System.Security.Authentication;
 using WebSocket4Net;
 
 namespace Factory_of_the_Future
 {
     public class WebSocketInstanceHandler
     {
-        
-       public ConcurrentDictionary<string, WebSocketInstance> instances = new ConcurrentDictionary<string, WebSocketInstance>();
+
+        public ConcurrentDictionary<string, WebSocketInstance> instances = new ConcurrentDictionary<string, WebSocketInstance>();
         public void CreateWSInstance(string name, string uri,
             OnWsMessage socketIOMessageEvent, OnWsEvent closeEvent, OnWsEvent openEvent)
         {
@@ -34,7 +28,7 @@ namespace Factory_of_the_Future
                 return null;
             }
         }
-        
+
         public void Connect(string name)
         {
             WebSocketInstance instance = GetWSInstance(name);
@@ -90,42 +84,42 @@ namespace Factory_of_the_Future
         public OnWsEvent SocketIOCloseEvent { get; set; }
         public OnWsEvent SocketIOOpenEvent { get; set; }
         WebSocket wsClient = null;
-       
+
         public void Close()
         {
-           if (wsClient != null)
+            if (wsClient != null)
             {
                 wsClient.Close();
             }
         }
-       
-       
+
+
         public void Connect(string Uri)
         {
             if (Connected)
             {
                 return;
             }
-           
-                /*
-                 * 
-                 * for secure connections where domain is outside of engineering,
-                 * use full domain specification in the uri so certificate is recognized:
-                 * 
-                 * wss:// **** .usa.dce.usps.gov *****
-                 * 
-                 * instead of
-                 * 
-                 * wss:// **** .usps.gov ****
-                 * 
-                 * */
+
+            /*
+             * 
+             * for secure connections where domain is outside of engineering,
+             * use full domain specification in the uri so certificate is recognized:
+             * 
+             * wss:// **** .usa.dce.usps.gov *****
+             * 
+             * instead of
+             * 
+             * wss:// **** .usps.gov ****
+             * 
+             * */
             if (Uri.Contains("wss"))
             {
                 wsClient = new WebSocket(Uri);
                 //wsClient.EnableAutoSendPing = true;
                 wsClient.Security.EnabledSslProtocols = SslProtocols.Tls12;
             }
-                else
+            else
             {
                 wsClient = new WebSocket(Uri);
             }
@@ -134,7 +128,7 @@ namespace Factory_of_the_Future
 
 
 
-            wsClient.Opened +=  (sender, e) =>
+            wsClient.Opened += (sender, e) =>
             {
                 Connected = true;
                 SocketIOOpenEvent();
@@ -163,7 +157,7 @@ namespace Factory_of_the_Future
                 SocketIOMessageEvent(args.Message);
             };
             wsClient.Open();
-            
+
 
 
 
@@ -171,9 +165,9 @@ namespace Factory_of_the_Future
 
 
         }
-        
-       
-    
+
+
+
 
     }
 }

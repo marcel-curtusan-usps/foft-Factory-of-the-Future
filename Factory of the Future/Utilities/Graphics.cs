@@ -1,5 +1,5 @@
-﻿using System.Drawing;
-using System;
+﻿using System;
+using System.Drawing;
 using System.IO;
 
 namespace Factory_of_the_Future
@@ -61,7 +61,7 @@ namespace Factory_of_the_Future
         public static string BitmapToBase64String(Bitmap
                                            bmp)
         {
-            
+
             using (var stream = new MemoryStream())
             {
                 bmp.Save(stream, System.Drawing.Imaging.ImageFormat.Png);

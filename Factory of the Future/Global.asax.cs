@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http.Headers;
-using System.Security.Claims;
 using System.Security.Principal;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -10,7 +9,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Web;
 using System.Web.Http;
-using System.Web.Security;
 using System.Web.SessionState;
 
 namespace Factory_of_the_Future
@@ -59,7 +57,7 @@ namespace Factory_of_the_Future
             if (authHeader != null)
             {
                 var encoding = Encoding.GetEncoding("iso-8859-1");
-                if (authHeader.EndsWith("/") )
+                if (authHeader.EndsWith("/"))
                 {
                     var identity = new GenericIdentity("APIUser");
                     SetPrincipal(new GenericPrincipal(identity, null));
@@ -81,7 +79,7 @@ namespace Factory_of_the_Future
             }
             else
             {
-              ipAddress = request.ServerVariables["REMOTE_ADDR"];
+                ipAddress = request.ServerVariables["REMOTE_ADDR"];
 
             }
             if (Regex.IsMatch(request.Path, "(RFID)$", RegexOptions.IgnoreCase))
@@ -179,7 +177,7 @@ namespace Factory_of_the_Future
                 {
                     new ErrorLogger().ExceptionLog(ex);
                 }
-             
+
                 //ADUser adUser = new ADUser
                 //{
                 //    UserId = Regex.Replace(HttpContext.Current.Request.LogonUserIdentity.Name, @"(USA\\|ENG\\)", "").Trim(),
@@ -211,10 +209,10 @@ namespace Factory_of_the_Future
                 //Session[SessionKey.ApplicationFullName] = AppParameters.AppSettings["APPLICATION_FULLNAME"].ToString();
                 //Session[SessionKey.ApplicationAbbr] = AppParameters.AppSettings["APPLICATION_NAME"].ToString();
                 //Session[SessionKey.IsAuthenticated] = HttpContext.Current.Request.IsAuthenticated;
-         
+
                 //Task.Run(() => AddUserToList(adUser));
 
-               
+
 
             }
         }
@@ -223,7 +221,7 @@ namespace Factory_of_the_Future
         {
             try
             {
-               await Task.Run(() => new UserLog().LoginUser(session)).ConfigureAwait(false);
+                await Task.Run(() => new UserLog().LoginUser(session)).ConfigureAwait(false);
             }
             catch (Exception e)
             {
@@ -234,7 +232,7 @@ namespace Factory_of_the_Future
         {
             try
             {
-               await Task.Run(() => new UserLog().LogoutUser(session)).ConfigureAwait(false);
+                await Task.Run(() => new UserLog().LogoutUser(session)).ConfigureAwait(false);
             }
             catch (Exception e)
             {
@@ -370,7 +368,7 @@ namespace Factory_of_the_Future
                             new ErrorLogger().ExceptionLog(e);
                             continue;
                         }
-                     
+
                     }
                 }
                 return item;

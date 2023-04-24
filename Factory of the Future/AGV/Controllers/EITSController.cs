@@ -1,11 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net;
-using System.Net.Http;
-using System.Web.Http;
-using Factory_of_the_Future.AGV.Models;
+﻿using Factory_of_the_Future.AGV.Models;
 using Newtonsoft.Json.Linq;
+using System.Collections.Generic;
+using System.Web.Http;
 
 namespace Factory_of_the_Future.Controllers
 {
@@ -34,7 +30,7 @@ namespace Factory_of_the_Future.Controllers
             switch (request_data["ACTION"].ToString())
             {
                 case "HEARTBEATSTATUS":
-                  return CreatedAtRoute("DefaultApi", new { id = "0" }, new EITS_Messages.HeartbeatResponse());
+                    return CreatedAtRoute("DefaultApi", new { id = "0" }, new EITS_Messages.HeartbeatResponse());
                 case "MOVEREQUEST":
                     return CreatedAtRoute("DefaultApi", new { id = "0" }, new EITS_Messages.MessageResponse(request_data.ToObject<EITS_Messages.RequestMission>()));
                 case "CANCEL_JOB":

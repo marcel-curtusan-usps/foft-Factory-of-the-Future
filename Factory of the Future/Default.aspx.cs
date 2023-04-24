@@ -1,10 +1,7 @@
 ﻿using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Web;
-using System.Web.UI;
 using System.Web.UI.WebControls;
 
 namespace Factory_of_the_Future
@@ -34,8 +31,8 @@ namespace Factory_of_the_Future
                     ["ApplicationAbbr"] = Session[SessionKey.ApplicationAbbr].ToString(),
                     ["ConnectionList"] = JsonConvert.SerializeObject(AppParameters.RunningConnection.Connection.Select(y => y.ConnectionInfo).ToList(), Formatting.Indented),
                     ["AppSetting"] = JsonConvert.SerializeObject(AppParameters.AppSettings, Formatting.Indented)
-            
-            };
+
+                };
                 return JsonConvert.SerializeObject(SessionInfo, Formatting.Indented);
 
             }

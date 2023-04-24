@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json;
+﻿using Factory_of_the_Future.Models;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Concurrent;
@@ -8,13 +9,12 @@ using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Net.Security;
 using System.Net.Sockets;
 using System.Security.Cryptography;
+using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Threading.Tasks;
-using System.Net.Security;
-using System.Security.Cryptography.X509Certificates;
-using Factory_of_the_Future.Models;
 
 namespace Factory_of_the_Future
 {
@@ -55,11 +55,11 @@ namespace Factory_of_the_Future
         private static readonly string SaltKey = "S@LT&KEY";
         private static readonly string VIKey = "@1B2c3D4e5F6g7H8";
         public static string NoImage { get; set; } = "";
-        public static List<ThroughputValues> MachineThroughputMax {get; set; } 
+        public static List<ThroughputValues> MachineThroughputMax { get; set; }
 
         //public static Dictionary<string, string> CameraMapping { get; set; }
         public static ConcurrentDictionary<string, MachData> MPEWatchData { get; set; } = new ConcurrentDictionary<string, MachData>();
-       // public static ConcurrentDictionary<string, CoordinateSystem> CoordinateSystem { get; set; } = new ConcurrentDictionary<string, CoordinateSystem>();  
+        // public static ConcurrentDictionary<string, CoordinateSystem> CoordinateSystem { get; set; } = new ConcurrentDictionary<string, CoordinateSystem>();  
         public static ConcurrentDictionary<string, Cameras> CameraInfoList { get; set; } = new ConcurrentDictionary<string, Cameras>();
         //public static ConcurrentDictionary<string, Connection> ConnectionList { get; set; } = new ConcurrentDictionary<string, Connection>();
         public static ConcurrentDictionary<string, DoorTrip> DoorTripAssociation { get; set; } = new ConcurrentDictionary<string, DoorTrip>();
@@ -92,7 +92,7 @@ namespace Factory_of_the_Future
             { "America/New_York", "Eastern Standard Time" },
             { "Pacific/Honolulu", "Hawaiian Standard Time" }
         };
-      
+
         internal static void Start()
         {
             try
@@ -155,22 +155,19 @@ namespace Factory_of_the_Future
                     }
                 }
                 NoImage = "data:image/jpeg;base64," + ImageToByteArray("NoImageFeed.jpg");
-                ///load app settings
+                // Load app settings and data asynchronously
                 if (GetAppSettings())
                 {
-                    //load MpeWatch Site Info
-                    GetMPEWatchSite();
-                    ///load Default Notification settings
-                    GetNotificationDefault();
-                    //loadtemp
-                    LoadTempIndoorapData("Project_Data.json");
-                    // load max (y-axis) values for machines
-                    GetMachineThroughputMax("MachineThroughputMax.csv");
-                    //load the door and trip association 
-                    Task.Run(() => new Load().GetDoorTripAssociationAsync()).ConfigureAwait(false);
-                    ///load default connection setting.
-                    Task.Run(() => new Load().GetConnectionDefaultAsync()).ConfigureAwait(false);
+                    Task.Run(() =>
+                    {
+                        GetMPEWatchSite();
+                        GetNotificationDefault();
+                        LoadTempIndoorapData("Project_Data.json");
+                        GetMachineThroughputMax("MachineThroughputMax.csv");
+                    }).ConfigureAwait(false);
 
+                    Task.Run(() => new Load().GetDoorTripAssociationAsync()).ConfigureAwait(false);
+                    Task.Run(() => new Load().GetConnectionDefaultAsync()).ConfigureAwait(false);
                 }
             }
             catch (Exception ex)
@@ -220,7 +217,8 @@ namespace Factory_of_the_Future
                 string[] lines = file_content.Split('\r');
                 bool first = true;
                 List<ThroughputValues> throughputMaximums = new List<ThroughputValues>();
-                foreach (string line in lines) {
+                foreach (string line in lines)
+                {
                     if (!first)
                     {
                         string thisLine = line.Trim();
@@ -263,7 +261,7 @@ namespace Factory_of_the_Future
             try
             {
                 string file_content = new FileIO().Read(string.Concat(CodeBase.Parent.FullName.ToString(), Appsetting), "AppSettings.json");
-                
+
                 if (!string.IsNullOrEmpty(file_content))
                 {
                     AppSettings = JObject.Parse(file_content);
@@ -278,7 +276,7 @@ namespace Factory_of_the_Future
                     if (AppSettings.HasValues && AppSettings.ContainsKey("LOG_LOCATION"))
                     {
                         LoglocationSetup();
-                       
+
                     }
                     return true;
                 }
@@ -286,7 +284,7 @@ namespace Factory_of_the_Future
                 {
                     return false;
                 }
-               
+
             }
             catch (Exception e)
             {
@@ -402,7 +400,7 @@ namespace Factory_of_the_Future
 
                     if (!string.IsNullOrEmpty(data))
                     {
-                       await Task.Run(() => new ProcessRecvdMsg().StartProcess(data, "getProjectInfo", "")).ConfigureAwait(false);
+                        await Task.Run(() => new ProcessRecvdMsg().StartProcess(data, "getProjectInfo", "")).ConfigureAwait(false);
                     }
                 }
             }
@@ -410,9 +408,9 @@ namespace Factory_of_the_Future
             {
                 new ErrorLogger().ExceptionLog(e);
             }
-            finally 
+            finally
             {
-                data = string.Empty; 
+                data = string.Empty;
             }
         }
         private static string GetLocalIpAddress()
@@ -566,7 +564,7 @@ namespace Factory_of_the_Future
                 MissionList = new ConcurrentDictionary<string, Mission>();
                 NotificationList = new ConcurrentDictionary<string, Notification>();
 
-               
+
                 ZoneInfo = new ConcurrentDictionary<string, ZoneInfo>();
                 //IndoorMap = new ConcurrentDictionary<string, BackgroundImage>();
                 //TagsList = new ConcurrentDictionary<string, GeoMarker>();
@@ -586,7 +584,7 @@ namespace Factory_of_the_Future
                     {
                         conn.Stop();
                     }
-                  
+
                 }
                 RunningConnection = new ConnectionContainer();
                 //ConnectionList = new ConcurrentDictionary<string, Connection>();
@@ -643,10 +641,10 @@ namespace Factory_of_the_Future
                 jsonResolver.IgnoreProperty(typeof(Marker), "base64Image");
                 jsonResolver.IgnoreProperty(typeof(BackgroundImage), "updateStatus");
                 jsonResolver.IgnoreProperty(typeof(BackgroundImage), "rawData");
-                
+
                 var serializerSettings = new JsonSerializerSettings();
                 serializerSettings.ContractResolver = jsonResolver;
-                return JsonConvert.SerializeObject(coordinateSystems,Formatting.Indented, serializerSettings);
+                return JsonConvert.SerializeObject(coordinateSystems, Formatting.Indented, serializerSettings);
             }
             catch (Exception e)
             {

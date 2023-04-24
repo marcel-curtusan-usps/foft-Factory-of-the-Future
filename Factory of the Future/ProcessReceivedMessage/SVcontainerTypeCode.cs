@@ -29,9 +29,9 @@ namespace Factory_of_the_Future
                         sVcontainerTypeCodes = tempData.ToObject<List<SVCodeTypes>>();
                         foreach (SVCodeTypes newCodeType in sVcontainerTypeCodes)
                         {
-                            if (AppParameters.SVcontainerTypeCode.ContainsKey(newCodeType.Code) && AppParameters.SVcontainerTypeCode.TryGetValue(newCodeType.Code, out SVCodeTypes currentCodeType) )
+                            if (AppParameters.SVcontainerTypeCode.ContainsKey(newCodeType.Code) && AppParameters.SVcontainerTypeCode.TryGetValue(newCodeType.Code, out SVCodeTypes currentCodeType))
                             {
-                                if (AppParameters.SVcontainerTypeCode.TryUpdate(newCodeType.Code, newCodeType, currentCodeType) )
+                                if (AppParameters.SVcontainerTypeCode.TryUpdate(newCodeType.Code, newCodeType, currentCodeType))
                                 {
                                     //
                                 }

@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace Factory_of_the_Future
 {
-    internal class MPEWatch_RPGPlan :IDisposable
+    internal class MPEWatch_RPGPlan : IDisposable
     {
         private bool disposedValue;
         public dynamic _data { get; protected set; }
@@ -106,7 +106,7 @@ namespace Factory_of_the_Future
                 return 0;
             }
 
-            expectedThroughput = !string.IsNullOrEmpty(rpgExpectedThruput)? rpgExpectedThruput.Split(' ').FirstOrDefault() : "0";
+            expectedThroughput = !string.IsNullOrEmpty(rpgExpectedThruput) ? rpgExpectedThruput.Split(' ').FirstOrDefault() : "0";
             if (Int32.TryParse(expectedThroughput, out int intExpectedThroughput) == true)
             {
                 return intExpectedThroughput;
@@ -141,21 +141,21 @@ namespace Factory_of_the_Future
                 {
                     MPEPlanData.Add(new RPGPlan
                     {
-                        MachineNum = !string.IsNullOrEmpty(item["machine_num"].ToString()) || item["machine_num"].ToString() == "0"? Convert.ToInt32(item["machine_num"]) : 0,
+                        MachineNum = !string.IsNullOrEmpty(item["machine_num"].ToString()) || item["machine_num"].ToString() == "0" ? Convert.ToInt32(item["machine_num"]) : 0,
                         SortProgramName = new Utility().SortPlan_Name_Trimer(item["sort_program_name"].ToString()),
                         RpgStartDtm = (DateTime)item["rpg_start_dtm"],
                         RpgEndDtm = (DateTime)item["rpg_end_dtm"],
-                        RpgPiecesFed = !string.IsNullOrEmpty(item["rpg_pieces_fed"].ToString()) || item["rpg_pieces_fed"].ToString() == "0"? Convert.ToInt32(item["rpg_pieces_fed"].ToString()) : 0,
-                        MailOperationNbr = !string.IsNullOrEmpty(item["mail_operation_nbr"].ToString())? GetMailOperationNumber(item["mail_operation_nbr"].ToString()) : 0,
-                        RpgExpectedThruput = !string.IsNullOrEmpty(item["rpg_expected_thruput"].ToString())? GetExpectedThroughput(item["rpg_expected_thruput"].ToString()) : 0,
+                        RpgPiecesFed = !string.IsNullOrEmpty(item["rpg_pieces_fed"].ToString()) || item["rpg_pieces_fed"].ToString() == "0" ? Convert.ToInt32(item["rpg_pieces_fed"].ToString()) : 0,
+                        MailOperationNbr = !string.IsNullOrEmpty(item["mail_operation_nbr"].ToString()) ? GetMailOperationNumber(item["mail_operation_nbr"].ToString()) : 0,
+                        RpgExpectedThruput = !string.IsNullOrEmpty(item["rpg_expected_thruput"].ToString()) ? GetExpectedThroughput(item["rpg_expected_thruput"].ToString()) : 0,
                         MpewStart15minDtm = (DateTime)item["mpew_start_15min_dtm"],
                         MpewEnd15minDtm = (DateTime)item["mpew_end_15min_dtm"],
                         MpeType = item["mpe_type"].ToString(),
                         MpeName = item["mpe_name"].ToString(),
                         Id = string.Concat(item["mpe_name"].ToString(),
-                             !string.IsNullOrEmpty(item["machine_num"].ToString())? item["machine_num"].ToString() : "0",
+                             !string.IsNullOrEmpty(item["machine_num"].ToString()) ? item["machine_num"].ToString() : "0",
                              new Utility().SortPlan_Name_Trimer(item["sort_program_name"].ToString()),
-                             !string.IsNullOrEmpty(item["mail_operation_nbr"].ToString())? item["mail_operation_nbr"].ToString() : "0",
+                             !string.IsNullOrEmpty(item["mail_operation_nbr"].ToString()) ? item["mail_operation_nbr"].ToString() : "0",
                              ConvertDateTimeToId((DateTime)item["rpg_start_dtm"]))
                     });
                 }

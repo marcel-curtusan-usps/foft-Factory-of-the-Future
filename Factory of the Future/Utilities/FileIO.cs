@@ -3,11 +3,10 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
-using System.Threading;
 
 namespace Factory_of_the_Future
 {
-    public class FileIO :IDisposable
+    public class FileIO : IDisposable
     {
         private bool disposedValue;
         public string filecontect { get; protected set; } = "";
@@ -26,7 +25,7 @@ namespace Factory_of_the_Future
                 }
                 else
                 {
-                   filesList = maindir.GetFiles(FileName, SearchOption.TopDirectoryOnly).Select(x => x).ToList();
+                    filesList = maindir.GetFiles(FileName, SearchOption.TopDirectoryOnly).Select(x => x).ToList();
 
                     if (filesList.Count > 0)
                     {
@@ -132,7 +131,7 @@ namespace Factory_of_the_Future
                 if (disposing)
                 {
                     // TODO: dispose managed state (managed objects)
-                
+
                 }
 
                 // TODO: free unmanaged resources (unmanaged objects) and override finalizer

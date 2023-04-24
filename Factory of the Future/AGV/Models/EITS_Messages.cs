@@ -1,14 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Web;
-using System.ComponentModel.DataAnnotations;
 
 namespace Factory_of_the_Future.AGV.Models
 {
     public class EITS_Messages
     {
-  
+
         public class MessageResponse
         {
             public string OBJECT_TYPE { get; set; } = "COMMAND_RESPONSE";
@@ -34,7 +30,7 @@ namespace Factory_of_the_Future.AGV.Models
             public MessageResponse(LocationStatus locationStatus)
             {
                 ACTION = locationStatus.ACTION;
-                RESPONSE_CODE = new ProcessMessage().LocationStatus(locationStatus); 
+                RESPONSE_CODE = new ProcessMessage().LocationStatus(locationStatus);
                 RESPONSE_MSG = "0";
             }
         }
@@ -56,8 +52,8 @@ namespace Factory_of_the_Future.AGV.Models
                     //}
                     //else
                     //{
-                        return -1;
-                   // }
+                    return -1;
+                    // }
                 }
                 catch (Exception)
                 {

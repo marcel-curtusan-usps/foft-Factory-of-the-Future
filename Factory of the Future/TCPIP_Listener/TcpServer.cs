@@ -2,12 +2,9 @@
 using System;
 using System.Collections.Concurrent;
 using System.Diagnostics;
-using System.Linq;
 using System.Net;
 using System.Net.Sockets;
-using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
 
 namespace Factory_of_the_Future
 {
@@ -249,7 +246,7 @@ namespace Factory_of_the_Future
 
             // Perform the first server accept
             IsAccepting = true;
-           // Task.Run(() => updateConnection());
+            // Task.Run(() => updateConnection());
             StartAccept(_acceptorEventArg);
 
             return true;
@@ -267,7 +264,7 @@ namespace Factory_of_the_Future
 
             // Stop accepting new clients
             IsAccepting = false;
-           // Task.Run(() => updateConnection());
+            // Task.Run(() => updateConnection());
             // Reset acceptor event arg
             _acceptorEventArg.Completed -= OnAsyncCompleted;
 
@@ -328,11 +325,11 @@ namespace Factory_of_the_Future
         {
             // Socket must be cleared since the context object is being reused
             e.AcceptSocket = null;
-            
+
             // Async accept a new client connection
             if (!_acceptorSocket.AcceptAsync(e))
             {
-             
+
                 ProcessAccept(e);
             }
         }
@@ -456,21 +453,23 @@ namespace Factory_of_the_Future
 
         #endregion
 
- 
+
 
         #region Server handlers
 
         /// <summary>
         /// Handle server starting notification
         /// </summary>
-        protected virtual void OnStarting() {
+        protected virtual void OnStarting()
+        {
             Conn.Status = "Strating";
             FOTFManager.Instance.BroadcastQSMUpdate(Conn);
         }
         /// <summary>
         /// Handle server started notification
         /// </summary>
-        protected virtual void OnStarted() {
+        protected virtual void OnStarted()
+        {
             Conn.Status = "Running";
             Conn.ActiveConnection = true;
             FOTFManager.Instance.BroadcastQSMUpdate(Conn);
@@ -478,7 +477,8 @@ namespace Factory_of_the_Future
         /// <summary>
         /// Handle server stopping notification
         /// </summary>
-        protected virtual void OnStopping() {
+        protected virtual void OnStopping()
+        {
             Conn.Status = " Stopping";
             Conn.ActiveConnection = false;
             FOTFManager.Instance.BroadcastQSMUpdate(Conn);
@@ -486,7 +486,8 @@ namespace Factory_of_the_Future
         /// <summary>
         /// Handle server stopped notification
         /// </summary>
-        protected virtual void OnStopped() {
+        protected virtual void OnStopped()
+        {
             Conn.Status = " Stopped/Deactived";
             Conn.ActiveConnection = false;
             FOTFManager.Instance.BroadcastQSMUpdate(Conn);

@@ -1,19 +1,16 @@
-﻿using Microsoft.AspNet.SignalR;
+﻿using Factory_of_the_Future.Models;
+using Microsoft.AspNet.SignalR;
 using Microsoft.AspNet.SignalR.Hubs;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.DirectoryServices;
-using System.DirectoryServices.AccountManagement;
 using System.Linq;
-using System.Security.Principal;
+using System.Net.Http;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Net.Http;
-using Factory_of_the_Future.Models;
 
 namespace Factory_of_the_Future
 {
@@ -200,7 +197,7 @@ namespace Factory_of_the_Future
                             MPE.Properties.DPSData = GetDPSData(MPE.Properties.MPEWatchData.CurSortplan);
                             MPE.Properties.StaffingData = GetStaffingSortplan(string.Concat(MPE.Properties.MPEWatchData.MpeType, MPE.Properties.MPEWatchData.MpeNumber, MPE.Properties.MPEWatchData.CurSortplan));
                         }
-                        
+
                         BroadcastMachineStatus(MPE, cs.Id);
                         BroadcastMPEStatus(MPE.Properties.MPEWatchData, mpeId);
                     });
@@ -212,7 +209,7 @@ namespace Factory_of_the_Future
             }
         }
 
-      
+
 
         private RunPerf GetMPEPerfData(string mpeId)
         {
@@ -234,14 +231,14 @@ namespace Factory_of_the_Future
             Clients.Group("MPEZones").updateMachineStatus(mPE, id);
 
         }
-        internal void BroadcastMachineAlertStatus(int status, string floorId,  string zoneId)
+        internal void BroadcastMachineAlertStatus(int status, string floorId, string zoneId)
         {
             Clients.Group("MPEZones").updateMPEAlertStatus(status, floorId, zoneId);
 
         }
         private void BroadcastMPEStatus(RunPerf mPEWatchData, string mpeId)
         {
-            Clients.Group("MPE_"+ mpeId).updateMPEStatus(mPEWatchData);
+            Clients.Group("MPE_" + mpeId).updateMPEStatus(mPEWatchData);
         }
         #endregion
         public List<RouteTrips> GetDigitalDockDoorList(string id)
@@ -287,7 +284,7 @@ namespace Factory_of_the_Future
                 newtempgZone.Properties.Id = Guid.NewGuid().ToString();
                 newtempgZone.Properties.RawData = "";
                 newtempgZone.Properties.Source = "user";
-               
+
                 if (Regex.IsMatch(newtempgZone.Properties.ZoneType, "^(MPE|Machine|Bin)", RegexOptions.IgnoreCase))
                 {
                     //get the MPE Number
@@ -312,7 +309,7 @@ namespace Factory_of_the_Future
                         newtempgZone.Properties.DoorNumber = n.ToString();
                     }
                     newtempgZone.Properties.DockDoorData = GetDigitalDockDoorList(newtempgZone.Properties.DoorNumber);
- 
+
                 }
                 if (CoordinateSystem.ContainsKey(newtempgZone.Properties.FloorId))
                 {
@@ -1344,8 +1341,8 @@ namespace Factory_of_the_Future
                    && Regex.IsMatch(r.Value.Dest, destSites, RegexOptions.IgnoreCase)
                    && r.Value.Origin != r.Value.Dest
                    && !r.Value.hasLoadScans
-                   && !r.Value.containerTerminate 
-                   && !r.Value.containerAtDest 
+                   && !r.Value.containerTerminate
+                   && !r.Value.containerAtDest
                    && r.Value.hasCloseScans).Select(y => y.Value).ToList();
                     NotloadedContainers = TripContainer.Count();
                     AllContainer = TripContainer;
@@ -1502,7 +1499,7 @@ namespace Factory_of_the_Future
                     trip.DoorId = string.Concat("99D", data["DoorNumber"].ToString().PadLeft(4, '-'));
                     trip.DoorNumber = data["DoorNumber"].ToString();
                     Task.Run(() => saveDoorTripAssociation(trip.DoorNumber, trip.Route, trip.Trip)).ConfigureAwait(false);
-                    
+
                     UpdateDoorZone(trip.DoorNumber);
                 }
             }
@@ -1733,7 +1730,7 @@ namespace Factory_of_the_Future
                 return StaffingSortplanData;
             }
         }
-       
+
         private DeliveryPointSequence GetDPSData(string curSortplan)
         {
             DeliveryPointSequence DPSData = new DeliveryPointSequence();
@@ -1741,7 +1738,7 @@ namespace Factory_of_the_Future
             {
                 string tempsortplan = curSortplan.Length >= 7 ? curSortplan.Substring(0, 7) : curSortplan;
                 AppParameters.DPSList.TryGetValue(tempsortplan, out DPSData);
-                
+
                 return DPSData;
             }
             catch (Exception ex)
@@ -1750,7 +1747,7 @@ namespace Factory_of_the_Future
                 return DPSData;
             }
         }
-      
+
         /* updates tag name after end user clicks on a vehicle, selects edit, and enters
            a new tag name and submits
         */
@@ -2001,7 +1998,7 @@ namespace Factory_of_the_Future
                 new ErrorLogger().ExceptionLog(e);
             }
         }
-        public void BroadcastDockDoorStatus(GeoZone dockDoor, string floorId, string zoneId )
+        public void BroadcastDockDoorStatus(GeoZone dockDoor, string floorId, string zoneId)
         {
             Clients.Group("DockDoorZones").updateDockDoorData(dockDoor, floorId, zoneId);
             if (dockDoor.Properties.DockDoorData.Any())
@@ -2190,7 +2187,7 @@ namespace Factory_of_the_Future
             {
                 if (!string.IsNullOrEmpty(data))
                 {
-                  Task.Run(() => AppParameters.RunningConnection.Remove(JsonConvert.DeserializeObject<Connection>(data))).ConfigureAwait(false); 
+                    Task.Run(() => AppParameters.RunningConnection.Remove(JsonConvert.DeserializeObject<Connection>(data))).ConfigureAwait(false);
                 }
 
                 return null;
@@ -2240,10 +2237,10 @@ namespace Factory_of_the_Future
 
                 if (fileUpdate)
                 {
-                  
+
                     new FileIO().Write(string.Concat(AppParameters.Logdirpath, AppParameters.ConfigurationFloder), "Project_Data.json", AppParameters.ZoneOutPutdata(CoordinateSystem.Select(x => x.Value).ToList()));
                 }
-                
+
                 return null; // CoordinateSystem[floorID].Zones.Where(w => w.Key == id).Select(s => s.Value).ToList();
             }
             catch (Exception e)

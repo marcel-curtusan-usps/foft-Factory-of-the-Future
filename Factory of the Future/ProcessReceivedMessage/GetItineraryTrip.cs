@@ -7,9 +7,9 @@ namespace Factory_of_the_Future
     internal class GetItineraryTrip : IDisposable
     {
         private string _Itineraryitem { get; set; }
-        private string _routetripid { get; set; }    
+        private string _routetripid { get; set; }
         public List<Leg> Legs { get; set; } = new List<Leg>();
-        private JToken Itinerary { get; set; } 
+        private JToken Itinerary { get; set; }
         private JToken legs { get; set; }
         private bool disposedValue;
 

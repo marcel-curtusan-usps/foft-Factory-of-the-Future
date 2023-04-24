@@ -1,9 +1,6 @@
 ﻿using Factory_of_the_Future.Models;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Reactive.Disposables;
-using System.Security.Policy;
 
 namespace Factory_of_the_Future
 {
@@ -14,10 +11,10 @@ namespace Factory_of_the_Future
             List<LoadedCtrHuDetail> containers = _containers.LoadedCtrHuDetails;
             try
             {
-              
+
                 foreach (LoadedCtrHuDetail d in containers)
                 {
-                  
+
                     if (!AppParameters.Containers.ContainsKey(d.Barcode) && AppParameters.Containers.TryGetValue(d.Barcode, out Container CurrentContatiner))
                     {
                         //
@@ -28,7 +25,7 @@ namespace Factory_of_the_Future
             {
                 new ErrorLogger().ExceptionLog(e);
             }
-            finally  
+            finally
             {
                 _containers = null;
                 containers = null;

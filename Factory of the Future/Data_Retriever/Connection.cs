@@ -1,21 +1,15 @@
-﻿using Newtonsoft.Json;
+﻿using Factory_of_the_Future.Models;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
-using System.IO;
 using System.Linq;
 using System.Net;
-using System.Net.Security;
 using System.Net.Sockets;
-using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Collections.Generic;
-using System.Reactive;
-using System.Web.Http;
-using Factory_of_the_Future.Models;
 
-namespace Factory_of_the_Future 
+namespace Factory_of_the_Future
 {
     public delegate void OnWsMessage(string msg);
     public delegate void OnWsEvent();
@@ -32,7 +26,7 @@ namespace Factory_of_the_Future
 
         protected override void OnReceived(EndPoint endpoint, byte[] buffer, long offset, long size)
         {
-         
+
             string incomingData = Encoding.UTF8.GetString(buffer, (int)offset, (int)size);
             try
             {
@@ -62,7 +56,7 @@ namespace Factory_of_the_Future
                 new ErrorLogger().ExceptionLog(e);
                 new ErrorLogger().CustomLog(incomingData, string.Concat((string)AppParameters.AppSettings.Property("APPLICATION_NAME").Value, "UDP_InVaild_Message"));
             }
-           
+
             ReceiveAsync();
 
         }
@@ -121,7 +115,7 @@ namespace Factory_of_the_Future
                 {
                     SleptTime += 1000;
                     Thread.Sleep(1000);
-         
+
                     if (!ConnectionInfo.ActiveConnection)
                     {
                         Status = 4;
@@ -429,7 +423,7 @@ namespace Factory_of_the_Future
             FOTFManager.Instance.BroadcastQSMUpdate(ConnectionInfo);
             try
             {
-                 NASS_CODE = AppParameters.AppSettings["FACILITY_NASS_CODE"].ToString();
+                NASS_CODE = AppParameters.AppSettings["FACILITY_NASS_CODE"].ToString();
 
                 requestBody = new JObject();
                 DateTime dtNow = DateTime.Now;
@@ -609,7 +603,7 @@ namespace Factory_of_the_Future
                 {
                     if (!string.IsNullOrEmpty(lkey))
                     {
-                        requestBody = new JObject {["lkey"] = lkey };
+                        requestBody = new JObject { ["lkey"] = lkey };
                         formatUrl = string.Format(ConnectionInfo.Url, ConnectionInfo.MessageType);
                     }
                 }
@@ -673,7 +667,7 @@ namespace Factory_of_the_Future
                         ConnectionInfo.ApiConnected = false;
                         ConnectionInfo.Status = "No data";
                         FOTFManager.Instance.BroadcastQSMUpdate(ConnectionInfo);
-                       // Task.Run(() => updateConnection(this));
+                        // Task.Run(() => updateConnection(this));
                     }
                 }
                 else
@@ -682,7 +676,7 @@ namespace Factory_of_the_Future
                     ConnectionInfo.ApiConnected = false;
                     ConnectionInfo.Status = "Invaild URL";
                     FOTFManager.Instance.BroadcastQSMUpdate(ConnectionInfo);
-                   // Task.Run(() => updateConnection(this));
+                    // Task.Run(() => updateConnection(this));
                 }
                 Status = 0;
             }
@@ -695,7 +689,7 @@ namespace Factory_of_the_Future
                 Dispose();
             }
         }
-     
+
         private void _ThreadStop()
         {
             Stopping = true;

@@ -321,52 +321,132 @@ $(function () {
     })
     $zoneSelect = $("#zoneselect").selectize(options);
     /**User  Modal***/
-    function EditUserInfo(layerindex) {
+    //function EditUserInfo(layerindex) {
+    //    $('#modaluserHeader_ID').text('Edit User Info');
+
+    //    if ($.isNumeric(layerindex)) {
+    //        layerindex = parseInt(layerindex);
+    //    }
+    //    sidebar.close();
+    //    try {
+    //        if (map._layers[layerindex].hasOwnProperty("feature")) {
+    //            if (map._layers[layerindex].feature.hasOwnProperty("properties")) {
+    //                $('input[type=text][name=empId]').val(map._layers[layerindex].feature.properties.Employee_EIN);
+    //                $('input[type=text][name=empName]').val(map._layers[layerindex].feature.properties.Employee_Name);
+    //                $('input[type=text][name=tag_name]').val(map._layers[layerindex].feature.properties.name);
+    //                $('input[type=text][name=tag_id]').val(map._layers[layerindex].feature.properties.id);
+    //                $('button[id=usertagsubmitBtn]').off().on('click', function () {
+    //                    try {
+    //                        $('button[id=usertagsubmitBtn]').prop('disabled', true);
+    //                        let jsonObject = {};
+    //                        $('input[type=text][name=empId]').val() !== map._layers[layerindex].feature.properties.Employee_EIN ? jsonObject.Employee_EIN = $('input[type=text][name=employee_ein]').val() : "";
+    //                        $('input[type=text][name=empName]').val() !== map._layers[layerindex].feature.properties.Employee_Name ? jsonObject.Employee_Name = $('input[type=text][name=employee_name]').val() : "";
+    //                        if (!$.isEmptyObject(jsonObject)) {
+    //                            jsonObject.id = map._layers[layerindex].feature.properties.id;
+    //                            $.connection.FOTFManager.server.editTagInfo(JSON.stringify(jsonObject)).done(function (Data) {
+    //                                if (Data.hasOwnProperty(ERROR_MESSAGE)) {
+    //                                    $('span[id=error_usertagsubmitBtn]').text(Data.ERROR_MESSAGE);
+    //                                }
+    //                                if (Data[0].hasOwnProperty("MESSAGE_TYPE")) {
+    //                                    $('span[id=error_usertagsubmitBtn]').text(Data.MESSAGE_TYPE);
+    //                                    setTimeout(function () { $("#UserTag_Modal").modal('hide'); }, 3000);
+    //                                }
+    //                            });
+    //                        }
+    //                        else {
+    //                            $('span[id=error_usertagsubmitBtn]').text("No Tag Data has been Updated");
+    //                            setTimeout(function () { $("#UserTag_Modal").modal('hide'); }, 3000);
+    //                        }
+    //                    } catch (e) {
+    //                        $('span[id=error_usertagsubmitBtn]').text(e);
+    //                    }
+    //                });
+
+    //                $('#UserTag_Modal').modal();
+    //            }
+    //        }
+    //    } catch (e) {
+    //        console.log(e);
+    //    }
+    //}
+    function EditUserInfo(layerIndex) {
+        // Set the header text of the modal
         $('#modaluserHeader_ID').text('Edit User Info');
 
-        if ($.isNumeric(layerindex)) {
-            layerindex = parseInt(layerindex);
+        // Convert the layer index to an integer if it's numeric
+        if ($.isNumeric(layerIndex)) {
+            layerIndex = parseInt(layerIndex);
         }
+
+        // Close the sidebar
         sidebar.close();
+
         try {
-            if (map._layers[layerindex].hasOwnProperty("feature")) {
-                if (map._layers[layerindex].feature.hasOwnProperty("properties")) {
-                    $('input[type=text][name=empId]').val(map._layers[layerindex].feature.properties.Employee_EIN);
-                    $('input[type=text][name=empName]').val(map._layers[layerindex].feature.properties.Employee_Name);
-                    $('input[type=text][name=tag_name]').val(map._layers[layerindex].feature.properties.name);
-                    $('input[type=text][name=tag_id]').val(map._layers[layerindex].feature.properties.id);
-                    $('button[id=usertagsubmitBtn]').off().on('click', function () {
-                        try {
-                            $('button[id=usertagsubmitBtn]').prop('disabled', true);
-                            let jsonObject = {};
-                            $('input[type=text][name=empId]').val() !== map._layers[layerindex].feature.properties.Employee_EIN ? jsonObject.Employee_EIN = $('input[type=text][name=employee_ein]').val() : "";
-                            $('input[type=text][name=empName]').val() !== map._layers[layerindex].feature.properties.Employee_Name ? jsonObject.Employee_Name = $('input[type=text][name=employee_name]').val() : "";
-                            if (!$.isEmptyObject(jsonObject)) {
-                                jsonObject.id = map._layers[layerindex].feature.properties.id;
-                                $.connection.FOTFManager.server.editTagInfo(JSON.stringify(jsonObject)).done(function (Data) {
-                                    if (Data.hasOwnProperty(ERROR_MESSAGE)) {
-                                        $('span[id=error_usertagsubmitBtn]').text(Data.ERROR_MESSAGE);
-                                    }
-                                    if (Data[0].hasOwnProperty("MESSAGE_TYPE")) {
-                                        $('span[id=error_usertagsubmitBtn]').text(Data.MESSAGE_TYPE);
-                                        setTimeout(function () { $("#UserTag_Modal").modal('hide'); }, 3000);
-                                    }
-                                });
+            // Check if the layer has a "feature" property
+            const layer = map._layers[layerIndex];
+            const feature = layer?.feature;
+            if (!feature) {
+                return; // Exit if the layer does not have a feature
+            }
+
+            // Check if the feature has a "properties" property
+            const properties = feature.properties;
+            if (!properties) {
+                return; // Exit if the feature does not have properties
+            }
+
+            // Populate the input fields with the feature properties
+            $('input[type=text][name=empId]').val(properties.Employee_EIN);
+            $('input[type=text][name=empName]').val(properties.Employee_Name);
+            $('input[type=text][name=tag_name]').val(properties.name);
+            $('input[type=text][name=tag_id]').val(properties.id);
+
+            // Set up the click event for the submit button
+            $('button[id=usertagsubmitBtn]').off().on('click', function () {
+                try {
+                    // Disable the submit button to prevent multiple submissions
+                    $(this).prop('disabled', true);
+
+                    // Create an object to store the updated properties
+                    const updatedProperties = {};
+
+                    // Check if the "Employee_EIN" property has changed
+                    if ($('input[type=text][name=empId]').val() !== properties.Employee_EIN) {
+                        updatedProperties.Employee_EIN = $('input[type=text][name=employee_ein]').val();
+                    }
+
+                    // Check if the "Employee_Name" property has changed
+                    if ($('input[type=text][name=empName]').val() !== properties.Employee_Name) {
+                        updatedProperties.Employee_Name = $('input[type=text][name=employee_name]').val();
+                    }
+
+                    if (!$.isEmptyObject(updatedProperties)) {
+                        // Add the "id" property to the object
+                        updatedProperties.id = properties.id;
+
+                        // Send the updated properties to the server
+                        $.connection.FOTFManager.server.editTagInfo(JSON.stringify(updatedProperties)).done(function (data) {
+                            if (data.hasOwnProperty(ERROR_MESSAGE)) {
+                                $('span[id=error_usertagsubmitBtn]').text(data.ERROR_MESSAGE);
                             }
-                            else {
-                                $('span[id=error_usertagsubmitBtn]').text("No Tag Data has been Updated");
+                            if (data[0].hasOwnProperty("MESSAGE_TYPE")) {
+                                $('span[id=error_usertagsubmitBtn]').text(data.MESSAGE_TYPE);
                                 setTimeout(function () { $("#UserTag_Modal").modal('hide'); }, 3000);
                             }
-                        } catch (e) {
-                            $('span[id=error_usertagsubmitBtn]').text(e);
-                        }
-                    });
-
-                    $('#UserTag_Modal').modal();
+                        });
+                    } else {
+                        $('span[id=error_usertagsubmitBtn]').text("No Tag Data has been Updated");
+                        setTimeout(function () { $("#UserTag_Modal").modal('hide'); }, 3000);
+                    }
+                } catch (error) {
+                    $('span[id=error_usertagsubmitBtn]').text(error);
                 }
-            }
-        } catch (e) {
-            console.log(e);
+            });
+
+            // Show the modal
+            $('#UserTag_Modal').modal();
+        } catch (error) {
+            console.log(error);
         }
     }
 
@@ -391,18 +471,34 @@ $(function () {
     });
     //handling Disconnect
     $.connection.hub.disconnected(function () {
-        connecttimer = setTimeout(function () {
-            if (connectattp > 10) {
-                clearTimeout(connecttimer);
-            }
-            connectattp += 1;
-            conntoggle.state('conn-off');
-            $.connection.hub.start().done(function () {
-                console.log("Connected time" + new Date($.now()));
-            }).catch(function (err) {
-                console.log(err.toString());
-            });
-        }, 10000); // Restart connection after 10 seconds.
+        //connecttimer = setTimeout(function () {
+        //    if (connectattp > 10) {
+        //        clearTimeout(connecttimer);
+        //    }
+        //    connectattp += 1;
+        //    conntoggle.state('conn-off');
+        //    $.connection.hub.start().done(function () {
+        //        console.log("Connected time" + new Date($.now()));
+        //    }).catch(function (err) {
+        //        console.log(err.toString());
+        //    });
+        //}, 10000); // Restart connection after 10 seconds.
+        if (connecttimer) {
+            clearTimeout(connecttimer);
+        }
+        if (connectattp <= 10) {
+            connectattp++;
+            console.log("Connection lost. Attempting to reconnect... (attempt " + connectattp + ")");
+            connecttimer = setTimeout(function () {
+                $.connection.hub.start().done(function () {
+                    console.log("Connected at " + new Date($.now()));
+                }).fail(function (err) {
+                    console.log("Could not reconnect: " + err);
+                });
+            }, 10000); // Restart connection after 10 seconds.
+        } else {
+            console.log("Connection lost permanently. Please refresh the page to try again.");
+        }
     });
     //Raised when the underlying transport has reconnected.
     $.connection.hub.reconnecting(function () {

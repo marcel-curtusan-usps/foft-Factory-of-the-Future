@@ -1,11 +1,9 @@
 ﻿using Factory_of_the_Future.Models;
-using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using System.Web;
 
 namespace Factory_of_the_Future.ProcessReceivedMessage
 {
@@ -39,12 +37,13 @@ namespace Factory_of_the_Future.ProcessReceivedMessage
                                 {
                                     cs.Zones.Where(f => (f.Value.Properties.ZoneType == "Machine" || f.Value.Properties.ZoneType == "MPEZone") && f.Value.Properties.Name == GPIOitem.MachineId)
                                             .Select(y => y.Value)
-                                            .ToList().ForEach(async zone => {
+                                            .ToList().ForEach(async zone =>
+                                            {
                                                 if (zone.Properties.GpioValue != GPIOitem.GpioStatus)
                                                 {
                                                     zone.Properties.GpioValue = GPIOitem.GpioStatus;
                                                     await Task.Run(() => FOTFManager.Instance.BroadcastMachineAlertStatus(GPIOitem.GpioStatus, cs.Id, zone.Properties.Id)).ConfigureAwait(false);
-                                                }  
+                                                }
 
                                             });
 
@@ -58,7 +57,7 @@ namespace Factory_of_the_Future.ProcessReceivedMessage
                                     //        if (mpeList[i].Properties.GpioValue != gpioValue)
                                     //        {
                                     //            mpeList[i].Properties.GpioValue = gpioValue;
-                                             
+
                                     //        }
                                     //    }
                                     //}
@@ -67,12 +66,12 @@ namespace Factory_of_the_Future.ProcessReceivedMessage
                         }
                     }
                 }
-               // return saveToFile;
+                // return saveToFile;
             }
             catch (Exception e)
             {
                 new ErrorLogger().ExceptionLog(e);
-               // return saveToFile;
+                // return saveToFile;
             }
             finally
             {

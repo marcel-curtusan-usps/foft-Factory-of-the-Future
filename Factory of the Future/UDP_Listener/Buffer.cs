@@ -229,7 +229,7 @@ namespace Factory_of_the_Future
         {
             int length = Encoding.UTF8.GetMaxByteCount(text.Length);
             Reserve(_size + length);
-            long result = Encoding.UTF8.GetBytes(text, 0 , length).Length;
+            long result = Encoding.UTF8.GetBytes(text, 0, length).Length;
             _size += result;
             return result;
         }

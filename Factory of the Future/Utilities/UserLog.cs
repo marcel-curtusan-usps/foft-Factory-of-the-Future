@@ -110,7 +110,7 @@ namespace Factory_of_the_Future
                 // TODO: set large fields to null
                 disposedValue = true;
                 session = null;
-                sqlQuery= null;
+                sqlQuery = null;
             }
         }
 

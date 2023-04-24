@@ -110,7 +110,7 @@ namespace Factory_of_the_Future
             {
                 new ErrorLogger().ExceptionLog(e);
             }
-            
+
         }
         private static string FormatBytes(long bytes)
         {

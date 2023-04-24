@@ -177,8 +177,8 @@ namespace Factory_of_the_Future
 
                     }
                 }
-               await Task.Run(() => RemoveContainers()).ConfigureAwait(false);
-              
+                await Task.Run(() => RemoveContainers()).ConfigureAwait(false);
+
                 return saveToFile;
             }
             catch (Exception e)
@@ -231,7 +231,7 @@ namespace Factory_of_the_Future
                 _connID = string.Empty;
                 Containers = null;
                 _container = null;
-               
+
             }
         }
 

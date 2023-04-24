@@ -38,7 +38,7 @@ namespace Factory_of_the_Future
                     new FileIO().Write(string.Concat(AppParameters.Logdirpath, AppParameters.LogFloder, "\\"), type + "_" + DateTime.Now.ToString("yyyy-MM-dd") + ".txt", errorBuilder.ToString());
                 }
             }
-            
+
         }
     }
 }

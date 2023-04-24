@@ -2,8 +2,6 @@
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
@@ -60,7 +58,7 @@ namespace Factory_of_the_Future
                                         CraftName = GetCraftName(qtitem.TagName),
                                         BadgeId = GetBadgeId(qtitem.TagName),
                                         Color = !string.IsNullOrEmpty(qtitem.Color) ? qtitem.Color : "",
-                                        Zones =  qtitem.LocationZoneIds,
+                                        Zones = qtitem.LocationZoneIds,
                                         TagVisible = !(qtitem.LocationMovementStatus == "noData")
                                     }
                                 };
@@ -83,14 +81,14 @@ namespace Factory_of_the_Future
                                         {
                                             if (!new Regex("^(Id|RFid|IsWearingTag|Zones|CraftName|TagUpdate|EmpId|Emptype|EmpName|IsLdcAlert|CurrentLDCs|Tacs|Sels|RawData|CameraData|Camera_Data|Vehicle_Status_Data|Missison|Source|NotificationId|RoutePath)$", RegexOptions.IgnoreCase).IsMatch(prop.Name))
                                             {
-                                             if (prop.GetValue(marker.Properties, null).ToString() != prop.GetValue(currentMarker.Properties, null).ToString())
+                                                if (prop.GetValue(marker.Properties, null).ToString() != prop.GetValue(currentMarker.Properties, null).ToString())
                                                 {
                                                     prop.SetValue(currentMarker.Properties, prop.GetValue(marker.Properties, null));
                                                     update = true;
                                                 }
                                             }
                                         }
-                                        if (update ) 
+                                        if (update)
                                         {
                                             if (currentMarker.Properties.TagType == "Person")
                                             {
@@ -154,7 +152,7 @@ namespace Factory_of_the_Future
                                 TagType = GetTagType(qtitem.TagName),
                                 CraftName = GetCraftName(qtitem.TagName),
                                 BadgeId = GetBadgeId(qtitem.TagName),
-                                Zones= qtitem.LocationZoneIds,
+                                Zones = qtitem.LocationZoneIds,
                                 Color = qtitem.Color
                             }
                         };

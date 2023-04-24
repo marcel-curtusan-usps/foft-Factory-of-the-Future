@@ -4,9 +4,6 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.IO;
-using System.Linq;
-using System.Web;
-using System.Web.Http;
 
 namespace Factory_of_the_Future
 {
@@ -19,7 +16,7 @@ namespace Factory_of_the_Future
 
         internal JObject GetData(JObject request_data)
         {
-            
+
             try
             {
                 if (!string.IsNullOrEmpty(AppParameters.AppSettings["ORACONNSVSTRING"].ToString()))
@@ -56,7 +53,7 @@ namespace Factory_of_the_Future
                                                         }
                                                         else
                                                         {
-                                                            command.Parameters.Add(string.Concat(":", property.Key) ?? "", OracleDbType.TimeStamp,(DateTime)property.Value, ParameterDirection.Input);
+                                                            command.Parameters.Add(string.Concat(":", property.Key) ?? "", OracleDbType.TimeStamp, (DateTime)property.Value, ParameterDirection.Input);
                                                         }
                                                     }
                                                 }
@@ -81,7 +78,7 @@ namespace Factory_of_the_Future
                                         {
                                             new ErrorLogger().ExceptionLog(oe);
                                         }
-                                       
+
                                     }
                                 }
                             }
@@ -95,7 +92,7 @@ namespace Factory_of_the_Future
                 new ErrorLogger().ExceptionLog(ex);
                 return result;
             }
- 
+
         }
 
         protected virtual void Dispose(bool disposing)

@@ -10,7 +10,7 @@ namespace Factory_of_the_Future
         private bool disposedValue;
         private string _mpeType = "";
         private int _mpeNumber = 0;
-        private string _binFullBins ="";
+        private string _binFullBins = "";
         private bool saveToFile;
         private List<string> FullBins = null;
         private List<string> FullBinList = new List<string>();

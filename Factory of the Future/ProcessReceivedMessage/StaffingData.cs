@@ -1,12 +1,12 @@
-﻿using System;
+﻿using Factory_of_the_Future.Models;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
-using Factory_of_the_Future.Models;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 
 namespace Factory_of_the_Future
 {
@@ -51,7 +51,7 @@ namespace Factory_of_the_Future
                                     }
                                 }
                             }
-                        
+
                         }
                         else
                         {
@@ -74,17 +74,18 @@ namespace Factory_of_the_Future
             {
 
                 new ErrorLogger().ExceptionLog(e);
-               return Task.FromResult(saveToFile);
+                return Task.FromResult(saveToFile);
             }
-            finally {
+            finally
+            {
                 Dispose();
             }
-                
+
         }
 
         private List<Staff> GetStaffList(IEnumerable<JToken> staff)
         {
-           StaffData = new List<Staff>();
+            StaffData = new List<Staff>();
             try
             {
                 foreach (JToken staff_item in staff)

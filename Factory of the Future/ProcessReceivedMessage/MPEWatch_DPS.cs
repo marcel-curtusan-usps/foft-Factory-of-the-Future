@@ -1,11 +1,10 @@
-﻿using System;
+﻿using Factory_of_the_Future.Models;
+using Newtonsoft.Json.Linq;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using System.Text.RegularExpressions;
 using System.Threading.Tasks;
-using Factory_of_the_Future.Models;
-using Newtonsoft.Json.Linq;
 
 namespace Factory_of_the_Future
 {
@@ -35,7 +34,7 @@ namespace Factory_of_the_Future
                     dpsInfo = tempData.SelectToken("data");
                     if (dpsInfo != null && dpsInfo.HasValues)
                     {
-                     
+
                         NewMPEDPS = GetMPEDPSList(dpsInfo);
                         if (NewMPEDPS != null)
                         {
@@ -92,7 +91,7 @@ namespace Factory_of_the_Future
 
                         //}
                     }
-            
+
                 }
             }
             catch (Exception e)
@@ -133,7 +132,7 @@ namespace Factory_of_the_Future
                         TimeToCompOptimal = Convert.ToInt32(item["time_to_comp_optimal"].ToString()),
                         ThruputActual = Convert.ToInt32(item["thruput_actual"].ToString()),
                         TimeToCompActual = Convert.ToInt32(item["time_to_comp_actual"].ToString()),
-                        Rpg2ndPassEnd = item["rpg_2nd_pass_end"].ToString() == "0" ? DateTime.MinValue : DateTime.Parse(item["rpg_2nd_pass_end"].ToString()) ,// (DateTime)item["rpg_2nd_pass_end"],
+                        Rpg2ndPassEnd = item["rpg_2nd_pass_end"].ToString() == "0" ? DateTime.MinValue : DateTime.Parse(item["rpg_2nd_pass_end"].ToString()),// (DateTime)item["rpg_2nd_pass_end"],
                         TimeTo2ndPassOptimal = Convert.ToInt32(item["time_to_2nd_pass_optimal"].ToString()),
                         Rec2ndPassStartOptimal = item["rec_2nd_pass_start_optimal"].ToString() == "0" ? DateTime.MinValue : DateTime.Parse(item["rec_2nd_pass_start_optimal"].ToString()),// (DateTime)item["rec_2nd_pass_start_optimal"],
                         TimeTo2ndPassActual = Convert.ToInt32(item["time_to_2nd_pass_actual"].ToString()),

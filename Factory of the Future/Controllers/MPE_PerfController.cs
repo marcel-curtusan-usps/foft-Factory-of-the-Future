@@ -1,13 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net;
-using System.Net.Http;
-using System.Threading.Tasks;
-using System.Web.Http;
-using Factory_of_the_Future.Models;
+﻿using Factory_of_the_Future.Models;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+using System.Web.Http;
 
 namespace Factory_of_the_Future.Controllers
 {
@@ -41,8 +39,8 @@ namespace Factory_of_the_Future.Controllers
                 return null;
             }
         }
-            // POST: api/MPE_Perf
-            public IHttpActionResult Post([FromBody] JToken request_data)
+        // POST: api/MPE_Perf
+        public IHttpActionResult Post([FromBody] JToken request_data)
         {
             //handle bad requests
             if (!ModelState.IsValid)
@@ -66,7 +64,7 @@ namespace Factory_of_the_Future.Controllers
         }
 
         // PUT: api/MPE_Perf/5
-        public void Put(int id, [FromBody]string value)
+        public void Put(int id, [FromBody] string value)
         {
         }
 

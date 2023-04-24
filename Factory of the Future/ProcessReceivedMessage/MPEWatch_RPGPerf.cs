@@ -1,12 +1,12 @@
-﻿using System;
+﻿using Factory_of_the_Future.Models;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
-using Factory_of_the_Future.Models;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 
 namespace Factory_of_the_Future
 {
@@ -106,7 +106,7 @@ namespace Factory_of_the_Future
                         }
                         //foreach (JObject item in machineInfo.Children())
                         //{
-                            
+
                         //    item["cur_sortplan"] = AppParameters.SortPlan_Name_Trimer(item["cur_sortplan"].ToString());
                         //    item["cur_operation_id"] = !string.IsNullOrEmpty(item["cur_operation_id"].ToString()) ? item["cur_operation_id"].ToString() : "0";
                         //    item["rpg_start_dtm"] = "";
@@ -303,7 +303,8 @@ namespace Factory_of_the_Future
             List<RunPerf> MPErunPerfData = new List<RunPerf>();
             try
             {
-                foreach (JObject item in machineInfo.Children()) {
+                foreach (JObject item in machineInfo.Children())
+                {
                     //if the MPE is not running then reset the time.
                     if (item["cur_sortplan"].ToString() == "0")
                     {
@@ -340,7 +341,7 @@ namespace Factory_of_the_Future
                         SweepRecrej3 = !string.IsNullOrEmpty(item["sweep_recrej3"].ToString()) ? Convert.ToInt32(item["sweep_recrej3"].ToString()) : 0,
                         MpeId = string.Concat(item["mpe_type"].ToString().Trim(), "-", Convert.ToInt32(item["mpe_number"].ToString()).ToString().PadLeft(3, '0'))
                     });
-                   
+
                 }
                 return MPErunPerfData;
             }

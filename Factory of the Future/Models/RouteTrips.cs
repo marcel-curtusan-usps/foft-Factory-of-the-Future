@@ -1,8 +1,6 @@
 ﻿using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Web;
 
 namespace Factory_of_the_Future
 {
@@ -117,11 +115,14 @@ namespace Factory_of_the_Future
         public string IsAODU { get; set; } = "";
 
         [JsonProperty("tripMin")]
-        public int TripMin {
-            get {
+        public int TripMin
+        {
+            get
+            {
                 return new Utility().Get_TripMin(ScheduledDtm);
             }
-            set {
+            set
+            {
                 return;
             }
         }

@@ -44,7 +44,8 @@ namespace Factory_of_the_Future.Controllers
             else
             {
                 connection = CreateConnection();
-                if (connection != null) {
+                if (connection != null)
+                {
                     connection.ApiConnected = true;
                     connection.ActiveConnection = true;
                     connection.Status = "Running";
@@ -55,7 +56,7 @@ namespace Factory_of_the_Future.Controllers
                 {
                     return CreatedAtRoute("DefaultApi", new { message = "Invalid Data in the Request." }, 0);
                 }
-               
+
             }
             return CreatedAtRoute("DefaultApi", new { id = "0" }, 0);
         }
@@ -75,7 +76,7 @@ namespace Factory_of_the_Future.Controllers
                     CreatedDate = DateTime.Now,
                     DataRetrieve = 0,
                     Url = "http://" + AppParameters.ServerIpAddress + "/api/IncomingData",
-                    Port = 80, 
+                    Port = 80,
                     MessageType = "data_listener",
                     LasttimeApiConnected = DateTime.Now,
                 };

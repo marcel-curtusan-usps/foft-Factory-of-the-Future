@@ -247,7 +247,7 @@ namespace Factory_of_the_Future
         /// </summary>
         /// <param name="buffer">Buffer to send as a span of bytes</param>
         /// <returns>Size of sent data</returns>
-        public virtual long Send(byte[] buffer, int offset, int size )
+        public virtual long Send(byte[] buffer, int offset, int size)
         {
             if (buffer is null)
             {
@@ -260,7 +260,7 @@ namespace Factory_of_the_Future
             }
 
             // Sent data to the client
-            long sent = Socket.Send(buffer,offset , size ,SocketFlags.None, out SocketError ec);
+            long sent = Socket.Send(buffer, offset, size, SocketFlags.None, out SocketError ec);
             if (sent > 0)
             {
                 // Update statistic

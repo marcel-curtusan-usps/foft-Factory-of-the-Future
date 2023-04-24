@@ -1,12 +1,11 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
+using System;
 using System.IO;
 using System.Net;
 using System.Net.Security;
 using System.Reflection;
 using System.Security.Cryptography.X509Certificates;
-using System.Threading.Tasks;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 
 namespace Factory_of_the_Future
 {
@@ -100,8 +99,8 @@ namespace Factory_of_the_Future
                 return "";
             }
             finally
-            { 
-             Dispose();
+            {
+                Dispose();
             }
         }
         private bool AcceptAllCertifications(object sender, X509Certificate certificate, X509Chain chain, SslPolicyErrors sslPolicyErrors)

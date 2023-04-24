@@ -4,8 +4,6 @@ using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Net;
-using System.Net.Http;
 using System.Threading.Tasks;
 using System.Web.Http;
 
@@ -71,7 +69,7 @@ namespace Factory_of_the_Future.Controllers
                     if (request_data.HasValues)
                     {
                         //Send data to be processed.
-                       await Task.Run(() => new ProcessRecvdMsg().StartProcess(request_data, conn.MessageType, conn.Id)).ConfigureAwait(false);
+                        await Task.Run(() => new ProcessRecvdMsg().StartProcess(request_data, conn.MessageType, conn.Id)).ConfigureAwait(false);
                     }
                 }
             }
@@ -115,7 +113,7 @@ namespace Factory_of_the_Future.Controllers
         }
 
         // PUT: api/RFID/5
-        public void Put(int id, [FromBody]string value)
+        public void Put(int id, [FromBody] string value)
         {
         }
 

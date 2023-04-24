@@ -1,8 +1,6 @@
 ﻿using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Web;
 
 namespace Factory_of_the_Future
 {
@@ -21,7 +19,7 @@ namespace Factory_of_the_Future
         public bool Visible { get; set; } = false;
 
         [JsonProperty("zones")]
-        public List<string> Zones { get; set; } = new List<string>(); 
+        public List<string> Zones { get; set; } = new List<string>();
 
         [JsonProperty("color")]
         public string Color { get; set; } = "";
@@ -51,7 +49,7 @@ namespace Factory_of_the_Future
         public string TagType { get; set; } = "";
 
         [JsonProperty("Tag_Update")]
-        public bool TagUpdate { get; set; } 
+        public bool TagUpdate { get; set; }
 
         [JsonProperty("empId")]
         public string EmpId { get; set; } = "";
@@ -72,7 +70,7 @@ namespace Factory_of_the_Future
 
         [JsonProperty("tacs")]
         //public string Tacs { get; set; } = "";
-        public Tacs Tacs { get; set; } = new Tacs(); 
+        public Tacs Tacs { get; set; } = new Tacs();
 
         [JsonProperty("sels")]
         public string Sels { get; set; } = "";

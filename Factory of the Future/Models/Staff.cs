@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
 
 namespace Factory_of_the_Future.Models
 {
@@ -17,7 +12,7 @@ namespace Factory_of_the_Future.Models
 
         [JsonProperty("sortplan")]
         public string Sortplan { get; set; } = "";
-        
+
         [JsonProperty("clerk")]
         public double Clerk { get; set; } = 0.0;
 

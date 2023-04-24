@@ -2,7 +2,6 @@
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -34,7 +33,7 @@ namespace Factory_of_the_Future
                         Containers = JsonConvert.DeserializeObject<SVtripLoadContainers>(_data);
                         if (Containers != null && Containers.LoadedCtrHuDetails.Any())
                         {
-                         await Task.Run(() => { new LoadContainers().LoadAsync(Containers, siteId); }).ConfigureAwait(false);
+                            await Task.Run(() => { new LoadContainers().LoadAsync(Containers, siteId); }).ConfigureAwait(false);
                         }
                     }
                 }
@@ -43,8 +42,9 @@ namespace Factory_of_the_Future
             {
                 new ErrorLogger().ExceptionLog(e);
             }
-            finally { 
-                Dispose(); 
+            finally
+            {
+                Dispose();
             }
         }
 

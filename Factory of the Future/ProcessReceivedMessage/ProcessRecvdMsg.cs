@@ -4,12 +4,7 @@ using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.Data;
-using System.Drawing;
-using System.IO;
 using System.Linq;
-using System.Net;
-using System.Reflection;
-using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
@@ -39,12 +34,12 @@ namespace Factory_of_the_Future
                         ///*Web cameras*/
                         case "Cameras":
                             await Task.Run(() => new CameraData().LoadAsync(_data, _Message_type, _connID)).ConfigureAwait(false);
-                          //  CameraData(_data, _connID);
+                            //  CameraData(_data, _connID);
                             break;
                         /*Quuppa Data Start*/
                         case "getTagData":
                             await Task.Run(() => new TagData().LoadAsync(_data, _Message_type, _connID)).ConfigureAwait(false);
-                           // TagPosition(_data, _connID);
+                            // TagPosition(_data, _connID);
                             break;
                         case "getProjectInfo":
                             await Task.Run(() => new ProjectData().LoadAsync(_data, _Message_type, _connID)).ConfigureAwait(false);
@@ -58,7 +53,7 @@ namespace Factory_of_the_Future
                             break;
                         case "trips":
                             await Task.Run(() => new TripData().LoadAsync(_data, _Message_type, _connID)).ConfigureAwait(false);
-                           // Trips(data, Message_type, connID);
+                            // Trips(data, Message_type, connID);
                             break;
                         case "container":
                             await Task.Run(() => new ContainerData().LoadAsync(_data, _Message_type, _connID)).ConfigureAwait(false);
@@ -106,7 +101,7 @@ namespace Factory_of_the_Future
                             if (!_data.ContainsKey("NASS_CODE"))
                             {
                                 _data["NASS_CODE"] = AppParameters.AppSettings["FACILITY_NASS_CODE"].ToString();
-                            } 
+                            }
                             ERRORWITHWORK(_data);
                             break;
                         case "MISSIONFAILED":
@@ -139,7 +134,7 @@ namespace Factory_of_the_Future
                 }
                 else
                 {
-                  await Task.Run(() => AppParameters.RunningConnection.ConnectionUpdate(connID, 4)).ConfigureAwait(false); 
+                    await Task.Run(() => AppParameters.RunningConnection.ConnectionUpdate(connID, 4)).ConfigureAwait(false);
                 }
             }
             catch (Exception e)
@@ -186,7 +181,7 @@ namespace Factory_of_the_Future
         //                        {
         //                            mach_type = "SPBSTS";
         //                        }
-                                
+
         //                        sortplan = AppParameters.SortPlan_Name_Trimer(sortplan);
         //                        string mch_sortplan_id = mach_type + "-" + machine_no + "-" + sortplan;
         //                        string newtempData = JsonConvert.SerializeObject(Dataitem, Formatting.None);
@@ -320,9 +315,9 @@ namespace Factory_of_the_Future
         //                if (AppParameters.RouteTripsList.TryUpdate(routetripid, newRTData, existingVal))
         //                {
         //                    //update 
-                            
+
         //                }
-                       
+
         //            }
         //            else
         //            {
@@ -332,7 +327,7 @@ namespace Factory_of_the_Future
         //                    //add
         //                }
         //            }
-                  
+
         //            if (newRTData.OperDate != null)
         //            {
         //                Task.Run(() => new ItineraryTrip_Update(GetItinerary(newRTData.Route, newRTData.Trip, AppParameters.AppSettings["FACILITY_NASS_CODE"].ToString(), AppParameters.GetSvDate(newRTData.OperDate)), routetripid));
@@ -401,11 +396,11 @@ namespace Factory_of_the_Future
             {
                 if (data != null)
                 {
-                    if(message_type == "getTacsVsSels_Summary")
+                    if (message_type == "getTacsVsSels_Summary")
                     {
                         JToken tempData = JToken.Parse(data);
                         //JArray ja = JArray.Parse(data);
-                        foreach(JObject item in tempData.Cast<JObject>())
+                        foreach (JObject item in tempData.Cast<JObject>())
                         {
                             string badgeID = !string.IsNullOrEmpty(item["tagId"].ToString()) ? item["tagId"].ToString() : "";
 
@@ -465,9 +460,9 @@ namespace Factory_of_the_Future
                     }
 
 
-                    
+
                 }
-               
+
 
             }
             catch (Exception e)
@@ -475,7 +470,7 @@ namespace Factory_of_the_Future
                 new ErrorLogger().ExceptionLog(e);
                 Task.Run(() => UpdateConnection(conID, "error"));
             }
-            
+
         }
         private void MPE_Watch_Id(string data)
         {
@@ -524,7 +519,7 @@ namespace Factory_of_the_Future
         //                    item["rpg_end_dtm"] = "";
         //                    item["expected_throughput"] = "0";
         //                    MPEWatch_FullBins(item);
-                            
+
         //                    total_volume = item.ContainsKey("tot_sortplan_vol") ? item["tot_sortplan_vol"].ToString().Trim() : "0";
         //                    int.TryParse(item.ContainsKey("rpg_est_vol") ? item["rpg_est_vol"].ToString().Trim() : "0", out int rpg_volume);
         //                    double.TryParse(item.ContainsKey("rpg_est_vol") ? item["cur_thruput_ophr"].ToString().Trim() : "0", out double throughput);
@@ -642,7 +637,7 @@ namespace Factory_of_the_Future
         //                     //        {
         //                     //            machineZone.Properties.ZoneUpdate = true;
         //                     //        }
-                                     
+
         //                     //    }
         //                     //});
 
@@ -655,7 +650,7 @@ namespace Factory_of_the_Future
         //            }
         //            machineInfo = null;
         //            data = null;
-                  
+
         //        }
         //        else
         //        {
@@ -793,9 +788,9 @@ namespace Factory_of_the_Future
         //                    {
         //                        RPG_item.expected_throughput = !string.IsNullOrEmpty(RPG_item.rpg_expected_thruput) ? RPG_item.rpg_expected_thruput.Split(' ').FirstOrDefault() : "0";
         //                    }
-          
+
         //                    RPG_item.sort_program_name = AppParameters.SortPlan_Name_Trimer(RPG_item.sort_program_name);
-        
+
         //                    string RPGKey = AppParameters.MPEPRPGList.Where(x => x.Value.mpe_type == RPG_item.mpe_type &&
         //                    x.Value.machine_num == RPG_item.machine_num &&
         //                    x.Value.sort_program_name == RPG_item.sort_program_name &&
@@ -850,7 +845,7 @@ namespace Factory_of_the_Future
         //                    }
         //                }
         //            }
-                
+
         //    }
         //    catch (Exception ex)
         //    {
@@ -903,7 +898,7 @@ namespace Factory_of_the_Future
         //                            });
 
         //                    }
-                            
+
         //                }
 
         //                Task.Run(() => UpdateConnection(conID, "good"));
@@ -973,7 +968,7 @@ namespace Factory_of_the_Future
                             }
                         }
                     }
-                 
+
                     //remove request id
                     if (AppParameters.MissionList.Keys.Count > 0)
                     {
@@ -994,15 +989,15 @@ namespace Factory_of_the_Future
                             existingVal.Properties.ZoneUpdate = true;
                         });
                         //drop-off location
-                          cs.Zones.Where(f => f.Value.Properties.ZoneType == "AGVLocation" &&
-                          f.Value.Properties.Name == tempMission.DROPOFF_LOCATION).Select(y => y.Value).ToList().ForEach(existingVal =>
-                          {
-                              existingVal.Properties.MissionList = AppParameters.MissionList.Where(r => r.Value.DROPOFF_LOCATION == tempMission.DROPOFF_LOCATION
-                                  && r.Value.STATE == "Active").Select(y => y.Value).ToList();
-                              existingVal.Properties.ZoneUpdate = true;
-                          });
+                        cs.Zones.Where(f => f.Value.Properties.ZoneType == "AGVLocation" &&
+                        f.Value.Properties.Name == tempMission.DROPOFF_LOCATION).Select(y => y.Value).ToList().ForEach(existingVal =>
+                        {
+                            existingVal.Properties.MissionList = AppParameters.MissionList.Where(r => r.Value.DROPOFF_LOCATION == tempMission.DROPOFF_LOCATION
+                                && r.Value.STATE == "Active").Select(y => y.Value).ToList();
+                            existingVal.Properties.ZoneUpdate = true;
+                        });
                     }
-                   
+
                 }
             }
             catch (Exception e)
@@ -1045,7 +1040,7 @@ namespace Factory_of_the_Future
                             }
 
                         }
-                       
+
                     }
                 }
             }
@@ -1101,9 +1096,9 @@ namespace Factory_of_the_Future
                                 });
                             }
                         }
-                        
+
                     }
-                   
+
                     //remove request id
                     if (AppParameters.MissionList.Keys.Count > 0)
                     {
@@ -1113,7 +1108,7 @@ namespace Factory_of_the_Future
                         }
                     }
 
-                  
+
                     //update AGV zone location
                     foreach (CoordinateSystem cs in FOTFManager.Instance.CoordinateSystem.Values)
                     {
@@ -1134,7 +1129,7 @@ namespace Factory_of_the_Future
                             existingVal.Properties.ZoneUpdate = true;
                         });
                     }
-                   
+
                 }
             }
             catch (Exception e)
@@ -1171,14 +1166,14 @@ namespace Factory_of_the_Future
                     //    ["MissionPickupTime"] = (DateTime)data["time".ToUpper()]
                     //};
 
-                
-             
+
+
                     //merge changes 
                     if (AppParameters.MissionList.TryGetValue(tempMission.REQUEST_ID, out Mission existinnMision))
                     {
                         existinnMision.MISSIONPICKUPTIME = tempMission.MISSIONPICKUPTIME;
                         existinnMision.VEHICLE = tempMission.VEHICLE;
-                        existinnMision.VEHICLE_NUMBER = tempMission.VEHICLE_NUMBER; 
+                        existinnMision.VEHICLE_NUMBER = tempMission.VEHICLE_NUMBER;
                         existinnMision.PICKUP_LOCATION = tempMission.PICKUP_LOCATION;
                         existinnMision.DROPOFF_LOCATION = tempMission.DROPOFF_LOCATION;
                         existinnMision.END_LOCATION = tempMission.END_LOCATION;
@@ -1187,7 +1182,7 @@ namespace Factory_of_the_Future
                         existinnMision.STATE = tempMission.STATE;
                     }
                     //match with vehicle
-                 
+
                     foreach (CoordinateSystem cs in FOTFManager.Instance.CoordinateSystem.Values)
                     {
                         //get the key for the tag.
@@ -1210,7 +1205,7 @@ namespace Factory_of_the_Future
                             }
                         }
                     }
-               
+
                     //update AGV zone location
                     foreach (CoordinateSystem cs in FOTFManager.Instance.CoordinateSystem.Values)
                     {
@@ -1231,7 +1226,7 @@ namespace Factory_of_the_Future
                             existingVal.Properties.ZoneUpdate = true;
                         });
                     }
-               
+
                 }
             }
             catch (Exception e)
@@ -1319,7 +1314,7 @@ namespace Factory_of_the_Future
                             }
                         }
                     }
-                  
+
                     //update AGV zone location
                     foreach (CoordinateSystem cs in FOTFManager.Instance.CoordinateSystem.Values)
                     {
@@ -1386,7 +1381,7 @@ namespace Factory_of_the_Future
                         }
                         else
                         {
-                            if (AppParameters.MissionList.TryRemove(tempMission.REQUEST_ID,  out Mission valueOut))
+                            if (AppParameters.MissionList.TryRemove(tempMission.REQUEST_ID, out Mission valueOut))
                             {
                                 if (!AppParameters.MissionList.TryAdd(tempMission.REQUEST_ID, tempMission))
                                 {
@@ -1562,7 +1557,7 @@ namespace Factory_of_the_Future
                 if (string.IsNullOrEmpty(x) && string.IsNullOrEmpty(y))
                 {
                     temp = new JArray(0.0, 0.0);
-                    
+
                 }
                 else
                 {
@@ -1604,7 +1599,7 @@ namespace Factory_of_the_Future
                        noteification_id = conditions.Id + properties.Id;
 
                        Notification newNotifi = JsonConvert.DeserializeObject<Notification>(JsonConvert.SerializeObject(conditions, Formatting.None));
-                       newNotifi.Type_ID = properties.Id ; 
+                       newNotifi.Type_ID = properties.Id;
                        newNotifi.Type_Name = properties.Name;
                        newNotifi.Type_Duration = 0;
                        newNotifi.Type_Status = currentState;
@@ -1625,21 +1620,21 @@ namespace Factory_of_the_Future
             }
         }
 
-        internal void UpdateConnection(string conId,string type)
+        internal void UpdateConnection(string conId, string type)
         {
             try
             {
-               //if(AppParameters.ConnectionList.TryGetValue(conId, out Connection m ))
-               // {
-               //     var newConStatus = type != "error";
-               //     if(m.ApiConnected != newConStatus)
-               //     {
-               //         m.ApiConnected = newConStatus;
-               //         m.UpdateStatus = true;
-               //     }
-               //     //m.ApiConnected = type == "error" ? false : true;
-                    
-               // }
+                //if(AppParameters.ConnectionList.TryGetValue(conId, out Connection m ))
+                // {
+                //     var newConStatus = type != "error";
+                //     if(m.ApiConnected != newConStatus)
+                //     {
+                //         m.ApiConnected = newConStatus;
+                //         m.UpdateStatus = true;
+                //     }
+                //     //m.ApiConnected = type == "error" ? false : true;
+
+                // }
             }
             catch (Exception e)
             {
@@ -1677,7 +1672,7 @@ namespace Factory_of_the_Future
                     string[] namesplit = name.Split('_');
                     if (namesplit.Length > 1)
                     {
-                       return namesplit[0];  
+                        return namesplit[0];
                     }
                 }
                 return "";
@@ -1728,13 +1723,13 @@ namespace Factory_of_the_Future
             }
         }
 
-        private  void CheckMachineNotifications(JObject machineData)
+        private void CheckMachineNotifications(JObject machineData)
         {
- 
+
             try
             {
                 string zoneID = string.Empty;
-                foreach(CoordinateSystem cs in FOTFManager.Instance.CoordinateSystem.Values)
+                foreach (CoordinateSystem cs in FOTFManager.Instance.CoordinateSystem.Values)
                 {
                     zoneID = cs.Zones.Where(x => x.Value.Properties.ZoneType == "Machine" &&
                             x.Value.Properties.MPEType == machineData["mpe_type"].ToString() &&
@@ -1772,7 +1767,7 @@ namespace Factory_of_the_Future
             }
         }
 
-        private  void UpdateDeleteMachineNotifications(string notificationID, string notificationName, string timerName, string duration, string notificationValue, string timerValue)
+        private void UpdateDeleteMachineNotifications(string notificationID, string notificationName, string timerName, string duration, string notificationValue, string timerValue)
         {
             if (AppParameters.NotificationList.TryGetValue(notificationID, out Notification ojbMerge))
             {
@@ -1783,7 +1778,7 @@ namespace Factory_of_the_Future
                 }
                 else
                 {
-                    if(ojbMerge.Type_Duration != Convert.ToInt32(timerValue))
+                    if (ojbMerge.Type_Duration != Convert.ToInt32(timerValue))
                     {
                         ojbMerge.Notification_Update = true;
                     }
@@ -1792,7 +1787,7 @@ namespace Factory_of_the_Future
             }
         }
 
-        private  void AddNewMachineNotification(JObject machineData, string zoneID, string notificationID, string notificationType, string durationtext, string durationTime)
+        private void AddNewMachineNotification(JObject machineData, string zoneID, string notificationID, string notificationType, string durationtext, string durationTime)
         {
             try
             {
@@ -1830,7 +1825,7 @@ namespace Factory_of_the_Future
             }
         }
 
-        private  string GetMachineNotificationDurationText(string durationSeconds)
+        private string GetMachineNotificationDurationText(string durationSeconds)
         {
             string durartionText = "";
             if (Double.TryParse(durationSeconds, out Double dblSeconds))
@@ -1854,7 +1849,7 @@ namespace Factory_of_the_Future
             return durartionText;
         }
 
-        private  void CheckOPStartingLateNotification(JObject machineData, string zoneID, string machine)
+        private void CheckOPStartingLateNotification(JObject machineData, string zoneID, string machine)
         {
             string notification_name = "op_started_late_status";
             string notification_timer = "op_started_late_timer";
@@ -1872,7 +1867,7 @@ namespace Factory_of_the_Future
             }
         }
 
-        private  void CheckUnplannedMaintNotification(JObject machineData, string zoneID, string machine)
+        private void CheckUnplannedMaintNotification(JObject machineData, string zoneID, string machine)
         {
             string notification_name = "unplan_maint_sp_status";
             string notification_timer = "unplan_maint_sp_timer";
@@ -1890,7 +1885,7 @@ namespace Factory_of_the_Future
             }
         }
 
-        private  void CheckSortplanWrongNotification(JObject machineData, string zoneID, string machine)
+        private void CheckSortplanWrongNotification(JObject machineData, string zoneID, string machine)
         {
             string notification_name = "sortplan_wrong_status";
             string notification_timer = "sortplan_wrong_timer";
@@ -1908,7 +1903,7 @@ namespace Factory_of_the_Future
             }
         }
 
-        private  void CheckOPRunningLateNatification(JObject machineData, string zoneID, string machine)
+        private void CheckOPRunningLateNatification(JObject machineData, string zoneID, string machine)
         {
             string notification_name = "op_running_late_status";
             string notification_timer = "op_running_late_timer";
@@ -2002,7 +1997,7 @@ namespace Factory_of_the_Future
             {
                 foreach (Container _container in AppParameters.Containers.Select(y => y.Value))
                 {
-                    if(_container.hasAssignScans && _container.hasLoadScans)
+                    if (_container.hasAssignScans && _container.hasLoadScans)
                     {
                         var notification_id = _container.PlacardBarcode + "_MissingClosed";
                         var notification_name = _container.PlacardBarcode;
@@ -2015,7 +2010,7 @@ namespace Factory_of_the_Future
                             RemoveScanNotification(notification_id);
                         }
                     }
-                    if(_container.hasCloseScans && _container.hasLoadScans)
+                    if (_container.hasCloseScans && _container.hasLoadScans)
                     {
                         var notification_id = _container.PlacardBarcode + "_MissingAssigned";
                         var notification_name = _container.PlacardBarcode;
@@ -2051,19 +2046,19 @@ namespace Factory_of_the_Future
                             }
                         }
                     }
-                    if(_container.hasLoadScans || _container.hasUnloadScans)
+                    if (_container.hasLoadScans || _container.hasUnloadScans)
                     {
-                        foreach(var door in AppParameters.DockdoorList)
+                        foreach (var door in AppParameters.DockdoorList)
                         {
                             JObject _door = JObject.Parse(door.Value);
-                            if(_door != null)
+                            if (_door != null)
                             {
                                 string _trailerbarcode = _door.ContainsKey("trailerBarcode") ? _door["trailerBarcode"].ToString().Trim() : "";
                                 string _doorid = _door.ContainsKey("doorId") ? _door["doorId"].ToString().Trim() : "";
                                 string _doornumber = _door.ContainsKey("doorNumber") ? _door["doorNumber"].ToString().Trim() : "";
 
                                 var notification_id = _trailerbarcode + "_MissingArrived";
-                                var notification_name = _trailerbarcode+ "|" + _doorid + "|" + _doornumber;
+                                var notification_name = _trailerbarcode + "|" + _doorid + "|" + _doornumber;
 
                                 if (_trailerbarcode == _container.Trailer)
                                 {
@@ -2072,7 +2067,7 @@ namespace Factory_of_the_Future
                                     {
                                         foreach (var _event in _door["events"])
                                         {
-                                            if(!string.IsNullOrEmpty(_event["eventName"].ToString().Trim()) && _event["eventName"].ToString().ToUpper().Contains("ARR"))
+                                            if (!string.IsNullOrEmpty(_event["eventName"].ToString().Trim()) && _event["eventName"].ToString().ToUpper().Contains("ARR"))
                                             {
                                                 hasarrivalscan = true;
                                             }
@@ -2103,9 +2098,9 @@ namespace Factory_of_the_Future
             }
         }
 
-        private  void AddScanNotification(string notificationType, string notificationID, string scanID, string typeName, int minutes)
+        private void AddScanNotification(string notificationType, string notificationID, string scanID, string typeName, int minutes)
         {
-            
+
             foreach (NotificationConditions newCondition in AppParameters.NotificationConditionsList.Where(r => Regex.IsMatch(notificationType, r.Value.Conditions, RegexOptions.IgnoreCase)
                             && r.Value.Type.ToLower() == "dockdoor".ToLower()
                             && (bool)r.Value.ActiveCondition).Select(x => x.Value).ToList())
@@ -2125,7 +2120,7 @@ namespace Factory_of_the_Future
                 if (AppParameters.NotificationList.TryGetValue(notificationID, out Notification ojbMerge))
                 {
                     string prev_status = ojbMerge.Type_Status.ToString().Trim();
-                    if(prev_status != status)
+                    if (prev_status != status)
                     {
                         ojbMerge.Type_Status = status;
                         ojbMerge.Notification_Update = true;
@@ -2158,7 +2153,7 @@ namespace Factory_of_the_Future
             }
         }
 
-        private  void RemoveScanNotification(string notification_id)
+        private void RemoveScanNotification(string notification_id)
         {
             foreach (Notification _notification in AppParameters.NotificationList.Where(x => Regex.IsMatch(notification_id, x.Value.Notification_ID, RegexOptions.IgnoreCase)).Select(x => x.Value).ToList())
             {
@@ -2168,9 +2163,9 @@ namespace Factory_of_the_Future
                     ojbMerge.Notification_Update = true;
                 }
             }
-    }
+        }
 
-        private  void RemoveOldScanNotification(string scanNotificationType)
+        private void RemoveOldScanNotification(string scanNotificationType)
         {
             foreach (Notification _notification in AppParameters.NotificationList.Where(x => Regex.IsMatch(scanNotificationType, x.Value.Type, RegexOptions.IgnoreCase)).Select(x => x.Value).ToList())
             {
@@ -2182,7 +2177,7 @@ namespace Factory_of_the_Future
                         if (_door != null)
                         {
                             string _trailerbarcode = _door.ContainsKey("trailerBarcode") ? _door["trailerBarcode"].ToString().Trim() : "";
-                            if(_trailerbarcode != _notification.Notification_ID)
+                            if (_trailerbarcode != _notification.Notification_ID)
                             {
                                 if (AppParameters.NotificationList.TryGetValue(_notification.Notification_ID, out Notification ojbMerge))
                                 {
@@ -2250,13 +2245,13 @@ namespace Factory_of_the_Future
                                 ToList().ForEach(Camera =>
                                 {
                                     Camera.Properties.DarvisAlerts = alertList.ToArray<DarvisCameraAlert>().ToList<DarvisCameraAlert>();
-                                    
+
                                     FOTFManager.Instance.BroadcastCameraStatus(Camera, cs.Id);
-                                 
+
                                 });
 
                             }
-                     
+
 
                         }
                     }
@@ -2268,7 +2263,7 @@ namespace Factory_of_the_Future
                 }
             }
         }
-        public void ProcessNewOrExistingCameraData(JObject thisObject, ref List<DarvisCameraAlert> alertList,string camera_id, bool isNew)
+        public void ProcessNewOrExistingCameraData(JObject thisObject, ref List<DarvisCameraAlert> alertList, string camera_id, bool isNew)
         {
             if (thisObject.ContainsKey("zones"))
             {

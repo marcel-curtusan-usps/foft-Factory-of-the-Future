@@ -52,7 +52,7 @@ namespace Factory_of_the_Future
                                             //background image proccess 
                                             foreach (var qcbkgitem in qcitem.BackgroundImages)
                                             {
-                                           
+
                                                 if (cs.BackgroundImage.Id == qcbkgitem.Id)
                                                 {
                                                     update = false;
@@ -85,7 +85,7 @@ namespace Factory_of_the_Future
                                                         currentZone.Geometry.Coordinates = newzone.Value.Geometry.Coordinates;
                                                         update = true;
                                                     }
-                                                
+
                                                     //properties update
                                                     foreach (PropertyInfo prop in currentZone.Properties.GetType().GetProperties())
                                                     {
@@ -166,7 +166,7 @@ namespace Factory_of_the_Future
                                         Id = qcitem.Id,
                                         BackgroundImage = JToken.Parse(JsonConvert.SerializeObject(qcitem.BackgroundImages.FirstOrDefault(), Formatting.Indented)).ToObject<BackgroundImage>(),
                                         Locators = getLocators(qcitem.Locators, qcitem.Id),
-                                        Zones = getZoness(qcitem.qcZones, qcitem.Id) 
+                                        Zones = getZoness(qcitem.qcZones, qcitem.Id)
                                     }))
                                     {
                                         //update file with map data.
@@ -208,22 +208,23 @@ namespace Factory_of_the_Future
             {
                 foreach (Locator item in locators)
                 {
-                    temp.TryAdd(item.Id, new GeoMarker {
+                    temp.TryAdd(item.Id, new GeoMarker
+                    {
                         Geometry = new MarkerGeometry
                         {
                             Coordinates = item.Location
                         },
-                         Properties = new Marker
-                         {
-                             Id = item.Id,
-                             Name = item.Name,
-                             FloorId =id,
-                             TagType = GetTagType(item.Name),
-                             CraftName = GetCraftName(item.Name),
-                             BadgeId = GetBadgeId(item.Name),
-                             Color = item.Color,
-                             TagVisible =item.Visible
-                         }
+                        Properties = new Marker
+                        {
+                            Id = item.Id,
+                            Name = item.Name,
+                            FloorId = id,
+                            TagType = GetTagType(item.Name),
+                            CraftName = GetCraftName(item.Name),
+                            BadgeId = GetBadgeId(item.Name),
+                            Color = item.Color,
+                            TagVisible = item.Visible
+                        }
                     });
                 }
                 return temp;
@@ -244,7 +245,7 @@ namespace Factory_of_the_Future
                 {
                     temp.TryAdd(item.Id, new GeoZone
                     {
-                        Geometry = QuuppaZoneGeometry( item.PolygonData),
+                        Geometry = QuuppaZoneGeometry(item.PolygonData),
                         Properties = new Properties
                         {
                             Id = item.Id,
@@ -700,7 +701,7 @@ namespace Factory_of_the_Future
                 tempCoordinateSystem = null;
                 templocators = null;
                 tempZones = null;
-    }
+            }
         }
 
         // // TODO: override finalizer only if 'Dispose(bool disposing)' has code to free unmanaged resources

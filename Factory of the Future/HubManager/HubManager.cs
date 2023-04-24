@@ -30,7 +30,7 @@ namespace Factory_of_the_Future
             return _managerHub.GetAppSettingdata();
         }
 
-        
+
         public IEnumerable<JToken> EditAppSettingdata(string data)
         {
             return _managerHub.EditAppSettingdata(data);
@@ -148,7 +148,7 @@ namespace Factory_of_the_Future
         {
             return _managerHub.GetContainerInfo(id);
         }
-     
+
         /// <summary>
         /// Get Camera feed
         /// </summary>
@@ -157,7 +157,7 @@ namespace Factory_of_the_Future
         {
             return _managerHub.GetCameraList();
         }
-      
+
         /// <summary>
         /// Get Zones
         /// </summary>
@@ -169,7 +169,7 @@ namespace Factory_of_the_Future
 
         public void EditZone(string data)
         {
-           Task.Run(() => _managerHub.EditZoneAsync(data)).ConfigureAwait(false);
+            Task.Run(() => _managerHub.EditZoneAsync(data)).ConfigureAwait(false);
         }
         /// <summary>
         /// Get dock door Zones
@@ -261,7 +261,7 @@ namespace Factory_of_the_Future
         //public ADUser GetUserProfile()
         //{
         //    string user_id = Regex.Replace(Context.User.Identity.Name, @"(USA\\|ENG\\)", "").Trim();
-            
+
         //    return _managerHub.GetUserProfile(user_id);
         //}
         ///// <summary>
@@ -270,8 +270,8 @@ namespace Factory_of_the_Future
         /////
         public IEnumerable<string> GetTimeZone()
         {
-          return _managerHub.GetTimeZone();
-            
+            return _managerHub.GetTimeZone();
+
         }
 
         public string GetFacilityTimeZone()
@@ -288,7 +288,7 @@ namespace Factory_of_the_Future
             //{
             //    Clients.Caller.floorImage(_managerHub.GetIndoorMap());
             //}
-            return base.OnConnected(); 
+            return base.OnConnected();
         }
 
         //private object GetAuthInfo()

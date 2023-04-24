@@ -725,14 +725,16 @@ namespace Factory_of_the_Future
         /// <summary>
         /// Handle server starting notification
         /// </summary>
-        protected virtual void OnStarting() {
+        protected virtual void OnStarting()
+        {
             Conn.Status = "Strating";
             FOTFManager.Instance.BroadcastQSMUpdate(Conn);
         }
         /// <summary>
         /// Handle server started notification
         /// </summary>
-        protected virtual void OnStarted() {
+        protected virtual void OnStarted()
+        {
             Conn.Status = "Running";
             Conn.ActiveConnection = true;
             FOTFManager.Instance.BroadcastQSMUpdate(Conn);
@@ -740,7 +742,8 @@ namespace Factory_of_the_Future
         /// <summary>
         /// Handle server stopping notification
         /// </summary>
-        protected virtual void OnStopping() {
+        protected virtual void OnStopping()
+        {
             Conn.Status = " Stopping";
             Conn.ActiveConnection = false;
             FOTFManager.Instance.BroadcastQSMUpdate(Conn);
@@ -748,7 +751,8 @@ namespace Factory_of_the_Future
         /// <summary>
         /// Handle server stopped notification
         /// </summary>
-        protected virtual void OnStopped() {
+        protected virtual void OnStopped()
+        {
             Conn.Status = " Stopped/Deactived";
             Conn.ActiveConnection = false;
             FOTFManager.Instance.BroadcastQSMUpdate(Conn);
@@ -764,7 +768,8 @@ namespace Factory_of_the_Future
         /// <remarks>
         /// Notification is called when another datagram was received from some endpoint
         /// </remarks>
-        protected virtual void OnReceived(EndPoint endpoint, byte[] buffer, long offset, long size) {
+        protected virtual void OnReceived(EndPoint endpoint, byte[] buffer, long offset, long size)
+        {
             string incomingData = Encoding.UTF8.GetString(buffer, (int)offset, (int)size);
             try
             {
@@ -811,7 +816,8 @@ namespace Factory_of_the_Future
         /// Handle error notification
         /// </summary>
         /// <param name="error">Socket error code</param>
-        protected virtual void OnError(SocketError error) {
+        protected virtual void OnError(SocketError error)
+        {
             Conn.Status = "No data";
             FOTFManager.Instance.BroadcastQSMUpdate(Conn);
         }

@@ -1,9 +1,4 @@
-﻿using Newtonsoft.Json.Linq;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-
-namespace Factory_of_the_Future
+﻿namespace Factory_of_the_Future
 {
     public class SetData
     {

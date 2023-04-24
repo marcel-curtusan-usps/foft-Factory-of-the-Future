@@ -1,13 +1,10 @@
 ﻿using Factory_of_the_Future.Models;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
-using System.Web;
 
 namespace Factory_of_the_Future
 {
@@ -178,7 +175,7 @@ namespace Factory_of_the_Future
                         }
                         if (updateFile)
                         {
-                         await Task.Run(() => FOTFManager.Instance.BroadcastQSMUpdate(Connection_item.ConnectionInfo)).ConfigureAwait(false);
+                            await Task.Run(() => FOTFManager.Instance.BroadcastQSMUpdate(Connection_item.ConnectionInfo)).ConfigureAwait(false);
                         }
                     }
                 }
@@ -226,7 +223,7 @@ namespace Factory_of_the_Future
                             default:
                                 break;
                         }
-                        
+
                         await Task.Run(() => FOTFManager.Instance.BroadcastQSMUpdate(Connection_item.ConnectionInfo)).ConfigureAwait(false);
                     }
                 }
@@ -271,7 +268,7 @@ namespace Factory_of_the_Future
                             NewConnection.Stop();
                             conStoped = true;
                         }
-                      
+
                     }
                 }
                 if (conStoped)
@@ -322,6 +319,6 @@ namespace Factory_of_the_Future
             GC.SuppressFinalize(this);
         }
 
-     
+
     }
 }

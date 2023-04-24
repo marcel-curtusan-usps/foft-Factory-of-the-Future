@@ -1,8 +1,6 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Web;
-using Newtonsoft.Json;
 
 namespace Factory_of_the_Future.Models
 {
@@ -14,7 +12,7 @@ namespace Factory_of_the_Future.Models
         public string MpeType { get; set; } = "";
 
         [JsonProperty("mpe_number")]
-        public int  MpeNumber { get; set; }
+        public int MpeNumber { get; set; }
 
         [JsonProperty("bins")]
         public int Bins { get; set; }
@@ -77,7 +75,7 @@ namespace Factory_of_the_Future.Models
         public DateTime RPGStartDtm { get; set; }
 
         [JsonProperty("rpg_end_dtm")]
-        public DateTime RPGEndDtm { get; set; } 
+        public DateTime RPGEndDtm { get; set; }
 
         [JsonProperty("expected_throughput")]
         public int ExpectedThroughput { get; set; } = 0;
@@ -86,7 +84,7 @@ namespace Factory_of_the_Future.Models
         public int SortplanWrongTimer { get; set; } = 0;
 
         [JsonProperty("rpg_est_comp_time")]
-        public DateTime RpgEstCompTime { get; set; } = new DateTime(1,1,1,0,0,0);
+        public DateTime RpgEstCompTime { get; set; } = new DateTime(1, 1, 1, 0, 0, 0);
 
         [JsonProperty("hourly_data")]
         public List<HourlyData> HourlyData { get; set; } = new List<HourlyData>();
