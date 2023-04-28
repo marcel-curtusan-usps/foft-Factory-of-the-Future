@@ -661,11 +661,11 @@
                             <label class="control-label">Zone LDC</label><input id="zone_ldc" type="text" class="form-control" name="zone_ldc" /><span id="errorzone_ldc" class="text-danger"></span>
                         </div>
                     </div>
-                    <div class="row mr-0 ml-0">
+                   <%-- <div class="row mr-0 ml-0">
                         <div class="form-group col-4">
                             <label class="control-label">GPIO Number</label><input id="gpio" type="text" class="form-control" name="GPIO" /><span id="errorgpio" class="text-danger"></span>
                         </div>
-                    </div>
+                    </div>--%>
 
                 </div>
                 <div class="modal-footer1">

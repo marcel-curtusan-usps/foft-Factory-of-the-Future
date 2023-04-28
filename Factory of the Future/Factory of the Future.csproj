@@ -316,6 +316,8 @@
     <Content Include="favicon.ico" />
     <Content Include="Global.asax" />
     <Content Include="Default.aspx" />
+    <Content Include="MPESDO\Content\mpesdo.css" />
+    <Content Include="MPESDO\MPESDO.aspx" />
     <Content Include="MPE\Content\mpe.css" />
     <Content Include="MPE\MPE.aspx" />
     <Content Include="MPE\Scripts\mpe.js" />
@@ -628,6 +630,13 @@
     <Compile Include="Models\Tacs.cs" />
     <Compile Include="Models\Zone.cs" />
     <Compile Include="Models\ZoneGeometry.cs" />
+    <Compile Include="MPESDO\MPESDO.aspx.cs">
+      <DependentUpon>MPESDO.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="MPESDO\MPESDO.aspx.designer.cs">
+      <DependentUpon>MPESDO.aspx</DependentUpon>
+    </Compile>
     <Compile Include="MPE\MPE.aspx.cs">
       <DependentUpon>MPE.aspx</DependentUpon>
       <SubType>ASPXCodeBehind</SubType>
