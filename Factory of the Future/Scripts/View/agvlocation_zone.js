@@ -5,7 +5,7 @@ $.extend(fotfmanager.client, {
     updateAGVLocationStatus: async (updateAGVLocation) => { updateAGVLocationZone(updateAGVLocation) }
 });
 
-var agvLocations = new L.GeoJSON(null, {
+let agvLocations = new L.GeoJSON(null, {
     style: function (feature) {
         if (feature.properties.visible) {
             //'green' : 'gray'
@@ -169,17 +169,18 @@ function formatAGVzonetoprow(properties) {
     });
 }
 function Get_location_Code(location) {
-    var location_temp = "";
-    if (checkValue(location)) {
-        var arr = location.match(/.{1,3}/g);
+    let Post = "";
+    if (locationReg.test(location)) {
+        let arr = location.match(/.{1,3}/g);
         if (arr.length === 4) {
-            var a = checkValue(arr[0].replace(/^0+/, '')) ? arr[0].replace(/^0+/, '') : "0";
-            var b = checkValue(arr[1].replace(/^0+/, '')) ? arr[1].replace(/^0+/, '') : "0";
-            var c = checkValue(arr[2].replace(/^0+/, '')) ? arr[2].replace(/^0+/, '') : "0";
-            var d = checkValue(arr[3].replace(/^0+/, '')) ? arr[3].replace(/^0+/, '') : "0";
+            let a = checkValue(arr[0].replace(/^0+/, '')) ? arr[0].replace(/^0+/, '') : "0";
+            let b = checkValue(arr[1].replace(/^0+/, '')) ? arr[1].replace(/^0+/, '') : "0";
+            let c = checkValue(arr[2].replace(/^0+/, '')) ? arr[2].replace(/^0+/, '') : "0";
+            let d = checkValue(arr[3].replace(/^0+/, '')) ? arr[3].replace(/^0+/, '') : "0";
 
-            location_temp = a + b + "-" + c + ',' + d;
+            return a + b + " - " + c + ',' + d;
         }
     }
-    return location_temp;
+    return Post;
 }
+let locationReg = new RegExp('(^[A-Z0-9][A-Z0-9][A-Z0-9])+([A-Z0-9][A-Z0-9][A-Z0-9])+([0-9][0-9][0-9])+([0-9][0-9][0-9]$)', 'i');

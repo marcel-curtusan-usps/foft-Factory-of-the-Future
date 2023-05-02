@@ -33,7 +33,7 @@ async function addZone(data, floorId, zonetype) {
                 else if (/^(BinZone)/i.test(this.properties.Zone_Type)) {
                     binzonepoly.addData(this);
                 }
-                else if (/^(AGVLocationZone)/i.test(this.properties.Zone_Type)) {
+                else if (/^(AGVLocation)/i.test(this.properties.Zone_Type)) {
                     agvLocations.addData(this);
                 }
                 else if (/^(ViewPortsZone)/i.test(this.properties.Zone_Type)) {

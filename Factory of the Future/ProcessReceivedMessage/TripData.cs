@@ -18,7 +18,7 @@ namespace Factory_of_the_Future
         public string _connID { get; protected set; }
         public bool update { get; protected set; }
         public JToken tempData = null;
-        public List<RouteTrips> temp;
+        public List<RouteTrips> temp = null;
         public RouteTrips currentRTData = null;
 
 

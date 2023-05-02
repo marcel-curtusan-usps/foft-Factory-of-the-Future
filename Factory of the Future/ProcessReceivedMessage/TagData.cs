@@ -248,6 +248,10 @@ namespace Factory_of_the_Future
                     {
                         return "Person";
                     }
+                    else if (Regex.IsMatch(name, (string)AppParameters.AppSettings["TAG_HVI"], RegexOptions.IgnoreCase))
+                    {
+                        return "HVI";
+                    }
                     else if (Regex.IsMatch(name, (string)AppParameters.AppSettings["TAG_LOCATOR"], RegexOptions.IgnoreCase))
                     {
                         return "Locator";

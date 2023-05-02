@@ -52,8 +52,7 @@ namespace Factory_of_the_Future.Models
         [JsonProperty("zones")]
         public List<qcZone> qcZones { get; set; }
 
-        [JsonProperty("openings")]
-        public List<object> Openings { get; set; }
+    
     }
     public class qcZone
     {
@@ -87,52 +86,7 @@ namespace Factory_of_the_Future.Models
         [JsonProperty("polygonHoles")]
         public List<object> PolygonHoles { get; set; }
     }
-    public class BackgroundImage
-    {
-        [JsonProperty("widthMeter")]
-        public double WidthMeter { get; set; }
 
-        [JsonProperty("xMeter")]
-        public double XMeter { get; set; }
-
-        [JsonProperty("visible")]
-        public bool Visible { get; set; }
-        [JsonProperty("name")]
-        public string Name { get; set; } = "";
-
-        [JsonProperty("otherCoordSys")]
-        public string OtherCoordSys { get; set; }
-
-        [JsonProperty("rotation")]
-        public int Rotation { get; set; }
-
-        [JsonProperty("base64")]
-        public string Base64 { get; set; }
-
-        [JsonProperty("origoY")]
-        public double OrigoY { get; set; }
-
-        [JsonProperty("origoX")]
-        public double OrigoX { get; set; }
-
-        [JsonProperty("heightMeter")]
-        public double HeightMeter { get; set; }
-
-        [JsonProperty("yMeter")]
-        public double YMeter { get; set; }
-
-        [JsonProperty("alpha")]
-        public int Alpha { get; set; }
-
-        [JsonProperty("id")]
-        public string Id { get; set; }
-
-        [JsonProperty("metersPerPixelY")]
-        public double MetersPerPixelY { get; set; }
-
-        [JsonProperty("metersPerPixelX")]
-        public double MetersPerPixelX { get; set; }
-    }
     public class Locator
     {
         [JsonProperty("locationLocked")]

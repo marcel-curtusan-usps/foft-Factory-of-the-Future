@@ -504,6 +504,7 @@
     <Content Include="Scripts\View\bin_zone.js" />
     <Content Include="Scripts\View\connection.js" />
     <Content Include="Scripts\View\floorplan.js" />
+    <Content Include="Scripts\View\HVI_tag.js" />
     <Content Include="Scripts\View\indoorMap.js" />
     <Content Include="Scripts\View\machine_sparkline.js" />
     <Content Include="Scripts\View\staging_bullpen.js" />

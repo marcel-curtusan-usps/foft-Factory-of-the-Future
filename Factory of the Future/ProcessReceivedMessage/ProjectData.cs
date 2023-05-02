@@ -56,14 +56,45 @@ namespace Factory_of_the_Future
                                                 if (cs.BackgroundImage.Id == qcbkgitem.Id)
                                                 {
                                                     update = false;
+
                                                     foreach (PropertyInfo prop in qcbkgitem.GetType().GetProperties())
                                                     {
-                                                        if (prop.GetValue(qcbkgitem, null) != prop.GetValue(cs.BackgroundImage, null))
+                                                        // Check if qcbkgitem and cs.BackgroundImage objects are null
+                                                        if (qcbkgitem == null || cs.BackgroundImage == null)
                                                         {
-                                                            prop.SetValue(cs.BackgroundImage, prop.GetValue(qcbkgitem, null));
+                                                            // Handle null object error
+                                                            Console.WriteLine("Error: qcbkgitem or cs.BackgroundImage is null");
+                                                            break;
+                                                        }
+
+                                                        // Get the property value from the qcbkgitem object
+                                                        object qcbkgitemValue = prop.GetValue(qcbkgitem, null);
+
+                                                        // Get the property value from the cs.BackgroundImage object
+                                                        object backgroundImageValue = prop.GetValue(cs.BackgroundImage, null);
+
+                                                        // Check if the property value types are the same
+                                                        if (qcbkgitemValue == null || backgroundImageValue == null || qcbkgitemValue.GetType() != backgroundImageValue.GetType())
+                                                        {
+                                                            // Debug the type mismatch error
+                                                            Console.WriteLine($"Error: Property type mismatch for {prop.Name} ({prop.PropertyType})");
+                                                            continue;
+                                                        }
+
+                                                        // Compare the property values and update if necessary
+                                                        if (!qcbkgitemValue.Equals(backgroundImageValue))
+                                                        {
+                                                            prop.SetValue(cs.BackgroundImage, qcbkgitemValue);
                                                             update = true;
                                                         }
+                                                        //if (prop.GetValue(qcbkgitem, null).ToString() != prop.GetValue(cs.BackgroundImage, null).ToString())
+                                                        //{
+                                                        //    prop.SetValue(cs.BackgroundImage, prop.GetValue(qcbkgitem, null));
+                                                        //    update = true;
+                                                        //}
                                                     }
+
+
                                                     if (update)
                                                     {
                                                         _ = Task.Run(() => new FileIO().Write(string.Concat(AppParameters.Logdirpath, AppParameters.ConfigurationFloder), "Project_Data.json", AppParameters.ZoneOutPutdata(FOTFManager.Instance.CoordinateSystem.Select(x => x.Value).ToList()))).ConfigureAwait(false);
@@ -305,11 +336,11 @@ namespace Factory_of_the_Future
                 {
                     if (Regex.IsMatch(name, (string)AppParameters.AppSettings["AGV_ZONE"], RegexOptions.IgnoreCase))
                     {
-                        return "AGVLocation";
+                        return "AGVLocationZone";
                     }
                     else if (Regex.IsMatch(name, (string)AppParameters.AppSettings["DOCKDOOR_ZONE"], RegexOptions.IgnoreCase))
                     {
-                        return "DockDoor";
+                        return "DockDoorZone";
                     }
                     else if (Regex.IsMatch(name, (string)AppParameters.AppSettings["MANUAL_ZONE"], RegexOptions.IgnoreCase))
                     {
@@ -317,11 +348,11 @@ namespace Factory_of_the_Future
                     }
                     else if (Regex.IsMatch(name, (string)AppParameters.AppSettings["VIEWPORTS"], RegexOptions.IgnoreCase))
                     {
-                        return "ViewPorts";
+                        return "ViewPortsZone";
                     }
                     else
                     {
-                        return "Machine";
+                        return "MPEZone";
                     }
                 }
                 else

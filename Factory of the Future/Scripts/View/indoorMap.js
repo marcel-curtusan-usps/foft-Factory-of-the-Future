@@ -18,7 +18,8 @@ let overlayMaps = {
     "Badge": tagsMarkersGroup,
     "AGV Locations": agvLocations,
     "MPE Work Areas": polygonMachine,
-  /*  "MPE Sparklines": machineSparklines,*/
+    /*  "MPE Sparklines": machineSparklines,*/
+    "High Value": hvi_tags,
     "MPE Bins": binzonepoly,
     "Dock Doors": dockDoors,
     "Staging Areas": stagingAreas,
@@ -66,10 +67,12 @@ if ($.urlParam('specifyLayers')) {
 
 }
 else {
-    layersSelected = [mainfloor,
+    layersSelected = [
+        mainfloor,
         polygonMachine,
         piv_vehicles,
         agv_vehicles,
+        hvi_tag,
         agvLocations,
         container,
         stagingAreas,
@@ -225,6 +228,7 @@ map.on('baselayerchange', function (e) {
         tagsMarkersGroup.clearLayers();
         piv_vehicles.clearLayers();
         agv_vehicles.clearLayers();
+        hvi_tags.clearLayers();
         cameras.clearLayers();
         locatorMarker.clearLayers();
         if (data.length > 0) {
