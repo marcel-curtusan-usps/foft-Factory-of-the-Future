@@ -19,7 +19,7 @@ let overlayMaps = {
     "AGV Locations": agvLocations,
     "MPE Work Areas": polygonMachine,
     /*  "MPE Sparklines": machineSparklines,*/
-    "High Value": hvi_tags,
+    "High Value Items": hvi_tags,
     "MPE Bins": binzonepoly,
     "Dock Doors": dockDoors,
     "Staging Areas": stagingAreas,
@@ -34,7 +34,7 @@ let overlayMaps = {
 
 
 $.urlParam = function (name) {
-    var results = new RegExp('[\?&]' + name + '=([^&#]*)', 'i').exec(window.location.search);
+    let results = new RegExp('[\?&]' + name + '=([^&#]*)', 'i').exec(window.location.search);
 
     return (results !== null) ? results[1] || 0 : false;
 }
@@ -48,6 +48,7 @@ let layersSelected = [mainfloor];
 if ($.urlParam('specifyLayers')) {
     if ($.urlParam('agvVehicles')) layersSelected.push(agv_vehicles);
     if ($.urlParam('pivVehicles')) layersSelected.push(piv_vehicles);
+    if ($.urlParam('hviTags')) layersSelected.push(hvi_tags);
     if ($.urlParam('cameras')) layersSelected.push(cameras);
     if ($.urlParam('badge')) layersSelected.push(tagsMarkersGroup);
     if ($.urlParam('agvLocations')) layersSelected.push(agvLocations);
@@ -72,7 +73,7 @@ else {
         polygonMachine,
         piv_vehicles,
         agv_vehicles,
-        hvi_tag,
+        hvi_tags,
         agvLocations,
         container,
         stagingAreas,

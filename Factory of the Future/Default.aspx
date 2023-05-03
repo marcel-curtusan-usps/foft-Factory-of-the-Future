@@ -1871,6 +1871,8 @@
     <script src="Scripts/View/vehicle.js"></script>
     <!--Views for tags details-->
     <script src="Scripts/View/person_tag.js"></script>
+    <!--Views for High Value Items tags details-->
+    <script src="Scripts/View/hvi_tag.js"></script>
     <!--Views for agv location zone details-->
     <script src="Scripts/View/agvlocation_zone.js"></script>
     <!--Views for dock door zone details-->

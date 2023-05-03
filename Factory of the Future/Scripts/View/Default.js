@@ -979,7 +979,7 @@ async function cBlock() {
     if ($("#tfhcContent").length > 0) {
         SetClockHands(t);
     }
-    let visible = sidebar._getTab("reports");
+    let visible =  sidebar._panes.length > 0 ? sidebar._getTab("reports") : false;
     if (visible) {
         if (visible.classList.length) {
             if (visible.classList.contains('active')) {

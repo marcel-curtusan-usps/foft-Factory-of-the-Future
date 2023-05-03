@@ -162,7 +162,7 @@ namespace Factory_of_the_Future
                     {
                         GetMPEWatchSite();
                         GetNotificationDefault();
-                        LoadTempIndoorapData("Project_Data.json");
+                        LoadTempIndoorapData("Project_Data.json").ConfigureAwait(false);
                         GetMachineThroughputMax("MachineThroughputMax.csv");
                     }).ConfigureAwait(false);
 
