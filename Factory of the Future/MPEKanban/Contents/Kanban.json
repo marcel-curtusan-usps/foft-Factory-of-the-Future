@@ -1,0 +1,72 @@
+﻿[
+  {
+    "STATUS": "K",
+    "MPENAME": "AFCS",
+    "MAIL_COUNT": "1"
+  },
+  {
+    "STATUS": "",
+    "MPENAME": "CIOSS/DIOSS",
+    "MAIL_COUNT": "1"
+  },
+  {
+    "STATUS": "",
+    "MPENAME": "MXD States",
+    "MAIL_COUNT": "1"
+  },
+  {
+    "STATUS": "",
+    "MPENAME": "North DB",
+    "MAIL_COUNT": "1"
+  },
+  {
+    "STATUS": "V",
+    "MPENAME": "HSTS #2",
+    "MAIL_COUNT": "1"
+  },
+  {
+    "STATUS": "",
+    "MPENAME": "South DB",
+    "MAIL_COUNT": "1"
+  },
+  {
+    "STATUS": "",
+    "MPENAME": "AFSM",
+    "MAIL_COUNT": "1"
+  },
+  {
+    "STATUS": "",
+    "MPENAME": "HSTS #1",
+    "MAIL_COUNT": "1"
+  },
+  {
+    "STATUS": "",
+    "MPENAME": "HOPS #2",
+    "MAIL_COUNT": "1"
+  },
+  {
+    "STATUS": "",
+    "MPENAME": "USS",
+    "MAIL_COUNT": "1"
+  },
+  {
+    "STATUS": "V",
+    "MPENAME": "HOPS #1",
+    "MAIL_COUNT": "1"
+  },
+  {
+    "STATUS": "V",
+    "MPENAME": "SPSS",
+    "MAIL_COUNT": "1"
+  },
+  {
+    "STATUS": "M",
+    "MPENAME": "APBS",
+    "MAIL_COUNT": "1"
+  },
+  {
+    "STATUS": "",
+    "MPENAME": "APPS",
+    "MAIL_COUNT": "1"
+  }
+]
