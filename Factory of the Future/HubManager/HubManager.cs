@@ -12,15 +12,25 @@ namespace Factory_of_the_Future
     public class HubManager : Hub
     {
         private readonly FOTFManager _managerHub;
+        private readonly MPEManager _mpemanagerHub;
 
-        public HubManager() : this(FOTFManager.Instance)
+        public HubManager() : this(FOTFManager.Instance, MPEManager.Instance)
         {
         }
 
-        public HubManager(FOTFManager managerHub)
+        public HubManager(FOTFManager managerHub, MPEManager mpemanagerHub)
         {
             _managerHub = managerHub;
+            _mpemanagerHub = mpemanagerHub;
         }
+
+        // get test data for MPEKanban
+        public IEnumerable<JToken> GetMPETestData(string data)
+        {
+            bool isDispatch = data == "dispatch" ? true : false;
+            return _mpemanagerHub.GetMPETestData(isDispatch);
+        }
+
 
         /// <summary>
         /// /Application setting section
