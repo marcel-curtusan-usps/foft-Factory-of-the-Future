@@ -59,26 +59,26 @@ $('#Zone_Modal').on('shown.bs.modal', function () {
         enablezoneSubmit();
     });
     //GPIO
-    $('input[type=text][name=GPIO]').keyup(function () {
-        if (!checkValue($('input[type=text][name=GPIO]').val())) {
-            $('input[type=text][name=GPIO]').css("border-color", "#FF0000").removeClass('is-valid').addClass('is-invalid');
-            $('span[id=errorgpio]').text("Please Enter GPIO ");
-        }
-        else {
-            $('input[type=text][name=GPIO]').css("border-color", "#2eb82e").removeClass('is-invalid').addClass('is-valid');
-            $('span[id=errorgpio]').text("");
-        }
+    //$('input[type=text][name=GPIO]').keyup(function () {
+    //    if (!checkValue($('input[type=text][name=GPIO]').val())) {
+    //        $('input[type=text][name=GPIO]').css("border-color", "#FF0000").removeClass('is-valid').addClass('is-invalid');
+    //        $('span[id=errorgpio]').text("Please Enter GPIO ");
+    //    }
+    //    else {
+    //        $('input[type=text][name=GPIO]').css("border-color", "#2eb82e").removeClass('is-invalid').addClass('is-valid');
+    //        $('span[id=errorgpio]').text("");
+    //    }
 
-        enablezoneSubmit();
-    });
-    if (!checkValue($('input[type=text][name=GPIO]').val())) {
-        $('input[type=text][name=GPIO]').css("border-color", "#FF0000").removeClass('is-valid').addClass('is-invalid');
-        $('span[id=errorgpio]').text("Please Enter Machine Number");
-    }
-    else {
-        $('input[type=text][name=GPIO]').css("border-color", "#2eb82e").removeClass('is-invalid').addClass('is-valid');
-        $('span[id=errorgpio]').text("");
-    }
+    //    enablezoneSubmit();
+    //});
+    //if (!checkValue($('input[type=text][name=GPIO]').val())) {
+    //    $('input[type=text][name=GPIO]').css("border-color", "#FF0000").removeClass('is-valid').addClass('is-invalid');
+    //    $('span[id=errorgpio]').text("Please Enter Machine Number");
+    //}
+    //else {
+    //    $('input[type=text][name=GPIO]').css("border-color", "#2eb82e").removeClass('is-invalid').addClass('is-valid');
+    //    $('span[id=errorgpio]').text("");
+    //}
     //Request Type Validation
     if (!checkValue($('input[type=text][name=machine_number]').val())) {
         $('input[type=text][name=machine_number]').css("border-color", "#FF0000").removeClass('is-valid').addClass('is-invalid');
@@ -768,7 +768,7 @@ async function Edit_Machine_Info(id) {
                     $('input[type=text][name=machine_number]').val(Data.MPE_Number);
                     $('input[type=text][name=zone_ldc]').val(Data.Zone_LDC);
                     $('input[type=text][name=machine_id]').val(Data.id);
-                    $('input[type=text][name=GPIOValue]').val(Data.GpioValue);
+                   /* $('input[type=text][name=GPIOValue]').val(Data.GpioValue);*/
 
                     $('button[id=machinesubmitBtn]').off().on('click', function () {
                         try {
