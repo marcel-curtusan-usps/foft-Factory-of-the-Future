@@ -1573,7 +1573,7 @@
       "site_name_local": "RICHMOND_VA_PDC",
       "area_name": "South Atlantic",
       "district": "Virginia",
-      "local_link": "http://56.85.198.11:7777/pls/mpewatch/",
+      "local_link": "http://56.85.198.56:8080/ords/mpemaster/",
       "rnum": "224"
     },
     {

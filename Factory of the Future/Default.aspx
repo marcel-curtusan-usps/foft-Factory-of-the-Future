@@ -1631,6 +1631,19 @@
                             </div>
                         </div>
                     </div>
+                     <div class="card w-100 mb-3">
+                        <h6 class="card-header sectionHeader ml-2 mb-1 px-0">User Training Video</h6>
+                        <div class="card-body ml-np5rem">
+                            <div class="input-group mb-2 mx-3">
+                                <!-- FOTF Survey Buttons -->
+                                <div role="group" class="d-flex btn-block" aria-label="Connected Facilities Surveys">
+                                    <a type="button" class="btn btn-light flex-fill mr-3" href="https://usps365.sharepoint.com/sites/ConnectedFacility/Shared%20Documents/Forms/AllItems.aspx" target="_blank" title="Intro and GUI">CF Video 1</a>
+                                    <a type="button" class="btn btn-light flex-fill mr-3" href="https://usps365.sharepoint.com/sites/ConnectedFacility/Shared%20Documents/Forms/AllItems.aspx" target="_blank" title="Operational Features">CF Video 2</a>
+                                    <a type="button" class="btn btn-light flex-fill mr-3" href="https://usps365.sharepoint.com/sites/ConnectedFacility/Shared%20Documents/Forms/AllItems.aspx" target="_blank" title="Use Cases and Summary">CF Video 3</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                     <div class="card w-100 mb-3" id="BEsearch" style="display:none">
                         <div class="row mx-0 mb-2">
                             <h6 class="card-header sectionHeader ml-2 px-0 py-0 mt-3">Badge / Equipment Search</h6>
@@ -1749,7 +1762,11 @@
 
         <!-- FAQ PopOver -->
         <div id="faqContent" class="px-3">
-            <a type="button" class="btn btn-light flex-fill mr-3" href="https://usps365.sharepoint.com/:b:/s/ConnectedFacility/EVHZopcQdWxJruSDxjIqnkcBA1Gt4i8VyZv2ia1yYmK2KQ?e=KEfx3W&xsdata=MDV8MDF8fGY2YTMwOWNlZTljMjQwZGJlZGFkMDhkYTJlYmM3MGY5fGY5YWE1Nzg4ZWIzMzRhNDk4YWQwNzYxMDE5MTBjYWMzfDB8MHw2Mzc4NzM2ODQxMTA1MDMzNDF8R29vZHxWR1ZoYlhOVFpXTjFjbWwwZVZObGNuWnBZMlY4ZXlKV0lqb2lNQzR3TGpBd01EQWlMQ0pRSWpvaVYybHVNeklpTENKQlRpSTZJazkwYUdWeUlpd2lWMVFpT2pFeGZRPT18MXxNVGs2TnpnNFlURTVZV1V0TnpNMVpDMDBNakV4TFdGbU1HWXRNbVJtWTJNeFkyVm1OVEV4WDJGbU4yTXpPV1JrTFRCaU4yVXRORGN4TXkxaU9UWmtMV016WXpoa09EVTNaREptT0VCMWJuRXVaMkpzTG5Od1lXTmxjdz09fHw%3D&sdata=VW82Z1dXdXpNMkVHdVMyUmp0L1hOYXg1bU9BVVZ1bzA5SVJzZmxLaWhJcz0%3D&ovuser=f9aa5788-eb33-4a49-8ad0-76101910cac3%2CLori.J.Gavin%40usps.gov" target="_blank">User Guide</a>
+            <a type="button" class="btn btn-light flex-fill mr-3" href="https://usps365.sharepoint.com/:b:/r/sites/ConnectedFacility/Shared%20Documents/Connected%20Facility%20User%20Guide.pdf?csf=1&web=1&e=2qxPxq" target="_blank">User Guide</a>
+            <a type="button" class="btn btn-light flex-fill mr-3" href="https://usps365.sharepoint.com/sites/ConnectedFacility/Shared%20Documents/Forms/AllItems.aspx" target="_blank" title="Intro and GUI">CF Video 1</a>
+            <a type="button" class="btn btn-light flex-fill mr-3" href="https://usps365.sharepoint.com/sites/ConnectedFacility/Shared%20Documents/Forms/AllItems.aspx" target="_blank" title="Operational Features">CF Video 2</a>
+            <a type="button" class="btn btn-light flex-fill mr-3" href="https://usps365.sharepoint.com/sites/ConnectedFacility/Shared%20Documents/Forms/AllItems.aspx" target="_blank" title="Use Cases and Summary">CF Video 3</a>
+           
             <div class="">
                 <table class="faqTable faqHeader-dark table-striped bg-white">
                     <thead class="">

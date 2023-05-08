@@ -2220,6 +2220,7 @@ namespace Factory_of_the_Future
                             {
                                 if (cs.Zones.ContainsKey(id) && cs.Zones.TryGetValue(id, out GeoZone gz))
                                 {
+                                    gz.Properties.MPEGroup = objectdata.ContainsKey("MPE_Group") ? objectdata["MPE_Group"].ToString(): "";
                                     gz.Properties.MPENumber = (int)objectdata["MPE_Number"];
                                     gz.Properties.MPEType = objectdata["MPE_Type"].ToString();
                                     gz.Properties.Name = string.Concat(gz.Properties.MPEType, "-", gz.Properties.MPENumber.ToString().PadLeft(3, '0'));
@@ -2460,6 +2461,9 @@ namespace Factory_of_the_Future
             GC.SuppressFinalize(this);
         }
 
-
+        internal IEnumerable<string> GetMPEGroupList()
+        {
+            throw new NotImplementedException();
+        }
     }
 }

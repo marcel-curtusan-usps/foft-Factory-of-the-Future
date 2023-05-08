@@ -109,6 +109,9 @@ namespace Factory_of_the_Future
         [JsonProperty("MPE_Number")]
         public int MPENumber { get; set; }
 
+        [JsonProperty("MPE_Group")]
+        public string MPEGroup { get; set; } = "";
+
         [JsonProperty("DPSData")]
         public DeliveryPointSequence DPSData { get; set; } = new DeliveryPointSequence();
 
