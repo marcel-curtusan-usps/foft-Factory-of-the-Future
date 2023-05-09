@@ -102,7 +102,7 @@
                             <span id="error_port_number" class="text-danger"></span>
                         </div>
                     </div>
-                    <div class="row mb-3"  id="endpointurl">
+                    <div class="row mb-3" id="endpointurl">
                         <div class="form-group col">
                             <label class="control-label">URL</label>
                             <input id="url" type="text" class="form-control" name="url" />
@@ -136,8 +136,8 @@
                             <label class="control-label">Message Type</label>
                             <select id="message_type" class="form-control pb-1" name="message_type">
                             </select>
-                            <span id="option-container" style="visibility: hidden; position:absolute;"></span>
-                          <%--  <input id="message_type" type="text" class="form-control" name="message_type" />--%>
+                            <span id="option-container" style="visibility: hidden; position: absolute;"></span>
+                            <%--  <input id="message_type" type="text" class="form-control" name="message_type" />--%>
                             <span id="error_message_type" class="text-danger"></span>
                         </div>
                         <div class="form-group col">
@@ -661,12 +661,11 @@
                             <label class="control-label">Zone LDC</label><input id="zone_ldc" type="text" class="form-control" name="zone_ldc" /><span id="errorzone_ldc" class="text-danger"></span>
                         </div>
                     </div>
-                   <%-- <div class="row mr-0 ml-0">
+                    <%-- <div class="row mr-0 ml-0">
                         <div class="form-group col-4">
                             <label class="control-label">GPIO Number</label><input id="gpio" type="text" class="form-control" name="GPIO" /><span id="errorgpio" class="text-danger"></span>
                         </div>
                     </div>--%>
-
                 </div>
                 <div class="modal-footer1">
                     <div class="col">
@@ -769,7 +768,7 @@
                     </div>
                     <button class="col-1 close" type="button" data-dismiss="modal" aria-label="Close"><i class="pi-iconExit float-right mt-2 mr-2"></i></button>
                 </div>
-                <div class="modal-body" >
+                <div class="modal-body">
                     <div class="card-body pb-0" id="RouteTripDetailscard">
                     </div>
                     <div class="card-body pb-0">
@@ -800,7 +799,7 @@
                     <div class="col">
                         <button class="btn btn-outline-secondary float-left" type="button" data-dismiss="modal">Close</button>
                     </div>
-                 
+
                 </div>
             </div>
         </div>
@@ -1596,7 +1595,7 @@
                             </div>
                         </div>
                     </div>
-                    <div class="card w-100 mb-3" id="swaggercard" style="display:none">
+                    <div class="card w-100 mb-3" id="swaggercard" style="display: none">
                         <h6 class="card-header sectionHeader ml-2 mb-1 px-0">Swagger API </h6>
                         <div class="card-body ml-np5rem">
                             <div class="input-group mb-2 mx-3">
@@ -1631,20 +1630,21 @@
                             </div>
                         </div>
                     </div>
-                     <div class="card w-100 mb-3">
+                    <div class="card w-100 mb-3">
                         <h6 class="card-header sectionHeader ml-2 mb-1 px-0">User Training Video</h6>
                         <div class="card-body ml-np5rem">
                             <div class="input-group mb-2 mx-3">
                                 <!-- FOTF Survey Buttons -->
                                 <div role="group" class="d-flex btn-block" aria-label="Connected Facilities Surveys">
-                                    <a type="button" class="btn btn-light flex-fill mr-3" href="https://usps365.sharepoint.com/sites/ConnectedFacility/Shared%20Documents/Forms/AllItems.aspx" target="_blank" title="Intro and GUI">CF Video 1</a>
-                                    <a type="button" class="btn btn-light flex-fill mr-3" href="https://usps365.sharepoint.com/sites/ConnectedFacility/Shared%20Documents/Forms/AllItems.aspx" target="_blank" title="Operational Features">CF Video 2</a>
-                                    <a type="button" class="btn btn-light flex-fill mr-3" href="https://usps365.sharepoint.com/sites/ConnectedFacility/Shared%20Documents/Forms/AllItems.aspx" target="_blank" title="Use Cases and Summary">CF Video 3</a>
+                                    <a type="button" class="btn btn-light flex-fill mr-3" href="https://usps365.sharepoint.com/:v:/s/ConnectedFacility/EdnHnB3svr1NgMCa322niKMBAGZ4Q6pSQMbcgrPCF56KsA?e=EDZ7hg" target="_blank" title="Intro and GUI">CF Video 1</a>
+                                    <a type="button" class="btn btn-light flex-fill mr-3" href="https://usps365.sharepoint.com/:v:/s/ConnectedFacility/EbyGm2VvxeJKr07bflqyAW8BH026wVp7p0nyMTT2LqcVjA?e=0TLTgr" target="_blank" title="Operational Features">CF Video 2</a>
+                                    <a type="button" class="btn btn-light flex-fill mr-3" href="https://usps365.sharepoint.com/:v:/s/ConnectedFacility/EUPsFzba8MxBnQD__ju3LmoBqQYQ4tCPo3-amiXfyYzQ3A?e=FdGJt7" target="_blank" title="Use Cases and Summary">CF Video 3</a>
+                                    <a type="button" class="btn btn-light flex-fill mr-3" href="https://usps365.sharepoint.com/:u:/s/ConnectedFacility/EfZV4j1QwrNAn5kZTuWKvQoBCtqGpbIsSNZAVz-g4QkDiQ?e=hsupn4" target="_blank" title="Use Cases and Summary">CF Quiz</a>
                                 </div>
                             </div>
                         </div>
                     </div>
-                    <div class="card w-100 mb-3" id="BEsearch" style="display:none">
+                    <div class="card w-100 mb-3" id="BEsearch" style="display: none">
                         <div class="row mx-0 mb-2">
                             <h6 class="card-header sectionHeader ml-2 px-0 py-0 mt-3">Badge / Equipment Search</h6>
                             <div class="input-group flex-fill px-0 mt-2 mx-3 mr-p5rem">
@@ -1763,10 +1763,10 @@
         <!-- FAQ PopOver -->
         <div id="faqContent" class="px-3">
             <a type="button" class="btn btn-light flex-fill mr-3" href="https://usps365.sharepoint.com/:b:/r/sites/ConnectedFacility/Shared%20Documents/Connected%20Facility%20User%20Guide.pdf?csf=1&web=1&e=2qxPxq" target="_blank">User Guide</a>
-            <a type="button" class="btn btn-light flex-fill mr-3" href="https://usps365.sharepoint.com/sites/ConnectedFacility/Shared%20Documents/Forms/AllItems.aspx" target="_blank" title="Intro and GUI">CF Video 1</a>
-            <a type="button" class="btn btn-light flex-fill mr-3" href="https://usps365.sharepoint.com/sites/ConnectedFacility/Shared%20Documents/Forms/AllItems.aspx" target="_blank" title="Operational Features">CF Video 2</a>
-            <a type="button" class="btn btn-light flex-fill mr-3" href="https://usps365.sharepoint.com/sites/ConnectedFacility/Shared%20Documents/Forms/AllItems.aspx" target="_blank" title="Use Cases and Summary">CF Video 3</a>
-           
+            <a type="button" class="btn btn-light flex-fill mr-3" href="https://usps365.sharepoint.com/:v:/s/ConnectedFacility/EdnHnB3svr1NgMCa322niKMBAGZ4Q6pSQMbcgrPCF56KsA?e=EDZ7hg" target="_blank" title="Intro and GUI">CF Video 1</a>
+            <a type="button" class="btn btn-light flex-fill mr-3" href="https://usps365.sharepoint.com/:v:/s/ConnectedFacility/EbyGm2VvxeJKr07bflqyAW8BH026wVp7p0nyMTT2LqcVjA?e=0TLTgr" target="_blank" title="Operational Features">CF Video 2</a>
+            <a type="button" class="btn btn-light flex-fill mr-3" href="https://usps365.sharepoint.com/:v:/s/ConnectedFacility/EUPsFzba8MxBnQD__ju3LmoBqQYQ4tCPo3-amiXfyYzQ3A?e=FdGJt7" target="_blank" title="Use Cases and Summary">CF Video 3</a>
+            <a type="button" class="btn btn-light flex-fill mr-3" href="https://usps365.sharepoint.com/:u:/s/ConnectedFacility/EfZV4j1QwrNAn5kZTuWKvQoBCtqGpbIsSNZAVz-g4QkDiQ?e=hsupn4" target="_blank" title="Use Cases and Summary">CF Quiz</a>
             <div class="">
                 <table class="faqTable faqHeader-dark table-striped bg-white">
                     <thead class="">
