@@ -1,24 +1,23 @@
-﻿{
-  "rtls_data": [
-    {
-      "site_name_local": "UZ-ENGINEERING",
-      "local_link": "http://56.72.3.15:8080/qpe/{0}?version=2"
-    },
-    {
-      "site_name_local": "RICHMOND_VA_PDC",
-      "local_link": "http://56.85.210.169:8080/qpe/{0}?version=2"
-    },
-    {
-      "site_name_local": "PORTLAND_OR_PDC",
-      "local_link": "http://56.143.125.154:8080/qpe/{0}?version=2"
-    },
-    {
-      "site_name_local": "MICHIGAN_METROPLEX",
-      "local_link": "http://10.160.53.22:8080/qpe/{0}?version=2"
-    },
-    {
-      "site_name_local": "QUEENS_NY_PDC",
-      "local_link": "http://56.41.128.153:8080/qpe/{0}?version=2"
-    }
-  ]
-}
+﻿[
+  {
+    "site_name_local": "UZ-ENGINEERING",
+    "local_link": "http://56.72.3.15:8080/qpe/{0}?version=2"
+  },
+  {
+    "site_name_local": "RICHMOND_VA_PDC",
+    "local_link": "http://56.85.210.169:8080/qpe/{0}?version=2"
+  },
+  {
+    "site_name_local": "PORTLAND_OR_PDC",
+    "local_link": "http://56.143.125.154:8080/qpe/{0}?version=2"
+  },
+  {
+    "site_name_local": "MICHIGAN_METROPLEX",
+    "local_link": "http://10.160.53.22:8080/qpe/{0}?version=2"
+  },
+  {
+    "site_name_local": "QUEENS_NY_PDC",
+    "local_link": "http://56.41.128.153:8080/qpe/{0}?version=2"
+  }
+  
+]

@@ -11,6 +11,7 @@ using System.Linq;
 using System.Net;
 using System.Net.Security;
 using System.Net.Sockets;
+using System.Runtime.CompilerServices;
 using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
@@ -186,29 +187,26 @@ namespace Factory_of_the_Future
 
                 if (!string.IsNullOrEmpty(file_content))
                 {
-                    JToken tempData = JToken.Parse(file_content);
-                    JToken machineInfo = tempData.SelectToken("rtls_data");
-                    if (machineInfo.HasValues)
+                    List<MachData> rtls_data = JsonConvert.DeserializeObject<List<MachData>>(file_content);
+                    if (rtls_data.Any())
                     {
-                        List<MachData> tempdata = machineInfo.ToObject<List<MachData>>();
-                        for (int i = 0; i < tempdata.Count; i++)
+                        foreach (MachData item in rtls_data)
                         {
-                            Uri tempUrl = new Uri(tempdata[i].LocalLink);
-                            tempdata[i].Port = tempUrl.Port;
-                            tempdata[i].Host = tempdata[i].LocalLink;
-                            if (!string.IsNullOrEmpty(tempdata[i].Host) && !RTLShData.ContainsKey(tempdata[i].Host))
+                            Uri tempUrl = new Uri(item.LocalLink);
+                            item.Port = tempUrl.Port;
+                            item.Host = tempUrl.Host;
+                            item.URL = item.LocalLink;
+                            if (!string.IsNullOrEmpty(item.Host) && !RTLShData.ContainsKey(item.Host))
                             {
-                                RTLShData.TryAdd(tempdata[i].Host, tempdata[i]);
+                                RTLShData.TryAdd(item.Host, item);
                             }
-
                         }
                     }
                 }
             }
-            catch (Exception)
+            catch (Exception e)
             {
-
-                throw;
+                new ErrorLogger().ExceptionLog(e);
             }
         }
 
@@ -220,22 +218,19 @@ namespace Factory_of_the_Future
 
                 if (!string.IsNullOrEmpty(file_content))
                 {
-                    JToken tempData = JToken.Parse(file_content);
-                    JToken machineInfo = tempData.SelectToken("mach_data");
-                    if (machineInfo.HasValues)
+                    List<MachData> mpewatch_data = JsonConvert.DeserializeObject<List<MachData>>(file_content);
+                    if (mpewatch_data.Any())
                     {
-                        List<MachData> tempdata = machineInfo.ToObject<List<MachData>>();
-                        for (int i = 0; i < tempdata.Count; i++)
+                        foreach (MachData item in mpewatch_data)
                         {
-                            Uri tempUrl = new Uri(tempdata[i].LocalLink);
-                            tempdata[i].Port = tempUrl.Port;
-                            tempdata[i].Host = tempUrl.Host;
-                            tempdata[i].URL = string.Concat(tempdata[i].LocalLink, "mpemaster.api_page.get_data_by_time?id={0}&data_source={1}&start_time={2}&end_time={3}");
-                            if (!string.IsNullOrEmpty(tempdata[i].Host) && !MPEWatchData.ContainsKey(tempdata[i].Host))
+                            Uri tempUrl = new Uri(item.LocalLink);
+                            item.Port = tempUrl.Port;
+                            item.Host = tempUrl.Host;
+                            item.URL = string.Concat(item.LocalLink, "mpemaster.api_page.get_data_by_time?id={0}&data_source={1}&start_time={2}&end_time={3}");
+                            if (!string.IsNullOrEmpty(item.Host) && !MPEWatchData.ContainsKey(item.Host))
                             {
-                                MPEWatchData.TryAdd(tempdata[i].Host, tempdata[i]);
+                                MPEWatchData.TryAdd(item.Host, item);
                             }
-
                         }
                     }
                 }

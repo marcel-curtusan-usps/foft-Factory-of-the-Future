@@ -1,6 +1,4 @@
-{
-  "mach_data": [
-
+[
     {
       "site_name_local": "ABILENE",
       "area_name": "Southwest",
@@ -2080,6 +2078,6 @@
       "local_link": "http://56.134.33.11:7777/pls/mpewatch/",
       "rnum": "296"
     }
-  ]
-}
+  
+]
 
