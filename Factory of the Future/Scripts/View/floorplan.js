@@ -1,4 +1,5 @@
-﻿let nextSibling, fileName ="", checked;
+﻿let nextSibling, fileName = "", checked;
+let APIAuthorization = "YmFzaWMgUVVkV1VFOVNWRUZNVlhObGNqcEJaM1pRYjNKMFlXeDFKR1Z5TURFPQ==";
 $(function () {
   
     $("#fupload").keyup(function (e) {
@@ -24,7 +25,11 @@ $(function () {
             data.append("name", $('input[type=text][id=floorname]').val());
             data.append("metersPerPixel", $("#metersPerPixel option:selected").val());
             $.ajax({
-                url: window.location.href + "/api/UploadFiles",
+                url: window.location.href + "api/UploadFiles",
+                headers:
+                {
+                    'APIAuthorization': APIAuthorization
+                },
                 type: "POST",
                 data: data,
                 cache: false,

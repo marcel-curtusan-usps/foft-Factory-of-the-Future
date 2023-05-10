@@ -48,7 +48,7 @@ namespace Factory_of_the_Future
         public string Base64Image { get; set; } = AppParameters.NoImage;
 
         [JsonProperty("CAMERA_ALERTS")]
-        public List<DarvisCameraAlert> Alerts { get; set; }
+        public List<DarvisCameraAlert> Alerts { get; set; } = new List<DarvisCameraAlert>();
 
         [JsonProperty("LAST_ALERT_UPDATE")]
         public long LastAlertUpdate { get; set; } = 0;

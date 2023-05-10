@@ -58,6 +58,7 @@ namespace Factory_of_the_Future
         public static List<ThroughputValues> MachineThroughputMax { get; set; }
 
         //public static Dictionary<string, string> CameraMapping { get; set; }
+        public static ConcurrentDictionary<string, MachData> RTLShData { get; set; } = new ConcurrentDictionary<string, MachData>();
         public static ConcurrentDictionary<string, MachData> MPEWatchData { get; set; } = new ConcurrentDictionary<string, MachData>();
         // public static ConcurrentDictionary<string, CoordinateSystem> CoordinateSystem { get; set; } = new ConcurrentDictionary<string, CoordinateSystem>();  
         public static ConcurrentDictionary<string, Cameras> CameraInfoList { get; set; } = new ConcurrentDictionary<string, Cameras>();
@@ -93,7 +94,7 @@ namespace Factory_of_the_Future
             { "Pacific/Honolulu", "Hawaiian Standard Time" }
         };
 
-        internal static void Start()
+        internal static async void Start()
         {
             try
             {
@@ -158,16 +159,17 @@ namespace Factory_of_the_Future
                 // Load app settings and data asynchronously
                 if (GetAppSettings())
                 {
-                    Task.Run(() =>
+                  Task.Run(() =>
                     {
                         GetMPEWatchSite();
+                        GetRTLSSites(); 
                         GetNotificationDefault();
                         LoadTempIndoorapData("Project_Data.json").ConfigureAwait(false);
                         GetMachineThroughputMax("MachineThroughputMax.csv");
                     }).ConfigureAwait(false);
 
-                    Task.Run(() => new Load().GetDoorTripAssociationAsync()).ConfigureAwait(false);
-                    Task.Run(() => new Load().GetConnectionDefaultAsync()).ConfigureAwait(false);
+                   Task.Run(() => new Load().GetDoorTripAssociationAsync()).ConfigureAwait(false);
+                   Task.Run(() => new Load().GetConnectionDefaultAsync()).ConfigureAwait(false);
                 }
             }
             catch (Exception ex)
@@ -175,6 +177,41 @@ namespace Factory_of_the_Future
                 new ErrorLogger().ExceptionLog(ex);
             }
         }
+
+        private static void GetRTLSSites()
+        {
+            try
+            {
+                string file_content = new FileIO().Read(string.Concat(CodeBase.Parent.FullName.ToString(), Appsetting), "RTLS_Site_List.json");
+
+                if (!string.IsNullOrEmpty(file_content))
+                {
+                    JToken tempData = JToken.Parse(file_content);
+                    JToken machineInfo = tempData.SelectToken("rtls_data");
+                    if (machineInfo.HasValues)
+                    {
+                        List<MachData> tempdata = machineInfo.ToObject<List<MachData>>();
+                        for (int i = 0; i < tempdata.Count; i++)
+                        {
+                            Uri tempUrl = new Uri(tempdata[i].LocalLink);
+                            tempdata[i].Port = tempUrl.Port;
+                            tempdata[i].Host = tempdata[i].LocalLink;
+                            if (!string.IsNullOrEmpty(tempdata[i].Host) && !RTLShData.ContainsKey(tempdata[i].Host))
+                            {
+                                RTLShData.TryAdd(tempdata[i].Host, tempdata[i]);
+                            }
+
+                        }
+                    }
+                }
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+        }
+
         private static void GetMPEWatchSite()
         {
             try

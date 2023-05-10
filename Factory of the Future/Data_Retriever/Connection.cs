@@ -1,6 +1,7 @@
 ﻿using Factory_of_the_Future.Models;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using SMS;
 using System;
 using System.Linq;
 using System.Net;
@@ -94,6 +95,7 @@ namespace Factory_of_the_Future
         public UdpServer udpserver;
         public TcpServer tcpServer;
         public WebSocketInstanceHandler webSocketIntanceHandler;
+        internal SMS.SMS_API _smsAPI = null;
         internal Connection ConnectionInfo;
         private bool disposedValue;
         public JObject requestBody { get; protected set; }
@@ -269,44 +271,7 @@ namespace Factory_of_the_Future
             ConnectionInfo.Status = "Running";
             FOTFManager.Instance.BroadcastQSMUpdate(ConnectionInfo);
         }
-        private void WSInit()
-        {
-            webSocketIntanceHandler = new WebSocketInstanceHandler();
-            OnWsMessage messageEvent = null;
-            OnWsEvent closeEvent = null;
-            OnWsEvent openEvent = null;
-
-            switch (ConnectionInfo.MessageType.ToUpper())
-            {
-                case "WSDARVIS":
-                    messageEvent = DarvisWSMessage;
-                    closeEvent = DarvisClose;
-                    openEvent = DarvisOpen;
-                    break;
-            }
-            try
-            {
-                if (!String.IsNullOrEmpty(ConnectionInfo.Url) && messageEvent != null)
-                {
-                    webSocketIntanceHandler.CreateWSInstance(ConnectionInfo.ConnectionName, ConnectionInfo.Url, messageEvent, closeEvent, openEvent);
-                    webSocketIntanceHandler.Connect(ConnectionInfo.ConnectionName);
-                    Stopping = false;
-                    if (webSocketIntanceHandler.Connected(ConnectionInfo.ConnectionName))
-                    {
-                        ConnectionInfo.ApiConnected = true;
-                        ConnectionInfo.Status = "Running";
-                        FOTFManager.Instance.BroadcastQSMUpdate(ConnectionInfo);
-                        Status = 1;
-                    }
-                }
-
-            }
-            catch (Exception ex)
-            {
-                new ErrorLogger().ExceptionLog(ex);
-            }
-
-        }
+    
         public void UDPStop()
         {
             //stop UDP server
@@ -344,6 +309,72 @@ namespace Factory_of_the_Future
             {
                 new ErrorLogger().ExceptionLog(ex);
             }
+        }
+        public void SMSStop()
+        {
+            //stop WS instance
+            try
+            {
+                if (_smsAPI != null)
+                {
+                    _smsAPI.Disconnect();
+                }
+            }
+            catch (Exception ex)
+            {
+                new ErrorLogger().ExceptionLog(ex);
+            }
+        }
+        private void SMSInit()
+        {
+            try
+            {
+                //_smsAPI = new SMS.SMS_API();
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+
+        }
+        private void WSInit()
+        {
+            webSocketIntanceHandler = new WebSocketInstanceHandler();
+            OnWsMessage messageEvent = null;
+            OnWsEvent closeEvent = null;
+            OnWsEvent openEvent = null;
+
+            switch (ConnectionInfo.MessageType.ToUpper())
+            {
+                case "WSDARVIS":
+                    messageEvent = DarvisWSMessage;
+                    closeEvent = DarvisClose;
+                    openEvent = DarvisOpen;
+                    break;
+            }
+            try
+            {
+                if (!String.IsNullOrEmpty(ConnectionInfo.Url) && messageEvent != null)
+                {
+                    webSocketIntanceHandler.CreateWSInstance(ConnectionInfo.ConnectionName, ConnectionInfo.Url, messageEvent, closeEvent, openEvent);
+                    webSocketIntanceHandler.Connect(ConnectionInfo.ConnectionName);
+                    Stopping = false;
+                    if (webSocketIntanceHandler.Connected(ConnectionInfo.ConnectionName))
+                    {
+                        ConnectionInfo.ApiConnected = true;
+                        ConnectionInfo.Status = "Running";
+                        FOTFManager.Instance.BroadcastQSMUpdate(ConnectionInfo);
+                        Status = 1;
+                    }
+                }
+
+            }
+            catch (Exception ex)
+            {
+                new ErrorLogger().ExceptionLog(ex);
+            }
+
         }
         private void UDPInit()
         {
@@ -393,6 +424,13 @@ namespace Factory_of_the_Future
         public void WSDelete()
         {
             Thread DeleteThread = new Thread(new ThreadStart(WSStop));
+            DeleteThread.IsBackground = true;
+            DeleteThread.Start();
+
+        }
+        private void SMSDelete()
+        {
+            Thread DeleteThread = new Thread(new ThreadStart(SMSStop));
             DeleteThread.IsBackground = true;
             DeleteThread.Start();
 

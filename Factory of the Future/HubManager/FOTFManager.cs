@@ -2314,6 +2314,7 @@ namespace Factory_of_the_Future
                                                 AppParameters.AppSettings["FACILITY_ZIP"] = SiteInfo.ZipCode; //.ContainsKey("zipCode") ? SiteInfo["zipCode"] : "";
                                                 AppParameters.AppSettings["FACILITY_LKEY"] = SiteInfo.LocaleKey;//.ContainsKey("localeKey") ? SiteInfo["localeKey"] : "";
                                                 Task.Run(() => AppParameters.LoglocationSetup());
+                                                CoordinateSystem.Clear();
                                                 Task.Run(() => AppParameters.ResetParameters());
                                             }
                                             else
