@@ -27,12 +27,14 @@ namespace Factory_of_the_Future
                     con.IpAddress = "";
                     con.Port = 0;
                     con.Url = "";
+                    con.ActiveConnection = false;
                     string sitename = AppParameters.AppSettings["FACILITY_NAME"].ToString().ToLower().Replace(" ", "_").Replace("&", "").Replace("(", "").Replace(")", "");
                     AppParameters.MPEWatchData.Where(r => r.Value.SiteNameLocal.ToLower() == sitename).Select(y => y.Value).ToList().ForEach(m =>
                     {
                         con.IpAddress = m.Host;
                         con.Port = m.Port;
                         con.Url = m.URL;
+                        con.ActiveConnection = true;
                     });
                 }
                 if (con.ConnectionName.ToLower() == "Quuppa".ToLower() && con.ApiConnection)
@@ -40,12 +42,14 @@ namespace Factory_of_the_Future
                     con.IpAddress = "";
                     con.Port = 0;
                     con.Url = "";
+                    con.ActiveConnection = false;
                     string sitename = AppParameters.AppSettings["FACILITY_NAME"].ToString().ToLower().Replace(" ", "_").Replace("&", "").Replace("(", "").Replace(")", "");
                     AppParameters.RTLShData.Where(r => r.Value.SiteNameLocal.ToLower() == sitename).Select(y => y.Value).ToList().ForEach(m =>
                     {
                         con.IpAddress = m.Host;
                         con.Port = m.Port;
                         con.Url = m.URL;
+                        con.ActiveConnection = true;
                     });
                 }
                 NewConnection.ID = con.Id;

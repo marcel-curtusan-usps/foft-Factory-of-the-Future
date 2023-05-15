@@ -160,7 +160,7 @@ namespace Factory_of_the_Future
                 // Load app settings and data asynchronously
                 if (GetAppSettings())
                 {
-                  Task.Run(() =>
+              await Task.Run(() =>
                     {
                         GetMPEWatchSite();
                         GetRTLSSites(); 
@@ -169,8 +169,8 @@ namespace Factory_of_the_Future
                         GetMachineThroughputMax("MachineThroughputMax.csv");
                     }).ConfigureAwait(false);
 
-                   Task.Run(() => new Load().GetDoorTripAssociationAsync()).ConfigureAwait(false);
-                   Task.Run(() => new Load().GetConnectionDefaultAsync()).ConfigureAwait(false);
+                  await Task.Run(() => new Load().GetDoorTripAssociationAsync()).ConfigureAwait(false);
+                  await Task.Run(() => new Load().GetConnectionDefaultAsync()).ConfigureAwait(false);
                 }
             }
             catch (Exception ex)
