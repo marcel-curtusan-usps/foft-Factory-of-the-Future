@@ -660,12 +660,17 @@
                         <div class="form-group col-4">
                             <label class="control-label">Zone LDC</label><input id="zone_ldc" type="text" class="form-control" name="zone_ldc" /><span id="errorzone_ldc" class="text-danger"></span>
                         </div>
-                    </div>
-                    <%-- <div class="row mr-0 ml-0">
                         <div class="form-group col-4">
-                            <label class="control-label">GPIO Number</label><input id="gpio" type="text" class="form-control" name="GPIO" /><span id="errorgpio" class="text-danger"></span>
+                            <label class="control-label">Group</label>
+                            <select id="mpe_group_select" title="Group Select Name" class="form-control pb-1 is-valid border border-success" name="mpe_group_select">
+                            </select>
                         </div>
-                    </div>--%>
+                        <div id="mpegroupname_div" class="form-group col-4">
+                            <label class="control-label">Enter New Group Name</label>
+                            <input id="mpegroupname" title="New Group Name" type="text" class="form-control is-invalid border border-danger" name="mpegroupname" placeholder="Ex. Parcels North" />
+                            <span id="error_mpegroupname" class="text-danger"></span>
+                        </div>
+                    </div>
                 </div>
                 <div class="modal-footer1">
                     <div class="col">

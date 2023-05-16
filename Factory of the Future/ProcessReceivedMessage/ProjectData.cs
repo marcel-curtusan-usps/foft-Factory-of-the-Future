@@ -120,7 +120,7 @@ namespace Factory_of_the_Future
                                                     //properties update
                                                     foreach (PropertyInfo prop in currentZone.Properties.GetType().GetProperties())
                                                     {
-                                                        if (!new Regex("^(Zone_Update|Quuppa_Override|MPEWatchData|bins|MPE_Bins|DPSData|staffingData|GpioValue|MissionList|source)$", RegexOptions.IgnoreCase).IsMatch(prop.Name))
+                                                        if (!new Regex("^(Zone_Update|Quuppa_Override|MPEWatchData|bins|MPEBins|DPSData|StaffingData|GpioValue|MissionList|Source|MPEGroup)$", RegexOptions.IgnoreCase).IsMatch(prop.Name))
                                                         {
                                                             if (prop.GetValue(newzone.Value.Properties, null).ToString() != prop.GetValue(currentZone.Properties, null).ToString())
                                                             {

@@ -202,6 +202,7 @@ namespace Factory_of_the_Future
         /// <returns></returns>
 
         public IEnumerable<string> GetMPEList()
+        //public MPEGroupsNames GetMPEList()
         {
             return _managerHub.GetMPEList();
         }

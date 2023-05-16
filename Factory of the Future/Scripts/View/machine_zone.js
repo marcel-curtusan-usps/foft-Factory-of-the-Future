@@ -730,7 +730,6 @@ async function Edit_Machine_Info(id) {
                         if (mpedata.length > 0) {
                             mpedata.sort(SortByName);
                             mpedata.push('**Machine Not Listed');
-                            //$('input[id=machine_zone_name]').css('display', 'none');
                             $('#machine_manual_row').css('display', 'none');
                             $('select[id=machine_zone_select_name]').css('display', '');
                             $('select[id=machine_zone_select_name]').empty();
@@ -763,17 +762,54 @@ async function Edit_Machine_Info(id) {
                             $('button[id=machinesubmitBtn]').prop('disabled', false);
                         }
                     });
-                    
+                    /*Populate Machine Group Name*/
+                    fotfmanager.server.getMPEGroupList().done(function (mpeGroupData) {
+                        $('select[id=mpe_group_select]').empty();
+                        if (mpeGroupData.length > 0) {
+                            mpeGroupData.sort(SortByName);
+                            mpeGroupData.push('**Group Not Listed');
+                            $('#mpegroupname_div').css('display', 'none');
+                            $('select[id=mpe_group_select]').css('display', '');
+                            $.each(mpeGroupData, function () {
+                                $('<option/>').val(this).html(this).appendTo('#mpe_group_select');
+                            })
+                            $('select[id=mpe_group_select]').val(Data.MPE_Group.toString());
+                        }
+                        else {
+                            $('<option/>').val("**Group Not Listed").html("**Group Not Listed").appendTo('select[id=mpe_group_select]');
+                            $('select[id=mpe_group_select]').val("**Group Not Listed");
+                            $('#mpegroupname_div').css('display', '');
+                            enableNewGroupName();
+                        }
+                    });
+                    /*Onchange Validate Machine Group Name*/
+                    $('select[id=mpe_group_select]').change(function () {
+                        if ($('select[name=mpe_group_select] option:selected').val() == '**Group Not Listed') {
+                            $('#mpegroupname_div').css('display', '');
+                            enableNewGroupName();
+                        }
+                        else {
+                            $('#mpegroupname_div').css('display', 'none');
+                            $('input[id=mpegroupname]').val("");
+                            $('button[id=machinesubmitBtn]').prop('disabled', false);
+                        }
+                    });
+
+                    /*Validate new group name textbox not empty*/
+                    $('input[type=text][name=mpegroupname]').keyup(function () {
+                        enableNewGroupName();
+                    });
+                   
                     $('input[type=text][name=machine_name]').val(Data.MPE_Type);
                     $('input[type=text][name=machine_number]').val(Data.MPE_Number);
                     $('input[type=text][name=zone_ldc]').val(Data.Zone_LDC);
                     $('input[type=text][name=machine_id]').val(Data.id);
-                   /* $('input[type=text][name=GPIOValue]').val(Data.GpioValue);*/
 
                     $('button[id=machinesubmitBtn]').off().on('click', function () {
                         try {
                             var machineName = "";
                             var machineNumber = "";
+                            var mpeGroupName = "";
                             $('button[id=machinesubmitBtn]').prop('disabled', true);
                             if ($('select[name=machine_zone_select_name] option:selected').val() != '**Machine Not Listed') {
                                 var selectedMachine = $('select[name=machine_zone_select_name] option:selected').val().split("-");
@@ -784,12 +820,19 @@ async function Edit_Machine_Info(id) {
                                 machineName = $('input[type=text][name=machine_name]').val();
                                 machineNumber = $('input[type=text][name=machine_number]').val();
                             }
+                            /*Assign values for Group Name*/
+                            if ($('select[name=mpe_group_select] option:selected').val() != '**Group Not Listed') {
+                                mpeGroupName = $('select[name=mpe_group_select] option:selected').val();
+                            }
+                            else {
+                                mpeGroupName = $('input[type=text][name=mpegroupname]').val();
+                            }
 
                             var jsonObject = {
                                 MPE_Type: machineName,//$('input[type=text][name=machine_name]').val(),
                                 MPE_Number: machineNumber,//$('input[type=text][name=machine_number]').val(),
                                 Zone_LDC: $('input[type=text][name=zone_ldc]').val(),
-                                GPIO:"",
+                                MPE_Group: mpeGroupName,
                                 floorId: baselayerid
                             };
 
@@ -831,6 +874,18 @@ function enablezoneSubmit() {
     }
     else {
         $('button[id=machinesubmitBtn]').prop('disabled', true);
+    }
+}
+function enableNewGroupName() {
+    if (!checkValue($('input[type=text][name=mpegroupname]').val())) {
+        $('input[type=text][name=mpegroupname]').removeClass('is-valid border border-success').addClass('is-invalid border border-danger');
+        $('span[id=error_mpegroupname]').text("Please Enter Group Name");
+        $('button[id=machinesubmitBtn]').prop('disabled', true);
+    }
+    else {
+        $('input[type=text][name=mpegroupname]').removeClass('is-invalid border border-danger').addClass('is-valid border border-success');
+        $('span[id=error_mpegroupname]').text("");
+        $('button[id=machinesubmitBtn]').prop('disabled', false);
     }
 }
 function GetMacineBackground(mpeWatchData) {

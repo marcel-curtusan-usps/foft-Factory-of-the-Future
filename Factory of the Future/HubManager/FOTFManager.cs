@@ -2220,10 +2220,10 @@ namespace Factory_of_the_Future
                             {
                                 if (cs.Zones.ContainsKey(id) && cs.Zones.TryGetValue(id, out GeoZone gz))
                                 {
-                                    gz.Properties.MPEGroup = objectdata.ContainsKey("MPE_Group") ? objectdata["MPE_Group"].ToString(): "";
                                     gz.Properties.MPENumber = (int)objectdata["MPE_Number"];
                                     gz.Properties.MPEType = objectdata["MPE_Type"].ToString();
                                     gz.Properties.Name = string.Concat(gz.Properties.MPEType, "-", gz.Properties.MPENumber.ToString().PadLeft(3, '0'));
+                                    gz.Properties.MPEGroup = objectdata["MPE_Group"].ToString();
                                     gz.Properties.QuuppaOverride = true;
                                     gz.Properties.MPEWatchData = GetMPEPerfData(gz.Properties.Name);
                                     await Task.Run(() => BroadcastMachineStatus(gz, floorID)).ConfigureAwait(false);
@@ -2238,7 +2238,6 @@ namespace Factory_of_the_Future
 
                 if (fileUpdate)
                 {
-
                     new FileIO().Write(string.Concat(AppParameters.Logdirpath, AppParameters.ConfigurationFloder), "Project_Data.json", AppParameters.ZoneOutPutdata(CoordinateSystem.Select(x => x.Value).ToList()));
                 }
 
@@ -2464,7 +2463,36 @@ namespace Factory_of_the_Future
 
         internal IEnumerable<string> GetMPEGroupList()
         {
-            throw new NotImplementedException();
+            try
+            {
+                /*Retrieve all group names available*/
+                var groupNames = new List<string>();
+                foreach (CoordinateSystem cs in FOTFManager.Instance.CoordinateSystem.Values)
+                {
+                    cs.Zones.Where(f => (f.Value.Properties.ZoneType == "Machine" || f.Value.Properties.ZoneType == "MPEZone"))
+                            .Select(y => y.Value)
+                            .ToList().ForEach(zone =>
+                            {
+                                if (!string.IsNullOrEmpty(zone.Properties.MPEGroup))
+                                {
+                                    groupNames.Add(zone.Properties.MPEGroup);
+                                }
+                            });
+                }
+                /*Eliminate duplicates*/
+                if (groupNames.Any() == true)
+                {
+                    var groupNamesNoDup = groupNames.Distinct();
+                    return groupNamesNoDup;
+                }
+
+                return groupNames;
+            }
+            catch (Exception e)
+            {
+                new ErrorLogger().ExceptionLog(e);
+                return null;
+            }
         }
     }
 }
