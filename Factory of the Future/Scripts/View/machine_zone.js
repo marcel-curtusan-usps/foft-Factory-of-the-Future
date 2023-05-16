@@ -763,20 +763,19 @@ async function Edit_Machine_Info(id) {
                         }
                     });
                     /*Populate Machine Group Name*/
-                    fotfmanager.server.getMPEGroupList().done(function (mpedata) {
+                    fotfmanager.server.getMPEGroupList().done(function (mpeGroupData) {
                         $('select[id=mpe_group_select]').empty();
-                        if (mpedata.length > 0) {
-                            mpedata.sort(SortByName);
-                            mpedata.push('**Group Not Listed');
+                        if (mpeGroupData.length > 0) {
+                            mpeGroupData.sort(SortByName);
+                            mpeGroupData.push('**Group Not Listed');
                             $('#mpegroupname_div').css('display', 'none');
                             $('select[id=mpe_group_select]').css('display', '');
-                            $.each(mpedata, function () {
+                            $.each(mpeGroupData, function () {
                                 $('<option/>').val(this).html(this).appendTo('#mpe_group_select');
                             })
                             $('select[id=mpe_group_select]').val(Data.MPE_Group.toString());
                         }
                         else {
-                           /* $('<option/>').val("--Select Group--").html("--Select Group--").appendTo('select[id=mpe_group_select]');*/
                             $('<option/>').val("**Group Not Listed").html("**Group Not Listed").appendTo('select[id=mpe_group_select]');
                             $('select[id=mpe_group_select]').val("**Group Not Listed");
                             $('#mpegroupname_div').css('display', '');
@@ -833,7 +832,6 @@ async function Edit_Machine_Info(id) {
                                 MPE_Type: machineName,//$('input[type=text][name=machine_name]').val(),
                                 MPE_Number: machineNumber,//$('input[type=text][name=machine_number]').val(),
                                 Zone_LDC: $('input[type=text][name=zone_ldc]').val(),
-                               /* GPIO: "",*/
                                 MPE_Group: mpeGroupName,
                                 floorId: baselayerid
                             };

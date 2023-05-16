@@ -2485,8 +2485,6 @@ namespace Factory_of_the_Future
                     var groupNamesNoDup = groupNames.Distinct();
                     return groupNamesNoDup;
                 }
-                
-                //var namesGroupNames = new MPEGroupsNames(AppParameters.MPEPerformance.Select(y => y.Key).ToList(), groupNamesNoDup.ToList());
 
                 return groupNames;
             }
