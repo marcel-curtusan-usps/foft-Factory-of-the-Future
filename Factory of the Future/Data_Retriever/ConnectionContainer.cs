@@ -27,14 +27,13 @@ namespace Factory_of_the_Future
                     con.IpAddress = "";
                     con.Port = 0;
                     con.Url = "";
-                    con.ActiveConnection = false;
                     string sitename = AppParameters.AppSettings["FACILITY_NAME"].ToString().ToLower().Replace(" ", "_").Replace("&", "").Replace("(", "").Replace(")", "");
                     AppParameters.MPEWatchData.Where(r => r.Value.SiteNameLocal.ToLower() == sitename).Select(y => y.Value).ToList().ForEach(m =>
                     {
                         con.IpAddress = m.Host;
                         con.Port = m.Port;
                         con.Url = m.URL;
-                        con.ActiveConnection = true;
+                        con.ActiveConnection = con.ActiveConnection;
                     });
                 }
                 if (con.ConnectionName.ToLower() == "Quuppa".ToLower() && con.ApiConnection)
@@ -42,14 +41,14 @@ namespace Factory_of_the_Future
                     con.IpAddress = "";
                     con.Port = 0;
                     con.Url = "";
-                    con.ActiveConnection = false;
+               
                     string sitename = AppParameters.AppSettings["FACILITY_NAME"].ToString().ToLower().Replace(" ", "_").Replace("&", "").Replace("(", "").Replace(")", "");
                     AppParameters.RTLShData.Where(r => r.Value.SiteNameLocal.ToLower() == sitename).Select(y => y.Value).ToList().ForEach(m =>
                     {
                         con.IpAddress = m.Host;
                         con.Port = m.Port;
                         con.Url = m.URL;
-                        con.ActiveConnection = true;
+                        con.ActiveConnection = con.ActiveConnection;
                     });
                 }
                 NewConnection.ID = con.Id;
@@ -83,7 +82,7 @@ namespace Factory_of_the_Future
                 else
                 {
                     NewConnection.Status = 2;
-                    NewConnection.ConnectionInfo.Status = "Deactived";
+                    NewConnection.ConnectionInfo.Status = "Deactivated";
                 }
                 if (updateFile)
                 {
@@ -124,6 +123,7 @@ namespace Factory_of_the_Future
                         }
                         if (!updateConndata.ActiveConnection)
                         {
+                            Connection_item.ConnectionInfo.Status = "Stopped/Deactivated";
                             Connection_item.ConnectionInfo.DeactivatedDate = DateTime.Now;
                             Connection_item.ConnectionInfo.DeactivatedByUsername = updateConndata.LastupdateByUsername;
                             Connection_item.ConnectionInfo.ActiveConnection = updateConndata.ActiveConnection;
@@ -229,10 +229,10 @@ namespace Factory_of_the_Future
                                 Connection_item.ConnectionInfo.Status = "Running";
                                 break;
                             case 2:
-                                Connection_item.ConnectionInfo.Status = "Deactived";
+                                Connection_item.ConnectionInfo.Status = "Deactivated";
                                 break;
                             case 3:
-                                Connection_item.ConnectionInfo.Status = "Invaild URL";
+                                Connection_item.ConnectionInfo.Status = "Invalid URL";
                                 break;
                             case 4:
                                 Connection_item.ConnectionInfo.Status = "No data";

@@ -5,6 +5,7 @@ using System.Diagnostics;
 using System.Net;
 using System.Net.Sockets;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace Factory_of_the_Future
 {
@@ -463,7 +464,7 @@ namespace Factory_of_the_Future
         protected virtual void OnStarting()
         {
             Conn.Status = "Strating";
-            FOTFManager.Instance.BroadcastQSMUpdate(Conn);
+            Task.Run(() => FOTFManager.Instance.BroadcastQSMUpdate(Conn)).ConfigureAwait(false);
         }
         /// <summary>
         /// Handle server started notification
@@ -472,7 +473,7 @@ namespace Factory_of_the_Future
         {
             Conn.Status = "Running";
             Conn.ActiveConnection = true;
-            FOTFManager.Instance.BroadcastQSMUpdate(Conn);
+            Task.Run(() => FOTFManager.Instance.BroadcastQSMUpdate(Conn)).ConfigureAwait(false);
         }
         /// <summary>
         /// Handle server stopping notification
@@ -481,16 +482,16 @@ namespace Factory_of_the_Future
         {
             Conn.Status = " Stopping";
             Conn.ActiveConnection = false;
-            FOTFManager.Instance.BroadcastQSMUpdate(Conn);
+            Task.Run(() => FOTFManager.Instance.BroadcastQSMUpdate(Conn)).ConfigureAwait(false);
         }
         /// <summary>
         /// Handle server stopped notification
         /// </summary>
         protected virtual void OnStopped()
         {
-            Conn.Status = " Stopped/Deactived";
+            Conn.Status = " Stopped/Deactivated";
             Conn.ActiveConnection = false;
-            FOTFManager.Instance.BroadcastQSMUpdate(Conn);
+            Task.Run(() => FOTFManager.Instance.BroadcastQSMUpdate(Conn)).ConfigureAwait(false);
         }
 
         /// <summary>

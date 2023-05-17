@@ -116,27 +116,7 @@ namespace Factory_of_the_Future
                 Dispose();
             }
         }
-        //internal void SaveDoorTripAssociation(DoorTripAssociation data)
-        //{
-        //    try
-        //    {
-
-        //        AppParameters.DoorTripAssociation.AddOrUpdate(string.Concat(data.Route, data.Trip), data, (key, oldValue) =>
-        //        {
-        //            return data;
-        //        });
-
-        //        new FileIO().Write(string.Concat(AppParameters.Logdirpath, AppParameters.ConfigurationFloder), "DoorTripAssociation.json", JsonConvert.SerializeObject(AppParameters.DoorTripAssociation.Select(x => x.Value).ToList(), Formatting.Indented));
-        //    }
-        //    catch (Exception e)
-        //    {
-        //        new ErrorLogger().ExceptionLog(e);
-        //    }
-        //    finally
-        //    {
-        //        Dispose();
-        //    }
-        //}
+      
         private bool getDefaultDockDoor(string rt, out string door)
         {
             string _door = "";
@@ -154,57 +134,7 @@ namespace Factory_of_the_Future
                 return false;
             }
         }
-        //private RouteTrips AddTriptoList(string routetripid, RouteTrips newRTData)
-        //{
-        //    try
-        //    {
-        //        if (string.IsNullOrEmpty(newRTData.DoorNumber) )
-        //        {
-        //            getDefaultDockDoor(string.Concat(newRTData.Route, newRTData.Trip), out string RouteTritDefaultDoor);
-        //            newRTData.DoorNumber = RouteTritDefaultDoor;
-        //            newRTData.DoorId = !string.IsNullOrEmpty(RouteTritDefaultDoor) ? string.Concat("99D", RouteTritDefaultDoor.PadLeft(4, '-')) : "";
-
-
-        //            if (AppParameters.RouteTripsList.ContainsKey(routetripid) && AppParameters.RouteTripsList.TryGetValue(routetripid, out RouteTrips existingVal))
-        //            {
-        //                if (AppParameters.RouteTripsList.TryUpdate(routetripid, newRTData, existingVal))
-        //                {
-        //                    //update 
-
-        //                }
-
-        //            }
-        //            else
-        //            {
-
-        //                if (AppParameters.RouteTripsList.TryAdd(routetripid, newRTData))
-        //                {
-        //                    //add
-        //                }
-        //            }
-
-        //            if (newRTData.OperDate != null)
-        //            {
-        //               await Task.Run(() => new ItineraryTrip_Update(GetItinerary(newRTData.Route, newRTData.Trip, AppParameters.AppSettings["FACILITY_NASS_CODE"].ToString(), AppParameters.GetSvDate(newRTData.OperDate)), routetripid)).ConfigureAwait(false);
-        //            }
-        //        }
-        //        else
-        //        {
-        //            if (AppParameters.RouteTripsList.TryAdd(routetripid, newRTData))
-        //            {
-        //                if (newRTData.OperDate != null)
-        //                {
-        //                    await Task.Run(() => new ItineraryTrip_Update(GetItinerary(newRTData.Route, newRTData.Trip, AppParameters.AppSettings["FACILITY_NASS_CODE"].ToString(), AppParameters.GetSvDate(newRTData.OperDate)), routetripid)).ConfigureAwait(false);
-        //                }
-        //            }
-        //        }
-        //    }
-        //    catch (Exception e)
-        //    {
-        //        new ErrorLogger().ExceptionLog(e);
-        //    }
-        //}
-
+        
         private string GetItinerary(string route, string trip, string nasscode, DateTime start_time)
         {
             string temp = "";
@@ -248,14 +178,6 @@ namespace Factory_of_the_Future
                 tempData = null;
             }
         }
-
-        // // TODO: override finalizer only if 'Dispose(bool disposing)' has code to free unmanaged resources
-        // ~ProjectData()
-        // {
-        //     // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
-        //     Dispose(disposing: false);
-        // }
-
         public void Dispose()
         {
             // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method

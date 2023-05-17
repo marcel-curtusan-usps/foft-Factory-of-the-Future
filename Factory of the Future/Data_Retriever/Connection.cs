@@ -22,6 +22,9 @@ namespace Factory_of_the_Future
         protected override void OnStarted()
         {
             // Start receive datagrams
+            Conn.Status = "Running";
+            Conn.ActiveConnection = true;
+            Task.Run(() => FOTFManager.Instance.BroadcastQSMUpdate(Conn)).ConfigureAwait(false);
             ReceiveAsync();
         }
 
@@ -70,14 +73,8 @@ namespace Factory_of_the_Future
 
         protected override void OnError(SocketError error)
         {
-            //foreach (Connection m in AppParameters.ConnectionList.Where(x => x.Value.Id == conid).Select(y => y.Value))
-            //{
-            //    m.ApiConnected = false;
-            //    m.LasttimeApiConnected = DateTime.Now;
-            //    m.UpdateStatus = true;
-            //    new ErrorLogger().CustomLog(string.Concat("UDP server caught an error with code", error), string.Concat((string)AppParameters.AppSettings.Property("APPLICATION_NAME").Value, "UDP_InVaild_Message"));
-
-            //}
+            Conn.Status = "No data";
+            Task.Run(() => FOTFManager.Instance.BroadcastQSMUpdate(Conn)).ConfigureAwait(false);
         }
     }
 
@@ -86,7 +83,7 @@ namespace Factory_of_the_Future
         public string ID;
         internal string MessageType = string.Empty;
         public int Thread_ID;
-        public int Status;  // 0 = Idle/Active, 1 = Running, 2 = Stopped/Deactived, 3 = Invaild URL, 4 = No data,
+        public int Status;  // 0 = Idle/Active, 1 = Running, 2 = Stopped/Deactivated, 3 = Invalid URL, 4 = No data,
         public bool ConstantRefresh = false;
         public bool Stopping = false;
         public DateTime DownloadDatetime;
@@ -129,8 +126,8 @@ namespace Factory_of_the_Future
                         // If user wanted to stop watching this thread
                         // while thread was resting, we will exit
                         ConnectionInfo.ApiConnected = false;
-                        ConnectionInfo.Status = "Deactived";
-                        FOTFManager.Instance.BroadcastQSMUpdate(ConnectionInfo);
+                        ConnectionInfo.Status = "Deactivated";
+                        Task.Run(() => FOTFManager.Instance.BroadcastQSMUpdate(ConnectionInfo)).ConfigureAwait(false);
                         break;
                     }
                     if (Status == 2)
@@ -262,14 +259,14 @@ namespace Factory_of_the_Future
         public void DarvisClose()
         {
             ConnectionInfo.ApiConnected = false;
-            ConnectionInfo.Status = "Deactived";
-            FOTFManager.Instance.BroadcastQSMUpdate(ConnectionInfo);
+            ConnectionInfo.Status = "Deactivated";
+            Task.Run(() => FOTFManager.Instance.BroadcastQSMUpdate(ConnectionInfo)).ConfigureAwait(false);
         }
         public void DarvisOpen()
         {
             ConnectionInfo.ApiConnected = true;
             ConnectionInfo.Status = "Running";
-            FOTFManager.Instance.BroadcastQSMUpdate(ConnectionInfo);
+            Task.Run(() => FOTFManager.Instance.BroadcastQSMUpdate(ConnectionInfo)).ConfigureAwait(false);
         }
     
         public void UDPStop()
@@ -364,7 +361,7 @@ namespace Factory_of_the_Future
                     {
                         ConnectionInfo.ApiConnected = true;
                         ConnectionInfo.Status = "Running";
-                        FOTFManager.Instance.BroadcastQSMUpdate(ConnectionInfo);
+                        Task.Run(() => FOTFManager.Instance.BroadcastQSMUpdate(ConnectionInfo)).ConfigureAwait(false);
                         Status = 1;
                     }
                 }
@@ -457,8 +454,13 @@ namespace Factory_of_the_Future
             Status = 1;
             ConnectionInfo.ApiConnected = true;
             ConnectionInfo.ActiveConnection = true;
-            ConnectionInfo.Status = "Running";
-            FOTFManager.Instance.BroadcastQSMUpdate(ConnectionInfo);
+
+            if (ConnectionInfo.Status != "Running")
+            {
+               Task.Run(() => FOTFManager.Instance.BroadcastQSMUpdate(ConnectionInfo)).ConfigureAwait(false);
+                ConnectionInfo.Status = "Running";
+            }
+        
             try
             {
                 NASS_CODE = AppParameters.AppSettings["FACILITY_NASS_CODE"].ToString();
@@ -675,9 +677,12 @@ namespace Factory_of_the_Future
                         {
                             Status = 3;
                             ConnectionInfo.ApiConnected = false;
-                            ConnectionInfo.Status = "Invaild URL";
-                            FOTFManager.Instance.BroadcastQSMUpdate(ConnectionInfo);
-                            //Task.Run(() => updateConnection(this));
+                            if (ConnectionInfo.Status != "Invaild URL")
+                            {
+                                ConnectionInfo.Status = "Invaild URL";
+                                Task.Run(() => FOTFManager.Instance.BroadcastQSMUpdate(ConnectionInfo)).ConfigureAwait(false);
+                            }
+                           
                         }
                     }
                     catch (WebException ex)
@@ -691,8 +696,11 @@ namespace Factory_of_the_Future
 
                             Status = 0;
                             ConnectionInfo.ApiConnected = false;
-                            ConnectionInfo.Status = "No data";
-                            FOTFManager.Instance.BroadcastQSMUpdate(ConnectionInfo);
+                            if (ConnectionInfo.Status != "No data")
+                            {
+                                ConnectionInfo.Status = "No data";
+                                Task.Run(() => FOTFManager.Instance.BroadcastQSMUpdate(ConnectionInfo)).ConfigureAwait(false);
+                            }
                             //Task.Run(() => updateConnection(this));
                             return;
 
@@ -703,18 +711,22 @@ namespace Factory_of_the_Future
                         new ErrorLogger().ExceptionLog(e);
                         Status = 0;
                         ConnectionInfo.ApiConnected = false;
-                        ConnectionInfo.Status = "No data";
-                        FOTFManager.Instance.BroadcastQSMUpdate(ConnectionInfo);
-                        // Task.Run(() => updateConnection(this));
+                        if (ConnectionInfo.Status != "No data")
+                        {
+                            ConnectionInfo.Status = "No data";
+                            Task.Run(() => FOTFManager.Instance.BroadcastQSMUpdate(ConnectionInfo)).ConfigureAwait(false); ;
+                        }
                     }
                 }
                 else
                 {
                     Status = 0;
                     ConnectionInfo.ApiConnected = false;
-                    ConnectionInfo.Status = "Invaild URL";
-                    FOTFManager.Instance.BroadcastQSMUpdate(ConnectionInfo);
-                    // Task.Run(() => updateConnection(this));
+                    if (ConnectionInfo.Status != "Invaild URL")
+                    {
+                        ConnectionInfo.Status = "Invaild URL";
+                        Task.Run(() => FOTFManager.Instance.BroadcastQSMUpdate(ConnectionInfo)).ConfigureAwait(false);
+                    }
                 }
                 Status = 0;
             }
@@ -740,8 +752,12 @@ namespace Factory_of_the_Future
             Status = 2;
             ConnectionInfo.ApiConnected = false;
             ConnectionInfo.ActiveConnection = false;
-            ConnectionInfo.Status = "Deactived";
-            FOTFManager.Instance.BroadcastQSMUpdate(ConnectionInfo);
+            if (ConnectionInfo.Status != "Deactivated")
+            {
+                ConnectionInfo.Status = "Deactivated";
+                Task.Run(() => FOTFManager.Instance.BroadcastQSMUpdate(ConnectionInfo)).ConfigureAwait(false);
+            }
+          
         }
         private void _ThreadDelete()
         {

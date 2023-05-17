@@ -218,6 +218,10 @@ namespace Factory_of_the_Future
             {
 
                 PerfData = AppParameters.MPEPerformance.Where(x => x.Key == mpeId).Select(y => y.Value).FirstOrDefault();
+                if (PerfData == null)
+                {
+                    PerfData = new RunPerf();
+                }
                 return PerfData;
             }
             catch (Exception ex)
