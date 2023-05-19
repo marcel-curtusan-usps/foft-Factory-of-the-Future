@@ -42,7 +42,11 @@ namespace Factory_of_the_Future
                             qc = tempData.ToObject<QuuppaCoordinateSystem>();
                             foreach (Quuppa_CoordinateSystem qcitem in qc.CoordinateSystems)
                             {
-                                qcitem.BackgroundImages[0].Name = qcitem.Name;
+                                if (qcitem.BackgroundImages.Any())
+                                {
+                                    qcitem.BackgroundImages[0].Name = qcitem.Name;
+                                }
+                              
                                 if (FOTFManager.Instance.CoordinateSystem.ContainsKey(qcitem.Id))
                                 {
                                     foreach (CoordinateSystem cs in FOTFManager.Instance.CoordinateSystem.Values)

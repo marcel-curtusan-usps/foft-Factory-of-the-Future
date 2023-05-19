@@ -2498,5 +2498,10 @@ namespace Factory_of_the_Future
                 return null;
             }
         }
+
+        internal object DeviceScan(JObject request_data, string v)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

@@ -206,41 +206,41 @@ function getIdFromURIParameter(urlParameter) {
 }
 
 map.on('baselayerchange', function (e) {
-    baselayerid = e.layer.options.id;
-    console.log(baselayerid);
-    
-    fotfmanager.server.getIndoorMapFloor(baselayerid).done(function (data) {
-        sidebar.close('home');
-        $zoneSelect[0].selectize.setValue(-1, true);
-        $zoneSelect[0].selectize.clearOptions();
-        ebrAreas.clearLayers();
-        stagingAreas.clearLayers();
-        walkwayAreas.clearLayers();
-        exitAreas.clearLayers();
-        polyholesAreas.clearLayers();
-        dockDoors.clearLayers();
-        polygonMachine.clearLayers();
-     /*  *//* machineSparklines.clearLayers();*/
-        binzonepoly.clearLayers();
-        agvLocations.clearLayers();
-        viewPortsAreas.clearLayers();
-        stagingAreas.clearLayers();
-        //markers
-        tagsMarkersGroup.clearLayers();
-        piv_vehicles.clearLayers();
-        agv_vehicles.clearLayers();
-        hvi_tags.clearLayers();
-        cameras.clearLayers();
-        locatorMarker.clearLayers();
-        if (data.length > 0) {
-            init_zones(data[0].zones, baselayerid);
-            init_locators(data[0].locators, baselayerid);
-        }
-        assignIdsToLayerCheckboxes();
-        setLayerCheckUncheckEvents();
-        checkViewportLoad();
-    });
-
+    if (e.layer.options.id != baselayerid) {
+        baselayerid = e.layer.options.id;
+        console.log(baselayerid);
+        fotfmanager.server.getIndoorMapFloor(baselayerid).done(function (data) {
+            sidebar.close('home');
+            $zoneSelect[0].selectize.setValue(-1, true);
+            $zoneSelect[0].selectize.clearOptions();
+            ebrAreas.clearLayers();
+            stagingAreas.clearLayers();
+            walkwayAreas.clearLayers();
+            exitAreas.clearLayers();
+            polyholesAreas.clearLayers();
+            dockDoors.clearLayers();
+            polygonMachine.clearLayers();
+            /*  *//* machineSparklines.clearLayers();*/
+            binzonepoly.clearLayers();
+            agvLocations.clearLayers();
+            viewPortsAreas.clearLayers();
+            stagingAreas.clearLayers();
+            //markers
+            tagsMarkersGroup.clearLayers();
+            piv_vehicles.clearLayers();
+            agv_vehicles.clearLayers();
+            hvi_tags.clearLayers();
+            cameras.clearLayers();
+            locatorMarker.clearLayers();
+            if (data.length > 0) {
+                init_zones(data[0].zones, baselayerid);
+                init_locators(data[0].locators, baselayerid);
+            }
+            assignIdsToLayerCheckboxes();
+            setLayerCheckUncheckEvents();
+            checkViewportLoad();
+        });
+    }
 
 });
 function setLayerCheckUncheckEvents() {
@@ -443,20 +443,24 @@ async function init_mapSetup(MapData) {
 
                 $.each(MapData, function (index) {
                     //set new image
+                    let trackingarea = L.polygon([[100,150]],[[500,5000]]);
                     let img = new Image();
-                    //load Base64 image
-                    img.src = this.backgroundImages.base64;
-                    //create he bound of the image.
-                    let bounds = [[this.backgroundImages.yMeter, this.backgroundImages.xMeter], [this.backgroundImages.heightMeter + this.backgroundImages.yMeter, this.backgroundImages.widthMeter + this.backgroundImages.xMeter]];
-                    let trackingarea = L.polygon(bounds, {});
+                    if (!!this.backgroundImages) {
+                        //load Base64 image
+                        img.src = this.backgroundImages.base64;
+                        //create he bound of the image.
+                        let bounds = [[this.backgroundImages.yMeter, this.backgroundImages.xMeter], [this.backgroundImages.heightMeter + this.backgroundImages.yMeter, this.backgroundImages.widthMeter + this.backgroundImages.xMeter]];
+                        trackingarea = L.polygon(bounds, {});
+                    }
                     if (index === 0) {
+                        baselayerid = this.id;
                         mainfloor.options.id = this.id;
                         mainfloor.setUrl(img.src);
                         mainfloor.setZIndex(index);
                         mainfloor.setBounds(trackingarea.getBounds());
                         //center image
                         map.setView(trackingarea.getBounds().getCenter(), 1.5);
-
+                        init_zones(this.zones, baselayerid);
                     }
                     else {
                         layersControl.addBaseLayer(L.imageOverlay(img.src, trackingarea.getBounds(), { id: this.id, zindex: index }), this.backgroundImages.name);
@@ -728,7 +732,7 @@ async function GetUserProfile() {
     }
 }
 async function sortTable(table, order) {
-    var asc = order === 'asc',
+    let asc = order === 'asc',
         tbody = table.find('tbody');
     tbody.find('tr').sort(function (a, b) {
         if (asc) {

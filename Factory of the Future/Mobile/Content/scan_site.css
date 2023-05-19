@@ -1,0 +1,843 @@
+﻿/* Move down content because we have a fixed navbar that is 50px tall */
+body {
+    padding-top: 55px;
+    padding-bottom: 20px;
+    font-size: 1.2em;
+}
+
+.scannercontainer.vertical-center {
+    margin-bottom: 0; /* Remove the default bottom margin of .jumbotron */
+}
+
+.agv_status_button {
+    display: inline-block;
+    vertical-align: top;
+}
+
+.btn-outline-light {
+    background-color: #D9EDF7;
+}
+
+#connection_button {
+    display: inline-block;
+    vertical-align: top;
+}
+
+.vertical-center {
+    min-height: 100%; /* Fallback for vh unit */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/*end Bootstrap Override*/
+/*==========  Mobile First Method  ==========*/
+
+/*  Custom Extra Small Devices
+    Min-width
+  if If [device width] is greater than or equal to x_px, then do {…}”
+*/
+@media only screen and (min-width : 120px) {
+    /*img#paneluspslog {
+        display: block;
+        width:19em;
+    }*/
+    .modal-dialog {
+        width: 90%;
+    }
+
+    input.vehicle_number {
+        width: 24vw;
+        height: 18vw;
+        margin-left: 34vw;
+        font-size: 12vw;
+        text-align: center;
+    }
+
+    input.username_btn {
+        width: 29vw;
+        height: 6vw;
+        font-size: 3vw;
+        margin: 4px 4px 4px 4px;
+    }
+
+    input.logoff {
+        width: 29vw;
+        height: 7vw;
+        font-size: 4vw;
+        margin: 4px 4px 4px 4px;
+    }
+
+    input.vehicle_type_btn {
+        width: 29vw;
+        height: 6vw;
+        font-size: 3vw;
+        margin: 4px 4px 4px 4px;
+    }
+
+    input.misionTable {
+        width: 29vw;
+        height: 6vw;
+        font-size: 3vw;
+        margin: 4px 4px 4px 4px;
+    }
+
+    .inroute {
+        font-size: 3.5vw;
+        height: 4vw;
+    }
+
+    .inroute_lb {
+        font-size: 3.2vw;
+        height: 2vw;
+    }
+
+    .turnbyturn {
+        font-size: 13.9vw;
+    }
+
+    .dest_inroute_lb {
+        font-size: 6.5vw;
+        height: 10.2vw;
+    }
+
+    .panel-info .panel-heading label {
+        font-size: 3.5vw;
+    }
+
+    .panel-info .panel-body label {
+        font-size: 3.5vw;
+    }
+
+    .dataTable thead tr {
+        font-size: 1.4vw;
+    }
+
+    .dataTable tbody tr td {
+        font-size: 1.4vw;
+    }
+
+    .navbar-collapse ul li a {
+        font-size: small;
+    }
+
+    #loginname {
+        font-size: 1.4vw;
+    }
+
+    #MainContent_vehicle_queue_wrapper {
+        font-size: 2.1vw;
+    }
+
+    #MainContent_fleetstatustable_wrapper {
+        font-size: 2.1vw;
+    }
+}
+
+/* Custom, iPhone Retina */
+@media only screen and (max-width : 320px) {
+    /*img#paneluspslog {
+        display: block;
+        width: 28em;
+    }*/
+    body {
+        padding-top: 0px;
+        padding-bottom: 0px;
+        font-size: 1.2em;
+    }
+
+    .modal-dialog {
+        width: 95%;
+    }
+
+    .loginState {
+        width: 70%;
+        margin-left: 15%;
+    }
+
+    .table > thead > tr > th,
+    .table > tbody > tr > th,
+    .table > tfoot > tr > th,
+    .table > thead > tr > td,
+    .table > tfoot > tr > td {
+        line-height: 1.42857143;
+        vertical-align: top;
+        border-top: 1px solid #ddd;
+        text-align: center;
+    }
+
+    .table tbody > tr > td > input {
+        width: 35vw;
+        font-size: 4vw;
+    }
+
+    .table tbody > tr > td {
+        width: 98%;
+        font-size: 4vw;
+    }
+
+    input.vehicle_number {
+        width: 41vw;
+        height: 27vw;
+        margin-left: 11vw;
+        font-size: 19vw;
+        text-align: center;
+    }
+
+    input.username_btn {
+        width: 27vw;
+        height: 8vw;
+        font-size: 4.4vw;
+        margin: 4px 4px 4px 4px;
+        padding: 3px;
+    }
+
+    input.logoff {
+        width: 27vw;
+        height: 8vw;
+        font-size: 3.8vw;
+        margin: 4px 4px 4px 4px;
+    }
+
+    input.logoff {
+        width: 27vw;
+        height: 8vw;
+        font-size: 3.8vw;
+        margin: 4px 4px 4px 4px;
+    }
+
+    input.availabel_btn {
+        width: 100%;
+        height: 8vw;
+        font-size: 3.8vw;
+        padding: 0px;
+        background-color: black;
+        color: white;
+    }
+
+    input.vehicle_type_btn {
+        width: 34vw;
+        height: 8vw;
+        font-size: 3.8vw;
+        margin: 4px 4px 4px 4px;
+        padding: 3px;
+    }
+
+    .inroute {
+        font-size: 4vw;
+        height: 4vw;
+    }
+
+    .inroute_lb {
+        font-size: 2.5vw;
+    }
+
+    .turnbyturn {
+        font-size: 4vw;
+    }
+
+    .dest_inroute_lb {
+        font-size: 5.7vw;
+        height: 12.2vw;
+        padding: 7px;
+    }
+
+    .dest_inroute_btn_p {
+        height: 10.2vw;
+        font-size: 5.5vw;
+        margin: 9px 0px;
+        padding: 4px;
+    }
+
+    .dest_inroute_btn {
+        height: 10.2vw;
+        font-size: 5.5vw;
+        margin: 5px;
+        padding: 4px;
+    }
+
+    .col-xs-1, .col-sm-1, .col-md-1, .col-lg-1, .col-xs-2, .col-sm-2, .col-md-2, .col-lg-2, .col-xs-3, .col-sm-3, .col-md-3, .col-lg-3, .col-xs-4, .col-sm-4, .col-md-4, .col-lg-4, .col-xs-5, .col-sm-5, .col-md-5, .col-lg-5, .col-xs-6, .col-sm-6, .col-md-6, .col-lg-6, .col-xs-7, .col-sm-7, .col-md-7, .col-lg-7, .col-xs-8, .col-sm-8, .col-md-8, .col-lg-8, .col-xs-9, .col-sm-9, .col-md-9, .col-lg-9, .col-xs-10, .col-sm-10, .col-md-10, .col-lg-10, .col-xs-11, .col-sm-11, .col-md-11, .col-lg-11, .col-xs-12, .col-sm-12, .col-md-12, .col-lg-12 {
+        position: relative;
+        min-height: 1px;
+        padding-right: 1px;
+        padding-left: 0px;
+    }
+
+    .panel-heading {
+        padding: 0px 0px 0px 0px;
+        border-bottom: 1px solid transparent;
+        border-top-left-radius: 3px;
+        border-top-right-radius: 3px;
+    }
+
+    .form-control {
+        padding: 3px 7px;
+    }
+
+    .panel-body {
+        padding: 4px 9px 0px 0px;
+    }
+
+    .panel-info .panel-body .top-label {
+        font-size: 3.5vw;
+    }
+
+    .right {
+        text-align: right;
+        outline: none;
+        background-color: transparent;
+        border: 0px solid;
+        box-shadow: none;
+    }
+}
+
+@media only screen and (max-width : 480px) {
+    /*img#paneluspslog {
+        display: block;
+        width: 28em;
+    }*/
+    body {
+        padding-top: 0px;
+        padding-bottom: 0px;
+        font-size: 1.2em;
+    }
+
+    .modal-dialog {
+        width: 95%;
+    }
+
+    .loginState {
+        width: 70%;
+        margin-left: 15%;
+    }
+
+    .table > thead > tr > th,
+    .table > tbody > tr > th,
+    .table > tfoot > tr > th,
+    .table > thead > tr > td,
+    .table > tfoot > tr > td {
+        line-height: 1.42857143;
+        vertical-align: top;
+        border-top: 1px solid #ddd;
+        text-align: center;
+    }
+
+    .table tbody > tr > td > input {
+        width: 35vw;
+        font-size: 4vw;
+    }
+
+    .table tbody > tr > td {
+        width: 98%;
+        font-size: 4vw;
+    }
+
+    input.vehicle_number {
+        width: 41vw;
+        height: 27vw;
+        margin-left: 11vw;
+        font-size: 19vw;
+        text-align: center;
+    }
+
+    input.username_btn {
+        width: 27vw;
+        height: 8vw;
+        font-size: 4.4vw;
+        margin: 4px 4px 4px 4px;
+        padding: 3px;
+    }
+
+    input.logoff {
+        width: 27vw;
+        height: 8vw;
+        font-size: 3.8vw;
+        margin: 4px 4px 4px 4px;
+    }
+
+    input.logoff {
+        width: 27vw;
+        height: 8vw;
+        font-size: 3.8vw;
+        margin: 4px 4px 4px 4px;
+    }
+
+    input.availabel_btn {
+        width: 100%;
+        height: 8vw;
+        font-size: 3.8vw;
+        padding: 0px;
+        background-color: black;
+        color: white;
+    }
+
+    input.vehicle_type_btn {
+        width: 34vw;
+        height: 8vw;
+        font-size: 3.8vw;
+        margin: 4px 4px 4px 4px;
+        padding: 3px;
+    }
+
+    .inroute {
+        font-size: 4vw;
+        height: 4vw;
+    }
+
+    .inroute_lb {
+        font-size: 2.5vw;
+    }
+
+    .turnbyturn {
+        font-size: 4vw;
+    }
+
+    .dest_inroute_lb {
+        font-size: 5.7vw;
+        height: 12.2vw;
+        padding: 7px;
+    }
+
+    .dest_inroute_btn_p {
+        height: 10.2vw;
+        font-size: 5.5vw;
+        margin: 9px 0px;
+        padding: 4px;
+    }
+
+    .dest_inroute_btn {
+        height: 10.2vw;
+        font-size: 5.5vw;
+        margin: 5px;
+        padding: 4px;
+    }
+
+    .col-xs-1, .col-sm-1, .col-md-1, .col-lg-1, .col-xs-2, .col-sm-2, .col-md-2, .col-lg-2, .col-xs-3, .col-sm-3, .col-md-3, .col-lg-3, .col-xs-4, .col-sm-4, .col-md-4, .col-lg-4, .col-xs-5, .col-sm-5, .col-md-5, .col-lg-5, .col-xs-6, .col-sm-6, .col-md-6, .col-lg-6, .col-xs-7, .col-sm-7, .col-md-7, .col-lg-7, .col-xs-8, .col-sm-8, .col-md-8, .col-lg-8, .col-xs-9, .col-sm-9, .col-md-9, .col-lg-9, .col-xs-10, .col-sm-10, .col-md-10, .col-lg-10, .col-xs-11, .col-sm-11, .col-md-11, .col-lg-11, .col-xs-12, .col-sm-12, .col-md-12, .col-lg-12 {
+        position: relative;
+        min-height: 1px;
+        padding-right: 1px;
+        padding-left: 0px;
+    }
+
+    .panel-heading {
+        padding: 0px 0px 0px 0px;
+        border-bottom: 1px solid transparent;
+        border-top-left-radius: 3px;
+        border-top-right-radius: 3px;
+    }
+
+    .form-control {
+        padding: 3px 7px;
+    }
+
+    .panel-body {
+        padding: 4px 9px 0px 0px;
+    }
+
+    .panel-info .panel-body .top-label {
+        font-size: 3.5vw;
+    }
+
+    .right {
+        text-align: right;
+        outline: none;
+        background-color: transparent;
+        border: 0px solid;
+        box-shadow: none;
+    }
+}
+
+/* Small Devices, Tablets */
+@media only screen and (min-width : 768px) {
+    img#paneluspslog {
+        display: none;
+    }
+
+    .misionTable th, .misionTable td {
+        font-size: 1.8vw;
+        font-weight: bolder;
+    }
+
+    .misionTable tbody > tr > td > input {
+        width: 98%;
+        font-size: 1.8vw;
+    }
+
+    input.vehicle_number {
+        width: 24vw;
+        height: 18vw;
+        margin-left: 34vw;
+        font-size: 12vw;
+        text-align: center;
+    }
+
+    input.username_btn {
+        width: 14vw;
+        height: 4vw;
+        font-size: 1.8vw;
+        margin: 4px 4px 4px 4px;
+    }
+
+    input.logoff {
+        width: 10vw;
+        height: 4vw;
+        font-size: 1.8vw;
+        margin: 4px 4px 4px 4px;
+    }
+
+    input.vehicle_type_btn {
+        width: 35vw;
+        height: 3.5vw;
+        font-size: 1.8vw;
+        margin: 4px 4px 4px 4px;
+    }
+
+    .inroute {
+        font-size: 2.9vw;
+        height: 4vw;
+    }
+
+    .inroute_lb {
+        font-size: 2.4vw;
+        height: 2vw;
+    }
+
+    .turnbyturn {
+        font-size: 8.8vw;
+    }
+
+    .dest_inroute_lb {
+        font-size: 4.5vw;
+        height: 6.5vw;
+    }
+
+    #fleetstuspanel {
+        font-size: 0.9vw;
+    }
+
+        #fleetstuspanel button {
+            font-size: 0.9vw;
+        }
+
+        #fleetstuspanel span {
+            font-size: 0.9vw;
+        }
+
+    #btn-col .col-xs-1 {
+        width: 20%;
+    }
+
+    #fleetstatustable input[type=button] {
+        font-size: 0.9vw;
+    }
+
+    .modal-dialog {
+        width: 80%;
+    }
+
+    .panel-info .panel-heading label {
+        font-size: 2vw;
+    }
+
+    .panel-info .panel-body label {
+        font-size: 2vw;
+    }
+
+    .panel-info .panel-body .top-label {
+        font-size: 1.1vw;
+    }
+
+    .dataTable thead tr {
+        font-size: 1.4vw;
+    }
+
+    .dataTable tbody tr td {
+        font-size: 1.4vw;
+    }
+
+    .navbar-collapse ul li a {
+        font-size: 0.9vw;
+    }
+
+    #MainContent_vehicle_queue_wrapper {
+        font-size: 2.1vw;
+    }
+
+    #MainContent_fleetstatustable_wrapper {
+        font-size: 2.1vw;
+    }
+}
+
+/* Medium Devices, Desktops */
+@media only screen and (min-width : 990px) {
+    img#paneluspslog {
+        display: none;
+    }
+
+    .misionTable th, .misionTable td {
+        font-size: 1.5vw;
+        font-weight: bolder;
+    }
+
+    .misionTable tbody > tr > td > input {
+        font-size: 1.5vw;
+        width: 98%;
+    }
+
+    input.vehicle_number {
+        width: 27vw;
+        height: 18vw;
+        margin-left: 34vw;
+        font-size: 12vw;
+        text-align: center;
+    }
+
+    .panel-footer {
+        height: 9vw;
+    }
+
+    input.username_btn {
+        width: 14vw;
+        height: 3vw;
+        font-size: 1.5vw;
+        margin: 4px 4px 4px 4px;
+    }
+
+    input.logoff {
+        width: 10vw;
+        height: 3vw;
+        font-size: 1.5vw;
+        margin: 4px 4px 4px 4px;
+    }
+
+    input.vehicle_type_btn {
+        width: 35vw;
+        height: 3vw;
+        font-size: 1.5vw;
+        margin: 4px 4px 4px 4px;
+    }
+
+    .inroute {
+        font-size: 2vw;
+        height: 4vw;
+    }
+
+    .inroute_lb {
+        font-size: 1.9vw;
+        height: 2vw;
+    }
+
+    .turnbyturn {
+        font-size: 6.7vw;
+    }
+
+    .dest_inroute_lb {
+        font-size: 4vw;
+        height: 6vw;
+    }
+
+    .modal-dialog {
+        width: 50%;
+    }
+
+    #fleetstuspanel {
+        font-size: .9vw;
+    }
+
+        #fleetstuspanel button {
+            font-size: .9vw;
+        }
+
+        #fleetstuspanel span {
+            font-size: .9vw;
+        }
+
+    #btn-col .col-xs-1 {
+        width: 14%;
+    }
+
+    .panel-info .panel-heading label {
+        font-size: 1.5vw;
+    }
+
+    .panel-info .panel-body label {
+        font-size: 1.5vw;
+    }
+
+    .panel-info .panel-body .top-label {
+        font-size: 1.1vw;
+    }
+
+    .dataTable thead tr {
+        font-size: 0.9vw;
+    }
+
+    .dataTable tbody tr td {
+        font-size: 0.9vw;
+    }
+
+        .dataTable tbody tr td span {
+            font-size: 0.9vw;
+        }
+
+    .navbar-collapse ul li a {
+        font-size: .9vw;
+    }
+
+    #MainContent_vehicle_queue_wrapper {
+        font-size: 2.1vw;
+    }
+
+    #MainContent_fleetstatustable_wrapper {
+        font-size: 2.1vw;
+    }
+}
+
+/* Large Devices, Wide Screens */
+@media only screen and (min-width : 1200px) {
+    img#paneluspslog {
+        display: none;
+    }
+
+    .misionTable th, .misionTable td {
+        font-size: 1vw;
+        font-weight: bolder;
+    }
+
+    .misionTable tbody > tr > td > input {
+        font-size: 1vw;
+        width: 98%;
+    }
+
+    input.vehicle_number {
+        width: 24vw;
+        height: 18vw;
+        margin-left: 34vw;
+        font-size: 12vw;
+        text-align: center;
+    }
+
+    input.username_btn {
+        width: 8vw;
+        height: 2vw;
+        font-size: 1vw;
+        margin: 4px 4px 4px 4px;
+    }
+
+    input.logoff {
+        width: 8vw;
+        height: 2vw;
+        font-size: 1vw;
+        margin: 4px 4px 4px 4px;
+    }
+
+    input.vehicle_type_btn {
+        width: 98%;
+        height: 2vw;
+        font-size: 1vw;
+        margin: 4px 4px 4px 4px;
+    }
+
+    .inroute {
+        font-size: 2vw;
+        height: 4vw;
+    }
+
+    .inroute_lb {
+        font-size: 1.2vw;
+        height: 2vw;
+    }
+
+    .turnbyturn {
+        font-size: 4.8vw;
+    }
+
+    .dest_inroute_lb {
+        font-size: 4vw;
+        height: 6vw;
+    }
+
+    .modal-dialog {
+        width: 50%;
+    }
+
+    #fleetstuspanel {
+        font-size: 0.6vw;
+    }
+
+        #fleetstuspanel button {
+            font-size: 0.6vw;
+        }
+
+        #fleetstuspanel span {
+            font-size: 0.6vw;
+        }
+
+    #btn-col .col-xs-1 {
+        width: 12%;
+    }
+
+    #fleetstatustable input[type=button] {
+        font-size: 0.9vw;
+    }
+
+    .panel-info .panel-heading label {
+        font-size: 0.9vw;
+    }
+
+    .panel-info .panel-body label {
+        font-size: 0.9vw;
+    }
+
+    .panel-info .panel-body .top-label {
+        font-size: 0.6vw;
+    }
+
+    .dataTable thead tr {
+        font-size: 0.6vw;
+    }
+
+    .dataTable tbody tr td {
+        font-size: 0.6vw;
+    }
+
+        .dataTable tbody tr td span {
+            font-size: 0.6vw;
+        }
+
+    .navbar-collapse ul li a {
+        font-size: 0.6vw;
+    }
+
+    #MainContent_vehicle_queue_wrapper {
+        font-size: 2.1vw;
+    }
+
+    #MainContent_fleetstatustable_wrapper {
+        font-size: 2.1vw;
+    }
+
+    canvas {
+        max-width: 100%;
+        background-size: 100% 100%;
+    }
+
+    .tagDetailTable {
+        font-size: 11px;
+        font-weight: bold;
+        margin-top: -10px;
+        margin-bottom: -11px;
+    }
+
+        .tagDetailTable tr {
+            border: 1.1px solid black;
+        }
+
+        .tagDetailTable td:nth-child(3n) {
+            border-right: 1.1px solid black;
+        }
+
+    .popover {
+        max-width: none !important;
+    }
+}

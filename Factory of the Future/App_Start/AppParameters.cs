@@ -107,70 +107,72 @@ namespace Factory_of_the_Future
                 VersionInfo = string.Concat(fvi.FileMajorPart.ToString() + ".", fvi.FileMinorPart.ToString() + ".", fvi.FileBuildPart.ToString() + ".", fvi.FilePrivatePart.ToString());
 
                 ServerIpAddress = GetLocalIpAddress();
-                if (string.IsNullOrEmpty(ApplicationEnvironment))
-                {
-                    if (AppSettings.ContainsKey("DEV_SVRP_IP"))
-                    {
-                        if ((string)AppSettings.Property("DEV_SVRP_IP").Value == ServerIpAddress)
-                        {
-                            ApplicationEnvironment = "DEV";
-                        }
-                    }
-                    if (AppSettings.ContainsKey("DEV_SVRS_IP"))
-                    {
-                        if ((string)AppSettings.Property("dev_SVRS_IP").Value == ServerIpAddress)
-                        {
-                            ApplicationEnvironment = "DEV";
-                        }
-                    }
-                    if (AppSettings.ContainsKey("SIT_SVRP_IP"))
-                    {
-                        if ((string)AppSettings.Property("SIT_SVRP_IP").Value == ServerIpAddress)
-                        {
-                            ApplicationEnvironment = "SIT";
-                        }
-                    }
-                    if (AppSettings.ContainsKey("SIT_SVRS_IP"))
-                    {
-                        if ((string)AppSettings.Property("SIT_SVRS_IP").Value == ServerIpAddress)
-                        {
-                            ApplicationEnvironment = "SIT";
-                        }
-                    }
-                    if (AppSettings.ContainsKey("CAT_SVRS_IP"))
-                    {
-                        if ((string)AppSettings.Property("CAT_SVRS_IP").Value == ServerIpAddress)
-                        {
-                            ApplicationEnvironment = "CAT";
-                        }
-                    }
-                    if (AppSettings.ContainsKey("CAT_SVRP_IP"))
-                    {
-                        if ((string)AppSettings.Property("CAT_SVRP_IP").Value == ServerIpAddress)
-                        {
-                            ApplicationEnvironment = "CAT";
-                        }
-                    }
-                    if (string.IsNullOrEmpty(ApplicationEnvironment))
-                    {
-                        ApplicationEnvironment = "PROD";
-                    }
-                }
+              
                 NoImage = "data:image/jpeg;base64," + ImageToByteArray("NoImageFeed.jpg");
                 // Load app settings and data asynchronously
                 if (GetAppSettings())
                 {
-              await Task.Run(() =>
-                    {
-                        GetMPEWatchSite();
-                        GetRTLSSites(); 
-                        GetNotificationDefault();
-                        LoadTempIndoorapData("Project_Data.json").ConfigureAwait(false);
-                        GetMachineThroughputMax("MachineThroughputMax.csv");
-                    }).ConfigureAwait(false);
+                    await Task.Run(() =>
+                          {
+                              GetMPEWatchSite();
+                              GetRTLSSites();
+                              GetNotificationDefault();
+                              LoadTempIndoorapData("Project_Data.json").ConfigureAwait(false);
+                              GetMachineThroughputMax("MachineThroughputMax.csv");
+                          }).ConfigureAwait(false);
 
-                  await Task.Run(() => new Load().GetDoorTripAssociationAsync()).ConfigureAwait(false);
-                  await Task.Run(() => new Load().GetConnectionDefaultAsync()).ConfigureAwait(false);
+                    await Task.Run(() => new Load().GetDoorTripAssociationAsync()).ConfigureAwait(false);
+                    await Task.Run(() => new Load().GetConnectionDefaultAsync()).ConfigureAwait(false);
+
+                    if (string.IsNullOrEmpty(ApplicationEnvironment))
+                    {
+                        if (AppSettings.ContainsKey("DEV_SVRP_IP"))
+                        {
+                            if ((string)AppSettings.Property("DEV_SVRP_IP").Value == ServerIpAddress)
+                            {
+                                ApplicationEnvironment = "DEV";
+                            }
+                        }
+                        if (AppSettings.ContainsKey("DEV_SVRS_IP"))
+                        {
+                            if ((string)AppSettings.Property("dev_SVRS_IP").Value == ServerIpAddress)
+                            {
+                                ApplicationEnvironment = "DEV";
+                            }
+                        }
+                        if (AppSettings.ContainsKey("SIT_SVRP_IP"))
+                        {
+                            if ((string)AppSettings.Property("SIT_SVRP_IP").Value == ServerIpAddress)
+                            {
+                                ApplicationEnvironment = "SIT";
+                            }
+                        }
+                        if (AppSettings.ContainsKey("SIT_SVRS_IP"))
+                        {
+                            if ((string)AppSettings.Property("SIT_SVRS_IP").Value == ServerIpAddress)
+                            {
+                                ApplicationEnvironment = "SIT";
+                            }
+                        }
+                        if (AppSettings.ContainsKey("CAT_SVRS_IP"))
+                        {
+                            if ((string)AppSettings.Property("CAT_SVRS_IP").Value == ServerIpAddress)
+                            {
+                                ApplicationEnvironment = "CAT";
+                            }
+                        }
+                        if (AppSettings.ContainsKey("CAT_SVRP_IP"))
+                        {
+                            if ((string)AppSettings.Property("CAT_SVRP_IP").Value == ServerIpAddress)
+                            {
+                                ApplicationEnvironment = "CAT";
+                            }
+                        }
+                        if (string.IsNullOrEmpty(ApplicationEnvironment))
+                        {
+                            ApplicationEnvironment = "PROD";
+                        }
+                    }
                 }
             }
             catch (Exception ex)

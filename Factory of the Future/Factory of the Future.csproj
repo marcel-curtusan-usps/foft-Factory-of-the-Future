@@ -332,6 +332,10 @@
     <Content Include="favicon.ico" />
     <Content Include="Global.asax" />
     <Content Include="Default.aspx" />
+    <Content Include="Mobile\Content\scan_site.css" />
+    <Content Include="Mobile\MobileScan.html" />
+    <Content Include="Mobile\Script\Scan.js" />
+    <Content Include="Mobile\Script\ScannerDectection.js" />
     <Content Include="MPESDO\Content\mpesdo.css" />
     <Content Include="MPESDO\MPESDO.aspx" />
     <Content Include="MPEKanban\Contents\Kanban.css" />
@@ -573,12 +577,16 @@
     <Compile Include="App_Start\BackgroundThread.cs" />
     <Compile Include="App_Start\Load.cs" />
     <Compile Include="App_Start\SwaggerConfig.cs" />
-    <Compile Include="Controllers\DockDoorController.cs" />
+    <Compile Include="Data_Retriever\ConnectionDeviceStatus.cs" />
+    <Compile Include="Controllers\DeviceHeartbeatController.cs" />
+    <Compile Include="Controllers\DeviceMissionRequestController.cs" />
+    <Compile Include="Controllers\DeviceScanController.cs" />
+    <Compile Include="Controllers\SVDockDoorController.cs" />
     <Compile Include="AGV\Controllers\EITSController.cs" />
     <Compile Include="Controllers\LocationTagsController.cs" />
     <Compile Include="Controllers\MPEAlertsController.cs" />
-    <Compile Include="Controllers\MPE_DPSController.cs" />
-    <Compile Include="Controllers\MPE_PerfController.cs" />
+    <Compile Include="Controllers\MPEDPSController.cs" />
+    <Compile Include="Controllers\MPEPerfController.cs" />
     <Compile Include="Controllers\RFIDController.cs" />
     <Compile Include="Controllers\UpdateSoftwareController.cs" />
     <Compile Include="Data_Retention\DataRetentionProcess.cs" />
@@ -781,7 +789,7 @@
           <SaveServerSettingsInUserFile>False</SaveServerSettingsInUserFile>
         </WebProjectProperties>
       </FlavorProperties>
-      <UserProperties mpekanban_4contents_4kanbandispatch_1json__JsonSchema="https://beaujs.com/schema.json" appsetting_4appsettings_1json__JsonSchema="https://json.schemastore.org/backportrc.json" />
+      <UserProperties appsetting_4appsettings_1json__JsonSchema="https://json.schemastore.org/backportrc.json" mpekanban_4contents_4kanbandispatch_1json__JsonSchema="https://beaujs.com/schema.json" />
     </VisualStudio>
   </ProjectExtensions>
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">

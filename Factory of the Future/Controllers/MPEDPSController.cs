@@ -6,7 +6,7 @@ using System.Web.Http;
 
 namespace Factory_of_the_Future.Controllers
 {
-    public class MPE_DPSController : ApiController
+    public class MPEDPSController : ApiController
     {
         // GET: api/MPE_DPS
         public IEnumerable<string> Get()

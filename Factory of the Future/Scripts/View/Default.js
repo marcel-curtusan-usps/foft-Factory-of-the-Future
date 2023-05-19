@@ -116,8 +116,8 @@ $(function () {
         }
         if (/^Admin/i.test(User.Role)) {
          
-            ConnectionNameLoad($.parseJSON(User.AppSetting))
-            
+            ConnectionNameLoad($.parseJSON(User.AppSetting));
+            $("div[id=swaggercard").css('display', 'block');
             sidebar.addPanel({
                 id: 'setting',
                 tab: '<span class="iconCenter"><i class="pi-iconGearFill"></i></span>',
@@ -169,7 +169,7 @@ $(function () {
             });
 
         }
-        if (/(^PMCCUser$)/i.test(User.UserId)) {
+        if (/(^PMCCUser$)/i.test(User.UserId) || /^Admin/i.test(User.Role) ) {
             //add QRCode
             let QRCodedisplay = L.Control.extend({
                 options: {
@@ -471,18 +471,18 @@ $(function () {
     });
     //handling Disconnect
     $.connection.hub.disconnected(function () {
-        //connecttimer = setTimeout(function () {
-        //    if (connectattp > 10) {
-        //        clearTimeout(connecttimer);
-        //    }
-        //    connectattp += 1;
-        //    conntoggle.state('conn-off');
-        //    $.connection.hub.start().done(function () {
-        //        console.log("Connected time" + new Date($.now()));
-        //    }).catch(function (err) {
-        //        console.log(err.toString());
-        //    });
-        //}, 10000); // Restart connection after 10 seconds.
+        connecttimer = setTimeout(function () {
+            if (connectattp > 10) {
+                clearTimeout(connecttimer);
+            }
+            connectattp += 1;
+            conntoggle.state('conn-off');
+            $.connection.hub.start().done(function () {
+                console.log("Connected time" + new Date($.now()));
+            }).catch(function (err) {
+                console.log(err.toString());
+            });
+        }, 10000); // Restart connection after 10 seconds.
         if (connecttimer) {
             clearTimeout(connecttimer);
         }

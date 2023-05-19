@@ -9,7 +9,7 @@ using System.Web.Http;
 
 namespace Factory_of_the_Future.Controllers
 {
-    public class MPE_PerfController : ApiController
+    public class MPEPerfController : ApiController
     {
         // GET: api/MPE_Perf
         public IEnumerable<RunPerf> Get()

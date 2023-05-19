@@ -57,6 +57,7 @@ namespace Factory_of_the_Future
                 Connection.Add(NewConnection);
                 if (con.ActiveConnection)
                 {
+                    NewConnection.ConstantRefresh = false;
                     if (con.UdpConnection)
                     {
                         NewConnection._UDPThreadListener();
@@ -82,7 +83,7 @@ namespace Factory_of_the_Future
                 else
                 {
                     NewConnection.Status = 2;
-                    NewConnection.ConnectionInfo.Status = "Deactivated";
+                    NewConnection.ConnectionInfo.Status = "Stopped/Deactivated";
                 }
                 if (updateFile)
                 {

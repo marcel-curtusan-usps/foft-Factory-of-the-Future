@@ -8,7 +8,7 @@ using System.Web.Http;
 
 namespace Factory_of_the_Future.Controllers
 {
-    public class DockDoorController : ApiController
+    public class SVDockDoorController : ApiController
     {
         // GET: api/DockDoor
         public IEnumerable<RouteTrips> Get()
