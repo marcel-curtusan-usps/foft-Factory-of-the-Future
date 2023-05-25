@@ -17,9 +17,9 @@ namespace Factory_of_the_Future
             {
                 session = _session;
 
-                if (AppParameters.CodeBase.Parent.Exists && !string.IsNullOrEmpty(AppParameters.AppSettings.ContainsKey("ORACONNASSTRING") ? (string)AppParameters.AppSettings.Property("ORACONNASSTRING").Value : ""))
+                if (AppParameters.CodeBase.Parent.Exists && !string.IsNullOrEmpty(AppParameters.AppSettings.ORACONNASSTRING))
                 {
-                    using (OracleConnection connection = new OracleConnection(AppParameters.Decrypt((string)AppParameters.AppSettings.Property("ORACONNASSTRING").Value)))
+                    using (OracleConnection connection = new OracleConnection(AppParameters.Decrypt(AppParameters.AppSettings.ORACONNASSTRING)))
                     {
                         sqlQuery = new FileIO().Read(string.Concat(AppParameters.CodeBase.Parent.FullName.ToString(), AppParameters.ORAQuery), "UserSessionIN_Query.txt");
                         if (!string.IsNullOrEmpty(sqlQuery))
@@ -67,9 +67,9 @@ namespace Factory_of_the_Future
             session = _session;
             try
             {
-                if (AppParameters.CodeBase.Parent.Exists && !string.IsNullOrEmpty(AppParameters.AppSettings.ContainsKey("ORACONNASSTRING") ? (string)AppParameters.AppSettings.Property("ORACONNASSTRING").Value : ""))
+                if (AppParameters.CodeBase.Parent.Exists && !string.IsNullOrEmpty(AppParameters.AppSettings.ORACONNASSTRING))
                 {
-                    using (OracleConnection connection = new OracleConnection(AppParameters.Decrypt((string)AppParameters.AppSettings.Property("ORACONNASSTRING").Value)))
+                    using (OracleConnection connection = new OracleConnection(AppParameters.Decrypt(AppParameters.AppSettings.ORACONNASSTRING)))
                     {
                         sqlQuery = new FileIO().Read(string.Concat(AppParameters.CodeBase.Parent.FullName.ToString(), AppParameters.ORAQuery), "UserSessionOUT_Query.txt");
                         if (!string.IsNullOrEmpty(sqlQuery))

@@ -11,9 +11,9 @@ namespace Factory_of_the_Future
     internal class ContainerData : IDisposable
     {
         private bool disposedValue;
-        public dynamic _data { get; protected set; }
-        public string _Message_type { get; protected set; }
-        public string _connID { get; protected set; }
+        public dynamic Data { get; protected set; }
+        public string Message_type { get; protected set; }
+        public string ConnID { get; protected set; }
         public List<Container> Containers { get; protected set; }
         public Container _container = null;
         private bool saveToFile;
@@ -21,17 +21,17 @@ namespace Factory_of_the_Future
         internal async Task<bool> LoadAsync(dynamic data, string message_type, string connID)
         {
             saveToFile = false;
-            _data = data;
-            _Message_type = message_type;
-            _connID = connID;
+            Data = data;
+            Message_type = message_type;
+            ConnID = connID;
             try
             {
-                if (_data != null)
+                if (Data != null)
                 {
-                    Containers = JsonConvert.DeserializeObject<List<Container>>(_data);
+                    Containers = JsonConvert.DeserializeObject<List<Container>>(Data);
                     if (Containers.Count > 0)
                     {
-                        string siteId = (string)AppParameters.AppSettings["FACILITY_NASS_CODE"];
+                        string siteId = AppParameters.AppSettings.FACILITY_NASS_CODE;
 
                         foreach (Container d in Containers)
                         {
@@ -56,7 +56,6 @@ namespace Factory_of_the_Future
                                 d.BinDisplay = scan.Event == "PASG" ? scan.BinName : "";
                                 if (scan.SiteId == siteId)
                                 {
-
                                     if (scan.Event == "PASG")
                                     {
                                         d.hasAssignScans = true;
@@ -120,7 +119,7 @@ namespace Factory_of_the_Future
                                 {
                                     if (!new Regex("^(BinDisplay|ContainerHistory|BinName)$", RegexOptions.IgnoreCase).IsMatch(prop.Name))
                                     {
-                                        if (prop.GetValue(d, null).ToString() != prop.GetValue(_container, null).ToString())
+                                        if (prop.GetValue(d, null)!= prop.GetValue(_container, null))
                                         {
                                             prop.SetValue(_container, prop.GetValue(d, null));
                                         }
@@ -134,47 +133,7 @@ namespace Factory_of_the_Future
                                     //
                                 }
                             }
-
-                            // Global.DockDoor_List.AddOrUpdate(vr_door_item.DoorNumber, vr_door_item, (key, existingVal) =>
-                            // {
-                            //AppParameters.Containers.AddOrUpdate(d.PlacardBarcode, d, (Key, exisitingContainer) =>
-                            //{
-                            //    foreach (PropertyInfo prop in exisitingContainer.GetType().GetProperties())
-                            //    {
-                            //        if (!new Regex("^(BinDisplay|ContainerHistory|BinName)$", RegexOptions.IgnoreCase).IsMatch(prop.Name))
-                            //        {
-                            //            if (prop.GetValue(d, null).ToString() != prop.GetValue(exisitingContainer, null).ToString())
-                            //            {
-                            //                prop.SetValue(exisitingContainer, prop.GetValue(d, null));
-                            //            }
-                            //        }
-                            //    }
-                            //    exisitingContainer.ContainerHistory = d.ContainerHistory;
-                            //    return exisitingContainer;
-                            //});
-                            //{
-
-                            //    exisitingContainer.hasAssignScans = d.hasAssignScans;
-                            //    exisitingContainer.hasCloseScans = d.hasCloseScans;
-                            //    exisitingContainer.hasLoadScans = d.hasLoadScans;
-                            //    exisitingContainer.hasUnloadScans = d.hasUnloadScans;
-                            //    exisitingContainer.hasPrintScans = d.hasPrintScans;
-                            //    exisitingContainer.containerTerminate = d.containerTerminate;
-                            //    exisitingContainer.Location = d.Location;
-                            //    exisitingContainer.containerTerminate = d.containerTerminate;
-                            //    exisitingContainer.containerRedirectedDest = d.containerRedirectedDest;
-                            //    exisitingContainer.containerAtDest = d.containerAtDest;
-                            //    exisitingContainer.containerRedirectedDest = d.containerRedirectedDest;
-                            //    exisitingContainer.ContainerHistory = d.ContainerHistory;
-                            //}
-                            //else
-                            //{
-                            //    AppParameters.Containers.TryAdd(d.PlacardBarcode, d);
-                            //}
-
                         }
-
-
                     }
                 }
                 await Task.Run(() => RemoveContainers()).ConfigureAwait(false);
@@ -226,9 +185,9 @@ namespace Factory_of_the_Future
                 // TODO: free unmanaged resources (unmanaged objects) and override finalizer
                 // TODO: set large fields to null
                 disposedValue = true;
-                _data = null;
-                _Message_type = string.Empty;
-                _connID = string.Empty;
+                Data = null;
+                Message_type = string.Empty;
+                ConnID = string.Empty;
                 Containers = null;
                 _container = null;
 

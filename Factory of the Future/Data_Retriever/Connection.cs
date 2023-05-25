@@ -58,7 +58,7 @@ namespace Factory_of_the_Future
             catch (Exception e)
             {
                 new ErrorLogger().ExceptionLog(e);
-                new ErrorLogger().CustomLog(incomingData, string.Concat((string)AppParameters.AppSettings.Property("APPLICATION_NAME").Value, "UDP_InVaild_Message"));
+                new ErrorLogger().CustomLog(incomingData, string.Concat(AppParameters.AppSettings.APPLICATION_NAME, "UDP_InVaild_Message"));
             }
 
             ReceiveAsync();
@@ -117,8 +117,8 @@ namespace Factory_of_the_Future
 
                     if (!ConnectionInfo.ActiveConnection)
                     {
-                        Status = 4;
-                        ConnectionInfo.Status = "No data";
+                        Status = 2;
+                        ConnectionInfo.Status = "Stopped/Deactivated";
                         break;
                     }
                     if (!ConstantRefresh)
@@ -126,7 +126,7 @@ namespace Factory_of_the_Future
                         // If user wanted to stop watching this thread
                         // while thread was resting, we will exit
                         ConnectionInfo.ApiConnected = false;
-                        ConnectionInfo.Status = "Deactivated";
+                        ConnectionInfo.Status = "Stopped/Deactivated";
                         Task.Run(() => FOTFManager.Instance.BroadcastQSMUpdate(ConnectionInfo)).ConfigureAwait(false);
                         break;
                     }
@@ -457,13 +457,14 @@ namespace Factory_of_the_Future
 
             if (ConnectionInfo.Status != "Running")
             {
-               Task.Run(() => FOTFManager.Instance.BroadcastQSMUpdate(ConnectionInfo)).ConfigureAwait(false);
                 ConnectionInfo.Status = "Running";
+                Task.Run(() => FOTFManager.Instance.BroadcastQSMUpdate(ConnectionInfo)).ConfigureAwait(false);
+               
             }
         
             try
             {
-                NASS_CODE = AppParameters.AppSettings["FACILITY_NASS_CODE"].ToString();
+                NASS_CODE = AppParameters.AppSettings.FACILITY_NASS_CODE;
 
                 requestBody = new JObject();
                 DateTime dtNow = DateTime.Now;
@@ -471,30 +472,30 @@ namespace Factory_of_the_Future
                 lkey = string.Empty;
                 formatUrl = string.Empty;
                 MessageType = ConnectionInfo.MessageType;
-                if (!string.IsNullOrEmpty(AppParameters.AppSettings["FACILITY_TIMEZONE"].ToString()))
+                if (!string.IsNullOrEmpty(AppParameters.AppSettings.FACILITY_TIMEZONE))
                 {
-                    if (AppParameters.TimeZoneConvert.TryGetValue(AppParameters.AppSettings["FACILITY_TIMEZONE"].ToString(), out string windowsTimeZoneId))
+                    if (AppParameters.TimeZoneConvert.TryGetValue(AppParameters.AppSettings.FACILITY_TIMEZONE, out string windowsTimeZoneId))
                     {
                         dtNow = TimeZoneInfo.ConvertTime(DateTime.Now, TimeZoneInfo.FindSystemTimeZoneById(windowsTimeZoneId));
 
                     }
                 }
-                if (!string.IsNullOrEmpty(AppParameters.AppSettings["FACILITY_ID"].ToString()))
+                if (!string.IsNullOrEmpty(AppParameters.AppSettings.FACILITY_ID))
                 {
-                    fdb = AppParameters.AppSettings["FACILITY_ID"].ToString();
+                    fdb = AppParameters.AppSettings.FACILITY_ID;
                 }
-                if (!string.IsNullOrEmpty(AppParameters.AppSettings["FACILITY_LKEY"].ToString()))
+                if (!string.IsNullOrEmpty(AppParameters.AppSettings.FACILITY_LKEY))
                 {
-                    lkey = AppParameters.AppSettings["FACILITY_LKEY"].ToString();
+                    lkey = AppParameters.AppSettings.FACILITY_LKEY;
                 }
                 if (ConnectionInfo.ConnectionName.ToUpper().StartsWith("MPEWatch".ToUpper()))
                 {
 
-                    if (!string.IsNullOrEmpty(AppParameters.AppSettings["MPE_WATCH_ID"].ToString()))
+                    if (!string.IsNullOrEmpty(AppParameters.AppSettings.MPE_WATCH_ID))
                     {
                         if (ConnectionInfo.Url.Length > 25)
                         {
-                            string MpeWatch_id = AppParameters.AppSettings["MPE_WATCH_ID"].ToString();
+                            string MpeWatch_id = AppParameters.AppSettings.MPE_WATCH_ID;
                             string MpeWatch_data_source = ConnectionInfo.MessageType;
 
                             int currentHour = dtNow.Hour;
@@ -649,12 +650,11 @@ namespace Factory_of_the_Future
                 }
                 else if (ConnectionInfo.ConnectionName.ToUpper().StartsWith("SELS".ToUpper()))
                 {
-                    string selsRT_siteid = (string)AppParameters.AppSettings.Property("FACILITY_P2P_SITEID").Value;
-                    if (!string.IsNullOrEmpty(selsRT_siteid))
+                    if (!string.IsNullOrEmpty(AppParameters.AppSettings.FACILITY_P2P_SITEID))
                     {
                         if (!string.IsNullOrEmpty(ConnectionInfo.MessageType))
                         {
-                            formatUrl = string.Format(ConnectionInfo.Url, selsRT_siteid, ConnectionInfo.MessageType);
+                            formatUrl = string.Format(ConnectionInfo.Url, AppParameters.AppSettings.FACILITY_P2P_SITEID, ConnectionInfo.MessageType);
                         }
                     }
                 }
@@ -671,15 +671,19 @@ namespace Factory_of_the_Future
                         bool URLValid = Uri.TryCreate(formatUrl, UriKind.Absolute, out uriResult) && (url.Scheme == Uri.UriSchemeHttp || url.Scheme == Uri.UriSchemeHttps);
                         if (URLValid)
                         {
-                            Task.Run(() => new ProcessRecvdMsg().StartProcess(new SendMessage().Get(uriResult, requestBody), MessageType, ConnectionInfo.Id)).ConfigureAwait(false);
+                            Task.Run(() => new ProcessRecvdMsg().StartProcess(
+                               Task.Run(() => new SendMessage().Get(uriResult, requestBody)).Result
+                               , MessageType, ConnectionInfo.Id)
+                            
+                            ).ConfigureAwait(false);
                         }
                         else
                         {
                             Status = 3;
                             ConnectionInfo.ApiConnected = false;
-                            if (ConnectionInfo.Status != "Invaild URL")
+                            if (ConnectionInfo.Status != "Invalid URL")
                             {
-                                ConnectionInfo.Status = "Invaild URL";
+                                ConnectionInfo.Status = "Invalid URL";
                                 Task.Run(() => FOTFManager.Instance.BroadcastQSMUpdate(ConnectionInfo)).ConfigureAwait(false);
                             }
                            
@@ -752,9 +756,9 @@ namespace Factory_of_the_Future
             Status = 2;
             ConnectionInfo.ApiConnected = false;
             ConnectionInfo.ActiveConnection = false;
-            if (ConnectionInfo.Status != "Deactivated")
+            if (ConnectionInfo.Status != "Stopped/Deactivated")
             {
-                ConnectionInfo.Status = "Deactivated";
+                ConnectionInfo.Status = "Stopped/Deactivated";
                 Task.Run(() => FOTFManager.Instance.BroadcastQSMUpdate(ConnectionInfo)).ConfigureAwait(false);
             }
           

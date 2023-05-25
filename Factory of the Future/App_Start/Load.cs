@@ -51,11 +51,11 @@ namespace Factory_of_the_Future
                 {
                     List<Connection> tempcon = JsonConvert.DeserializeObject<List<Connection>>(file_content);
 
-                    AppParameters.AppSettings["MPE_WATCH_ID"] = "";
+                    AppParameters.AppSettings.MPE_WATCH_ID = "";
 
                     for (int i = 0; i < tempcon.Count; i++)
                     {
-                        await Task.Run(() => AppParameters.RunningConnection.Add(tempcon[i], false)).ConfigureAwait(false);
+                        await Task.Run(() => AppParameters.RunningConnection.Add(tempcon[i], false)).ConfigureAwait(true);
                     }
                 }
             }

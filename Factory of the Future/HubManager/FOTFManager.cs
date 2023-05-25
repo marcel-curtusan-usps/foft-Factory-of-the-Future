@@ -8,6 +8,8 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
+using System.Reflection;
+using System.Runtime.InteropServices.WindowsRuntime;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
@@ -137,7 +139,7 @@ namespace Factory_of_the_Future
             {
                 foreach (CoordinateSystem cs in CoordinateSystem.Values)
                 {
-                    cs.Zones.Where(f => f.Value.Properties.ZoneType == "DockDoor"
+                    cs.Zones.Where(f => f.Value.Properties.ZoneType.StartsWith("DockDoor")
                     && f.Value.Properties.DoorNumber == doorNumber
                     ).Select(y => y.Value).ToList().ForEach(DockDoor =>
                     {
@@ -200,6 +202,7 @@ namespace Factory_of_the_Future
 
                         BroadcastMachineStatus(MPE, cs.Id);
                         BroadcastMPEStatus(MPE.Properties.MPEWatchData, mpeId);
+                 
                     });
                 }
             }
@@ -249,34 +252,14 @@ namespace Factory_of_the_Future
         {
             try
             {
-                List<RouteTrips> doorTrips = new List<RouteTrips>();
-                doorTrips = AppParameters.RouteTripsList.Where(x => !Regex.IsMatch(x.Value.State, "(CANCELED|DEPARTED|OMITTED)", RegexOptions.IgnoreCase)
+                return AppParameters.RouteTripsList.Where(x => !Regex.IsMatch(x.Value.State, "(CANCELED|DEPARTED|OMITTED)", RegexOptions.IgnoreCase)
                 && x.Value.DoorNumber == id).OrderBy(d => d.Value.ScheduledDtmfmt).OrderByDescending(d => d.Value.AtDoor).Select(y => y.Value).ToList();
-                return doorTrips;
             }
             catch (Exception e)
             {
                 new ErrorLogger().ExceptionLog(e);
                 return null;
             }
-            //try
-            //{
-            //    List<RouteTrips> doorData = new List<RouteTrips>();
-            //    foreach (CoordinateSystem cs in CoordinateSystem.Values)
-            //    {
-            //        cs.Zones.Where(f => f.Value.Properties.ZoneType == "DockDoor" && f.Value.Properties.DoorNumber.ToLower() == id.ToLower()
-            //        ).Select(y => y.Value).ToList().ForEach(DockDoor =>
-            //        {
-            //            doorData.Add(DockDoor.Properties.DockDoorData);
-            //        });
-            //    }
-            //    return doorData;
-            //}
-            //catch (Exception e)
-            //{
-            //    new ErrorLogger().ExceptionLog(e);
-            //    return null;
-            //}
         }
 
         internal GeoZone AddZone(string data)
@@ -706,7 +689,7 @@ namespace Factory_of_the_Future
 
         internal string GetFacilityTimeZone()
         {
-            return AppParameters.AppSettings["FACILITY_TIMEZONE"].ToString();
+            return AppParameters.AppSettings.FACILITY_TIMEZONE;
         }
 
         internal GeoMarker RemoveMarker(string data)
@@ -1336,7 +1319,7 @@ namespace Factory_of_the_Future
         {
             NotloadedContainers = 0;
             loadedContainers = 0;
-            IEnumerable<Container> AllContainer = null;
+            IEnumerable<Container> AllContainer = new List<Container>();
             try
             {
                 if (!string.IsNullOrEmpty(destSites) && AppParameters.Containers.Any())
@@ -1354,7 +1337,7 @@ namespace Factory_of_the_Future
                     {
                         IEnumerable<Container> LoadedContainer = AppParameters.Containers.Where(r => !string.IsNullOrEmpty(r.Value.Trailer)
                        && Regex.IsMatch(r.Value.Trailer, trailerBarcode, RegexOptions.IgnoreCase)
-                       && r.Value.hasLoadScans == true).Select(y => y.Value).ToList();
+                       && r.Value.hasLoadScans).Select(y => y.Value).ToList();
                         AllContainer = TripContainer.Concat(LoadedContainer);
                         loadedContainers = LoadedContainer.Count();
                         LoadedContainer = null;
@@ -1419,7 +1402,7 @@ namespace Factory_of_the_Future
             {
                 if (!CoordinateSystem.TryAdd(id, cSystem))
                 {
-                    new ErrorLogger().CustomLog("Unable to add CoordinateSystem " + id, string.Concat(AppParameters.AppSettings["APPLICATION_NAME"].ToString(), "_Applogs"));
+                    new ErrorLogger().CustomLog("Unable to add CoordinateSystem " + id, string.Concat(AppParameters.AppSettings.APPLICATION_NAME, "_Applogs"));
                 }
 
                 _ = Task.Run(() => new FileIO().Write(string.Concat(AppParameters.Logdirpath, AppParameters.ConfigurationFloder), "Project_Data.json", AppParameters.ZoneOutPutdata(CoordinateSystem.Select(x => x.Value).ToList())));
@@ -2024,7 +2007,7 @@ namespace Factory_of_the_Future
                 if (!_updateTagStatus)
                 {
                     _updateTagStatus = true;
-                    double tagVisibleRange = AppParameters.AppSettings.ContainsKey("POSITION_MAX_AGE") ? !string.IsNullOrEmpty((string)AppParameters.AppSettings.Property("POSITION_MAX_AGE").Value) ? (long)AppParameters.AppSettings.Property("POSITION_MAX_AGE").Value : 10000 : 10000;
+                    double tagVisibleRange = AppParameters.AppSettings.POSITION_MAX_AGE;
                     //foreach (var Tag in from GeoMarker Tag in AppParameters.TagsList.Where(u => u.Value.Properties.TagUpdate && u.Value.Properties.TagType.EndsWith("Vehicle")).Select(x => x.Value)
                     //                    where TryUpdateVehicleTagStatus(Tag, tagVisibleRange)
                     //                    select Tag)
@@ -2061,7 +2044,7 @@ namespace Factory_of_the_Future
                     _updatePersonTagStatus = true;
                     //  var watch = new System.Diagnostics.Stopwatch();
                     // watch.Start();
-                    double tagVisibleRange = AppParameters.AppSettings.ContainsKey("POSITION_MAX_AGE") ? !string.IsNullOrEmpty((string)AppParameters.AppSettings.Property("POSITION_MAX_AGE").Value) ? (long)AppParameters.AppSettings.Property("POSITION_MAX_AGE").Value : 10000 : 10000;
+                    double tagVisibleRange = AppParameters.AppSettings.POSITION_MAX_AGE;
                     //foreach (var Marker in from GeoMarker Marker in AppParameters.TagsList.Where(u => u.Value.Properties.TagUpdate
                     //                          && u.Value.Properties.TagType.EndsWith("Person")).Select(x => x.Value)
                     //                       where TryUpdatePersonTagStatus(Marker, tagVisibleRange)
@@ -2126,10 +2109,6 @@ namespace Factory_of_the_Future
         public void BroadcastMarkerCoordinatesUpdate(MarkerGeometry Coordinates, string floorid, string markerid)
         {
             Clients.Group("PeopleMarkers").updateMarkerCoordinates(Coordinates, floorid, markerid);
-        }
-        public List<ThroughputValues> GetMachineThroughputMaximums()
-        {
-            return AppParameters.MachineThroughputMax;
         }
         #region
         // Api Section 
@@ -2264,97 +2243,44 @@ namespace Factory_of_the_Future
         }
         internal IEnumerable<JToken> GetAppSettingdata()
         {
-            try
-            {
-                JToken tempsetting = AppParameters.AppSettings.DeepClone();
-                foreach (dynamic item in AppParameters.AppSettings)
-                {
-                    if (item.Key.ToString().StartsWith("ORACONN") && !string.IsNullOrEmpty(item.Value.ToString()))
-                    {
-                        tempsetting[item.Key] = AppParameters.Decrypt(item.Value.ToString());
-                    }
-                }
-                return tempsetting;
-            }
-            catch (Exception e)
-            {
-                new ErrorLogger().ExceptionLog(e);
-                return new JObject();
-            }
+            return new List<JToken>();
+            //try
+            //{
+            //    JToken tempsetting = AppParameters.AppSettings.DeepClone();
+            //    foreach (dynamic item in AppParameters.AppSettings)
+            //    {
+            //        if (item.Key.ToString().StartsWith("ORACONN") && !string.IsNullOrEmpty(item.Value.ToString()))
+            //        {
+            //            tempsetting[item.Key] = AppParameters.Decrypt(item.Value.ToString());
+            //        }
+            //    }
+            //    return tempsetting;
+            //}
+            //catch (Exception e)
+            //{
+            //    new ErrorLogger().ExceptionLog(e);
+            //    return new JObject();
+            //}
         }
 
-        internal IEnumerable<JToken> EditAppSettingdata(string data)
+        internal AppSetting EditAppSettingdata(string data)
         {
+
             try
             {
-                bool fileUpdate = false;
-                if (!string.IsNullOrEmpty(data))
+                AppSetting updateSetting = JsonConvert.DeserializeObject<AppSetting>(data);
+                foreach (PropertyInfo prop in AppParameters.AppSettings.GetType().GetProperties())
                 {
-                    dynamic objdict = JToken.Parse(data);
-                    foreach (dynamic item in AppParameters.AppSettings)
+                    if (!new Regex("^(Containers|Legs|RawData)$", RegexOptions.IgnoreCase).IsMatch(prop.Name))
                     {
-                        foreach (var kv in objdict)
+                        if (prop.GetValue(AppParameters.AppSettings, null) != prop.GetValue(updateSetting, null))
                         {
-                            if (kv.Name == item.Key)
-                            {
-                                if (kv.Value != item.Value)
-                                {
-                                    fileUpdate = true;
+                            prop.SetValue(AppParameters.AppSettings, prop.GetValue(updateSetting, null));
 
-                                    if (kv.Name.StartsWith("ORACONN"))
-                                    {
-                                        AppParameters.AppSettings[item.Key] = AppParameters.Encrypt(kv.Value.ToString());
-                                    }
-                                    else if (kv.Name == "FACILITY_NASS_CODE")
-                                    {
-                                        if (GetData.Get_Site_Info((string)kv.Value, out SV_Site_Info SiteInfo))
-                                        {
-                                            if (SiteInfo != null)
-                                            {
-                                                AppParameters.AppSettings[kv.Name] = kv.Value.ToString();
-                                                AppParameters.AppSettings["FACILITY_NAME"] = SiteInfo.DisplayName;// .ContainsKey("displayName") ? SiteInfo["displayName"] : "Site Not Configured";
-                                                AppParameters.AppSettings["FACILITY_ID"] = SiteInfo.FdbId; //.ContainsKey("fdbId") ? SiteInfo["fdbId"] : "";
-                                                AppParameters.AppSettings["FACILITY_ZIP"] = SiteInfo.ZipCode; //.ContainsKey("zipCode") ? SiteInfo["zipCode"] : "";
-                                                AppParameters.AppSettings["FACILITY_LKEY"] = SiteInfo.LocaleKey;//.ContainsKey("localeKey") ? SiteInfo["localeKey"] : "";
-                                                Task.Run(() => AppParameters.LoglocationSetup());
-                                                CoordinateSystem.Clear();
-                                                Task.Run(() => AppParameters.ResetParameters());
-                                            }
-                                            else
-                                            {
-                                                AppParameters.AppSettings["FACILITY_NAME"] = "Site Not Configured";
-                                                AppParameters.AppSettings["FACILITY_ID"] = "";
-                                                AppParameters.AppSettings["FACILITY_ZIP"] = "";
-                                                AppParameters.AppSettings["FACILITY_LKEY"] = "";
-                                            }
-                                        }
-                                    }
-                                    else if (kv.Name == "LOG_LOCATION")
-                                    {
-                                        if (!string.IsNullOrEmpty(kv.Value.ToString()))
-                                        {
-                                            AppParameters.AppSettings[item.Key] = kv.Value;
-                                            Task.Run(() => AppParameters.LoglocationSetup());
-                                        }
-                                    }
-                                    else
-                                    {
-                                        AppParameters.AppSettings[item.Key] = kv.Value;
-                                    }
-                                    //if (kv.Name == "CAMERA_THUMBNAIL_INTERVAL")
-                                    //{
-                                    //    SetCameraThumbnailInterval();
-                                    //}
-                                }
-                            }
                         }
                     }
                 }
 
-                if (fileUpdate)
-                {
-                    new FileIO().Write(string.Concat(AppParameters.CodeBase.Parent.FullName.ToString(), AppParameters.Appsetting), "AppSettings.json", JsonConvert.SerializeObject(AppParameters.AppSettings, Formatting.Indented));
-                }
                 return AppParameters.AppSettings;
             }
             catch (Exception e)
@@ -2362,6 +2288,83 @@ namespace Factory_of_the_Future
                 new ErrorLogger().ExceptionLog(e);
                 return AppParameters.AppSettings;
             }
+            //try
+            //{
+            //    bool fileUpdate = false;
+            //    if (!string.IsNullOrEmpty(data))
+            //    {
+            //        dynamic objdict = JToken.Parse(data);
+            //        foreach (dynamic item in AppParameters.AppSettings)
+            //        {
+            //            foreach (var kv in objdict)
+            //            {
+            //                if (kv.Name == item.Key)
+            //                {
+            //                    if (kv.Value != item.Value)
+            //                    {
+            //                        fileUpdate = true;
+
+            //                        if (kv.Name.StartsWith("ORACONN"))
+            //                        {
+            //                            AppParameters.AppSettings[item.Key] = AppParameters.Encrypt(kv.Value.ToString());
+            //                        }
+            //                        else if (kv.Name == "FACILITY_NASS_CODE")
+            //                        {
+            //                            if (GetData.Get_Site_Info((string)kv.Value, out SV_Site_Info SiteInfo))
+            //                            {
+            //                                if (SiteInfo != null)
+            //                                {
+            //                                    AppParameters.AppSettings[kv.Name] = kv.Value.ToString();
+            //                                    AppParameters.AppSettings["FACILITY_NAME"] = SiteInfo.DisplayName;// .ContainsKey("displayName") ? SiteInfo["displayName"] : "Site Not Configured";
+            //                                    AppParameters.AppSettings["FACILITY_ID"] = SiteInfo.FdbId; //.ContainsKey("fdbId") ? SiteInfo["fdbId"] : "";
+            //                                    AppParameters.AppSettings["FACILITY_ZIP"] = SiteInfo.ZipCode; //.ContainsKey("zipCode") ? SiteInfo["zipCode"] : "";
+            //                                    AppParameters.AppSettings["FACILITY_LKEY"] = SiteInfo.LocaleKey;//.ContainsKey("localeKey") ? SiteInfo["localeKey"] : "";
+            //                                    Task.Run(() => AppParameters.LoglocationSetup());
+            //                                    CoordinateSystem.Clear();
+            //                                    Task.Run(() => AppParameters.ResetParameters());
+            //                                }
+            //                                else
+            //                                {
+            //                                    AppParameters.AppSettings["FACILITY_NAME"] = "Site Not Configured";
+            //                                    AppParameters.AppSettings["FACILITY_ID"] = "";
+            //                                    AppParameters.AppSettings["FACILITY_ZIP"] = "";
+            //                                    AppParameters.AppSettings["FACILITY_LKEY"] = "";
+            //                                }
+            //                            }
+            //                        }
+            //                        else if (kv.Name == "LOG_LOCATION")
+            //                        {
+            //                            if (!string.IsNullOrEmpty(kv.Value.ToString()))
+            //                            {
+            //                                AppParameters.AppSettings[item.Key] = kv.Value;
+            //                                Task.Run(() => AppParameters.LoglocationSetup());
+            //                            }
+            //                        }
+            //                        else
+            //                        {
+            //                            AppParameters.AppSettings[item.Key] = kv.Value;
+            //                        }
+            //                        //if (kv.Name == "CAMERA_THUMBNAIL_INTERVAL")
+            //                        //{
+            //                        //    SetCameraThumbnailInterval();
+            //                        //}
+            //                    }
+            //                }
+            //            }
+            //        }
+            //    }
+
+            //    if (fileUpdate)
+            //    {
+            //        new FileIO().Write(string.Concat(AppParameters.CodeBase.Parent.FullName.ToString(), AppParameters.Appsetting), "AppSettings.json", JsonConvert.SerializeObject(AppParameters.AppSettings, Formatting.Indented));
+            //    }
+            //    return AppParameters.AppSettings;
+            //}
+            //catch (Exception e)
+            //{
+            //    new ErrorLogger().ExceptionLog(e);
+            //    return AppParameters.AppSettings;
+            //}
         }
         internal IEnumerable<BackgroundImage> GetFloorPlanData()
         {
@@ -2380,18 +2383,17 @@ namespace Factory_of_the_Future
                 return null;
             }
         }
-        internal IEnumerable<BackgroundImage> RemoveFloorPlanData(dynamic data)
+        internal IEnumerable<BackgroundImage> RemoveFloorPlanData(dynamic id)
         {
             try
             {
-                List<BackgroundImage> temp = new List<BackgroundImage>();
                 foreach (CoordinateSystem cs in CoordinateSystem.Values)
                 {
-                    if (cs.BackgroundImage.Id == data["id"])
+                    if (cs.Id == id && CoordinateSystem.TryRemove(cs.Id, out CoordinateSystem remove))
                     {
-                        //remove image
+                        new FileIO().Write(string.Concat(AppParameters.Logdirpath, AppParameters.ConfigurationFloder), "Project_Data.json", AppParameters.ZoneOutPutdata(CoordinateSystem.Select(x => x.Value).ToList()));
                     }
-                };
+                }
                 return GetFloorPlanData();
             }
             catch (Exception e)
@@ -2406,7 +2408,7 @@ namespace Factory_of_the_Future
             {
                 AppParameters._connections.Remove(connectionId, connectionId);
                 string data = string.Concat("Client closed the connection. | Connection ID: : " + connectionId);
-                new ErrorLogger().CustomLog(data, string.Concat((string)AppParameters.AppSettings.Property("APPLICATION_NAME").Value, "_Applogs"));
+                new ErrorLogger().CustomLog(data, string.Concat(AppParameters.AppSettings.APPLICATION_NAME,"_Applogs"));
 
                 //remove users 
                 //foreach (string user in AppParameters.Users.Where(r => r.Value.LoginDate.Subtract(DateTime.Now).TotalDays > 2).Select(y => y.Key))

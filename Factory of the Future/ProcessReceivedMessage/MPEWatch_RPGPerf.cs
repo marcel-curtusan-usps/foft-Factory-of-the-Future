@@ -41,9 +41,9 @@ namespace Factory_of_the_Future
                     {
                         DateTime dtNow = DateTime.Now;
                         string windowsTimeZoneId = "";
-                        if (!string.IsNullOrEmpty((string)AppParameters.AppSettings["FACILITY_TIMEZONE"]))
+                        if (!string.IsNullOrEmpty(AppParameters.AppSettings.FACILITY_TIMEZONE))
                         {
-                            AppParameters.TimeZoneConvert.TryGetValue((string)AppParameters.AppSettings["FACILITY_TIMEZONE"], out windowsTimeZoneId);
+                            AppParameters.TimeZoneConvert.TryGetValue(AppParameters.AppSettings.FACILITY_TIMEZONE, out windowsTimeZoneId);
                         }
 
                         NewMPEData = GetMPEPerfList(machineInfo);

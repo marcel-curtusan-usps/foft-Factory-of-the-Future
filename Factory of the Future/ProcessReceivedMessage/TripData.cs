@@ -82,7 +82,7 @@ namespace Factory_of_the_Future
 
                                             if (!new Regex("^(Containers|Legs|RawData)$", RegexOptions.IgnoreCase).IsMatch(prop.Name))
                                             {
-                                                if (prop.GetValue(rt, null).ToString() != prop.GetValue(currentRTData, null).ToString())
+                                                if (prop.GetValue(currentRTData, null) != prop.GetValue(rt, null))
                                                 {
                                                     update = true;
                                                     prop.SetValue(currentRTData, prop.GetValue(rt, null));
@@ -92,7 +92,7 @@ namespace Factory_of_the_Future
                                         }
                                         if (update)
                                         {
-                                            await Task.Run(() => FOTFManager.Instance.BroadcastTripsUpdate(currentRTData)).ConfigureAwait(false);
+                                            await Task.Run(() => FOTFManager.Instance.BroadcastTripsUpdate(currentRTData)).ConfigureAwait(true);
                                         }
 
                                     }
@@ -104,7 +104,7 @@ namespace Factory_of_the_Future
                                     //get trip Itinerary
                                     if (!rt.Legs.Any())
                                     {
-                                        await Task.Run(() => new ItineraryTrip_Update(GetItinerary(rt.Route, rt.Trip, AppParameters.AppSettings["FACILITY_NASS_CODE"].ToString(), new Utility().GetSvDate(rt.OperDate)), rt.Id)).ConfigureAwait(false);
+                                        await Task.Run(() => new ItineraryTrip_Update(GetItinerary(rt.Route, rt.Trip, AppParameters.AppSettings.FACILITY_NASS_CODE, new Utility().GetSvDate(rt.OperDate)), rt.Id)).ConfigureAwait(true);
                                     }
                                 }
                             }
@@ -132,7 +132,7 @@ namespace Factory_of_the_Future
             {
                 //string start_time = string.Concat(DateTime.Now.ToString("yyyy-MM-dd'T'"), "00:00:00");
 
-                Uri parURL = new Uri(string.Format((string)AppParameters.AppSettings["SV_ITINERARY"], route, trip, string.Concat(start_time.ToString("yyyy-MM-dd'T'"), "00:00:00")));
+                Uri parURL = new Uri(string.Format(AppParameters.AppSettings.SV_ITINERARY, route, trip, string.Concat(start_time.ToString("yyyy-MM-dd'T'"), "00:00:00")));
                 string SV_Response = new SendMessage().Get(parURL, new JObject());
                 if (!string.IsNullOrEmpty(SV_Response))
                 {

@@ -31,7 +31,7 @@
                         <label class="control-label float-right" style="font-size: 3rem; font-weight: bolder;" id="countdown"></label>
                     </div>
                 </div>
-                 <%-- <div class="row">
+                <%-- <div class="row">
                     <div class="col-5 float-right" style="padding: 0rem;">
                     </div>
                     <div class="col-5" style="padding: 0rem;">
@@ -51,7 +51,6 @@
                         <label class="control-label float-right" style="font-size: 3rem; font-weight: bolder;" id="sortplan_name_text"></label>
                     </div>
                 </div>--%>
-               
             </div>
         </div>
         <div class="card-body" style="padding: 0px;">
@@ -72,7 +71,6 @@
 
                     </div>
                     <div class="col" style="padding: 0rem;">
-      
                     </div>
                 </div>
                 <div class="row">

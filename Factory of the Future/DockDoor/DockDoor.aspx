@@ -11,38 +11,47 @@
 </head>
 <body>
      <div class="doorcontainer-fluid">
-        <div style="display: flex">
-            <div class="card w-75">
-                <div class="card-header" style="padding: 0rem;">
-                  
-                    <div class="table-responsive">
-                        <table class="table table-bordered table-hover table-striped" id="currentTripTable">
-                            <tbody>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-                <div class="card-body" style="padding: 0rem;">
-                    <div class="table-responsive">
-                        <table class="table table-bordered table-hover table-striped"  style="border-top-style: solid; border-top-width: thick; border-top-color: black;" id="containerLocationtable">
-                            <tbody>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-             
-            </div>
-            <div class="card w-25">
-                <div class="text-center">
-                    <label class="control-label" style="font-size: 15rem; font-weight: bolder;" id="dockdoorNumber"></label>
-                </div>
-                <div class="card-body text-center" style="padding: 0rem; display: none;" id="countdowndiv">
-                    <label class="control-label" style="font-size: 4rem;" id="countdowntext"></label>
-                    <label class="timecounter" style="padding-top: 15rem;"></label>
-                </div>
+         <div style="display: flex">
+             <div class="card w-15" id="inboundDiv" style="display:none">
+                 <div class="text-center">
+                     <label class="control-label" style="font-size: 15rem; font-weight: bolder;" id="indockdoorNumber"></label>
+                 </div>
+                 <div class="card-body text-center" style="padding: 0rem; display: none;" id="incountdowndiv">
+                     <label class="control-label" style="font-size: 4rem;" id="incountdowntext"></label>
+                     <label class="timecounter" style="padding-top: 15rem;"></label>
+                 </div>
+             </div>
+             <div class="card w-100">
+                 <div class="card-header" style="padding: 0rem;">
 
-            </div>
-        </div>
+                     <div class="table-responsive">
+                         <table class="table table-bordered table-hover table-striped" id="currentTripTable">
+                             <tbody>
+                             </tbody>
+                         </table>
+                     </div>
+                 </div>
+                 <div class="card-body" style="padding: 0rem;">
+                     <div class="table-responsive">
+                         <table class="table table-bordered table-hover table-striped" style="border-top-style: solid; border-top-width: thick; border-top-color: black;" id="containerLocationtable">
+                             <tbody>
+                             </tbody>
+                         </table>
+                     </div>
+                 </div>
+
+             </div>
+             <div class="card w-15" id="outboundDiv" style="display:none">
+                 <div class="text-center">
+                     <label class="control-label" style="font-size: 15rem; font-weight: bolder;" id="outdockdoorNumber"></label>
+                 </div>
+                 <div class="card-body text-center" style="padding: 0rem; display: none;" id="outcountdowndiv">
+                     <label class="control-label" style="font-size: 4rem;" id="outcountdowntext"></label>
+                     <label class="timecounter" style="padding-top: 15rem;"></label>
+                 </div>
+
+             </div>
+         </div>
     </div>
     <script src="../Scripts/jquery-3.6.0.min.js"></script>
     <script src="../Scripts/jquery.dataTables.js"></script>

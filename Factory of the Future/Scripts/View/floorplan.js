@@ -148,7 +148,7 @@ function Add_Floorplan() {
     $('#FloorPlan_Modal').modal();
 }
 function RemoveFloorPlan(id, value, table) {
-    var jsonObject = {
+    let jsonObject = {
         Id: value
     };
     if (!$.isEmptyObject(jsonObject)) {
@@ -161,47 +161,157 @@ function RemoveFloorPlan(id, value, table) {
         });
     }
 }
-async function Load_Floorplan_Table(table) {
-    let FloorplanTable = $('table[id=' + table + ']');
-    let FloorplanTable_Body = FloorplanTable.find('tbody');
-    let FloorplanTable_row_template = '<tr data-id="{id}" data-value="{value}">' +
-        '<td ><span class="ml-p25rem">{id}</span></td>' +
-        '<td >{value}</td>' +
-        '<td>{action}</td>' +
-        '</tr>';
+async function init_Foolplan() {
+    try {
+        createFloorPlanDataTable("floorplantable");
 
-    FloorplanTable_Body.empty();
-    fotfmanager.server.getFloorPlanData().done(function (FloorplanData) {
-        if (FloorplanData) {
-            $.each(FloorplanData, function () {
-                FloorplanTable_Body.append(FloorplanTable_row_template.supplant(formatFloorplan(this)));
-            });
+    } catch (e) {
+        console.log(e);
+    }
+}
+function createFloorPlanDataTable(table) {
+    let arrayColums = [{
+        "id": "",
+        "name": "",
+        "Action": ""
+    }]
+    let columns = [];
+    let tempc = {};
+    $.each(arrayColums[0], function (key, value) {
+        tempc = {};
+        if (/id/i.test(key)) {
+            tempc = {
+                "title": 'Id',
+                "mDataProp": key
+            }
+        }
+        else if (/name/i.test(key)) {
+            tempc = {
+                "title": "Name",
+                "mDataProp": key,
+                "mRender": function (data, type, full) {
+                    if (!!full.backgroundImages) {
+                        return full.backgroundImages.name
+                    }
+                    else
+                    {
+                        return data;
+                    }
+                }
+            }
+        }
+        else if (/Action/i.test(key)) {
+            tempc = {
+                "title": "Action",
+                "mDataProp": key,
+                "mRender": function (data, type, full) {
+
+                    return '<button class="btn btn-light btn-sm mx-1 pi-trashFill floorPlanDelete" name="floorPlanDelete"></button>'
+
+                }
+            }
+        }
+        else {
+            tempc = {
+                "title": capitalize_Words(key.replace(/\_/, ' ')),
+                "mDataProp": key
+            }
+        }
+        columns.push(tempc);
+
+    });
+    $('#' + table).DataTable({
+        dom: 'Bfrtip',
+        buttons: {
+            buttons:
+                [
+                    {
+                        text: "Add",
+                        action: function () { Add_Connection(); }
+                    }
+                ]
+        },
+        bFilter: false,
+        bdeferRender: true,
+        bpaging: false,
+        bPaginate: false,
+        autoWidth: true,
+        bInfo: false,
+        destroy: true,
+        language: {
+            zeroRecords: "No Data"
+        },
+        aoColumns: columns,
+        columnDefs: [],
+        sorting: [[0, "asc"]],
+
+    })
+    $('#' + table + ' tbody').on('click', 'button', function () {
+        let td = $(this);
+        let table = $(td).closest('table');
+        let row = $(table).DataTable().row(td.closest('tr'));
+        if (/floorPlanDelete/ig.test(this.name)) {
+            removeFloorPlan(row.data());
         }
     });
-    $('button[name=removeFloorplan]').on('click', function () {
-        let td = $(this);
-        let tr = $(td).closest('tr'),
-            id = tr.attr('data-id'),
-            value = tr.attr('data-value');
-        RemoveFloorPlan(id, value, table);
-    });
 }
-function formatFloorplan(data) {
-    return $.extend(data, {
-        number: data.id,
-        id: data.name,
-        value: data.id,
-        action: Get_Floor_Action_State()
-    });
-}
-function Get_Floor_Action_State() {
-    if (/^Admin/i.test(User.Role)) {
-        return '<div class="btn-toolbar" role="toolbar">' +
-            '<div class="btn-group mr-2" role="group" >' +
-            '<button class="btn btn-light btn-sm mx-1 pi-trashFill" name="removeFloorplan" onclick="RemoveFloorPlan($(this))"></button>' +
-            '</div>';
-    }
-    else {
-        return '';
+function loadFloorPlanDatatable(data, table) {
+    if ($.fn.dataTable.isDataTable("#" + table)) {
+        $('#' + table).DataTable().rows.add(data).draw();
     }
 }
+function removeFloorPlan(data) {
+    try {
+        fotfmanager.server.removeFloorPlanData(data.id).done(function () {
+            Promise.all([initDoorDataTable()]);
+            Promise.all([init_mapSetup()]);
+        })
+    }
+    catch (e) {
+        console.log(e);
+    }
+}
+//async function Load_Floorplan_Table(data,table) {
+//    let FloorplanTable = $('table[id=' + table + ']');
+//    let FloorplanTable_Body = FloorplanTable.find('tbody');
+//    let FloorplanTable_row_template = '<tr data-id="{id}" data-value="{value}">' +
+//        '<td ><span class="ml-p25rem">{id}</span></td>' +
+//        '<td >{value}</td>' +
+//        '<td>{action}</td>' +
+//        '</tr>';
+
+//    FloorplanTable_Body.empty();
+//    fotfmanager.server.getFloorPlanData().done(function (FloorplanData) {
+//        if (FloorplanData) {
+//            $.each(FloorplanData, function () {
+//                FloorplanTable_Body.append(FloorplanTable_row_template.supplant(formatFloorplan(this)));
+//            });
+//        }
+//    });
+//    $('button[name=removeFloorplan]').on('click', function () {
+//        let td = $(this);
+//        let tr = $(td).closest('tr'),
+//            id = tr.attr('data-id'),
+//            value = tr.attr('data-value');
+//        RemoveFloorPlan(id, value, table);
+//    });
+//}
+//function formatFloorplan(data) {
+//    return $.extend(data, {
+//        number: data.id,
+//        id: data.name,
+//        value: data.id,
+//        action: Get_Floor_Action_State(data.id)
+//    });
+//}
+//function Get_Floor_Action_State(id) {
+//    if (/^Admin/i.test(User.Role)) {
+//        return '<div class="btn-toolbar" role="toolbar">' +
+//            '<div class="btn-group mr-2" role="group" >' +
+//            '<button id='+id+' class="btn btn-light btn-sm mx-1 pi-trashFill" name="removeFloorplan" onclick="RemoveFloorPlan($(this))"></button>' +
+//            '</div>';
+//    }
+//    else {
+//        return '';
+//    }
+//}

@@ -93,7 +93,7 @@ namespace Factory_of_the_Future
             {
                 if (!AppParameters.MPEPRPGList.TryAdd(newRPGPlan.Id, newRPGPlan))
                 {
-                    new ErrorLogger().CustomLog("Unable to Add new RPG Plan" + newRPGPlan.MpeType + " " + newRPGPlan.MachineNum.ToString() + " " + newRPGPlan.SortProgramName, string.Concat((string)AppParameters.AppSettings.Property("APPLICATION_NAME").Value, "_Applogs"));
+                    new ErrorLogger().CustomLog("Unable to Add new RPG Plan" + newRPGPlan.MpeType + " " + newRPGPlan.MachineNum.ToString() + " " + newRPGPlan.SortProgramName, string.Concat(AppParameters.AppSettings.APPLICATION_NAME, "_Applogs"));
                 }
             }
         }
@@ -112,7 +112,7 @@ namespace Factory_of_the_Future
                 return intExpectedThroughput;
             }
 
-            new ErrorLogger().CustomLog("Unable to get expected throughput from RPGPlan object method GetExpectedThroughput", string.Concat((string)AppParameters.AppSettings.Property("APPLICATION_NAME").Value, "_Applogs"));
+            new ErrorLogger().CustomLog("Unable to get expected throughput from RPGPlan object method GetExpectedThroughput", string.Concat(AppParameters.AppSettings.APPLICATION_NAME, "_Applogs"));
             return 0;
         }
 
@@ -121,12 +121,11 @@ namespace Factory_of_the_Future
         {
             if (AppParameters.MPEPRPGList.Keys.Count > 0)
             {
-                //var keys = AppParameters.MPEPRPGList.Where(f => f.Value.RpgStartDtm.Date <= DateTime.Now.AddDays(-2).Date).Select(y => y.Key).ToList();
                 foreach (string existingkey in AppParameters.MPEPRPGList.Where(f => f.Value.RpgStartDtm.Date <= DateTime.Now.AddDays(-2).Date).Select(y => y.Key).ToList())
                 {
                     if (!AppParameters.MPEPRPGList.TryRemove(existingkey, out RPGPlan existingValue))
                     {
-                        new ErrorLogger().CustomLog("Unable to remove RPG Plan item" + existingValue.MpeName + " " + existingValue.MpeType + " " + existingValue.MachineNum, string.Concat((string)AppParameters.AppSettings.Property("APPLICATION_NAME").Value, "_Applogs"));
+                        new ErrorLogger().CustomLog("Unable to remove RPG Plan item" + existingValue.MpeName + " " + existingValue.MpeType + " " + existingValue.MachineNum, string.Concat(AppParameters.AppSettings.APPLICATION_NAME, "_Applogs"));
                     }
                 }
             }

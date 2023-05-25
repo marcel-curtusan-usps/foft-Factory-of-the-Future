@@ -162,6 +162,8 @@ $(function () {
                     '</div>' +
                   '</div>'
             });
+            init_AppSetting($.parseJSON(User.AppSetting));
+            init_Foolplan();
             $('button[name=addfloorpan]').off().on('click', function () {
                 /* close the sidebar */
                 sidebar.close();
@@ -988,7 +990,7 @@ async function cBlock() {
         }
     }
 
-    Promise.all([zonecurrentStaff()]);
+    //Promise.all([zonecurrentStaff()]);
 }
 
 // current zone staff

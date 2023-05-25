@@ -2,7 +2,9 @@
 using Microsoft.Owin;
 
 using Owin;
+using System;
 using System.Threading;
+using System.Threading.Tasks;
 
 [assembly: OwinStartup(typeof(Factory_of_the_Future.Startup))]
 
@@ -12,7 +14,7 @@ namespace Factory_of_the_Future
     {
         public void Configuration(IAppBuilder app)
         {
-            AppParameters.Start();
+            _ = AppParameters.Start();
             GlobalHost.Configuration.DefaultMessageBufferSize = 32;
             app.Map("/signalr", map =>
             {
@@ -26,8 +28,11 @@ namespace Factory_of_the_Future
                 EnableDetailedErrors = true
             };
             app.MapSignalR(config);
-            Thread.Sleep(1000);
-            BackgroundThread.Start();
+          
+            Task.Run(async delegate {                
+                await Task.Delay(TimeSpan.FromSeconds(5));
+                BackgroundThread.Start();
+            }).ConfigureAwait(true);
         }
 
 

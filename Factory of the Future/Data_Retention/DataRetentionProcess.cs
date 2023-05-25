@@ -20,32 +20,27 @@ namespace Factory_of_the_Future
                         List<FileInfo> files = maindir.GetFiles("*", SearchOption.TopDirectoryOnly).OrderBy(d => d.LastWriteTime.Year).ThenBy(d => d.LastWriteTime.Month).ThenBy(d => d.LastWriteTime.Day).Select(x => x).ToList();
                         int days = 60;
                         long target_size = 1073741824;
-                        if (AppParameters.AppSettings.ContainsKey("FILE_RETENTION"))
-                        {
-                            string tempint = AppParameters.AppSettings.Property("FILE_RETENTION").Value.ToString();
-                            int.TryParse(tempint, out int tempdays);
 
-                            if (tempdays != days)
+                        int.TryParse(AppParameters.AppSettings.RETENTION_DAYS, out int tempdays);
+
+                        if (tempdays != days)
+                        {
+                            if (tempdays > 0)
                             {
-                                if (tempdays > 0)
-                                {
-                                    days = tempdays;
-                                }
+                                days = tempdays;
                             }
                         }
-                        if (AppParameters.AppSettings.ContainsKey("MAX_FILE_SIZE"))
-                        {
-                            string tempint = (string)AppParameters.AppSettings.Property("MAX_FILE_SIZE").Value.ToString();
-                            int.TryParse(tempint, out int temptarget_size);
 
-                            if (temptarget_size != target_size)
+                        int.TryParse(AppParameters.AppSettings.RETENTION_MAX_FILE_SIZE, out int temptarget_size);
+
+                        if (temptarget_size != target_size)
+                        {
+                            if (temptarget_size > 625000)
                             {
-                                if (temptarget_size > 625000)
-                                {
-                                    target_size = temptarget_size;
-                                }
+                                target_size = temptarget_size;
                             }
                         }
+
 
                         //this to check file date last write time
                         if (days > 0)
@@ -66,7 +61,7 @@ namespace Factory_of_the_Future
                                                 , " | Number Of Day Old : ", Math.Round(NumberofDay)
                                                 , " | Delete Date/Time : ", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fff")
                                                 , " | File was deleted because file was older then ", Math.Round(NumberofDay) + " days old\n");
-                                            new ErrorLogger().CustomLog(data, string.Concat((string)AppParameters.AppSettings.Property("APPLICATION_NAME").Value, "Deletelogs"));
+                                            new ErrorLogger().CustomLog(data, string.Concat(AppParameters.AppSettings.APPLICATION_NAME, "Deletelogs"));
                                         }
                                         catch (Exception ex)
                                         {
@@ -93,7 +88,7 @@ namespace Factory_of_the_Future
                                                 , " | FileSize : " + FormatBytes(file.Length)
                                                 , " | Delete Date/Time : ", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fff")
                                                 , " | File was deleted because file exceed file size ", FormatBytes(target_size));
-                                            new ErrorLogger().CustomLog(data, string.Concat((string)AppParameters.AppSettings.Property("APPLICATION_NAME").Value, "Deletelogs"));
+                                            new ErrorLogger().CustomLog(data, string.Concat(AppParameters.AppSettings.APPLICATION_NAME, "Deletelogs"));
                                         }
                                         catch (Exception ex)
                                         {

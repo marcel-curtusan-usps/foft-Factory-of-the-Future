@@ -57,7 +57,7 @@ namespace Factory_of_the_Future
                                             foreach (var qcbkgitem in qcitem.BackgroundImages)
                                             {
 
-                                                if (cs.BackgroundImage.Id == qcbkgitem.Id)
+                                                if (cs.BackgroundImage != null && cs.BackgroundImage.Id == qcbkgitem.Id)
                                                 {
                                                     update = false;
 
@@ -254,7 +254,7 @@ namespace Factory_of_the_Future
                             Id = item.Id,
                             Name = item.Name,
                             FloorId = id,
-                            TagType = GetTagType(item.Name),
+                            TagType = new GetTagType().Get(item.Name),
                             CraftName = GetCraftName(item.Name),
                             BadgeId = GetBadgeId(item.Name),
                             Color = item.Color,
@@ -338,19 +338,19 @@ namespace Factory_of_the_Future
             {
                 if (!string.IsNullOrEmpty(name))
                 {
-                    if (Regex.IsMatch(name, (string)AppParameters.AppSettings["AGV_ZONE"], RegexOptions.IgnoreCase))
+                    if (Regex.IsMatch(name, AppParameters.AppSettings.AGV_ZONE, RegexOptions.IgnoreCase))
                     {
                         return "AGVLocationZone";
                     }
-                    else if (Regex.IsMatch(name, (string)AppParameters.AppSettings["DOCKDOOR_ZONE"], RegexOptions.IgnoreCase))
+                    else if (Regex.IsMatch(name, AppParameters.AppSettings.DOCKDOOR_ZONE, RegexOptions.IgnoreCase))
                     {
                         return "DockDoorZone";
                     }
-                    else if (Regex.IsMatch(name, (string)AppParameters.AppSettings["MANUAL_ZONE"], RegexOptions.IgnoreCase))
+                    else if (Regex.IsMatch(name, AppParameters.AppSettings.MANUAL_ZONE, RegexOptions.IgnoreCase))
                     {
                         return "Area";
                     }
-                    else if (Regex.IsMatch(name, (string)AppParameters.AppSettings["VIEWPORTS"], RegexOptions.IgnoreCase))
+                    else if (Regex.IsMatch(name, AppParameters.AppSettings.VIEWPORTS, RegexOptions.IgnoreCase))
                     {
                         return "ViewPortsZone";
                     }
@@ -611,23 +611,23 @@ namespace Factory_of_the_Future
             {
                 if (!string.IsNullOrEmpty(name))
                 {
-                    if (Regex.IsMatch(name, (string)AppParameters.AppSettings["TAG_AGV"], RegexOptions.IgnoreCase))
+                    if (Regex.IsMatch(name, AppParameters.AppSettings.TAG_AGV, RegexOptions.IgnoreCase))
                     {
                         return "Autonomous Vehicle";
                     }
-                    else if (Regex.IsMatch(name, (string)AppParameters.AppSettings["TAG_PIV"], RegexOptions.IgnoreCase))
+                    else if (Regex.IsMatch(name, AppParameters.AppSettings.TAG_PIV, RegexOptions.IgnoreCase))
                     {
                         return "Vehicle";
                     }
-                    else if (Regex.IsMatch(name, (string)AppParameters.AppSettings["TAG_PERSON"], RegexOptions.IgnoreCase))
+                    else if (Regex.IsMatch(name, AppParameters.AppSettings.TAG_PERSON, RegexOptions.IgnoreCase))
                     {
                         return "Person";
                     }
-                    else if (Regex.IsMatch(name, (string)AppParameters.AppSettings["TAG_HVI"], RegexOptions.IgnoreCase))
+                    else if (Regex.IsMatch(name, AppParameters.AppSettings.TAG_HVI, RegexOptions.IgnoreCase))
                     {
                         return "HVI";
                     }
-                    else if (Regex.IsMatch(name, (string)AppParameters.AppSettings["TAG_LOCATOR"], RegexOptions.IgnoreCase))
+                    else if (Regex.IsMatch(name, AppParameters.AppSettings.TAG_LOCATOR, RegexOptions.IgnoreCase))
                     {
                         return "Locator";
                     }

@@ -31,7 +31,7 @@ namespace Factory_of_the_Future
         }
 
 
-        public IEnumerable<JToken> EditAppSettingdata(string data)
+        public AppSetting EditAppSettingdata(string data)
         {
             return _managerHub.EditAppSettingdata(data);
         }
@@ -58,10 +58,6 @@ namespace Factory_of_the_Future
             return _managerHub.AddAPI(data);
         }
 
-        public List<ThroughputValues> GetMachineThroughputMaximums()
-        {
-            return _managerHub.GetMachineThroughputMaximums();
-        }
         public IEnumerable<Connection> EditAPI(string data)
         {
             return _managerHub.EditAPI(data);
@@ -171,6 +167,7 @@ namespace Factory_of_the_Future
         {
             Task.Run(() => _managerHub.EditZoneAsync(data)).ConfigureAwait(false);
         }
+
         /// <summary>
         /// Get dock door Zones
         /// </summary>

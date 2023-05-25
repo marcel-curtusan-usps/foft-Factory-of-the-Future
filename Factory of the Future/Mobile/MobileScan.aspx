@@ -1,25 +1,28 @@
-﻿<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=yes">
+﻿<%@ Page Language="C#" AutoEventWireup="true" CodeBehind="MobileScan.aspx.cs" Inherits="Factory_of_the_Future.Mobile.MobileScan" %>
+
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head runat="server">
     <link href="Content/scan_site.css" rel="stylesheet" />
     <link href="../Content/bootstrap.css" rel="stylesheet" />
 
-    <title>Scan</title>
     <style>
         .input_label {
             font-weight: bold;
         }
     </style>
+    <title>Scan</title>
 </head>
 <body>
     <div class="vertical-center">
         <div id="ScanPanel" class="panel panel-info">
             <div class="panel-heading">
-                <div class="row" style="margin-bottom: -12px;margin-top: -1px;">
+                <div class="row" style="margin-bottom: -12px; margin-top: -1px;">
                     <div class="text-center" style="width: 100%;">
-                        <label>Version Number: <label id="scannerVersion"></label> </label>
+                        <label>Version Number:
+                            <label id="scannerVersion"></label>
+                        </label>
                     </div>
                 </div>
                 <!--<div class="row">
@@ -32,14 +35,14 @@
                 </div>-->
                 <div class="form-group row">
                     <div class="col-sm-12 text-center">
-                        <button title="agv_status_button" type="button" class="btn btn-outline-light btn-lg center-block agv_status_button" Style="width: 190px;" disabled="disabled" id="agv_status_button">
+                        <button title="agv_status_button" type="button" class="btn btn-outline-light btn-lg center-block agv_status_button" style="width: 190px;" disabled="disabled" id="agv_status_button">
                             <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
                         </button>
                         <button title="connection_button" type="button" class="btn btn-danger btn-lg center-block agvactive" disabled="disabled" id="connection_button"></button>
                     </div>
                 </div>
             </div>
-            <div class="form-group row" id="scan_card_header" style="display:none">
+            <div class="form-group row" id="scan_card_header" style="display: none">
                 <div class="col text-center">
                     <span class="text-danger" id="scan_card_header_info"></span>
                 </div>

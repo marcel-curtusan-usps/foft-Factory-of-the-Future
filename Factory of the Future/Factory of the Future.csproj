@@ -328,12 +328,11 @@
     <Content Include="ET_Board\ET_Board.aspx" />
     <Content Include="ET_Board\Scritps\ET_Board.js" />
     <Content Include="DockDoor\DockDoorView1.aspx" />
-    <Content Include="DockDoor\Scripts\digitalDockDoorView1.js" />
     <Content Include="favicon.ico" />
     <Content Include="Global.asax" />
     <Content Include="Default.aspx" />
     <Content Include="Mobile\Content\scan_site.css" />
-    <Content Include="Mobile\MobileScan.html" />
+    <Content Include="Mobile\MobileScan.aspx" />
     <Content Include="Mobile\Script\Scan.js" />
     <Content Include="Mobile\Script\ScannerDectection.js" />
     <Content Include="MPESDO\Content\mpesdo.css" />
@@ -634,6 +633,14 @@
     <Compile Include="Default.aspx.designer.cs">
       <DependentUpon>Default.aspx</DependentUpon>
     </Compile>
+    <Compile Include="Mobile\MobileScan.aspx.cs">
+      <DependentUpon>MobileScan.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Mobile\MobileScan.aspx.designer.cs">
+      <DependentUpon>MobileScan.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Models\AppSetting.cs" />
     <Compile Include="Models\BackgroundImage.cs" />
     <Compile Include="Models\Cameras.cs" />
     <Compile Include="Models\Connection.cs" />
@@ -690,6 +697,7 @@
     <Compile Include="ProcessReceivedMessage\ContainerData.cs" />
     <Compile Include="ProcessReceivedMessage\DoorData.cs" />
     <Compile Include="ProcessReceivedMessage\GetItineraryTrip.cs" />
+    <Compile Include="Utilities\GetTagType.cs" />
     <Compile Include="ProcessReceivedMessage\ItineraryTrip_Update.cs" />
     <Compile Include="ProcessReceivedMessage\LoadContainers.cs" />
     <Compile Include="ProcessReceivedMessage\MPEFullBin.cs" />
@@ -789,7 +797,7 @@
           <SaveServerSettingsInUserFile>False</SaveServerSettingsInUserFile>
         </WebProjectProperties>
       </FlavorProperties>
-      <UserProperties appsetting_4appsettings_1json__JsonSchema="https://json.schemastore.org/backportrc.json" mpekanban_4contents_4kanbandispatch_1json__JsonSchema="https://beaujs.com/schema.json" />
+      <UserProperties mpekanban_4contents_4kanbandispatch_1json__JsonSchema="https://beaujs.com/schema.json" appsetting_4appsettings_1json__JsonSchema="https://json.schemastore.org/backportrc.json" />
     </VisualStudio>
   </ProjectExtensions>
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">

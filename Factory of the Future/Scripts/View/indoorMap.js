@@ -282,7 +282,7 @@ sidebar.on('content', function (ev) {
             break;
         case 'setting':
             Edit_AppSetting("app_settingtable");
-            Load_Floorplan_Table("floorplantable");
+          
             break;
         case 'reports':
             //GetUserInfo();
@@ -307,7 +307,7 @@ sidebar.on('content', function (ev) {
 map.addControl(sidebar);
 map.addControl(new timedisplay());
 // Add Layer Popover - Proposed
-var layersControl = L.control.layers(baseLayers, overlayMaps, {
+let layersControl = L.control.layers(baseLayers, overlayMaps, {
     sortLayers: true, sortFunction: function (layerA, layerB, nameA, nameB) {
         if ( /FLOOR/i.test(nameA)) {
             if (/MAIN/i.test(nameA)) {
@@ -320,7 +320,7 @@ var layersControl = L.control.layers(baseLayers, overlayMaps, {
     }, position: 'bottomright', collapsed: false
 }).addTo(map);
 //Add zoom reset button
-var btnZoomReset = L.easyButton({
+let btnZoomReset = L.easyButton({
     position: 'bottomright',
     states: [{
         stateName: 'viewreset',
@@ -436,12 +436,13 @@ $('#layersToggle').on('click', function () {
     $('[data-toggle=popover]').popover('hide');
     $('#twentyfourmessage').popover('hide');
 });
-async function init_mapSetup(MapData) {
+async function init_mapSetup() {
     try {
         fotfmanager.server.getMap().done(function (MapData) {
             if (MapData.length > 0) {
 
                 $.each(MapData, function (index) {
+                    loadFloorPlanDatatable([this],"floorplantable");
                     //set new image
                     let trackingarea = L.polygon([[100,150]],[[500,5000]]);
                     let img = new Image();

@@ -21,7 +21,7 @@ namespace Factory_of_the_Future
             _data = data;
             _Message_type = message_type;
             _connID = connID;
-            siteId = (string)AppParameters.AppSettings["FACILITY_NASS_CODE"];
+            siteId = AppParameters.AppSettings.FACILITY_NASS_CODE;
 
             try
             {

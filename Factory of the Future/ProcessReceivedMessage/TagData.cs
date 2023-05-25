@@ -54,7 +54,7 @@ namespace Factory_of_the_Future
                                         PositionTS = AppParameters.UnixTimeStampToDateTime(qtitem.LocationTS),
                                         TagTS = AppParameters.UnixTimeStampToDateTime(tagData.ResponseTS),
                                         FloorId = qtitem.LocationCoordSysId,
-                                        TagType = GetTagType(qtitem.TagName),
+                                        TagType = new GetTagType().Get(qtitem.TagName),
                                         CraftName = GetCraftName(qtitem.TagName),
                                         BadgeId = GetBadgeId(qtitem.TagName),
                                         Color = !string.IsNullOrEmpty(qtitem.Color) ? qtitem.Color : "",
@@ -149,7 +149,7 @@ namespace Factory_of_the_Future
                                 PositionTS = AppParameters.UnixTimeStampToDateTime(qtitem.LocationTS),
                                 TagTS = AppParameters.UnixTimeStampToDateTime(qtitem.LocationTS),
                                 FloorId = qtitem.LocationCoordSysId,
-                                TagType = GetTagType(qtitem.TagName),
+                                TagType = new GetTagType().Get(qtitem.TagName),
                                 CraftName = GetCraftName(qtitem.TagName),
                                 BadgeId = GetBadgeId(qtitem.TagName),
                                 Zones = qtitem.LocationZoneIds,
@@ -230,49 +230,6 @@ namespace Factory_of_the_Future
                 return "";
             }
         }
-        private string GetTagType(string name)
-        {
-            try
-            {
-                if (!string.IsNullOrEmpty(name))
-                {
-                    if (Regex.IsMatch(name, (string)AppParameters.AppSettings["TAG_AGV"], RegexOptions.IgnoreCase))
-                    {
-                        return "Autonomous Vehicle";
-                    }
-                    else if (Regex.IsMatch(name, (string)AppParameters.AppSettings["TAG_PIV"], RegexOptions.IgnoreCase))
-                    {
-                        return "Vehicle";
-                    }
-                    else if (Regex.IsMatch(name, (string)AppParameters.AppSettings["TAG_PERSON"], RegexOptions.IgnoreCase))
-                    {
-                        return "Person";
-                    }
-                    else if (Regex.IsMatch(name, (string)AppParameters.AppSettings["TAG_HVI"], RegexOptions.IgnoreCase))
-                    {
-                        return "HVI";
-                    }
-                    else if (Regex.IsMatch(name, (string)AppParameters.AppSettings["TAG_LOCATOR"], RegexOptions.IgnoreCase))
-                    {
-                        return "Locator";
-                    }
-                    else
-                    {
-                        return name;
-                    }
-                }
-                else
-                {
-                    return "Unknown_Tag";
-                }
-            }
-            catch (Exception e)
-            {
-                new ErrorLogger().ExceptionLog(e);
-                return "Error_Unknown_Tag";
-            }
-        }
-
 
         protected virtual void Dispose(bool disposing)
         {

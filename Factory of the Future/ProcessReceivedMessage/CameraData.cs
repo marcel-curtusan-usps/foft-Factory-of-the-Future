@@ -45,7 +45,7 @@ namespace Factory_of_the_Future
                             {
                                 if (!AppParameters.CameraInfoList.TryAdd(camera_item.CameraName, camera_item))
                                 {
-                                    new ErrorLogger().CustomLog("Unable to Able to add Camera" + camera_item.CameraName, string.Concat((string)AppParameters.AppSettings.Property("APPLICATION_NAME").Value, "_Applogs"));
+                                    new ErrorLogger().CustomLog("Unable to Able to add Camera" + camera_item.CameraName, string.Concat(AppParameters.AppSettings.APPLICATION_NAME, "_Applogs"));
                                 }
                             }
                         }

@@ -17,22 +17,16 @@ namespace Factory_of_the_Future
                 if (!string.IsNullOrEmpty(site_id_format))
                 {
                     siteInfo = null;
-                    if (AppParameters.AppSettings.ContainsKey("SV_SITE_URL"))
-                    {
-                        if (!string.IsNullOrEmpty((string)AppParameters.AppSettings.Property("SV_SITE_URL").Value))
-                        {
-                            Uri parURL = new Uri((string)AppParameters.AppSettings.Property("SV_SITE_URL").Value + site_id_format);
-                            string SV_Response = new SendMessage().Get(parURL, new JObject());
-                            if (!string.IsNullOrEmpty(SV_Response))
-                            {
 
-                                siteInfo = JsonConvert.DeserializeObject<List<SV_Site_Info>>(SV_Response).FirstOrDefault();
-                                return true;
-                            }
-                            else
-                            {
-                                return false;
-                            }
+                    if (!string.IsNullOrEmpty(AppParameters.AppSettings.SV_SITE_URL))
+                    {
+                        Uri parURL = new Uri(AppParameters.AppSettings.SV_SITE_URL + site_id_format);
+                        string SV_Response = new SendMessage().Get(parURL, new JObject());
+                        if (!string.IsNullOrEmpty(SV_Response))
+                        {
+
+                            siteInfo = JsonConvert.DeserializeObject<List<SV_Site_Info>>(SV_Response).FirstOrDefault();
+                            return true;
                         }
                         else
                         {
@@ -43,6 +37,7 @@ namespace Factory_of_the_Future
                     {
                         return false;
                     }
+
                 }
                 else
                 {

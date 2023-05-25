@@ -17,6 +17,8 @@ namespace Factory_of_the_Future
         public string _connID { get; protected set; }
         public string dockdoor_id { get; protected set; }
         public string doorInfo { get; protected set; }
+        public bool update { get; protected set; }
+        public int NotloadedContainers { get; set; } = 0;
         public JToken tempData = null;
         public RouteTrips currenttrip = null;
         public RouteTrips newRTData = null;
@@ -28,6 +30,7 @@ namespace Factory_of_the_Future
             _data = data;
             _Message_type = message_type;
             _connID = connID;
+            update = false;
             try
             {
                 if (_data != null)
@@ -48,22 +51,25 @@ namespace Factory_of_the_Future
 
                             if (rt.Id != "00")
                             {
-                                await Task.Run(() => FOTFManager.Instance.saveDoorTripAssociation(rt.DoorNumber, rt.Route, rt.Trip)).ConfigureAwait(false);
+                                await Task.Run(() => FOTFManager.Instance.saveDoorTripAssociation(rt.DoorNumber, rt.Route, rt.Trip)).ConfigureAwait(true);
                                 rt.AtDoor = true;
 
                                 if (AppParameters.RouteTripsList.ContainsKey(rt.Id) && AppParameters.RouteTripsList.TryGetValue(rt.Id, out currenttrip))
                                 {
-                                    currenttrip.Containers = FOTFManager.Instance.GetTripContainer(currenttrip.DestSites, rt.TrailerBarcode, out int NotloadedContainers, out int loaded);
-                                    currenttrip.NotloadedContainers = NotloadedContainers;
+                                   
+                                    IEnumerable<Container> temp = Task.Run(() =>  FOTFManager.Instance.GetTripContainer(currenttrip.DestSites, rt.TrailerBarcode, out int NotloadedContainers, out int loaded)).Result;
+                                    if (temp != null && currenttrip.Containers.Count() >= temp.Count())
+                                    {
+                                        currenttrip.Containers = temp;
+                                        currenttrip.NotloadedContainers = NotloadedContainers;
+                                    }
                                     currenttrip.RawData = JsonConvert.SerializeObject(rt, Formatting.None);
-
-                                    bool update = false;
                                     foreach (PropertyInfo prop in currenttrip.GetType().GetProperties())
                                     {
 
                                         if (!new Regex("^(Containers|Legs|RawData)$", RegexOptions.IgnoreCase).IsMatch(prop.Name))
                                         {
-                                            if (prop.GetValue(rt, null).ToString() != prop.GetValue(currenttrip, null).ToString())
+                                            if (prop.GetValue(rt, null) != prop.GetValue(currenttrip, null))
                                             {
                                                 update = true;
                                                 prop.SetValue(currenttrip, prop.GetValue(rt, null));
@@ -73,7 +79,7 @@ namespace Factory_of_the_Future
                                     }
                                     if (update)
                                     {
-                                        await Task.Run(() => FOTFManager.Instance.UpdateDoorData(currenttrip.DoorNumber)).ConfigureAwait(false);
+                                       await Task.Run(() => FOTFManager.Instance.UpdateDoorData(currenttrip.DoorNumber)).ConfigureAwait(true);
                                     }
                                 }
                                 else if (!AppParameters.RouteTripsList.ContainsKey(rt.Id))
@@ -86,7 +92,7 @@ namespace Factory_of_the_Future
                                     rt.Status = "ACTIVE";
                                     if (AppParameters.RouteTripsList.TryAdd(rt.Id, rt))
                                     {
-                                        await Task.Run(() => FOTFManager.Instance.UpdateDoorData(rt.DoorNumber)).ConfigureAwait(false);
+                                       await Task.Run(() => FOTFManager.Instance.UpdateDoorData(rt.DoorNumber)).ConfigureAwait(true);
                                     }
 
                                 }
@@ -98,7 +104,7 @@ namespace Factory_of_the_Future
                                 {
                                     if (AppParameters.RouteTripsList.TryRemove(rtId, out currenttrip))
                                     {
-                                        await Task.Run(() => FOTFManager.Instance.UpdateDoorData(rt.DoorNumber)).ConfigureAwait(false);
+                                      await Task.Run(() => FOTFManager.Instance.UpdateDoorData(rt.DoorNumber)).ConfigureAwait(true);
                                     }
                                 }
 
@@ -142,7 +148,7 @@ namespace Factory_of_the_Future
             {
                 //string start_time = string.Concat(DateTime.Now.ToString("yyyy-MM-dd'T'"), "00:00:00");
 
-                Uri parURL = new Uri(string.Format((string)AppParameters.AppSettings["SV_ITINERARY"], route, trip, string.Concat(start_time.ToString("yyyy-MM-dd'T'"), "00:00:00")));
+                Uri parURL = new Uri(string.Format(AppParameters.AppSettings.SV_ITINERARY, route, trip, string.Concat(start_time.ToString("yyyy-MM-dd'T'"), "00:00:00")));
                 string SV_Response = new SendMessage().Get(parURL, new JObject());
                 if (!string.IsNullOrEmpty(SV_Response))
                 {

@@ -29,16 +29,23 @@ $('#AppSetting_value_Modal').on('shown.bs.modal', function () {
         $('span[id=error_modalValueID]').text("");
     }
 });
+function init_AppSetting(AppsettingData) {
+    try {
+        Promise.all([LoadappSettingTable(AppsettingData, "app_settingtable")]);;
+    } catch (e) {
+        console.log(e);
+    }
+}
 //app setting
 function Edit_AppSetting(table) {
-    fotfmanager.server.getAppSettingdata().done(function (AppsettingData) {
-        if (AppsettingData) {
+    //fotfmanager.server.getAppSettingdata().done(function (AppsettingData) {
+    //    if (AppsettingData) {
           
-            LoadappSettingTable(AppsettingData, table);
-            Page_Update(AppsettingData);
-            Map_Update(AppsettingData);
-        }
-    });
+    //        LoadappSettingTable(AppsettingData, table);
+    //        Page_Update(AppsettingData);
+    //        Map_Update(AppsettingData);
+    //    }
+    //});
 }
 function Get_Action_State() {
     if (/^Admin/i.test(User.Role)) {

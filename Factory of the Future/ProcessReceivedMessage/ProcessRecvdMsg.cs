@@ -48,7 +48,7 @@ namespace Factory_of_the_Future
                         ///*Quuppa Data End*/
                         ///*SVWeb Data Start*/
                         case "doors":
-                            await Task.Run(() => new DoorData().LoadAsync(_data, _Message_type, _connID)).ConfigureAwait(false);
+                            await Task.Run(() => new DoorData().LoadAsync(_data, _Message_type, _connID)).ConfigureAwait(true);
                             //Doors(data, connID);
                             break;
                         case "trips":
@@ -100,7 +100,7 @@ namespace Factory_of_the_Future
                         case "MISSIONCANCELED":
                             if (!_data.ContainsKey("NASS_CODE"))
                             {
-                                _data["NASS_CODE"] = AppParameters.AppSettings["FACILITY_NASS_CODE"].ToString();
+                                _data["NASS_CODE"] = AppParameters.AppSettings.FACILITY_NASS_CODE;
                             }
                             ERRORWITHWORK(_data);
                             break;
@@ -140,6 +140,10 @@ namespace Factory_of_the_Future
             catch (Exception e)
             {
                 new ErrorLogger().ExceptionLog(e);
+            }
+            finally 
+            {
+                Dispose();
             }
         }
         //private void Staffing(dynamic data ,string conID)
@@ -928,7 +932,7 @@ namespace Factory_of_the_Future
             try
             {
 
-                if (data.ContainsKey("NASS_CODE") && (string)data["NASS_CODE"] == AppParameters.AppSettings["FACILITY_NASS_CODE"].ToString())
+                if (data.ContainsKey("NASS_CODE") && (string)data["NASS_CODE"] == AppParameters.AppSettings.FACILITY_NASS_CODE)
                 {
 
                     Mission tempMission = data.ToObject<Mission>(new JsonSerializer { NullValueHandling = NullValueHandling.Ignore });
@@ -974,7 +978,7 @@ namespace Factory_of_the_Future
                     {
                         if (AppParameters.MissionList.ContainsKey(tempMission.REQUEST_ID) && !AppParameters.MissionList.TryRemove(tempMission.REQUEST_ID, out Mission mission))
                         {
-                            new ErrorLogger().CustomLog("unable to remove Mission " + mission.REQUEST_ID + " to list", string.Concat((string)AppParameters.AppSettings["APPLICATION_NAME"], "Appslogs"));
+                            new ErrorLogger().CustomLog("unable to remove Mission " + mission.REQUEST_ID + " to list", string.Concat(AppParameters.AppSettings.APPLICATION_NAME, "Appslogs"));
                         }
                     }
                     //update AGV zone location
@@ -1013,7 +1017,7 @@ namespace Factory_of_the_Future
         {
             try
             {
-                if (data.ContainsKey("NASS_CODE") && (string)data["NASS_CODE"] == AppParameters.AppSettings["FACILITY_NASS_CODE"].ToString())
+                if (data.ContainsKey("NASS_CODE") && (string)data["NASS_CODE"] == AppParameters.AppSettings.FACILITY_NASS_CODE)
                 {
                     if (data.ContainsKey("VEHICLE"))
                     {
@@ -1057,7 +1061,7 @@ namespace Factory_of_the_Future
         {
             try
             {
-                if (data.ContainsKey("NASS_CODE") && (string)data["NASS_CODE"] == AppParameters.AppSettings["FACILITY_NASS_CODE"].ToString())
+                if (data.ContainsKey("NASS_CODE") && (string)data["NASS_CODE"] == AppParameters.AppSettings.FACILITY_NASS_CODE)
                 {
                     Mission tempMission = data.ToObject<Mission>(new JsonSerializer { NullValueHandling = NullValueHandling.Ignore });
                     tempMission.MISSIONDROPOFFTIME = (DateTime)data["time".ToUpper()];
@@ -1104,7 +1108,7 @@ namespace Factory_of_the_Future
                     {
                         if (AppParameters.MissionList.ContainsKey(tempMission.REQUEST_ID) && !AppParameters.MissionList.TryRemove(tempMission.REQUEST_ID, out Mission mission))
                         {
-                            new ErrorLogger().CustomLog("unable to remove Mission " + mission.REQUEST_ID + " to list", string.Concat((string)AppParameters.AppSettings["APPLICATION_NAME"], "Appslogs"));
+                            new ErrorLogger().CustomLog("unable to remove Mission " + mission.REQUEST_ID + " to list", string.Concat(AppParameters.AppSettings.APPLICATION_NAME, "Appslogs"));
                         }
                     }
 
@@ -1145,7 +1149,7 @@ namespace Factory_of_the_Future
         {
             try
             {
-                if (data.ContainsKey("NASS_CODE") && (string)data["NASS_CODE"] == AppParameters.AppSettings["FACILITY_NASS_CODE"].ToString())
+                if (data.ContainsKey("NASS_CODE") && (string)data["NASS_CODE"] == AppParameters.AppSettings.FACILITY_NASS_CODE)
                 {
                     Mission tempMission = data.ToObject<Mission>(new JsonSerializer { NullValueHandling = NullValueHandling.Ignore });
                     tempMission.MISSIONPICKUPTIME = (DateTime)data["time".ToUpper()];
@@ -1242,7 +1246,7 @@ namespace Factory_of_the_Future
         {
             try
             {
-                if (data.ContainsKey("NASS_CODE") && (string)data["NASS_CODE"] == AppParameters.AppSettings["FACILITY_NASS_CODE"].ToString())
+                if (data.ContainsKey("NASS_CODE") && (string)data["NASS_CODE"] == AppParameters.AppSettings.FACILITY_NASS_CODE)
                 {
                     Mission tempMission = data.ToObject<Mission>(new JsonSerializer { NullValueHandling = NullValueHandling.Ignore });
                     tempMission.MISSIONASSIGNEDTIME = (DateTime)data["time".ToUpper()];
@@ -1272,7 +1276,7 @@ namespace Factory_of_the_Future
                     {
                         if (!AppParameters.MissionList.TryAdd(tempMission.REQUEST_ID, tempMission))
                         {
-                            new ErrorLogger().CustomLog("unable to add Mission " + tempMission.REQUEST_ID + " to list", string.Concat((string)AppParameters.AppSettings["APPLICATION_NAME"], "Appslogs"));
+                            new ErrorLogger().CustomLog("unable to add Mission " + tempMission.REQUEST_ID + " to list", string.Concat(AppParameters.AppSettings.FACILITY_TIMEZONE, "Appslogs"));
                         }
                     }
                     else
@@ -1348,7 +1352,7 @@ namespace Factory_of_the_Future
         {
             try
             {
-                if (data.ContainsKey("NASS_CODE") && (string)data["NASS_CODE"] == AppParameters.AppSettings["FACILITY_NASS_CODE"].ToString())
+                if (data.ContainsKey("NASS_CODE") && (string)data["NASS_CODE"] == AppParameters.AppSettings.FACILITY_NASS_CODE)
                 {
                     if (data.HasValues && data.ContainsKey("requestId".ToUpper()))
                     {
@@ -1376,7 +1380,7 @@ namespace Factory_of_the_Future
                         {
                             if (!AppParameters.MissionList.TryAdd(tempMission.REQUEST_ID, tempMission))
                             {
-                                new ErrorLogger().CustomLog("unable to add Mission " + tempMission.REQUEST_ID + " to list", string.Concat((string)AppParameters.AppSettings["APPLICATION_NAME"], "Appslogs"));
+                                new ErrorLogger().CustomLog("unable to add Mission " + tempMission.REQUEST_ID + " to list", string.Concat(AppParameters.AppSettings.APPLICATION_NAME, "Appslogs"));
                             }
                         }
                         else
@@ -1385,7 +1389,7 @@ namespace Factory_of_the_Future
                             {
                                 if (!AppParameters.MissionList.TryAdd(tempMission.REQUEST_ID, tempMission))
                                 {
-                                    new ErrorLogger().CustomLog("unable to add Mission " + tempMission.REQUEST_ID + " to list", string.Concat((string)AppParameters.AppSettings["APPLICATION_NAME"], "Appslogs"));
+                                    new ErrorLogger().CustomLog("unable to add Mission " + tempMission.REQUEST_ID + " to list", string.Concat(AppParameters.AppSettings.APPLICATION_NAME, "Appslogs"));
                                 }
                             }
                         }
@@ -1438,7 +1442,7 @@ namespace Factory_of_the_Future
             bool update = false;
             try
             {
-                if (data.ContainsKey("NASS_CODE") && (string)data["NASS_CODE"] == AppParameters.AppSettings["FACILITY_NASS_CODE"].ToString())
+                if (data.ContainsKey("NASS_CODE") && (string)data["NASS_CODE"] == AppParameters.AppSettings.FACILITY_NASS_CODE)
                 {
                     if (data.ContainsKey("VEHICLE"))
                     {
@@ -1491,7 +1495,7 @@ namespace Factory_of_the_Future
                                 GeoMarker Lmarker = new GeoMarker();
                                 Lmarker.Properties.Id = newVehicleStatus.VEHICLE_MAC_ADDRESS;
                                 Lmarker.Properties.Name = newVehicleStatus.VEHICLE;
-                                Lmarker.Properties.TagType = GetTagType("AGV");
+                                Lmarker.Properties.TagType = new GetTagType().Get("AGV");
                                 Lmarker.Properties.TagTS = newVehicleStatus.TIME;
                                 Lmarker.Properties.PositionTS = newVehicleStatus.TIME;
                                 Lmarker.Geometry = GetVehicleGeometry(newVehicleStatus.X_LOCATION, newVehicleStatus.Y_LOCATION);
@@ -1502,7 +1506,7 @@ namespace Factory_of_the_Future
                                 FOTFManager.Instance.BroadcastVehicleTagStatus(Lmarker, cs.Id);
                                 if (!cs.Locators.TryAdd(Lmarker.Properties.Id, Lmarker))
                                 {
-                                    new ErrorLogger().CustomLog("Unable to Add Marker " + newVehicleStatus.VEHICLE_MAC_ADDRESS, string.Concat((string)AppParameters.AppSettings.Property("APPLICATION_NAME").Value, "_Applogs"));
+                                    new ErrorLogger().CustomLog("Unable to Add Marker " + newVehicleStatus.VEHICLE_MAC_ADDRESS, string.Concat(AppParameters.AppSettings.APPLICATION_NAME, "_Applogs"));
                                 }
                             }
                             //    cs.Locators.Where(f => f.Value.Properties.Name == newVehicleStatus.VEHICLE 
@@ -1683,46 +1687,6 @@ namespace Factory_of_the_Future
                 return "";
             }
         }
-
-        private string GetTagType(string value)
-        {
-            try
-            {
-                if (!string.IsNullOrEmpty(value))
-                {
-                    if (Regex.IsMatch(value, (string)AppParameters.AppSettings["TAG_AGV"], RegexOptions.IgnoreCase))
-                    {
-                        return "Autonomous Vehicle";
-                    }
-                    else if (Regex.IsMatch(value, (string)AppParameters.AppSettings["TAG_PIV"], RegexOptions.IgnoreCase))
-                    {
-                        return "Vehicle";
-                    }
-                    else if (Regex.IsMatch(value, (string)AppParameters.AppSettings["TAG_PERSON"], RegexOptions.IgnoreCase))
-                    {
-                        return "Person";
-                    }
-                    else if (Regex.IsMatch(value, (string)AppParameters.AppSettings["TAG_LOCATOR"], RegexOptions.IgnoreCase))
-                    {
-                        return "Locator";
-                    }
-                    else
-                    {
-                        return value;
-                    }
-                }
-                else
-                {
-                    return "Unknown_Tag";
-                }
-            }
-            catch (Exception e)
-            {
-                new ErrorLogger().ExceptionLog(e);
-                return "Error_Unknown_Tag";
-            }
-        }
-
         private void CheckMachineNotifications(JObject machineData)
         {
 
@@ -1960,9 +1924,9 @@ namespace Factory_of_the_Future
                         {
                             DateTime dtSD = Convert.ToDateTime(startdatetime);
                             DateTime dtNow = DateTime.Now;
-                            if (!string.IsNullOrEmpty((string)AppParameters.AppSettings["FACILITY_TIMEZONE"]))
+                            if (!string.IsNullOrEmpty(AppParameters.AppSettings.FACILITY_TIMEZONE))
                             {
-                                if (AppParameters.TimeZoneConvert.TryGetValue((string)AppParameters.AppSettings["FACILITY_TIMEZONE"], out string windowsTimeZoneId))
+                                if (AppParameters.TimeZoneConvert.TryGetValue(AppParameters.AppSettings.FACILITY_TIMEZONE, out string windowsTimeZoneId))
                                 {
                                     dtNow = TimeZoneInfo.ConvertTime(dtNow, TimeZoneInfo.FindSystemTimeZoneById(windowsTimeZoneId));
                                 }

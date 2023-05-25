@@ -102,7 +102,7 @@ namespace Factory_of_the_Future
         {
             try
             {
-                if (credentials == (AppParameters.AppSettings.ContainsKey("API_KEY") ? AppParameters.AppSettings.Property("API_KEY").Value.ToString() : ""))
+                if (credentials == AppParameters.AppSettings.API_KEY)
                 {
                     var encoding = Encoding.GetEncoding("iso-8859-1");
                     credentials = encoding.GetString(Convert.FromBase64String(credentials));
@@ -155,14 +155,14 @@ namespace Factory_of_the_Future
                     Session[SessionKey.IsAuthenticated] = HttpContext.Current.Request.IsAuthenticated;
                     Session[SessionKey.UserFirstName] = "";
                     Session[SessionKey.UserLastName] = "";
-                    Session[SessionKey.Facility_NASS_CODE] = AppParameters.AppSettings.ContainsKey("FACILITY_NASS_CODE") ? AppParameters.AppSettings["FACILITY_NASS_CODE"].ToString() : "";
-                    Session[SessionKey.Facility_Id] = AppParameters.AppSettings.ContainsKey("FACILITY_ID") ? AppParameters.AppSettings["FACILITY_ID"].ToString() : "";
-                    Session[SessionKey.Facility_Name] = AppParameters.AppSettings.ContainsKey("FACILITY_NAME") ? AppParameters.AppSettings["FACILITY_NAME"].ToString() : "";
+                    Session[SessionKey.Facility_NASS_CODE] = AppParameters.AppSettings.FACILITY_NASS_CODE;
+                    Session[SessionKey.Facility_Id] = AppParameters.AppSettings.FACILITY_ID;
+                    Session[SessionKey.Facility_Name] = AppParameters.AppSettings.FACILITY_NAME;
                     Session[SessionKey.Environment] = AppParameters.ApplicationEnvironment;
-                    Session[SessionKey.FacilityTimeZone] = AppParameters.AppSettings.ContainsKey("FACILITY_TIMEZONE") ? AppParameters.AppSettings["FACILITY_TIMEZONE"].ToString() : "";
+                    Session[SessionKey.FacilityTimeZone] = AppParameters.AppSettings.FACILITY_TIMEZONE;
                     Session[SessionKey.SoftwareVersion] = AppParameters.VersionInfo;
-                    Session[SessionKey.ApplicationFullName] = AppParameters.AppSettings.ContainsKey("APPLICATION_FULLNAME") ? AppParameters.AppSettings["APPLICATION_FULLNAME"].ToString() : "";
-                    Session[SessionKey.ApplicationAbbr] = AppParameters.AppSettings.ContainsKey("APPLICATION_NAME") ? AppParameters.AppSettings["APPLICATION_NAME"].ToString() : "";
+                    Session[SessionKey.ApplicationFullName] = AppParameters.AppSettings.APPLICATION_FULLNAME;
+                    Session[SessionKey.ApplicationAbbr] = AppParameters.AppSettings.APPLICATION_NAME;
                     Session[SessionKey.Server_IpAddress] = AppParameters.ServerIpAddress;
                     Session[SessionKey.IpAddress] = Request.ServerVariables["REMOTE_HOST"];
                     Session[SessionKey.Domain] = HttpContext.Current.Request.LogonUserIdentity.Name.ToString().Split('\\')[0].ToUpper();
@@ -287,7 +287,7 @@ namespace Factory_of_the_Future
 
                     //Check for Admin Access 
 
-                    string temp_list = AppParameters.AppSettings.ContainsKey("ROLES_ADMIN") ? AppParameters.AppSettings.Property("ROLES_ADMIN").Value.ToString().Trim() : "";
+                    string temp_list = AppParameters.AppSettings.ROLES_ADMIN.Trim();
                     if (!string.IsNullOrEmpty(temp_list))
                     {
                         List<string> Webconfig_roles = temp_list.Split(',').ToList();
@@ -298,7 +298,7 @@ namespace Factory_of_the_Future
                         }
                     }
                     //Check for OIE Access
-                    temp_list = AppParameters.AppSettings.ContainsKey("ROLES_OIE") ? AppParameters.AppSettings.Property("ROLES_OIE").Value.ToString().Trim() : "";
+                    temp_list = AppParameters.AppSettings.ROLES_OIE.Trim();
                     if (!string.IsNullOrEmpty(temp_list))
                     {
                         List<string> Webconfig_roles = temp_list.Split(',').ToList();
@@ -309,7 +309,7 @@ namespace Factory_of_the_Future
                         }
                     }
                     //Check for Maintenance Access
-                    temp_list = AppParameters.AppSettings.ContainsKey("ROLES_MAINTENANCE") ? AppParameters.AppSettings.Property("ROLES_MAINTENANCE").Value.ToString().Trim() : "";
+                    temp_list = AppParameters.AppSettings.ROLES_MAINTENANCE;
                     if (!string.IsNullOrEmpty(temp_list))
                     {
                         List<string> Webconfig_roles = temp_list.Split(',').ToList();

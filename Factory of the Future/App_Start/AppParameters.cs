@@ -19,22 +19,7 @@ using System.Threading.Tasks;
 
 namespace Factory_of_the_Future
 {
-    public class ThroughputValues
-    {
-
-        public ThroughputValues(string mpeType, int? max, int? averagePerHour, int? averagePerHour25)
-        {
-            MpeType = mpeType;
-            MaxThroughput = max;
-            AverageThroughputPerHour = averagePerHour;
-            AverageThroughputPerHour25 = averagePerHour25;
-        }
-        public string MpeType { get; set; }
-        public int? MaxThroughput { get; set; }
-        public int? AverageThroughputPerHour { get; set; }
-        public int? AverageThroughputPerHour25 { get; set; }
-    }
-    internal class AppParameters
+    internal static class AppParameters
     {
         public static TimeZone localZone = TimeZone.CurrentTimeZone;
         public static bool ActiveServer { get; set; } = false;
@@ -43,7 +28,8 @@ namespace Factory_of_the_Future
         public static string LogFloder { get; set; } = @"\Log";
         public static string Images { get; set; } = @"\Images";
         public static string ORAQuery { get; set; } = @"\OracleQuery";
-        public static JObject AppSettings { get; set; } = new JObject();
+        public static AppSetting AppSettings { get; set; } = new AppSetting();
+       // public static JObject AppSettings { get; set; } = new JObject();
         public static string ApplicationEnvironment { get; set; } = string.Empty;
         public static string HWSerialNumber { get; set; } = string.Empty;
         public static string VersionInfo { get; set; } = string.Empty;
@@ -56,8 +42,6 @@ namespace Factory_of_the_Future
         private static readonly string SaltKey = "S@LT&KEY";
         private static readonly string VIKey = "@1B2c3D4e5F6g7H8";
         public static string NoImage { get; set; } = "";
-        public static List<ThroughputValues> MachineThroughputMax { get; set; }
-
         //public static Dictionary<string, string> CameraMapping { get; set; }
         public static ConcurrentDictionary<string, MachData> RTLShData { get; set; } = new ConcurrentDictionary<string, MachData>();
         public static ConcurrentDictionary<string, MachData> MPEWatchData { get; set; } = new ConcurrentDictionary<string, MachData>();
@@ -95,7 +79,7 @@ namespace Factory_of_the_Future
             { "Pacific/Honolulu", "Hawaiian Standard Time" }
         };
 
-        internal static async void Start()
+        internal static async Task Start()
         {
             try
             {
@@ -112,67 +96,47 @@ namespace Factory_of_the_Future
                 // Load app settings and data asynchronously
                 if (GetAppSettings())
                 {
-                    await Task.Run(() =>
-                          {
-                              GetMPEWatchSite();
-                              GetRTLSSites();
-                              GetNotificationDefault();
-                              LoadTempIndoorapData("Project_Data.json").ConfigureAwait(false);
-                              GetMachineThroughputMax("MachineThroughputMax.csv");
-                          }).ConfigureAwait(false);
-
-                    await Task.Run(() => new Load().GetDoorTripAssociationAsync()).ConfigureAwait(false);
-                    await Task.Run(() => new Load().GetConnectionDefaultAsync()).ConfigureAwait(false);
 
                     if (string.IsNullOrEmpty(ApplicationEnvironment))
                     {
-                        if (AppSettings.ContainsKey("DEV_SVRP_IP"))
+                        if (AppSettings.DEV_SVRP_IP == ServerIpAddress)
                         {
-                            if ((string)AppSettings.Property("DEV_SVRP_IP").Value == ServerIpAddress)
-                            {
-                                ApplicationEnvironment = "DEV";
-                            }
+                            ApplicationEnvironment = "DEV";
                         }
-                        if (AppSettings.ContainsKey("DEV_SVRS_IP"))
+                        if (AppSettings.DEV_SVRS_IP == ServerIpAddress)
                         {
-                            if ((string)AppSettings.Property("dev_SVRS_IP").Value == ServerIpAddress)
-                            {
-                                ApplicationEnvironment = "DEV";
-                            }
+                            ApplicationEnvironment = "DEV";
                         }
-                        if (AppSettings.ContainsKey("SIT_SVRP_IP"))
+                        if (AppSettings.SIT_SVRP_IP == ServerIpAddress)
                         {
-                            if ((string)AppSettings.Property("SIT_SVRP_IP").Value == ServerIpAddress)
-                            {
-                                ApplicationEnvironment = "SIT";
-                            }
+                            ApplicationEnvironment = "SIT";
                         }
-                        if (AppSettings.ContainsKey("SIT_SVRS_IP"))
+                        if (AppSettings.SIT_SVRS_IP == ServerIpAddress)
                         {
-                            if ((string)AppSettings.Property("SIT_SVRS_IP").Value == ServerIpAddress)
-                            {
-                                ApplicationEnvironment = "SIT";
-                            }
+                            ApplicationEnvironment = "SIT";
                         }
-                        if (AppSettings.ContainsKey("CAT_SVRS_IP"))
+                        if (AppSettings.CAT_SVRP_IP == ServerIpAddress)
                         {
-                            if ((string)AppSettings.Property("CAT_SVRS_IP").Value == ServerIpAddress)
-                            {
-                                ApplicationEnvironment = "CAT";
-                            }
+                            ApplicationEnvironment = "CAT";
                         }
-                        if (AppSettings.ContainsKey("CAT_SVRP_IP"))
+                        if (AppSettings.CAT_SVRS_IP == ServerIpAddress)
                         {
-                            if ((string)AppSettings.Property("CAT_SVRP_IP").Value == ServerIpAddress)
-                            {
-                                ApplicationEnvironment = "CAT";
-                            }
+                            ApplicationEnvironment = "CAT";
                         }
                         if (string.IsNullOrEmpty(ApplicationEnvironment))
                         {
                             ApplicationEnvironment = "PROD";
                         }
                     }
+                    await Task.Run(() =>
+                          {
+                              GetMPEWatchSite();
+                              GetRTLSSites();
+                              GetNotificationDefault();
+                              LoadTempIndoorapData("Project_Data.json").ConfigureAwait(true);
+                              new Load().GetDoorTripAssociationAsync();
+                              new Load().GetConnectionDefaultAsync().ConfigureAwait(true);
+                          }).ConfigureAwait(true);
                 }
             }
             catch (Exception ex)
@@ -243,53 +207,7 @@ namespace Factory_of_the_Future
             }
         }
 
-        private static void GetMachineThroughputMax(string filename)
-        {
-            try
-            {
-                string file_content = new FileIO().Read(string.Concat(Logdirpath, ConfigurationFloder), filename);
-                string[] lines = file_content.Split('\r');
-                bool first = true;
-                List<ThroughputValues> throughputMaximums = new List<ThroughputValues>();
-                foreach (string line in lines)
-                {
-                    if (!first)
-                    {
-                        string thisLine = line.Trim();
-                        if (!String.IsNullOrEmpty(thisLine))
-                        {
 
-                            string[] vals = thisLine.Split(',');
-                            string mpeType = vals[0];
-                            int? max = null;
-                            if (!String.IsNullOrEmpty(vals[1]))
-                            {
-                                max = Convert.ToInt32(vals[1]);
-                            }
-                            int? avg = null;
-                            if (!String.IsNullOrEmpty(vals[2]))
-                            {
-                                avg = Convert.ToInt32(vals[2]);
-                            }
-                            int? avg25 = null;
-                            if (!String.IsNullOrEmpty(vals[3]))
-                            {
-                                Convert.ToInt32(vals[3]);
-                            }
-                            ThroughputValues values = new ThroughputValues(mpeType, max, avg, avg25);
-                            throughputMaximums.Add(values);
-                        }
-                    }
-                    first = false;
-
-                }
-                MachineThroughputMax = throughputMaximums;
-            }
-            catch (Exception e)
-            {
-                new ErrorLogger().ExceptionLog(e);
-            }
-        }
         private static bool GetAppSettings()
         {
             try
@@ -298,16 +216,15 @@ namespace Factory_of_the_Future
 
                 if (!string.IsNullOrEmpty(file_content))
                 {
-                    AppSettings = JObject.Parse(file_content);
-                    if (AppSettings.HasValues && AppSettings.ContainsKey("FACILITY_TIMEZONE"))
+                    AppSettings = JsonConvert.DeserializeObject<AppSetting>(file_content); JObject.Parse(file_content);
+
+                    if (string.IsNullOrEmpty(AppSettings.FACILITY_TIMEZONE))
                     {
-                        if (string.IsNullOrEmpty(AppSettings["FACILITY_TIMEZONE"].ToString()))
-                        {
-                            AppSettings["FACILITY_TIMEZONE"] = TimeZoneConvert.Where(r => r.Value == localZone.StandardName).Select(y => y.Key).FirstOrDefault();
-                        }
+                        AppSettings.FACILITY_TIMEZONE = TimeZoneConvert.Where(r => r.Value == localZone.StandardName).Select(y => y.Key).FirstOrDefault();
                     }
+
                     //this will check the attributes if any default are mission it will add it.
-                    if (AppSettings.HasValues && AppSettings.ContainsKey("LOG_LOCATION"))
+                    if (!string.IsNullOrEmpty(AppSettings.LOG_LOCATION))
                     {
                         LoglocationSetup();
 
@@ -372,20 +289,20 @@ namespace Factory_of_the_Future
         {
             try
             {
-                if (AppSettings.ContainsKey("LOG_LOCATION") && AppSettings.ContainsKey("APPLICATION_NAME") && !string.IsNullOrEmpty((string)AppSettings["LOG_LOCATION"]))
+                if (!string.IsNullOrEmpty(AppSettings.APPLICATION_NAME) && !string.IsNullOrEmpty(AppSettings.LOG_LOCATION))
                 {
 
-                    DirectoryInfo rootDir = new DirectoryInfo(string.Concat(AppSettings["LOG_LOCATION"].ToString(), @"\"));
+                    DirectoryInfo rootDir = new DirectoryInfo(string.Concat(AppSettings.LOG_LOCATION.ToString(), @"\"));
                     if (rootDir.Exists)
                     {
                         ActiveServer = true;
-                        DirectoryInfo appDir = new DirectoryInfo(string.Concat(rootDir.ToString(), (string)AppSettings["APPLICATION_NAME"]));
+                        DirectoryInfo appDir = new DirectoryInfo(string.Concat(rootDir.ToString(), AppSettings.APPLICATION_NAME));
                         if (appDir.Exists)
                         {
-                            if (AppSettings.ContainsKey("FACILITY_NASS_CODE") && !string.IsNullOrEmpty((string)AppSettings["FACILITY_NASS_CODE"]))
+                            if (string.IsNullOrEmpty(AppSettings.FACILITY_NASS_CODE))
                             {
 
-                                DirectoryInfo siteDir = new DirectoryInfo(string.Concat(appDir.ToString(), @"\", (string)AppSettings["FACILITY_NASS_CODE"]));
+                                DirectoryInfo siteDir = new DirectoryInfo(string.Concat(appDir.ToString(), @"\", AppSettings.FACILITY_NASS_CODE));
                                 if (siteDir.Exists)
                                 {
                                     Logdirpath = siteDir;
@@ -622,11 +539,11 @@ namespace Factory_of_the_Future
                 }
                 RunningConnection = new ConnectionContainer();
                 //ConnectionList = new ConcurrentDictionary<string, Connection>();
-                AppParameters.AppSettings["MPE_WATCH_ID"] = "";
+                AppSettings.MPE_WATCH_ID = "";
 
                 if (ActiveServer)
                 {
-                    Start();
+                    Task task = Start();
                 }
             }
             catch (Exception e)

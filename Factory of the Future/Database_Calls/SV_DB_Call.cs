@@ -19,7 +19,7 @@ namespace Factory_of_the_Future
 
             try
             {
-                if (!string.IsNullOrEmpty(AppParameters.AppSettings["ORACONNSVSTRING"].ToString()))
+                if (!string.IsNullOrEmpty(AppParameters.AppSettings.ORACONNSVSTRING))
                 {
                     maindir = new DirectoryInfo(AppParameters.CodeBase.Parent.FullName.ToString());
                     if (maindir.Exists)
@@ -29,7 +29,7 @@ namespace Factory_of_the_Future
                             query = new FileIO().Read(string.Concat(maindir, AppParameters.ORAQuery), request_data["QueryName"].ToString());
                             if (!string.IsNullOrEmpty(query))
                             {
-                                using (OracleConnection connection = new OracleConnection(AppParameters.Decrypt((string)AppParameters.AppSettings.Property("ORACONNSVSTRING").Value)))
+                                using (OracleConnection connection = new OracleConnection(AppParameters.Decrypt(AppParameters.AppSettings.ORACONNSVSTRING)))
                                 {
                                     using (OracleCommand command = new OracleCommand(query, connection))
                                     {

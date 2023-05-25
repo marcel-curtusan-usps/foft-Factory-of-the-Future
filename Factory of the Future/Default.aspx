@@ -813,11 +813,7 @@
     <!-- Sidebar panel content -->
     <div class="leaflet-sidebar leaflet-control leaflet-sidebar-left leaflet-touch collapsed" id="sidebar">
         <div class="leaflet-sidebar-content">
-            <h1 id="fotf-site-facility-name" class="leaflet-sidebar-header d-flex">
-                <span class="slantedLogoDivider"></span>
-                <i id="fotf-sidebar-close" class="leaflet-sidebar-close pi-iconExit"></i>
-            </h1>
-
+            <h1 id="fotf-site-facility-name" class="leaflet-sidebar-header d-flex"></h1>
             <!-- Sidebar panel Home - Zone Selector -->
             <div class="leaflet-sidebar-pane overflow-auto" id="home">
                 <div id="div_zoneSelect">
@@ -1703,6 +1699,7 @@
                     </div>
                 </div>
             </div>
+
         </div>
 
         <!-- Sidebar panel Vertical Navigation Tab -->

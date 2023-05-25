@@ -1,5 +1,5 @@
 ﻿.doorcontainer-fluid {
-    width: 100%;
+    width: 99.8%;
     padding-right: 0px;
     padding-left: 0px;
     margin-right: auto;
@@ -7,6 +7,9 @@
 }
 .dataTables_empty {
     display: none;
+}
+#currentTripTable {
+    margin-bottom: 0rem;
 }
 #currentTripTable > thead > tr > th {
     font-size: 3.5vw;
@@ -37,10 +40,11 @@ label {
     margin-bottom:0px;
 }
 .table td, .table th {
-    padding: .01rem;
+    padding: .0rem !important;
     vertical-align: top;
     border-top: 1px solid #dee2e6;
 }
+
 .tablewhite {
     width: 100%;
     margin-bottom: 0.01rem;
