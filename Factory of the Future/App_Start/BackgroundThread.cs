@@ -17,31 +17,13 @@ namespace Factory_of_the_Future
                     {
                         if (AppParameters.ActiveServer)
                         {
-
-                            //if (AppParameters.ZoneInfo.Keys.Count == 0)
-                            //{
-                            //   AppParameters.LoadData("Zones.json");
-                            //}
-                            //if (AppParameters.ZoneList.Count == 0)
-                            //{
-                            //    AppParameters.LoadData("CustomZones.json");
-                            //}
-                            //if (AppParameters.CoordinateSystem.Count == 0)
-                            //{
-                            //    AppParameters.LoadIndoorapData("Project_Data.json");
-                            //}
-                            //if (AppParameters.TagsList.Count == 0)
-                            //{
-                            //    AppParameters.LoadData("Markers.json");
-                            //}
-
                             //data Retention
-                            Task.Run(() => DataRetentionProcess.Start());
-
+                            Task.Run(() => DataRetentionProcess.Start()).ConfigureAwait(false);
                         }
                         else
                         {
                             Task.Run(() => AppParameters.ResetParameters());
+                            Task.Run(() => new ErrorLogger().CustomLog("Rest Application", string.Concat(AppParameters.AppSettings.APPLICATION_NAME, "_Applogs"))).ConfigureAwait(false);
                             //AppParameters.Users = new ConcurrentDictionary<string, ADUser>();
 
                         }

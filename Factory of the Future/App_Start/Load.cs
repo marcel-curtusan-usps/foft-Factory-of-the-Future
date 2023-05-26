@@ -41,7 +41,7 @@ namespace Factory_of_the_Future
             }
         }
 
-        internal async Task GetConnectionDefaultAsync()
+        internal void GetConnectionDefaultAsync()
         {
             try
             {
@@ -55,7 +55,7 @@ namespace Factory_of_the_Future
 
                     for (int i = 0; i < tempcon.Count; i++)
                     {
-                        await Task.Run(() => AppParameters.RunningConnection.Add(tempcon[i], false)).ConfigureAwait(true);
+                        Task.Run(() => AppParameters.RunningConnection.Add(tempcon[i], false)).ConfigureAwait(true);
                     }
                 }
             }

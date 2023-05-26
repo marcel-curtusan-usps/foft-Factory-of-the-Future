@@ -14,7 +14,7 @@ namespace Factory_of_the_Future
     {
         public void Configuration(IAppBuilder app)
         {
-            _ = AppParameters.Start();
+         
             GlobalHost.Configuration.DefaultMessageBufferSize = 32;
             app.Map("/signalr", map =>
             {
@@ -28,9 +28,13 @@ namespace Factory_of_the_Future
                 EnableDetailedErrors = true
             };
             app.MapSignalR(config);
-          
+            //load all configuration 
+            Task.Run(() =>
+            AppParameters.Start()
+            ).ConfigureAwait(true);
+            //start the clean up process
             Task.Run(async delegate {                
-                await Task.Delay(TimeSpan.FromSeconds(5));
+                await Task.Delay(TimeSpan.FromSeconds(25));
                 BackgroundThread.Start();
             }).ConfigureAwait(true);
         }

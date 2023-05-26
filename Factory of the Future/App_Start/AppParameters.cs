@@ -79,7 +79,7 @@ namespace Factory_of_the_Future
             { "Pacific/Honolulu", "Hawaiian Standard Time" }
         };
 
-        internal static async Task Start()
+        internal static void Start()
         {
             try
             {
@@ -128,15 +128,21 @@ namespace Factory_of_the_Future
                             ApplicationEnvironment = "PROD";
                         }
                     }
-                    await Task.Run(() =>
-                          {
-                              GetMPEWatchSite();
-                              GetRTLSSites();
-                              GetNotificationDefault();
-                              LoadTempIndoorapData("Project_Data.json").ConfigureAwait(true);
-                              new Load().GetDoorTripAssociationAsync();
-                              new Load().GetConnectionDefaultAsync().ConfigureAwait(true);
-                          }).ConfigureAwait(true);
+                    Task.Run(async delegate
+                    {
+                        await Task.Delay(TimeSpan.FromSeconds(2));
+                        GetMPEWatchSite();
+                        await Task.Delay(TimeSpan.FromSeconds(2));
+                        GetRTLSSites();
+                        await Task.Delay(TimeSpan.FromSeconds(2));
+                        GetNotificationDefault();
+                        await Task.Delay(TimeSpan.FromSeconds(2));
+                        LoadTempIndoorapData("Project_Data.json");
+                        await Task.Delay(TimeSpan.FromSeconds(2));
+                        new Load().GetDoorTripAssociationAsync();
+                        await Task.Delay(TimeSpan.FromSeconds(2));
+                        new Load().GetConnectionDefaultAsync();
+                    }).ConfigureAwait(true);
                 }
             }
             catch (Exception ex)
@@ -340,7 +346,7 @@ namespace Factory_of_the_Future
                 new ErrorLogger().ExceptionLog(e);
             }
         }
-        internal static async Task LoadTempIndoorapData(string fileName)
+        internal static void LoadTempIndoorapData(string fileName)
         {
             string data = string.Empty;
             try
@@ -351,7 +357,7 @@ namespace Factory_of_the_Future
 
                     if (!string.IsNullOrEmpty(data))
                     {
-                        await Task.Run(() => new ProcessRecvdMsg().StartProcess(data, "getProjectInfo", "")).ConfigureAwait(false);
+                        Task.Run(() => new ProcessRecvdMsg().StartProcess(data, "getProjectInfo", "")).ConfigureAwait(false);
                     }
                 }
             }
@@ -543,7 +549,7 @@ namespace Factory_of_the_Future
 
                 if (ActiveServer)
                 {
-                    Task task = Start();
+                    Start();
                 }
             }
             catch (Exception e)
