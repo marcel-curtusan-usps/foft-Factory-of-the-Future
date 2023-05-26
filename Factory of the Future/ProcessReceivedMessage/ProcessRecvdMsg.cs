@@ -485,9 +485,7 @@ namespace Factory_of_the_Future
                     JToken jsonObject = JToken.Parse(data);
                     if (jsonObject.HasValues)
                     {
-                        string MpewatchID = "{\"MPE_WATCH_ID\":\"" + jsonObject["id"] + "\"}";
-                        FOTFManager.Instance.EditAppSettingdata(MpewatchID);
-
+                       AppParameters.AppSettings.MPE_WATCH_ID = jsonObject["id"].ToString();
                     }
                 }
 

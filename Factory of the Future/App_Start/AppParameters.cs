@@ -19,7 +19,7 @@ using System.Threading.Tasks;
 
 namespace Factory_of_the_Future
 {
-    internal static class AppParameters
+    internal  class AppParameters
     {
         public static TimeZone localZone = TimeZone.CurrentTimeZone;
         public static bool ActiveServer { get; set; } = false;
@@ -28,7 +28,7 @@ namespace Factory_of_the_Future
         public static string LogFloder { get; set; } = @"\Log";
         public static string Images { get; set; } = @"\Images";
         public static string ORAQuery { get; set; } = @"\OracleQuery";
-        public static AppSetting AppSettings { get; set; } = new AppSetting();
+        public static AppSetting AppSettings { get; set; }
        // public static JObject AppSettings { get; set; } = new JObject();
         public static string ApplicationEnvironment { get; set; } = string.Empty;
         public static string HWSerialNumber { get; set; } = string.Empty;
@@ -79,7 +79,7 @@ namespace Factory_of_the_Future
             { "Pacific/Honolulu", "Hawaiian Standard Time" }
         };
 
-        internal static void Start()
+        internal static async Task Start()
         {
             try
             {
@@ -91,7 +91,7 @@ namespace Factory_of_the_Future
                 VersionInfo = string.Concat(fvi.FileMajorPart.ToString() + ".", fvi.FileMinorPart.ToString() + ".", fvi.FileBuildPart.ToString() + ".", fvi.FilePrivatePart.ToString());
 
                 ServerIpAddress = GetLocalIpAddress();
-              
+
                 NoImage = "data:image/jpeg;base64," + ImageToByteArray("NoImageFeed.jpg");
                 // Load app settings and data asynchronously
                 if (GetAppSettings())
@@ -128,21 +128,17 @@ namespace Factory_of_the_Future
                             ApplicationEnvironment = "PROD";
                         }
                     }
-                    Task.Run(async delegate
+
+                  await Task.Run(async () =>
                     {
-                        await Task.Delay(TimeSpan.FromSeconds(2));
-                        GetMPEWatchSite();
-                        await Task.Delay(TimeSpan.FromSeconds(2));
-                        GetRTLSSites();
-                        await Task.Delay(TimeSpan.FromSeconds(2));
-                        GetNotificationDefault();
-                        await Task.Delay(TimeSpan.FromSeconds(2));
-                        LoadTempIndoorapData("Project_Data.json");
-                        await Task.Delay(TimeSpan.FromSeconds(2));
-                        new Load().GetDoorTripAssociationAsync();
-                        await Task.Delay(TimeSpan.FromSeconds(2));
-                        new Load().GetConnectionDefaultAsync();
+                        await new Load().GetMPEWatchSite().ConfigureAwait(true);
+                        await new Load().GetRTLSSites().ConfigureAwait(true);
+                        await new Load().GetNotificationDefault().ConfigureAwait(true);
+                        await new Load().LoadTempIndoorapData("Project_Data.json").ConfigureAwait(true);
+                        await new Load().GetDoorTripAssociationAsync().ConfigureAwait(true);
+                        await new Load().GetConnectionDefaultAsync().ConfigureAwait(true);
                     }).ConfigureAwait(true);
+                    
                 }
             }
             catch (Exception ex)
@@ -151,68 +147,7 @@ namespace Factory_of_the_Future
             }
         }
 
-        private static void GetRTLSSites()
-        {
-            try
-            {
-                string file_content = new FileIO().Read(string.Concat(CodeBase.Parent.FullName.ToString(), Appsetting), "RTLS_Site_List.json");
-
-                if (!string.IsNullOrEmpty(file_content))
-                {
-                    List<MachData> rtls_data = JsonConvert.DeserializeObject<List<MachData>>(file_content);
-                    if (rtls_data.Any())
-                    {
-                        foreach (MachData item in rtls_data)
-                        {
-                            Uri tempUrl = new Uri(item.LocalLink);
-                            item.Port = tempUrl.Port;
-                            item.Host = tempUrl.Host;
-                            item.URL = item.LocalLink;
-                            if (!string.IsNullOrEmpty(item.Host) && !RTLShData.ContainsKey(item.Host))
-                            {
-                                RTLShData.TryAdd(item.Host, item);
-                            }
-                        }
-                    }
-                }
-            }
-            catch (Exception e)
-            {
-                new ErrorLogger().ExceptionLog(e);
-            }
-        }
-
-        private static void GetMPEWatchSite()
-        {
-            try
-            {
-                string file_content = new FileIO().Read(string.Concat(CodeBase.Parent.FullName.ToString(), Appsetting), "MPEWatch_Site_List.json");
-
-                if (!string.IsNullOrEmpty(file_content))
-                {
-                    List<MachData> mpewatch_data = JsonConvert.DeserializeObject<List<MachData>>(file_content);
-                    if (mpewatch_data.Any())
-                    {
-                        foreach (MachData item in mpewatch_data)
-                        {
-                            Uri tempUrl = new Uri(item.LocalLink);
-                            item.Port = tempUrl.Port;
-                            item.Host = tempUrl.Host;
-                            item.URL = string.Concat(item.LocalLink, "mpemaster.api_page.get_data_by_time?id={0}&data_source={1}&start_time={2}&end_time={3}");
-                            if (!string.IsNullOrEmpty(item.Host) && !MPEWatchData.ContainsKey(item.Host))
-                            {
-                                MPEWatchData.TryAdd(item.Host, item);
-                            }
-                        }
-                    }
-                }
-            }
-            catch (Exception e)
-            {
-                new ErrorLogger().ExceptionLog(e);
-            }
-        }
-
+   
 
         private static bool GetAppSettings()
         {
@@ -249,29 +184,7 @@ namespace Factory_of_the_Future
                 return false;
             }
         }
-        private static void GetNotificationDefault()
-        {
-            try
-            {
-                string file_content = new FileIO().Read(string.Concat(CodeBase.Parent.FullName.ToString(), Appsetting), "Notification.json");
-
-                if (!string.IsNullOrEmpty(file_content))
-                {
-                    List<NotificationConditions> tempnotification = JsonConvert.DeserializeObject<List<NotificationConditions>>(file_content);
-                    for (int i = 0; i < tempnotification.Count; i++)
-                    {
-                        if (!NotificationConditionsList.ContainsKey(tempnotification[i].Id))
-                        {
-                            NotificationConditionsList.TryAdd(tempnotification[i].Id, tempnotification[i]);
-                        }
-                    }
-                }
-            }
-            catch (Exception e)
-            {
-                new ErrorLogger().ExceptionLog(e);
-            }
-        }
+       
         internal static string ConnectionOutPutdata(List<Connection> connections)
         {
             try
@@ -346,30 +259,7 @@ namespace Factory_of_the_Future
                 new ErrorLogger().ExceptionLog(e);
             }
         }
-        internal static void LoadTempIndoorapData(string fileName)
-        {
-            string data = string.Empty;
-            try
-            {
-                if (Logdirpath != null)
-                {
-                    data = new FileIO().Read(string.Concat(Logdirpath, ConfigurationFloder), fileName);
-
-                    if (!string.IsNullOrEmpty(data))
-                    {
-                        Task.Run(() => new ProcessRecvdMsg().StartProcess(data, "getProjectInfo", "")).ConfigureAwait(false);
-                    }
-                }
-            }
-            catch (Exception e)
-            {
-                new ErrorLogger().ExceptionLog(e);
-            }
-            finally
-            {
-                data = string.Empty;
-            }
-        }
+   
         private static string GetLocalIpAddress()
         {
             try
@@ -523,10 +413,6 @@ namespace Factory_of_the_Future
 
 
                 ZoneInfo = new ConcurrentDictionary<string, ZoneInfo>();
-                //IndoorMap = new ConcurrentDictionary<string, BackgroundImage>();
-                //TagsList = new ConcurrentDictionary<string, GeoMarker>();
-                //ZoneList = new ConcurrentDictionary<string, GeoZone>();
-                //CoordinateSystem = new ConcurrentDictionary<string, CoordinateSystem>();
                 foreach (Api_Connection conn in RunningConnection.Connection)
                 {
                     if (conn.ConnectionInfo.UdpConnection)
@@ -541,7 +427,7 @@ namespace Factory_of_the_Future
                     {
                         conn.Stop();
                     }
-
+                    conn.Stop_Delete();
                 }
                 RunningConnection = new ConnectionContainer();
                 //ConnectionList = new ConcurrentDictionary<string, Connection>();

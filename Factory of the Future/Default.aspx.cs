@@ -1,7 +1,10 @@
-﻿using Newtonsoft.Json;
+﻿using Factory_of_the_Future.Models;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Linq;
+using System.Reflection;
+using System.Text.RegularExpressions;
 using System.Web.UI.WebControls;
 
 namespace Factory_of_the_Future
@@ -30,7 +33,7 @@ namespace Factory_of_the_Future
                     ["ApplicationFullName"] = Session[SessionKey.ApplicationFullName].ToString(),
                     ["ApplicationAbbr"] = Session[SessionKey.ApplicationAbbr].ToString(),
                     ["ConnectionList"] = JsonConvert.SerializeObject(AppParameters.RunningConnection.Connection.Select(y => y.ConnectionInfo).ToList(), Formatting.Indented),
-                    ["AppSetting"] = JsonConvert.SerializeObject(AppParameters.AppSettings, Formatting.Indented)
+                    ["AppSetting"] = GetAppSetting()
 
                 };
                 return JsonConvert.SerializeObject(SessionInfo, Formatting.Indented);
@@ -40,6 +43,27 @@ namespace Factory_of_the_Future
             {
                 new ErrorLogger().ExceptionLog(e);
                 return "";
+            }
+        }
+
+        private string GetAppSetting()
+        {
+            AppSetting TempAppSettings = AppParameters.AppSettings.ShallowCopy();
+            try
+            {
+                foreach (PropertyInfo prop in TempAppSettings.GetType().GetProperties())
+                {
+                    if (new Regex("^(ORACONN)", RegexOptions.IgnoreCase).IsMatch(prop.Name))
+                    {
+                        prop.SetValue(TempAppSettings, AppParameters.Decrypt(prop.GetValue(AppParameters.AppSettings, null).ToString()));
+                    }
+                }
+                return JsonConvert.SerializeObject(TempAppSettings);
+            }
+            catch (Exception e)
+            {
+                new ErrorLogger().ExceptionLog(e);
+                return JsonConvert.SerializeObject(TempAppSettings);
             }
         }
 

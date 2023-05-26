@@ -31,7 +31,7 @@ $('#AppSetting_value_Modal').on('shown.bs.modal', function () {
 });
 function init_AppSetting(AppsettingData) {
     try {
-        Promise.all([LoadappSettingTable(AppsettingData, "app_settingtable")]);;
+        Promise.all([LoadappSettingTable(AppsettingData, "app_settingtable")]);
     } catch (e) {
         console.log(e);
     }
@@ -88,11 +88,15 @@ function Edit_AppSetting_Value(id, value, table) {
             jsonObject[id] = $('input[id=modalValueID]').val();
         }
         if (!$.isEmptyObject(jsonObject)) {
-            fotfmanager.server.editAppSettingdata(JSON.stringify(jsonObject)).done(function () {
+            fotfmanager.server.editAppSettingdata(JSON.stringify(jsonObject)).done(function (AppsettingData) {
 
                 $('span[id=error_appsettingvalue]').text("Data has been updated");
-                setTimeout(function () { $("#AppSetting_value_Modal").modal('hide'); }, 1500);
-                Edit_AppSetting(table);
+                setTimeout(function () {
+                    $("#AppSetting_value_Modal").modal('hide');
+                    Promise.all([LoadappSettingTable(AppsettingData, "app_settingtable")]);
+                }, 800);
+             
+                // Edit_AppSetting(table);
 
             });
         }

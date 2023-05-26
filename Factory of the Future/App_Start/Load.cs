@@ -3,6 +3,7 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace Factory_of_the_Future
@@ -12,7 +13,7 @@ namespace Factory_of_the_Future
         private bool disposedValue;
         public string file_content { get; protected set; } = "";
         public JToken tempData = null;
-        internal void GetDoorTripAssociationAsync()
+        internal async Task GetDoorTripAssociationAsync()
         {
             try
             {
@@ -41,7 +42,7 @@ namespace Factory_of_the_Future
             }
         }
 
-        internal void GetConnectionDefaultAsync()
+        internal async Task GetConnectionDefaultAsync()
         {
             try
             {
@@ -55,7 +56,60 @@ namespace Factory_of_the_Future
 
                     for (int i = 0; i < tempcon.Count; i++)
                     {
-                        Task.Run(() => AppParameters.RunningConnection.Add(tempcon[i], false)).ConfigureAwait(true);
+                       await Task.Run(() => AppParameters.RunningConnection.Add(tempcon[i], false)).ConfigureAwait(true);
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                new ErrorLogger().ExceptionLog(e);
+            }
+        }
+        internal async Task GetNotificationDefault()
+        {
+            try
+            {
+                string file_content = new FileIO().Read(string.Concat(AppParameters.CodeBase.Parent.FullName.ToString(), AppParameters.Appsetting), "Notification.json");
+
+                if (!string.IsNullOrEmpty(file_content))
+                {
+                    List<NotificationConditions> tempnotification = JsonConvert.DeserializeObject<List<NotificationConditions>>(file_content);
+                    for (int i = 0; i < tempnotification.Count; i++)
+                    {
+                        if (!AppParameters.NotificationConditionsList.ContainsKey(tempnotification[i].Id))
+                        {
+                            AppParameters.NotificationConditionsList.TryAdd(tempnotification[i].Id, tempnotification[i]);
+                        }
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                new ErrorLogger().ExceptionLog(e);
+            }
+        }
+        internal async Task GetRTLSSites()
+        {
+            try
+            {
+                string file_content = new FileIO().Read(string.Concat(AppParameters.CodeBase.Parent.FullName.ToString(), AppParameters.Appsetting), "RTLS_Site_List.json");
+
+                if (!string.IsNullOrEmpty(file_content))
+                {
+                    List<MachData> rtls_data = JsonConvert.DeserializeObject<List<MachData>>(file_content);
+                    if (rtls_data.Any())
+                    {
+                        foreach (MachData item in rtls_data)
+                        {
+                            Uri tempUrl = new Uri(item.LocalLink);
+                            item.Port = tempUrl.Port;
+                            item.Host = tempUrl.Host;
+                            item.URL = item.LocalLink;
+                            if (!string.IsNullOrEmpty(item.Host) && !AppParameters.RTLShData.ContainsKey(item.Host))
+                            {
+                                AppParameters.RTLShData.TryAdd(item.Host, item);
+                            }
+                        }
                     }
                 }
             }
@@ -65,6 +119,61 @@ namespace Factory_of_the_Future
             }
         }
 
+        internal async Task GetMPEWatchSite()
+        {
+            try
+            {
+                string file_content = new FileIO().Read(string.Concat(AppParameters.CodeBase.Parent.FullName.ToString(), AppParameters.Appsetting), "MPEWatch_Site_List.json");
+
+                if (!string.IsNullOrEmpty(file_content))
+                {
+                    List<MachData> mpewatch_data = JsonConvert.DeserializeObject<List<MachData>>(file_content);
+                    if (mpewatch_data.Any())
+                    {
+                        foreach (MachData item in mpewatch_data)
+                        {
+                            Uri tempUrl = new Uri(item.LocalLink);
+                            item.Port = tempUrl.Port;
+                            item.Host = tempUrl.Host;
+                            item.URL = string.Concat(item.LocalLink, "mpemaster.api_page.get_data_by_time?id={0}&data_source={1}&start_time={2}&end_time={3}");
+                            if (!string.IsNullOrEmpty(item.Host) && !AppParameters.MPEWatchData.ContainsKey(item.Host))
+                            {
+                                AppParameters.MPEWatchData.TryAdd(item.Host, item);
+                            }
+                        }
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                new ErrorLogger().ExceptionLog(e);
+            }
+        }
+
+        internal async Task LoadTempIndoorapData(string fileName)
+        {
+            string data = string.Empty;
+            try
+            {
+                if (AppParameters.Logdirpath != null)
+                {
+                    data = new FileIO().Read(string.Concat(AppParameters.Logdirpath, AppParameters.ConfigurationFloder), fileName);
+
+                    if (!string.IsNullOrEmpty(data))
+                    {
+                       await Task.Run(() => new ProcessRecvdMsg().StartProcess(data, "getProjectInfo", "")).ConfigureAwait(true);
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                new ErrorLogger().ExceptionLog(e);
+            }
+            finally
+            {
+                data = string.Empty;
+            }
+        }
         protected virtual void Dispose(bool disposing)
         {
             if (!disposedValue)

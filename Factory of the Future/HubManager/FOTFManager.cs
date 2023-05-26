@@ -2265,106 +2265,99 @@ namespace Factory_of_the_Future
 
         internal AppSetting EditAppSettingdata(string data)
         {
-
+            bool fileUpdate = false;
             try
             {
-                AppSetting updateSetting = JsonConvert.DeserializeObject<AppSetting>(data);
-                foreach (PropertyInfo prop in AppParameters.AppSettings.GetType().GetProperties())
+                if (!string.IsNullOrEmpty(data))
                 {
-                    if (!new Regex("^(Containers|Legs|RawData)$", RegexOptions.IgnoreCase).IsMatch(prop.Name))
+                    dynamic appSettingObj = JToken.Parse(data);
+                    if (((Newtonsoft.Json.Linq.JContainer)appSettingObj).HasValues)
                     {
-                        if (prop.GetValue(AppParameters.AppSettings, null) != prop.GetValue(updateSetting, null))
+                        foreach (var kv in appSettingObj)
                         {
-                            prop.SetValue(AppParameters.AppSettings, prop.GetValue(updateSetting, null));
+                            if (kv.Name == "FACILITY_NASS_CODE")
+                            {
+                                if (GetData.Get_Site_Info((string)kv.Value, out SV_Site_Info SiteInfo))
+                                {
+                                    if (SiteInfo != null)
+                                    {
+                                        AppParameters.AppSettings.FACILITY_NAME = SiteInfo.DisplayName;// .ContainsKey("displayName") ? SiteInfo["displayName"] : "Site Not Configured";
+                                        AppParameters.AppSettings.FACILITY_ID = SiteInfo.FdbId; //.ContainsKey("fdbId") ? SiteInfo["fdbId"] : "";
+                                        AppParameters.AppSettings.FACILITY_ZIP = SiteInfo.ZipCode; //.ContainsKey("zipCode") ? SiteInfo["zipCode"] : "";
+                                        AppParameters.AppSettings.FACILITY_LKEY = SiteInfo.LocaleKey;//.ContainsKey("localeKey") ? SiteInfo["localeKey"] : "";
+                                        Task.Run(() => AppParameters.LoglocationSetup());
+                                        CoordinateSystem.Clear();
+                                        Task.Run(() => AppParameters.ResetParameters());
+                                    }
+                                    else
+                                    {
+                                        AppParameters.AppSettings.FACILITY_NAME = "Site Not Configured";
+                                        AppParameters.AppSettings.FACILITY_ID = "";
+                                        AppParameters.AppSettings.FACILITY_ZIP = "";
+                                        AppParameters.AppSettings.FACILITY_LKEY = "";
+                                    }
+                                }
+                            }
+                            else if (kv.Name == "LOG_LOCATION")
+                            {
+                                if (!string.IsNullOrEmpty(kv.Value.ToString()))
+                                {
+                                    AppParameters.AppSettings.LOG_LOCATION = kv.Value;
+                                    Task.Run(() => AppParameters.LoglocationSetup());
+                                }
+                            }
+                            foreach (PropertyInfo prop in AppParameters.AppSettings.GetType().GetProperties())
+                            {
+                               if (new Regex("^(" + kv.Name + ")$", RegexOptions.IgnoreCase).IsMatch(prop.Name))
+                                {
+                                    if (prop.Name.StartsWith("ORACONN"))
+                                    {
+                                        kv.Value = AppParameters.Encrypt((string)kv.Value);
+                                    }
+                                    if (prop.GetValue(AppParameters.AppSettings, null).ToString() != (string)kv.Value)
+                                    {
+                                        prop.SetValue(AppParameters.AppSettings, (string)kv.Value);
+                                        fileUpdate = true;
+                                    }
 
+                                }
+                            }
                         }
                     }
                 }
 
-                return AppParameters.AppSettings;
+                if (fileUpdate)
+                {
+                    new FileIO().Write(string.Concat(AppParameters.CodeBase.Parent.FullName.ToString(), AppParameters.Appsetting), "AppSettings.json", JsonConvert.SerializeObject(AppParameters.AppSettings, Formatting.Indented));
+                }
+                return GetAppSetting();
             }
             catch (Exception e)
             {
                 new ErrorLogger().ExceptionLog(e);
-                return AppParameters.AppSettings;
+                return GetAppSetting();
             }
-            //try
-            //{
-            //    bool fileUpdate = false;
-            //    if (!string.IsNullOrEmpty(data))
-            //    {
-            //        dynamic objdict = JToken.Parse(data);
-            //        foreach (dynamic item in AppParameters.AppSettings)
-            //        {
-            //            foreach (var kv in objdict)
-            //            {
-            //                if (kv.Name == item.Key)
-            //                {
-            //                    if (kv.Value != item.Value)
-            //                    {
-            //                        fileUpdate = true;
 
-            //                        if (kv.Name.StartsWith("ORACONN"))
-            //                        {
-            //                            AppParameters.AppSettings[item.Key] = AppParameters.Encrypt(kv.Value.ToString());
-            //                        }
-            //                        else if (kv.Name == "FACILITY_NASS_CODE")
-            //                        {
-            //                            if (GetData.Get_Site_Info((string)kv.Value, out SV_Site_Info SiteInfo))
-            //                            {
-            //                                if (SiteInfo != null)
-            //                                {
-            //                                    AppParameters.AppSettings[kv.Name] = kv.Value.ToString();
-            //                                    AppParameters.AppSettings["FACILITY_NAME"] = SiteInfo.DisplayName;// .ContainsKey("displayName") ? SiteInfo["displayName"] : "Site Not Configured";
-            //                                    AppParameters.AppSettings["FACILITY_ID"] = SiteInfo.FdbId; //.ContainsKey("fdbId") ? SiteInfo["fdbId"] : "";
-            //                                    AppParameters.AppSettings["FACILITY_ZIP"] = SiteInfo.ZipCode; //.ContainsKey("zipCode") ? SiteInfo["zipCode"] : "";
-            //                                    AppParameters.AppSettings["FACILITY_LKEY"] = SiteInfo.LocaleKey;//.ContainsKey("localeKey") ? SiteInfo["localeKey"] : "";
-            //                                    Task.Run(() => AppParameters.LoglocationSetup());
-            //                                    CoordinateSystem.Clear();
-            //                                    Task.Run(() => AppParameters.ResetParameters());
-            //                                }
-            //                                else
-            //                                {
-            //                                    AppParameters.AppSettings["FACILITY_NAME"] = "Site Not Configured";
-            //                                    AppParameters.AppSettings["FACILITY_ID"] = "";
-            //                                    AppParameters.AppSettings["FACILITY_ZIP"] = "";
-            //                                    AppParameters.AppSettings["FACILITY_LKEY"] = "";
-            //                                }
-            //                            }
-            //                        }
-            //                        else if (kv.Name == "LOG_LOCATION")
-            //                        {
-            //                            if (!string.IsNullOrEmpty(kv.Value.ToString()))
-            //                            {
-            //                                AppParameters.AppSettings[item.Key] = kv.Value;
-            //                                Task.Run(() => AppParameters.LoglocationSetup());
-            //                            }
-            //                        }
-            //                        else
-            //                        {
-            //                            AppParameters.AppSettings[item.Key] = kv.Value;
-            //                        }
-            //                        //if (kv.Name == "CAMERA_THUMBNAIL_INTERVAL")
-            //                        //{
-            //                        //    SetCameraThumbnailInterval();
-            //                        //}
-            //                    }
-            //                }
-            //            }
-            //        }
-            //    }
-
-            //    if (fileUpdate)
-            //    {
-            //        new FileIO().Write(string.Concat(AppParameters.CodeBase.Parent.FullName.ToString(), AppParameters.Appsetting), "AppSettings.json", JsonConvert.SerializeObject(AppParameters.AppSettings, Formatting.Indented));
-            //    }
-            //    return AppParameters.AppSettings;
-            //}
-            //catch (Exception e)
-            //{
-            //    new ErrorLogger().ExceptionLog(e);
-            //    return AppParameters.AppSettings;
-            //}
+        }
+        private AppSetting GetAppSetting()
+        {
+            AppSetting TempAppSettings = AppParameters.AppSettings.ShallowCopy();
+            try
+            {
+                foreach (PropertyInfo prop in TempAppSettings.GetType().GetProperties())
+                {
+                    if (new Regex("^(ORACONN)", RegexOptions.IgnoreCase).IsMatch(prop.Name))
+                    {
+                        prop.SetValue(TempAppSettings, AppParameters.Decrypt(prop.GetValue(AppParameters.AppSettings, null).ToString()));
+                    }
+                }
+                return TempAppSettings;
+            }
+            catch (Exception e)
+            {
+                new ErrorLogger().ExceptionLog(e);
+                return TempAppSettings;
+            }
         }
         internal IEnumerable<BackgroundImage> GetFloorPlanData()
         {
