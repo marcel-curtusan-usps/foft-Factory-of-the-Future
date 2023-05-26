@@ -6,17 +6,20 @@ namespace Factory_of_the_Future
     internal class Directory_Check
     {
         private readonly Object lockObj = new Object();
+        private DirectoryInfo Logdirpath { get; set; }
 
-        internal bool DirPath(DirectoryInfo logdirpath)
-        {
+        internal bool DirPath(DirectoryInfo logpath)
+        { 
+            Logdirpath = logpath;
             lock (lockObj)
             {
+                
                 try
                 {
-                    if (logdirpath != null && logdirpath.Root.Exists)
+                    if (Logdirpath != null && Logdirpath.Root.Exists)
                     {
 
-                        if (logdirpath.FullName == AppParameters.CodeBase.Parent.FullName)
+                        if (Logdirpath.FullName == AppParameters.CodeBase.Parent.FullName)
                         {
                             AppParameters.ActiveServer = false;
                             AppParameters.AppSettings.SERVER_ACTIVE = false;
@@ -27,7 +30,7 @@ namespace Factory_of_the_Future
                         {
                             AppParameters.ActiveServer = true;
                             AppParameters.AppSettings.SERVER_ACTIVE = true;
-                            AppParameters.Logdirpath = logdirpath;
+                            AppParameters.Logdirpath = Logdirpath;
                             return true;
                         }
 
@@ -44,6 +47,9 @@ namespace Factory_of_the_Future
                 {
                     new ErrorLogger().ExceptionLog(e);
                     return false;
+                }
+                finally {
+                    Logdirpath = null;
                 }
             }
         }

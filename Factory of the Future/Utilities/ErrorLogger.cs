@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace Factory_of_the_Future
 {
@@ -24,7 +25,7 @@ namespace Factory_of_the_Future
             }
         }
 
-        internal void CustomLog(string Data, string type)
+        internal async Task CustomLog(string Data, string type)
         {
 
             if (AppParameters.Logdirpath != null && new Directory_Check().DirPath(AppParameters.Logdirpath))
@@ -32,7 +33,7 @@ namespace Factory_of_the_Future
                     StringBuilder errorBuilder = new StringBuilder(AppParameters.AppSettings.APPLICATION_NAME + " " + type + " Info ");
                     errorBuilder.Append("DateTime = " + DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fff"));
                     errorBuilder.Append(" Data = " + Data);
-                    new FileIO().Write(string.Concat(AppParameters.Logdirpath, AppParameters.LogFloder, "\\"), type + "_" + DateTime.Now.ToString("yyyy-MM-dd") + ".txt", errorBuilder.ToString());
+                    await Task.Run(() => new FileIO().Write(string.Concat(AppParameters.Logdirpath, AppParameters.LogFloder, "\\"), type + "_" + DateTime.Now.ToString("yyyy-MM-dd") + ".txt", errorBuilder.ToString())).ConfigureAwait(true);
                 
             }
 

@@ -410,7 +410,7 @@ async function LoadMachineTables(dataproperties, table) {
 
                 $zoneSelect[0].selectize.setValue(dataproperties.id, true);
                 $('button[name=machineinfoedit]').attr('id', dataproperties.id);
-                $("<a/>").attr({ target: "_blank", href: window.location.origin + '/MPE/MPE.aspx?MPEStatus=' + dataproperties.name, style: 'color:white;'}).html("View").appendTo($('span[name=mpeview]'));
+                $("<a/>").attr({ target: "_blank", href: URLconstructor( window.location) + 'MPE/MPE.aspx?MPEStatus=' + dataproperties.name, style: 'color:white;'}).html("View").appendTo($('span[name=mpeview]'));
                 $('button[name=machineinfoedit]').attr('id', dataproperties.id);
                 $('div[id=dps_div]').css('display', 'none');
                 let machinetop_Table = $('table[id=' + table + ']');

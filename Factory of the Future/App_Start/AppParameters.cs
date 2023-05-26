@@ -218,7 +218,7 @@ namespace Factory_of_the_Future
                         DirectoryInfo appDir = new DirectoryInfo(string.Concat(rootDir.ToString(), AppSettings.APPLICATION_NAME));
                         if (appDir.Exists)
                         {
-                            if (string.IsNullOrEmpty(AppSettings.FACILITY_NASS_CODE))
+                            if (!string.IsNullOrEmpty(AppSettings.FACILITY_NASS_CODE))
                             {
 
                                 DirectoryInfo siteDir = new DirectoryInfo(string.Concat(appDir.ToString(), @"\", AppSettings.FACILITY_NASS_CODE));

@@ -1148,6 +1148,14 @@ async function loadDatatable(data, table) {
         }
     }
 }
+function URLconstructor(winLoc) {
+    if (/^(.CF)/i.test(winLoc.pathname)) {
+        return winLoc.origin + "/CF/";
+    }
+    else {
+        return winLoc.origin + "/";
+    }
+}
 function hideSidebarLayerDivs() {
 
     $('div[id=agvlocation_div]').css('display', 'none');

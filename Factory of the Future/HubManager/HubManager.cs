@@ -3,6 +3,7 @@ using Factory_of_the_Future.Models;
 using Microsoft.AspNet.SignalR;
 using Microsoft.AspNet.SignalR.Hubs;
 using Newtonsoft.Json.Linq;
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
@@ -290,6 +291,8 @@ namespace Factory_of_the_Future
             //{
             //    Clients.Caller.floorImage(_managerHub.GetIndoorMap());
             //}
+            new ErrorLogger().CustomLog(string.Concat(" Client Connected. User ID:"), string.Concat(AppParameters.AppSettings.APPLICATION_NAME, "_Applogs"));
+
             return base.OnConnected();
         }
 
