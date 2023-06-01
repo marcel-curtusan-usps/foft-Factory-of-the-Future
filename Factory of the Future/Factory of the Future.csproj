@@ -624,6 +624,8 @@
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
     <Compile Include="HubManager\ConnectionMapping.cs" />
+    <Compile Include="ProcessReceivedMessage\ApplicationSetting.cs" />
+    <Compile Include="ProcessReceivedMessage\Get_Site_Info.cs" />
     <Compile Include="HubManager\HubManager.cs" />
     <Compile Include="HubManager\FOTFManager.cs" />
     <Compile Include="Default.aspx.cs">
@@ -797,7 +799,7 @@
           <SaveServerSettingsInUserFile>False</SaveServerSettingsInUserFile>
         </WebProjectProperties>
       </FlavorProperties>
-      <UserProperties mpekanban_4contents_4kanbandispatch_1json__JsonSchema="https://beaujs.com/schema.json" appsetting_4appsettings_1json__JsonSchema="https://json.schemastore.org/backportrc.json" />
+      <UserProperties appsetting_4appsettings_1json__JsonSchema="https://json.schemastore.org/backportrc.json" mpekanban_4contents_4kanbandispatch_1json__JsonSchema="https://beaujs.com/schema.json" />
     </VisualStudio>
   </ProjectExtensions>
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">

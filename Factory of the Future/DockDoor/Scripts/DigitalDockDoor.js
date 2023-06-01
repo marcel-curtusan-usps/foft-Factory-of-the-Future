@@ -51,51 +51,52 @@ $(function () {
     $('label[id=dockdoorNumber]').text($.urlParam("dockdoor"));
     if (doornumber !== "") {
         Promise.all([StartDataConnection()]);
-    }
-    //start connection 
-    $.connection.hub.qs = { 'page_type': "DockDoor".toUpperCase() };
-    $.connection.hub.start({ waitForPageLoad: false })
-        .done(function () {
-            fotfmanager.server.getDigitalDockDoorList(doornumber).done(async (DockDoordata) => {
-                Promise.all([updateDockDoorStatus(DockDoordata)])
-            });
+
+        //start connection 
+        $.connection.hub.qs = { 'page_type': "DockDoor".toUpperCase() };
+        $.connection.hub.start({ waitForPageLoad: false })
+            .done(function () {
+                fotfmanager.server.getDigitalDockDoorList(doornumber).done(async (DockDoordata) => {
+                    Promise.all([updateDockDoorStatus(DockDoordata)])
+                });
+                fotfmanager.server.joinGroup("DockDoor_" + doornumber);
+                console.log("Connected at time: " + new Date($.now()));
+            }).catch(
+                function (err) {
+                    console.log(err.toString());
+                });
+        // Raised when the connection state changes. Provides the old state and the new state (Connecting, Connected, Reconnecting, or Disconnected).
+        $.connection.hub.stateChanged(function (state) {
+            //switch (state.newState) {
+            //    case 1: $('label[id=dockdoorNumber]');
+            //        break;
+            //    case 4:
+            //        $('label[id=dockdoorNumber]');
+            //        break;
+            //    default: $('label[id=dockdoorNumber]');
+            //}
+        });
+        //handling Disconnect
+        $.connection.hub.disconnected(function () {
+            connecttimer = setTimeout(function () {
+                if (connectattp > 10) {
+                    clearTimeout(connecttimer);
+                }
+                connectattp += 1;
+                $.connection.hub.start().done(function () {
+                    console.log("Connected time: " + new Date($.now()));
+                }).catch(function (err) {
+                    console.log(err.toString());
+                });
+            }, 10000);
+        });
+        //Raised when the underlying transport has reconnected.
+        $.connection.hub.reconnecting(function () {
+            clearTimeout(connecttimer);
+            console.log("reconnected at time: " + new Date($.now()));
             fotfmanager.server.joinGroup("DockDoor_" + doornumber);
-            console.log("Connected at time: " + new Date($.now()));
-        }).catch(
-            function (err) {
-                console.log(err.toString());
-            });
-    // Raised when the connection state changes. Provides the old state and the new state (Connecting, Connected, Reconnecting, or Disconnected).
-    $.connection.hub.stateChanged(function (state) {
-        //switch (state.newState) {
-        //    case 1: $('label[id=dockdoorNumber]');
-        //        break;
-        //    case 4:
-        //        $('label[id=dockdoorNumber]');
-        //        break;
-        //    default: $('label[id=dockdoorNumber]');
-        //}
-    });
-    //handling Disconnect
-    $.connection.hub.disconnected(function () {
-        connecttimer = setTimeout(function () {
-            if (connectattp > 10) {
-                clearTimeout(connecttimer);
-            }
-            connectattp += 1;
-            $.connection.hub.start().done(function () {
-                console.log("Connected time: " + new Date($.now()));
-            }).catch(function (err) {
-                console.log(err.toString());
-            });
-        }, 10000); 
-    });
-    //Raised when the underlying transport has reconnected.
-    $.connection.hub.reconnecting(function () {
-        clearTimeout(connecttimer);
-        console.log("reconnected at time: " + new Date($.now()));
-        fotfmanager.server.joinGroup("DockDoor_" + doornumber);
-    });
+        });
+    }
 });
 $.urlParam = function (name) {
     let results = new RegExp('[\?&]' + name + '=([^&#]*)', 'i').exec(window.location.search);
@@ -166,7 +167,7 @@ function createLegsTripDataTable(table) {
         "route": "",
         "trip": "",
         "legSiteName": "",
-        "scheduledDepDTM": ""
+        "scheduledDtm": ""
     }]
     let columns = [];
     let tempc = {};
@@ -207,7 +208,7 @@ function createLegsTripDataTable(table) {
                 }
             }
         }
-        else if (/scheduledDepDTM/i.test(key)) {
+        else if (/scheduledDtm/i.test(key)) {
             tempc = {
                 "title": "Sched",
                 "mDataProp": key,
@@ -262,7 +263,7 @@ function createContainerDataTable(table) {
         tempc = {};
         if (/Count/i.test(key)) {
             tempc = {
-                "title": 'Ready not Loaded: ' + '<label class="control-label" style="font-size: 4rem; font-weight: bolder;" id=totalcontainertext></label>',
+                "title": '<label class="control-label" id=containertext></label> ' + '<label class="control-label" style="font-size: 4rem; font-weight: bolder;" id=totalcontainertext></label>',
                 "mDataProp": key,
                 "class": "row-cts-count"
             }
@@ -463,8 +464,9 @@ function GetLegdata(legdata)
             //start
             CountTimer = startTimer(legdata.scheduledDtm);
         }
-        updateDataTable(legdata, "currentTripTable");
+        updateDataTable([legdata], "currentTripTable");
         if (TripDirectionInd === "I") {
+            $('label[id=containertext]').text("Ready to Unload:");
             $('#inboundDiv').css("display", "block");
             $('#outboundDiv').css("display", "none");
             $('label[id=tirpIncdtext]').text("Inbound");
@@ -475,6 +477,7 @@ function GetLegdata(legdata)
             if (!!legdata.containerScans && legdata.containerScans.length > 0) {
                 Promise.all([CreateContainerCount(legdata.containerScans)]);
             }
+            $('label[id=containertext]').text("Ready not Loaded:");
             $('#inboundDiv').css("display", "none");
             $('#outboundDiv').css("display", "block");
             $('label[id=tirpIncdtext]').text("Outbound");

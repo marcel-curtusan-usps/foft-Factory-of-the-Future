@@ -16,7 +16,8 @@ namespace Factory_of_the_Future.Models
         public string FACILITY_NASS_CODE { get; set; }  
         public string FACILITY_LKEY { get; set; } = "";
         public string FACILITY_P2P_SITEID { get; set; } = "";
-        public string FACILITY_TIMEZONE { get; set; }   
+        public string FACILITY_TIMEZONE { get; set; }
+        public bool LOG_API_DATA { get; set; } = false;
         public string RETENTION_DAYS { get; set; } = "";
         public string RETENTION_MAX_FILE_SIZE { get; set; } = "";
         public bool? SERVER_ACTIVE { get; set; }    

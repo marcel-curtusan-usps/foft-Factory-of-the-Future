@@ -10,7 +10,7 @@ namespace Factory_of_the_Future
 {
     public class ConnectionContainer : IDisposable
     {
-        public List<Api_Connection> Connection = new List<Api_Connection>();
+        public List<Api_Connection> DataConnection = new List<Api_Connection>();
         private bool disposedValue;
         public bool updateFile;
         public Connection _conn { get; protected set; }
@@ -54,7 +54,7 @@ namespace Factory_of_the_Future
                 NewConnection.ID = con.Id;
                 NewConnection.Status = 0;
                 NewConnection.ConnectionInfo = con;
-                Connection.Add(NewConnection);
+                DataConnection.Add(NewConnection);
                 if (con.ActiveConnection)
                 {
                     NewConnection.ConstantRefresh = false;
@@ -88,7 +88,7 @@ namespace Factory_of_the_Future
                 if (updateFile)
                 {
                     await Task.Run(() => FOTFManager.Instance.BroadcastAddConnection(NewConnection.ConnectionInfo)).ConfigureAwait(false);
-                    new FileIO().Write(string.Concat(AppParameters.CodeBase.Parent.FullName.ToString(), AppParameters.Appsetting), "Connection.json", AppParameters.ConnectionOutPutdata(Connection.Select(y => y.ConnectionInfo).ToList()));
+                    new FileIO().Write(string.Concat(AppParameters.CodeBase.Parent.FullName.ToString(), AppParameters.Appsetting), "Connection.json", AppParameters.ConnectionOutPutdata(DataConnection.Select(y => y.ConnectionInfo).ToList()));
                 }
             }
             catch (Exception e)
@@ -101,11 +101,11 @@ namespace Factory_of_the_Future
             }
 
         }
-        public async Task EditAsync(Connection updateConndata)
+        public Task EditAsync(Connection updateConndata)
         {
             try
             {
-                foreach (Api_Connection Connection_item in Connection)
+                foreach (Api_Connection Connection_item in DataConnection)
                 {
                     if (Connection_item.ConnectionInfo.Id == updateConndata.Id)
                     {
@@ -181,7 +181,7 @@ namespace Factory_of_the_Future
                                     Connection_item.ConnectionInfo.Url = updateConndata.Url;
                                     Connection_item.ConnectionInfo.DataRetrieve = updateConndata.DataRetrieve;
                                     Connection_item.ConnectionInfo.ApiConnection = updateConndata.ApiConnection;
-                                    if (Connection_item.Status == 2)
+                                    if (Connection_item.Status != 1)
                                     {
                                         Connection_item.ConstantRefresh = true;
                                         Connection_item._ThreadDownload();
@@ -195,7 +195,7 @@ namespace Factory_of_the_Future
                 }
                 if (updateFile)
                 {
-                    new FileIO().Write(string.Concat(AppParameters.CodeBase.Parent.FullName.ToString(), AppParameters.Appsetting), "Connection.json", AppParameters.ConnectionOutPutdata(Connection.Select(y => y.ConnectionInfo).ToList()));
+                    new FileIO().Write(string.Concat(AppParameters.CodeBase.Parent.FullName.ToString(), AppParameters.Appsetting), "Connection.json", AppParameters.ConnectionOutPutdata(DataConnection.Select(y => y.ConnectionInfo).ToList()));
                 }
             }
             catch (Exception e)
@@ -206,13 +206,15 @@ namespace Factory_of_the_Future
             {
                 Dispose();
             }
+
+            return Task.CompletedTask;
         }
 
         internal async Task ConnectionUpdate(string connID, int status)
         {
             try
             {
-                foreach (Api_Connection Connection_item in Connection)
+                foreach (Api_Connection Connection_item in DataConnection)
                 {
                     if (Connection_item.ConnectionInfo.Id == connID)
                     {
@@ -257,7 +259,7 @@ namespace Factory_of_the_Future
             bool conStoped = false;
             try
             {
-                foreach (Api_Connection Connection_item in Connection)
+                foreach (Api_Connection Connection_item in DataConnection)
                 {
                     if (Connection_item.ConnectionInfo.Id == connection.Id)
                     {
@@ -287,13 +289,13 @@ namespace Factory_of_the_Future
                 }
                 if (conStoped)
                 {
-                    AppParameters.RunningConnection.Connection.Remove(NewConnection);
+                    AppParameters.RunningConnection.DataConnection.Remove(NewConnection);
                     await Task.Run(() => FOTFManager.Instance.BroadcastRemoveConnection(NewConnection.ConnectionInfo)).ConfigureAwait(false);
                     updateFile = true;
                 }
                 if (updateFile)
                 {
-                    new FileIO().Write(string.Concat(AppParameters.CodeBase.Parent.FullName.ToString(), AppParameters.Appsetting), "Connection.json", AppParameters.ConnectionOutPutdata(Connection.Select(y => y.ConnectionInfo).ToList()));
+                    new FileIO().Write(string.Concat(AppParameters.CodeBase.Parent.FullName.ToString(), AppParameters.Appsetting), "Connection.json", AppParameters.ConnectionOutPutdata(DataConnection.Select(y => y.ConnectionInfo).ToList()));
                 }
             }
             catch (Exception e)

@@ -83,7 +83,7 @@ namespace Factory_of_the_Future
         public string ID;
         internal string MessageType = string.Empty;
         public int Thread_ID;
-        public int Status;  // 0 = Idle/Active, 1 = Running, 2 = Stopped/Deactivated, 3 = Invalid URL, 4 = No data,
+        public int Status;  // 0 = Idle/Active, 1 = Running, 2 = Stopped/Deactivated, 3 = Invalid URL, 4 = No data, 5 = Stopping(Paused)
         public bool ConstantRefresh = false;
         public bool Stopping = false;
         public DateTime DownloadDatetime;
@@ -115,22 +115,15 @@ namespace Factory_of_the_Future
                     SleptTime += 1000;
                     Thread.Sleep(1000);
 
-                    if (!ConnectionInfo.ActiveConnection)
-                    {
-                        Status = 2;
-                        ConnectionInfo.Status = "Stopped/Deactivated";
-                        break;
-                    }
+
                     if (!ConstantRefresh)
                     {
                         // If user wanted to stop watching this thread
                         // while thread was resting, we will exit
-                        ConnectionInfo.ApiConnected = false;
-                        ConnectionInfo.Status = "Stopped/Deactivated";
-                        Task.Run(() => FOTFManager.Instance.BroadcastQSMUpdate(ConnectionInfo)).ConfigureAwait(false);
+
                         break;
                     }
-                    if (Status == 2)
+                    if (Status == 5)
                     {
                         return;
                     }
@@ -143,6 +136,11 @@ namespace Factory_of_the_Future
                 }
 
             } while (Status == 0 || Status == 1 || Status == 3 || Status == 4);
+            if (Status == 2 || Status == 5)
+            {
+                ConnectionInfo.Status = "Stopped/Deactivated";
+                Task.Run(() => FOTFManager.Instance.BroadcastQSMUpdate(ConnectionInfo)).ConfigureAwait(true);
+            }
 
         }
         public void _ThreadRefresh()
@@ -671,11 +669,7 @@ namespace Factory_of_the_Future
                         bool URLValid = Uri.TryCreate(formatUrl, UriKind.Absolute, out uriResult) && (url.Scheme == Uri.UriSchemeHttp || url.Scheme == Uri.UriSchemeHttps);
                         if (URLValid)
                         {
-                            Task.Run(() => new ProcessRecvdMsg().StartProcess(
-                               Task.Run(() => new SendMessage().Get(uriResult, requestBody)).Result
-                               , MessageType, ConnectionInfo.Id)
-                            
-                            ).ConfigureAwait(false);
+                            Task.Run(() => new ProcessRecvdMsg().StartProcess( new SendMessage().Get(uriResult, requestBody), MessageType, ConnectionInfo.Id)).ConfigureAwait(true);
                         }
                         else
                         {
@@ -732,6 +726,13 @@ namespace Factory_of_the_Future
                         Task.Run(() => FOTFManager.Instance.BroadcastQSMUpdate(ConnectionInfo)).ConfigureAwait(false);
                     }
                 }
+
+                if (Stopping)
+                {
+                    Status = 5;
+                    return;
+                }
+                DownloadDatetime = DateTime.Now;
                 Status = 0;
             }
             catch (Exception e)
@@ -747,21 +748,11 @@ namespace Factory_of_the_Future
         private void _ThreadStop()
         {
             Stopping = true;
-            ConstantRefresh = false;
             do
             {
                 Thread.Sleep(100);
             } while (Status == 1);
-
             Status = 2;
-            ConnectionInfo.ApiConnected = false;
-            ConnectionInfo.ActiveConnection = false;
-            if (ConnectionInfo.Status != "Stopped/Deactivated")
-            {
-                ConnectionInfo.Status = "Stopped/Deactivated";
-                Task.Run(() => FOTFManager.Instance.BroadcastQSMUpdate(ConnectionInfo)).ConfigureAwait(false);
-            }
-          
         }
         private void _ThreadDelete()
         {

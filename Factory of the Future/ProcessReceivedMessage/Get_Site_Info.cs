@@ -1,19 +1,24 @@
-﻿using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
+﻿using Newtonsoft.Json.Linq;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
-using System.Linq;
+using System.IO;
+using System.Security.Policy;
 using System.Text.RegularExpressions;
+using System.Linq;
 
 namespace Factory_of_the_Future
 {
-    internal class GetData
+    internal class Get_Site_Info
     {
-        internal bool Get_Site_Info(string siteId, out SV_Site_Info siteInfo)
+        private string siteId; 
+        private List<SV_Site_Info> siteInfo = new List<SV_Site_Info>();
+        public SV_Site_Info Get_Info(string NASSCode)
         {
+            this.siteId = NASSCode;
+            string site_id_format = Regex.Replace(siteId.Trim(), @"--", "").Trim();
             try
             {
-                string site_id_format = Regex.Replace(siteId.Trim(), @"--", "").Trim();
                 if (!string.IsNullOrEmpty(site_id_format))
                 {
                     siteInfo = null;
@@ -25,31 +30,29 @@ namespace Factory_of_the_Future
                         if (!string.IsNullOrEmpty(SV_Response))
                         {
 
-                            siteInfo = JsonConvert.DeserializeObject<List<SV_Site_Info>>(SV_Response).FirstOrDefault();
-                            return true;
+                            siteInfo = JsonConvert.DeserializeObject<List<SV_Site_Info>>(SV_Response);
+                            return siteInfo.FirstOrDefault();
                         }
                         else
                         {
-                            return false;
+                            return null;
                         }
                     }
                     else
                     {
-                        return false;
+                        return null;
                     }
 
                 }
                 else
                 {
-                    siteInfo = null;
-                    return false;
+                    return null;
                 }
             }
             catch (Exception e)
             {
                 new ErrorLogger().ExceptionLog(e);
-                siteInfo = null;
-                return false;
+                return null;
             }
         }
     }

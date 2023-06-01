@@ -55,7 +55,7 @@ namespace Factory_of_the_Future
         public EventDtm LegScheduledDtm { get; set; } = new EventDtm();
 
         [JsonProperty("containerScans")]
-        public IEnumerable<Container> Containers { get; set; } = null;
+        public List<Container> Containers { get; set; } = new List<Container>();
 
         [JsonProperty("Notloadedcontainers")]
         public int NotloadedContainers { get; set; } = 0;

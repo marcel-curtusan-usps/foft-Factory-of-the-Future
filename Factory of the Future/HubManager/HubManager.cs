@@ -26,15 +26,16 @@ namespace Factory_of_the_Future
         /// <summary>
         /// /Application setting section
         /// </summary>
-        public IEnumerable<JToken> GetAppSettingdata()
+        public AppSetting GetAppSettingdata()
         {
-            return _managerHub.GetAppSettingdata();
+            return new ApplicationSetting().GetAppSetting();
         }
 
 
         public AppSetting EditAppSettingdata(string data)
         {
-            return _managerHub.EditAppSettingdata(data);
+            return new ApplicationSetting().EditAppSetting(data);
+
         }
 
         public IEnumerable<BackgroundImage> GetFloorPlanData()

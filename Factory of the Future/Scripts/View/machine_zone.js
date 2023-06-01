@@ -401,17 +401,17 @@ async function updateMPEAlert(layerindex) {
 async function LoadMachineTables(dataproperties, table) {
     try {
         if (!$.isEmptyObject(dataproperties)) {
-            $('span[name=mpeview]').empty();
+       
             $('div[id=machine_div]').attr("data-id", dataproperties.id);
             hideSidebarLayerDivs();
             $('div[id=machine_div]').css('display', 'block');
             $('div[id=ctstabs_div]').css('display', 'block');
             if (/machinetable/i.test(table)) {
-
+                $('span[name=mpeview]').empty();
                 $zoneSelect[0].selectize.setValue(dataproperties.id, true);
                 $('button[name=machineinfoedit]').attr('id', dataproperties.id);
                 $("<a/>").attr({ target: "_blank", href: URLconstructor( window.location) + 'MPE/MPE.aspx?MPEStatus=' + dataproperties.name, style: 'color:white;'}).html("View").appendTo($('span[name=mpeview]'));
-                $('button[name=machineinfoedit]').attr('id', dataproperties.id);
+
                 $('div[id=dps_div]').css('display', 'none');
                 let machinetop_Table = $('table[id=' + table + ']');
                 let machinetop_Table_Body = machinetop_Table.find('tbody');

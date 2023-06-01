@@ -413,7 +413,7 @@ namespace Factory_of_the_Future
 
 
                 ZoneInfo = new ConcurrentDictionary<string, ZoneInfo>();
-                foreach (Api_Connection conn in RunningConnection.Connection)
+                foreach (Api_Connection conn in RunningConnection.DataConnection)
                 {
                     if (conn.ConnectionInfo.UdpConnection)
                     {

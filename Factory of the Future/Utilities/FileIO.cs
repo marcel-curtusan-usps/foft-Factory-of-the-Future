@@ -122,6 +122,10 @@ namespace Factory_of_the_Future
             {
                 new ErrorLogger().ExceptionLog(ex);
             }
+            finally
+            {
+                Dispose();
+            }
         }
 
         protected virtual void Dispose(bool disposing)

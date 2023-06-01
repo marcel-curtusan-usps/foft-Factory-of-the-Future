@@ -35,10 +35,15 @@ namespace Factory_of_the_Future
                 string estCompletionTime = "";
                 if (_data != null)
                 {
+                
                     tempData = JToken.Parse(_data);
                     machineInfo = tempData.SelectToken("data");
                     if (machineInfo != null && machineInfo.HasValues)
                     {
+                        if (AppParameters.AppSettings.LOG_API_DATA)
+                        {
+                            new FileIO().Write(string.Concat(AppParameters.Logdirpath, AppParameters.LogFloder), string.Concat(message_type, DateTime.Now.ToString("yyyyMMdd"), ".txt"), JsonConvert.SerializeObject(machineInfo, Formatting.Indented));
+                        }
                         DateTime dtNow = DateTime.Now;
                         string windowsTimeZoneId = "";
                         if (!string.IsNullOrEmpty(AppParameters.AppSettings.FACILITY_TIMEZONE))

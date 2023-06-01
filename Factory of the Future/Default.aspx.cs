@@ -32,7 +32,7 @@ namespace Factory_of_the_Future
                     ["SoftwareVersion"] = Session[SessionKey.SoftwareVersion].ToString(),
                     ["ApplicationFullName"] = Session[SessionKey.ApplicationFullName].ToString(),
                     ["ApplicationAbbr"] = Session[SessionKey.ApplicationAbbr].ToString(),
-                    ["ConnectionList"] = JsonConvert.SerializeObject(AppParameters.RunningConnection.Connection.Select(y => y.ConnectionInfo).ToList(), Formatting.Indented),
+                    ["ConnectionList"] = JsonConvert.SerializeObject(AppParameters.RunningConnection.DataConnection.Select(y => y.ConnectionInfo).ToList(), Formatting.Indented),
                     ["AppSetting"] = GetAppSetting()
 
                 };

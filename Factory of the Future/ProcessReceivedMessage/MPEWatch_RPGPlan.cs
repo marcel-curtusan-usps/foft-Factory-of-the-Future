@@ -1,4 +1,5 @@
 ﻿using Factory_of_the_Future.Models;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
@@ -30,6 +31,11 @@ namespace Factory_of_the_Future
                 planInfo = tempData.SelectToken("data");
                 if (planInfo != null && planInfo.HasValues)
                 {
+                    if (AppParameters.AppSettings.LOG_API_DATA)
+                    {
+                        new FileIO().Write(string.Concat(AppParameters.Logdirpath, AppParameters.LogFloder), string.Concat(message_type, DateTime.Now.ToString("yyyyMMdd"), ".txt"), JsonConvert.SerializeObject(planInfo, Formatting.Indented));
+                    }
+
                     var newPlanData = GetMPEPlanList(planInfo);
 
                     foreach (RPGPlan RPG_item in newPlanData)

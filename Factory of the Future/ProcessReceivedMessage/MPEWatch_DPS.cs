@@ -1,4 +1,5 @@
 ﻿using Factory_of_the_Future.Models;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
@@ -34,23 +35,27 @@ namespace Factory_of_the_Future
                     dpsInfo = tempData.SelectToken("data");
                     if (dpsInfo != null && dpsInfo.HasValues)
                     {
-
+                        if (AppParameters.AppSettings.LOG_API_DATA)
+                        {
+                            new FileIO().Write(string.Concat(AppParameters.Logdirpath, AppParameters.LogFloder), string.Concat(message_type, DateTime.Now.ToString("yyyyMMdd"), ".txt"), JsonConvert.SerializeObject(dpsInfo, Formatting.Indented));
+                        }
                         NewMPEDPS = GetMPEDPSList(dpsInfo);
                         if (NewMPEDPS != null)
                         {
+                            
                             foreach (DeliveryPointSequence dpsInfo in NewMPEDPS)
                             {
                                 string[] strSortPlanList = dpsInfo.SortplanNamePerf.Split(',').Select(x => x.Trim()).ToArray();
                                 for (int i = 0; i < strSortPlanList.Length; i++)
                                 {
-                                    if (!AppParameters.DPSList.ContainsKey(strSortPlanList[i]) && AppParameters.DPSList.TryAdd(strSortPlanList[i], dpsInfo))
+                                    if (!AppParameters.DPSList.ContainsKey(strSortPlanList[i].Substring(0, 7)) && AppParameters.DPSList.TryAdd(strSortPlanList[i].Substring(0, 7), dpsInfo))
                                     {
                                         //add
                                     }
                                     else
                                     {
                                         //update 
-                                        if (AppParameters.DPSList.TryGetValue(strSortPlanList[i], out currentDPS_Info))
+                                        if (AppParameters.DPSList.TryGetValue(strSortPlanList[i].Substring(0, 7), out currentDPS_Info))
                                         {
                                             foreach (PropertyInfo prop in dpsInfo.GetType().GetProperties())
                                             {

@@ -32,7 +32,7 @@ namespace Factory_of_the_Future.Controllers
             {
                 return BadRequest(ModelState);
             }
-            Connection connection = AppParameters.RunningConnection.Connection.Where(f => f.ConnectionInfo.ConnectionName.StartsWith("AGVM")).Select(y => y.ConnectionInfo).FirstOrDefault();
+            Connection connection = AppParameters.RunningConnection.DataConnection.Where(f => f.ConnectionInfo.ConnectionName.StartsWith("AGVM")).Select(y => y.ConnectionInfo).FirstOrDefault();
             if (connection != null)
             {
                 connection.ApiConnected = true;

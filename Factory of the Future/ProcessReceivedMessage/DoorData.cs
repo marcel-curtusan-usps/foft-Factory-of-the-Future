@@ -35,9 +35,14 @@ namespace Factory_of_the_Future
             {
                 if (_data != null)
                 {
+
                     tempData = JToken.Parse(_data);
                     if (tempData != null && tempData.HasValues)
                     {
+                        if (AppParameters.AppSettings.LOG_API_DATA)
+                        {
+                            new FileIO().Write(string.Concat(AppParameters.Logdirpath, AppParameters.LogFloder), string.Concat(message_type, DateTime.Now.ToString("yyyyMMdd"), ".txt"), JsonConvert.SerializeObject(tempData, Formatting.Indented));
+                        }
                         doortempData = tempData.ToObject<List<RouteTrips>>();
                         foreach (RouteTrips rt in doortempData)
                         {
@@ -57,7 +62,7 @@ namespace Factory_of_the_Future
                                 if (AppParameters.RouteTripsList.ContainsKey(rt.Id) && AppParameters.RouteTripsList.TryGetValue(rt.Id, out currenttrip))
                                 {
                                    
-                                    IEnumerable<Container> temp = Task.Run(() =>  FOTFManager.Instance.GetTripContainer(currenttrip.DestSites, rt.TrailerBarcode, out int NotloadedContainers, out int loaded)).Result;
+                                    List<Container> temp = Task.Run(() =>  FOTFManager.Instance.GetTripContainer(currenttrip.DestSites, rt.TrailerBarcode, out int NotloadedContainers, out int loaded)).Result;
                                     if (temp != null && currenttrip.Containers.Count() >= temp.Count())
                                     {
                                         currenttrip.Containers = temp;

@@ -7,6 +7,7 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
+using System.Management;
 using System.Net.Http;
 using System.Reflection;
 using System.Runtime.InteropServices.WindowsRuntime;
@@ -196,7 +197,11 @@ namespace Factory_of_the_Future
                         MPE.Properties.MPEWatchData = GetMPEPerfData(mpeId);
                         if (!string.IsNullOrEmpty(MPE.Properties.MPEWatchData.CurSortplan))
                         {
-                            MPE.Properties.DPSData = GetDPSData(MPE.Properties.MPEWatchData.CurSortplan);
+                            if (Regex.IsMatch(MPE.Properties.MPEWatchData.CurOperationId.ToString(), "(918|919)", RegexOptions.IgnoreCase))
+                            {
+                                MPE.Properties.DPSData = GetDPSData(MPE.Properties.MPEWatchData.CurSortplan);
+                            }
+                            
                             MPE.Properties.StaffingData = GetStaffingSortplan(string.Concat(MPE.Properties.MPEWatchData.MpeType, MPE.Properties.MPEWatchData.MpeNumber, MPE.Properties.MPEWatchData.CurSortplan));
                         }
 
@@ -1315,16 +1320,16 @@ namespace Factory_of_the_Future
                 return update;
             }
         }
-        public IEnumerable<Container> GetTripContainer(string destSites, string trailerBarcode, out int NotloadedContainers, out int loadedContainers)
+        public List<Container> GetTripContainer(string destSites, string trailerBarcode, out int NotloadedContainers, out int loadedContainers)
         {
             NotloadedContainers = 0;
             loadedContainers = 0;
-            IEnumerable<Container> AllContainer = new List<Container>();
+            List<Container> AllContainer = new List<Container>();
             try
             {
                 if (!string.IsNullOrEmpty(destSites) && AppParameters.Containers.Any())
                 {
-                    IEnumerable<Container> TripContainer = AppParameters.Containers.Where(r => !string.IsNullOrEmpty(r.Value.Dest)
+                    List<Container> TripContainer = AppParameters.Containers.Where(r => !string.IsNullOrEmpty(r.Value.Dest)
                    && Regex.IsMatch(r.Value.Dest, destSites, RegexOptions.IgnoreCase)
                    && r.Value.Origin != r.Value.Dest
                    && !r.Value.hasLoadScans
@@ -1335,14 +1340,13 @@ namespace Factory_of_the_Future
                     AllContainer = TripContainer;
                     if (!string.IsNullOrEmpty(trailerBarcode))
                     {
-                        IEnumerable<Container> LoadedContainer = AppParameters.Containers.Where(r => !string.IsNullOrEmpty(r.Value.Trailer)
+                        List<Container> LoadedContainer = AppParameters.Containers.Where(r => !string.IsNullOrEmpty(r.Value.Trailer)
                        && Regex.IsMatch(r.Value.Trailer, trailerBarcode, RegexOptions.IgnoreCase)
                        && r.Value.hasLoadScans).Select(y => y.Value).ToList();
-                        AllContainer = TripContainer.Concat(LoadedContainer);
+                       //AllContainer = TripContainer.Concat(LoadedContainer);
                         loadedContainers = LoadedContainer.Count();
-                        LoadedContainer = null;
                     }
-                    TripContainer = null;
+                
                 }
                 return AllContainer;
 
@@ -2118,11 +2122,11 @@ namespace Factory_of_the_Future
             {
                 if (string.IsNullOrEmpty(id))
                 {
-                    return AppParameters.RunningConnection.Connection.Select(y => y.ConnectionInfo).ToList();
+                    return AppParameters.RunningConnection.DataConnection.Select(y => y.ConnectionInfo).ToList();
                 }
                 else
                 {
-                    return AppParameters.RunningConnection.Connection.Where(w => w.ConnectionInfo.Id == id).Select(y => y.ConnectionInfo).ToList();
+                    return AppParameters.RunningConnection.DataConnection.Where(w => w.ConnectionInfo.Id == id).Select(y => y.ConnectionInfo).ToList();
                 }
             }
             catch (Exception e)
@@ -2137,7 +2141,7 @@ namespace Factory_of_the_Future
             {
                 if (!string.IsNullOrEmpty(data))
                 {
-                    Task.Run(() => AppParameters.RunningConnection.Add(JsonConvert.DeserializeObject<Connection>(data), true)).ConfigureAwait(false);
+                    Task.Run(() => AppParameters.RunningConnection.Add(JsonConvert.DeserializeObject<Connection>(data), true)).ConfigureAwait(true);
                 }
                 return null;
             }
@@ -2154,7 +2158,7 @@ namespace Factory_of_the_Future
             {
                 if (!string.IsNullOrEmpty(data))
                 {
-                    Task.Run(() => AppParameters.RunningConnection.EditAsync(JsonConvert.DeserializeObject<Connection>(data))).ConfigureAwait(false);
+                    Task.Run(() => AppParameters.RunningConnection.EditAsync(JsonConvert.DeserializeObject<Connection>(data))).ConfigureAwait(true);
                 }
                 return null;
             }
@@ -2170,7 +2174,7 @@ namespace Factory_of_the_Future
             {
                 if (!string.IsNullOrEmpty(data))
                 {
-                    Task.Run(() => AppParameters.RunningConnection.Remove(JsonConvert.DeserializeObject<Connection>(data))).ConfigureAwait(false);
+                    Task.Run(() => AppParameters.RunningConnection.Remove(JsonConvert.DeserializeObject<Connection>(data))).ConfigureAwait(true);
                 }
 
                 return null;
@@ -2239,124 +2243,6 @@ namespace Factory_of_the_Future
                 floorID = string.Empty;
 
 
-            }
-        }
-        internal IEnumerable<JToken> GetAppSettingdata()
-        {
-            return new List<JToken>();
-            //try
-            //{
-            //    JToken tempsetting = AppParameters.AppSettings.DeepClone();
-            //    foreach (dynamic item in AppParameters.AppSettings)
-            //    {
-            //        if (item.Key.ToString().StartsWith("ORACONN") && !string.IsNullOrEmpty(item.Value.ToString()))
-            //        {
-            //            tempsetting[item.Key] = AppParameters.Decrypt(item.Value.ToString());
-            //        }
-            //    }
-            //    return tempsetting;
-            //}
-            //catch (Exception e)
-            //{
-            //    new ErrorLogger().ExceptionLog(e);
-            //    return new JObject();
-            //}
-        }
-
-        internal AppSetting EditAppSettingdata(string data)
-        {
-            bool fileUpdate = false;
-            try
-            {
-                if (!string.IsNullOrEmpty(data))
-                {
-                    dynamic appSettingObj = JToken.Parse(data);
-                    if (((Newtonsoft.Json.Linq.JContainer)appSettingObj).HasValues)
-                    {
-                        foreach (var kv in appSettingObj)
-                        {
-                            if (kv.Name == "FACILITY_NASS_CODE")
-                            {
-                                if (GetData.Get_Site_Info((string)kv.Value, out SV_Site_Info SiteInfo))
-                                {
-                                    if (SiteInfo != null)
-                                    {
-                                        AppParameters.AppSettings.FACILITY_NAME = SiteInfo.DisplayName;// .ContainsKey("displayName") ? SiteInfo["displayName"] : "Site Not Configured";
-                                        AppParameters.AppSettings.FACILITY_ID = SiteInfo.FdbId; //.ContainsKey("fdbId") ? SiteInfo["fdbId"] : "";
-                                        AppParameters.AppSettings.FACILITY_ZIP = SiteInfo.ZipCode; //.ContainsKey("zipCode") ? SiteInfo["zipCode"] : "";
-                                        AppParameters.AppSettings.FACILITY_LKEY = SiteInfo.LocaleKey;//.ContainsKey("localeKey") ? SiteInfo["localeKey"] : "";
-                                        Task.Run(() => AppParameters.LoglocationSetup());
-                                        CoordinateSystem.Clear();
-                                        Task.Run(() => AppParameters.ResetParameters());
-                                    }
-                                    else
-                                    {
-                                        AppParameters.AppSettings.FACILITY_NAME = "Site Not Configured";
-                                        AppParameters.AppSettings.FACILITY_ID = "";
-                                        AppParameters.AppSettings.FACILITY_ZIP = "";
-                                        AppParameters.AppSettings.FACILITY_LKEY = "";
-                                    }
-                                }
-                            }
-                            else if (kv.Name == "LOG_LOCATION")
-                            {
-                                if (!string.IsNullOrEmpty(kv.Value.ToString()))
-                                {
-                                    AppParameters.AppSettings.LOG_LOCATION = kv.Value;
-                                    Task.Run(() => AppParameters.LoglocationSetup());
-                                }
-                            }
-                            foreach (PropertyInfo prop in AppParameters.AppSettings.GetType().GetProperties())
-                            {
-                               if (new Regex("^(" + kv.Name + ")$", RegexOptions.IgnoreCase).IsMatch(prop.Name))
-                                {
-                                    if (prop.Name.StartsWith("ORACONN"))
-                                    {
-                                        kv.Value = AppParameters.Encrypt((string)kv.Value);
-                                    }
-                                    if (prop.GetValue(AppParameters.AppSettings, null).ToString() != (string)kv.Value)
-                                    {
-                                        prop.SetValue(AppParameters.AppSettings, (string)kv.Value);
-                                        fileUpdate = true;
-                                    }
-
-                                }
-                            }
-                        }
-                    }
-                }
-
-                if (fileUpdate)
-                {
-                    new FileIO().Write(string.Concat(AppParameters.CodeBase.Parent.FullName.ToString(), AppParameters.Appsetting), "AppSettings.json", JsonConvert.SerializeObject(AppParameters.AppSettings, Formatting.Indented));
-                }
-                return GetAppSetting();
-            }
-            catch (Exception e)
-            {
-                new ErrorLogger().ExceptionLog(e);
-                return GetAppSetting();
-            }
-
-        }
-        private AppSetting GetAppSetting()
-        {
-            AppSetting TempAppSettings = AppParameters.AppSettings.ShallowCopy();
-            try
-            {
-                foreach (PropertyInfo prop in TempAppSettings.GetType().GetProperties())
-                {
-                    if (new Regex("^(ORACONN)", RegexOptions.IgnoreCase).IsMatch(prop.Name))
-                    {
-                        prop.SetValue(TempAppSettings, AppParameters.Decrypt(prop.GetValue(AppParameters.AppSettings, null).ToString()));
-                    }
-                }
-                return TempAppSettings;
-            }
-            catch (Exception e)
-            {
-                new ErrorLogger().ExceptionLog(e);
-                return TempAppSettings;
             }
         }
         internal IEnumerable<BackgroundImage> GetFloorPlanData()
