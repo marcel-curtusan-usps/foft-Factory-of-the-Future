@@ -2389,7 +2389,7 @@ namespace Factory_of_the_Future
             {
                 foreach (CoordinateSystem cs in CoordinateSystem.Values)
                 {
-                    cs.Zones.Where(f => (f.Value.Properties.ZoneType == "AGVLocationZone" || f.Value.Properties.ZoneType == "AGVLocationZone"))
+                    cs.Zones.Where(f => (f.Value.Properties.ZoneType == "AGVLocationZone" || f.Value.Properties.ZoneType == "BullpenZone"))
                             .Select(y => y.Value)
                             .ToList().ForEach(zone =>
                             {

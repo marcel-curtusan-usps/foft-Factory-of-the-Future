@@ -32,9 +32,9 @@ namespace Factory_of_the_Future
 
                                     kv.Value = SV_Site_Info.SiteId;
                                     AppParameters.AppSettings.FACILITY_NAME = SV_Site_Info.DisplayName;
-                                    AppParameters.AppSettings.FACILITY_ID = SV_Site_Info.FdbId; 
-                                    AppParameters.AppSettings.FACILITY_ZIP = SV_Site_Info.ZipCode; 
-                                    AppParameters.AppSettings.FACILITY_LKEY = SV_Site_Info.LocaleKey;
+                                    AppParameters.AppSettings.FACILITY_ID = string.IsNullOrEmpty(SV_Site_Info.FdbId) ? SV_Site_Info.FdbId : ""; 
+                                    AppParameters.AppSettings.FACILITY_ZIP = string.IsNullOrEmpty(SV_Site_Info.ZipCode) ? SV_Site_Info.ZipCode : ""; 
+                                    AppParameters.AppSettings.FACILITY_LKEY = string.IsNullOrEmpty(SV_Site_Info.ZipCode) ? SV_Site_Info.ZipCode : "";
                                     Task.Run(() => AppParameters.LoglocationSetup());
                                     FOTFManager.Instance.CoordinateSystem.Clear();
                                     Task.Run(() => AppParameters.ResetParameters()).ConfigureAwait(true);
