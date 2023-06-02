@@ -29,7 +29,6 @@ namespace Factory_of_the_Future
                                 SV_Site_Info SV_Site_Info = new Get_Site_Info().Get_Info((string)kv.Value);
                                 if (SV_Site_Info != null)
                                 {
-
                                     kv.Value = SV_Site_Info.SiteId;
                                     AppParameters.AppSettings.FACILITY_NAME = SV_Site_Info.DisplayName;
                                     AppParameters.AppSettings.FACILITY_ID = string.IsNullOrEmpty(SV_Site_Info.FdbId) ? SV_Site_Info.FdbId : ""; 
