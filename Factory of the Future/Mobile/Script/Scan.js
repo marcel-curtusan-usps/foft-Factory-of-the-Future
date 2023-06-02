@@ -77,19 +77,19 @@ let conncetion_refresh = {
                             }
                         }
                         if (numOfConnection === 0) {
-                            $('.agvactive').text('AGV Off-Line').removeClass("btn-success").addClass('btn-danger')
+                            $('.agvactive').text('CF Off-Line').removeClass("btn-success").addClass('btn-danger')
                         }
                         if (numOfConnection === numOfEnabledConnection) {
-                            $('.agvactive').text('AGV On-Line').removeClass("btn-danger").addClass('btn-success')
+                            $('.agvactive').text('CF On-Line').removeClass("btn-danger").addClass('btn-success')
                             
                         }
                         if (numOfConnection > 0) {
                             if (numOfEnabledConnection === numOfConnection) {
-                                $("#connection_button").text("AGV On-line");
+                                $("#connection_button").text("CF On-line");
                                 $("#connection_button").removeClass("btn-danger").removeClass("btn-warning").addClass("btn-success");
                             }
                             else if (numOfEnabledConnection < numOfConnection) {
-                                $("#connection_button").text("AGV Off-line");
+                                $("#connection_button").text("CF Off-line");
                                 $("#connection_button").removeClass("btn-success").removeClass("btn-warning").addClass("btn-danger");
                             }
                         }
@@ -102,7 +102,7 @@ let conncetion_refresh = {
                         }
                     }
                     else {
-                        $("#connection_button").text("AGV Off-line");
+                        $("#connection_button").text("CF Off-line");
                         $("#connection_button").removeClass("btn-success").removeClass("btn-warning").addClass("btn-danger");
                     }
 
@@ -111,25 +111,18 @@ let conncetion_refresh = {
                 }
             },
             error: function (response) {
-                $("#connection_button").text("AGV OFF-line");
+                $("#connection_button").text("CF OFF-line");
                 $("#connection_button").removeClass("btn-success").removeClass("btn-warning").addClass("btn-danger");
-                $("#MainContent_text_barcode").val("");
-                $("#MainContent_text_barcode").css({ "border-color": "#D3D3D3" });
-                $('#MainContent_lblError').css("display", "block");
-                $('#MainContent_lblError').css('color', 'red');
-                $('#MainContent_lblError').text("" + window.location.origin + "/" + window.location.pathname + "/" + "RequestHandler/Scanner_RequestHandler.ashx" + " : " + "");
-                $("#MainContent_text_barcode").focus();
+                $('input[name=barcode_input]').val('');
+                $("#status").val("");
+                $('input[name=barcode_input]').val('').focus();
                 $('label[id=status]').text(response);
             },
             failure: function (response) {
                 $("#connection_button").text("AGV OFF-line");
                 $("#connection_button").removeClass("btn-success").removeClass("btn-warning").addClass("btn-danger");
-                $("#MainContent_text_barcode").val("");
-                $("#MainContent_text_barcode").css({ "border-color": "#D3D3D3" });
-                $('#MainContent_lblError').css("display", "block");
-                $('#MainContent_lblError').css('color', 'red');
-                $('#MainContent_lblError').text("" + response.responseText + " : " + "");
-                $("#MainContent_text_barcode").focus();
+                $('input[name=barcode_input]').val('');               
+                $('input[name=barcode_input]').val('').focus();
                 $('label[id=status]').text(response);
             },
             // Focus
@@ -732,8 +725,8 @@ function checkValue(value) {
 
 function URLconstructor(winLoc)
 {
-    if (/^(.AGVM)/i.test(winLoc.pathname)) {
-        return winLoc.origin + "/AGVM/api/";
+    if (/^(.CF)/i.test(winLoc.pathname)) {
+        return winLoc.origin + "/CF/api/";
     }
     else {
         return winLoc.origin + "/api/";

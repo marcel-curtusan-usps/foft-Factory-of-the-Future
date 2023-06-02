@@ -331,8 +331,10 @@
     <Content Include="favicon.ico" />
     <Content Include="Global.asax" />
     <Content Include="Default.aspx" />
+    <Content Include="Mobile\Content\bootstrap.css" />
+    <Content Include="Mobile\Content\bootstrap.min.css" />
     <Content Include="Mobile\Content\scan_site.css" />
-    <Content Include="Mobile\MobileScan.aspx" />
+    <Content Include="Mobile\Scan.html" />
     <Content Include="Mobile\Script\Scan.js" />
     <Content Include="Mobile\Script\ScannerDectection.js" />
     <Content Include="MPESDO\Content\mpesdo.css" />
@@ -409,6 +411,8 @@
     <Content Include="Factory of the Future-3.ruleset" />
     <Content Include="MPEKanban\Contents\Kanban.json" />
     <Content Include="MPEKanban\Contents\KanbanDispatch.json" />
+    <Content Include="Mobile\Content\bootstrap.css.map" />
+    <Content Include="Mobile\Content\bootstrap.min.css.map" />
     <None Include="Properties\PublishProfiles\FolderProfile.pubxml" />
     <None Include="Scripts\jquery-3.6.0.intellisense.js" />
     <Content Include="Scripts\jquery-3.6.0.js" />
@@ -634,13 +638,6 @@
     </Compile>
     <Compile Include="Default.aspx.designer.cs">
       <DependentUpon>Default.aspx</DependentUpon>
-    </Compile>
-    <Compile Include="Mobile\MobileScan.aspx.cs">
-      <DependentUpon>MobileScan.aspx</DependentUpon>
-      <SubType>ASPXCodeBehind</SubType>
-    </Compile>
-    <Compile Include="Mobile\MobileScan.aspx.designer.cs">
-      <DependentUpon>MobileScan.aspx</DependentUpon>
     </Compile>
     <Compile Include="Models\AppSetting.cs" />
     <Compile Include="Models\BackgroundImage.cs" />

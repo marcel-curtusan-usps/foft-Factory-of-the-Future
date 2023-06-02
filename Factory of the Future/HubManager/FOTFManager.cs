@@ -2352,7 +2352,7 @@ namespace Factory_of_the_Future
             {
                 /*Retrieve all group names available*/
                 var groupNames = new List<string>();
-                foreach (CoordinateSystem cs in FOTFManager.Instance.CoordinateSystem.Values)
+                foreach (CoordinateSystem cs in CoordinateSystem.Values)
                 {
                     cs.Zones.Where(f => (f.Value.Properties.ZoneType == "Machine" || f.Value.Properties.ZoneType == "MPEZone"))
                             .Select(y => y.Value)
@@ -2380,9 +2380,55 @@ namespace Factory_of_the_Future
             }
         }
 
-        internal object DeviceScan(JObject request_data, string v)
+        internal JObject DeviceScan(JObject request_data, string v)
         {
-            throw new NotImplementedException();
+            bool locationfound = false;
+            string BarcodeType = "";
+            string BodyType = "";
+            try
+            {
+                foreach (CoordinateSystem cs in CoordinateSystem.Values)
+                {
+                    cs.Zones.Where(f => (f.Value.Properties.ZoneType == "AGVLocationZone" || f.Value.Properties.ZoneType == "AGVLocationZone"))
+                            .Select(y => y.Value)
+                            .ToList().ForEach(zone =>
+                            {
+                                if (Regex.IsMatch(zone.Properties.Name, "(|919)", RegexOptions.IgnoreCase))
+                                 //   if (zone.Properties.Name == request_data["BARCODE"].ToString())
+                                {
+                                    locationfound = true;
+                                }
+                            });
+                }
+                if (locationfound)
+                {
+                    return new JObject
+                    {
+                        ["RESPONSE_CODE"] = "0",
+                        ["BARCODE_TYPE"] = BarcodeType == "PIC" ? "Pickup" : "Drop-Off",
+                        ["Body_Type"] = BarcodeType == "AGP" ? "PALLET" : "TUGGER",
+                        ["Barcode"] = request_data["BARCODE"].ToString()
+                    };
+                }
+                else
+                {
+                    return new JObject
+                    {
+                        ["RESPONSE_CODE"] = "-1",
+                        ["RESPONSE_MSG"] = ""
+                    };
+                }
+
+            }
+            catch (Exception e)
+            {
+                new ErrorLogger().ExceptionLog(e);
+                return new JObject
+                {
+                    ["RESPONSE_CODE"] = "-1",
+                    ["RESPONSE_MSG"] = ""
+                };
+            }
         }
     }
 }
