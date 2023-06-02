@@ -197,34 +197,8 @@ function init_geometry_editing() {
         }
         enableBinZoneSubmit();
     });
-    ////zone name
-    // $('input[type=text][name=zone_name]').keyup(function () {
-    //     if (!checkValue($('input[type=text][name=zone_name]').val())) {
-    //         $('input[type=text][name=zone_name]').removeClass('is-valid').addClass('is-invalid');
-    //         $('span[id=error_zone_name]').text("Please Enter Name");
-    //     }
-    //     else {
-    //         $('input[type=text][name=zone_name]').removeClass('is-invalid').addClass('is-valid');
-    //         $('span[id=error_zone_name]').text("");
-    //     }
-
-    //     if ($('select[name=zone_type] option:selected').val() === "Camera") {
-
-    //         enableCameraSubmit();
-    //     }
-    //     else if ($('select[name=zone_type] option:selected').val() === "Bin") {
-
-    //         enableBinZoneSubmit();
-    //     }
-    //     else if ($('select[name=zone_type] option:selected').val() === "Bullpen") {
-
-    //         enableSVZoneSubmit();
-    //     }
-    //     else {
-    //         enableZoneSubmit();
-    //     }
-
-    // });
+   
+  
     //Camera URL
     $('select[name=cameraLocation]').change(function () {
         if (!checkValue($('select[name=cameraLocation]').val())) {
@@ -238,7 +212,7 @@ function init_geometry_editing() {
         }
         enableCameraSubmit();
     });
-    //machine name
+     //manual type keyup
     $('input[type=text][name=manual_name]').keyup(function () {
         if (!checkValue($('input[type=text][name=manual_name]').val())) {
             $('input[type=text][name=manual_name]').css("border-color", "#FF0000").removeClass('is-valid').addClass('is-invalid');
@@ -255,10 +229,6 @@ function init_geometry_editing() {
         else if ($('select[name=zone_type] option:selected').val() === "Bin") {
 
             enableBinZoneSubmit();
-        }
-        else if ($('select[name=zone_type] option:selected').val() === "Bullpen") {
-
-            enableSVZoneSubmit();
         }
         else {
             enableZoneSubmit();
@@ -280,10 +250,6 @@ function init_geometry_editing() {
         else if ($('select[name=zone_type] option:selected').val() === "Bin") {
 
             enableBinZoneSubmit();
-        }
-        else if ($('select[name=zone_type] option:selected').val() === "Bullpen") {
-
-            enableSVZoneSubmit();
         }
         else {
             enableZoneSubmit();
@@ -317,9 +283,9 @@ function enableZoneSubmit() {
         $('input[type=text][name=manual_name]').hasClass('is-valid') &&
         $('input[type=text][name=manual_number]').hasClass('is-valid'))
     {
-        $('button[id=zonesubmitBtn]').prop('disabled', true);
+        $('button[id=zonesubmitBtn]').prop('disabled', false);
     }
-    else if ($('select[name=zone_type]').hasClass('is-valid') && !/Not Listed$/i.test($('select[name=zone_select_name] option:selected').val()))
+    else if ($('select[name=zone_type]').hasClass('is-valid') && $('select[name=zone_select_name]').hasClass('is-valid') && !/(Not Listed$)/i.test($('select[name=zone_select_name] option:selected').val()))
     {
         $('button[id=zonesubmitBtn]').prop('disabled', false);
     }
@@ -460,6 +426,8 @@ function removeFromMapView(id)
 }
 function VaildateForm(FormType)
 {
+    $('input[type=text][name=manual_name]').val("");
+    $('input[type=text][name=manual_number]').val("");
     $('select[name=zone_type]').prop('disabled', false);
     $('div[id=div_zone_select_name]').css('display', 'none');
     $('select[id=zone_select_name]').empty();
@@ -489,7 +457,7 @@ function VaildateForm(FormType)
             }
         });        
     }
-    if (/(DockDoor|DockDoorZone)/i.test(FormType)) {
+    else if (/(DockDoor|DockDoorZone)/i.test(FormType)) {
         $('textarea[id="bin_bins"]').val("");
         fotfmanager.server.getDockDoorList().done(function (DockDoordata) {
             if (DockDoordata.length > 0) {
@@ -502,7 +470,7 @@ function VaildateForm(FormType)
             }
         });
     }
-    if (/(Bin|BinZone)/i.test(FormType)) {
+    else if (/(Bin|BinZone)/i.test(FormType)) {
 
         $('#binzoneinfo').css("display", "block");
         $('textarea[id="bin_bins"]').val("");
@@ -526,7 +494,7 @@ function VaildateForm(FormType)
         }
         enableBinZoneSubmit();
     }
-    if (/(Bullpen|BullpenZone)/i.test(FormType)) {
+    else if (/(Bullpen|BullpenZone)/i.test(FormType)) {
         fotfmanager.server.getSVZoneNameList().done(function (svdata) {
 
             if (svdata.length > 0) {
@@ -538,9 +506,14 @@ function VaildateForm(FormType)
                 })
             }
             $('select[name=zone_type]').prop('disabled', true);
-            enableSVZoneSubmit();
+            enableZoneSubmit();
         });
     }
+    else if (/(AGVLocationZone)/i.test(FormType)) {
+        $('<option/>').val('**AGVLocation Not Listed').html('**AGVLocation Not Listed').appendTo('select[id=zone_select_name]');
+        enableZoneSubmit();
+    }
+
     if (/(Camera|CameraMarker)/i.test(FormType)) {
         fotfmanager.server.getCameraList().done(function (cameradata) {
             if (cameradata.length > 0) {
@@ -568,4 +541,5 @@ function VaildateForm(FormType)
     else {
         $('div[id=div_zone_select_name]').css('display', 'block');
     }
+
 }
