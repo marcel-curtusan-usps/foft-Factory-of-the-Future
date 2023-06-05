@@ -390,6 +390,13 @@
                                     <span class="text-info" id="error_timezoneValueID"></span>
                                 </div>
                             </div>
+                             <div class="form-group row value_row_toggle" style="display: none;">
+                                <div class="col-sm text-center">
+                                    <label runat="server" class="control-label" for="vendor_prefix">Value</label>
+                                    <input type="checkbox" name="appsetting_value" data-toggle="toggle" data-on="True" data-off="False" data-width="100" data-height="25"/>
+                                </div>
+
+                            </div>
                         </div>
                     </div>
                 </div>

@@ -14,6 +14,7 @@ namespace Factory_of_the_Future
         internal AppSetting EditAppSetting(string data)
         {
             Data = data;
+            bool NewValue = false;
             bool fileUpdate = false;
             try
             {
@@ -31,9 +32,9 @@ namespace Factory_of_the_Future
                                 {
                                     kv.Value = SV_Site_Info.SiteId;
                                     AppParameters.AppSettings.FACILITY_NAME = SV_Site_Info.DisplayName;
-                                    AppParameters.AppSettings.FACILITY_ID = string.IsNullOrEmpty(SV_Site_Info.FdbId) ? SV_Site_Info.FdbId : ""; 
-                                    AppParameters.AppSettings.FACILITY_ZIP = string.IsNullOrEmpty(SV_Site_Info.ZipCode) ? SV_Site_Info.ZipCode : ""; 
-                                    AppParameters.AppSettings.FACILITY_LKEY = string.IsNullOrEmpty(SV_Site_Info.ZipCode) ? SV_Site_Info.ZipCode : "";
+                                    AppParameters.AppSettings.FACILITY_ID = !string.IsNullOrEmpty(SV_Site_Info.FdbId) ? SV_Site_Info.FdbId : ""; 
+                                    AppParameters.AppSettings.FACILITY_ZIP = !string.IsNullOrEmpty(SV_Site_Info.ZipCode) ? SV_Site_Info.ZipCode : ""; 
+                                    AppParameters.AppSettings.FACILITY_LKEY = !string.IsNullOrEmpty(SV_Site_Info.ZipCode) ? SV_Site_Info.ZipCode : "";
                                     Task.Run(() => AppParameters.LoglocationSetup());
                                     FOTFManager.Instance.CoordinateSystem.Clear();
                                     Task.Run(() => AppParameters.ResetParameters()).ConfigureAwait(true);
@@ -64,10 +65,29 @@ namespace Factory_of_the_Future
                                     {
                                         kv.Value = AppParameters.Encrypt((string)kv.Value);
                                     }
-                                    if (prop.GetValue(AppParameters.AppSettings, null).ToString() != (string)kv.Value)
+                                    if (prop.Name.StartsWith("LOG_API_DATA") || prop.Name.StartsWith("LOCAL_PROJECT_DATA") || prop.Name.StartsWith("REMOTEDB") || prop.Name.StartsWith("SERVER_ACTIVE"))
                                     {
-                                        prop.SetValue(AppParameters.AppSettings, (string)kv.Value);
-                                        fileUpdate = true;
+                                        if (kv.Value.ToString() == "True")
+                                        {
+                                            NewValue = true;
+                                        }
+                                        else
+                                        {
+                                            NewValue = false;
+                                        }
+                                        if (prop.GetValue(AppParameters.AppSettings, null).ToString() != NewValue.ToString())
+                                        {
+                                            prop.SetValue(AppParameters.AppSettings, NewValue);
+                                            fileUpdate = true;
+                                        }
+                                    }
+                                    else
+                                    {
+                                        if (prop.GetValue(AppParameters.AppSettings, null).ToString() != (string)kv.Value)
+                                        {
+                                            prop.SetValue(AppParameters.AppSettings, (string)kv.Value);
+                                            fileUpdate = true;
+                                        }
                                     }
 
                                 }

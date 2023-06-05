@@ -18,6 +18,7 @@
 });
 $('#AppSetting_value_Modal').on('shown.bs.modal', function () {
     $('span[id=error_appsettingvalue]').text("");
+
     $('button[id=appsettingvalue]').prop('disabled', false);
     //Connection name Validation
     if (!checkValue($('input[id=modalValueID]').val())) {
@@ -28,10 +29,23 @@ $('#AppSetting_value_Modal').on('shown.bs.modal', function () {
         $('input[id=modalValueID]').removeClass('is-invalid').addClass('is-valid');
         $('span[id=error_modalValueID]').text("");
     }
+    //IP Address Keyup
+    $('input[id=modalValueID]').keyup(function () {
+        if (!checkValue($('input[id=modalValueID]').val())) {s
+            $('input[id=modalValueID]').css("border-color", "#FF0000");
+            $('span[id=error_modalValueID]').text("Please Enter Value");
+        }
+        else {
+            $('input[id=modalValueID]').css({ "border-color": "#2eb82e" }).removeClass('is-invalid').addClass('is-valid');
+            $('span[id=error_modalValueID]').text("");
+        }
+    });
 });
 function init_AppSetting(AppsettingData) {
     try {
-        Promise.all([LoadappSettingTable(AppsettingData, "app_settingtable")]);
+        createAppSettingDataTable("app_settingtable");
+        
+        loadAppSettingDatatable(formatdata(AppsettingData), "app_settingtable");
     } catch (e) {
         console.log(e);
     }
@@ -58,11 +72,14 @@ function Get_Action_State() {
         return '';
     }
 }
-function Edit_AppSetting_Value(id, value, table) {
-    $('#appsettingvaluemodalHeader').text('Edit ' + id + ' Setting');
-    $('input[id=modalKeyID]').val(id);
-    $('input[id=modalValueID]').val(value);
-    if (/TIMEZONE/i.test(id)) {
+function Edit_AppSetting_Value(Data) {
+    $('.valuediv').css("display", "block");
+    $('.timezonediv').css("display", "none");
+    $('.value_row_toggle').css("display", "none");
+    $('#appsettingvaluemodalHeader').text('Edit ' + Data.KEY_NAME + ' Setting');
+    $('input[id=modalKeyID]').val(Data.KEY_NAME);
+    $('input[id=modalValueID]').val(Data.VALUE);
+    if (/TIMEZONE/i.test(Data.KEY_NAME)) {
         fotfmanager.server.getTimeZone().done(function (data) {
             $('.valuediv').css("display", "none");
             $('.timezonediv').css("display", "block");
@@ -74,18 +91,28 @@ function Edit_AppSetting_Value(id, value, table) {
             $('#timezoneValueID').val(value);
         })
     }
-    else {
-        $('.valuediv').css("display", "block");
-        $('.timezonediv').css("display", "none");
+    if (/^(LOG_API_DATA|LOCAL_PROJECT_DATA|REMOTEDB|SERVER_ACTIVE)/i.test(Data.KEY_NAME))
+    {
+        $('.valuediv').css("display", "none");
+        $('.value_row_toggle').css("display", "block");
+        if (/True/i.test(Data.VALUE)) {
+            $('input[type=checkbox][name="appsetting_value"]').prop('checked', true).change();
+            $('#modalValueID').val('true');
+        }
+        else if (/False/i.test(Data.VALUE)) {
+            $('input[type=checkbox][name="appsetting_value"]').prop('checked', false).change();
+            $('#modalValueID').val('false');
+        }
     }
+
     $('button[id=appsettingvalue]').off().on('click', function () {
         $('button[id=appsettingvalue]').prop('disabled', true);
-        var jsonObject = {};
-        if (/TIMEZONE/i.test(id)) {
-            jsonObject[id] = $("#timezoneValueID option:selected").val();
+        let jsonObject = {};
+        if (/TIMEZONE/i.test(Data.KEY_NAME)) {
+            jsonObject[Data.KEY_NAME] = $("#timezoneValueID option:selected").val();
         }
         else {
-            jsonObject[id] = $('input[id=modalValueID]').val();
+            jsonObject[Data.KEY_NAME] = Get_value(Data);
         }
         if (!$.isEmptyObject(jsonObject)) {
             fotfmanager.server.editAppSettingdata(JSON.stringify(jsonObject)).done(function (AppsettingData) {
@@ -93,7 +120,7 @@ function Edit_AppSetting_Value(id, value, table) {
                 $('span[id=error_appsettingvalue]').text("Data has been updated");
                 setTimeout(function () {
                     $("#AppSetting_value_Modal").modal('hide');
-                    Promise.all([LoadappSettingTable(AppsettingData, "app_settingtable")]);
+                    updateAppSettingDataTable(formatdata(AppsettingData), "app_settingtable");
                 }, 800);
              
                 // Edit_AppSetting(table);
@@ -103,25 +130,103 @@ function Edit_AppSetting_Value(id, value, table) {
     });
     $('#AppSetting_value_Modal').modal();
 }
+function createAppSettingDataTable(table) {
+    let arrayColums = [{
+        "KEY_NAME": "",
+        "VALUE": "",
+        "Action": ""
+    }]
+    let columns = [];
+    let tempc = {};
+    $.each(arrayColums[0], function (key, value) {
+        tempc = {};
+        if (/KEY_NAME/i.test(key)) {
+            tempc = {
+                "title": 'Name',
+                "mDataProp": key
+            }
+        }
+        else if (/VALUE/i.test(key)) {
+            tempc = {
+                "title": "Value",
+                "mDataProp": key
+            }
+        }
+        else if (/Action/i.test(key)) {
+            tempc = {
+                "title": "Action",
+                "mDataProp": key,
+                "mRender": function (data, type, full) {
+                    if (/^Admin/i.test(User.Role)) {
+                        return '<button class="btn btn-light btn-sm mx-1 pi-iconEdit editappsetting" name="editappsetting"></button>'
+                    }
+                    
+                }
+            }
+        }
+        columns.push(tempc);
+
+    });
+    $('#' + table).DataTable({
+        dom: 'Bfrtip',
+        bFilter: false,
+        bdeferRender: true,
+        bpaging: false,
+        bPaginate: false,
+        autoWidth: true,
+        bInfo: false,
+        destroy: true,
+        language: {
+            zeroRecords: "No Data"
+        },
+        aoColumns: columns,
+        columnDefs: [],
+        sorting: [[0, "asc"]]
+     
+    })
+    // Edit/remove record
+    $('#' + table + ' tbody').on('click', 'button', function () {
+        let td = $(this);
+        let table = $(td).closest('table');
+        let row = $(table).DataTable().row(td.closest('tr'));
+        if (/editappsetting/ig.test(this.name)) {;
+            Edit_AppSetting_Value(row.data());
+        }
+    });
+}
+function loadAppSettingDatatable(data, table) {
+    if ($.fn.dataTable.isDataTable("#" + table)) {
+        $('#' + table).DataTable().rows.add(data).draw();
+    }
+}
+function updateAppSettingDataTable(newdata, table) {
+    let loadnew = true;
+    if ($.fn.dataTable.isDataTable("#" + table)) {
+        $('#' + table).DataTable().rows(function (idx, data, node) {
+            loadnew = false;
+            for (const element of newdata) {
+                if (data.KEY_NAME === element.KEY_NAME) {
+                    $('#' + table).DataTable().row(node).data(element).draw().invalidate();
+                }
+            }
+        })
+        if (loadnew) {
+            loadAppSettingDatatable(newdata, table);
+        }
+    }
+}
 async function LoadappSettingTable(AppsettingData, table) {
     let AppSettingTable = $('table[id=' + table + ']');
     let AppSettingTable_Body = AppSettingTable.find('tbody');
     let AppSettingTable_row_template = '<tr data-id="{id}" data-value="{value}">' +
-        '<td ><span class="ml-p25rem">{id}</span></td>' +
-        '<td >{value}</td>' +
+        '<td><span class="ml-p25rem">{id}</span></td>' +
+        '<td>{value}</td>' +
         '<td>{action}</td>' +
         '</tr>';
 
     AppSettingTable_Body.empty();
     let index = 0;
-    function formatAppSetting(key, value, index) {
-        return $.extend(key, value, index, {
-            number: index,
-            id: key,
-            value: value,
-            action: Get_Action_State()
-        });
-    }
+  
     $.each(AppsettingData, function (key, value) {
         if (!/REMOTEDB|SERVER_ACTIVE|SERVER_ACTIVE_HOSTNAME/i.test(key)) {
             AppSettingTable_Body.append(AppSettingTable_row_template.supplant(formatAppSetting(key, value, index++)));
@@ -134,4 +239,52 @@ async function LoadappSettingTable(AppsettingData, table) {
             value = tr.attr('data-value');
         Edit_AppSetting_Value(id, value, table);
     });
+}
+function Get_value(Data) {
+    try {
+        if (/^(True)$|^(False)$/i.test(Data.VALUE)) {
+            let return_val = false;
+            $('input[type=checkbox][name="appsetting_value"]').each(function () {
+                if (this.checked) {
+                    return_val = true;
+                }
+            });
+            return return_val;
+        }
+        else {
+            return $('input[id=modalValueID]').val();
+        }
+
+    } catch (e) {
+        console.error(e.toString());
+    }
+}
+function formatAppSetting(key, value, index) {
+    return $.extend(key, value, index, {
+        number: index,
+        id: key,
+        value: value,
+        action: Get_Action_State()
+    });
+}
+function formatdata(result) {
+    var reformatdata = [];
+    try {
+        for (var key in result) {
+            temp = {
+                "KEY_NAME": "",
+                "VALUE": ""
+            };
+            temp['KEY_NAME'] = key;
+            temp['VALUE'] = result[key];
+            reformatdata.push(temp);
+        }
+
+    } catch (e) {
+        language: {
+            zeroRecords: "Error loading Data";
+        }
+    }
+
+    return reformatdata;
 }

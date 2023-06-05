@@ -159,6 +159,8 @@ namespace Factory_of_the_Future
         }
         public void _ThreadDownload()
         {
+            Stopping = false;
+            DownloadDatetime = DateTime.Now;
             Thread DownloadThread = new Thread(new ThreadStart(Download));
             DownloadThread.IsBackground = true;
             DownloadThread.Start();
