@@ -401,7 +401,8 @@ async function updateMPEAlert(layerindex) {
 async function LoadMachineTables(dataproperties, table) {
     try {
         if (!$.isEmptyObject(dataproperties)) {
-       
+            $('span[name=mpeview]').empty();
+            $('span[name=mpeSDO]').empty();
             $('div[id=machine_div]').attr("data-id", dataproperties.id);
             hideSidebarLayerDivs();
             $('div[id=machine_div]').css('display', 'block');
@@ -777,9 +778,10 @@ async function Edit_Machine_Info(id) {
                         }
                         else {
                             $('<option/>').val("**Group Not Listed").html("**Group Not Listed").appendTo('select[id=mpe_group_select]');
-                            $('select[id=mpe_group_select]').val("**Group Not Listed");
-                            $('#mpegroupname_div').css('display', '');
-                            enableNewGroupName();
+                            $('<option/>').val("").html("").appendTo('select[id=mpe_group_select]');
+                            $('select[id=mpe_group_select]').val("");
+                            $('#mpegroupname_div').css('display', 'none');
+                            /*enableNewGroupName();*/
                         }
                     });
                     /*Onchange Validate Machine Group Name*/
