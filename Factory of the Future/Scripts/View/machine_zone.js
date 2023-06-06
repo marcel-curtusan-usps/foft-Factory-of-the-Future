@@ -413,7 +413,7 @@ async function LoadMachineTables(dataproperties, table) {
                 $('button[name=machineinfoedit]').attr('id', dataproperties.id);
                 $("<a/>").attr({ target: "_blank", href: window.location.origin + '/MPE/MPE.aspx?MPEStatus=' + dataproperties.name, style: 'color:white;' }).html("View").appendTo($('span[name=mpeview]'));
                 if (dataproperties.MPE_Group !== "") {
-                    $("<a/>").attr({ target: "_blank", href: window.location.origin + '/MPESDO/MPESDO.aspx?MPEGroupName=' + dataproperties.MPE_Group, style: 'color:white;' }).html("SDOView").appendTo($('span[name=mpeSDO]'));
+                    $("<a/>").attr({ target: "_blank", href: window.location.origin + '/MPESDO/MPESDO.aspx?MPEGroupName=' + dataproperties.MPE_Group, style: 'color:white;' }).html("SDO View").appendTo($('span[name=mpeSDO]'));
                 }
                 $('button[name=machineinfoedit]').attr('id', dataproperties.id);
                 $('div[id=dps_div]').css('display', 'none');
