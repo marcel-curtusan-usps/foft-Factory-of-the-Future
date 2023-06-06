@@ -472,6 +472,10 @@ namespace Factory_of_the_Future
                 lkey = string.Empty;
                 formatUrl = string.Empty;
                 MessageType = ConnectionInfo.MessageType;
+                //start login connection status
+                string connStatus = string.Concat(DateTime.Now," Downloading Data from: ", ConnectionInfo.ConnectionName," message type: ", ConnectionInfo.MessageType);
+                //end login
+                Task.Run(() => new ErrorLogger().CustomLog(connStatus, string.Concat( "API_ConnectionStatus"))).ConfigureAwait(true);
                 if (!string.IsNullOrEmpty(AppParameters.AppSettings.FACILITY_TIMEZONE))
                 {
                     if (AppParameters.TimeZoneConvert.TryGetValue(AppParameters.AppSettings.FACILITY_TIMEZONE, out string windowsTimeZoneId))
