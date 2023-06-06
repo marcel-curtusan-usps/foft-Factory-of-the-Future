@@ -337,6 +337,7 @@
     <Content Include="MPEKanban\Contents\Kanban.css" />
     <Content Include="MPEKanban\Kanban.aspx" />
     <Content Include="MPEKanban\Scripts\Kanban.js" />
+    <Content Include="MPESDO\Scripts\mpesdo.js" />
     <Content Include="MPE\Content\mpe.css" />
     <Content Include="MPE\MPE.aspx" />
     <Content Include="MPE\Scripts\mpe.js" />
@@ -643,6 +644,8 @@
     <Compile Include="Models\MachineData.cs" />
     <Compile Include="Models\Marker.cs" />
     <Compile Include="Models\MarkerGeometry.cs" />
+    <Compile Include="Models\MPEGroupList.cs" />
+    <Compile Include="Models\MPESDOView.cs" />
     <Compile Include="Models\QuuppaCoordinateSystem.cs" />
     <Compile Include="Models\QuuppaTag.cs" />
     <Compile Include="Models\RPGPlan.cs" />
@@ -777,7 +780,7 @@
           <SaveServerSettingsInUserFile>False</SaveServerSettingsInUserFile>
         </WebProjectProperties>
       </FlavorProperties>
-      <UserProperties appsetting_4appsettings_1json__JsonSchema="https://json.schemastore.org/backportrc.json" mpekanban_4contents_4kanbandispatch_1json__JsonSchema="https://beaujs.com/schema.json" />
+      <UserProperties mpekanban_4contents_4kanbandispatch_1json__JsonSchema="https://beaujs.com/schema.json" appsetting_4appsettings_1json__JsonSchema="https://json.schemastore.org/backportrc.json" />
     </VisualStudio>
   </ProjectExtensions>
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">

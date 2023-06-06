@@ -402,6 +402,7 @@ async function LoadMachineTables(dataproperties, table) {
     try {
         if (!$.isEmptyObject(dataproperties)) {
             $('span[name=mpeview]').empty();
+            $('span[name=mpeSDO]').empty();
             $('div[id=machine_div]').attr("data-id", dataproperties.id);
             hideSidebarLayerDivs();
             $('div[id=machine_div]').css('display', 'block');
@@ -410,7 +411,10 @@ async function LoadMachineTables(dataproperties, table) {
 
                 $zoneSelect[0].selectize.setValue(dataproperties.id, true);
                 $('button[name=machineinfoedit]').attr('id', dataproperties.id);
-                $("<a/>").attr({ target: "_blank", href: window.location.origin + '/MPE/MPE.aspx?MPEStatus=' + dataproperties.name, style: 'color:white;'}).html("View").appendTo($('span[name=mpeview]'));
+                $("<a/>").attr({ target: "_blank", href: window.location.origin + '/MPE/MPE.aspx?MPEStatus=' + dataproperties.name, style: 'color:white;' }).html("View").appendTo($('span[name=mpeview]'));
+                if (dataproperties.MPE_Group !== "") {
+                    $("<a/>").attr({ target: "_blank", href: window.location.origin + '/MPESDO/MPESDO.aspx?MPEGroupName=' + dataproperties.MPE_Group, style: 'color:white;' }).html("SDOView").appendTo($('span[name=mpeSDO]'));
+                }
                 $('button[name=machineinfoedit]').attr('id', dataproperties.id);
                 $('div[id=dps_div]').css('display', 'none');
                 let machinetop_Table = $('table[id=' + table + ']');
@@ -777,9 +781,10 @@ async function Edit_Machine_Info(id) {
                         }
                         else {
                             $('<option/>').val("**Group Not Listed").html("**Group Not Listed").appendTo('select[id=mpe_group_select]');
-                            $('select[id=mpe_group_select]').val("**Group Not Listed");
-                            $('#mpegroupname_div').css('display', '');
-                            enableNewGroupName();
+                            $('<option/>').val("").html("").appendTo('select[id=mpe_group_select]');
+                            $('select[id=mpe_group_select]').val("");
+                            $('#mpegroupname_div').css('display', 'none');
+                            /*enableNewGroupName();*/
                         }
                     });
                     /*Onchange Validate Machine Group Name*/

@@ -128,6 +128,21 @@ namespace Factory_of_the_Future
                 return null;
             }
         }
+
+        internal MPESDOView GetMPESDOStatus(string mpeID)
+        {
+            try
+            {
+                /*Temporary while testing*/
+                //return AppParameters.MPEPerformance.Where(x => x.Value.MpeId == mpeID).Select(y => y.Value).ToList();
+                return null;
+            }
+            catch (Exception e)
+            {
+                new ErrorLogger().ExceptionLog(e);
+                return null;
+            }
+        }
         #region
         //dock door 
 
@@ -182,24 +197,28 @@ namespace Factory_of_the_Future
 
         #region
         //MPE data
-        internal void UpdateMpeData(string mpeId)
+        internal void UpdateMpeData(string mpeName)
         {
             try
             {
                 foreach (CoordinateSystem cs in CoordinateSystem.Values)
                 {
-                    cs.Zones.Where(f => f.Value.Properties.Name == mpeId
+                    cs.Zones.Where(f => f.Value.Properties.Name == mpeName
                     ).Select(y => y.Value).ToList().ForEach(MPE =>
                     {
-                        MPE.Properties.MPEWatchData = GetMPEPerfData(mpeId);
+                        MPE.Properties.MPEWatchData = GetMPEPerfData(mpeName);
                         if (!string.IsNullOrEmpty(MPE.Properties.MPEWatchData.CurSortplan))
                         {
                             MPE.Properties.DPSData = GetDPSData(MPE.Properties.MPEWatchData.CurSortplan);
                             MPE.Properties.StaffingData = GetStaffingSortplan(string.Concat(MPE.Properties.MPEWatchData.MpeType, MPE.Properties.MPEWatchData.MpeNumber, MPE.Properties.MPEWatchData.CurSortplan));
                         }
-
+                        if (string.IsNullOrEmpty(MPE.Properties.MPEGroup) == false)
+                        {
+                            var mpeSDOUpdate = UpdateMpeSDOData(MPE.Properties.MPEGroup);
+                            BroadcastMPESDOStatus(mpeSDOUpdate, MPE.Properties.MPEGroup);
+                        }
                         BroadcastMachineStatus(MPE, cs.Id);
-                        BroadcastMPEStatus(MPE.Properties.MPEWatchData, mpeId);
+                        BroadcastMPEStatus(MPE.Properties.MPEWatchData, mpeName);
                     });
                 }
             }
@@ -209,7 +228,61 @@ namespace Factory_of_the_Future
             }
         }
 
+        internal List<MPESDOView> UpdateMpeSDOData(string mpeGroupName)
+        {
+            ConcurrentDictionary<string, MPESDOView> MPEGroups = new ConcurrentDictionary<string, MPESDOView>();
+            try
+            {
+                foreach (CoordinateSystem cs in CoordinateSystem.Values)
+                { 
+                    /*Retrieve all MPE's within the same group name*/
+                    var mpesInSameGroup = cs.Zones.Where(f => f.Value.Properties.MPEGroup == mpeGroupName).Select(y => y.Value).OrderBy(s => s.Properties.Name).ToList();
 
+                    foreach (var MPE in mpesInSameGroup)
+                    {
+                        MPE.Properties.MPEWatchData = GetMPEPerfData(MPE.Properties.Name);
+                        /*When launching sometimes the MPEWatch data is null, so we ensure to process only when data available*/
+                        if (MPE.Properties.MPEWatchData != null)
+                        {
+                            if (!string.IsNullOrEmpty(MPE.Properties.MPEWatchData.CurSortplan))
+                            {
+                                MPE.Properties.DPSData = GetDPSData(MPE.Properties.MPEWatchData.CurSortplan);
+                                MPE.Properties.StaffingData = GetStaffingSortplan(string.Concat(MPE.Properties.MPEWatchData.MpeType, MPE.Properties.MPEWatchData.MpeNumber, MPE.Properties.MPEWatchData.CurSortplan));
+                            }
+
+                            if (MPEGroups.ContainsKey(MPE.Properties.Name) == false)
+                            {
+                                var mpeSDOObject = new MPESDOView(MPE.Properties.MPEType ?? "No MPE Type",
+                                MPE.Properties.Name ?? "No MPE Name",
+                                MPE.Properties.MPEWatchData.CurOperationId,
+                                MPE.Properties.StaffingData != null ? (int)MPE.Properties.StaffingData.Clerk : 0,
+                                MPE.Properties.CurrentStaff,
+                                MPE.Properties.MPEWatchData.TotSortplanVol,
+                                MPE.Properties.MPEWatchData.RpgEstVol,
+                                MPE.Properties.MPEWatchData.CurThruputOphr,
+                                MPE.Properties.MPEWatchData.ExpectedThroughput,
+                                MPE.Properties.MPEWatchData.CurrentRunStart,
+                                MPE.Properties.MPEWatchData.RPGEndDtm.ToString(),
+                                "   ");
+
+                                if (MPEGroups.TryAdd(MPE.Properties.Name, mpeSDOObject) == false)
+                                {
+                                    var error = new ErrorLogger();
+                                    error.CustomLog("MPESDO", "There was an error inserting GroupName: " + MPE.Properties.MPEGroup);
+                                }
+                            }
+                        }
+                    }
+                }
+                var mpeGroups = MPEGroups.Values.ToList();
+                return mpeGroups;
+            }
+            catch (Exception e)
+            {
+                new ErrorLogger().ExceptionLog(e);
+                return MPEGroups.Values.ToList();
+            }
+        }
 
         private RunPerf GetMPEPerfData(string mpeId)
         {
@@ -231,6 +304,12 @@ namespace Factory_of_the_Future
             Clients.Group("MPEZones").updateMachineStatus(mPE, id);
 
         }
+
+        internal void BroadcastMPESDOStatus(List<MPESDOView> mpeSDOView, string mpeGroupName)
+        {
+            Clients.Group("MPE_" + mpeGroupName).updateMPESDOStatus(mpeSDOView);
+        }
+
         internal void BroadcastMachineAlertStatus(int status, string floorId, string zoneId)
         {
             Clients.Group("MPEZones").updateMPEAlertStatus(status, floorId, zoneId);

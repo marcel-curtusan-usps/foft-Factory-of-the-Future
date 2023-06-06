@@ -662,7 +662,7 @@
                         </div>
                         <div class="form-group col-4">
                             <label class="control-label">Group</label>
-                            <select id="mpe_group_select" title="Group Select Name" class="form-control pb-1 is-valid border border-success" name="mpe_group_select">
+                            <select id="mpe_group_select" title="Select Group Name" class="form-control pb-1 is-valid border border-success" name="mpe_group_select">
                             </select>
                         </div>
                         <div id="mpegroupname_div" class="form-group col-4">
@@ -942,6 +942,7 @@
                                       <span class="d-flex justify-content-between">
                                           <span class="btn btn-secondary border-0 badge-info badge" name="mpeview"></span>
                                       </span>
+                                      <span class="btn btn-secondary border-0 badge-info badge" name="mpeSDO"></span>
                                 <button type="button" class="btn btn-secondary border-0 badge-info badge machineinfoedit" name="machineinfoedit" style="display: none" data-id="0" data-toggle="tooltip" data-container="body" data-placement="top">Edit</button>
                             </h6>
                         </div>
