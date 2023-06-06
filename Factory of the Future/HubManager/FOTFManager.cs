@@ -132,20 +132,20 @@ namespace Factory_of_the_Future
             }
         }
 
-        internal MPESDOView GetMPESDOStatus(string mpeID)
-        {
-            try
-            {
-                /*Temporary while testing*/
-                //return AppParameters.MPEPerformance.Where(x => x.Value.MpeId == mpeID).Select(y => y.Value).ToList();
-                return null;
-            }
-            catch (Exception e)
-            {
-                new ErrorLogger().ExceptionLog(e);
-                return null;
-            }
-        }
+        //internal MPESDOView GetMPESDOStatus(string mpeID)
+        //{
+        //    try
+        //    {
+        //        /*Temporary while testing*/
+        //        //return AppParameters.MPEPerformance.Where(x => x.Value.MpeId == mpeID).Select(y => y.Value).ToList();
+        //        return null;
+        //    }
+        //    catch (Exception e)
+        //    {
+        //        new ErrorLogger().ExceptionLog(e);
+        //        return null;
+        //    }
+        //}
         #region
         //dock door 
 
