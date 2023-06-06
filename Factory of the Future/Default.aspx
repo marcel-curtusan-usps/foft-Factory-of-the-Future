@@ -642,10 +642,11 @@
                 <div class="modal-body">
                     <div class="row mr-0 ml-0">
                         <div class="form-group col">
-                            <label class="control-label">Zone ID</label><input id="machine_id" type="text" class="form-control" name="machine_id" disabled><span id="error_machine_id" class="text-danger"></span>
+                            <label class="control-label">Zone ID</label>
+                            <input id="machine_id" type="text" class="form-control" name="machine_id" disabled="disabled"/><span id="error_machine_id" class="text-danger"></span>
                         </div>
                     </div>
-                    <div class="row mr-0 ml-0">
+                    <div class="row mr-0 ml-0" id="machine_select_row">
                         <div class="form-group col-4">
                             <label class="control-label">Name</label>
                             <%--<input id="machine_zone_name" type="text" class="form-control" name="machine_zone_name" style="display:block;">--%>
@@ -945,7 +946,9 @@
                                       <span class="d-flex justify-content-between">
                                           <span class="btn btn-secondary border-0 badge-info badge" name="mpeview"></span>
                                       </span>
-                                      <span class="btn btn-secondary border-0 badge-info badge" name="mpeSDO"></span>
+                                <span class="d-flex justify-content-between">
+                                    <span class="btn btn-secondary border-0 badge-info badge" name="mpeSDO"></span>
+                                </span>
                                 <button type="button" class="btn btn-secondary border-0 badge-info badge machineinfoedit" name="machineinfoedit" style="display: none" data-id="0" data-toggle="tooltip" data-container="body" data-placement="top">Edit</button>
                             </h6>
                         </div>

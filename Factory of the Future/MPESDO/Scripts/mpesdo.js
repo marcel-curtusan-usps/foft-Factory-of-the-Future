@@ -1,24 +1,6 @@
 ﻿
-/// A simple template method for replacing placeholders enclosed in curly braces.
-//if (!String.prototype.supplant) {
-//    String.prototype.supplant = function (o) {
-//        return this.replace(/{([^{}]*)}/g,
-//            function (a, b) {
-//                let r = o[b];
-//                return typeof r === 'string' || typeof r === 'number' ? r : a;
-//            }
-//        );
-//    };
-//}
-//let connecttimer = 0;
-//let connectattp = 0;
 let MPEGroupName = "";
 let fotfmanager = $.connection.FOTFManager;
-//let DateTimeNow = new Date();
-//let CurrentTripMin = 0;
-//let CountTimer = 0;
-//let TimerID = -1;
-//let Timerinterval = 1;
 $.extend(fotfmanager.client, {
     UpdateMPESDOStatus: (updatedata) => { Promise.all([updateMPEGroupStatus(updatedata)]) }
 });
@@ -183,22 +165,6 @@ function getProjectedEndtime(machine) {
     return moment(machine.currentRunStart).add(mpeRuntimeHrs, 'hours').format('hh:mm');
 }
 
-
-//async function addMPEsToGroupList() {
-//    document.getElementById("mpeGroupList").innerHTML +=
-//        /*"<h3>This is the text which has been inserted by JS</h3>";*/
-//    '<div class="item2"> ' + 
-//        '<h5 class="card-title">DBCS-001</h5> ' +
-//        '<h6 class="card-text btn-success">On Schedule</h6> ' +
-//        '<p class="card-text">Op# 420</p>' +
-//    '</div>';
-//}
-
-//async function StartDataConnection() {
-//    // Start the connection
-//    createMPEDataTable("mpeStatustable");
-
-//}
 async function LoadSDOData()
 {
     console.log("SDO Connected time: " + new Date($.now()));
@@ -206,71 +172,6 @@ async function LoadSDOData()
     fotfmanager.server.joinGroup("MPE_" + MPEGroupName);
     console.log("MPE_" + MPEGroupName);
 }
-//function createMPEDataTable(table) {
-//    let arrayColums = [{
-//        "order":"",
-//        "Name":"",
-//        "Planned": "",
-//        "Actual": ""
-//    }]
-//    let columns = [];
-//    let tempc = {};
-//    $.each(arrayColums[0], function (key, value) {
-//        tempc = {};
-//        if (/Planned/i.test(key)) {
-//            tempc = {
-//                "title": 'Planned',
-//                "mDataProp": key,
-//                "class": "col-planned text-center"
-//            }
-//        }
-//        else if (/Actual/i.test(key)) {
-//            tempc = {
-//                "title": "Actual",
-//                "mDataProp": key,
-//                "class": "col-actual text-center"
-//            }
-//        }
-//        else if (/Name/i.test(key)) {
-//            tempc = {
-//                "title": "",
-//                "mDataProp": key,
-//                "class": "col-name text-right"
-//            }
-//        }
-//        else {
-//            tempc = {
-//                "title": capitalize_Words(key.replace(/\_/, ' ')),
-//                "mDataProp": key
-//            }
-//        }
-//        columns.push(tempc);
-//    });
-//    $('#' + table).DataTable({
-//        fnInitComplete: function () {
-//            if ($(this).find('tbody tr').length <= 1) {
-//                $('.odd').hide()
-//            }
-//        },
-//        dom: 'Bfrtip',
-//        bFilter: false,
-//        bdeferRender: true,
-//        paging: false,
-//        bPaginate: false,
-//        bAutoWidth: true,
-//        bInfo: false,
-//        destroy: true,
-//        aoColumns: columns,
-//        sorting: [[0, "asc"]],
-//        columnDefs: [{
-//            visible: false,
-//            targets: 0,
-//        }],
-//        rowCallback: function (row, data, index) {
-//            $(row).find('td').css('font-size', 'calc(0.1em + 2.6vw)');
-//        }
-//    });
-//}
 
 function MPEStatus(data) {
     if (/^(0)/i.test(data.cur_sortplan)) {
@@ -283,11 +184,6 @@ function MPEStatus(data) {
 $(function () {
     setHeight();
     document.title = $.urlParam("MPEGroupName");
-   /* if (MPEName !== "") {*/
-        /*Promise.all([StartDataConnection()]);*/
-        /*$('label[id=mpeName]').text(MPEName);*/
-    /*}*/
-
     //start connection 
     $.connection.hub.qs = { 'page_type': "MPE".toUpperCase() };
     $.connection.hub.start({ waitForPageLoad: false })
@@ -295,44 +191,11 @@ $(function () {
             function (err) {
                 console.log(err.toString());
             });
-    // Raised when the connection state changes. Provides the old state and the new state (Connecting, Connected, Reconnecting, or Disconnected).
-    //$.connection.hub.stateChanged(function (state) {
-    //    //switch (state.newState) {
-    //    //    case 1: $('label[id=dockdoorNumber]');
-    //    //        break;
-    //    //    case 4:
-    //    //        $('label[id=dockdoorNumber]');
-    //    //        break;
-    //    //    default: $('label[id=dockdoorNumber]');
-    //    //}
-    //});
-    //handling Disconnect
-    //$.connection.hub.disconnected(function () {
-    //    connecttimer = setTimeout(function () {
-    //        if (connectattp > 10) {
-    //            clearTimeout(connecttimer);
-    //        }
-    //        connectattp += 1;
-    //        $.connection.hub.start({ waitForPageLoad: false })
-    //            .done(() => { Promise.all([LoadData()]) })
-    //            .catch(function (err) {
-    //            console.log(err.toString());
-    //        });
-    //    }, 10000); // Restart connection after 10 seconds.
-    //    // fotfmanager.server.leaveGroup("DockDoor_" + doornumber);
-    //});
-    //Raised when the underlying transport has reconnected.
-
-    //$.connection.hub.reconnecting(function () {
-    //    clearTimeout(connecttimer);
-    //    console.log("reconnected at time: " + new Date($.now()));
-    //    fotfmanager.server.joinGroup("MPE_" + MPEName);
-    //});
+    
 });
 $.urlParam = function (name) {
     let results = new RegExp('[\?&]' + name + '=([^&#]*)', 'i').exec(window.location.search);
     MPEGroupName = (results !== null) ? decodeURIComponent(results[1]) || 0 : "";
-    //codeURIComponent(MPEGroupName);
     return MPEGroupName;
 }
 function setHeight() {
@@ -341,69 +204,7 @@ function setHeight() {
     let pageBottom = (height - screenTop);
     $("div.card").css("min-height", pageBottom + "px");
 }
-//function capitalize_Words(str) {
-//    return str.replace(/\w\S*/g, function (txt) {
-//        return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();
-//    });
-//}
-//function VaildateEstComplete(estComplet) {
-//    try {
-//        let est = moment(estComplet);
-//        if (est._isValid && est.year() === moment().year()) {
-//            return est.format("hh:mm:ss");
-//        }
-//        else {
-//            return "Not Available";
-//        }
-//    } catch (e) {
 
-//    }
-//}
-//function startTimer(SVdtm) {
-//    if (!!SVdtm) {
-//        let duration = calculatescheduledDuration(SVdtm);
-//        let timer = setInterval(function () {
-//            if (!!duration && duration._isValid) {
-//                CurrentTripMin = duration.asMinutes();
-
-//                    duration = moment.duration(duration.asSeconds() - Timerinterval, 'seconds');
-//                    $('label[id=countdown]').html(duration.format("d [days] hh:mm:ss ", { trunc: true }));
-                
-//            }
-//            else {
-//                stopTimer()
-//            }
-
-//        }, 1000);
-
-//        TimerID = timer;
-
-//        return timer;
-//    }
-//    else {
-//        stopTimer()
-//    }
-//};
-//function stopTimer() {
-//    clearInterval(CountTimer);
-//}
-//function calculatescheduledDuration(t) {
-//    if (!!t) {
-//        let timenow = moment(DateTimeNow);
-//        let conditiontime = moment(t);
-//        if (conditiontime._isValid && conditiontime.year() === timenow.year()) {
-//            if (timenow > conditiontime) {
-//                return moment.duration(timenow.diff(conditiontime));
-//            }
-//            else {
-//                return moment.duration(conditiontime.diff(timenow));
-//            }
-//        }
-//        else {
-//            return "";
-//        }
-//    }
-//}
 //sample data 
 let sample_data = {
     "mpe_type": "DBCS",

@@ -44,7 +44,7 @@ namespace Factory_of_the_Future
                         {
                             new FileIO().Write(string.Concat(AppParameters.Logdirpath, AppParameters.LogFloder), string.Concat(message_type, DateTime.Now.ToString("yyyyMMdd"), ".txt"), JsonConvert.SerializeObject(machineInfo, Formatting.Indented));
                         }
-                        DateTime dtNow = DateTime.Now;
+                        
                         string windowsTimeZoneId = "";
                         if (!string.IsNullOrEmpty(AppParameters.AppSettings.FACILITY_TIMEZONE))
                         {

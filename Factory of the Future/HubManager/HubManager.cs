@@ -187,12 +187,7 @@ namespace Factory_of_the_Future
             return _managerHub.GetMPEStatusList(id);
         }
 
-        //public List<MPESDOView> UpdateMPESDOStatus(string mpeGroupName)
-        //{
-        //    return _managerHub.UpdateMpeSDOData(mpeGroupName);
-        //}
-
-        public List<MPESDOView> GetMPESDOStatus(string mpeGroupName)
+        public List<RunPerf> GetMPESDOStatus(string mpeGroupName)
         {
             return _managerHub.UpdateMpeSDOData(mpeGroupName);
         }

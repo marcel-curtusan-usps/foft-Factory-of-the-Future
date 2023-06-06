@@ -401,18 +401,19 @@ async function updateMPEAlert(layerindex) {
 async function LoadMachineTables(dataproperties, table) {
     try {
         if (!$.isEmptyObject(dataproperties)) {
+            hideSidebarLayerDivs();
             $('span[name=mpeview]').empty();
             $('span[name=mpeSDO]').empty();
             $('div[id=machine_div]').attr("data-id", dataproperties.id);
-            hideSidebarLayerDivs();
             $('div[id=machine_div]').css('display', 'block');
             $('div[id=ctstabs_div]').css('display', 'block');
+            $zoneSelect[0].selectize.setValue(dataproperties.id, true);
+            $('button[name=machineinfoedit]').attr('id', dataproperties.id);
+            $("<a/>").attr({ target: "_blank", href: URLconstructor(window.location) + 'MPE/MPE.aspx?MPEStatus=' + dataproperties.name, style: 'color:white;' }).html("View").appendTo($('span[name=mpeview]'));
+            if (!!dataproperties.MPE_Group) {
+                $("<a/>").attr({ target: "_blank", href: URLconstructor(window.location) + 'MPESDO/MPESDO.aspx?MPEGroupName=' + dataproperties.MPE_Group, style: 'color:white;' }).html("SDO View").appendTo($('span[name=mpeSDO]'));
+            }
             if (/machinetable/i.test(table)) {
-                $('span[name=mpeview]').empty();
-                $zoneSelect[0].selectize.setValue(dataproperties.id, true);
-                $('button[name=machineinfoedit]').attr('id', dataproperties.id);
-                $("<a/>").attr({ target: "_blank", href: URLconstructor( window.location) + 'MPE/MPE.aspx?MPEStatus=' + dataproperties.name, style: 'color:white;'}).html("View").appendTo($('span[name=mpeview]'));
-
                 $('div[id=dps_div]').css('display', 'none');
                 let machinetop_Table = $('table[id=' + table + ']');
                 let machinetop_Table_Body = machinetop_Table.find('tbody');
@@ -732,6 +733,7 @@ async function Edit_Machine_Info(id) {
                             mpedata.sort(SortByName);
                             mpedata.push('**Machine Not Listed');
                             $('#machine_manual_row').css('display', 'none');
+                            $('#machine_select_row').css('display', '');
                             $('select[id=machine_zone_select_name]').css('display', '');
                             $('select[id=machine_zone_select_name]').empty();
                             $('<option/>').val("").html("").appendTo('select[id=machine_zone_select_name]');
@@ -746,15 +748,18 @@ async function Edit_Machine_Info(id) {
                             $('<option/>').val("**Machine Not Listed").html("**Machine Not Listed").appendTo('select[id=machine_zone_select_name]');
                             $('select[id=machine_zone_select_name]').val("**Machine Not Listed");
                             $('#machine_manual_row').css('display', '');
+                            $('#machine_select_row').css('display', 'none');
                             $('select[id=machine_zone_select_name]').css('display', 'none');
                         }
                     });
                     $('select[id=machine_zone_select_name]').change(function () {
                         if ($('select[name=machine_zone_select_name] option:selected').val() == '**Machine Not Listed') {
                             $('#machine_manual_row').css('display', '');
+                            $('#machine_select_row').css('display', 'none');
                         }
                         else {
                             $('#machine_manual_row').css('display', 'none');
+                            $('#machine_select_row').css('display', '');
                         }
                         if ($('select[name=machine_zone_select_name] option:selected').val() == '') {
                             $('button[id=machinesubmitBtn]').prop('disabled', true);
@@ -767,6 +772,7 @@ async function Edit_Machine_Info(id) {
                     fotfmanager.server.getMPEGroupList().done(function (mpeGroupData) {
                         $('select[id=mpe_group_select]').empty();
                         if (mpeGroupData.length > 0) {
+                            mpeGroupData.push('');
                             mpeGroupData.sort(SortByName);
                             mpeGroupData.push('**Group Not Listed');
                             $('#mpegroupname_div').css('display', 'none');
@@ -813,7 +819,7 @@ async function Edit_Machine_Info(id) {
                             var machineNumber = "";
                             var mpeGroupName = "";
                             $('button[id=machinesubmitBtn]').prop('disabled', true);
-                            if ($('select[name=machine_zone_select_name] option:selected').val() != '**Machine Not Listed') {
+                            if (!$('select[name=machine_zone_select_name] option:selected').val() === "" && $('select[name=machine_zone_select_name] option:selected').val() != '**Machine Not Listed') {
                                 var selectedMachine = $('select[name=machine_zone_select_name] option:selected').val().split("-");
                                 machineName = selectedMachine[0];
                                 machineNumber = selectedMachine[1];

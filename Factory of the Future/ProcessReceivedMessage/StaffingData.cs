@@ -20,7 +20,7 @@ namespace Factory_of_the_Future
         public List<Staff> StaffData = null;
         public Staff currenStaffInfo = null;
         private bool saveToFile;
-        internal Task<bool> LoadAsync(string data, string message_type, string connID)
+        internal async Task<bool> LoadAsync(string data, string message_type, string connID)
         {
             saveToFile = false;
             _data = data;
@@ -68,13 +68,12 @@ namespace Factory_of_the_Future
                 {
                     new FileIO().Write(string.Concat(AppParameters.Logdirpath, AppParameters.ConfigurationFloder), "Staffing.json", JsonConvert.SerializeObject(AppParameters.StaffingSortplansList.Select(x => x.Value).ToList(), Formatting.Indented));
                 }
-                return Task.FromResult(saveToFile);
+                return saveToFile;
             }
             catch (Exception e)
             {
-
                 new ErrorLogger().ExceptionLog(e);
-                return Task.FromResult(saveToFile);
+                return saveToFile;
             }
             finally
             {
