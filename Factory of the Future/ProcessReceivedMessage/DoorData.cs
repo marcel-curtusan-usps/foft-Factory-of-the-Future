@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json;
+﻿using Factory_of_the_Future.Models;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
@@ -23,6 +24,7 @@ namespace Factory_of_the_Future
         public RouteTrips currenttrip = null;
         public RouteTrips newRTData = null;
         public List<RouteTrips> doortempData;
+        public List<DockDoorStatus> door_temp_Data;
 
 
         internal async Task LoadAsync(dynamic data, string message_type, string connID)
@@ -43,76 +45,150 @@ namespace Factory_of_the_Future
                         {
                             new FileIO().Write(string.Concat(AppParameters.Logdirpath, AppParameters.LogFloder), string.Concat(message_type, DateTime.Now.ToString("yyyyMMdd"), ".txt"), JsonConvert.SerializeObject(tempData, Formatting.Indented));
                         }
-                        doortempData = tempData.ToObject<List<RouteTrips>>();
-                        foreach (RouteTrips rt in doortempData)
+                        if (tempData[0]["SQLTypeName"].ToString() == "SV.LOCATION_STATUS_OBJ")
                         {
-                            if (!AppParameters.DockdoorList.ContainsKey(rt.DoorNumber))
+                            door_temp_Data = tempData.ToObject<List<DockDoorStatus>>();
+                            foreach (DockDoorStatus door in door_temp_Data)
                             {
-                                if (AppParameters.DockdoorList.TryAdd(rt.DoorNumber, rt.DoorNumber))
+                                RouteTrips rt = null;
+                                if (!AppParameters.DockdoorList.ContainsKey(door.LocationNumber) && AppParameters.DockdoorList.TryAdd(door.LocationNumber, door.LocationNumber))
                                 {
                                     //
                                 }
-                            }
 
-                            if (rt.Id != "00")
-                            {
-                                await Task.Run(() => FOTFManager.Instance.saveDoorTripAssociation(rt.DoorNumber, rt.Route, rt.Trip)).ConfigureAwait(true);
-                                rt.AtDoor = true;
-
-                                if (AppParameters.RouteTripsList.ContainsKey(rt.Id) && AppParameters.RouteTripsList.TryGetValue(rt.Id, out currenttrip))
+                                if (door.TripReport.Id != "00")
                                 {
-                                   
-                                    List<Container> temp = Task.Run(() =>  FOTFManager.Instance.GetTripContainer(currenttrip.DestSites, rt.TrailerBarcode, out int NotloadedContainers, out int loaded)).Result;
-                                    if (temp != null && currenttrip.Containers.Count() >= temp.Count())
-                                    {
-                                        currenttrip.Containers = temp;
-                                        currenttrip.NotloadedContainers = NotloadedContainers;
-                                    }
-                                    currenttrip.RawData = JsonConvert.SerializeObject(rt, Formatting.None);
-                                    foreach (PropertyInfo prop in currenttrip.GetType().GetProperties())
+                                    await Task.Run(() => FOTFManager.Instance.saveDoorTripAssociation(door.LocationNumber, door.TripReport.Route, door.TripReport.Trip)).ConfigureAwait(true);
+                                    rt = JsonConvert.DeserializeObject<RouteTrips>(JsonConvert.SerializeObject(door.TripReport));
+                                    rt.AtDoor = true;
+                                    if (AppParameters.RouteTripsList.ContainsKey(rt.Id) && AppParameters.RouteTripsList.TryGetValue(rt.Id, out currenttrip))
                                     {
 
-                                        if (!new Regex("^(Containers|Legs|RawData)$", RegexOptions.IgnoreCase).IsMatch(prop.Name))
+                                        List<Container> temp = Task.Run(() => FOTFManager.Instance.GetTripContainer(currenttrip.DestSites, rt.TrailerBarcode, out int NotloadedContainers, out int loaded)).Result;
+                                        if (temp != null && currenttrip.Containers.Count() >= temp.Count())
                                         {
-                                            if (prop.GetValue(rt, null) != prop.GetValue(currenttrip, null))
-                                            {
-                                                update = true;
-                                                prop.SetValue(currenttrip, prop.GetValue(rt, null));
+                                            currenttrip.Containers = temp;
+                                            currenttrip.NotloadedContainers = NotloadedContainers;
+                                        }
+                                        currenttrip.RawData = JsonConvert.SerializeObject(rt, Formatting.None);
+                                        foreach (PropertyInfo prop in currenttrip.GetType().GetProperties())
+                                        {
 
+                                            if (!new Regex("^(Containers|Legs|RawData)$", RegexOptions.IgnoreCase).IsMatch(prop.Name))
+                                            {
+                                                if (prop.GetValue(rt, null) != prop.GetValue(currenttrip, null))
+                                                {
+                                                    update = true;
+                                                    prop.SetValue(currenttrip, prop.GetValue(rt, null));
+
+                                                }
                                             }
                                         }
+                                        if (update)
+                                        {
+                                            await Task.Run(() => FOTFManager.Instance.UpdateDoorData(currenttrip.DoorNumber)).ConfigureAwait(true);
+                                        }
                                     }
-                                    if (update)
+                                    else if (!AppParameters.RouteTripsList.ContainsKey(rt.Id))
                                     {
-                                       await Task.Run(() => FOTFManager.Instance.UpdateDoorData(currenttrip.DoorNumber)).ConfigureAwait(true);
+                                        rt.DestSites = ("(^" + rt.LegSiteId + "$)");
+
+                                        rt.Containers = FOTFManager.Instance.GetTripContainer(rt.DestSites, rt.TrailerBarcode, out int NotloadedContainers, out int loaded);
+                                        rt.NotloadedContainers = NotloadedContainers;
+                                        rt.RawData = JsonConvert.SerializeObject(rt, Formatting.None);
+                                        rt.Status = "ACTIVE";
+                                        if (AppParameters.RouteTripsList.TryAdd(rt.Id, rt))
+                                        {
+                                            await Task.Run(() => FOTFManager.Instance.UpdateDoorData(rt.DoorNumber)).ConfigureAwait(true);
+                                        }
+
                                     }
                                 }
-                                else if (!AppParameters.RouteTripsList.ContainsKey(rt.Id))
+                                else
                                 {
-                                    rt.DestSites = ("(^" + rt.LegSiteId + "$)");
-
-                                    rt.Containers = FOTFManager.Instance.GetTripContainer(rt.DestSites, rt.TrailerBarcode, out int NotloadedContainers, out int loaded);
-                                    rt.NotloadedContainers = NotloadedContainers;
-                                    rt.RawData = JsonConvert.SerializeObject(rt, Formatting.None);
-                                    rt.Status = "ACTIVE";
-                                    if (AppParameters.RouteTripsList.TryAdd(rt.Id, rt))
+                                    foreach (string rtId in AppParameters.RouteTripsList.Where(x => x.Value.DoorNumber == rt.DoorNumber && x.Value.AtDoor).Select(y => y.Key))
                                     {
-                                       await Task.Run(() => FOTFManager.Instance.UpdateDoorData(rt.DoorNumber)).ConfigureAwait(true);
+                                        if (AppParameters.RouteTripsList.TryRemove(rtId, out currenttrip))
+                                        {
+                                            await Task.Run(() => FOTFManager.Instance.UpdateDoorData(rt.DoorNumber)).ConfigureAwait(true);
+                                        }
                                     }
-
                                 }
-
                             }
-                            else
+                        }
+                        else
+                        {
+                            doortempData = tempData.ToObject<List<RouteTrips>>();
+                            foreach (RouteTrips rt in doortempData)
                             {
-                                foreach (string rtId in AppParameters.RouteTripsList.Where(x => x.Value.DoorNumber == rt.DoorNumber && x.Value.AtDoor).Select(y => y.Key))
+                                if (!AppParameters.DockdoorList.ContainsKey(rt.DoorNumber))
                                 {
-                                    if (AppParameters.RouteTripsList.TryRemove(rtId, out currenttrip))
+                                    if (AppParameters.DockdoorList.TryAdd(rt.DoorNumber, rt.DoorNumber))
                                     {
-                                      await Task.Run(() => FOTFManager.Instance.UpdateDoorData(rt.DoorNumber)).ConfigureAwait(true);
+                                        //
                                     }
                                 }
 
+                                if (rt.Id != "00")
+                                {
+                                    await Task.Run(() => FOTFManager.Instance.saveDoorTripAssociation(rt.DoorNumber, rt.Route, rt.Trip)).ConfigureAwait(true);
+                                    rt.AtDoor = true;
+
+                                    if (AppParameters.RouteTripsList.ContainsKey(rt.Id) && AppParameters.RouteTripsList.TryGetValue(rt.Id, out currenttrip))
+                                    {
+
+                                        List<Container> temp = Task.Run(() => FOTFManager.Instance.GetTripContainer(currenttrip.DestSites, rt.TrailerBarcode, out int NotloadedContainers, out int loaded)).Result;
+                                        if (temp != null && currenttrip.Containers.Count() >= temp.Count())
+                                        {
+                                            currenttrip.Containers = temp;
+                                            currenttrip.NotloadedContainers = NotloadedContainers;
+                                        }
+                                        currenttrip.RawData = JsonConvert.SerializeObject(rt, Formatting.None);
+                                        foreach (PropertyInfo prop in currenttrip.GetType().GetProperties())
+                                        {
+
+                                            if (!new Regex("^(Containers|Legs|RawData)$", RegexOptions.IgnoreCase).IsMatch(prop.Name))
+                                            {
+                                                if (prop.GetValue(rt, null) != prop.GetValue(currenttrip, null))
+                                                {
+                                                    update = true;
+                                                    prop.SetValue(currenttrip, prop.GetValue(rt, null));
+
+                                                }
+                                            }
+                                        }
+                                        if (update)
+                                        {
+                                            await Task.Run(() => FOTFManager.Instance.UpdateDoorData(currenttrip.DoorNumber)).ConfigureAwait(true);
+                                        }
+                                    }
+                                    else if (!AppParameters.RouteTripsList.ContainsKey(rt.Id))
+                                    {
+                                        rt.DestSites = ("(^" + rt.LegSiteId + "$)");
+
+                                        rt.Containers = FOTFManager.Instance.GetTripContainer(rt.DestSites, rt.TrailerBarcode, out int NotloadedContainers, out int loaded);
+                                        rt.NotloadedContainers = NotloadedContainers;
+                                        rt.RawData = JsonConvert.SerializeObject(rt, Formatting.None);
+                                        rt.Status = "ACTIVE";
+                                        if (AppParameters.RouteTripsList.TryAdd(rt.Id, rt))
+                                        {
+                                            await Task.Run(() => FOTFManager.Instance.UpdateDoorData(rt.DoorNumber)).ConfigureAwait(true);
+                                        }
+
+                                    }
+
+                                }
+                                else
+                                {
+                                    foreach (string rtId in AppParameters.RouteTripsList.Where(x => x.Value.DoorNumber == rt.DoorNumber && x.Value.AtDoor).Select(y => y.Key))
+                                    {
+                                        if (AppParameters.RouteTripsList.TryRemove(rtId, out currenttrip))
+                                        {
+                                            await Task.Run(() => FOTFManager.Instance.UpdateDoorData(rt.DoorNumber)).ConfigureAwait(true);
+                                        }
+                                    }
+
+                                }
                             }
                         }
                     }

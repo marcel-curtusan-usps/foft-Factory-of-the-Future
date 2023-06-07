@@ -629,6 +629,9 @@
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
     <Compile Include="HubManager\ConnectionMapping.cs" />
+    <Compile Include="Models\DockDoorStatus.cs" />
+    <Compile Include="Models\TrailerStatus.cs" />
+    <Compile Include="Models\TripReport.cs" />
     <Compile Include="ProcessReceivedMessage\ApplicationSetting.cs" />
     <Compile Include="ProcessReceivedMessage\Get_Site_Info.cs" />
     <Compile Include="HubManager\HubManager.cs" />
@@ -799,7 +802,7 @@
           <SaveServerSettingsInUserFile>False</SaveServerSettingsInUserFile>
         </WebProjectProperties>
       </FlavorProperties>
-      <UserProperties mpekanban_4contents_4kanbandispatch_1json__JsonSchema="https://beaujs.com/schema.json" appsetting_4appsettings_1json__JsonSchema="https://json.schemastore.org/backportrc.json" />
+      <UserProperties appsetting_4appsettings_1json__JsonSchema="https://json.schemastore.org/backportrc.json" mpekanban_4contents_4kanbandispatch_1json__JsonSchema="https://beaujs.com/schema.json" />
     </VisualStudio>
   </ProjectExtensions>
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">

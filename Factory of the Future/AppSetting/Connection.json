@@ -355,7 +355,7 @@
     "AdminEmailRecepient": "",
     "ConnectionName": "SV",
     "CreatedByUsername": "",
-    "CreatedDate": "2023-06-03T00:34:24.5549573-04:00",
+    "CreatedDate": "2023-06-07T17:18:56.3198634-04:00",
     "DataRetrieve": 5000,
     "DeactivatedByUsername": "",
     "DeactivatedDate": "0001-01-01T00:00:00",
@@ -365,7 +365,7 @@
     "Https": false,
     "Id": "aa431921-0b2b-40a0-91de-b14cc684feab",
     "IpAddress": "",
-    "LastupDate": "2023-06-03T00:34:24.5549573-04:00",
+    "LastupDate": "2023-06-07T17:18:56.3198634-04:00",
     "LastupdateByUsername": "QZ0TP0",
     "MessageType": "doors",
     "NassCode": "",
@@ -375,6 +375,6 @@
     "TcpIpConnection": false,
     "WsConnection": false,
     "ApiConnection": true,
-    "Url": "https://svweb.usps.gov/svx/doors/{0}/status"
+    "Url": "https://sv.usps.gov/svx/doors/{0}/status/YV?colocated=Y"
   }
 ]
