@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Project default_configuration_name="Configuration 1" fallback_default_config_name="Configuration 1" file_encoding="ISO-8859-1" ltd_name=".net" name="DotNet" version="10.0.2">
+	<Configuration name="Configuration 1"/>
+	<FileExtensions>
+		<FileExtension extension="pdb" is_exclude="false" is_project_exclusion="false" is_valid_assess="true" is_web="false"/>
+		<FileExtension extension="dll" is_exclude="false" is_project_exclusion="false" is_valid_assess="true" is_web="false"/>
+		<FileExtension extension="cs" is_exclude="false" is_project_exclusion="false" is_valid_assess="true" is_web="false"/>
+	</FileExtensions>
+	<Source exclude="false" path="..\Factory of the Future" web="false"/>	
+	<ProjectScanSettings/>
+</Project>
