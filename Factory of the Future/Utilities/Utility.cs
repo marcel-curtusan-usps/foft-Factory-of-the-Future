@@ -37,12 +37,13 @@ namespace Factory_of_the_Future
             try
             {
 
-                tripDtm = new DateTime(scheduledDtm.Year,
-                                                scheduledDtm.Month + 1,
-                                                scheduledDtm.DayOfMonth,
-                                                scheduledDtm.HourOfDay,
-                                                scheduledDtm.Minute,
-                                                scheduledDtm.Second);
+                //tripDtm = new DateTime(scheduledDtm.Year,
+                //                                scheduledDtm.Month + 1,
+                //                                scheduledDtm.DayOfMonth,
+                //                                scheduledDtm.HourOfDay,
+                //                                scheduledDtm.Minute,
+                //                                scheduledDtm.Second);
+                tripDtm = new DateTime();
                 return (int)Math.Ceiling(tripDtm.Subtract(GetDTMNow()).TotalMinutes);
             }
             catch (Exception e)

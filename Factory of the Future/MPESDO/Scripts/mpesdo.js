@@ -1,14 +1,38 @@
 ﻿
+let mpeGroupData = [];
 let MPEGroupName = "";
 let fotfmanager = $.connection.FOTFManager;
 $.extend(fotfmanager.client, {
-    UpdateMPESDOStatus: (updatedata) => { Promise.all([updateMPEGroupStatus(updatedata)]) }
+    UpdateMPESDOStatus: (mpeDataIncoming) => { Promise.all([processMPEIncomingData(mpeDataIncoming)]) }
 });
+
+async function processMPEIncomingData(mpeData) {
+    //get the MPEId
+    console.log(mpeData.MpeId);
+    //Traverse the existing list of mpes
+    $.each(mpeGroupData, function (key, value) {
+        /*If mpe is in the list, update the item's data in the list*/
+        if (this.MpeId === mpeData.MpeId) {
+           /* console.log(key);*/
+            mpeGroupData[key] = mpeData;
+            return;
+            //console.log(mpeGroupData[key]);
+            //console.log(mpeData);
+        }
+    });
+    console.log(mpeGroupData)
+    updateMPEGroupStatus(mpeGroupData);
+}
+
 async function updateMPEGroupStatus(data)
 {
     try {
-        if (!!data) {
-            /* For the list of MPEs*/
+        //Save the data, so we can update later as needed
+        mpeGroupData = data;
+
+        //console.log(data);
+        if (!!mpeGroupData) {
+            /* For the list of MPEs within the Group*/
             function mpeDetails(mpeName, mpeStatus, curOpId) {
                 this.mpeName = mpeName;
                 this.mpeStatus = mpeStatus;
@@ -34,23 +58,23 @@ async function updateMPEGroupStatus(data)
             let previousPlannedEndTime = moment('01/01/1970 00:03:44');
             let previousRunStart = moment('01/01/1970 00:03:44');
             let mpesRunning = 0;
-           
-            $.each(data, function (key, value) {
+
+            $.each(mpeGroupData, function (key, value) {
                 /*Add up only data from running MPEs*/
-                if (this.CurrentOperationId != 0) { 
+                if (this.cur_operation_id !== 0) {
                     mpesRunning += 1;
-                    mpeSummary.machineType = this.MachineType; /*this one could be a single field and the rest a list of items **Analize it...**/
+                    mpeSummary.machineType = this.mpe_type; /*this one could be a single field and the rest a list of items **Analize it...**/
                     mpeSummary.scheduledStaff += this.ScheduledStaff;
                     mpeSummary.actualStaff += this.ActualStaff;
-                    mpeSummary.totalVolume += this.TotalVolume;
-                    mpeSummary.plannedVolume += this.PlannedVolume;
-                    mpeSummary.totalThroughput += this.TotalThroughput;
-                    mpeSummary.plannedThroughput += this.PlannedThroughput;
+                    mpeSummary.totalVolume += this.tot_sortplan_vol;
+                    mpeSummary.plannedVolume += this.rpg_est_vol;
+                    mpeSummary.totalThroughput += this.cur_thruput_ophr;
+                    mpeSummary.plannedThroughput += this.expected_throughput;
                     /*Capture the latest Planned End Time and save the current run start to determine whether we are within
                      * the planned estimated time of completion */
-                    if (moment(this.PlannedEndTime) > previousPlannedEndTime) {
-                        mpeSummary.plannedEndTime = this.PlannedEndTime;
-                        mpeSummary.currentRunStart = moment(this.CurrentRunStart).format('M/DD/yyyy hh:mm:ss');
+                    if (moment(this.rpg_end_dtm) > previousPlannedEndTime) {
+                        mpeSummary.plannedEndTime = this.rpg_end_dtm;
+                        mpeSummary.currentRunStart = moment(this.current_run_start).format('M/DD/yyyy hh:mm:ss');
                     }
                     else
                     {
@@ -59,17 +83,17 @@ async function updateMPEGroupStatus(data)
                     }
                     
                     mpeSummary.message = this.Message; /*this one could be a single field and the rest a list of items **Analize it...**/
-                    previousPlannedEndTime = moment(this.PlannedEndTime);
-                    previousRunStart = moment(this.CurrentRunStart).format('mm/dd/yyy hh:mm:ss');
+                    previousPlannedEndTime = moment(this.rpg_end_dtm);
+                    previousRunStart = moment(this.current_run_start).format('mm/dd/yyy hh:mm:ss');
                 }
                 
                 /* 2. Create the list of MPE elements */
                 let status = getMPEOperationStatus(this);
-                mpeDetailsList.push(new mpeDetails(this.MachineName, status, this.CurrentOperationId));
+                mpeDetailsList.push(new mpeDetails(this.MpeId, status, this.cur_operation_id));
             });
 
             mpeSummary.mpesRunning = mpesRunning;
-            mpeSummary.projectedEndTime = getProjectedEndtime(mpeSummary);
+            mpeSummary.projectedEndTime = getProjectedEndtimeSummary(mpeSummary);
             populateFields(mpeSummary, getSortedData(mpeDetailsList, 'mpeName', 1));
         }
     } catch (e) {
@@ -148,9 +172,9 @@ function getStatusDescription(status) {
 }
 
 function getMPEOperationStatus(machine) {
-    if (machine.CurrentOperationId != 0) {
+    if (machine.cur_operation_id !== 0) {
         let projectedEndTime = getProjectedEndtime(machine);
-        if (projectedEndTime > moment(machine.plannedEndTime)) {    
+        if (projectedEndTime > moment(machine.rpg_end_dtm)) {
             return "On Schedule";
         } else {
             return "Behind Schedule";
@@ -161,6 +185,11 @@ function getMPEOperationStatus(machine) {
 }
 
 function getProjectedEndtime(machine) {
+    let mpeRuntimeHrs = Math.round(machine.tot_sortplan_vol / machine.cur_thruput_ophr);
+    return moment(machine.current_run_start).add(mpeRuntimeHrs, 'hours').format('hh:mm');
+}
+//Need to review this method as the differences in names because the objects are different** Probably need to use the same name in the properties
+function getProjectedEndtimeSummary(machine) {
     let mpeRuntimeHrs = Math.round(machine.totalVolume / machine.totalThroughput);
     return moment(machine.currentRunStart).add(mpeRuntimeHrs, 'hours').format('hh:mm');
 }

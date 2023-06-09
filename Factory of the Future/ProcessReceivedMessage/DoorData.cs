@@ -106,13 +106,13 @@ namespace Factory_of_the_Future
                                 }
                                 else
                                 {
-                                    foreach (string rtId in AppParameters.RouteTripsList.Where(x => x.Value.DoorNumber == rt.DoorNumber && x.Value.AtDoor).Select(y => y.Key))
-                                    {
-                                        if (AppParameters.RouteTripsList.TryRemove(rtId, out currenttrip))
-                                        {
-                                            await Task.Run(() => FOTFManager.Instance.UpdateDoorData(rt.DoorNumber)).ConfigureAwait(true);
-                                        }
-                                    }
+                                    //foreach (string rtId in AppParameters.RouteTripsList.Where(x => x.Value.DoorNumber == rt.DoorNumber && x.Value.AtDoor).Select(y => y.Key))
+                                    //{
+                                    //    if (AppParameters.RouteTripsList.TryRemove(rtId, out currenttrip))
+                                    //    {
+                                    //        await Task.Run(() => FOTFManager.Instance.UpdateDoorData(rt.DoorNumber)).ConfigureAwait(true);
+                                    //    }
+                                    //}
                                 }
                             }
                         }
