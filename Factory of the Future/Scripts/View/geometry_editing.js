@@ -468,6 +468,12 @@ function VaildateForm(FormType)
                     $('<option/>').val(this).html(this).appendTo('select[id=zone_select_name]');
                 })
             }
+            else {
+                DockDoordata.push('**Dock Door Not Listed');
+                $.each(DockDoordata, function () {
+                    $('<option/>').val(this).html(this).appendTo('select[id=zone_select_name]');
+                })
+            }
         });
     }
     else if (/(Bin|BinZone)/i.test(FormType)) {

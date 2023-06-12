@@ -7,6 +7,7 @@ using System.Linq;
 using System.Reflection;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using System.Xml.Linq;
 
 namespace Factory_of_the_Future
 {
@@ -68,7 +69,7 @@ namespace Factory_of_the_Future
                                 //        NewMachineInfo.RpgEstCompTime = dtNow.AddMinutes(intMinuteToCompletion);
                                 //    }
                                 //}
-                                NewMachineInfo.ExpectedThroughput = parseExpectedThruput(NewMachineInfo.RpgExpectedThruput);
+                                NewMachineInfo.ExpectedThroughput = NewMachineInfo.RpgExpectedThruput;
                                 RPGPlan rpgPlan = Get_RPGPlan_Info(NewMachineInfo);
                                 if (rpgPlan != null)
                                 {
@@ -341,7 +342,7 @@ namespace Factory_of_the_Future
                         SortplanWrongStatus = !string.IsNullOrEmpty(item["sortplan_wrong_status"].ToString()) ? Convert.ToInt32(item["sortplan_wrong_status"].ToString()) : 0,
                         SortplanWrongTimer = !string.IsNullOrEmpty(item["sortplan_wrong_timer"].ToString()) ? Convert.ToInt32(item["sortplan_wrong_timer"].ToString()) : 0,
                         HourlyData = item["hourly_data"].ToObject<List<HourlyData>>(),
-                        RpgExpectedThruput = item["rpg_expected_thruput"].ToString(),
+                        RpgExpectedThruput = GetRPG_Expected_Thruput(item["rpg_expected_thruput"].ToString()),
                         ArsRecrej3 = !string.IsNullOrEmpty(item["ars_recrej3"].ToString()) ? Convert.ToInt32(item["ars_recrej3"].ToString()) : 0,
                         SweepRecrej3 = !string.IsNullOrEmpty(item["sweep_recrej3"].ToString()) ? Convert.ToInt32(item["sweep_recrej3"].ToString()) : 0,
                         MpeId = string.Concat(item["mpe_type"].ToString().Trim(), "-", Convert.ToInt32(item["mpe_number"].ToString()).ToString().PadLeft(3, '0'))
@@ -354,6 +355,20 @@ namespace Factory_of_the_Future
             {
                 new ErrorLogger().ExceptionLog(e);
                 return null;
+            }
+        }
+
+        private int GetRPG_Expected_Thruput(string value)
+        {
+            try
+            {
+                int.TryParse(string.Join(string.Empty, Regex.Matches(value, @"\d+").OfType<Match>().Select(m => m.Value)).ToString(), out int n);
+                return n;
+            }
+            catch (Exception e)
+            {
+                new ErrorLogger().ExceptionLog(e);
+                return 0;
             }
         }
 

@@ -90,7 +90,7 @@ namespace Factory_of_the_Future.Models
         public List<HourlyData> HourlyData { get; set; } = new List<HourlyData>();
 
         [JsonProperty("rpg_expected_thruput")]
-        public string RpgExpectedThruput { get; set; } = "";
+        public int RpgExpectedThruput { get; set; } = 0;
 
         [JsonProperty("ars_recrej3")]
         public int ArsRecrej3 { get; set; } = 0;

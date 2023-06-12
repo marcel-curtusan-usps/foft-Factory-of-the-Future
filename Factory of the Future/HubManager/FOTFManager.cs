@@ -378,6 +378,11 @@ namespace Factory_of_the_Future
                     if (int.TryParse(string.Join(string.Empty, Regex.Matches(newtempgZone.Properties.Name, @"\d+").OfType<Match>().Select(m => m.Value)).ToString(), out int n))
                     {
                         newtempgZone.Properties.DoorNumber = n.ToString();
+                        newtempgZone.Properties.Name = string.Concat("DockDoor", n.ToString().PadLeft(3, '0'));
+                    }
+                    if (!AppParameters.DockdoorList.ContainsKey(newtempgZone.Properties.DoorNumber) && AppParameters.DockdoorList.TryAdd(newtempgZone.Properties.DoorNumber, newtempgZone.Properties.DoorNumber))
+                    {
+                        //
                     }
                     newtempgZone.Properties.DockDoorData = GetDigitalDockDoorList(newtempgZone.Properties.DoorNumber);
 
@@ -388,7 +393,7 @@ namespace Factory_of_the_Future
                     {
                         if (cs.Zones.TryAdd(newtempgZone.Properties.Id, newtempgZone))
                         {
-                            BroadcastAddZone(newtempgZone, newtempgZone.Properties.FloorId, newtempgZone.Properties.ZoneType);
+                            Task.Run(() => BroadcastAddZone(newtempgZone, newtempgZone.Properties.FloorId, newtempgZone.Properties.ZoneType)).ConfigureAwait(true);
                             new FileIO().Write(string.Concat(AppParameters.Logdirpath, AppParameters.ConfigurationFloder), "Project_Data.json", AppParameters.ZoneOutPutdata(CoordinateSystem.Select(x => x.Value).ToList()));
                             return null;
                         }

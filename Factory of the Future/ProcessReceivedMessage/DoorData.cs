@@ -47,7 +47,7 @@ namespace Factory_of_the_Future
                         }
                         if (tempData[0]["SQLTypeName"].ToString() == "SV.LOCATION_STATUS_OBJ")
                         {
-                            door_temp_Data = tempData.ToObject<List<DockDoorStatus>>();
+                            door_temp_Data = tempData.ToObject<List<DockDoorStatus>>().OrderBy(o => o.LocationBarcode).ToList();
                             foreach (DockDoorStatus door in door_temp_Data)
                             {
                                 RouteTrips rt = null;
@@ -73,15 +73,21 @@ namespace Factory_of_the_Future
                                         currenttrip.RawData = JsonConvert.SerializeObject(rt, Formatting.None);
                                         foreach (PropertyInfo prop in currenttrip.GetType().GetProperties())
                                         {
-
-                                            if (!new Regex("^(Containers|Legs|RawData)$", RegexOptions.IgnoreCase).IsMatch(prop.Name))
+                                            try
                                             {
-                                                if (prop.GetValue(rt, null) != prop.GetValue(currenttrip, null))
+                                                if (!new Regex("^(Containers|Legs|RawData)$", RegexOptions.IgnoreCase).IsMatch(prop.Name))
                                                 {
-                                                    update = true;
-                                                    prop.SetValue(currenttrip, prop.GetValue(rt, null));
+                                                    if (prop.GetValue(rt, null).ToString() != prop.GetValue(currenttrip, null).ToString())
+                                                    {
+                                                        update = true;
+                                                        prop.SetValue(currenttrip, prop.GetValue(rt, null));
 
+                                                    }
                                                 }
+                                            }
+                                            catch (Exception e)
+                                            {
+                                                new ErrorLogger().ExceptionLog(e);
                                             }
                                         }
                                         if (update)
@@ -106,13 +112,13 @@ namespace Factory_of_the_Future
                                 }
                                 else
                                 {
-                                    //foreach (string rtId in AppParameters.RouteTripsList.Where(x => x.Value.DoorNumber == rt.DoorNumber && x.Value.AtDoor).Select(y => y.Key))
-                                    //{
-                                    //    if (AppParameters.RouteTripsList.TryRemove(rtId, out currenttrip))
-                                    //    {
-                                    //        await Task.Run(() => FOTFManager.Instance.UpdateDoorData(rt.DoorNumber)).ConfigureAwait(true);
-                                    //    }
-                                    //}
+                                    foreach (string rtId in AppParameters.RouteTripsList.Where(x => x.Value.DoorNumber == door.LocationNumber && x.Value.AtDoor).Select(y => y.Key))
+                                    {
+                                        if (AppParameters.RouteTripsList.TryRemove(rtId, out currenttrip))
+                                        {
+                                            await Task.Run(() => FOTFManager.Instance.UpdateDoorData(door.LocationNumber)).ConfigureAwait(true);
+                                        }
+                                    }
                                 }
                             }
                         }

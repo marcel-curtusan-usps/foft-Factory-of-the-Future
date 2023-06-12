@@ -355,15 +355,16 @@ let polygonMachine = new L.GeoJSON(null, {
                 className: 'location ' + locationFlash
             }).openTooltip();
         }
-    },
-    filter: function (feature, layer) {
-        if (/(way)$/i.test(feature.properties.name)) {
-            return false;
-        }
-        else {
-            return feature.properties.visible;
-        }
     }
+    //,
+    //filter: function (feature, layer) {
+    //    if (/(way)$/i.test(feature.properties.name)) {
+    //        return false;
+    //    }
+    //    else {
+    //        return feature.properties.visible;
+    //    }
+    //}
 });
 async function updateMPEZone(properties, index) {
     polygonMachine._layers[index].setStyle({

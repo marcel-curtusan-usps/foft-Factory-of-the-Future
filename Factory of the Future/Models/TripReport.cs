@@ -11,10 +11,10 @@ namespace Factory_of_the_Future.Models
         public string SQLTypeName { get; set; } = "";
 
         [JsonProperty("routeTripId")]
-        public int RouteTripId { get; set; }
+        public int RouteTripId { get; set; } = 0;
 
         [JsonProperty("routeTripLegId")]
-        public int RouteTripLegId { get; set; }
+        public int RouteTripLegId { get; set; } = 0;
 
         [JsonProperty("route")]
         public string Route { get; set; } = "";
@@ -26,7 +26,7 @@ namespace Factory_of_the_Future.Models
         public string TripDirectionInd { get; set; } = "";
 
         [JsonProperty("legNumber")]
-        public int LegNumber { get; set; }
+        public int LegNumber { get; set; } = 0;
 
         [JsonProperty("serviceTypeCode")]
         public string ServiceTypeCode { get; set; } = "";
@@ -53,10 +53,10 @@ namespace Factory_of_the_Future.Models
         public string Status { get; set; } = "";
 
         [JsonProperty("scheduledDtm")]
-        public EventDtm ScheduledDtm { get; set; }
+        public EventDtm ScheduledDtm { get; set; } = new EventDtm();
 
         [JsonProperty("actualDtm")]
-        public EventDtm ActualDtm { get; set; }
+        public EventDtm ActualDtm { get; set; } = new EventDtm();
 
         [JsonProperty("doorId")]
         public string DoorId { get; set; } = "";
@@ -74,19 +74,19 @@ namespace Factory_of_the_Future.Models
         public string TrailerLengthCode { get; set; } = "";
 
         [JsonProperty("loadPercent")]
-        public int LoadPercent { get; set; }
+        public int LoadPercent { get; set; } = 0;
 
         [JsonProperty("bedLoadPercent")]
-        public int BedLoadPercent { get; set; }
+        public int BedLoadPercent { get; set; } = 0;
 
         [JsonProperty("isEmpty")]
         public bool IsEmpty { get; set; }
 
         [JsonProperty("numNoBarcode")]
-        public int NumNoBarcode { get; set; }
+        public int NumNoBarcode { get; set; } = 0;
 
         [JsonProperty("numUnscannable")]
-        public int NumUnscannable { get; set; }
+        public int NumUnscannable { get; set; } = 0;
 
         [JsonProperty("mailerName")]
         public string MailerName { get; set; } = "";
@@ -101,10 +101,10 @@ namespace Factory_of_the_Future.Models
         public string NonStandardTripInd { get; set; } = "";
 
         [JsonProperty("loadUnldStartDtm")]
-        public EventDtm LoadUnldStartDtm { get; set; }
+        public EventDtm LoadUnldStartDtm { get; set; } = new EventDtm();
 
         [JsonProperty("loadUnldEndDtm")]
-        public EventDtm LoadUnldEndDtm { get; set; }
+        public EventDtm LoadUnldEndDtm { get; set; } = new EventDtm();
 
         [JsonProperty("events")]
         public List<object> Events { get; set; }
@@ -113,7 +113,7 @@ namespace Factory_of_the_Future.Models
         public List<object> ApptIrregs { get; set; }
 
         [JsonProperty("numExpected")]
-        public int NumExpected { get; set; } 
+        public int NumExpected { get; set; } = 0;
 
         [JsonProperty("originSiteName")]
         public string OriginSiteName { get; set; } = "";
@@ -134,7 +134,7 @@ namespace Factory_of_the_Future.Models
         public string YardMgmtInd { get; set; } = "";
 
         [JsonProperty("completedDtm")]
-        public EventDtm CompletedDtm { get; set; }
+        public EventDtm CompletedDtm { get; set; } = new EventDtm();
 
         [JsonProperty("trailerStatus")]
         public TrailerStatus TrailerStatus { get; set; } = new TrailerStatus();
@@ -152,13 +152,13 @@ namespace Factory_of_the_Future.Models
         public string DriverBarcode { get; set; } = "";
 
         [JsonProperty("driverId")]
-        public int? DriverId { get; set; }
+        public int? DriverId { get; set; } = 0;
 
         [JsonProperty("destSeal")]
         public string DestSeal { get; set; } = "";
 
         [JsonProperty("doorDtm")]
-        public EventDtm DoorDtm { get; set; }
+        public EventDtm DoorDtm { get; set; } = new EventDtm();
 
         [JsonProperty("supplier")]
         public string Supplier { get; set; } = "";
@@ -167,7 +167,7 @@ namespace Factory_of_the_Future.Models
         public string DriverPhoneNumber { get; set; } = "";
 
         [JsonProperty("delayCode")]
-        public int? DelayCode { get; set; }
+        public int? DelayCode { get; set; } = 0;
 
         [JsonProperty("delayReason")]
         public string DelayReason { get; set; } = "";

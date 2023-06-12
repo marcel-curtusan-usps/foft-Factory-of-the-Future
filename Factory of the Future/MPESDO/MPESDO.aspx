@@ -33,25 +33,25 @@
         <div class="flex-container">
             <div class="item2">
                 <%--<p class="card-title">Operation #918</p>--%>
-                <h1 id="machineType" class="card-text">Machine Type: DBCS</h1>
-                <h1 id="scheduledStaff" class="card-text">Scheduled Staff: 5</h1>
-                <h1 id="actualStaff" class="card-text">Actual Staff: 2</h1>
+                <h1 id="machineType" class="card-text">Group Name: DBCS</h1>
+                <h1 id="scheduledStaff" class="card-text">Scheduled Staff: 0</h1>
+                <h1 id="actualStaff" class="card-text">Actual Staff: 0</h1>
             </div>
             <div class="item2">
-                <p id="totalVolume" class="card-title text-success">135,389</p>
+                <p id="totalVolume" class="card-title text-success">0</p>
                 <h1 class="card-text">Total Volume</h1>
-                <h1 id="plannedVolume" class="card-text">Plan: 95,000</h1>
+                <h1 id="plannedVolume" class="card-text">Plan: 0</h1>
             </div>
             <div class="item2">
-                <p id="avgThroughput" class="card-title text-success">23,134/hr</p>
+                <p id="avgThroughput" class="card-title text-success">0 /hr</p>
                 <h1 class="card-text">Avg Throughput</h1>
-                <h1 id="plannedThroughput" class="card-text">Plan: 21,000</h1>
+                <h1 id="plannedThroughput" class="card-text">Plan: 0</h1>
             </div>
             <div class="item2">
                 <h1 class="card-title">Projected End Time:</h1>
-                <p id="projectedEndTime" class="card-text">06:30</p>
+                <p id="projectedEndTime" class="card-text">00:00</p>
                 <h1 class="card-text">Planed End Time:</h1>
-                <p id="plannedEndTime" class="card-text">05:00</p>
+                <p id="plannedEndTime" class="card-text">00:00</p>
             </div>
         </div>
 

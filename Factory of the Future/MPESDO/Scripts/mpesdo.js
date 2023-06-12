@@ -5,71 +5,49 @@ let fotfmanager = $.connection.FOTFManager;
 $.extend(fotfmanager.client, {
     UpdateMPESDOStatus: (mpeDataIncoming) => { Promise.all([processMPEIncomingData(mpeDataIncoming)]) }
 });
-
-async function processMPEIncomingData(mpeData) {
-    //get the MPEId
-    console.log(mpeData.MpeId);
-    //Traverse the existing list of mpes
-    $.each(mpeGroupData, function (key, value) {
-        /*If mpe is in the list, update the item's data in the list*/
-        if (this.MpeId === mpeData.MpeId) {
-           /* console.log(key);*/
-            mpeGroupData[key] = mpeData;
-            return;
-            //console.log(mpeGroupData[key]);
-            //console.log(mpeData);
-        }
-    });
-    console.log(mpeGroupData)
-    updateMPEGroupStatus(mpeGroupData);
+let mpeSummaryTemplet = {
+    machineType: "",
+    scheduledStaff: 0,
+    actualStaff: 0,
+    totalVolume: 0,
+    plannedVolume: 0,
+    totalThroughput: 0,
+    plannedThroughput: 0,
+    currentRunStart: "",
+    message: ""
 }
-
+let mpeSummary = {};
+let mpeDetailsList = new Array();
+let previousPlannedEndTime = moment('01/01/1970 00:03:44');
+let previousRunStart = moment('01/01/1970 00:03:44');
+let mpesRunning = 0;
 async function updateMPEGroupStatus(data)
 {
     try {
-        //Save the data, so we can update later as needed
-        mpeGroupData = data;
+        if (!!data) {
+        }
+    } catch (e) {
+        console.log(e);
+    }
+}
 
-        //console.log(data);
-        if (!!mpeGroupData) {
-            /* For the list of MPEs within the Group*/
-            function mpeDetails(mpeName, mpeStatus, curOpId) {
-                this.mpeName = mpeName;
-                this.mpeStatus = mpeStatus;
-                this.curOpId = curOpId;
-            }
-            /*To store the calculations for each MPE in the group*/
-            function mpeGroup(machineType, scheduledStaff, actualStaff, totalVolume, plannedVolume, totalThroughput, plannedThroughput, plannedEndTime, currentRunStart, projectedEndTime, mpesRunning, message) {
-                this.machineType = machineType;
-                this.scheduledStaff = scheduledStaff;
-                this.actualStaff = actualStaff;
-                this.totalVolume = totalVolume;
-                this.plannedVolume = plannedVolume;
-                this.totalThroughput = totalThroughput;
-                this.plannedThroughput = plannedThroughput;
-                this.plannedEndTime = plannedEndTime;
-                this.currentRunStart = currentRunStart;
-                this.projectedEndTime = projectedEndTime;
-                this.mpesRunning = mpesRunning
-                this.message = message;
-            }
-            let mpeSummary = new mpeGroup('', 0, 0, 0, 0, 0, 0, '', '');
-            let mpeDetailsList = new Array();
-            let previousPlannedEndTime = moment('01/01/1970 00:03:44');
-            let previousRunStart = moment('01/01/1970 00:03:44');
-            let mpesRunning = 0;
-
-            $.each(mpeGroupData, function (key, value) {
+async function initMPEGroupStatus(data)
+{
+    try {
+        if (!!data) {   
+            mpeSummary = $.extend(true, {}, mpeSummaryTemplet);
+            $.each(data, function (key, value) {
+                this["mpeStatus"] = getMPEOperationStatus(this);
                 /*Add up only data from running MPEs*/
-                if (this.cur_operation_id !== 0) {
+                if (this.cur_operation_id != 0) { 
                     mpesRunning += 1;
-                    mpeSummary.machineType = this.mpe_type; /*this one could be a single field and the rest a list of items **Analize it...**/
-                    mpeSummary.scheduledStaff += this.ScheduledStaff;
-                    mpeSummary.actualStaff += this.ActualStaff;
-                    mpeSummary.totalVolume += this.tot_sortplan_vol;
-                    mpeSummary.plannedVolume += this.rpg_est_vol;
-                    mpeSummary.totalThroughput += this.cur_thruput_ophr;
-                    mpeSummary.plannedThroughput += this.expected_throughput;
+                    mpeSummary.machineType = this.mpe_type;// this.MachineType; /*this one could be a single field and the rest a list of items **Analize it...**/
+                    //mpeSummary.scheduledStaff += this.ScheduledStaff;
+                    //mpeSummary.actualStaff += this.ActualStaff;
+                    mpeSummary.totalVolume += this.tot_sortplan_vol;//this.TotalVolume;
+                    mpeSummary.plannedVolume += this.rpg_est_vol;// this.PlannedVolume;
+                    mpeSummary.totalThroughput += this.cur_thruput_ophr;//this.TotalThroughput;
+                    mpeSummary.plannedThroughput += this.rpg_expected_thruput; //this.PlannedThroughput;
                     /*Capture the latest Planned End Time and save the current run start to determine whether we are within
                      * the planned estimated time of completion */
                     if (moment(this.rpg_end_dtm) > previousPlannedEndTime) {
@@ -82,16 +60,14 @@ async function updateMPEGroupStatus(data)
                         mpeSummary.currentRunStart = previousRunStart;
                     }
                     
-                    mpeSummary.message = this.Message; /*this one could be a single field and the rest a list of items **Analize it...**/
+                    mpeSummary.message = "";// this.Message; /*this one could be a single field and the rest a list of items **Analize it...**/
                     previousPlannedEndTime = moment(this.rpg_end_dtm);
                     previousRunStart = moment(this.current_run_start).format('mm/dd/yyy hh:mm:ss');
                 }
                 
                 /* 2. Create the list of MPE elements */
-                let status = getMPEOperationStatus(this);
-                mpeDetailsList.push(new mpeDetails(this.MpeId, status, this.cur_operation_id));
+                mpeDetailsList.push(this);
             });
-
             mpeSummary.mpesRunning = mpesRunning;
             mpeSummary.projectedEndTime = getProjectedEndtimeSummary(mpeSummary);
             populateFields(mpeSummary, getSortedData(mpeDetailsList, 'mpeName', 1));
@@ -108,13 +84,13 @@ function getSortedData(data, prop, isAsc) {
 }
 
 function populateFields(machineSummary, mpesGroup) {
-    $('h1[id=machineType]').text("Machine Type: " + machineSummary.machineType);
+    $('h1[id=machineType]').text("Group Name: " + machineSummary.machineType);
     $('h1[id=scheduledStaff]').text("Scheduled Staff: " + machineSummary.scheduledStaff);
     $('h1[id=actualStaff]').text("Actual Staff: " + machineSummary.actualStaff);
-    $('p[id=totalVolume]').text(machineSummary.totalVolume);
-    $('h1[id=plannedVolume]').text("Plan: " + machineSummary.plannedVolume);
-    $('p[id=avgThroughput]').text(Math.round(machineSummary.totalThroughput/machineSummary.mpesRunning));
-    $('h1[id=plannedThroughput]').text("Plan: " + machineSummary.plannedThroughput);
+    $('p[id=totalVolume]').text(addCommas(machineSummary.totalVolume));
+    $('h1[id=plannedVolume]').text("Plan: " + addCommas(machineSummary.plannedVolume));
+    $('p[id=avgThroughput]').text(addCommas(getThroughput(machineSummary.totalThroughput,machineSummary.mpesRunning)));
+    $('h1[id=plannedThroughput]').text("Plan: " + addCommas(machineSummary.plannedThroughput));
     if (moment(machineSummary.plannedEndTime) > machineSummary.projectedEndTime) {
         $('p[id=projectedEndTime]').text(machineSummary.projectedEndTime).addClass('text-danger');
     } else {
@@ -132,7 +108,7 @@ function populateFields(machineSummary, mpesGroup) {
         /*Create inner elements*/
         let innerH5 = document.createElement('h5');
         innerH5.className = 'card-title';
-        innerH5.textContent = this.mpeName;
+        innerH5.textContent = this.MpeId;
         
         let innerH6 = document.createElement('h6');
         innerH6.className = 'card-text btn-' + getStatusDescription(this.mpeStatus);
@@ -140,17 +116,43 @@ function populateFields(machineSummary, mpesGroup) {
 
         let innerP = document.createElement('p');
         innerP.className = 'card-text';
-        innerP.textContent = this.mpeStatus === 'warning' ? "N/A" : 'OP# ' + this.curOpId;
+        innerP.textContent = this.mpeStatus === 'warning' ? "N/A" : 'OP# ' + this.cur_operation_id;
+
+        let innerS = document.createElement('h4');
+        innerP.className = 'card-text';
+        innerP.textContent = this.cur_operation_id !== 0 ? this.cur_sortplan : ""  ;
 
         singleMPEDiv.appendChild(innerH5);
         singleMPEDiv.appendChild(innerH6);
         singleMPEDiv.appendChild(innerP);
+        singleMPEDiv.appendChild(innerS);
 
         let groupList = document.getElementById("mpeGroupList");
         groupList.appendChild(singleMPEDiv);
     });
 }
+function getThroughput(Throughput, mpe) {
+    let result = Throughput / mpe;
 
+    if (isNaN(result)) {
+         // Zero divided by zero
+        return result;
+    } else {
+        return 0;
+        // Not zero divided by zero
+    }
+};
+function addCommas(nStr) {
+    nStr += '';
+   let x = nStr.split('.');
+   let x1 = x[0];
+   let x2 = x.length > 1 ? '.' + x[1] : '';
+   let rgx = /(\d+)(\d{3})/;
+    while (rgx.test(x1)) {
+        x1 = x1.replace(rgx, '$1' + ',' + '$2');
+    }
+    return x1 + x2;
+}
 function removeChildElements(domElement) {
     let elementToEmpty = document.getElementById(domElement);
     while (elementToEmpty.firstChild) {
@@ -172,9 +174,9 @@ function getStatusDescription(status) {
 }
 
 function getMPEOperationStatus(machine) {
-    if (machine.cur_operation_id !== 0) {
+    if (machine.cur_operation_id != 0) {
         let projectedEndTime = getProjectedEndtime(machine);
-        if (projectedEndTime > moment(machine.rpg_end_dtm)) {
+        if (projectedEndTime > moment(machine.rpg_end_dtm)) {    
             return "On Schedule";
         } else {
             return "Behind Schedule";
@@ -185,19 +187,14 @@ function getMPEOperationStatus(machine) {
 }
 
 function getProjectedEndtime(machine) {
-    let mpeRuntimeHrs = Math.round(machine.tot_sortplan_vol / machine.cur_thruput_ophr);
+    let mpeRuntimeHrs = Math.round(machine.tot_sortplan_vol / machine.throughput_status);
     return moment(machine.current_run_start).add(mpeRuntimeHrs, 'hours').format('hh:mm');
-}
-//Need to review this method as the differences in names because the objects are different** Probably need to use the same name in the properties
-function getProjectedEndtimeSummary(machine) {
-    let mpeRuntimeHrs = Math.round(machine.totalVolume / machine.totalThroughput);
-    return moment(machine.currentRunStart).add(mpeRuntimeHrs, 'hours').format('hh:mm');
 }
 
 async function LoadSDOData()
 {
     console.log("SDO Connected time: " + new Date($.now()));
-    fotfmanager.server.getMPESDOStatus(MPEGroupName).done(async (data) => { Promise.all([updateMPEGroupStatus(data)]) });
+    fotfmanager.server.getMPESDOStatus(MPEGroupName).done(async (data) => { Promise.all([initMPEGroupStatus(data)]) });
     fotfmanager.server.joinGroup("MPE_" + MPEGroupName);
     console.log("MPE_" + MPEGroupName);
 }

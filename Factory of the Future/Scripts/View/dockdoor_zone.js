@@ -161,10 +161,11 @@ let dockDoors = new L.GeoJSON(null, {
             className: 'dockdooknumber ' + dockdookflash
         }).openTooltip();
         dockDoors.bringToFront();
-    },
-    filter: function (feature, layer) {
-        return feature.properties.visible;
     }
+    //,
+    //filter: function (feature, layer) {
+    //    return feature.properties.visible;
+    //}
 });
 function getDoorTripIndc(data)
 {

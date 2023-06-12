@@ -46,8 +46,11 @@ namespace Factory_of_the_Future
         {
             get
             {
-                //return new DateTime(ScheduledDtm.Year, (ScheduledDtm.Month + 1), ScheduledDtm.DayOfMonth, ScheduledDtm.HourOfDay, ScheduledDtm.Minute, ScheduledDtm.Second);
-                return new DateTime();
+                if (ActualDtm.Year == 0)
+                {
+                    return DateTime.MinValue;
+                }
+                return new DateTime(ScheduledDtm.Year, (ScheduledDtm.Month + 1), ScheduledDtm.DayOfMonth, ScheduledDtm.HourOfDay, ScheduledDtm.Minute, ScheduledDtm.Second);
             }
             set { return; }
         }
@@ -150,8 +153,13 @@ namespace Factory_of_the_Future
         {
             get
             {
-                //return new DateTime(ActualDtm.Year, (ActualDtm.Month + 1), ActualDtm.DayOfMonth, ActualDtm.HourOfDay, ActualDtm.Minute, ActualDtm.Second);
-                return new DateTime();
+                if (ActualDtm.Year == 0)
+                {
+                    return DateTime.MinValue;
+                }
+                return new DateTime(ActualDtm.Year, (ActualDtm.Month + 1), ActualDtm.DayOfMonth, ActualDtm.HourOfDay, ActualDtm.Minute, ActualDtm.Second);
+
+
             }
             set { return; }
         }

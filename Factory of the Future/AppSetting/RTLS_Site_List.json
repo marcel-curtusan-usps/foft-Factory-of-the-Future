@@ -5,7 +5,7 @@
   },
   {
     "site_name_local": "RICHMOND_VA_PDC",
-    "local_link": "http://56.85.210.169:8080/qpe/{0}?version=2"
+    "local_link": "http://56.85.210.167:8080/qpe/{0}?version=2"
   },
   {
     "site_name_local": "PORTLAND_OR_PDC",
