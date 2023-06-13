@@ -7,7 +7,7 @@ $(function () {
     });
     
 });
-async function updateviewportzone() {
+async function updateviewportzone(data) {
     try {
     } catch (e) {
         console.log(e);

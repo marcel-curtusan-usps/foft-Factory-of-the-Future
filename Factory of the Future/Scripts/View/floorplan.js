@@ -48,7 +48,7 @@ $(function () {
                         xhr.upload.addEventListener("progress", function (evt) {
                             if (evt.lengthComputable) {
                                 let percentComplete = evt.loaded / evt.total;
-                                percentComplete = parseInt(percentComplete * 100);
+                                percentComplete = parseInt(percentComplete * 100, 10);
                                 $('#file_upload_progressbar').attr('aria-valuenow', percentComplete).css('width', percentComplete + '%');
                                 if (percentComplete === 100) {
                                     $('span[id=error_btnUpload]').text("File Transfer Complete -->> Processing File ");
