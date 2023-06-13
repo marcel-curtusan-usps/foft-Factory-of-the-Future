@@ -97,7 +97,14 @@ namespace Factory_of_the_Future.Models
 
         [JsonProperty("sweep_recrej3")]
         public int SweepRecrej3 { get; set; } = 0;
+
         public string MpeId { get; set; } = "";
+
+        [JsonProperty("scheduled_staff")]
+        public Staff ScheduledStaffing { get; internal set; } = new Staff();
+
+        [JsonProperty("actual_staff")]
+        public Staff ActualStaffing { get; internal set; } = new Staff();
     }
     public class HourlyDatum
     {

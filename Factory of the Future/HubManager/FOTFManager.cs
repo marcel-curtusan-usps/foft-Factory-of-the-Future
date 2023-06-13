@@ -216,8 +216,6 @@ namespace Factory_of_the_Future
                             {
                                 MPE.Properties.DPSData = GetDPSData(MPE.Properties.MPEWatchData.CurSortplan);
                             }
-                            
-                            MPE.Properties.StaffingData = GetStaffingSortplan(string.Concat(MPE.Properties.MPEWatchData.MpeType, MPE.Properties.MPEWatchData.MpeNumber, MPE.Properties.MPEWatchData.CurSortplan));
                         }
                         if (!string.IsNullOrEmpty(MPE.Properties.MPEGroup))
                         {
@@ -1866,11 +1864,11 @@ namespace Factory_of_the_Future
                         }
                     };
                     CoordinateSystem.TryAdd(temp.Id, temp);
-                    return CoordinateSystem.Select(y => y.Value).ToList();
+                    return CoordinateSystem.OrderByDescending(or => or.Value.Zones).Select(y => y.Value).ToList();
                 }
                 else
                 {
-                    return CoordinateSystem.Select(y => y.Value).ToList();
+                    return CoordinateSystem.OrderByDescending(or => or.Value.Zones.Any()).Select(y => y.Value).ToList();
                 }
 
             }

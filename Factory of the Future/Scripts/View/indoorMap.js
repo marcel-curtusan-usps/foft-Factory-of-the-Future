@@ -442,7 +442,7 @@ async function init_mapSetup() {
             if (MapData.length > 0) {
 
                 $.each(MapData, function (index) {
-                    loadFloorPlanDatatable([this],"floorplantable");
+                    Promise.all([loadFloorPlanDatatable([this],"floorplantable")]);
                     //set new image
                     let trackingarea = L.polygon([[100,150]],[[500,5000]]);
                     let img = new Image();
@@ -463,7 +463,7 @@ async function init_mapSetup() {
                         map.setView(trackingarea.getBounds().getCenter(), 1.5);
                         init_zones(this.zones, baselayerid);
                     }
-                    else {
+                    else if (!!this.backgroundImages) {
                         layersControl.addBaseLayer(L.imageOverlay(img.src, trackingarea.getBounds(), { id: this.id, zindex: index }), this.backgroundImages.name);
 
                     }
@@ -483,18 +483,6 @@ async function init_mapSetup() {
                 }
 
             }
-            //else {
-            //    fotfmanager.server.GetIndoorMap().done(function (GetIndoorMap) {
-            //        if (GetIndoorMap.length > 0) {
-            //            $.each(GetIndoorMap, function () {
-            //                map.attributionControl.setPrefix("USPS " + this.backgroundImages.applicationFullName + " (" + this.backgroundImages.softwareVersion + ")");
-            //                $('#fotf-site-facility-name').append(this.backgroundImages.facilityName);
-            //                map.attributionControl.addAttribution(this.backgroundImages.facilityName);
-            //                $(document).prop('title', this.backgroundImages.facilityName + ' ' + this.backgroundImages.applicationAbbr);
-            //            });
-            //        }
-            //    })
-            //}
             if ($.isEmptyObject(map)) {
                 $('div[id=map]').css('display', 'none');
                 $('<div/>', { class: 'jumbotron text-center' })

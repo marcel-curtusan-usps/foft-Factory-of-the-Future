@@ -82,30 +82,31 @@ namespace Factory_of_the_Future
                                 }
                                 if (AppParameters.MPEPerformance.ContainsKey(NewMachineInfo.MpeId) && AppParameters.MPEPerformance.TryGetValue(NewMachineInfo.MpeId, out currentMachine_Info))
                                 {
-                                    bool update = false;
-                                    foreach (PropertyInfo prop in NewMachineInfo.GetType().GetProperties())
+                                    
+                                    if (AppParameters.MPEPerformance.TryUpdate(NewMachineInfo.MpeId, NewMachineInfo, currentMachine_Info))
                                     {
-
-                                        if (!new Regex("^(MpeNumber|MpeType|MpeId)$", RegexOptions.IgnoreCase).IsMatch(prop.Name))
-                                        {
-                                            if (prop.GetValue(NewMachineInfo, null).ToString() != prop.GetValue(currentMachine_Info, null).ToString())
-                                            {
-                                                update = true;
-                                                prop.SetValue(currentMachine_Info, prop.GetValue(NewMachineInfo, null));
-
-                                            }
-                                        }
+                                        await Task.Run(() => FOTFManager.Instance.UpdateMpeData(currentMachine_Info.MpeId)).ConfigureAwait(true);
                                     }
-                                    if (update)
-                                    {
-                                        await Task.Run(() => FOTFManager.Instance.UpdateMpeData(currentMachine_Info.MpeId)).ConfigureAwait(false);
-                                    }
+                                    //foreach (PropertyInfo prop in NewMachineInfo.GetType().GetProperties())
+                                    //{
+
+                                    //    if (!new Regex("^(MpeNumber|MpeType|MpeId)$", RegexOptions.IgnoreCase).IsMatch(prop.Name))
+                                    //    {
+                                    //        if (prop.GetValue(NewMachineInfo, null).ToString() != prop.GetValue(currentMachine_Info, null).ToString())
+                                    //        {
+                                    //            update = true;
+                                    //            prop.SetValue(currentMachine_Info, prop.GetValue(NewMachineInfo, null));
+
+                                    //        }
+                                    //    }
+                                    //}
+                                    
                                 }
                                 else
                                 {
                                     if (AppParameters.MPEPerformance.TryAdd(NewMachineInfo.MpeId, NewMachineInfo))
                                     {
-                                        await Task.Run(() => FOTFManager.Instance.UpdateMpeData(NewMachineInfo.MpeId)).ConfigureAwait(false);
+                                        await Task.Run(() => FOTFManager.Instance.UpdateMpeData(NewMachineInfo.MpeId)).ConfigureAwait(true);
                                     }
                                 }
                             }
@@ -345,8 +346,9 @@ namespace Factory_of_the_Future
                         RpgExpectedThruput = GetRPG_Expected_Thruput(item["rpg_expected_thruput"].ToString()),
                         ArsRecrej3 = !string.IsNullOrEmpty(item["ars_recrej3"].ToString()) ? Convert.ToInt32(item["ars_recrej3"].ToString()) : 0,
                         SweepRecrej3 = !string.IsNullOrEmpty(item["sweep_recrej3"].ToString()) ? Convert.ToInt32(item["sweep_recrej3"].ToString()) : 0,
-                        MpeId = string.Concat(item["mpe_type"].ToString().Trim(), "-", Convert.ToInt32(item["mpe_number"].ToString()).ToString().PadLeft(3, '0'))
-                    });
+                        MpeId = string.Concat(item["mpe_type"].ToString().Trim(), "-", Convert.ToInt32(item["mpe_number"].ToString()).ToString().PadLeft(3, '0')),
+                        ScheduledStaffing = GetStaffingSortplan(string.Concat(item["mpe_type"].ToString(), item["mpe_number"].ToString(), new Utility().SortPlan_Name_Trimer(item["cur_sortplan"].ToString())))
+                });
 
                 }
                 return MPErunPerfData;
@@ -355,6 +357,28 @@ namespace Factory_of_the_Future
             {
                 new ErrorLogger().ExceptionLog(e);
                 return null;
+            }
+        }
+        private Staff GetStaffingSortplan(string id)
+        {
+            Staff StaffingSortplanData = new Staff();
+            try
+            {
+
+                if (AppParameters.StaffingSortplansList.ContainsKey(id) && AppParameters.StaffingSortplansList.TryGetValue(id, out StaffingSortplanData))
+                {
+                    return StaffingSortplanData;
+                }
+                else
+                {
+                    return StaffingSortplanData;
+                }
+              
+            }
+            catch (Exception ex)
+            {
+                new ErrorLogger().ExceptionLog(ex);
+                return StaffingSortplanData;
             }
         }
 

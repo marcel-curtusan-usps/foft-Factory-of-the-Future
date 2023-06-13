@@ -42,7 +42,7 @@ async function initMPEGroupStatus(data)
                 if (this.cur_operation_id != 0) { 
                     mpesRunning += 1;
                     mpeSummary.machineType = this.mpe_type;// this.MachineType; /*this one could be a single field and the rest a list of items **Analize it...**/
-                    //mpeSummary.scheduledStaff += this.ScheduledStaff;
+                    mpeSummary.scheduledStaff += this.;
                     //mpeSummary.actualStaff += this.ActualStaff;
                     mpeSummary.totalVolume += this.tot_sortplan_vol;//this.TotalVolume;
                     mpeSummary.plannedVolume += this.rpg_est_vol;// this.PlannedVolume;
@@ -69,7 +69,7 @@ async function initMPEGroupStatus(data)
                 mpeDetailsList.push(this);
             });
             mpeSummary.mpesRunning = mpesRunning;
-            mpeSummary.projectedEndTime = getProjectedEndtimeSummary(mpeSummary);
+            //mpeSummary.projectedEndTime = getProjectedEndtimeSummary(mpeSummary);
             populateFields(mpeSummary, getSortedData(mpeDetailsList, 'mpeName', 1));
         }
     } catch (e) {

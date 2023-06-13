@@ -124,10 +124,7 @@ async function updateMachineZone(data, id) {
             $.map(polygonMachine._layers, function (layer, i) {
                 if (layer.hasOwnProperty("feature") && layer.feature.properties.id === data.properties.id) {
                     layer.feature.properties = data.properties;
-                    if (layer.feature.properties.name != data.properties.name) {
-                        layer.setTooltipContent(data.properties.name + "<br/>" + "Staffing: " + data.properties.CurrentStaff);
-                    }
-
+                    layer.setTooltipContent(data.properties.name + "<br/>" + "Staffing: " + data.properties.CurrentStaff);
                     if ($('div[id=machine_div]').is(':visible') && $('div[id=machine_div]').attr("data-id") === data.properties.id) {
                         LoadMachineTables(data.properties, 'machinetable');
                     }
@@ -399,6 +396,22 @@ async function updateMPEAlert(layerindex) {
     return true;
 }
 
+async function LoadMachineDPSTables(dataproperties, table) {
+    try {
+        if (dataproperties.hasOwnProperty("DPSData")) {
+            if (checkValue(dataproperties.DPSData)) {
+                $zoneSelect[0].selectize.setValue(dataproperties.id, true);
+                $('div[id=dps_div]').css('display', 'block');
+                let dpstop_Table = $('table[id=' + table + ']');
+                let dpstop_Table_Body = dpstop_Table.find('tbody')
+                dpstop_Table_Body.empty();
+                dpstop_Table_Body.append(dpstop_row_template.supplant(formatdpstoprow(dataproperties.DPSData)));
+            }
+        }
+    } catch (e) {
+        console.log(e);
+    }
+}
 async function LoadMachineTables(dataproperties, table) {
     try {
         if (!$.isEmptyObject(dataproperties)) {
@@ -435,11 +448,10 @@ async function LoadMachineTables(dataproperties, table) {
                 }
 
                 if (dataproperties.MPEWatchData.cur_operation_id == "918" || dataproperties.MPEWatchData.cur_operation_id == "919") {
-                    LoadMachineTables(dataproperties, "dpstable");
+                    Promise.all([LoadMachineDPSTables(dataproperties, "dpstable")]);
                 }
-                let staffdata = dataproperties.hasOwnProperty("staffingData") ? dataproperties.staffingData : "";
-                let MachineCurrentStaff = [];
-                GetPeopleInZone(dataproperties.id, staffdata, MachineCurrentStaff);
+               
+                GetPeopleInZone(dataproperties.id, dataproperties.MPEWatchData.scheduled_staff, []);
                 if (dataproperties.MPEWatchData.hasOwnProperty("current_run_end")) {
                     if (dataproperties.MPEWatchData.current_run_end == "" || dataproperties.MPEWatchData.current_run_end == "0") {
                         var runEndTR = document.getElementById('endtime_tr').style;
@@ -486,25 +498,8 @@ async function LoadMachineTables(dataproperties, table) {
                     var mpgtrStyle = document.getElementById('machineChart_tr').style;
                     mpgtrStyle.display = 'none';
                 }
-                var startofrun = dataproperties.hasOwnProperty("MPEWatchData") ? dataproperties.MPEWatchData.hasOwnProperty("current_run_start") ? dataproperties.MPEWatchData.current_run_start : "" : "";
-                var expectedTP = dataproperties.hasOwnProperty("MPEWatchData") ? dataproperties.MPEWatchData.hasOwnProperty("expected_throughput") ? dataproperties.MPEWatchData.expected_throughput : "" : "";
-                var throughput = dataproperties.hasOwnProperty("MPEWatchData") ? dataproperties.MPEWatchData.hasOwnProperty("cur_thruput_ophr") ? dataproperties.MPEWatchData.cur_thruput_ophr : "" : "";
-                var thpCode = dataproperties.hasOwnProperty("MPEWatchData") ? dataproperties.MPEWatchData.hasOwnProperty("throughput_status") ? dataproperties.MPEWatchData.throughput_status : "0" : "0";
-                FormatMachineRowColors(dataproperties.MPEWatchData, startofrun);
+                FormatMachineRowColors(dataproperties.MPEWatchData);
             }
-            if (/dpstable/i.test(table)) {
-                if (dataproperties.hasOwnProperty("DPSData")) {
-                    if (checkValue(dataproperties.DPSData)) {
-                        $zoneSelect[0].selectize.setValue(dataproperties.id, true);
-                        $('div[id=dps_div]').css('display', 'block');
-                        let dpstop_Table = $('table[id=' + table + ']');
-                        let dpstop_Table_Body = dpstop_Table.find('tbody')
-                        dpstop_Table_Body.empty();
-                        dpstop_Table_Body.append(dpstop_row_template.supplant(formatdpstoprow(dataproperties.DPSData)));
-                    }
-                }
-            }
-
         }
     } catch (e) {
         console.log(e);
@@ -820,7 +815,7 @@ async function Edit_Machine_Info(id) {
                             var machineNumber = "";
                             var mpeGroupName = "";
                             $('button[id=machinesubmitBtn]').prop('disabled', true);
-                            if (!$('select[name=machine_zone_select_name] option:selected').val() === "" && $('select[name=machine_zone_select_name] option:selected').val() != '**Machine Not Listed') {
+                            if (!$('select[name=machine_zone_select_name] option:selected').val() === "" || $('select[name=machine_zone_select_name] option:selected').val() !== '**Machine Not Listed') {
                                 var selectedMachine = $('select[name=machine_zone_select_name] option:selected').val().split("-");
                                 machineName = selectedMachine[0];
                                 machineNumber = selectedMachine[1];
@@ -837,7 +832,7 @@ async function Edit_Machine_Info(id) {
                                 mpeGroupName = $('input[type=text][name=mpegroupname]').val();
                             }
 
-                            var jsonObject = {
+                            let jsonObject = {
                                 MPE_Type: machineName,//$('input[type=text][name=machine_name]').val(),
                                 MPE_Number: machineNumber,//$('input[type=text][name=machine_number]').val(),
                                 Zone_LDC: $('input[type=text][name=zone_ldc]').val(),
@@ -902,36 +897,22 @@ function GetMacineBackground(mpeWatchData) {
     let RunningColor = '#3573b1';
     let WarningColor = '#ffc107';
     let AlertColor = '#dc3545';
-    let bkColor = RunningColor;
     try {
-        if (mpeWatchData.cur_sortplan === "0") {
+        if (mpeWatchData.cur_sortplan === "0" || mpeWatchData.cur_sortplan === '' ) {
             return NotRunningbkColor;
         }
         else {
-            let curtime = moment();
-            if (!$.isEmptyObject(timezone)) {
-                if (timezone.hasOwnProperty("Facility_TimeZone")) {
-                    curtime = moment().tz(timezone.Facility_TimeZone);
-                }
-            }
-            let st = moment(mpeWatchData.current_run_start);
-            let timeduration = moment.duration(curtime.diff(st));
-            let minutes = parseInt(timeduration.asMinutes());
-            if (minutes > 15) {
-                if (mpeWatchData.throughput_status == 3) {
-                    return AlertColor;
-                }
-                else if (mpeWatchData.throughput_status == 2) {
-                    bkColor = WarningColor;
-                }
-            }
-            if (mpeWatchData.unplan_maint_sp_status === 2 || mpeWatchData.op_started_late_status === 2 || mpeWatchData.op_running_late_status === 2 || mpeWatchData.sortplan_wrong_status === 2) {
+          
+            if (mpeWatchData.throughput_status === 3) {
+                return AlertColor;
+            }            
+            if (mpeWatchData.unplan_maint_sp_status === 2 || mpeWatchData.op_started_late_status === 2 || mpeWatchData.op_running_late_status === 2 || mpeWatchData.sortplan_wrong_status === 2 || mpeWatchData.throughput_status === 2) {
                 return AlertColor;
             }
             if (mpeWatchData.unplan_maint_sp_status === 1 || mpeWatchData.op_started_late_status === 1 || mpeWatchData.op_running_late_status === 1 || mpeWatchData.sortplan_wrong_status === 1) {
                 return WarningColor;
             }
-            return NotRunningbkColor;
+            return RunningColor;
         }
     }
     catch (e) {
@@ -940,81 +921,35 @@ function GetMacineBackground(mpeWatchData) {
 
 }
 function FormatMachineRowColors(mpeWatchData, starttime) {
-    var Throughput_tr_style = document.getElementById('Throughput_tr').style;
-    var SortPlan_tr_style = document.getElementById('SortPlan_tr').style;
-    var StartTime_tr_style = document.getElementById('StartTime_tr').style;
-    var EstComp_tr_style = document.getElementById('EstComp_tr').style;
-    var rowAlertColor = "rgba(220, 53, 69, 0.5)";
-    var rowWarningColor = "rgba(255, 193, 7, 0.5)";
+    let Throughput_tr_style = document.getElementById('Throughput_tr').style;
+    let SortPlan_tr_style = document.getElementById('SortPlan_tr').style;
+    let StartTime_tr_style = document.getElementById('StartTime_tr').style;
+    let EstComp_tr_style = document.getElementById('EstComp_tr').style;
+    let WarningColor = "rgba(255, 193, 7, 0.5)";
+    let AlertColor = "rgba(220, 53, 69, 0.5)";
     try {
-        var throughput_status = mpeWatchData.hasOwnProperty("throughput_status") ? mpeWatchData.throughput_status : "0";
-        var unplan_maint_sp_status = mpeWatchData.hasOwnProperty("unplan_maint_sp_status") ? mpeWatchData.unplan_maint_sp_status : "0";
-        var op_started_late_status = mpeWatchData.hasOwnProperty("op_started_late_status") ? mpeWatchData.op_started_late_status : "0";
-        var op_running_late_status = mpeWatchData.hasOwnProperty("op_running_late_status") ? mpeWatchData.op_running_late_status : "0";
-        var sortplan_wrong_status = mpeWatchData.hasOwnProperty("sortplan_wrong_status") ? mpeWatchData.sortplan_wrong_status : "0";
-        var curtime = moment().format('YYYY-MM-DD HH:mm:ss');
-        if (!$.isEmptyObject(timezone)) {
-            if (timezone.hasOwnProperty("Facility_TimeZone")) {
-                curtime = moment().tz(timezone.Facility_TimeZone).format('YYYY-MM-DD HH:mm:ss');
-            }
-        }
-        var dt = moment(curtime);
-        var st = moment(starttime);
-        var timeduration = moment.duration(dt.diff(st));
-        var minutes = parseInt(timeduration.asMinutes());
-        if (minutes > 15) {
-            if (Throughput_tr_style != null) {
-                if (throughput_status == "3") {
-                    Throughput_tr_style.backgroundColor = rowAlertColor;
-                }
-                else if (throughput_status == "2") {
-                    Throughput_tr_style.backgroundColor = rowWarningColor;
-                }
-                //else {
-                //    Throughput_tr_style.backgroundColor = "";
-                //}
-            }
-            //else {
-            //    Throughput_tr_style.backgroundColor = "";
-            //}
+        if (mpeWatchData.throughput_status === 3) {
+            Throughput_tr_style.backgroundColor = AlertColor;
         }
 
-        if (StartTime_tr_style != null) {
-            if (op_started_late_status == "2") {
-                StartTime_tr_style.backgroundColor = rowAlertColor;
-            }
-            else if (op_started_late_status == "1") {
-                StartTime_tr_style.backgroundColor = rowWarningColor;
-            }
-            else {
-                //StartTime_tr_style.backgroundColor = "";
-            }
+        if (op_started_late_status == "2") {
+            StartTime_tr_style.backgroundColor = AlertColor;
         }
-
-        if (EstComp_tr_style != null) {
-            if (op_running_late_status == "2") {
-                EstComp_tr_style.backgroundColor = rowAlertColor;
-            }
-            else if (op_running_late_status == "1") {
-                EstComp_tr_style.backgroundColor = rowWarningColor;
-            }
-            else {
-                //EstComp_tr_style.backgroundColor = "";
-            }
+        else if (op_started_late_status == "1") {
+            StartTime_tr_style.backgroundColor = WarningColor;
         }
-
-        if (SortPlan_tr_style != null) {
-            if (unplan_maint_sp_status == "2" || sortplan_wrong_status == "2") {
-                SortPlan_tr_style.backgroundColor = rowAlertColor;
-            }
-            else if (unplan_maint_sp_status == "1" || sortplan_wrong_status == "1") {
-                SortPlan_tr_style.backgroundColor = rowWarningColor;
-            }
-            else {
-                //SortPlan_tr_style.backgroundColor = "";
-            }
+        if (op_running_late_status == "2") {
+            EstComp_tr_style.backgroundColor = AlertColor;
         }
-
+        else if (op_running_late_status == "1") {
+            EstComp_tr_style.backgroundColor = WarningColor;
+        }
+        if (unplan_maint_sp_status == "2" || sortplan_wrong_status == "2") {
+            SortPlan_tr_style.backgroundColor = AlertColor;
+        }
+        else if (unplan_maint_sp_status == "1" || sortplan_wrong_status == "1") {
+            SortPlan_tr_style.backgroundColor = WarningColor;
+        }
     }
     catch (e) {
         console.log(e);

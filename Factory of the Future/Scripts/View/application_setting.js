@@ -51,16 +51,6 @@ function init_AppSetting(AppsettingData) {
     }
 }
 //app setting
-function Edit_AppSetting(table) {
-    //fotfmanager.server.getAppSettingdata().done(function (AppsettingData) {
-    //    if (AppsettingData) {
-          
-    //        LoadappSettingTable(AppsettingData, table);
-    //        Page_Update(AppsettingData);
-    //        Map_Update(AppsettingData);
-    //    }
-    //});
-}
 function Get_Action_State() {
     if (/^Admin/i.test(User.Role)) {
         return '<div class="btn-toolbar" role="toolbar">' +
@@ -215,31 +205,7 @@ function updateAppSettingDataTable(newdata, table) {
         }
     }
 }
-async function LoadappSettingTable(AppsettingData, table) {
-    let AppSettingTable = $('table[id=' + table + ']');
-    let AppSettingTable_Body = AppSettingTable.find('tbody');
-    let AppSettingTable_row_template = '<tr data-id="{id}" data-value="{value}">' +
-        '<td><span class="ml-p25rem">{id}</span></td>' +
-        '<td>{value}</td>' +
-        '<td>{action}</td>' +
-        '</tr>';
 
-    AppSettingTable_Body.empty();
-    let index = 0;
-  
-    $.each(AppsettingData, function (key, value) {
-        if (!/REMOTEDB|SERVER_ACTIVE|SERVER_ACTIVE_HOSTNAME/i.test(key)) {
-            AppSettingTable_Body.append(AppSettingTable_row_template.supplant(formatAppSetting(key, value, index++)));
-        }
-    });
-    $('button[name=editappsetting]').on('click', function () {
-        let td = $(this);
-        let tr = $(td).closest('tr'),
-            id = tr.attr('data-id'),
-            value = tr.attr('data-value');
-        Edit_AppSetting_Value(id, value, table);
-    });
-}
 function Get_value(Data) {
     try {
         if (/^(True)$|^(False)$/i.test(Data.VALUE)) {
@@ -268,22 +234,22 @@ function formatAppSetting(key, value, index) {
     });
 }
 function formatdata(result) {
-    var reformatdata = [];
+    let reformatdata = [];
     try {
-        for (var key in result) {
-            temp = {
-                "KEY_NAME": "",
-                "VALUE": ""
-            };
-            temp['KEY_NAME'] = key;
-            temp['VALUE'] = result[key];
-            reformatdata.push(temp);
+        for (let key in result) {
+            if (result.hasOwnProperty(key)) {
+              let temp = {
+                    "KEY_NAME": "",
+                    "VALUE": ""
+                };
+                temp['KEY_NAME'] = key;
+                temp['VALUE'] = result[key];
+                reformatdata.push(temp);
+            }
         }
 
     } catch (e) {
-        language: {
-            zeroRecords: "Error loading Data";
-        }
+        console.log(e);
     }
 
     return reformatdata;
