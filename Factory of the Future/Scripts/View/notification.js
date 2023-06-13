@@ -99,7 +99,7 @@ $('#Notification_Setup_Modal').on('shown.bs.modal', function () {
     });
     $('input[type=text][name=warning_condition]').keyup(function () {
         if ($.isNumeric($('input[type=text][name=warning_condition]').val(),10)) {
-            if (!validateNum(parseInt($('input[type=text][name=warning_condition]').val()), 0, 60)) {
+            if (!validateNum(parseInt($('input[type=text][name=warning_condition]').val(), 10), 0, 60)) {
                 $('input[type=text][name=warning_condition]').removeClass('is-valid').addClass('is-invalid');
                 $('span[id=error_warning_condition]').text("Invalid Number");
             }

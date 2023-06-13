@@ -101,17 +101,7 @@ $(function () {
                     }
                 });
                 map.addControl(new Environment());
-                function getEnv(env) {
-                    if (/CAT/i.test(env)) {
-                        return "btn btn-outline-primary btn-sm";
-                    }
-                    else if (/SIT/i.test(env)) {
-                        return "btn btn-outline-warning btn-sm";
-                    }
-                    else if (/DEV/i.test(env)) {
-                        return "btn btn-outline-danger btn-sm";
-                    }
-                }
+         
             }
         }
         if (/^Admin/i.test(User.Role)) {
@@ -634,7 +624,17 @@ $(function () {
     //});
 });
 
-
+function getEnv(env) {
+    if (/CAT/i.test(env)) {
+        return "btn btn-outline-primary btn-sm";
+    }
+    else if (/SIT/i.test(env)) {
+        return "btn btn-outline-warning btn-sm";
+    }
+    else if (/DEV/i.test(env)) {
+        return "btn btn-outline-danger btn-sm";
+    }
+}
 function Page_Update(data) {
     $('#fotf-site-facility-name').empty();
     $('#fotf-site-facility-name').append(data.FACILITY_NAME);

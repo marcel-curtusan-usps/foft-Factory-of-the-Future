@@ -254,55 +254,6 @@ function getSparklineTooltipDirection() {
     return "right";
 }
 
-function getMachineStyle(data) {
-    try {
-        return {
-            weight: 1,
-            opacity: 1,
-            color: '#3573b1',
-            fillOpacity: 0.5,
-            fillColor: '#989ea4',
-            lastOpacity: 0.5
-        };
-
-    } catch (e) {
-        return {
-            weight: 1,
-            opacity: 1,
-            color: '#3573b1',
-            fillOpacity: 0.2,
-            fillColor: '#989ea4',
-            lastOpacity: 0.2
-        };
-    }
-    //var style = {};
-    //var sortplan = feature.properties.hasOwnProperty("MPEWatchData") ? feature.properties.MPEWatchData.hasOwnProperty("cur_sortplan") ? feature.properties.MPEWatchData.cur_sortplan : "" : "";
-    //var endofrun = feature.properties.hasOwnProperty("MPEWatchData") ? feature.properties.MPEWatchData.hasOwnProperty("current_run_end") ? feature.properties.MPEWatchData.current_run_end != "0" ? feature.properties.MPEWatchData.current_run_end : "" : "" : "";
-    //var startofrun = feature.properties.hasOwnProperty("MPEWatchData") ? feature.properties.MPEWatchData.hasOwnProperty("current_run_start") ? feature.properties.MPEWatchData.current_run_start : "" : "";
-    //if (checkValue(sortplan) && !checkValue(endofrun)) {
-
-    //    var fillColor = GetMacineBackground(feature.properties.MPEWatchData, startofrun);
-    //    style = {
-    //        weight: 1,
-    //        opacity: 1,
-    //        color: '#3573b1',
-    //        fillOpacity: 0.5,
-    //        fillColor: fillColor,
-    //        lastOpacity: 0.5
-    //    };
-    //}
-    //else {
-    //    style = {
-    //        weight: 1,
-    //        opacity: 1,
-    //        color: '#3573b1',
-    //        fillOpacity: 0.2,
-    //        fillColor: '#989ea4',
-    //        lastOpacity: 0.2
-    //    };
-    //}
-    //return style;
-}
 let polygonMachine = new L.GeoJSON(null, {
     style: function (feature) {
         return{

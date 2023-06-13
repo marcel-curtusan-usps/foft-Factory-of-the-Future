@@ -72,7 +72,7 @@ let conncetion_refresh = {
                            agvmVersion = element.AGVM_VERSION;
                             if (element.ACTIVE_CONNECTION) {
                                 if (element.VENDOR_CONNECTED) {
-                                    numOfEnabledConnection = (parseInt(numOfEnabledConnection) + 1)
+                                    numOfEnabledConnection = (parseInt(numOfEnabledConnection,10) + 1)
                                 }
                             }
                         }

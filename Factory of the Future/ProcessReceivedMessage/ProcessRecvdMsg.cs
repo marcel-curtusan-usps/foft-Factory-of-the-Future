@@ -1346,7 +1346,7 @@ namespace Factory_of_the_Future
                 new ErrorLogger().ExceptionLog(e);
             }
         }
-        private async void MOVEREQUEST(JObject data)
+        private async Task MOVEREQUEST(JObject data)
         {
             try
             {

@@ -611,15 +611,7 @@ async function GetUserInfo() {
                         '<td>{staffName}</td>' +
                         '<td class="text-center">{instaff}</td>' +
                         '</tr>"';
-                    function formatstafftoprow(properties) {
-                        return $.extend(properties, {
-                            staffName: properties.name,
-                            staffId: properties.id,
-                            instaff: properties.hasOwnProperty("instaff") ? properties.instaff : 0,
-                            planstaff: properties.hasOwnProperty("planstaff") ? properties.planstaff : 0,
-                            outstaff: properties.hasOwnProperty("outstaff") ? properties.outstaff : 0
-                        });
-                    }
+                    
                     $.each(staffing, function () {
                         $userstop_Table_Body.append($userstop_row_template.supplant(formatstafftoprow(this)));
                     })
@@ -642,15 +634,7 @@ async function GetUserInfo() {
                         '<td data-input="paylocation" class="text-center">{paylocation}</td>' +
                         '</tr>'
                         ;
-                    function formatcompliancerow(properties) {
-                        return $.extend(properties, {
-                            tag_id: properties.id,
-                            tag_name: !/^n.a$/.test(properties.name) ? properties.name : /^n.a$/.test(properties.craftName) ? properties.craftName : properties.id,
-                            ldc: properties.hasOwnProperty("tacs") ? properties.tacs.hasOwnProperty("ldc") ? properties.tacs.ldc : "No LDC" : "No Tacs",
-                            op_code: properties.hasOwnProperty("tacs") ? properties.tacs.hasOwnProperty("operationId") ? properties.tacs.operationId : "No Op Code" : "No Tacs",
-                            paylocation: properties.hasOwnProperty("tacs") ? properties.tacs.hasOwnProperty("payLocation") ? properties.tacs.payLocation : "No payLocation" : "No Tacs"
-                        });
-                    }
+                 
                     $.map(undetectedtagsData, async function (properties, i) {
                         var findtrdataid = compliance_Table_Body.find('tr[data-tag=undetected_' + properties.properties.id + ']');
                         if (findtrdataid.length === 0) {
@@ -685,16 +669,7 @@ async function GetUserInfo() {
                         '<td data-input="paylocation" class="text-center">{paylocation}</td>' +
                         '</tr>'
                         ;
-                    function formatldcalertsrow(properties) {
-                        return $.extend(properties, {
-                            tag_id: properties.id,
-                            tag_name: !/^n.a$/.test(properties.name) ? properties.name : /^n.a$/.test(properties.craftName) ? properties.craftName : properties.id,
-                            ldc: properties.hasOwnProperty("tacs") ? properties.tacs.hasOwnProperty("ldc") ? properties.tacs.ldc : "No LDC" : "No Tacs",
-                            sels_ldc: properties.hasOwnProperty("sels") ? properties.sels.hasOwnProperty("currentLDCs") ? properties.sels.currentLDCs[0] : "No LDC" : "No Tacs",
-                            op_code: properties.hasOwnProperty("tacs") ? properties.tacs.hasOwnProperty("operationId") ? properties.tacs.operationId : "No Op Code" : "No Tacs",
-                            paylocation: properties.hasOwnProperty("tacs") ? properties.tacs.hasOwnProperty("payLocation") ? properties.tacs.payLocation : "No payLocation" : "No Tacs"
-                        });
-                    }
+                   
                     $.map(ldcalertstagsData, async function (properties, i) {
                         var findtrdataid = LDCAlert_Table_Body.find('tr[data-tag=ldc_alert_' + properties.properties.id + ']');
                         if (findtrdataid.length === 0) {
@@ -710,6 +685,34 @@ async function GetUserInfo() {
     } catch (e) {
         console.log(e)
     }
+}
+function formatldcalertsrow(properties) {
+    return $.extend(properties, {
+        tag_id: properties.id,
+        tag_name: !/^n.a$/.test(properties.name) ? properties.name : /^n.a$/.test(properties.craftName) ? properties.craftName : properties.id,
+        ldc: properties.hasOwnProperty("tacs") ? properties.tacs.hasOwnProperty("ldc") ? properties.tacs.ldc : "No LDC" : "No Tacs",
+        sels_ldc: properties.hasOwnProperty("sels") ? properties.sels.hasOwnProperty("currentLDCs") ? properties.sels.currentLDCs[0] : "No LDC" : "No Tacs",
+        op_code: properties.hasOwnProperty("tacs") ? properties.tacs.hasOwnProperty("operationId") ? properties.tacs.operationId : "No Op Code" : "No Tacs",
+        paylocation: properties.hasOwnProperty("tacs") ? properties.tacs.hasOwnProperty("payLocation") ? properties.tacs.payLocation : "No payLocation" : "No Tacs"
+    });
+}
+function formatcompliancerow(properties) {
+    return $.extend(properties, {
+        tag_id: properties.id,
+        tag_name: !/^n.a$/.test(properties.name) ? properties.name : /^n.a$/.test(properties.craftName) ? properties.craftName : properties.id,
+        ldc: properties.hasOwnProperty("tacs") ? properties.tacs.hasOwnProperty("ldc") ? properties.tacs.ldc : "No LDC" : "No Tacs",
+        op_code: properties.hasOwnProperty("tacs") ? properties.tacs.hasOwnProperty("operationId") ? properties.tacs.operationId : "No Op Code" : "No Tacs",
+        paylocation: properties.hasOwnProperty("tacs") ? properties.tacs.hasOwnProperty("payLocation") ? properties.tacs.payLocation : "No payLocation" : "No Tacs"
+    });
+}
+function formatstafftoprow(properties) {
+    return $.extend(properties, {
+        staffName: properties.name,
+        staffId: properties.id,
+        instaff: properties.hasOwnProperty("instaff") ? properties.instaff : 0,
+        planstaff: properties.hasOwnProperty("planstaff") ? properties.planstaff : 0,
+        outstaff: properties.hasOwnProperty("outstaff") ? properties.outstaff : 0
+    });
 }
 async function GetUserProfile() {
     if (!$.isEmptyObject(User)) {
