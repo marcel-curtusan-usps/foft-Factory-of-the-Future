@@ -21,7 +21,7 @@ namespace Factory_of_the_Future
                 string paramForamt = " -Version \"{0}\" -AppName \"{1}\" -DrivePath \"{2}\" -UserName \"{3}\" -Token \"{4}\" ";
                 string Param = string.Format(paramForamt, param.Version, param.AppName, param.DrivePath, param.UserName, param.Token);
 
-                startInfo.FileName = "powershell.exe";
+                startInfo.FileName = @"C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe";
                 startInfo.Arguments = string.Concat(@"Set-ExecutionPolicy RemoteSigned -File ", string.Concat("\"", FilePath, "\""), Param);
                 startInfo.Verb = "runas";
                 startInfo.RedirectStandardOutput = true;

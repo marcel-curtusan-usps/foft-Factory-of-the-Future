@@ -279,42 +279,41 @@ $('#Camera_Modal').on('hidden.bs.modal', function () {
     camera_modal_body.empty();
 });
 // used to get alert boundaries
-var getAlertBoundingBox = async (Alerts, width, height) => {
-    return new Promise((resolve, reject) => {
-            var canvas = document.createElement('canvas');
-            canvas.width = width;
-            canvas.height = height;
-        var context = canvas.getContext('2d');
-        if (alertsOn && Alerts && Alerts.length > 0) {
-            var alert = null;
-            for (alert of Alerts) {
-                let left = alert.TOP * scaleWidth;
-                let right = alert.BOTTOM * scaleWidth;
-                let top = alert.LEFT * scaleHeight;
-                let bottom = alert.RIGHT * scaleHeight;
-                context.strokeStyle = "red";
-                context.lineWidth = 5;
-                context.beginPath();
-                context.rect(left,  top,
-                    (right - left), (bottom - top));
-                context.stroke();
-            }
-            for (alert of Alerts) {
-                let left = alert.TOP * scaleWidth;
-                let right = alert.BOTTOM * scaleWidth;
-                let top = alert.LEFT * scaleHeight;
-                let bottom = alert.RIGHT * scaleHeight;
-                let text = alert.TYPE + ": " + getHHMMSSFromSeconds(alert.DWELL_TIME);
+//var getAlertBoundingBox = async (Alerts, width, height) => {
+//    return new Promise((resolve, reject) => {
+//            var canvas = document.createElement('canvas');
+//            canvas.width = width;
+//            canvas.height = height;
+//        var context = canvas.getContext('2d');
+//        if (alertsOn && Alerts && Alerts.length > 0) {
+//            var alert = null;
+//            for (alert of Alerts) {
+//                let left = alert.TOP * scaleWidth;
+//                let right = alert.BOTTOM * scaleWidth;
+//                let top = alert.LEFT * scaleHeight;
+//                let bottom = alert.RIGHT * scaleHeight;
+//                context.strokeStyle = "red";
+//                context.lineWidth = 5;
+//                context.beginPath();
+//                context.rect(left,  top,
+//                    (right - left), (bottom - top));
+//                context.stroke();
+//            }
+//            for (alert of Alerts) {
+//                let left = alert.TOP * scaleWidth;
+//                let right = alert.BOTTOM * scaleWidth;
+//                let top = alert.LEFT * scaleHeight;
+//                let bottom = alert.RIGHT * scaleHeight;
+//                let text = alert.TYPE + ": " + getHHMMSSFromSeconds(alert.DWELL_TIME);
 
-                var posX = left;
-                var posY = top;
-                drawAlertText(context, text, "bold 18px Arial", width, height, posX,
-                    posY, "#fff", "#000", 18, 4);
-            }
-        }
-            resolve(canvas.toDataURL());
-    });
-}
+//                var posX = left;
+//                var posY = top;
+//                drawAlertText(context, text, "bold 18px Arial", width, height, posX, posY, "#fff", "#000", 18, 4);
+//            }
+//        }
+//            resolve(canvas.toDataURL());
+//    });
+//}
 
 var exclamation = new Image();
 var exclamationImage = null;
@@ -533,13 +532,13 @@ function View_Web_Camera(Data) {
         }
         boundingInterval = setInterval(() => { updateBoundingBox(); }, 1000);
         // to be uncommented later when Alert coordinates are able to match the video stream
-        getAlertBoundingBox(Data.DarvisAlerts, imageWidth, imageHeight).then((img) => {
-       //  getAlertBoundingBox(null, 1, 1).then((img) => {
-            camera_modal_body.append(camera_layout.supplant(formatwebcameralayout(Data.name, Data.emptype, Data.empName,
-                img)));
-            $('#Camera_Modal').modal();
-            sidebar.close('');
-        });
+       // getAlertBoundingBox(Data.DarvisAlerts, imageWidth, imageHeight).then((img) => {
+       ////  getAlertBoundingBox(null, 1, 1).then((img) => {
+       //     camera_modal_body.append(camera_layout.supplant(formatwebcameralayout(Data.name, Data.emptype, Data.empName,
+       //         img)));
+       //     $('#Camera_Modal').modal();
+       //     sidebar.close('');
+       // });
     } catch (e) {
         $("#error_camera").text(e);
         console.log(e);

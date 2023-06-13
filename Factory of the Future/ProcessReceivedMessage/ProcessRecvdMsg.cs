@@ -1378,7 +1378,7 @@ namespace Factory_of_the_Future
                         {
                             if (!AppParameters.MissionList.TryAdd(tempMission.REQUEST_ID, tempMission))
                             {
-                               await new ErrorLogger().CustomLog("unable to add Mission " + tempMission.REQUEST_ID + " to list", string.Concat(AppParameters.AppSettings.APPLICATION_NAME, "Appslogs"));
+                               await new ErrorLogger().CustomLog("unable to add Mission " + tempMission.REQUEST_ID + " to list", string.Concat(AppParameters.AppSettings.APPLICATION_NAME, "Appslogs")).ConfigureAwait(false);
                             }
                         }
                         else
@@ -1387,7 +1387,7 @@ namespace Factory_of_the_Future
                             {
                                 if (!AppParameters.MissionList.TryAdd(tempMission.REQUEST_ID, tempMission))
                                 {
-                                    await new ErrorLogger().CustomLog("unable to add Mission " + tempMission.REQUEST_ID + " to list", string.Concat(AppParameters.AppSettings.APPLICATION_NAME, "Appslogs"));
+                                    await new ErrorLogger().CustomLog("unable to add Mission " + tempMission.REQUEST_ID + " to list", string.Concat(AppParameters.AppSettings.APPLICATION_NAME, "Appslogs")).ConfigureAwait(false);
                                 }
                             }
                         }
