@@ -200,11 +200,11 @@ async function AGVStausUpdate(layerindex)
                 if (new_btn_category !== current_btn_category) {
                     $("button[id=" + map._layers[layerindex].feature.properties.name + "][name=vehicle]").addClass(new_btn_category).removeClass(current_btn_category);
                 }
-                var batint = parseInt($("span[name=" + map._layers[layerindex].feature.properties.name + "_batter_level" + "]").attr("data-batter_lvl"));
+                var batint = parseInt($("span[name=" + map._layers[layerindex].feature.properties.name + "_batter_level" + "]").attr("data-batter_lvl"),10);
                 if (!map._layers[layerindex].feature.properties.hasOwnProperty("vehicleBatteryPercent")) {
                     map._layers[layerindex].feature.properties.vehicleBatteryPercent = 0;
                 }
-            if (parseInt(map._layers[layerindex].feature.properties.Vehicle_Status_Data.BATTERYPERCENT) !== batint) {
+            if (parseInt(map._layers[layerindex].feature.properties.Vehicle_Status_Data.BATTERYPERCENT,10) !== batint) {
                     $("span[name=" + map._layers[layerindex].feature.properties.name + "_batter_level" + "]").text(map._layers[layerindex].feature.properties.Vehicle_Status_Data.BATTERYPERCENT + " % Charged").attr("data-batter_lvl", map._layers[layerindex].feature.properties.Vehicle_Status_Data.BATTERYPERCENT);
                     $("div[name=" + map._layers[layerindex].feature.properties.name + "_progressbar" + "]").attr("aria-valuenow", map._layers[layerindex].feature.properties.name).css("width", map._layers[layerindex].feature.properties.Vehicle_Status_Data.BATTERYPERCENT + "%");
                     new_btn_category = Get_Vehicle_Progress(map._layers[layerindex].feature.properties.Vehicle_Status_Data.BATTERYPERCENT);

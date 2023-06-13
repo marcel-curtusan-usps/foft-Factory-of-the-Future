@@ -138,8 +138,8 @@ function formatKANBANlayout(conn_status) {
 }
 function Get_Kanban_Color(data) {
     value = "";
-    const Number = $.isNumeric(data) ? parseInt(data) : data;
-    if (typeof Number === 'number') {
+    let colorNumber = parseInt(data, 10);
+    if ($.isNumeric(colorNumber)) {
         if (Number > 0) {
             value = "btn-success";
         }

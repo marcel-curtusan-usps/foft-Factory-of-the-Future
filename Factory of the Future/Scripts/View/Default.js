@@ -377,7 +377,7 @@ $(function () {
 
         // Convert the layer index to an integer if it's numeric
         if ($.isNumeric(layerIndex)) {
-            layerIndex = parseInt(layerIndex);
+            layerIndex = parseInt(layerIndex, 10);
         }
 
         // Close the sidebar

@@ -78,7 +78,7 @@ $('#Notification_Setup_Modal').on('shown.bs.modal', function () {
 
     $('input[type=text][name=critical_condition]').keyup(function () {
         if ($.isNumeric($('input[type=text][name=critical_condition]').val())) {
-            if (!validateNum(parseInt($('input[type=text][name=critical_condition]').val()), 0, 60)) {
+            if (!validateNum(parseInt($('input[type=text][name=critical_condition]').val(),10), 0, 60)) {
                 $('input[type=text][name=critical_condition]').removeClass('is-valid').addClass('is-invalid');
                 $('span[id=error_critical_condition]').text("Invalid Number");
             }
@@ -98,7 +98,7 @@ $('#Notification_Setup_Modal').on('shown.bs.modal', function () {
         enableNotificationSubmit();
     });
     $('input[type=text][name=warning_condition]').keyup(function () {
-        if ($.isNumeric($('input[type=text][name=warning_condition]').val())) {
+        if ($.isNumeric($('input[type=text][name=warning_condition]').val(),10)) {
             if (!validateNum(parseInt($('input[type=text][name=warning_condition]').val()), 0, 60)) {
                 $('input[type=text][name=warning_condition]').removeClass('is-valid').addClass('is-invalid');
                 $('span[id=error_warning_condition]').text("Invalid Number");
@@ -204,7 +204,7 @@ async function updateagvTable(updatenotification) {
         let Vehiclecount = notification.filter(x => x.Type === "vehicle").map(x => x).length;
         //AGV Counts
         if (Vehiclecount > 0) {
-            if (parseInt($('#agvnotificaion_number').text()) !== Vehiclecount) {
+            if (parseInt($('#agvnotificaion_number').text(),10) !== Vehiclecount) {
                 $('#agvnotificaion_number').text(Vehiclecount);
             }
         }
@@ -234,7 +234,7 @@ async function updatetripTable(updatenotification) {
         let routetripcount = notification.filter(x => x.Type === "routetrip" || x.Type === "dockdoor").map(x => x).length;
         // routetrip Counts
         if (routetripcount > 0) {
-            if (parseInt($('#tripsnotificaion_number').text()) !== routetripcount) {
+            if (parseInt($('#tripsnotificaion_number').text(), 10) !== routetripcount) {
                 $('#tripsnotificaion_number').text(routetripcount);
             }
             $('#ctsnotificaion_number').text(routetripcount);
@@ -263,9 +263,9 @@ async function updatetripTable(updatenotification) {
 }
 async function updateMPETable(updatenotification) {
     try {
-        let mpeCounter = notification.filter(x => x.Type === "mpe" && x.Delete != true).map(x => x).map(x => x).length;
+        let mpeCounter = notification.filter(x => x.Type === "mpe" && x.Delete !== true).map(x => x).map(x => x).length;
         if (mpeCounter > 0) {
-            if (parseInt($('#mpenotification_number').text()) !== mpeCounter) {
+            if (parseInt($('#mpenotification_number').text(), 10) !== mpeCounter) {
                 $('#mpenotification_number').text(mpeCounter);
             }
         }
@@ -310,7 +310,7 @@ async function updatemissingassignedscantable(updatenotification) {
     try {
         let dockdoorandtripscount = notification.filter(x => x.Type === "routetrip" || x.Type === "dockdoor").map(x => x).length;
         if (dockdoorandtripscount > 0) {
-            if (parseInt($('#tripsnotificaion_number').text()) !== dockdoorandtripscount) {
+            if (parseInt($('#tripsnotificaion_number').text(), 10) !== dockdoorandtripscount) {
                 $('#tripsnotificaion_number').text(dockdoorandtripscount);
             }
             $('#tripsnotificaion_number').text(dockdoorandtripscount);
@@ -337,7 +337,7 @@ async function gettipsanddoornotificationcounts() {
     try {
         let dockdoorandtripscount = notification.filter(x => x.Type === "routetrip" || x.Type === "dockdoor").map(x => x).length;
         if (dockdoorandtripscount > 0) {
-            if (parseInt($('#tripsnotificaion_number').text()) !== dockdoorandtripscount) {
+            if (parseInt($('#tripsnotificaion_number').text(), 10) !== dockdoorandtripscount) {
                 $('#tripsnotificaion_number').text(dockdoorandtripscount);
             }
             $('#tripsnotificaion_number').text(dockdoorandtripscount);
@@ -519,10 +519,10 @@ function formatagvnotifirow(properties, indx) {
         type: properties.TypeName,
         condition: properties.Conditions,
         duration: calculatevehicleDuration(properties.TypeTime),
-        conditioncolor: conditioncolor(properties.TIME, parseInt(properties.Warning), parseInt(properties.Critical)),
+        conditioncolor: conditioncolor(properties.TIME, parseInt(properties.Warning, 10), parseInt(properties.Critical , 10)),
         warning_action_text: properties.WarningAction,
         critical_action_text: properties.CriticalAction,
-        action_text: conditionaction_text(properties.vehicleTime, parseInt(properties.Warning), parseInt(properties.Critical)) + "_" + properties.notificationId,
+        action_text: conditionaction_text(properties.vehicleTime, parseInt(properties.Warning ,10), parseInt(properties.Critical, 10)) + "_" + properties.notificationId,
         indexobj: indx
     });
 }
@@ -571,7 +571,7 @@ function formattripnotifirow(properties, indx) {
         dest: spitName(properties.TypeName, 1),
         condition: properties.Conditions,
         duration: calculatevehicleDuration(properties.TypeTime),
-        conditioncolor: conditioncolor(properties.VEHICLETIME, parseInt(properties.Warning), parseInt(properties.Critical)),
+        conditioncolor: conditioncolor(properties.VEHICLETIME, parseInt(properties.Warning,10), parseInt(properties.Critical,10)),
         warning_action_text: properties.WarningAction,
         critical_action_text: properties.CriticalAction,
         indexobj: indx
@@ -595,10 +595,10 @@ function formatmpenotifirow(properties, indx) {
         //condition: properties.Conditions,
         duration: ConverMPENotificationTime(properties.TypeDuration),
         durationtime: properties.TypeDuration,
-        conditioncolor: conditioncolor(GetMPENotificationTime(properties.TypeDuration), parseInt(properties.Warning), parseInt(properties.Critical)),
+        conditioncolor: conditioncolor(GetMPENotificationTime(properties.TypeDuration), parseInt(properties.Warning,10), parseInt(properties.Critical,10)),
         warning_action_text: properties.WarningAction,
         critical_action_text: properties.CriticalAction,
-        action_text: conditionaction_text(GetMPENotificationTime(properties.TypeDuration), parseInt(properties.Warning), parseInt(properties.Critical)) + "_" + properties.notificationId,
+        action_text: conditionaction_text(GetMPENotificationTime(properties.TypeDuration), parseInt(properties.Warning, 10), parseInt(properties.Critical,10)) + "_" + properties.notificationId,
         indexobj: indx
     });
 }
