@@ -293,11 +293,11 @@ namespace Factory_of_the_Future
         /// <returns></returns>
         public override Task OnConnected()
         {
-            //if (Context.QueryString["page_type"] == "CF" )
-            //{
-            //    Clients.Caller.floorImage(_managerHub.GetIndoorMap());
-            //}
-            new ErrorLogger().CustomLog(string.Concat(" Client Connected. User ID:"), string.Concat(AppParameters.AppSettings.APPLICATION_NAME, "_Applogs"));
+            if (Context.QueryString["page_type"] == "CF")
+            {
+                Clients.Caller.floorImage(_managerHub.GetIndoorMap());
+            }
+            Task.Run(() => new ErrorLogger().CustomLog(string.Concat(" Client Connected. User ID:"), string.Concat(AppParameters.AppSettings.APPLICATION_NAME, "_Applogs"))).ConfigureAwait(false);
 
             return base.OnConnected();
         }

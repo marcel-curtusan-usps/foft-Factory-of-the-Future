@@ -215,7 +215,7 @@ $(function () {
 
     $.extend(fotfmanager.client, {
         floorImage: async (MapData) => {
-            //init_mapSetup(MapData);
+           init_mapSetup(MapData);
         }
     });
   
@@ -231,16 +231,11 @@ $(function () {
                 fotfmanager.server.leaveGroup("PeopleMarkers");
             }
             Promise.all([initDoorDataTable()]);
-            Promise.all([init_mapSetup()]);
             conntoggle.state('conn-on');
         }).catch(
             function (err) {
                 console.log(err.toString());
             });
-   
-
-
-
     Initiate24HourClock();
     //add connection status
     let conntoggle = L.easyButton({

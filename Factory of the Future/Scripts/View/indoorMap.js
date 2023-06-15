@@ -436,9 +436,9 @@ $('#layersToggle').on('click', function () {
     $('[data-toggle=popover]').popover('hide');
     $('#twentyfourmessage').popover('hide');
 });
-async function init_mapSetup() {
+async function init_mapSetup(MapData) {
     try {
-        fotfmanager.server.getMap().done(function (MapData) {
+      //  fotfmanager.server.getMap().done(function (MapData) {
             if (MapData.length > 0) {
 
                 $.each(MapData, function (index) {
@@ -498,7 +498,7 @@ async function init_mapSetup() {
                             .append($('<span/>', { class: 'text-info ', id: 'error_remove_server_connection' })))
                     ).insertBefore('div[id=map]');
             }
-        })
+        ///})
     } catch (e) {
         $('div[id=map]').css('display', 'none');
         $('<div/>', { class: 'jumbotron text-center' })
