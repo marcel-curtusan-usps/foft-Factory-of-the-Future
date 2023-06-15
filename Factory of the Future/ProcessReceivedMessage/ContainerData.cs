@@ -121,16 +121,20 @@ namespace Factory_of_the_Future
                             }
                             if (AppParameters.Containers.ContainsKey(d.PlacardBarcode) && AppParameters.Containers.TryGetValue(d.PlacardBarcode, out _container))
                             {
-                                foreach (PropertyInfo prop in _container.GetType().GetProperties())
+                                if (AppParameters.Containers.TryUpdate(d.PlacardBarcode, d,_container) )
                                 {
-                                    if (!new Regex("^(BinDisplay|ContainerHistory|BinName)$", RegexOptions.IgnoreCase).IsMatch(prop.Name))
-                                    {
-                                        if (prop.GetValue(d, null)!= prop.GetValue(_container, null))
-                                        {
-                                            prop.SetValue(_container, prop.GetValue(d, null));
-                                        }
-                                    }
+                                    //update content 
                                 }
+                                //foreach (PropertyInfo prop in _container.GetType().GetProperties())
+                                //{
+                                //    if (!new Regex("^(BinDisplay|ContainerHistory|BinName)$", RegexOptions.IgnoreCase).IsMatch(prop.Name))
+                                //    {
+                                //        if (prop.GetValue(d, null)!= prop.GetValue(_container, null))
+                                //        {
+                                //            prop.SetValue(_container, prop.GetValue(d, null));
+                                //        }
+                                //    }
+                                //}
                             }
                             else
                             {

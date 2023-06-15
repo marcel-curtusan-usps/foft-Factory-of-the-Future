@@ -31,7 +31,6 @@ namespace Factory_of_the_Future
                         {
                             if (AppParameters.RouteTripsList.TryGetValue(_routetripid, out RouteTrips existingVal))
                             {
-
                                 existingVal.Legs = legs.ToObject<List<Leg>>();
                                 if (existingVal.Legs.Any())
                                 {
@@ -46,25 +45,7 @@ namespace Factory_of_the_Future
                                 if (destsites.Length > 0)
                                 {
                                     existingVal.DestSites = destsites.ToString().Substring(0, destsites.Length - 1);
-                                    existingVal.TripUpdate = true;
                                 }
-                                //foreach (JObject legitem in legs.Children().OfType<JObject>())
-                                //{
-                                //    // get all dest do not include origin Site if site is the same
-                                //    if (legitem["legDestSiteID"].ToString() != existingVal.OriginSiteId && (int)legitem["legNumber"] >= existingVal.LegNumber)
-                                //    {
-                                //        destsites += "(^" + (string)legitem["legDestSiteID"] + "$)|";
-                                //    }
-                                //}
-                                //if (destsites != existingVal.DestSites && !string.IsNullOrEmpty(destsites))
-                                //{
-                                //    existingVal.DestSites = destsites.Substring(0, destsites.Length - 1);
-                                //    update = true;
-                                //}
-                                //if (update)
-                                //{
-                                //    existingVal.TripUpdate = true;
-                                //}
                             }
                         }
                     }
@@ -74,7 +55,6 @@ namespace Factory_of_the_Future
                         if (AppParameters.RouteTripsList.TryGetValue(_routetripid, out RouteTrips existingVal))
                         {
                             existingVal.DestSites = ("(^" + existingVal.LegSiteId + "$)");
-                            existingVal.TripUpdate = true;
                         }
                     }
 

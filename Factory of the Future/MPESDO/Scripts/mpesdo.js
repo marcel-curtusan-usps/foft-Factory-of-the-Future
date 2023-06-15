@@ -42,7 +42,7 @@ async function initMPEGroupStatus(data)
                 if (this.cur_operation_id != 0) { 
                     mpesRunning += 1;
                     mpeSummary.machineType = this.mpe_type;// this.MachineType; /*this one could be a single field and the rest a list of items **Analize it...**/
-                    mpeSummary.scheduledStaff += this.;
+                    mpeSummary.scheduledStaff += GetscheduledStaffing(this.scheduled_staff);
                     //mpeSummary.actualStaff += this.ActualStaff;
                     mpeSummary.totalVolume += this.tot_sortplan_vol;//this.TotalVolume;
                     mpeSummary.plannedVolume += this.rpg_est_vol;// this.PlannedVolume;
@@ -82,7 +82,14 @@ function getSortedData(data, prop, isAsc) {
         return (a[prop] < b[prop] ? -1 : 1) * (isAsc ? 1 : -1)
     });
 }
-
+function GetscheduledStaffing(data)
+{
+    try {
+        return 0;
+    } catch (e) {
+        return 0;
+    }
+}
 function populateFields(machineSummary, mpesGroup) {
     $('h1[id=machineType]').text("Group Name: " + machineSummary.machineType);
     $('h1[id=scheduledStaff]').text("Scheduled Staff: " + machineSummary.scheduledStaff);

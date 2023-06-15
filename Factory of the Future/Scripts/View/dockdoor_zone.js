@@ -34,11 +34,8 @@ async function UpdateDockDoorData(data, floorId, zoneId) {
             });
         }
     }
-    catch (e)
-    {
-        console.log(e);
+    catch (e) {
     }
-
 }
 
 document.addEventListener("layerscontentvisible", () => {
@@ -47,91 +44,20 @@ document.addEventListener("layerscontentvisible", () => {
 });
 let dockDoors = new L.GeoJSON(null, {
     style: function (feature) {
-        try {
-            if (feature.properties.dockdoorData !== null && feature.properties.dockdoorData.length > 0) {
-                if (feature.properties.dockdoorData[0].atDoor) {
-                    if (feature.properties.dockdoorData[0].tripDirectionInd === "O") {
-                        if (feature.properties.dockdoorData[0].tripMin <= 30) {
-                            return {
-                                weight: 2,
-                                opacity: 1,
-                                color: '#3573b1',
-                                fillColor: '#dc3545',   // Red. ff0af7 is Purple
-                                fillOpacity: 0.5,
-                                lastOpacity: 0.5
-                            };
-
-                        }
-                        else {
-                            return {
-                                weight: 2,
-                                opacity: 1,
-                                color: '#3573b1',
-                                fillColor: '#3573b1',
-                                fillOpacity: 0.5,
-                                lastOpacity: 0.5
-                            };
-                        }
-                    }
-                    if (feature.properties.dockdoorData[0].tripDirectionInd === "I") {
-                        return {
-                            weight: 2,
-                            opacity: 1,
-                            color: '#3573b1',
-                            fillColor: '#3573b1',
-                            fillOpacity: 0.5,
-                            lastOpacity: 0.5
-                        };
-                    }
-                }
-                else {
-                    return {
-                        weight: 2,
-                        opacity: 1,
-                        color: '#3573b1',
-                        fillColor: '#989ea4',
-                        fillOpacity: 0.2,
-                        lastOpacity: 0.2
-                    };
-                }
-            }
-            else {
-                return{
-                    weight: 2,
-                    opacity: 1,
-                    color: '#3573b1',
-                    fillColor: '#989ea4',
-                    fillOpacity: 0.2,
-                    lastOpacity: 0.2
-                };
-            }
-        } catch (e) {
-            console.log(e);
-            return {
-                weight: 2,
-                opacity: 1,
-                color: '#3573b1',
-                fillColor: '#989ea4',
-                fillOpacity: 0.2,
-                lastOpacity: 0.2
-            }
+        return {
+            weight: 2,
+            opacity: 1,
+            color: '#3573b1',
+            fillColor: GetDockDoorZoneColor(feature.properties.dockdoorData),//'#989ea4',
+            fillOpacity: 0.5,
+            lastOpacity: 0.5
         }
     },
     onEachFeature: function (feature, layer) {
         layer.zoneId = feature.properties.id;
-        let dockdookflash = "";
-        let doorNumberdisplay = feature.properties.doorNumber.toString();
-
-        if (feature.properties.dockdoorData !== null && feature.properties.dockdoorData.length > 0) {
-            if (feature.properties.dockdoorData[0].atDoor) {
-                doorNumberdisplay = feature.properties.doorNumber.toString() + (feature.properties.dockdoorData[0].tripDirectionInd !== "" ? "-" + feature.properties.dockdoorData[0].tripDirectionInd : "")
-                if (feature.properties.dockdoorData[0].tripDirectionInd === "O") {
-                    if (feature.properties.dockdoorData[0].tripMin <= 30 && feature.properties.dockdoorData[0].Notloadedcontainers > 0) {
-                        dockdookflash = "doorflash"
-                    }
-                }
-            }
-        }
+        let dockdookflash = GetDockDoorFlash();
+        let doorNumberdisplay = GetDockDoorTripDirection(feature.properties.dockdoorData, feature.properties.doorNumber);
+     
         $zoneSelect[0].selectize.addOption({ value: feature.properties.id, text: feature.properties.name });
         $zoneSelect[0].selectize.addItem(feature.properties.id);
         $zoneSelect[0].selectize.setValue(-1, true);
@@ -167,6 +93,72 @@ let dockDoors = new L.GeoJSON(null, {
     //    return feature.properties.visible;
     //}
 });
+function GetDockDoorTripDirection(data, doorNumber)
+{
+    try {
+        if (!!data && data.length > 0) {
+            if (data[0].atDoor) {
+                return doorNumber + "-" + getDoorTripIndc(data);
+            }
+            else {
+                return doorNumber;
+            }
+        }
+        else {
+            return doorNumber;
+        }
+    } catch (e) {
+
+    }
+}
+function GetDockDoorFlash(data) {
+    try {
+        if (!!data && data.length > 0) {
+            if (data[0].atDoor) {
+                if (data[0].tripDirectionInd === "O" && data[0].tripMin <= 30 && data[0].Notloadedcontainers > 0) {
+                    return "doorflash";
+                }
+                else {
+                    return "";
+                }
+            }
+            else {
+                return "";
+            }
+        }
+        else {
+            return "";
+        }
+    } catch (e) {
+        return "";
+    }
+}
+function GetDockDoorZoneColor(data)
+{
+    let activeTrip30MissingContainer = '#dc3545'; //red
+    let activeTrip = '#3573b1'; //blue 
+    let notTrip = '#989ea4'; //clear
+    try {
+        if (!!data && data.length > 0) {
+            if (data[0].atDoor)
+                if (data[0].tripDirectionInd === "O" && data[0].tripMin <= 30) {
+                    return activeTrip30MissingContainer;
+                }
+                else {
+                    return activeTrip;
+                }
+            else {
+                return notTrip;
+            }
+        }
+        else {
+            return notTrip;
+        }
+
+    } catch (e) {
+        return notTrip;
+    }
+}
 function getDoorTripIndc(data)
 {
     try {
@@ -178,7 +170,7 @@ function getDoorTripIndc(data)
         }
      
     } catch (e) {
-        console.log(e);
+
         return "";
     }
    
@@ -614,7 +606,7 @@ async function LoadDockDoorTable(data) {
                                     }
                                 }
                                 if (dataproperties.tripDirectionInd === "I") {
-                                    if (d.hasUnloadScans === true && d.Itrailer === dataproperties.trailerBarcode) {
+                                    if (d.hasUnloadScans === true && d.trailer === dataproperties.trailerBarcode) {
                                         unloadedcount++
                                         d.constainerStatus = "Unloaded";
                                         d.sortind = 1;
@@ -643,163 +635,9 @@ async function LoadDockDoorTable(data) {
             updateTripAssignedDataTable(data.dockdoorData, "doortriptable")
         }
 
-//        if (data.dockdoorData.length > 0) {
-//           // loadAssignedTripDataTable(data.dockdoorData,"doortriptable")
-//            $.each(data.dockdoorData, function () {
-//                assignedTrips_Table_Body.append(assignedTrips_row_template.supplant(formatassignedTripsrow(this)));
-//            });
-//            let dataproperties = data.dockdoorData[0];
-//            let loadtriphisory = false;
-//            let tempdata = [];    
-///*            if (checkValue(dataproperties.legSiteName)) {*/
-//                $('select[id=tripSelector]').val(dataproperties.id);
-            
-//                if (dataproperties.legSiteName !== "") {
-//                    tempdata.push({
-//                        name: "Site Name",
-//                        value: "(" + dataproperties.legSiteId + ") " + dataproperties.legSiteName
-//                    })
-//                }
-//                if (dataproperties.route !== "") {
-//                    tempdata.push({
-//                        name: "Route-Trip",
-//                        value: dataproperties.route + "-" + dataproperties.trip
-//                    })
-//                }
-//                if (dataproperties.trailerBarcode !== "") {
-//                    tempdata.push({
-//                        name: "Trailer Barcode",
-//                        value: dataproperties.trailerBarcode
-//                    })
-//                }
-//                if (dataproperties.status !== "") {
-//                    if (checkValue(dataproperties.status)) {
-//                        $('span[name=doorstatus]').text(capitalize_Words(dataproperties.status));
-//                    }
-//                }
-//                else {
-//                    $('span[name=doorstatus]').text("Occupied");
-//                }
-//                if (dataproperties.loadPercent !== null) {
-//                    tempdata.push({
-//                        name: "Load Percent",
-//                        value: checkValue(dataproperties.loadPercent) ? dataproperties.loadPercent : 0
-//                    })
-//                }
-
-//                if (dataproperties.tripDirectionInd !== "") {
-//                    tempdata.push({
-//                        name: "Direction",
-//                        value: dataproperties.tripDirectionInd === "O" ? "Out-bound" : "In-bound"
-//                    })
-//                }
-//                if (dataproperties.scheduledDtm !== null) {
-//                    tempdata.push({
-//                        name: dataproperties.tripDirectionInd === "O" ? "Scheduled To Depart" : "Scheduled Arrive Time",
-//                        value: formatSVmonthdayTime(dataproperties.scheduledDtm)
-//                    })
-//                }
-//                if (dataproperties.tripDirectionInd === "I") {
-//                    if (dataproperties.actualDtm !== null) {
-//                        tempdata.push({
-//                            name: "Actual Arrive Time",
-//                            value: formatSVmonthdayTime(dataproperties.actualDtm)
-//                        })
-//                    }
-//                }
-//                $.each(tempdata, function () {
-//                    dockdoortop_Table_Body.append(dockdoortop_row_template.supplant(formatdockdoortoprow(this, dataproperties.id)));
-//                });
-
-//                $('button[name=container_counts]').text(0 + "/" + 0);
-//                if (dataproperties.tripDirectionInd) {
-//                    //var legSite = dataproperties.dockdoorData.tripDirectionInd === "I" ? User.NASS_Code : dataproperties.dockdoorData.legSiteId;
-//                    //$.connection.FOTFManager.server.getContainer(legSite, dataproperties.dockdoorData.tripDirectionInd, dataproperties.dockdoorData.route, dataproperties.dockdoorData.trip).done(function (Data) {
-
-//                    if (dataproperties.containerScans !== null && dataproperties.containerScans.length > 0) {
-//                        var loadedcount = 0;
-//                        var unloadedcount = 0;
-//                        var loaddata = [];
-//                        container_Table_Body.empty();
-//                        $.each(dataproperties.containerScans, function (index, d) {
-//                            if (!d.containerTerminate) {
-//                                if (dataproperties.tripDirectionInd === "O") {
-//                                    if (d.containerAtDest === false) {
-//                                        if (d.hasUnloadScans === true) {
-//                                            unloadedcount++
-//                                            d.constainerStatus = "Unloaded";
-//                                            d.sortind = 1;
-//                                            loaddata.push(d);
-//                                        }
-
-//                                        if (d.hasLoadScans === true) {
-//                                            loadedcount++
-//                                            d.constainerStatus = "Loaded";
-//                                            d.sortind = 2;
-//                                            loaddata.push(d);
-//                                        }
-//                                        if (d.hasLoadScans === false && d.hasAssignScans === true && d.hasCloseScans === true) {
-//                                            unloadedcount++;
-//                                            d.constainerStatus = "Close";
-//                                            d.sortind = 0;
-//                                            loaddata.push(d);
-//                                        }
-
-//                                    }
-//                                }
-//                                if (dataproperties.tripDirectionInd === "I") {
-//                                    if (d.hasUnloadScans === true && d.Itrailer === dataproperties.trailerBarcode) {
-//                                        unloadedcount++
-//                                        d.constainerStatus = "Unloaded";
-//                                        d.sortind = 1;
-//                                        loaddata.push(this);
-//                                    }
-//                                }
-//                            }
-//                        });
-//                        loaddata.sort(SortByind);
-//                        $.each(loaddata, function () {
-//                            container_Table_Body.append(container_row_template.supplant(formatctscontainerrow(this, dataproperties.id)));
-//                        });
-//                        dockdoorloaddata = JSON.parse(JSON.stringify(loaddata));
-
-//                        $('button[name=container_counts]').text(loadedcount + "/" + unloadedcount);
-//                    }
-//                    else {
-//                        $('button[name=container_counts]').text(0 + "/" + 0);
-//                        container_Table_Body.empty();
-//                    }
-//                    //});
-
-//                }
-//                else {
-//                    $('button[name=container_counts]').text(0 + "/" + 0);
-//                    container_Table_Body.empty();
-
-//                }
-
-//                if (loadtriphisory) {
-//                    $('div[id=trailer_div]').css('display', 'none');
-//                }
-//            //}
-//            //else {
-//            //    $('div[id=trailer_div]').css('display', 'none');
-//            //    $('select[id=tripSelector]').val("");
-//            //    $('span[name=doornumberid]').text(data.doorNumber);
-//            //    $('span[name=doorstatus]').text(getDoorStatus(dataproperties.status));
-//            //    $.each(tempdata, function () {
-//            //        dockdoortop_Table_Body.append(dockdoortop_row_template.supplant(formatdockdoortoprow(this, dataproperties.id)));
-//            //    });
-//            //}
-//        }
-//        else {
-//            $('span[name=doorstatus]').text(getDoorStatus(""));
-//            $('select[id=tripSelector]').val("");
-//            $('span[name=doornumberid]').text(data.doorNumber);
-//        }
     }
     catch (e) {
-        console.log(e);
+
     }
 }
 async function LoadDoorDetails(door) {
@@ -863,7 +701,6 @@ async function LoadContainerDetails(id, placardid) {
         }
     }
     catch (e) {
-        console.log(e);
     }
 }
 async function loadcontainerHistory(d, placardid) {
@@ -910,7 +747,6 @@ async function loadcontainerHistory(d, placardid) {
         }
         $("#ContainerDetails_Modal").modal();
     } catch (e) {
-        console.log(e);
     }
 }
 function formatcontainerdetailsrow(properties)

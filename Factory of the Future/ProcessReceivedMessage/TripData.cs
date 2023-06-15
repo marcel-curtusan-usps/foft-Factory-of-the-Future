@@ -45,8 +45,9 @@ namespace Factory_of_the_Future
                                 {
                                     //remove trip
                                     FOTFManager.Instance.BroadcastTripsRemove(rt.Id);
+                                    continue;
                                 }
-                                continue;
+                               
                             }
                             else
                             {
@@ -58,8 +59,9 @@ namespace Factory_of_the_Future
                                         if (AppParameters.RouteTripsList.TryRemove(rt.Id, out currentRTData))
                                         {
                                             FOTFManager.Instance.BroadcastTripsRemove(rt.Id);
+                                            continue;
                                         }
-                                        continue;
+                                        
                                     }
                                 }
                                 else

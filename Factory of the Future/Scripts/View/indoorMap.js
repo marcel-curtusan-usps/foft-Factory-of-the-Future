@@ -281,7 +281,7 @@ sidebar.on('content', function (ev) {
         case 'autopan':
             break;
         case 'setting':
-            Edit_AppSetting("app_settingtable");
+           /* Edit_AppSetting("app_settingtable");*/
           
             break;
         case 'reports':
