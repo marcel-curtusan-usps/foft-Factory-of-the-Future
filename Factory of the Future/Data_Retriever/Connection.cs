@@ -1,7 +1,6 @@
 ﻿using Factory_of_the_Future.Models;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using SMS;
 using System;
 using System.Linq;
 using System.Net;
@@ -92,7 +91,6 @@ namespace Factory_of_the_Future
         public UdpServer udpserver;
         public TcpServer tcpServer;
         public WebSocketInstanceHandler webSocketIntanceHandler;
-        internal SMS.SMS_API _smsAPI = null;
         internal Connection ConnectionInfo;
         private bool disposedValue;
         public JObject requestBody { get; protected set; }
@@ -307,21 +305,6 @@ namespace Factory_of_the_Future
                 new ErrorLogger().ExceptionLog(ex);
             }
         }
-        public void SMSStop()
-        {
-            //stop WS instance
-            try
-            {
-                if (_smsAPI != null)
-                {
-                    _smsAPI.Disconnect();
-                }
-            }
-            catch (Exception ex)
-            {
-                new ErrorLogger().ExceptionLog(ex);
-            }
-        }
         private void SMSInit()
         {
             try
@@ -421,13 +404,6 @@ namespace Factory_of_the_Future
         public void WSDelete()
         {
             Thread DeleteThread = new Thread(new ThreadStart(WSStop));
-            DeleteThread.IsBackground = true;
-            DeleteThread.Start();
-
-        }
-        private void SMSDelete()
-        {
-            Thread DeleteThread = new Thread(new ThreadStart(SMSStop));
             DeleteThread.IsBackground = true;
             DeleteThread.Start();
 
