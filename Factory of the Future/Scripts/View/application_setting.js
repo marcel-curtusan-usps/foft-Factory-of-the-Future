@@ -151,7 +151,7 @@ function createAppSettingDataTable(table) {
                 "mDataProp": key,
                 "mRender": function (data, type, full) {
                     if (/^Admin/i.test(User.Role)) {
-                        return '<button class="btn btn-light btn-sm mx-1 pi-iconEdit editappsetting" name="editappsetting"></button>'
+                        return '<button class="btn btn-light btn-sm mx-1 pi-iconEdit editappsetting" name="editappsetting"></button>';
                     }
                     
                 }
