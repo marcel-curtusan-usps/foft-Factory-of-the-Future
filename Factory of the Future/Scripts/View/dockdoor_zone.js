@@ -416,13 +416,29 @@ async function createDoorTripDataTable(table) {
         "name": "",
         "value": ""
     }]
-    var columns = [];
-    var tempc = {};
+    let columns = [];
+    let tempc = {};
     $.each(arrayColums[0], function (key, value) {
         tempc = {};
-        tempc = {
-            "title": capitalize_Words(key.replace(/\_/, ' ')),
-            "mDataProp": key
+        if (/name/i.test(key)) {
+            tempc = {
+                "title": 'Name',
+                "width": "30%",
+                "mDataProp": key
+            }
+        }
+        else if (/value/i.test(key)) {
+            tempc = {
+                "title": 'Value',
+                "width": "70%",
+                "mDataProp": key
+            }
+        }
+        else {
+            tempc = {
+                "title": capitalize_Words(key.replace(/\_/, ' ')),
+                "mDataProp": key
+            }
         }
         columns.push(tempc);
     });
@@ -432,7 +448,7 @@ async function createDoorTripDataTable(table) {
         bdeferRender: true,
         paging: false,
         bPaginate: false,
-        bAutoWidth: true,
+        bAutoWidth: false,
         bInfo: false,
         destroy: true,
         aoColumns: columns,
@@ -454,7 +470,7 @@ async function removeTripsDoorAssignedDatatable(id, table) {
     }
 }
 async function updateTripAssignedDataTable(ldata, table) {
-    var load = true;
+    let load = true;
     if ($.fn.dataTable.isDataTable("#" + table)) {
         $('#' + table).DataTable().rows(function (idx, data, node) {
             load = false;

@@ -308,6 +308,7 @@ function createConnectionDataTable(table) {
         if (/ConnectionName/i.test(key)) {
             tempc = {
                 "title": 'Name',
+                "width": "60%",
                 "mDataProp": key,
                 "mRender": function (data, type, full) {              
                     if (full.ApiConnection) {
@@ -328,18 +329,21 @@ function createConnectionDataTable(table) {
         else if (/MessageType/i.test(key)) {
             tempc = {
                 "title": "Message Type",
+                "width": "40%",
                 "mDataProp": key
             }
         }
         else if (/Port/i.test(key)) {
             tempc = {
                 "title": "Port",
+                "width": "10%",
                 "mDataProp": key
             }
         }
         else if (/Status/i.test(key)) {
             tempc = {
                 "title": "Status",
+                "width": "0%",
                 "mDataProp": key
 
             }
@@ -347,6 +351,7 @@ function createConnectionDataTable(table) {
         else if (/Action/i.test(key)) {
             tempc = {
                 "title": "Action",
+                "width": "30%",
                 "mDataProp": key,
                 "mRender": function (data, type, full) {
                     if (/^Admin/i.test(User.Role)) {
@@ -385,7 +390,7 @@ function createConnectionDataTable(table) {
         bdeferRender: true,
         bpaging: false,
         bPaginate: false,
-        autoWidth: true,
+        autoWidth: false,
         bInfo: false,
         destroy: true,
         language: {

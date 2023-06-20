@@ -133,18 +133,21 @@ function createAppSettingDataTable(table) {
         if (/KEY_NAME/i.test(key)) {
             tempc = {
                 "title": 'Name',
+                "width": "30%",
                 "mDataProp": key
             }
         }
         else if (/VALUE/i.test(key)) {
             tempc = {
                 "title": "Value",
+                "width": "50%",
                 "mDataProp": key
             }
         }
         else if (/Action/i.test(key)) {
             tempc = {
                 "title": "Action",
+                "width": "10%",
                 "mDataProp": key,
                 "mRender": function (data, type, full) {
                     if (/^Admin/i.test(User.Role)) {
@@ -163,14 +166,15 @@ function createAppSettingDataTable(table) {
         bdeferRender: true,
         bpaging: false,
         bPaginate: false,
-        autoWidth: true,
+        autoWidth: false,
         bInfo: false,
         destroy: true,
         language: {
             zeroRecords: "No Data"
         },
         aoColumns: columns,
-        columnDefs: [],
+        columnDefs: [
+        ],
         sorting: [[0, "asc"]]
      
     })
