@@ -3,7 +3,9 @@ let mpeGroupData = [];
 let MPEGroupName = "";
 let fotfmanager = $.connection.FOTFManager;
 $.extend(fotfmanager.client, {
-    UpdateMPESDOStatus: (mpeDataIncoming) => { Promise.all([processMPEIncomingData(mpeDataIncoming)]) }
+    UpdateMPESDOStatus: (mpeDataIncoming) => { Promise.all([processMPEIncomingData(mpeDataIncoming)]) },
+    RemoveMPEFromGroup: (mpeToRemove) => { Promise.all([removeMPEFromGroup(mpeToRemove)]) },
+    AddMPEToGroup: (mpeToAdd) => { Promise.all([addMPEToGroup(mpeToAdd)]) }
 });
 let mpeSummaryTemplet = {
     machineType: "",
@@ -25,8 +27,56 @@ async function updateMPEGroupStatus(data)
 {
     try {
         if (!!data) {
+            let index = mpeExistInGroup(mpeGroupData, data.MpeId);
+            if (index > -1) {
+                mpeGroupData[index] = data;
+                initMPEGroupStatus(mpeGroupData);
+            }  
         }
     } catch (e) {
+
+    }
+}
+
+async function removeMPEFromGroup(data) {
+    try {
+        if (!!data) {
+            if (data.MPE_Group === "") {
+                let index = mpeExistInGroup(mpeGroupData, data.MpeId);
+                if (index > -1) {
+                    mpeGroupData = removeItemOnce(mpeGroupData, data.MpeId);
+                }
+            }
+            window.location = window.location.href;
+        }
+    } catch (e) {
+
+    }
+}
+
+async function addMPEToGroup(data) {
+    try {
+        if (!!data) {
+            if (data.MPE_Group !== "" || data.MPE_Group !== null || data.MPE_Group !== undefined) {
+                let index = mpeExistInGroup(mpeGroupData, data.MpeId);
+                if (index === -1) {
+                    mpeGroupData[mpeGroupData.length - 1] = data; //insert in the last position
+                    window.location = window.location.href;
+                }
+            }
+        }
+    } catch (e) {
+       
+    }
+}
+
+function removeItemOnce(arr, value) {
+    var index = arr.indexOf(value);
+    if (index > -1) {
+        arr.splice(index, 1);
+    }
+    return arr;
+}
 
     }
 }
@@ -41,8 +91,8 @@ async function initMPEGroupStatus(data)
                 /*Add up only data from running MPEs*/
                 if (this.cur_operation_id != 0) { 
                     mpesRunning += 1;
-                    mpeSummary.machineType = this.mpe_type;// this.MachineType; /*this one could be a single field and the rest a list of items **Analize it...**/
-                    mpeSummary.scheduledStaff += GetscheduledStaffing(this.scheduled_staff);
+                    mpeSummaryTemplate.machineType = this.mpe_type;
+                    mpeSummaryTemplate.scheduledStaff += GetscheduledStaffing(data.ScheduledStaffing);
                     //mpeSummary.actualStaff += this.ActualStaff;
                     mpeSummary.totalVolume += this.tot_sortplan_vol;//this.TotalVolume;
                     mpeSummary.plannedVolume += this.rpg_est_vol;// this.PlannedVolume;
@@ -74,6 +124,19 @@ async function initMPEGroupStatus(data)
         }
     } catch (e) {
         console.log(e);
+    }
+}
+
+function GetscheduledStaffing(data) {
+    let StaffTotal = 0;
+    try {
+        if (!!data) {
+            StaffTotal += data.clerk;
+            StaffTotal += data.mh;
+        }
+        return StaffTotal;
+    } catch (e) {
+        return StaffTotal;
     }
 }
 
@@ -150,6 +213,8 @@ function getThroughput(Throughput, mpe) {
         return result;
     } else {
         return 0;
+    } else {
+        return Math.round(result);
         // Not zero divided by zero
     }
 };

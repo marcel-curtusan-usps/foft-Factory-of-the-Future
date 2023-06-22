@@ -222,6 +222,8 @@ namespace Factory_of_the_Future
                         }
                         if (!string.IsNullOrEmpty(MPE.Properties.MPEGroup))
                         {
+                            MPE.Properties.MPEWatchData.ScheduledStaffing = GetStaffingSortplan(string.Concat(MPE.Properties.MPEWatchData.MpeType, MPE.Properties.MPEWatchData.MpeNumber, MPE.Properties.MPEWatchData.CurSortplan));
+                            MPE.Properties.MPEWatchData.MPEGroup = MPE.Properties.MPEGroup;
                             BroadcastMPESDOStatus(MPE.Properties.MPEWatchData, MPE.Properties.MPEGroup);
                         }
                         BroadcastMachineStatus(MPE, cs.Id);
@@ -322,6 +324,21 @@ namespace Factory_of_the_Future
         {
             Clients.Group("MPE_" + mpeGroupName).updateMPESDOStatus(MPE);
         }
+
+        internal void BroadcastMPESDORemoval(RunPerf MPE, string mpeGroupName)
+        {
+            Clients.Group("MPE_" + mpeGroupName).removeMPEFromGroup(MPE);
+        }
+
+        internal void BroadcastMPESDOAddition(RunPerf MPE, string mpeGroupName)
+        {
+            Clients.Group("MPE_" + mpeGroupName).addMPEToGroup(MPE);
+        }
+       
+        //    RemoveMPEFromGroup: (mpeToRemove) => { Promise.all([removeMPEFromGroup(mpetoRemove)])
+        //},
+        //AddMPEToGroup: (mpeToAdd) => { Promise.all([addMPEToGroup(mpetoAdd)])
+
 
         internal void BroadcastMachineAlertStatus(int status, string floorId, string zoneId)
         {
@@ -2300,10 +2317,16 @@ namespace Factory_of_the_Future
                                     gz.Properties.QuuppaOverride = true;
                                     gz.Properties.MPEWatchData = GetMPEPerfData(gz.Properties.Name);
                                     await Task.Run(() => BroadcastMachineStatus(gz, floorID)).ConfigureAwait(true);
-                                    if (!string.IsNullOrEmpty(gz.Properties.MPEGroup))
+                                    
+                                    if (string.IsNullOrEmpty(tempMPEGroup) == true) //Adding a new MPE
                                     {
-                                        await Task.Run(() => BroadcastMPESDOStatus(gz.Properties.MPEWatchData, gz.Properties.MPEGroup)).ConfigureAwait(true);
+                                        await Task.Run(() => BroadcastMPESDOAddition(gz.Properties.MPEWatchData, gz.Properties.MPEGroup)).ConfigureAwait(true);
                                     }
+                                    else  //Deleting the MPE
+                                    {
+                                        await Task.Run(() => BroadcastMPESDORemoval(gz.Properties.MPEWatchData, tempMPEGroup)).ConfigureAwait(true);
+                                    }
+                                   
                                     fileUpdate = true;
                                 }
 
