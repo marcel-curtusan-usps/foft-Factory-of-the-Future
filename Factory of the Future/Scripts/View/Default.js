@@ -952,7 +952,7 @@ function formatSVmonthdayTime(t) {
         if (checkValue(t)) {
             let time = moment().set({ 'year': t.year, 'month': t.month, 'date': t.dayOfMonth, 'hour': t.hourOfDay, 'minute': t.minute, 'second': t.second });
             if (time._isValid) {
-                if (time.year() === 1) {
+                if (time.year() <= 1) {
                     return "";
                 }
                 return time.format("MM/DD/YYYY HH:mm");

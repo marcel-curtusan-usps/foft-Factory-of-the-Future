@@ -44,13 +44,14 @@ document.addEventListener("layerscontentvisible", () => {
 });
 let dockDoors = new L.GeoJSON(null, {
     style: function (feature) {
+        let ZoneColor = GetDockDoorZoneColor(feature.properties.dockdoorData);
         return {
             weight: 2,
             opacity: 1,
             color: '#3573b1',
-            fillColor: GetDockDoorZoneColor(feature.properties.dockdoorData),//'#989ea4',
-            fillOpacity: 0.5,
-            lastOpacity: 0.5
+            fillColor: ZoneColor,//'#989ea4',
+            fillOpacity: ZoneColor !== '#989ea4' ? 0.5 : 0.2,
+            lastOpacity: ZoneColor !== '#989ea4' ? 0.5 : 0.2
         }
     },
     onEachFeature: function (feature, layer) {
@@ -77,7 +78,13 @@ let dockDoors = new L.GeoJSON(null, {
             else {
                 sidebar.open('home');
             }
-            LoadDockDoorTable(feature.properties);
+            let visible = sidebar._panes.length > 0 ? sidebar._getTab("home") : false;
+            if (visible) {
+                if (visible.classList.length) {
+                    LoadDockDoorTable(feature.properties);
+                }
+            }
+          
         })
         layer.bindTooltip(doorNumberdisplay, {
             permanent: true,

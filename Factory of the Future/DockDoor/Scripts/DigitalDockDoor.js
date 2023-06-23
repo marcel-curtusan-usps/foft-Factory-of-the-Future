@@ -257,8 +257,8 @@ function createContainerDataTable(table) {
         "Location": "",
         "Count": ""
     }]
-    var columns = [];
-    var tempc = {};
+    let columns = [];
+    let tempc = {};
     $.each(arrayColums[0], function (key, value) {
         tempc = {};
         if (/Count/i.test(key)) {
@@ -304,13 +304,13 @@ function capitalize_Words(str) {
 }
 function startTimer(SVdtm) {
     if (!!SVdtm) {
-        var duration = calculatescheduledDuration(SVdtm);
+        let duration = calculatescheduledDuration(SVdtm);
 
-        var timer = setInterval(function () {
+        let timer = setInterval(function () {
             if (!!duration && duration._isValid) {
                 CurrentTripMin = duration.asMinutes();
 
-                if (tripStatus === 0) {
+                if (tripStatus <= 0) {
                     if (TripDirectionInd === "O") {
                         //When the trip departure clock is at 00:10:00, the entire screen for that dock door will turn YELLOW
                         if ((CurrentTripMin > 5 && CurrentTripMin <= 10) && ContainerNotloadedCount > 0) {
@@ -334,10 +334,6 @@ function startTimer(SVdtm) {
                     Tripdisplay("red");
                     stopTimer();
                 }
-
-
-
-
             }
             else {
                 stopTimer()
@@ -373,8 +369,8 @@ function reset() {
 }
 function calculatescheduledDuration(t) {
     if (!!t) {
-        var timenow = moment(DateTimeNow);
-        var conditiontime = moment().set({ 'year': t.year, 'month': t.month, 'date': t.dayOfMonth, 'hour': t.hourOfDay, 'minute': t.minute, 'second': t.second });
+        let timenow = moment(DateTimeNow);
+        let conditiontime = moment().set({ 'year': t.year, 'month': t.month, 'date': t.dayOfMonth, 'hour': t.hourOfDay, 'minute': t.minute, 'second': t.second });
         if (conditiontime._isValid) {
 
             if (timenow > conditiontime) {

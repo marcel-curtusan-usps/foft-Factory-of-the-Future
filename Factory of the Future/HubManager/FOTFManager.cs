@@ -159,6 +159,9 @@ namespace Factory_of_the_Future
                     && f.Value.Properties.DoorNumber == doorNumber
                     ).Select(y => y.Value).ToList().ForEach(DockDoor =>
                     {
+                        DockDoor.Properties.MPEWatchData = null;
+                        DockDoor.Properties.DPSData = null;
+                        DockDoor.Properties.StaffingData = null;
                         DockDoor.Properties.DockDoorData = GetDigitalDockDoorList(DockDoor.Properties.DoorNumber);
                         BroadcastDockDoorUpdateData(DockDoor, cs.Id, DockDoor.Properties.Id);
                     });
@@ -1379,7 +1382,7 @@ namespace Factory_of_the_Future
 
                     if (!string.IsNullOrEmpty(trip.DestSites))
                     {
-                        trip.Containers = GetTripContainer(trip.DestSites, trip.TrailerBarcode, out int NotloadedContainers, out int loaded);
+                        trip.Containers = (List<Container>)GetTripContainer(trip.DestSites, trip.TrailerBarcode, out int NotloadedContainers, out int loaded);
                         trip.NotloadedContainers = NotloadedContainers;
                     }
                     trip.State = state;
@@ -1402,16 +1405,16 @@ namespace Factory_of_the_Future
                 return update;
             }
         }
-        public List<Container> GetTripContainer(string destSites, string trailerBarcode, out int NotloadedContainers, out int loadedContainers)
+        public IEnumerable<Container> GetTripContainer(string destSites, string trailerBarcode, out int NotloadedContainers, out int loadedContainers)
         {
             NotloadedContainers = 0;
             loadedContainers = 0;
-            List<Container> AllContainer = new List<Container>();
+            IEnumerable<Container> AllContainer = null;
             try
             {
                 if (!string.IsNullOrEmpty(destSites) && AppParameters.Containers.Any())
                 {
-                    List<Container> TripContainer = AppParameters.Containers.Where(r => !string.IsNullOrEmpty(r.Value.Dest)
+                    IEnumerable<Container> TripContainer = AppParameters.Containers.Where(r => !string.IsNullOrEmpty(r.Value.Dest)
                    && Regex.IsMatch(r.Value.Dest, destSites, RegexOptions.IgnoreCase)
                    && r.Value.Origin != r.Value.Dest
                    && !r.Value.hasLoadScans
@@ -1422,10 +1425,10 @@ namespace Factory_of_the_Future
                     AllContainer = TripContainer;
                     if (!string.IsNullOrEmpty(trailerBarcode))
                     {
-                        List<Container> LoadedContainer = AppParameters.Containers.Where(r => !string.IsNullOrEmpty(r.Value.Trailer)
+                        IEnumerable<Container> LoadedContainer = AppParameters.Containers.Where(r => !string.IsNullOrEmpty(r.Value.Trailer)
                        && Regex.IsMatch(r.Value.Trailer, trailerBarcode, RegexOptions.IgnoreCase)
                        && r.Value.hasLoadScans).Select(y => y.Value).ToList();
-                       //AllContainer = TripContainer.Concat(LoadedContainer);
+                       AllContainer = TripContainer.Concat(LoadedContainer);
                         loadedContainers = LoadedContainer.Count();
                     }
                 
@@ -1585,6 +1588,7 @@ namespace Factory_of_the_Future
         public void saveDoorTripAssociation(string doorNumber, string route, string trip)
         {
             bool update = false;
+            string RouteTrip = string.Concat(route, trip);
             try
             {
                 if (AppParameters.DoorTripAssociation.ContainsKey(string.Concat(route, trip))
@@ -1608,7 +1612,7 @@ namespace Factory_of_the_Future
                 }
                 else
                 {
-                    if (AppParameters.DoorTripAssociation.TryAdd(string.Concat(route, trip), new DoorTrip { DoorNumber = doorNumber, Route = route, Trip = trip }))
+                    if (!string.IsNullOrEmpty(RouteTrip) && AppParameters.DoorTripAssociation.TryAdd(RouteTrip, new DoorTrip { DoorNumber = doorNumber, Route = route, Trip = trip }))
                     {
                         update = true;
                     }

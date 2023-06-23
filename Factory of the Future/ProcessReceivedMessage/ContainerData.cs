@@ -30,11 +30,12 @@ namespace Factory_of_the_Future
                 if (Data != null)
                 {
                    
-                    Containers = JsonConvert.DeserializeObject<List<Container>>(Data);
+                   
                     if (AppParameters.AppSettings.LOG_API_DATA)
                     {
                         new FileIO().Write(string.Concat(AppParameters.Logdirpath, AppParameters.LogFloder), string.Concat(message_type, DateTime.Now.ToString("yyyyMMdd"), ".txt"), JsonConvert.SerializeObject(Containers, Formatting.Indented));
                     }
+                    Containers = JsonConvert.DeserializeObject<List<Container>>(Data);
                     if (Containers.Count > 0)
                     {
                         string siteId = AppParameters.AppSettings.FACILITY_NASS_CODE;
@@ -121,7 +122,7 @@ namespace Factory_of_the_Future
                             }
                             if (AppParameters.Containers.ContainsKey(d.PlacardBarcode) && AppParameters.Containers.TryGetValue(d.PlacardBarcode, out _container))
                             {
-                                if (AppParameters.Containers.TryUpdate(d.PlacardBarcode, d,_container) )
+                                if (AppParameters.Containers.TryUpdate(d.PlacardBarcode, d , _container) )
                                 {
                                     //update content 
                                 }

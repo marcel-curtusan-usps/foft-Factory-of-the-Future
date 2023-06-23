@@ -44,6 +44,34 @@ namespace Factory_of_the_Future.Controllers
             }
 
         }
+
+        [ResponseType(typeof(Container))]
+        public async Task<IHttpActionResult> GetTrip(string dest, int trip)
+        {
+            //handle bad requests
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            //start data process
+            if (!string.IsNullOrEmpty(dest))
+            {
+                return Content(HttpStatusCode.OK, await Task.Run(() => {
+
+                    return AppParameters.Containers.Where(r => Regex.IsMatch(r.Value.Dest, dest, RegexOptions.IgnoreCase)
+
+                    ).Select(y => y.Value).ToList();
+                }).ConfigureAwait(true));
+            }
+            else
+            {
+                return CreatedAtRoute("DefaultApi", new { message = "Invalid Data in the Request." }, dest);
+            }
+
+        }
+
+
         // POST: api/SVContainers
         public IHttpActionResult Post([FromBody] JToken request_data)
         {

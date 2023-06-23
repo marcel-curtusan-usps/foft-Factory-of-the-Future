@@ -27,7 +27,7 @@ async function updateMPEGroupStatus(data)
         if (!!data) {
         }
     } catch (e) {
-        console.log(e);
+
     }
 }
 
@@ -82,12 +82,16 @@ function getSortedData(data, prop, isAsc) {
         return (a[prop] < b[prop] ? -1 : 1) * (isAsc ? 1 : -1)
     });
 }
-function GetscheduledStaffing(data)
-{
+function GetscheduledStaffing(data) {
+    let StaffTotal = 0;
     try {
-        return 0;
+        if (!!data) {
+            StaffTotal += data.clerk;
+            StaffTotal += data.mh;
+        }
+        return StaffTotal;
     } catch (e) {
-        return 0;
+        return StaffTotal;
     }
 }
 function populateFields(machineSummary, mpesGroup) {

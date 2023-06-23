@@ -59,7 +59,7 @@ namespace Factory_of_the_Future
         public EventDtm LegScheduledDtm { get; set; } = new EventDtm();
 
         [JsonProperty("containerScans")]
-        public List<Container> Containers { get; set; } = new List<Container>();
+        public IEnumerable<Container> Containers { get; set; } = new List<Container>();
 
         [JsonProperty("Notloadedcontainers")]
         public int NotloadedContainers { get; set; } = 0;
@@ -187,6 +187,7 @@ namespace Factory_of_the_Future
 
         [JsonProperty("doorNumber")]
         public string DoorNumber { get; set; } = "";
+
         [JsonProperty("atDoor")]
         public bool AtDoor { get; set; }
 

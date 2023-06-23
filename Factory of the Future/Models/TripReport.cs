@@ -10,6 +10,11 @@ namespace Factory_of_the_Future.Models
         [JsonProperty("SQLTypeName")]
         public string SQLTypeName { get; set; } = "";
 
+        [JsonProperty("atDoor")]
+        public bool AtDoor { get; set; }
+        [JsonProperty("operDate")]
+        public EventDtm OperDate { get; set; } = new EventDtm();
+
         [JsonProperty("routeTripId")]
         public int RouteTripId { get; set; } = 0;
 
@@ -178,7 +183,29 @@ namespace Factory_of_the_Future.Models
         {
             get
             {
-                return string.Concat(RouteTripId.ToString(), RouteTripLegId.ToString(), TripDirectionInd);
+                if (!string.IsNullOrEmpty(TrailerStatus.ProcessStatus))
+                {
+
+                    if (TrailerStatus.ProcessStatus.StartsWith("O"))
+                    {
+                        TripDirectionInd = "O";
+                        return string.Concat(RouteTripId.ToString(), RouteTripLegId.ToString(), "O");
+                    }
+                    else if (TrailerStatus.ProcessStatus.StartsWith("I"))
+                    {
+                        TripDirectionInd = "I";
+                        return string.Concat(RouteTripId.ToString(), RouteTripLegId.ToString(), "I");
+                    }
+                }
+                if (RouteTripId == 0 && !string.IsNullOrEmpty(TrailerBarcode))
+                {
+                    return string.Concat(TrailerBarcode, TripDirectionInd);
+                }
+                if (RouteTripId > 0)
+                {
+                    return string.Concat(RouteTripId.ToString(), RouteTripLegId.ToString(), TripDirectionInd);
+                }
+                return "";
             }
             set
             {

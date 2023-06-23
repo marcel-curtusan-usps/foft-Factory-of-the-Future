@@ -52,7 +52,7 @@ namespace Factory_of_the_Future
                             //Doors(data, connID);
                             break;
                         case "trips":
-                            await Task.Run(() => new TripData().LoadAsync(_data, _Message_type, _connID)).ConfigureAwait(false);
+                            await Task.Run(() => new TripData().Load(_data, _Message_type, _connID)).ConfigureAwait(false);
                             // Trips(data, Message_type, connID);
                             break;
                         case "container":
