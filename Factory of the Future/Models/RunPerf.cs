@@ -105,6 +105,7 @@ namespace Factory_of_the_Future.Models
 
         [JsonProperty("actual_staff")]
         public Staff ActualStaffing { get; internal set; } = new Staff();
+        public string MPEGroup { get; internal set; } = "";
     }
     public class HourlyDatum
     {

@@ -2310,6 +2310,7 @@ namespace Factory_of_the_Future
                             {
                                 if (cs.Zones.ContainsKey(id) && cs.Zones.TryGetValue(id, out GeoZone gz))
                                 {
+                                    string tempMPEGroup = gz.Properties.MPEGroup;//Store the previous mpegroup so we can add it to the MPEWatch object
                                     gz.Properties.MPENumber = (int)objectdata["MPE_Number"];
                                     gz.Properties.MPEType = objectdata["MPE_Type"].ToString();
                                     gz.Properties.Name = string.Concat(gz.Properties.MPEType, "-", gz.Properties.MPENumber.ToString().PadLeft(3, '0'));
@@ -2318,7 +2319,7 @@ namespace Factory_of_the_Future
                                     gz.Properties.MPEWatchData = GetMPEPerfData(gz.Properties.Name);
                                     await Task.Run(() => BroadcastMachineStatus(gz, floorID)).ConfigureAwait(true);
                                     
-                                    if (string.IsNullOrEmpty(tempMPEGroup) == true) //Adding a new MPE
+                                    if (string.IsNullOrEmpty(tempMPEGroup)) //Adding a new MPE
                                     {
                                         await Task.Run(() => BroadcastMPESDOAddition(gz.Properties.MPEWatchData, gz.Properties.MPEGroup)).ConfigureAwait(true);
                                     }
