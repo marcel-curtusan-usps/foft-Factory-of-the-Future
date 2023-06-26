@@ -13,7 +13,7 @@
         this.mpesRunning = 0
         this.message = "";
     }
-}
+} 
 
 let mpeGroupData = [];
 let MPEGroupName = "";
@@ -26,8 +26,10 @@ $.extend(fotfmanager.client, {
 
 let mpeSummaryTemplate = new MPESummaryTemplet();
 let mpeDetailsList = [];
-let previousPlannedEndTime = moment('01/01/1970 00:03:44');
-let previousRunStart = moment('01/01/1970 00:03:44');
+let previousPlannedEndTime = moment('0001-01-01T00:00:00').format('M/DD/yyyy hh:mm:ss');
+let previousRunStart = moment('0001-01-01T00:00:00').format('M/DD/yyyy hh:mm:ss');
+//let previousPlannedEndTime = moment('01/01/1970 00:03:44');
+//let previousRunStart = moment('01/01/1970 00:03:44');
 let mpesRunning = 0;
 
 async function processMPEIncomingData(data) {
@@ -47,13 +49,11 @@ async function processMPEIncomingData(data) {
 async function removeMPEFromGroup(data) {
     try {
         if (!!data) {
-            if (data.MPE_Group === "") {
-                let index = mpeExistInGroup(mpeGroupData, data.MpeId);
-                if (index > -1) {
-                    mpeGroupData = removeItemOnce(mpeGroupData, data.MpeId);
-                }
+            let index = mpeExistInGroup(mpeGroupData, data.MpeId);
+            if (index > -1) {
+                mpeGroupData.splice(index, 1); 
+                initMPEGroupStatus(mpeGroupData);
             }
-            window.location = window.location.href;
         }
     } catch (e) {
 
@@ -63,25 +63,15 @@ async function removeMPEFromGroup(data) {
 async function addMPEToGroup(data) {
     try {
         if (!!data) {
-            if (data.MPE_Group !== "" || data.MPE_Group !== null || data.MPE_Group !== undefined) {
-                let index = mpeExistInGroup(mpeGroupData, data.MpeId);
-                if (index === -1) {
-                    mpeGroupData[mpeGroupData.length - 1] = data; //insert in the last position
-                    window.location = window.location.href;
-                }
+            let index = mpeExistInGroup(mpeGroupData, data.MpeId);
+            if (index === -1) {
+                mpeGroupData[mpeGroupData.length] = data; //insert in the last position
+                initMPEGroupStatus(mpeGroupData);
             }
         }
     } catch (e) {
 
     }
-}
-
-function removeItemOnce(arr, value) {
-    var index = arr.indexOf(value);
-    if (index > -1) {
-        arr.splice(index, 1);
-    }
-    return arr;
 }
 
 function mpeExistInGroup(mpeGroupData, mpeId) {
@@ -92,14 +82,12 @@ function mpeExistInGroup(mpeGroupData, mpeId) {
             return;
         }
     });
-    console.log(index);
     return index;
 }
 
 async function initMPEGroupStatus(data) {
     try {
         if (!!data) {
-            console.log(data);
             if (!mpeGroupData || !mpeGroupData.length) {
                 // array of MPEs empty? then assign the data coming from Server, so we only assign once during lifetime of page
                 mpeGroupData = data.slice();
@@ -108,19 +96,17 @@ async function initMPEGroupStatus(data) {
             mpeSummaryTemplate = new MPESummaryTemplet(); //empty summary class
 
             $.each(data, function (key, value) {
-                this["mpeStatus"] = getMPEOperationStatus(this);
                 /*Add up only data from running MPEs*/
                 if (this.cur_operation_id != 0) {
                     mpesRunning += 1;
                     mpeSummaryTemplate.machineType = this.mpe_type;
                     mpeSummaryTemplate.scheduledStaff += GetscheduledStaffing(this.scheduled_staff);
                     //mpeSummary.actualStaff += this.ActualStaff;
-                    mpeSummaryTemplate.totalVolume += this.tot_sortplan_vol;//this.TotalVolume;
-                    mpeSummaryTemplate.plannedVolume += this.rpg_est_vol;// this.PlannedVolume;
-                    mpeSummaryTemplate.totalThroughput += this.cur_thruput_ophr;//this.TotalThroughput;
-                    mpeSummaryTemplate.plannedThroughput += this.rpg_expected_thruput; //this.PlannedThroughput;
-                    /*Capture the latest Planned End Time and save the current run start to determine whether we are within
-                     * the planned estimated time of completion */
+                    mpeSummaryTemplate.totalVolume += this.tot_sortplan_vol;
+                    mpeSummaryTemplate.plannedVolume += this.rpg_est_vol;
+                    mpeSummaryTemplate.totalThroughput += this.cur_thruput_ophr;
+                    mpeSummaryTemplate.plannedThroughput += this.rpg_expected_thruput;
+                    /*Capture the latest Planned End Time and save the current run start to determine whether we are within the planned estimated time of completion */
                     if (moment(this.rpg_end_dtm) > previousPlannedEndTime) {
                         mpeSummaryTemplate.plannedEndTime = this.rpg_end_dtm;
                         mpeSummaryTemplate.currentRunStart = moment(this.current_run_start).format('M/DD/yyyy hh:mm:ss');
@@ -129,21 +115,18 @@ async function initMPEGroupStatus(data) {
                         mpeSummaryTemplate.plannedEndTime = previousPlannedEndTime;
                         mpeSummaryTemplate.currentRunStart = previousRunStart;
                     }
-
                     mpeSummaryTemplate.message = "";
-                    previousPlannedEndTime = moment(this.rpg_end_dtm);
-                    previousRunStart = moment(this.current_run_start).format('mm/dd/yyy hh:mm:ss');
+                    previousPlannedEndTime = moment(this.rpg_end_dtm).format('M/DD/yyyy hh:mm:ss');
+                    previousRunStart = moment(this.current_run_start).format('M/DD/yyyy hh:mm:ss');
                 }
                 /* 2. Create the list of MPE elements */
                 mpeDetailsList.push(this);
             });
             mpeSummaryTemplate.mpesRunning = mpesRunning;
-            //mpeSummary.projectedEndTime = getProjectedEndtimeSummary(mpeSummary);
-
-            populateFields(mpeSummaryTemplate, getSortedData(mpeDetailsList, 'mpeName', 1));
+            mpeSummaryTemplate.projectedEndTime = getProjectedEndtime(mpeSummaryTemplate.totalVolume, mpeSummaryTemplate.totalThroughput, mpeSummaryTemplate.currentRunStart);
+            populateFields(mpeSummaryTemplate, getSortedData(mpeDetailsList, 'mpe_number', 1));
         }
     } catch (e) {
-        console.log(e);
     }
 }
 
@@ -187,6 +170,7 @@ function populateFields(machineSummary, mpesGroup) {
     removeChildElements("mpeGroupList");
 
     $.each(mpesGroup, function (key, value) {
+        
         let singleMPEDiv = document.createElement('div');
         singleMPEDiv.className = 'item2';
         /*Create inner elements*/
@@ -194,22 +178,18 @@ function populateFields(machineSummary, mpesGroup) {
         innerH5.className = 'card-title';
         innerH5.textContent = this.MpeId;
 
-        let innerH6 = document.createElement('h6');
-        innerH6.className = 'card-text btn-' + getStatusDescription(this.mpeStatus);
-        innerH6.textContent = this.mpeStatus;
+        let innerH6 = document.createElement('h6');      
+        innerH6.textContent = getMPEOperationStatus(this);
+        let mpeStatus = getStatusDescription(innerH6.textContent);
+        innerH6.className = 'card-text btn-' + mpeStatus;
 
         let innerP = document.createElement('p');
         innerP.className = 'card-text';
-        innerP.textContent = this.mpeStatus === 'warning' ? "N/A" : 'OP# ' + this.cur_operation_id;
-
-        let innerS = document.createElement('h4');
-        innerP.className = 'card-text';
-        innerP.textContent = this.cur_operation_id !== 0 ? this.cur_sortplan : "";
+        innerP.textContent = mpeStatus === 'secondary' ? "N/A" : 'OP# ' + this.cur_operation_id;
 
         singleMPEDiv.appendChild(innerH5);
         singleMPEDiv.appendChild(innerH6);
         singleMPEDiv.appendChild(innerP);
-        singleMPEDiv.appendChild(innerS);
 
         let groupList = document.getElementById("mpeGroupList");
         groupList.appendChild(singleMPEDiv);
@@ -258,8 +238,8 @@ function getStatusDescription(status) {
 }
 
 function getMPEOperationStatus(machine) {
-    if (machine.cur_operation_id != 0) {
-        let projectedEndTime = getProjectedEndtime(machine);
+    if (machine.cur_operation_id > 0) {
+        let projectedEndTime = getProjectedEndtime(machine.tot_sortplan_vol, machine.throughput_status, machine.current_run_start);
         if (projectedEndTime > moment(machine.rpg_end_dtm)) {
             return "On Schedule";
         } else {
@@ -270,16 +250,14 @@ function getMPEOperationStatus(machine) {
     }
 }
 
-function getProjectedEndtime(machine) {
-    let mpeRuntimeHrs = Math.round(machine.tot_sortplan_vol / machine.throughput_status);
-    return moment(machine.current_run_start).add(mpeRuntimeHrs, 'hours').format('hh:mm');
+function getProjectedEndtime(totalSortPlan, throughput, currentRunStart) {
+    let mpeRuntimeHrs = Math.round(totalSortPlan / throughput);
+    return moment(currentRunStart).add(mpeRuntimeHrs, 'hours').format('hh:mm');
 }
 
 async function LoadSDOData() {
-    console.log("SDO Connected time: " + new Date($.now()));
     fotfmanager.server.getMPESDOStatus(MPEGroupName).done(async (data) => { Promise.all([initMPEGroupStatus(data)]) });
     fotfmanager.server.joinGroup("MPE_" + MPEGroupName);
-    console.log("MPE_" + MPEGroupName);
 }
 
 function MPEStatus(data) {

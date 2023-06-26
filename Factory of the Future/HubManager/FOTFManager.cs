@@ -2323,7 +2323,7 @@ namespace Factory_of_the_Future
                                     {
                                         await Task.Run(() => BroadcastMPESDOAddition(gz.Properties.MPEWatchData, gz.Properties.MPEGroup)).ConfigureAwait(true);
                                     }
-                                    else  //Deleting the MPE
+                                    else  //Deleting existing MPE
                                     {
                                         await Task.Run(() => BroadcastMPESDORemoval(gz.Properties.MPEWatchData, tempMPEGroup)).ConfigureAwait(true);
                                     }
