@@ -9,9 +9,9 @@ namespace Factory_of_the_Future.MPESDO
 {
     public partial class MPESDO : System.Web.UI.Page
     {
-        protected void Page_Load(object sender, EventArgs e)
-        {
+        //protected void Page_Load(object sender, EventArgs e)
+        //{
 
-        }
+        //}
     }
 }
