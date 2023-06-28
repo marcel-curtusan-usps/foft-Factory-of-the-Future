@@ -20,7 +20,6 @@ let mpeSummaryTemplate = new MPESummaryTemplet();
 let mpeDetailsList = [];
 let previousPlannedEndTime = moment('0001-01-01T00:00:00').format('M/DD/yyyy hh:mm:ss');
 let previousRunStart = moment('0001-01-01T00:00:00').format('M/DD/yyyy hh:mm:ss');
-let mpesRunning = 0;
 let fotfmanager = $.connection.FOTFManager;
 
 $.extend(fotfmanager.client, {
@@ -95,11 +94,10 @@ async function initMPEGroupStatus(data) {
             //empty summary class
             mpeSummaryTemplate = new MPESummaryTemplet(); 
 
-            /*$.each(data, function (key, value) {*/
             $.each(data, function () {
                 /*Add up only data from running MPEs*/
                 if (this.cur_operation_id !== 0) {
-                    mpesRunning += 1;
+                    mpeSummaryTemplate.mpesRunning += 1;
                     mpeSummaryTemplate.machineType = this.mpe_type;
                     mpeSummaryTemplate.scheduledStaff += GetscheduledStaffing(this.scheduled_staff);
                     //mpeSummary.actualStaff += this.ActualStaff;
@@ -117,7 +115,7 @@ async function initMPEGroupStatus(data) {
                 /* 2. Create the list of MPE elements */
                 mpeDetailsList.push(this);
             });
-            mpeSummaryTemplate.mpesRunning = mpesRunning;
+           
             mpeSummaryTemplate.projectedEndTime = getProjectedEndtime(mpeSummaryTemplate.totalVolume, mpeSummaryTemplate.totalThroughput, mpeSummaryTemplate.currentRunStart);
             populateFields(mpeSummaryTemplate, getSortedData(mpeDetailsList, 'mpe_number', 1));
         }
