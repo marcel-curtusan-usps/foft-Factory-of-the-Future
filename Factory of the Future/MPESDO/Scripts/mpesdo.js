@@ -1,20 +1,18 @@
 ﻿let mpeGroupData = [];
 let MPEGroupName = "";
 class MPESummaryTemplet {
-    constructor() {
-        this.machineType = "";
-        this.scheduledStaff = 0;
-        this.actualStaff = 0;
-        this.totalVolume = 0;
-        this.plannedVolume = 0;
-        this.totalThroughput = 0;
-        this.plannedThroughput = 0;
-        this.plannedEndTime = 0;
-        this.currentRunStart = "";
-        this.projectedEndTime = "";
-        this.mpesRunning = 0;
-        this.message = "";
-    }
+        machineType = "";
+        scheduledStaff = 0;
+        actualStaff = 0;
+        totalVolume = 0;
+        plannedVolume = 0;
+        totalThroughput = 0;
+        plannedThroughput = 0;
+        plannedEndTime = 0;
+        currentRunStart = "";
+        projectedEndTime = "";
+        mpesRunning = 0;
+        message = "";
 }
 let mpeSummaryTemplate = new MPESummaryTemplet();
 let mpeDetailsList = [];
