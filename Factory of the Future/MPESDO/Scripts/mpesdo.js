@@ -39,7 +39,7 @@ async function processMPEIncomingData(data) {
             }
         }
     } catch (e) {
-
+        throw new Error(e.toString());
     }
 }
 
@@ -53,7 +53,7 @@ async function removeMPEFromGroup(data) {
             }
         }
     } catch (e) {
-
+        throw new Error(e.toString());
     }
 }
 
@@ -68,7 +68,7 @@ async function addMPEToGroup(data) {
             }
         }
     } catch (e) {
-
+        throw new Error(e.toString());
     }
 }
 
@@ -122,6 +122,7 @@ async function initMPEGroupStatus(data) {
             populateFields(mpeSummaryTemplate, getSortedData(mpeDetailsList, 'mpe_number', 1));
         }
     } catch (e) {
+        throw new Error(e.toString());
     }
 }
 
@@ -270,7 +271,8 @@ function getProjectedEndtime(totalSortPlan, throughput, currentRunStart) {
 }
 
 async function LoadSDOData() {
-    fotfmanager.server.getMPESDOStatus(MPEGroupName).done(async (data) => { Promise.all([initMPEGroupStatus(data)]); });
+    fotfmanager.server.getMPESDOStatus(MPEGroupName)
+        .done(async (data) => { Promise.all([initMPEGroupStatus(data)]); });
     fotfmanager.server.joinGroup("MPE_" + MPEGroupName);
 }
 
@@ -283,24 +285,25 @@ function MPEStatus(data) {
     }
 }
 $(function () {
-    setHeight();
+    setScreenHeight();
     document.title = $.urlParam("MPEGroupName");
     //start connection 
     $.connection.hub.qs = { 'page_type': "MPE".toUpperCase() };
     $.connection.hub.start({ waitForPageLoad: false })
         .done(() => { Promise.all([LoadSDOData()]); }).catch(
             function (err) {
-                console.error(err.toString());
+                throw new Error(err.toString());
             });
 
-})
+});
+
 $.urlParam = function (name) {
     let results = new RegExp('[\?&]' + name + '=([^&#]*)', 'i').exec(window.location.search);
     MPEGroupName = (results !== null) ? decodeURIComponent(results[1]) || 0 : "";
     return MPEGroupName;
-}
+};
 
-function setHeight() {
+function setScreenHeight() {
     let height = (this.window.innerHeight > 0 ? this.window.innerHeight : this.screen.height) - 1;
     let screenTop = (this.window.screenTop > 0 ? this.window.screenTop : 1) - 1;
     let pageBottom = (height - screenTop);
