@@ -77,7 +77,7 @@ function mpeExistInGroup(mpeGroupData, mpeId) {
     $.each(mpeGroupData, function (key) {
         if (this.MpeId === mpeId) {
             index = key;
-            return;
+            return index;
         }
     });
     return index;
