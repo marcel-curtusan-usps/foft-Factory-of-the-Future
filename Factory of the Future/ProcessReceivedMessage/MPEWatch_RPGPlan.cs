@@ -69,7 +69,7 @@ namespace Factory_of_the_Future
             string mailOperationNumber = unformattedMailOperationNumber.Remove(unformattedMailOperationNumber.Length - 3);
             if (mailOperationNumber.Length >= 3)
             {
-                if (int.TryParse(mailOperationNumber, out int parsedMailOperationNumber) == true)
+                if (int.TryParse(mailOperationNumber, out int parsedMailOperationNumber))
                 {
                     return parsedMailOperationNumber;
                 }
@@ -107,13 +107,13 @@ namespace Factory_of_the_Future
         private int GetExpectedThroughput(string rpgExpectedThruput)
         {
             string expectedThroughput;
-            if (string.IsNullOrEmpty(rpgExpectedThruput) == true)
+            if (string.IsNullOrEmpty(rpgExpectedThruput))
             {
                 return 0;
             }
 
             expectedThroughput = !string.IsNullOrEmpty(rpgExpectedThruput) ? rpgExpectedThruput.Split(' ').FirstOrDefault() : "0";
-            if (Int32.TryParse(expectedThroughput, out int intExpectedThroughput) == true)
+            if (Int32.TryParse(expectedThroughput, out int intExpectedThroughput))
             {
                 return intExpectedThroughput;
             }
