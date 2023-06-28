@@ -112,7 +112,8 @@ namespace Factory_of_the_Future
                 return 0;
             }
 
-            expectedThroughput = string.IsNullOrEmpty(rpgExpectedThruput) == false? rpgExpectedThruput.Split(' ').FirstOrDefault() : "0";
+            expectedThroughput = string.IsNullOrEmpty(rpgExpectedThruput)? "0" : rpgExpectedThruput.Split(' ').FirstOrDefault();
+
             if (Int32.TryParse(expectedThroughput, out int intExpectedThroughput))
             {
                 return intExpectedThroughput;
