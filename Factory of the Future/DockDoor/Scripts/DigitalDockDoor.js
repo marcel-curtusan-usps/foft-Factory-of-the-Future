@@ -18,7 +18,8 @@ let CurrentTripInd = "";
 let connecttimer = 0;
 let connectattp = 0;
 let Timerinterval = 1;
-let TimerID = -1;//hold the id
+//hold the id
+let TimerID = -1;
 let CountTimer = 0;
 let TripDirectionInd = "";
 let tripStatus = 0;
@@ -29,7 +30,7 @@ let legdata = null;
  this is for the dock door and container details.
  */
 $.extend(fotfmanager.client, {
-    updateDigitalDockDoorStatus: async (digitaldockdoorupdate) => { Promise.all([updateDockDoorStatus(digitaldockdoorupdate)]) }
+    updateDigitalDockDoorStatus: async (digitaldockdoorupdate) => { Promise.all([updateDockDoorStatus(digitaldockdoorupdate)]); }
 });
 async function updateDockDoorStatus(data) {
     try {
@@ -43,7 +44,7 @@ async function updateDockDoorStatus(data) {
             reset();
         }
     } catch (e) {
-        console.log(e);
+        throw new Error(e.toString());
     }
 }
 $(function () {
@@ -57,13 +58,13 @@ $(function () {
         $.connection.hub.start({ waitForPageLoad: false })
             .done(function () {
                 fotfmanager.server.getDigitalDockDoorList(doornumber).done(async (DockDoordata) => {
-                    Promise.all([updateDockDoorStatus(DockDoordata)])
+                    Promise.all([updateDockDoorStatus(DockDoordata)]);
                 });
                 fotfmanager.server.joinGroup("DockDoor_" + doornumber);
                 console.log("Connected at time: " + new Date($.now()));
             }).catch(
                 function (err) {
-                    console.log(err.toString());
+                    throw new Error(err.toString());
                 });
         // Raised when the connection state changes. Provides the old state and the new state (Connecting, Connected, Reconnecting, or Disconnected).
         //$.connection.hub.stateChanged(function (state) {
@@ -86,7 +87,7 @@ $(function () {
                 $.connection.hub.start().done(function () {
                     console.log("Connected time: " + new Date($.now()));
                 }).catch(function (err) {
-                    console.log(err.toString());
+                    throw new Error(err.toString());
                 });
             }, 10000);
         });
@@ -102,7 +103,7 @@ $.urlParam = function (name) {
     let results = new RegExp('[\?&]' + name + '=([^&#]*)', 'i').exec(window.location.search);
     doornumber = (results !== null) ? results[1] || 0 : "No Door Selected";
     return doornumber;
-}
+};
 async function StartDataConnection() {
     // Start the connection
     createLegsTripDataTable("currentTripTable");
@@ -129,7 +130,7 @@ function updateDataTable(ldata, table) {
             if (data.id === ldata[0].id) {
                 $('#' + table).DataTable().row(node).data(ldata[0]).draw().invalidate();
             }
-        })
+        });
         if (load) {
             Promise.all([loadDataTable(ldata, table)]);
         }
@@ -143,7 +144,7 @@ function updateContainerDataTable(ldata, table) {
             if (data.Location === ldata[0].Location) {
                 $('#' + table).DataTable().row(node).data(ldata[0]).draw().invalidate();
             }
-        })
+        });
         if (load) {
             loadDataTable(ldata, table);
         }
@@ -158,7 +159,7 @@ function removeLegsTripDataTable(table) {
     if ($.fn.dataTable.isDataTable("#" + table)) {
         $('#' + table).DataTable().rows(function (idx, data, node) {
             $('#' + table).DataTable().row(node).remove().draw();
-        })
+        });
     }
 }
 
@@ -168,7 +169,7 @@ function createLegsTripDataTable(table) {
         "trip": "",
         "legSiteName": "",
         "scheduledDtm": ""
-    }]
+    }];
     let columns = [];
     let tempc = {};
     $.each(arrayColums[0], function (key) {
@@ -178,24 +179,25 @@ function createLegsTripDataTable(table) {
                 "title": '<label class="control-label" style="font-size: 4rem; font-weight: bolder;" id="tirpIncdtext"></label>',
                 "mDataProp": key,
                 "class": "row-cts-des",
-                "mRender": function (data, type, full) {
+                //"mRender": function (data, type, full) {
+                "mRender": function (full) {
                     return full["legSiteName"] + " (" + full["legSiteId"] + ")";
                 }
-            }
+            };
         }
         else if (/route/i.test(key)) {
             tempc = {
                 "title": "Route",
                 "mDataProp": key,
                 "class": "row-cts-route"
-            }
+            };
         }
         else if (/trip/i.test(key)) {
             tempc = {
                 "title": "Trip",
                 "mDataProp": key,
                 "class": "row-cts-trip"
-            }
+            };
         }
         else if (/scheduledArrDTM/i.test(key)) {
             tempc = {
@@ -206,24 +208,25 @@ function createLegsTripDataTable(table) {
                     let time = moment().set({ 'year': data.year, 'month': data.month, 'date': data.dayOfMonth, 'hour': data.hourOfDay, 'minute': data.minute, 'second': data.second });
                     return time.format("HH:mm");
                 }
-            }
+            };
         }
         else if (/scheduledDtm/i.test(key)) {
             tempc = {
                 "title": "Sched",
                 "mDataProp": key,
                 "class": "row-cts-depart",
-                "mRender": function (data, type, full) {
+                //"mRender": function (data, type, full) {
+                "mRender": function (data) {
                     let time = moment().set({ 'year': data.year, 'month': data.month, 'date': data.dayOfMonth, 'hour': data.hourOfDay, 'minute': data.minute, 'second': data.second });
                     return time.format("HH:mm");
                 }
-            }
+            };
         }
         else {
             tempc = {
                 "title": capitalize_Words(key.replace(/\_/, ' ')),
                 "mDataProp": key
-            }
+            };
         }
         columns.push(tempc);
 
@@ -256,7 +259,7 @@ function createContainerDataTable(table) {
     let arrayColums = [{
         "Location": "",
         "Count": ""
-    }]
+    }];
     let columns = [];
     let tempc = {};
     $.each(arrayColums[0], function (key) {
@@ -266,21 +269,21 @@ function createContainerDataTable(table) {
                 "title": '<label class="control-label" id=containertext></label> ' + '<label class="control-label" style="font-size: 4rem; font-weight: bolder;" id=totalcontainertext></label>',
                 "mDataProp": key,
                 "class": "row-cts-count"
-            }
+            };
         }
         else if (/Location/i.test(key)) {
             tempc = {
                 "title": "Location",
                 "mDataProp": key,
                 "class": "row-cts-des"
-            }
+            };
         }
         else {
 
             tempc = {
                 "title": capitalize_Words(key.replace(/\_/, ' ')),
                 "mDataProp": key
-            }
+            };
         }
         columns.push(tempc);
     });
@@ -336,7 +339,7 @@ function startTimer(SVdtm) {
                 }
             }
             else {
-                stopTimer()
+                stopTimer();
             }
 
         }, 1000);
@@ -346,7 +349,7 @@ function startTimer(SVdtm) {
         return timer;
     }
     else {
-        stopTimer()
+        stopTimer();
     }
 };
 function stopTimer() {
@@ -357,7 +360,7 @@ function reset() {
     $('#outboundDiv').css("display", "none");
     $('#currentTripTable').DataTable().clear().draw();
     $('#containerLocationtable').DataTable().clear().draw();
-    $('label[id=totalcontainertext]').text("")
+    $('label[id=totalcontainertext]').text("");
     $('label[id=tirpIncdtext]').text("");
     $('label[id=countdowntext]').text("");
     //timeCount
@@ -421,18 +424,18 @@ function CreateContainerCount(data) {
                 Location: contatiner.location,
                 Count: filtered.filter(function (item) {
                     return item.location === contatiner.location && item.hasCloseScans === true && item.hasLoadScans === false;
-                }).length
-            })
+                }).length;
+            });
         });
         let finalCount = remove_duplicates(ContainerSumCounts);
-        console.log(finalCount);
-        ContainerNotloadedCount = filtered.length
+        //console.log(finalCount);
+        ContainerNotloadedCount = filtered.length;
         $('label[id=totalcontainertext]').text(ContainerNotloadedCount);
         updateContainerDataTable(finalCount, "containerLocationtable");
         return true;
     } catch (e) {
-        console.log(e);
-        return false;
+        throw new Error(e.toString());
+        //return false;
     }
 }
 function remove_duplicates(objectsArray) {
