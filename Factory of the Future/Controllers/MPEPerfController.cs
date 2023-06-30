@@ -62,15 +62,5 @@ namespace Factory_of_the_Future.Controllers
             }
             return CreatedAtRoute("DefaultApi", new { id = "0" }, 0);
         }
-
-        // PUT: api/MPE_Perf/5
-        public void Put(int id, [FromBody] string value)
-        {
-        }
-
-        // DELETE: api/MPE_Perf/5
-        public void Delete(int id)
-        {
-        }
     }
 }

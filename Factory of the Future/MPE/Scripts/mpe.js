@@ -56,7 +56,7 @@ function createMPEDataTable(table) {
     }]
     let columns = [];
     let tempc = {};
-    $.each(arrayColums[0], function (key, value) {
+    $.each(arrayColums[0], function (key) {
         tempc = {};
         if (/Planned/i.test(key)) {
             tempc = {
@@ -107,7 +107,8 @@ function createMPEDataTable(table) {
             visible: false,
             targets: 0,
         }],
-        rowCallback: function (row, data, index) {
+        //rowCallback: function (row, data, index) {
+        rowCallback: function (row) {
             $(row).find('td').css('font-size', 'calc(0.1em + 2.6vw)');
         }
     });
@@ -127,10 +128,10 @@ function updateMpeDataTable(ldata, table) {
     }
 }
 function loadMpeDataTable(data, table) {
-    if ($.fn.dataTable.isDataTable("#" + table)) {
-        if (!$.isEmptyObject(data)) {
+    if ($.fn.dataTable.isDataTable("#" + table) && !$.isEmptyObject(data)) {
+        /*if (!$.isEmptyObject(data)) {*/
             $('#' + table).DataTable().rows.add(data).draw();
-        }
+        //}
     }
 }
 function removeLegsTripDataTable(table) {
@@ -144,7 +145,7 @@ async function buildDataTable(data)
 {
     let dataArray = [];
    
-    $.each(data, function (key, value) {
+    $.each(data, function (key) {
         let tabledataObject = {};
         if (/cur_thruput_ophr/i.test(key)) {
             tabledataObject = {
@@ -226,10 +227,11 @@ $(function () {
     $.connection.hub.start({ waitForPageLoad: false })
         .done(() => { Promise.all([LoadData()]) }).catch(
             function (err) {
-                console.log(err.toString());
+               /* console.log(err.toString());*/
+                throw new Error(err.toString());
             });
     // Raised when the connection state changes. Provides the old state and the new state (Connecting, Connected, Reconnecting, or Disconnected).
-    $.connection.hub.stateChanged(function (state) {
+    //$.connection.hub.stateChanged(function (state) {
         //switch (state.newState) {
         //    case 1: $('label[id=dockdoorNumber]');
         //        break;
@@ -238,7 +240,7 @@ $(function () {
         //        break;
         //    default: $('label[id=dockdoorNumber]');
         //}
-    });
+    //});
     //handling Disconnect
     $.connection.hub.disconnected(function () {
         connecttimer = setTimeout(function () {
@@ -249,7 +251,8 @@ $(function () {
             $.connection.hub.start({ waitForPageLoad: false })
                 .done(() => { Promise.all([LoadData()]) })
                 .catch(function (err) {
-                console.log(err.toString());
+                throw new Error(err.toString());
+                //console.log(err.toString());
             });
         }, 10000); // Restart connection after 10 seconds.
         // fotfmanager.server.leaveGroup("DockDoor_" + doornumber);
@@ -286,8 +289,8 @@ function VaildateEstComplete(estComplet) {
         else {
             return "Not Available";
         }
-    } catch (e) {
-
+    } catch (err) {
+        throw new Error(err.toString());
     }
 }
 function startTimer(SVdtm) {

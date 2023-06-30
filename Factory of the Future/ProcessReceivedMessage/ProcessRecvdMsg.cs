@@ -976,7 +976,7 @@ namespace Factory_of_the_Future
                     {
                         if (AppParameters.MissionList.ContainsKey(tempMission.REQUEST_ID) && !AppParameters.MissionList.TryRemove(tempMission.REQUEST_ID, out Mission mission))
                         {
-                            new ErrorLogger().CustomLog("unable to remove Mission " + mission.REQUEST_ID + " to list", string.Concat(AppParameters.AppSettings.APPLICATION_NAME, "Appslogs"));
+                            new ErrorLogger().CustomLog("unable to remove Mission " + mission.REQUEST_ID + " to list", string.Concat(AppParameters.AppSettings.APPLICATION_NAME, "Appslogs")).ConfigureAwait(false);
                         }
                     }
                     //update AGV zone location
@@ -1106,7 +1106,7 @@ namespace Factory_of_the_Future
                     {
                         if (AppParameters.MissionList.ContainsKey(tempMission.REQUEST_ID) && !AppParameters.MissionList.TryRemove(tempMission.REQUEST_ID, out Mission mission))
                         {
-                            new ErrorLogger().CustomLog("unable to remove Mission " + mission.REQUEST_ID + " to list", string.Concat(AppParameters.AppSettings.APPLICATION_NAME, "Appslogs"));
+                            new ErrorLogger().CustomLog("unable to remove Mission " + mission.REQUEST_ID + " to list", string.Concat(AppParameters.AppSettings.APPLICATION_NAME, "Appslogs")).ConfigureAwait(false);
                         }
                     }
 
@@ -1274,7 +1274,7 @@ namespace Factory_of_the_Future
                     {
                         if (!AppParameters.MissionList.TryAdd(tempMission.REQUEST_ID, tempMission))
                         {
-                            new ErrorLogger().CustomLog("unable to add Mission " + tempMission.REQUEST_ID + " to list", string.Concat(AppParameters.AppSettings.FACILITY_TIMEZONE, "Appslogs"));
+                            new ErrorLogger().CustomLog("unable to add Mission " + tempMission.REQUEST_ID + " to list", string.Concat(AppParameters.AppSettings.FACILITY_TIMEZONE, "Appslogs")).ConfigureAwait(false);
                         }
                     }
                     else
@@ -1504,7 +1504,7 @@ namespace Factory_of_the_Future
                                 FOTFManager.Instance.BroadcastVehicleTagStatus(Lmarker, cs.Id);
                                 if (!cs.Locators.TryAdd(Lmarker.Properties.Id, Lmarker))
                                 {
-                                    new ErrorLogger().CustomLog("Unable to Add Marker " + newVehicleStatus.VEHICLE_MAC_ADDRESS, string.Concat(AppParameters.AppSettings.APPLICATION_NAME, "_Applogs"));
+                                    new ErrorLogger().CustomLog("Unable to Add Marker " + newVehicleStatus.VEHICLE_MAC_ADDRESS, string.Concat(AppParameters.AppSettings.APPLICATION_NAME, "_Applogs")).ConfigureAwait(false);
                                 }
                             }
                             //    cs.Locators.Where(f => f.Value.Properties.Name == newVehicleStatus.VEHICLE 
@@ -2191,10 +2191,10 @@ namespace Factory_of_the_Future
 
                                 ProcessNewOrExistingCameraData(newObject, ref alertList, camera_id, true);
                             }
-                            foreach (JToken object_id in removedDetections.Cast<JObject>())
-                            {
+                            //foreach (JToken object_id in removedDetections.Cast<JObject>())
+                            //{
 
-                            }
+                            //}
                             foreach (JObject updatedObject in updatedDetections.Cast<JObject>())
                             {
                                 ProcessNewOrExistingCameraData(updatedObject, ref alertList, camera_id, false);

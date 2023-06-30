@@ -34,7 +34,7 @@ let agvLocations = new L.GeoJSON(null, {
 
             map.setView(e.latlng, 3);
             if ((' ' + document.getElementById('sidebar').className + ' ').indexOf(' ' + 'collapsed' + ' ') <= -1) {
-                if ($('#zoneselect').val() == feature.properties.id) {
+                if ($('#zoneselect').val() === feature.properties.id) {
                     sidebar.close('home');
                 }
                 else {
@@ -58,14 +58,15 @@ async function updateAGVLocationZone(locationupdate) {
     try {
         if (agvLocations.hasOwnProperty("_layers")) {
             var layerindex = -0;
-            $.map(agvLocations._layers, function (layer, i) {
-                if (layer.hasOwnProperty("feature")) {
-                    if (layer.feature.properties.id === locationupdate.properties.id) {
+            //$.map(agvLocations._layers, function (layer, i) {
+            $.map(agvLocations._layers, function (layer) {
+                if (layer.hasOwnProperty("feature") && layer.feature.properties.id === locationupdate.properties.id) {
+                    //if (layer.feature.properties.id === locationupdate.properties.id) {
                         layer.feature.properties = locationupdate.properties;
                         layerindex = layer._leaflet_id;
                     
                         return false;
-                    }
+                    //}
                 }
             });
             if (layerindex !== -0) {

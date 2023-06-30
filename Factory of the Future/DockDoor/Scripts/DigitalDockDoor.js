@@ -66,7 +66,7 @@ $(function () {
                     console.log(err.toString());
                 });
         // Raised when the connection state changes. Provides the old state and the new state (Connecting, Connected, Reconnecting, or Disconnected).
-        $.connection.hub.stateChanged(function (state) {
+        //$.connection.hub.stateChanged(function (state) {
             //switch (state.newState) {
             //    case 1: $('label[id=dockdoorNumber]');
             //        break;
@@ -75,7 +75,7 @@ $(function () {
             //        break;
             //    default: $('label[id=dockdoorNumber]');
             //}
-        });
+        //});
         //handling Disconnect
         $.connection.hub.disconnected(function () {
             connecttimer = setTimeout(function () {
@@ -171,7 +171,7 @@ function createLegsTripDataTable(table) {
     }]
     let columns = [];
     let tempc = {};
-    $.each(arrayColums[0], function (key, value) {
+    $.each(arrayColums[0], function (key) {
         tempc = {};
         if (/legSiteName/i.test(key)) {
             tempc = {
@@ -202,7 +202,7 @@ function createLegsTripDataTable(table) {
                 "title": "Arrive",
                 "mDataProp": key,
                 "class": "row-cts-schd",
-                "mRender": function (data, type, full) {
+                "mRender": function (data) {
                     let time = moment().set({ 'year': data.year, 'month': data.month, 'date': data.dayOfMonth, 'hour': data.hourOfDay, 'minute': data.minute, 'second': data.second });
                     return time.format("HH:mm");
                 }
@@ -244,7 +244,7 @@ function createLegsTripDataTable(table) {
         },
         aoColumns: columns,
         columnDefs: [],
-        rowCallback: function (row, data, index) {
+        rowCallback: function (row) {
             $(row).find('td:eq(2)').css('font-size', 'calc(0.1em + 2.5vw)');
             $(row).find('td:eq(2)').css('vertical-align', 'middle');
 
@@ -259,7 +259,7 @@ function createContainerDataTable(table) {
     }]
     let columns = [];
     let tempc = {};
-    $.each(arrayColums[0], function (key, value) {
+    $.each(arrayColums[0], function (key) {
         tempc = {};
         if (/Count/i.test(key)) {
             tempc = {
@@ -310,8 +310,8 @@ function startTimer(SVdtm) {
             if (!!duration && duration._isValid) {
                 CurrentTripMin = duration.asMinutes();
 
-                if (tripStatus <= 0) {
-                    if (TripDirectionInd === "O") {
+                if (tripStatus <= 0 && TripDirectionInd === "O") {
+                    //if (TripDirectionInd === "O") {
                         //When the trip departure clock is at 00:10:00, the entire screen for that dock door will turn YELLOW
                         if ((CurrentTripMin > 5 && CurrentTripMin <= 10) && ContainerNotloadedCount > 0) {
                             //10 minutes before scheduled trip departure
@@ -325,7 +325,7 @@ function startTimer(SVdtm) {
                         else {
                             Tripdisplay("");
                         }
-                    }
+                    //}
                     duration = moment.duration(duration.asSeconds() - Timerinterval, 'seconds');
                     $('.timecounter').html(duration.format("d [days] hh:mm:ss ", { trunc: true }));
                 }
@@ -397,7 +397,8 @@ function Tripdisplay(color) {
                 $('div.card').addClass('cardRed');
                 $('table').addClass('tablewhite');
                 break;
-            case "normal":
+                /*case "normal":*/
+            default: 
                 $('div.card').removeClass('cardRed').removeClass('cardYellow');
                 $('table').removeClass('tablewhite');
                 break;
@@ -469,7 +470,8 @@ function GetLegdata(legdata)
             $('div[id=incountdowndiv]').css("display", "block");
             $('label[id=incountdowntext]').text("Scheduled" + "\n" + " Arrival");
         }
-        else if (TripDirectionInd === "O") {
+        if (TripDirectionInd === "O") {
+            //else if (TripDirectionInd === "O") {
             if (!!legdata.containerScans && legdata.containerScans.length > 0) {
                 Promise.all([CreateContainerCount(legdata.containerScans)]);
             }

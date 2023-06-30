@@ -131,11 +131,11 @@ namespace Factory_of_the_Future
 
                   await Task.Run(async () =>
                     {
-                        await new Load().GetMPEWatchSite().ConfigureAwait(true);
-                        await new Load().GetRTLSSites().ConfigureAwait(true);
-                        await new Load().GetNotificationDefault().ConfigureAwait(true);
+                        new Load().GetMPEWatchSite();
+                        new Load().GetRTLSSites();
+                        new Load().GetNotificationDefault();
                         await new Load().LoadTempIndoorapData("Project_Data.json").ConfigureAwait(true);
-                        await new Load().GetDoorTripAssociationAsync().ConfigureAwait(true);
+                        new Load().GetDoorTripAssociationAsync();
                         await new Load().GetConnectionDefaultAsync().ConfigureAwait(true);
                     }).ConfigureAwait(true);
                     
@@ -395,7 +395,7 @@ namespace Factory_of_the_Future
                 return 0;
             }
         }
-        internal static void ResetParameters()
+        internal static async Task ResetParameters()
         {
             try
             {
@@ -435,7 +435,7 @@ namespace Factory_of_the_Future
 
                 if (ActiveServer)
                 {
-                    Start();
+                    await Start();
                 }
             }
             catch (Exception e)

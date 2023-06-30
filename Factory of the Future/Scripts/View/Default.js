@@ -78,15 +78,15 @@ $(function () {
             //setup connection list
             init_connection($.parseJSON(User.ConnectionList));
         }
-        if (User.hasOwnProperty("FacilityTimeZone")) {
-            if (checkValue(User.FacilityTimeZone)) {
+        if (User.hasOwnProperty("FacilityTimeZone") && checkValue(User.FacilityTimeZone)) {
+           /* if (checkValue(User.FacilityTimeZone)) {*/
                 timezone = { Facility_TimeZone: User.FacilityTimeZone }
                 Promise.all([cBlock()]);
-            }
+            //}
         }
-        if (User.hasOwnProperty("Environment")) {
+        if (User.hasOwnProperty("Environment") && /(DEV|SIT|CAT)/i.test(User.Environment)) {
             //Environment Status Controls
-            if (/(DEV|SIT|CAT)/i.test(User.Environment)) {
+           /* if (/(DEV|SIT|CAT)/i.test(User.Environment)) {*/
                 let Environment = L.Control.extend({
                     options: {
                         position: 'topright'
@@ -102,7 +102,7 @@ $(function () {
                 });
                 map.addControl(new Environment());
          
-            }
+            //}
         }
         if (/^Admin/i.test(User.Role)) {
          
@@ -175,14 +175,14 @@ $(function () {
             });
             map.addControl(new QRCodedisplay());
 
-            let qrcode = new QRCode("qrcodeUrl", {
-                text: window.location.href,
-                width: 128,
-                height: 128,
-                colorDark: "#000000",
-                colorLight: "#ffffff",
-                correctLevel: QRCode.CorrectLevel.H
-            });
+            //let qrcode = new QRCode("qrcodeUrl", {
+            //    text: window.location.href,
+            //    width: 128,
+            //    height: 128,
+            //    colorDark: "#000000",
+            //    colorLight: "#ffffff",
+            //    correctLevel: QRCode.CorrectLevel.H
+            //});
         }
     }
  
@@ -190,7 +190,7 @@ $(function () {
     $('input[id=inputsearchbtn').keyup(function () {
         startSearch(this.value)
     }).keydown(function (event) {
-        if (event.which == 13) {
+        if (event.which === 13) {
             event.preventDefault();
         }
     });
@@ -433,7 +433,8 @@ $(function () {
             // Show the modal
             $('#UserTag_Modal').modal();
         } catch (error) {
-            console.log(error);
+            //console.log(error);
+            throw new Error(error.toString());
         }
     }
 
@@ -499,19 +500,21 @@ $(function () {
     async function LoadtagDetails(tagid) {
         try {
             if (map.hasOwnProperty("_layers")) {
-                $.map(map._layers, function (layer, i) {
-                    if (layer.hasOwnProperty("feature")) {
-                        if (layer.feature.properties.id === tagid) {
+                //$.map(map._layers, function (layer, i) {
+                $.map(map._layers, function (layer) {
+                    if (layer.hasOwnProperty("feature") && layer.feature.properties.id === tagid) {
+                        //if (layer.feature.properties.id === tagid) {
                             map.setView(layer.getLatLng(), 3);
                             sidebar.open('home');
                             LoadVehicleTable(layer.feature.properties);
                             return false;
-                        }
+                        //}
                     }
                 });
             }
         } catch (e) {
-            console.log(e);
+            //console.log(e);
+            throw new Error(e.toString());
         }
     }
  
@@ -549,7 +552,8 @@ $(function () {
         DeleteUserInfo(layer_id);
     });
     //search tag details
-    $(document).on('click', '.tagdetails', function (e) {
+    //$(document).on('click', '.tagdetails', function (e) {
+    $(document).on('click', '.tagdetails', function () {
         var td = $(this);
         var tagid = td.attr('data-tag');
         if (checkValue(tagid)) {
@@ -557,7 +561,8 @@ $(function () {
         }
     });
     //search machine details
-    $(document).on('click', '.machinedetails', function (e) {
+    //$(document).on('click', '.machinedetails', function (e) {
+    $(document).on('click', '.machinedetails', function () {
         var td = $(this);
         var machZoneid = td.attr('data-machine');
         if (checkValue(machZoneid)) {
@@ -571,21 +576,23 @@ $(function () {
             var selcValue = this.id;
             updateURIParametersForLayer($("#" + selcValue).html());
             if (viewPortsAreas.hasOwnProperty("_layers")) {
-                $.map(viewPortsAreas._layers, function (layer, i) {
-                    if (layer.hasOwnProperty("feature")) {
-                        if (layer.feature.properties.id === selcValue) {
+                //$.map(viewPortsAreas._layers, function (layer, i) {
+                $.map(viewPortsAreas._layers, function (layer) {
+                    if (layer.hasOwnProperty("feature") && layer.feature.properties.id === selcValue) {
+                        //if (layer.feature.properties.id === selcValue) {
                             var Center = new L.latLng(
                                 (layer._bounds._southWest.lat + layer._bounds._northEast.lat) / 2,
                                 (layer._bounds._southWest.lng + layer._bounds._northEast.lng) / 2);
                             map.setView(Center, 3);
                             Loadtable(layer.feature.properties.id, 'viewportstable');
                             return false;
-                        }
+                        //}
                     }
                 });
             }
         } catch (e) {
-            console.log(e);
+            //console.log(e);
+            throw new Error(e.toString());
         }
     });
     //$(document).on('click', '.connectionedit', function () {
@@ -623,10 +630,12 @@ function getEnv(env) {
     if (/CAT/i.test(env)) {
         return "btn btn-outline-primary btn-sm";
     }
-    else if (/SIT/i.test(env)) {
+    //else if (/SIT/i.test(env)) {
+    if (/SIT/i.test(env)) {
         return "btn btn-outline-warning btn-sm";
     }
-    else if (/DEV/i.test(env)) {
+    //else if (/DEV/i.test(env)) {
+    if (/DEV/i.test(env)) {
         return "btn btn-outline-danger btn-sm";
     }
 }
@@ -659,14 +668,16 @@ $('th').click(function () {
     var isNum = $table.find('tbody > tr').children('td').eq(column).hasClass('num');
     var rows = $table.find('tbody > tr').get();
     rows.sort(function (rowA, rowB) {
+        let keyA;
+        let keyB;
         if (isInput) {
-            var keyA = $(rowA).children('td').eq(column).children('input').val().toUpperCase();
-            var keyB = $(rowB).children('td').eq(column).children('input').val().toUpperCase();
+            keyA = $(rowA).children('td').eq(column).children('input').val().toUpperCase();
+            keyB = $(rowB).children('td').eq(column).children('input').val().toUpperCase();
         } else {
-            var keyA = $(rowA).children('td').eq(column).text().toUpperCase();
-            var keyB = $(rowB).children('td').eq(column).text().toUpperCase();
+            keyA = $(rowA).children('td').eq(column).text().toUpperCase();
+            keyB = $(rowB).children('td').eq(column).text().toUpperCase();
         }
-        if (isSelected) return OrderBy(keyA, keyB, isNum);
+        if (isSelected) { return OrderBy(keyA, keyB, isNum); }
         return OrderBy(keyB, keyA, isNum);
     });
     $.each(rows, function (index, row) {
@@ -683,16 +694,17 @@ function SortByVehicleName(a, b) {
 }
 function formatTime(value_time) {
     try {
-        if (!$.isEmptyObject(timezone)) {
-            if (timezone.hasOwnProperty("Facility_TimeZone")) {
+        if (!$.isEmptyObject(timezone) && timezone.hasOwnProperty("Facility_TimeZone")) {
+            //if (timezone.hasOwnProperty("Facility_TimeZone")) {
                 let time = moment(value_time);
                 if (time._isValid) {
                     return time.format("HH:mm");
                 }
-            }
+            //}
         }
     } catch (e) {
-        console.log(e);
+        //console.log(e);
+        throw new Error(e.toString());
     }
 }
 function formatDateTime(value_time) {
@@ -704,7 +716,8 @@ function formatDateTime(value_time) {
         }
 
     } catch (e) {
-        console.log(e);
+        //console.log(e);
+        throw new Error(e.toString());
     }
 }
 function capitalize_Words(str) {
@@ -713,16 +726,17 @@ function capitalize_Words(str) {
             return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();
         });
     } catch (e) {
-        console.log(e);
+        //console.log(e);
+        throw new Error(e.toString());
     }
   
 }
 function IPAddress_validator(value) {
     let ipPattern = /^(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})$/;
     let ipArray = value.match(ipPattern);
-    if (value === "0.0.0.0" || value === "255.255.255.255" || ipArray === null)
+    if (value === "0.0.0.0" || value === "255.255.255.255" || ipArray === null) {
         return "Invalid IP Address";
-    else {
+    } else {
         for (let i = 1; i < ipArray.length; i++) {
            let thisSegment = ipArray[i];
             if (thisSegment > 255) {
@@ -737,9 +751,9 @@ function IPAddress_validator(value) {
 }
 //order
 function OrderBy(a, b, n) {
-    if (n) return a - b;
-    if (a < b) return -1;
-    if (a > b) return 1;
+    if (n) { return a - b; }
+    if (a < b) { return -1; }
+    if (a > b) { return 1; }
     return 0;
 }
 function SortByTagName(a, b) {
@@ -776,37 +790,38 @@ function GetPeopleInZone(zone, P2Pdata, staffarray) {
     let staffCounts = [];
     let sumstaffCounts = {};
     try {
-        if (staffarray.length === 0) {
-            if (tagsMarkersGroup.hasOwnProperty("_layers")) {
-                $.map(tagsMarkersGroup._layers, function (layer, i) {
-                    if (layer.hasOwnProperty("feature")) {
-                        if (/person/i.test(layer.feature.properties.Tag_Type)) {
-                            if (layer.feature.properties.hasOwnProperty("zones")) {
+        if (staffarray.length === 0 && tagsMarkersGroup.hasOwnProperty("_layers")) {
+            //if (tagsMarkersGroup.hasOwnProperty("_layers")) {
+            //$.map(tagsMarkersGroup._layers, function (layer, i) {
+            $.map(tagsMarkersGroup._layers, function (layer) {
+                    if (layer.hasOwnProperty("feature") && /person/i.test(layer.feature.properties.Tag_Type) && layer.feature.properties.hasOwnProperty("zones")) {
+                        //if (/person/i.test(layer.feature.properties.Tag_Type)) {
+                            //if (layer.feature.properties.hasOwnProperty("zones")) {
                                 $.map(layer.feature.properties.zones, function (p_zone) {
-                                    if (p_zone.id == zone) {
-                                        if (layer.hasOwnProperty("_tooltip")) {
-                                            if (layer._tooltip.hasOwnProperty("_container")) {
-                                                if (!layer._tooltip._container.classList.contains('tooltip-hidden')) {
+                                    if (p_zone.id === zone && layer.hasOwnProperty("_tooltip") && layer._tooltip.hasOwnProperty("_container") && !layer._tooltip._container.classList.contains('tooltip-hidden')) {
+                                        //if (layer.hasOwnProperty("_tooltip")) {
+                                            //if (layer._tooltip.hasOwnProperty("_container")) {
+                                                //if (!layer._tooltip._container.classList.contains('tooltip-hidden')) {
                                                     staffarray.push({
                                                         name: checkValue(layer.feature.properties.craftName) ? layer.feature.properties.craftName : layer.feature.properties.id,
                                                         nameId: checkValue(layer.feature.properties.id) ? layer.feature.properties.id : layer.feature.properties.id,
                                                         id: layer.feature.properties.id
                                                     })
-                                                }
-                                            }
-                                        }
+                                                //}
+                                            //}
+                                        //}
                                     }
                                 });
-                            }
-                        }
+                            //}
+                        //}
                     }
                 });
-            }
+            //}
         }
 
-        if (checkValue(P2Pdata)) {
-            if (P2Pdata.hasOwnProperty("clerk")) {
-                if (P2Pdata.clerk >= 1) {
+        if (checkValue(P2Pdata) && P2Pdata.hasOwnProperty("clerk") && P2Pdata.clerk >= 1) {
+            //if (P2Pdata.hasOwnProperty("clerk")) {
+                //if (P2Pdata.clerk >= 1) {
                     for (let i = 0; i < P2Pdata.clerk; i++) {
                         planstaffarray.push({
                             name: "Clerk",
@@ -817,10 +832,10 @@ function GetPeopleInZone(zone, P2Pdata, staffarray) {
                     //    name: "Clerk",
                     //    value: P2Pdata.clerk
                     //})
-                }
-            }
-            if (P2Pdata.hasOwnProperty("mh")) {
-                if (P2Pdata.mh >= 1) {
+                //}
+            //}
+            if (P2Pdata.hasOwnProperty("mh") && P2Pdata.mh >= 1) {
+                //if (P2Pdata.mh >= 1) {
                     for (let r = 0; r < P2Pdata.mh; r++) {
                         planstaffarray.push({
                             name: "MailHandler",
@@ -831,13 +846,15 @@ function GetPeopleInZone(zone, P2Pdata, staffarray) {
                     //    name: "MailHandler",
                     //    value: P2Pdata.mh
                     //})
-                }
+                //}
             }
         }
-
-        $.each(staffarray, function (i, e) {
+       
+        //$.each(staffarray, function (i, e) {
+        $.each(staffarray, function () {
             sumstaffCounts[this.name] = (sumstaffCounts[this.name] || 0) + 1;
         });
+        
         $.each(sumstaffCounts, function (index, value) {
             staffCounts.push({
                 name: index,
@@ -845,7 +862,8 @@ function GetPeopleInZone(zone, P2Pdata, staffarray) {
             });
         });
 
-        $.each(planstaffarray, function (i, e) {
+        //$.each(planstaffarray, function (i, e) {
+        $.each(planstaffarray, function () {
             plansumstaffCounts[this.name] = (plansumstaffCounts[this.name] || 0) + 1;
         });
         $.each(plansumstaffCounts, function (index, value) {
@@ -871,23 +889,25 @@ function GetPeopleInZone(zone, P2Pdata, staffarray) {
             currentstaff: staffarray.length,
             planstaff: planstaffarray.length
         });
+       
         $.each(staffCounts, function () {
             stafftop_Table_Body.append(stafftop_row_template.supplant(formatstafftoprow(this)));
         })
     } catch (e) {
-        console.log(e);
+        //console.log(e);
+        throw new Error(e.toString());
     }
 }
 let stafftop_row_template = '<tr data-id={staffName}{style}>' +
     '<td class="text-center">{staffName}</td>' +
-    '<td class="text-center">{staffNameId}</td>' +
+    '<td class="text-center">{currentstaff}</td>' +
     '<td class="text-center">{planstaff}</td>' +
     '</tr>"';
 function formatstafftoprow(properties) {
     return $.extend(properties, {
         staffName: properties.name,
         staffId: properties.id,
-        staffNameId: properties.hasOwnProperty("currentstaff") ? properties.currentstaff : 0,
+        currentstaff: properties.hasOwnProperty("currentstaff") ? properties.currentstaff : 0,
         planstaff: properties.hasOwnProperty("planstaff") ? properties.planstaff : 0,
         style: GetStaffRowStyle(properties.hasOwnProperty("currentstaff") ? properties.currentstaff : 0, properties.hasOwnProperty("planstaff") ? properties.planstaff : 0)
     });
@@ -895,15 +915,15 @@ function formatstafftoprow(properties) {
 function GetStaffRowStyle(currStaff, planStaff) {
     let rowAlertColor = ' style="background-color:rgba(220, 53, 69, 0.5);"';
     let rowWarningColor = ' style="background-color:rgba(255, 193, 7, 0.5);"';
-    if (planStaff > 4) {
-        if (currStaff < planStaff) {
+    if (planStaff > 4 && currStaff < planStaff) {
+        //if (currStaff < planStaff) {
             if ((currStaff / planStaff) * 100 > 95) {
                 return rowWarningColor
             }
             else {
                 return rowAlertColor
             }
-        }
+        //}
     }
     return "";
 }
@@ -941,7 +961,8 @@ function objSVTime(t) {
             return "";
         }
     } catch (e) {
-        console.log(e);
+        //console.log(e);
+        throw new Error(e.toString());
     }
 }
 async function updateTime(t) {
@@ -965,7 +986,8 @@ function formatSVmonthdayTime(t) {
             return "";
         }
     } catch (e) {
-        console.log(e);
+        //console.log(e);
+        throw new Error(e.toString());
         return "";
     }
 }
@@ -976,14 +998,14 @@ async function cBlock() {
     if ($("#tfhcContent").length > 0) {
         SetClockHands(t);
     }
-    let visible =  sidebar._panes.length > 0 ? sidebar._getTab("reports") : false;
-    if (visible) {
-        if (visible.classList.length) {
-            if (visible.classList.contains('active')) {
-                //GetUserInfo();
-            }
-        }
-    }
+    //let visible =  sidebar._panes.length > 0 ? sidebar._getTab("reports") : false;
+    //if (visible) {
+    //    if (visible.classList.length) {
+    //        if (visible.classList.contains('active')) {
+    //            //GetUserInfo();
+    //        }
+    //    }
+    //}
 
     //Promise.all([zonecurrentStaff()]);
 }
@@ -996,9 +1018,9 @@ async function zonecurrentStaff() {
         if (tagsMarkersGroup.hasOwnProperty("_layers")) {
             $.map(tagsMarkersGroup._layers, (layer) => {
 
-                if (/person/i.test(layer.feature.properties.Tag_Type)) {
-                    if (layer.feature.properties.tagVisible === true) {
-                        if (layer.feature.properties.hasOwnProperty("positionTS")) {
+                if (/person/i.test(layer.feature.properties.Tag_Type) && layer.feature.properties.tagVisible === true && layer.feature.properties.hasOwnProperty("positionTS")) {
+                    //if (layer.feature.properties.tagVisible === true) {
+                        //if (layer.feature.properties.hasOwnProperty("positionTS")) {
                             let startTime = moment(layer.feature.properties.positionTS);
                             let endTime = moment();
                             let diffmillsec = endTime.diff(startTime, "milliseconds");
@@ -1006,34 +1028,36 @@ async function zonecurrentStaff() {
                             if (diffmillsec > layer.feature.properties.tagVisibleMils) {
                                 layer.feature.properties.tagVisibleMils = diffmillsec;
                             }
-                        }
+                        //}
                         if (layer.feature.properties.tagVisibleMils > 80000) {
                             layer.feature.properties.tagVisible = false;
                             //this to hide tooltip
-                            if (layer.hasOwnProperty("_tooltip")) {
-                                if (layer._tooltip.hasOwnProperty("_container")) {
-                                    if (!layer._tooltip._container.classList.contains('tooltip-hidden')) {
+                            if (layer.hasOwnProperty("_tooltip") && layer._tooltip.hasOwnProperty("_container") && !layer._tooltip._container.classList.contains('tooltip-hidden')) {
+                                //if (layer._tooltip.hasOwnProperty("_container")) {
+                                    //if (!layer._tooltip._container.classList.contains('tooltip-hidden')) {
                                         layer._tooltip._container.classList.add('tooltip-hidden');
-                                    }
-                                }
+                                    //}
+                                //}
                             }
                         }
-                    }
+                    //}
                 }
 
             })
         }
         // Machine zone
         if (polygonMachine.hasOwnProperty("_layers")) {
-            $.map(polygonMachine._layers, function (Machinelayer, i) {
+            //$.map(polygonMachine._layers, function (Machinelayer, i) {
+            $.map(polygonMachine._layers, function (Machinelayer) {
                 let MachineCurrentStaff = [];
                 if (tagsMarkersGroup.hasOwnProperty("_layers")) {
-                    $.map(tagsMarkersGroup._layers, function (layer, i) {
+                    //$.map(tagsMarkersGroup._layers, function (layer, i) {
+                    $.map(tagsMarkersGroup._layers, function (layer) {
                         if (/person/i.test(layer.feature.properties.Tag_Type) && layer.feature.properties.zones !== null && layer.feature.properties.zones.length > 0) {
                             
                             $.map(layer.feature.properties.zones, function (p_zone) {
 
-                                if (p_zone == Machinelayer.feature.properties.id) {
+                                if (p_zone === Machinelayer.feature.properties.id) {
                                     
                                                MachineCurrentStaff.push({
                                                     name: checkValue(layer.feature.properties.craftName) ? layer.feature.properties.craftName : layer.feature.properties.id,
@@ -1047,32 +1071,34 @@ async function zonecurrentStaff() {
                     });
                 }
 
-                if (Machinelayer.hasOwnProperty("_tooltip")) {
-                    if (MachineCurrentStaff.length !== Machinelayer.feature.properties.CurrentStaff) {
+                if (Machinelayer.hasOwnProperty("_tooltip") && MachineCurrentStaff.length !== Machinelayer.feature.properties.CurrentStaff) {
+                    //if (MachineCurrentStaff.length !== Machinelayer.feature.properties.CurrentStaff) {
                         Machinelayer.setTooltipContent(Machinelayer.feature.properties.name + "<br/>" + "Staffing: " + MachineCurrentStaff.length);
                         Machinelayer.feature.properties.CurrentStaff = MachineCurrentStaff.length;
                         if ($('select[id=zoneselect] option:selected').val() === Machinelayer.feature.properties.id) {
                             let p2pdata = Machinelayer.feature.properties.hasOwnProperty("P2PData") ? Machinelayer.feature.properties.P2PData : "";
                             GetPeopleInZone(Machinelayer.feature.properties.id, p2pdata, MachineCurrentStaff);
                         }
-                    }
+                    //}
                 }
             });
         }
 
         // other zone
         if (stagingAreas.hasOwnProperty("_layers")) {
-            $.map(stagingAreas._layers, function (stagelayer, i)
+            //$.map(stagingAreas._layers, function (stagelayer, i)
+            $.map(stagingAreas._layers, function (stagelayer)
             {
                 
                 let CurrentStaff = [];
                 if (tagsMarkersGroup.hasOwnProperty("_layers")) {
-                    $.map(tagsMarkersGroup._layers, function (layer, i) {
+                    //$.map(tagsMarkersGroup._layers, function (layer, i) {
+                    $.map(tagsMarkersGroup._layers, function (layer) {
                        
                         if (/person/i.test(layer.feature.properties.Tag_Type) && layer.feature.properties.zones != null) {
                            
                             $.map(layer.feature.properties.zones, function (p_zone) {
-                                if (p_zone.id == stagelayer.feature.properties.id) {
+                                if (p_zone.id === stagelayer.feature.properties.id) {
                                     
                                               CurrentStaff.push({
                                                     name: checkValue(layer.feature.properties.craftName) ? layer.feature.properties.craftName : layer.feature.properties.id,
@@ -1087,21 +1113,22 @@ async function zonecurrentStaff() {
                     });
                 }
 
-                if (stagelayer.hasOwnProperty("_tooltip")) {
-                    if (CurrentStaff.length !== stagelayer.feature.properties.CurrentStaff) {
+                if (stagelayer.hasOwnProperty("_tooltip") && CurrentStaff.length !== stagelayer.feature.properties.CurrentStaff) {
+                    //if (CurrentStaff.length !== stagelayer.feature.properties.CurrentStaff) {
                         stagelayer.setTooltipContent(stagelayer.feature.properties.name + "<br/>" + "Staffing: " + CurrentStaff.length);
                         stagelayer.feature.properties.CurrentStaff = CurrentStaff.length;
-                        if (stagingAreas.hasOwnProperty("feature")) {
-                            if ($('select[id=zoneselect] option:selected').val() === stagingAreas.feature.properties.id) {
+                    if (stagingAreas.hasOwnProperty("feature") && $('select[id=zoneselect] option:selected').val() === stagingAreas.feature.properties.id) {
+                            //if ($('select[id=zoneselect] option:selected').val() === stagingAreas.feature.properties.id) {
                                 GetPeopleInZone(stagelayer.feature.properties.idp2pdata, CurrentStaff);
-                            }
+                            //}
                         }
-                    }
+                    //}
                 }
             });
         }
     } catch (e) {
-        console.log(e);
+        //console.log(e);
+        throw new Error(e.toString());
     }
 }
 
@@ -1120,27 +1147,28 @@ function viewportSelectedByName(name) {
             selcValue = $(this).attr("id");
         }
     });
-    if (selcValue === null) return;
+    if (selcValue === null) { return; }
     if (viewPortsAreas.hasOwnProperty("_layers")) {
-        $.map(viewPortsAreas._layers, function (layer, i) {
-            if (layer.hasOwnProperty("feature")) {
-                if (layer.feature.properties.id === selcValue) {
+        //$.map(viewPortsAreas._layers, function (layer, i) {
+        $.map(viewPortsAreas._layers, function (layer) {
+            if (layer.hasOwnProperty("feature") && layer.feature.properties.id === selcValue) {
+                //if (layer.feature.properties.id === selcValue) {
                     let Center = new L.latLng(
                         (layer._bounds._southWest.lat + layer._bounds._northEast.lat) / 2,
                         (layer._bounds._southWest.lng + layer._bounds._northEast.lng) / 2);
                     map.setView(Center, 3);
                     Loadtable(layer.feature.properties.id, 'viewportstable');
                     return false;
-                }
+                //}
             }
         });
     }
 }
 async function loadDatatable(data, table) {
-    if ($.fn.dataTable.isDataTable("#" + table)) {
-        if (!$.isEmptyObject(data)) {
+    if ($.fn.dataTable.isDataTable("#" + table) && !$.isEmptyObject(data)) {
+        //if (!$.isEmptyObject(data)) {
             $('#' + table).DataTable().rows.add(data).draw();
-        }
+        //}
     }
 }
 function URLconstructor(winLoc) {

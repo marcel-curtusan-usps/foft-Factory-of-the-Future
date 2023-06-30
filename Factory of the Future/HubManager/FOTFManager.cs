@@ -42,22 +42,22 @@ namespace Factory_of_the_Future
         private readonly object updateCameralock = new object();
 
         //timers
-        private readonly Timer VehicleTag_timer;
-        private readonly Timer PersonTag_timer;
-        private readonly Timer Zone_timer;
-        private readonly Timer QSM_timer;
-        private readonly Timer Machine_timer;
-        private readonly Timer AGVLocation_timer;
-        private readonly Timer SVTrips_timer;
-        private readonly Timer Notification_timer;
-        private readonly Timer BinZone_timer;
+        //private readonly Timer VehicleTag_timer;
+        //private readonly Timer PersonTag_timer;
+        //private readonly Timer Zone_timer;
+        //private readonly Timer QSM_timer;
+        //private readonly Timer Machine_timer;
+        //private readonly Timer AGVLocation_timer;
+        //private readonly Timer SVTrips_timer;
+        //private readonly Timer Notification_timer;
+        //private readonly Timer BinZone_timer;
         // private readonly Timer Camera_timer;
         //status
         private volatile bool _updatePersonTagStatus = false;
         private volatile bool _updateZoneStatus = false;
         private volatile bool _updateTagStatus = false;
-        private volatile bool _updatingQSMStatus = false;
-        private volatile bool _updateMachineStatus = false;
+        //private volatile bool _updatingQSMStatus = false;
+        //private volatile bool _updateMachineStatus = false;
         private volatile bool _updateAGVLocationStatus = false;
         private volatile bool _updateSVTripsStatus = false;
         private volatile bool _updateNotificationstatus = false;
@@ -1508,7 +1508,7 @@ namespace Factory_of_the_Future
             {
                 if (!CoordinateSystem.TryAdd(id, cSystem))
                 {
-                    new ErrorLogger().CustomLog("Unable to add CoordinateSystem " + id, string.Concat(AppParameters.AppSettings.APPLICATION_NAME, "_Applogs"));
+                    new ErrorLogger().CustomLog("Unable to add CoordinateSystem " + id, string.Concat(AppParameters.AppSettings.APPLICATION_NAME, "_Applogs")).ConfigureAwait(false);
                 }
 
                 _ = Task.Run(() => new FileIO().Write(string.Concat(AppParameters.Logdirpath, AppParameters.ConfigurationFloder), "Project_Data.json", AppParameters.ZoneOutPutdata(CoordinateSystem.Select(x => x.Value).ToList())));
@@ -2401,7 +2401,7 @@ namespace Factory_of_the_Future
             {
                 AppParameters._connections.Remove(connectionId, connectionId);
                 string data = string.Concat("Client closed the connection. | Connection ID: : " + connectionId);
-                new ErrorLogger().CustomLog(data, string.Concat(AppParameters.AppSettings.APPLICATION_NAME,"_Applogs"));
+                new ErrorLogger().CustomLog(data, string.Concat(AppParameters.AppSettings.APPLICATION_NAME,"_Applogs")).ConfigureAwait(false);
 
                 //remove users 
                 //foreach (string user in AppParameters.Users.Where(r => r.Value.LoginDate.Subtract(DateTime.Now).TotalDays > 2).Select(y => y.Key))
@@ -2498,7 +2498,7 @@ namespace Factory_of_the_Future
         {
             bool locationfound = false;
             string BarcodeType = "";
-            string BodyType = "";
+            //string BodyType = "";
             try
             {
                 foreach (CoordinateSystem cs in CoordinateSystem.Values)

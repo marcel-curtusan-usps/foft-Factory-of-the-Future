@@ -89,7 +89,8 @@ function Edit_AppSetting_Value(Data) {
             $('input[type=checkbox][name="appsetting_value"]').prop('checked', true).change();
             $('#modalValueID').val('true');
         }
-        else if (/False/i.test(Data.VALUE)) {
+        //else if (/False/i.test(Data.VALUE)) {
+        if (/False/i.test(Data.VALUE)) {
             $('input[type=checkbox][name="appsetting_value"]').prop('checked', false).change();
             $('#modalValueID').val('false');
         }
@@ -128,7 +129,8 @@ function createAppSettingDataTable(table) {
     }]
     let columns = [];
     let tempc = {};
-    $.each(arrayColums[0], function (key, value) {
+    //$.each(arrayColums[0], function (key, value) {
+    $.each(arrayColums[0], function (key) {
         tempc = {};
         if (/KEY_NAME/i.test(key)) {
             tempc = {
@@ -137,19 +139,22 @@ function createAppSettingDataTable(table) {
                 "mDataProp": key
             }
         }
-        else if (/VALUE/i.test(key)) {
+        //else if (/VALUE/i.test(key)) {
+        if (/VALUE/i.test(key)) {
             tempc = {
                 "title": "Value",
                 "width": "50%",
                 "mDataProp": key
             }
         }
-        else if (/Action/i.test(key)) {
+        //else if (/Action/i.test(key)) {
+        if (/Action/i.test(key)) {
             tempc = {
                 "title": "Action",
                 "width": "10%",
                 "mDataProp": key,
-                "mRender": function (data, type, full) {
+                //"mRender": function (data, type, full) {
+                "mRender": function () {
                     if (/^Admin/i.test(User.Role)) {
                         return '<button class="btn btn-light btn-sm mx-1 pi-iconEdit editappsetting" name="editappsetting"></button>';
                     }

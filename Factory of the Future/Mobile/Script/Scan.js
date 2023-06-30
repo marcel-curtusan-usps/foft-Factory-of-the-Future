@@ -70,10 +70,10 @@ let conncetion_refresh = {
                         numOfEnabledConnection = 0;
                         for (const element of connectionData) {
                            agvmVersion = element.AGVM_VERSION;
-                            if (element.ACTIVE_CONNECTION) {
-                                if (element.VENDOR_CONNECTED) {
+                            if (element.ACTIVE_CONNECTION && element.VENDOR_CONNECTED) {
+                                //if (element.VENDOR_CONNECTED) {
                                     numOfEnabledConnection = (parseInt(numOfEnabledConnection,10) + 1)
-                                }
+                                //}
                             }
                         }
                         if (numOfConnection === 0) {
@@ -83,21 +83,22 @@ let conncetion_refresh = {
                             $('.agvactive').text('CF On-Line').removeClass("btn-danger").addClass('btn-success')
                             
                         }
-                        if (numOfConnection > 0) {
-                            if (numOfEnabledConnection === numOfConnection) {
+                        if (numOfConnection > 0 && numOfEnabledConnection === numOfConnection) {
+                            //if (numOfEnabledConnection === numOfConnection) {
                                 $("#connection_button").text("CF On-line");
                                 $("#connection_button").removeClass("btn-danger").removeClass("btn-warning").addClass("btn-success");
                             }
-                            else if (numOfEnabledConnection < numOfConnection) {
+                        //else if (numOfEnabledConnection < numOfConnection) {
+                        if (numOfConnection > 0 && numOfEnabledConnection < numOfConnection) {
                                 $("#connection_button").text("CF Off-line");
                                 $("#connection_button").removeClass("btn-success").removeClass("btn-warning").addClass("btn-danger");
                             }
-                        }
-                        if (numOfEnabledConnection > 0) {
-                            if (numOfEnabledConnection < numOfConnection) {
+                        //}
+                        if (numOfEnabledConnection > 0 && numOfEnabledConnection < numOfConnection) {
+                            //if (numOfEnabledConnection < numOfConnection) {
                                 $("#connection_button").text("AGV " + numOfEnabledConnection + " of " + numOfConnection + " Servers On-line");
                                 $("#connection_button").removeClass("btn-success").removeClass("btn-danger").addClass("btn-warning");
-                            }
+                            //}
 
                         }
                     }
@@ -160,7 +161,8 @@ $(function () {
         avgTimeByChar: 40, // it's not a barcode if a character takes longer than 100ms
         preventDefault: true,
         endChar: [13],
-        onComplete: function (barcode, qty) {
+        //onComplete: function (barcode, qty) {
+        onComplete: function (barcode) {
             $('input[type=text][name=barcode_input]').val(barcode);
             //this the function to call after barcode has been scanned.
             Scanned(barcode);
@@ -173,7 +175,7 @@ $(function () {
         }
     });
     $('input[type=text][name=barcode_input]').on('keypress', function (e) {
-        if (e.which == 13) {
+        if (e.which === 13) {
             Scanned(e.target.value);
         }
     });
@@ -192,7 +194,8 @@ function Scanned(barcode) {
             if (/^AGP/ig.test(barcode)) {
                 bodytype = "pallet";
             }
-            else if (/^AGT/ig.test(barcode)) {
+            //else if (/^AGT/ig.test(barcode)) {
+            if (/^AGT/ig.test(barcode)) {
                 bodytype = "tugger";
             }
             if (/PIC$/ig.test(barcode)) {
@@ -270,7 +273,6 @@ function LogScan(scanRequest) {
     });
 }
 function RequestScan(scanRequest, barcodetype) {
-   
         $.ajax({
             url: uri + "DeviceScan",
             headers:
@@ -301,16 +303,13 @@ function RequestScan(scanRequest, barcodetype) {
                         $('input[name=priority_level]').css({ "border-color": "#2eb82e" });
                         $('input[name=priority_level]').val(getPriorityText(return_barcode.Priority_Level));
                     }
-                    if (!return_barcode.hasOwnProperty("Tray_Label") && return_barcode.BARCODE_TYPE == "MTEL") {
+                    if (!return_barcode.hasOwnProperty("Tray_Label") && return_barcode.BARCODE_TYPE === "MTEL") {
                         CONTINER = return_barcode;
                         var dropoff_location = lacation_formating(return_barcode.hasOwnProperty("palletdropLocation") ? return_barcode.palletdropLocation : "");
                         $('#mtelinfo').css('display', 'flex');
                         $('#traylabelinfo').css('display', 'none');
                         $('label[id=status]').text(barcodetype + " Barcode Scanned: " + scanRequest.BARCODE);
 
-                        //.OriginCode
-                        //.doorNumber
-                        //.destLegSiteName
                         $('input[name=dest_location]').val(return_barcode.hasOwnProperty("doorNumber") ? return_barcode.doorNumber : "");
                         $('input[name=dest_location]').css({ "border-color": "#2eb82e" });
                         $('input[name=dest_nasscode]').val(return_barcode.hasOwnProperty("OriginCode") ? return_barcode.OriginCode : "");
@@ -327,13 +326,15 @@ function RequestScan(scanRequest, barcodetype) {
                     }
                     if (return_barcode.hasOwnProperty("BARCODE_TYPE") && /(Pickup|Drop-Off)/.test(return_barcode.BARCODE_TYPE)) {
                         bodytype = return_barcode.Body_Type;
+                        let scan_location;
                         if (return_barcode.Type === "drop") {
                             $('label[id=status]').text(barcodetype + " Barcode Scanned: " + return_barcode.Barcode);
                             $('label[id=status]').css('color', 'green');
                             $('input[name=dropoff_column]').css({ "border-color": "#2eb82e" });
                             $('input[name=dropoff_dropoffcode]').css({ "border-color": "#2eb82e" });
                             $('input[name=dropoff_location]').css({ "border-color": "#2eb82e" });
-                            var scan_location = lacation_formating(return_barcode.hasOwnProperty("Name") ? return_barcode.Name : "");
+                            //var scan_location = lacation_formating(return_barcode.hasOwnProperty("Name") ? return_barcode.Name : "");
+                            scan_location = lacation_formating(return_barcode.hasOwnProperty("Name") ? return_barcode.Name : "");
                             $('input[name=dropoff_column]').val(scan_location.hasOwnProperty("column") ? scan_location.column : "");
                             $('input[name=dropoff_location]').val(scan_location.hasOwnProperty("location") ? scan_location.location : "");
                             $('input[name=dropoff_dropoffcode]').val(return_barcode.hasOwnProperty("Name") ? return_barcode.Name : "");
@@ -344,7 +345,8 @@ function RequestScan(scanRequest, barcodetype) {
                             $('input[name=pickup_column]').css({ "border-color": "#2eb82e" });
                             $('input[name=pickup_pickupcode]').css({ "border-color": "#2eb82e" });
                             $('input[name=pickup_location]').css({ "border-color": "#2eb82e" });
-                            var scan_location = lacation_formating(return_barcode.hasOwnProperty("Name") ? return_barcode.Name : "");
+                            //var scan_location = lacation_formating(return_barcode.hasOwnProperty("Name") ? return_barcode.Name : "");
+                            scan_location = lacation_formating(return_barcode.hasOwnProperty("Name") ? return_barcode.Name : "");
                             $('input[name=pickup_column]').val(scan_location.hasOwnProperty("column") ? scan_location.column : "");
                             $('input[name=pickup_location]').val(scan_location.hasOwnProperty("location") ? scan_location.location : "");
                             $('input[name=pickup_pickupcode]').val(return_barcode.hasOwnProperty("Name") ? return_barcode.Name : "");
@@ -352,29 +354,27 @@ function RequestScan(scanRequest, barcodetype) {
 
                         Location = return_barcode;
                     }
-
                 }
                 else {
                     $('label[id=status]').text(barcodetype + " Barcode NOT found: " + return_barcode.RESPONSE_MSG);
                     $('label[id=status]').css('color', 'red');
                     Location = {};
                     CONTINER = {};
-                    // restForm();
                 }
                 $('input[name=barcode_input]').val("").focus();
             },
-            error: function (response) {
+            //error: function (response) {
 
-            },
+            //},
             beforeSend: function () {
                 clearTimeout(timer);
                 if (!$.isEmptyObject(Location) && !$.isEmptyObject(CONTINER)) {
                     restForm();
                 }
             },
-            failure: function (response) {
+            //failure: function (response) {
 
-            },
+            //},
             complete: function () {
                 $('input[name=barcode_input]').val('').focus();
                 if (!$.isEmptyObject(Location) && !$.isEmptyObject(CONTINER)) {
@@ -396,9 +396,9 @@ function getPriorityText(data) {
     }
 }
 function LoadPick_loacation(pickdata) {
-    vaildorigin = true;
+    let vaildorigin = true;
     origin = true;
-    zone = pickdata.ZONE
+    let zone = pickdata.ZONE
     bodytype = pickdata.BODY_TYPE
     var Post = "";
     var Lane = "";
@@ -426,7 +426,7 @@ function LoadPick_loacation(pickdata) {
 function LoadDrop_loacation(dropdata) {
     try {
 
-        destination = true;
+        let destination = true;
 
         var dropPost = "";
         var dropLane = "";
@@ -439,7 +439,7 @@ function LoadDrop_loacation(dropdata) {
         }
 
         var endPost = "";
-        var endLane = "";
+        var endLane;
         if (dropdata.END_LOCATION !== "") {
             var endarr = dropdata.END_LOCATION.match(/.{1,3}/g);
             if (endarr.length === 4) {
@@ -542,13 +542,19 @@ function countdowntimeFormat(interval) {
     var min = duration.minutes();
     var sec = duration.seconds();
     sec -= 1;
-    if (min < 0) return clearInterval(timer);
-    if (min < 10 && min.length != 2) min = '0' + min;
-    if (sec < 0 && min != 0) {
+    if (min < 0) {
+        return clearInterval(timer);
+    }
+    if (min < 10 && min.length !== 2) {
+        min = '0' + min;
+    }
+    if (sec < 0 && min !== 0) {
         min -= 1;
         sec = 59;
     }
-    else if (sec < 10 && sec.length != 2) sec = '0' + sec;
+    if (sec < 10 && sec.length !== 2) {
+        sec = '0' + sec;
+    }
 
     return min + ':' + sec;
 }
@@ -612,12 +618,13 @@ function CallforAGV() {
                 $('label[id=status]').css('color', 'green');
                 $("#agv_status_button").text("Vehicle Called");
                 $("#agv_status_button").removeClass("btn-danger").removeClass("btn-primary").removeClass("btn-outline-light").addClass("btn-success");
-
+                let scan_location;
                 if (Location.Type === "drop") {
                     $('input[name=dropoff_column]').css({ "border-color": "#2eb82e" });
                     $('input[name=dropoff_dropoffcode]').css({ "border-color": "#2eb82e" });
                     $('input[name=dropoff_location]').css({ "border-color": "#2eb82e" });
-                    var scan_location = lacation_formating(return_info.hasOwnProperty("Name") ? return_info.Name : "");
+                    //var scan_location = lacation_formating(return_info.hasOwnProperty("Name") ? return_info.Name : "");
+                    scan_location = lacation_formating(return_info.hasOwnProperty("Name") ? return_info.Name : "");
                     $('input[name=dropoff_column]').val(scan_location.hasOwnProperty("column") ? scan_location.column : "");
                     $('input[name=dropoff_location]').val(scan_location.hasOwnProperty("location") ? scan_location.location : "");
                     $('input[name=dropoff_dropoffcode]').val(return_info.hasOwnProperty("Name") ? return_info.NAME : "");
@@ -626,7 +633,8 @@ function CallforAGV() {
                     $('input[name=pickup_column]').css({ "border-color": "#2eb82e" });
                     $('input[name=dropoff_dropoffcode]').css({ "border-color": "#2eb82e" });
                     $('input[name=pickup_pickupcode]').css({ "border-color": "#2eb82e" });
-                    var scan_location = lacation_formating(return_info.hasOwnProperty("Name") ? return_info.Name : "");
+                    //var scan_location = lacation_formating(return_info.hasOwnProperty("Name") ? return_info.Name : "");
+                    scan_location = lacation_formating(return_info.hasOwnProperty("Name") ? return_info.Name : "");
                     $('input[name=pickup_column]').val(scan_location.hasOwnProperty("column") ? scan_location.column : "");
                     $('input[name=pickup_location]').val(scan_location.hasOwnProperty("location") ? scan_location.location : "");
                     $('input[name=pickup_pickupcode]').val(return_info.hasOwnProperty("Name") ? return_info.Name : "");
@@ -640,15 +648,15 @@ function CallforAGV() {
 
             }
         },
-        error: function (response) {
+        //error: function (response) {
 
-        },
+        //},
         beforeSend: function () {
             clearTimeout(timer);
         },
-        failure: function (response) {
+        //failure: function (response) {
 
-        },
+        //},
         // Focus
         complete: function () {
             CONTINER = {};

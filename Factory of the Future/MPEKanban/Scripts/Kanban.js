@@ -47,7 +47,7 @@ $(function () {
                 console.log(err.toString());
             });
     // Raised when the connection state changes. Provides the old state and the new state (Connecting, Connected, Reconnecting, or Disconnected).
-    $.connection.hub.stateChanged(function (state) {
+    //$.connection.hub.stateChanged(function (state) {
         //switch (state.newState) {
         //    case 1: $('label[id=dockdoorNumber]');
         //        break;
@@ -56,10 +56,11 @@ $(function () {
         //        break;
         //    default: $('label[id=dockdoorNumber]');
         //}
-    });
+    //});
     //handling Disconnect
     $.connection.hub.disconnected(function () {
-        connecttimer = setTimeout(function () {
+        let connectattp = 0;
+        let connecttimer = setTimeout(function () {
             if (connectattp > 10) {
                 clearTimeout(connecttimer);
             }
@@ -107,11 +108,11 @@ function bindBTN() {
 
 function createKanbanRows(divparent, data) {
     var colcount = 0;
-    var collimit = 6;
+    /*var collimit = 6;*/
     var rowid = 1;
     let divplaceholder;
     $.each(data["0"], function (key, value) {
-        if (colcount == 0) {
+        if (colcount === 0) {
             divplaceholder = $('<div/>', { class: "row h-50", id: ("kanbanrow_" + rowid) })
             //create new div, append to divkanban and assign to variable
         }
@@ -123,7 +124,7 @@ function createKanbanRows(divparent, data) {
             colcount = 0;
         }
     })
-    if (colcount != 0) {
+    if (colcount !== 0) {
         divparent.append(divplaceholder);
     }
     bindBTN();
@@ -137,7 +138,7 @@ function formatKANBANlayout(conn_status) {
     });
 }
 function Get_Kanban_Color(data) {
-    value = "";
+    let value = "";
     let colorNumber = parseInt(data, 10);
     if ($.isNumeric(colorNumber)) {
         if (Number > 0) {

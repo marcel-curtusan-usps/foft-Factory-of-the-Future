@@ -15,8 +15,8 @@ namespace Factory_of_the_Future
         public dynamic _data { get; protected set; }
         public string _Message_type { get; protected set; }
         public string _connID { get; protected set; }
-        private bool saveToFile;
-        private int time_to_comp_actual = 0;
+        //private bool saveToFile;
+        //private int time_to_comp_actual = 0;
         public JToken tempData = null;
         public JToken dpsInfo = null;
         private DateTime dtNow = DateTime.Now;

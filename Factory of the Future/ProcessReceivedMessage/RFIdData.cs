@@ -8,7 +8,7 @@ namespace Factory_of_the_Future
 {
     internal class RFIdData : IDisposable
     {
-        private bool disposedValue;
+        //private bool disposedValue;
         public string _data { get; protected set; }
         public string _Message_type { get; protected set; }
         public string _connID { get; protected set; }

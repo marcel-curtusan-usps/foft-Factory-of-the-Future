@@ -22,7 +22,7 @@ namespace Factory_of_the_Future
         public JToken tempData = null;
         public JToken machineInfo = null;
         private bool saveToFile;
-        private double intMinuteToCompletion = 0.0;
+        //private double intMinuteToCompletion = 0.0;
 
         internal async Task<bool> LoadAsync(dynamic data, string message_type, string connID)
         {
@@ -32,8 +32,8 @@ namespace Factory_of_the_Future
             _connID = connID;
             try
             {
-                string total_volume = "";
-                string estCompletionTime = "";
+                //string total_volume = "";
+                //string estCompletionTime = "";
                 if (_data != null)
                 {
                 

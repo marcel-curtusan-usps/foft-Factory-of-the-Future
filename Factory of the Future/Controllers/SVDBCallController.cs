@@ -43,15 +43,5 @@ namespace Factory_of_the_Future.Controllers
                 return new JObject();
             }
         }
-
-        // PUT: api/SVDBCall/5
-        public void Put(int id, [FromBody] string value)
-        {
-        }
-
-        // DELETE: api/SVDBCall/5
-        public void Delete(int id)
-        {
-        }
     }
 }

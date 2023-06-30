@@ -13,7 +13,8 @@ namespace Factory_of_the_Future
         private bool disposedValue;
         public string file_content { get; protected set; } = "";
         public JToken tempData = null;
-        internal async Task GetDoorTripAssociationAsync()
+        //internal async Task GetDoorTripAssociationAsync()
+        internal void GetDoorTripAssociationAsync()
         {
             try
             {
@@ -65,7 +66,8 @@ namespace Factory_of_the_Future
                 new ErrorLogger().ExceptionLog(e);
             }
         }
-        internal async Task GetNotificationDefault()
+        //internal async Task GetNotificationDefault()
+        internal void GetNotificationDefault()
         {
             try
             {
@@ -88,7 +90,8 @@ namespace Factory_of_the_Future
                 new ErrorLogger().ExceptionLog(e);
             }
         }
-        internal async Task GetRTLSSites()
+        //internal async Task GetRTLSSites()
+        internal void GetRTLSSites()
         {
             try
             {
@@ -119,7 +122,8 @@ namespace Factory_of_the_Future
             }
         }
 
-        internal async Task GetMPEWatchSite()
+        //internal async Task GetMPEWatchSite()
+        internal void GetMPEWatchSite()
         {
             try
             {

@@ -57,7 +57,7 @@ namespace Factory_of_the_Future
             catch (Exception e)
             {
                 new ErrorLogger().ExceptionLog(e);
-                new ErrorLogger().CustomLog(incomingData, string.Concat(AppParameters.AppSettings.APPLICATION_NAME, "UDP_InVaild_Message"));
+                new ErrorLogger().CustomLog(incomingData, string.Concat(AppParameters.AppSettings.APPLICATION_NAME, "UDP_InVaild_Message")).ConfigureAwait(false);
             }
 
             ReceiveAsync();

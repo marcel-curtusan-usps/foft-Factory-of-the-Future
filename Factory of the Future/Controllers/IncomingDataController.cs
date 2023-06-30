@@ -115,10 +115,5 @@ namespace Factory_of_the_Future.Controllers
                 Dispose();
             }
         }
-
-        // PUT: api/IncomingData/5
-        public void Put(int id, [FromBody] string value)
-        {
-        }
     }
 }

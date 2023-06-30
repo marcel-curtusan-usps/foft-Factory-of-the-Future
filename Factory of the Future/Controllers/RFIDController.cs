@@ -111,15 +111,5 @@ namespace Factory_of_the_Future.Controllers
                 return null;
             }
         }
-
-        // PUT: api/RFID/5
-        public void Put(int id, [FromBody] string value)
-        {
-        }
-
-        // DELETE: api/RFID/5
-        public void Delete(int id)
-        {
-        }
     }
 }

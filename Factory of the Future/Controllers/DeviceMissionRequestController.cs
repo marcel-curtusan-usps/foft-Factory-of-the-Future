@@ -11,9 +11,9 @@ namespace Factory_of_the_Future.Controllers
     {
   
         // POST: api/DeviceMissionRequest
-        public void Post([FromBody]string value)
-        {
-        }
+        //public void Post([FromBody]string value)
+        //{
+        //}
 
     }
 }

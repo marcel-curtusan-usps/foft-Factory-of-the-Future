@@ -61,7 +61,7 @@ namespace Factory_of_the_Future
                                                 , " | Number Of Day Old : ", Math.Round(NumberofDay)
                                                 , " | Delete Date/Time : ", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fff")
                                                 , " | File was deleted because file was older then ", Math.Round(NumberofDay) + " days old\n");
-                                            new ErrorLogger().CustomLog(data, string.Concat(AppParameters.AppSettings.APPLICATION_NAME, "Deletelogs"));
+                                            new ErrorLogger().CustomLog(data, string.Concat(AppParameters.AppSettings.APPLICATION_NAME, "Deletelogs")).ConfigureAwait(false);
                                         }
                                         catch (Exception ex)
                                         {
@@ -88,7 +88,7 @@ namespace Factory_of_the_Future
                                                 , " | FileSize : " + FormatBytes(file.Length)
                                                 , " | Delete Date/Time : ", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fff")
                                                 , " | File was deleted because file exceed file size ", FormatBytes(target_size));
-                                            new ErrorLogger().CustomLog(data, string.Concat(AppParameters.AppSettings.APPLICATION_NAME, "Deletelogs"));
+                                            new ErrorLogger().CustomLog(data, string.Concat(AppParameters.AppSettings.APPLICATION_NAME, "Deletelogs")).ConfigureAwait(false);
                                         }
                                         catch (Exception ex)
                                         {

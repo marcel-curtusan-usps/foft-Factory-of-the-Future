@@ -27,7 +27,7 @@ let binzonepoly = new L.GeoJSON(null, {
             $('input[type=checkbox][name=followvehicle]').prop('checked', false).change();
             map.setView(e.latlng);
             if ((' ' + document.getElementById('sidebar').className + ' ').indexOf(' ' + 'collapsed' + ' ') <= -1) {
-                if ($('#zoneselect').val() == feature.properties.id) {
+                if ($('#zoneselect').val() === feature.properties.id) {
                     sidebar.close('home');
                 }
                 else {
@@ -48,7 +48,8 @@ let binzonepoly = new L.GeoJSON(null, {
         }).openTooltip();
         binzonepoly.bringToFront();
     },
-    filter: function (feature, layer) {
+    //filter: function (feature, layer) {
+    filter: function (feature) {
         return feature.properties.visible;
     }
 });
@@ -81,10 +82,11 @@ function formatczzonetoprow(properties) {
 }
 async function updateBinZone(binzoneupdate, id) {
     try {
-        if (id == baselayerid) {
+        if (id === baselayerid) {
             let layerindex = -0;
             if (binzonepoly.hasOwnProperty("_layers")) {
-                $.map(binzonepoly._layers, function (layer, i) {
+                //$.map(binzonepoly._layers, function (layer, i) {
+                $.map(binzonepoly._layers, function (layer) {
                     if (layer.feature.properties.id === binzoneupdate.properties.id) {
                         layer.feature.properties = binzoneupdate.properties;
                         layerindex = layer._leaflet_id;
@@ -92,31 +94,39 @@ async function updateBinZone(binzoneupdate, id) {
                         return false;
                     }
                 });
-                if (layerindex !== -0) {
-                    if ($('div[id=area_div]').is(':visible') && $('div[id=area_div]').attr("data-id") === binzoneupdate.properties.id) {
 
-                    }
-
-                }
-                else {
+                if (layerindex == -0) {
                     binzonepoly.addData(binzoneupdate);
                 }
+                //if (layerindex !== -0) {
+                //    if ($('div[id=area_div]').is(':visible') && $('div[id=area_div]').attr("data-id") === binzoneupdate.properties.id) {
+
+                //    }
+
+                //}
+                //else {
+                //    binzonepoly.addData(binzoneupdate);
+                //}
             }
         }
     } catch (e) {
-        console.log(e);
+        //console.log(e);
+        throw new Error(e.toString());
     }
 }
 async function updatebin(layerindex) {
     //add flashing to the bind 
-    if (binzonepoly._layers[layerindex].feature.properties.MPE_Bins.length > 0) {
-        if (binzonepoly._layers[layerindex].hasOwnProperty("_tooltip")) {
-            if (binzonepoly._layers[layerindex]._tooltip.hasOwnProperty("_container")) {
-                if (!binzonepoly._layers[layerindex]._tooltip._container.classList.contains('doorflash')) {
+    if (binzonepoly._layers[layerindex].feature.properties.MPE_Bins.length > 0 &&
+        binzonepoly._layers[layerindex].hasOwnProperty("_tooltip") &&
+        binzonepoly._layers[layerindex]._tooltip.hasOwnProperty("_container") &&
+        !binzonepoly._layers[layerindex]._tooltip._container.classList.contains('doorflash')) {
+        //if (binzonepoly._layers[layerindex].hasOwnProperty("_tooltip")) {
+            //if (binzonepoly._layers[layerindex]._tooltip.hasOwnProperty("_container")) {
+                //if (!binzonepoly._layers[layerindex]._tooltip._container.classList.contains('doorflash')) {
                     binzonepoly._layers[layerindex]._tooltip._container.classList.add('doorflash');
-                }
-            }
-        }
+                //}
+            //}
+        //}
         binzonepoly._layers[layerindex].setStyle({
             weight: 1,
             opacity: 1,
@@ -126,12 +136,14 @@ async function updatebin(layerindex) {
         });
     }
     else {
-        if (binzonepoly._layers[layerindex].hasOwnProperty("_tooltip")) {
-            if (binzonepoly._layers[layerindex]._tooltip.hasOwnProperty("_container")) {
-                if (binzonepoly._layers[layerindex]._tooltip._container.classList.contains('doorflash')) {
+        if (binzonepoly._layers[layerindex].hasOwnProperty("_tooltip") &&
+            binzonepoly._layers[layerindex]._tooltip.hasOwnProperty("_container") &&
+            binzonepoly._layers[layerindex]._tooltip._container.classList.contains('doorflash')) {
+            //if (binzonepoly._layers[layerindex]._tooltip.hasOwnProperty("_container")) {
+                //if (binzonepoly._layers[layerindex]._tooltip._container.classList.contains('doorflash')) {
                     binzonepoly._layers[layerindex]._tooltip._container.classList.remove('doorflash');
-                }
-            }
+                //}
+            //}
         }
         binzonepoly._layers[layerindex].setStyle({
             weight: 1,

@@ -29,7 +29,8 @@ let hvi_tags = new L.GeoJSON(null, {
             className: classname
         }).openTooltip();
     },
-    filter: function (feature, layer) {
+    //filter: function (feature, layer) {
+    filter: function (feature) {
         return feature.properties.tagVisible;
     }
 })

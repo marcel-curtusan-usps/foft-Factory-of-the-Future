@@ -883,27 +883,28 @@ function FormatMachineRowColors(mpeWatchData, starttime) {
             Throughput_tr_style.backgroundColor = AlertColor;
         }
 
-        if (op_started_late_status == "2") {
+        if (mpeWatchData.op_started_late_status === "2") {
             StartTime_tr_style.backgroundColor = AlertColor;
         }
-        else if (op_started_late_status == "1") {
+        else if (mpeWatchData.op_started_late_status === "1") {
             StartTime_tr_style.backgroundColor = WarningColor;
         }
-        if (op_running_late_status == "2") {
+        if (mpeWatchData.op_running_late_status === "2") {
             EstComp_tr_style.backgroundColor = AlertColor;
         }
-        else if (op_running_late_status == "1") {
+        else if (mpeWatchData.op_running_late_status === "1") {
             EstComp_tr_style.backgroundColor = WarningColor;
         }
-        if (unplan_maint_sp_status == "2" || sortplan_wrong_status == "2") {
+        if (mpeWatchData.unplan_maint_sp_status === "2" || mpeWatchData.sortplan_wrong_status === "2") {
             SortPlan_tr_style.backgroundColor = AlertColor;
         }
-        else if (unplan_maint_sp_status == "1" || sortplan_wrong_status == "1") {
+        else if (mpeWatchData.unplan_maint_sp_status === "1" || mpeWatchData.sortplan_wrong_status === "1") {
             SortPlan_tr_style.backgroundColor = WarningColor;
         }
     }
     catch (e) {
-        console.log(e);
+        //console.log(e);
+        throw new Error(e.toString());
     }
 }
 function GetMachinePerfGraph(dataproperties) {

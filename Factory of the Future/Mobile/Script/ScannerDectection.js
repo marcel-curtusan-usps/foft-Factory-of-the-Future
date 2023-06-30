@@ -44,12 +44,12 @@
                 // If all condition are good (length, time...), call the callback and re-initialize the plugin for next scanning
                 // Else, just re-initialize
                 if (stringWriting.length >= options.minLength && lastCharTime - firstCharTime < stringWriting.length * options.avgTimeByChar) {
-                    if (options.onComplete) options.onComplete.call(self, stringWriting);
+                    if (options.onComplete) { options.onComplete.call(self, stringWriting); }
                     $self.trigger('scannerDetectionComplete', { string: stringWriting });
                     initScannerDetection();
                     return true;
                 } else {
-                    if (options.onError) options.onError.call(self, stringWriting);
+                    if (options.onError) { options.onError.call(self, stringWriting); }
                     $self.trigger('scannerDetectionError', { string: stringWriting });
                     initScannerDetection();
                     return false;
@@ -68,8 +68,8 @@
                     e.stopImmediatePropagation();
                 }
             }).bind('keypress.scannerDetection', function (e) {
-                if (options.stopPropagation) e.stopImmediatePropagation();
-                if (options.preventDefault) e.preventDefault();
+                if (options.stopPropagation) { e.stopImmediatePropagation(); }
+                if (options.preventDefault) { e.preventDefault(); }
 
                 if (firstCharTime && options.endChar.indexOf(e.which) !== -1) {
                     e.preventDefault();
@@ -85,7 +85,7 @@
                 }
                 lastCharTime = e.timeStamp;
 
-                if (testTimer) clearTimeout(testTimer);
+                if (testTimer) { clearTimeout(testTimer); }
                 if (callIsScanner) {
                     self.scannerDetectionTest();
                     testTimer = false;
@@ -93,7 +93,7 @@
                     testTimer = setTimeout(self.scannerDetectionTest, options.timeBeforeScanTest);
                 }
 
-                if (options.onReceive) options.onReceive.call(self, e);
+                if (options.onReceive) { options.onReceive.call(self, e); }
                 $self.trigger('scannerDetectionReceive', { evt: e });
             });
         });
