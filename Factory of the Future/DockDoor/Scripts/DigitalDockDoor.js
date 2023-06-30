@@ -61,7 +61,7 @@ $(function () {
                     Promise.all([updateDockDoorStatus(DockDoordata)]);
                 });
                 fotfmanager.server.joinGroup("DockDoor_" + doornumber);
-                console.log("Connected at time: " + new Date($.now()));
+                //console.log("Connected at time: " + new Date($.now()));
             }).catch(
                 function (err) {
                     throw new Error(err.toString());
@@ -85,7 +85,7 @@ $(function () {
                 }
                 connectattp += 1;
                 $.connection.hub.start().done(function () {
-                    console.log("Connected time: " + new Date($.now()));
+                    //console.log("Connected time: " + new Date($.now()));
                 }).catch(function (err) {
                     throw new Error(err.toString());
                 });
@@ -94,7 +94,7 @@ $(function () {
         //Raised when the underlying transport has reconnected.
         $.connection.hub.reconnecting(function () {
             clearTimeout(connecttimer);
-            console.log("reconnected at time: " + new Date($.now()));
+            //console.log("reconnected at time: " + new Date($.now()));
             fotfmanager.server.joinGroup("DockDoor_" + doornumber);
         });
     }
@@ -307,36 +307,11 @@ function capitalize_Words(str) {
 }
 function startTimer(SVdtm) {
     if (!!SVdtm) {
-        let duration = calculatescheduledDuration(SVdtm);
+        let scheduleDuration = calculatescheduledDuration(SVdtm);
 
         let timer = setInterval(function () {
-            if (!!duration && duration._isValid) {
-                CurrentTripMin = duration.asMinutes();
-
-                if (tripStatus <= 0 && TripDirectionInd === "O") {
-                    //if (TripDirectionInd === "O") {
-                        //When the trip departure clock is at 00:10:00, the entire screen for that dock door will turn YELLOW
-                        if ((CurrentTripMin > 5 && CurrentTripMin <= 10) && ContainerNotloadedCount > 0) {
-                            //10 minutes before scheduled trip departure
-                            Tripdisplay("yellow");
-                        }
-                      //  When the trip departure clock is at 00:05:00, AND there are closed but containers that have not been loaded for that trip, the entire screen will turn RED
-                        else if ((CurrentTripMin > 0 && CurrentTripMin < 5) && ContainerNotloadedCount > 0) {
-                            //5 minutes before scheduled trip departure
-                            Tripdisplay("red");
-                        }
-                        else {
-                            Tripdisplay("");
-                        }
-                    //}
-                    duration = moment.duration(duration.asSeconds() - Timerinterval, 'seconds');
-                    $('.timecounter').html(duration.format("d [days] hh:mm:ss ", { trunc: true }));
-                }
-                else {
-                    $('.timecounter').html("Late");
-                    Tripdisplay("red");
-                    stopTimer();
-                }
+            if (!!scheduleDuration && scheduleDuration._isValid) {
+                SetDisplayColor(scheduleDuration);
             }
             else {
                 stopTimer();
@@ -352,6 +327,36 @@ function startTimer(SVdtm) {
         stopTimer();
     }
 };
+
+function SetDisplayColor(duration) {
+    CurrentTripMin = duration.asMinutes();
+
+    if (tripStatus <= 0 && TripDirectionInd === "O") {
+        //if (TripDirectionInd === "O") {
+        //When the trip departure clock is at 00:10:00, the entire screen for that dock door will turn YELLOW
+        if ((CurrentTripMin > 5 && CurrentTripMin <= 10) && ContainerNotloadedCount > 0) {
+            //10 minutes before scheduled trip departure
+            Tripdisplay("yellow");
+        }
+        //  When the trip departure clock is at 00:05:00, AND there are closed but containers that have not been loaded for that trip, the entire screen will turn RED
+        else if ((CurrentTripMin > 0 && CurrentTripMin < 5) && ContainerNotloadedCount > 0) {
+            //5 minutes before scheduled trip departure
+            Tripdisplay("red");
+        }
+        else {
+            Tripdisplay("");
+        }
+        //}
+        duration = moment.duration(duration.asSeconds() - Timerinterval, 'seconds');
+        $('.timecounter').html(duration.format("d [days] hh:mm:ss ", { trunc: true }));
+    }
+    else {
+        $('.timecounter').html("Late");
+        Tripdisplay("red");
+        stopTimer();
+    }
+}
+
 function stopTimer() {
     clearInterval(CountTimer);
 }
