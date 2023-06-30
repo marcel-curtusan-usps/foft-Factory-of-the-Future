@@ -435,7 +435,7 @@ namespace Factory_of_the_Future
 
                 if (ActiveServer)
                 {
-                    await Start();
+                    await Start().ConfigureAwait(false);
                 }
             }
             catch (Exception e)
