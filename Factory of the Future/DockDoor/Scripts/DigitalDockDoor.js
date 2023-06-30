@@ -424,7 +424,7 @@ function CreateContainerCount(data) {
                 Location: contatiner.location,
                 Count: filtered.filter(function (item) {
                     return item.location === contatiner.location && item.hasCloseScans === true && item.hasLoadScans === false;
-                }).length;
+                }).length
             });
         });
         let finalCount = remove_duplicates(ContainerSumCounts);
