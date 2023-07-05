@@ -18,6 +18,10 @@
       [Parameter(Mandatory=$true)]
     [string] $Token
     )
+    $env:PSModulePath
+    [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls -bor
+    [Net.SecurityProtocolType]::Tls11 -bor [Net.SecurityProtocolType]::Tls12
+    
     #Software location
     $SoftwareLocation = "Software Package\"
 	[string] $DrivePathLocation = -join ($DrivePath, ":\")
