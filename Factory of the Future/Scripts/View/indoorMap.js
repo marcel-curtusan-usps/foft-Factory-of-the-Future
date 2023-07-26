@@ -14,6 +14,7 @@ let baseLayers = {
 let overlayMaps = {
     "AGV Vehicles": agv_vehicles,
     "PIV Vehicles": piv_vehicles,
+/*    "Maintenance Call": "",*/
     "Cameras": cameras,
     "Badge": tagsMarkersGroup,
     "AGV Locations": agvLocations,
@@ -303,8 +304,8 @@ sidebar.on('content', function (ev) {
             sidebar.options.autopan = false;
             break;
     }
-});
-map.addControl(sidebar);
+}).addTo(map);
+
 map.addControl(new timedisplay());
 // Add Layer Popover - Proposed
 let layersControl = L.control.layers(baseLayers, overlayMaps, {
@@ -318,6 +319,26 @@ let layersControl = L.control.layers(baseLayers, overlayMaps, {
             }
         }
     }, position: 'bottomright', collapsed: false
+}).addTo(map);
+//Add staffing button
+L.easyButton({
+    position: 'topcenter',
+    states: [{
+        stateName: 'openstaffing',
+        icon: '<div id="staffingbutton"></div>',
+        onClick: function (control) {
+            sidebar.open('reports');
+            control.state('closestaffing');
+        }
+    },
+    {
+        stateName: 'closestaffing',
+        icon: '<div"></div>',
+        onClick: function (control) {
+            sidebar.close('reports');
+            control.state('openstaffing');
+        }
+    }]
 }).addTo(map);
 //Add zoom reset button
 let btnZoomReset = L.easyButton({
@@ -462,6 +483,7 @@ async function init_mapSetup(MapData) {
                         //center image
                         map.setView(trackingarea.getBounds().getCenter(), 1.5);
                         init_zones(this.zones, baselayerid);
+                        init_locators(this.locators, baselayerid);
                     }
                     else if (!!this.backgroundImages) {
                         layersControl.addBaseLayer(L.imageOverlay(img.src, trackingarea.getBounds(), { id: this.id, zindex: index }), this.backgroundImages.name);

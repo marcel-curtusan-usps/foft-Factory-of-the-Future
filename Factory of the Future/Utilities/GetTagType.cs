@@ -41,7 +41,7 @@ namespace Factory_of_the_Future
                 }
                 else
                 {
-                    return "Unknown_Tag";
+                    return "Person";
                 }
             }
             catch (Exception e)

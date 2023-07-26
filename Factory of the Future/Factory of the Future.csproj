@@ -261,7 +261,9 @@
     <Content Include="Content\selectize.css" />
     <Content Include="Content\selectize.default.css" />
     <Content Include="Content\selectize.legacy.css" />
-    <Content Include="Content\Site.css" />
+    <Content Include="Content\Site.css">
+      <DependentUpon>Site.scss</DependentUpon>
+    </Content>
     <Content Include="Content\Site.min.css">
       <DependentUpon>Site.css</DependentUpon>
     </Content>
@@ -310,7 +312,9 @@
     <Content Include="Content\themes\base\tabs.css" />
     <Content Include="Content\themes\base\theme.css" />
     <Content Include="Content\themes\base\tooltip.css" />
-    <Content Include="Content\_base.css" />
+    <Content Include="Content\_base.css">
+      <DependentUpon>_base.scss</DependentUpon>
+    </Content>
     <Content Include="Content\_base.min.css" />
     <Content Include="DockDoor\Content\dockdoor.css" />
     <Content Include="DockDoor\Content\dockdoorView1.css" />
@@ -354,6 +358,12 @@
     <Content Include="Scripts\moment-with-locales.min.js" />
     <Content Include="Scripts\moment.min.js" />
     <Content Include="Scripts\supportScriptsBundle.js" />
+    <Content Include="Scripts\supportScriptsBundle.min.es5.js">
+      <DependentUpon>supportScriptsBundle.min.js</DependentUpon>
+    </Content>
+    <Content Include="Scripts\supportScriptsBundle.min.es5.min.js">
+      <DependentUpon>supportScriptsBundle.min.es5.js</DependentUpon>
+    </Content>
     <Content Include="Scripts\supportScriptsBundle.min.js">
       <DependentUpon>supportScriptsBundle.js</DependentUpon>
     </Content>

@@ -1007,127 +1007,135 @@ async function cBlock() {
     //    }
     //}
 
-    //Promise.all([zonecurrentStaff()]);
+    Promise.all([zonecurrentStaff()]);
 }
 
 // current zone staff
 //TODO: look in to this more.
 async function zonecurrentStaff() {
     try {
-        //clear Old tags 
-        if (tagsMarkersGroup.hasOwnProperty("_layers")) {
-            $.map(tagsMarkersGroup._layers, (layer) => {
-
-                if (/person/i.test(layer.feature.properties.Tag_Type) && layer.feature.properties.tagVisible === true && layer.feature.properties.hasOwnProperty("positionTS")) {
-                    //if (layer.feature.properties.tagVisible === true) {
-                        //if (layer.feature.properties.hasOwnProperty("positionTS")) {
-                            let startTime = moment(layer.feature.properties.positionTS);
-                            let endTime = moment();
-                            let diffmillsec = endTime.diff(startTime, "milliseconds");
-
-                            if (diffmillsec > layer.feature.properties.tagVisibleMils) {
-                                layer.feature.properties.tagVisibleMils = diffmillsec;
-                            }
-                        //}
-                        if (layer.feature.properties.tagVisibleMils > 80000) {
-                            layer.feature.properties.tagVisible = false;
-                            //this to hide tooltip
-                            if (layer.hasOwnProperty("_tooltip") && layer._tooltip.hasOwnProperty("_container") && !layer._tooltip._container.classList.contains('tooltip-hidden')) {
-                                //if (layer._tooltip.hasOwnProperty("_container")) {
-                                    //if (!layer._tooltip._container.classList.contains('tooltip-hidden')) {
-                                        layer._tooltip._container.classList.add('tooltip-hidden');
-                                    //}
-                                //}
-                            }
-                        }
-                    //}
-                }
-
-            })
-        }
-        // Machine zone
-        if (polygonMachine.hasOwnProperty("_layers")) {
-            //$.map(polygonMachine._layers, function (Machinelayer, i) {
-            $.map(polygonMachine._layers, function (Machinelayer) {
-                let MachineCurrentStaff = [];
-                if (tagsMarkersGroup.hasOwnProperty("_layers")) {
-                    //$.map(tagsMarkersGroup._layers, function (layer, i) {
-                    $.map(tagsMarkersGroup._layers, function (layer) {
-                        if (/person/i.test(layer.feature.properties.Tag_Type) && layer.feature.properties.zones !== null && layer.feature.properties.zones.length > 0) {
-                            
-                            $.map(layer.feature.properties.zones, function (p_zone) {
-
-                                if (p_zone === Machinelayer.feature.properties.id) {
-                                    
-                                               MachineCurrentStaff.push({
-                                                    name: checkValue(layer.feature.properties.craftName) ? layer.feature.properties.craftName : layer.feature.properties.id,
-                                                    nameId:layer.feature.properties.id,
-                                                    id: layer.feature.properties.id
-                                                })
-                               
-                                }
-                            });
-                        }
-                    });
-                }
-
-                if (Machinelayer.hasOwnProperty("_tooltip") && MachineCurrentStaff.length !== Machinelayer.feature.properties.CurrentStaff) {
-                    //if (MachineCurrentStaff.length !== Machinelayer.feature.properties.CurrentStaff) {
-                        Machinelayer.setTooltipContent(Machinelayer.feature.properties.name + "<br/>" + "Staffing: " + MachineCurrentStaff.length);
-                        Machinelayer.feature.properties.CurrentStaff = MachineCurrentStaff.length;
-                        if ($('select[id=zoneselect] option:selected').val() === Machinelayer.feature.properties.id) {
-                            let p2pdata = Machinelayer.feature.properties.hasOwnProperty("P2PData") ? Machinelayer.feature.properties.P2PData : "";
-                            GetPeopleInZone(Machinelayer.feature.properties.id, p2pdata, MachineCurrentStaff);
-                        }
-                    //}
-                }
-            });
-        }
-
-        // other zone
-        if (stagingAreas.hasOwnProperty("_layers")) {
-            //$.map(stagingAreas._layers, function (stagelayer, i)
-            $.map(stagingAreas._layers, function (stagelayer)
+        let tagsOnWorkfloor = 0;
+        $.map(map._layers, function (layer, i) {
+            if (layer.hasOwnProperty("feature") && layer.feature.hasOwnProperty("properties") && /person/i.test(layer.feature.properties.Tag_Type))
             {
-                
-                let CurrentStaff = [];
-                if (tagsMarkersGroup.hasOwnProperty("_layers")) {
-                    //$.map(tagsMarkersGroup._layers, function (layer, i) {
-                    $.map(tagsMarkersGroup._layers, function (layer) {
-                       
-                        if (/person/i.test(layer.feature.properties.Tag_Type) && layer.feature.properties.zones != null) {
-                           
-                            $.map(layer.feature.properties.zones, function (p_zone) {
-                                if (p_zone.id === stagelayer.feature.properties.id) {
+                tagsOnWorkfloor++;
+            }
+        });
+        $('div[id=staffingbutton]').text(tagsOnWorkfloor);
+
+
+        ////clear Old tags 
+        //if (tagsMarkersGroup.hasOwnProperty("_layers")) {
+        //    $.map(tagsMarkersGroup._layers, (layer) => {
+
+        //        if (/person/i.test(layer.feature.properties.Tag_Type) && layer.feature.properties.tagVisible === true && layer.feature.properties.hasOwnProperty("positionTS")) {
+        //            //if (layer.feature.properties.tagVisible === true) {
+        //                //if (layer.feature.properties.hasOwnProperty("positionTS")) {
+        //                    let startTime = moment(layer.feature.properties.positionTS);
+        //                    let endTime = moment();
+        //                    let diffmillsec = endTime.diff(startTime, "milliseconds");
+
+        //                    if (diffmillsec > layer.feature.properties.tagVisibleMils) {
+        //                        layer.feature.properties.tagVisibleMils = diffmillsec;
+        //                    }
+        //                //}
+        //                if (layer.feature.properties.tagVisibleMils > 80000) {
+        //                    layer.feature.properties.tagVisible = false;
+        //                    //this to hide tooltip
+        //                    if (layer.hasOwnProperty("_tooltip") && layer._tooltip.hasOwnProperty("_container") && !layer._tooltip._container.classList.contains('tooltip-hidden')) {
+        //                        //if (layer._tooltip.hasOwnProperty("_container")) {
+        //                            //if (!layer._tooltip._container.classList.contains('tooltip-hidden')) {
+        //                                layer._tooltip._container.classList.add('tooltip-hidden');
+        //                            //}
+        //                        //}
+        //                    }
+        //                }
+        //            //}
+        //        }
+
+        //    })
+        //}
+        //// Machine zone
+        //if (polygonMachine.hasOwnProperty("_layers")) {
+        //    //$.map(polygonMachine._layers, function (Machinelayer, i) {
+        //    $.map(polygonMachine._layers, function (Machinelayer) {
+        //        let MachineCurrentStaff = [];
+        //        if (tagsMarkersGroup.hasOwnProperty("_layers")) {
+        //            //$.map(tagsMarkersGroup._layers, function (layer, i) {
+        //            $.map(tagsMarkersGroup._layers, function (layer) {
+        //                if (/person/i.test(layer.feature.properties.Tag_Type) && layer.feature.properties.zones !== null && layer.feature.properties.zones.length > 0) {
+                            
+        //                    $.map(layer.feature.properties.zones, function (p_zone) {
+
+        //                        if (p_zone === Machinelayer.feature.properties.id) {
                                     
-                                              CurrentStaff.push({
-                                                    name: checkValue(layer.feature.properties.craftName) ? layer.feature.properties.craftName : layer.feature.properties.id,
-                                                    nameId: checkValue(layer.feature.properties.id) ? layer.feature.properties.id : layer.feature.properties.id,
-                                                    id: layer.feature.properties.id
-                                                })
+        //                                       MachineCurrentStaff.push({
+        //                                            name: checkValue(layer.feature.properties.craftName) ? layer.feature.properties.craftName : layer.feature.properties.id,
+        //                                            nameId:layer.feature.properties.id,
+        //                                            id: layer.feature.properties.id
+        //                                        })
+                               
+        //                        }
+        //                    });
+        //                }
+        //            });
+        //        }
+
+        //        if (Machinelayer.hasOwnProperty("_tooltip") && MachineCurrentStaff.length !== Machinelayer.feature.properties.CurrentStaff) {
+        //            //if (MachineCurrentStaff.length !== Machinelayer.feature.properties.CurrentStaff) {
+        //                Machinelayer.setTooltipContent(Machinelayer.feature.properties.name + "<br/>" + "Staffing: " + MachineCurrentStaff.length);
+        //                Machinelayer.feature.properties.CurrentStaff = MachineCurrentStaff.length;
+        //                if ($('select[id=zoneselect] option:selected').val() === Machinelayer.feature.properties.id) {
+        //                    let p2pdata = Machinelayer.feature.properties.hasOwnProperty("P2PData") ? Machinelayer.feature.properties.P2PData : "";
+        //                    GetPeopleInZone(Machinelayer.feature.properties.id, p2pdata, MachineCurrentStaff);
+        //                }
+        //            //}
+        //        }
+        //    });
+        //}
+        //// other zone
+        //if (stagingAreas.hasOwnProperty("_layers")) {
+        //    //$.map(stagingAreas._layers, function (stagelayer, i)
+        //    $.map(stagingAreas._layers, function (stagelayer)
+        //    {
+        //        let CurrentStaff = [];
+        //        if (tagsMarkersGroup.hasOwnProperty("_layers")) {
+        //            //$.map(tagsMarkersGroup._layers, function (layer, i) {
+        //            $.map(tagsMarkersGroup._layers, function (layer) {
+                       
+        //                if (/person/i.test(layer.feature.properties.Tag_Type) && layer.feature.properties.zones != null) {
+                           
+        //                    $.map(layer.feature.properties.zones, function (p_zone) {
+        //                        if (p_zone.id === stagelayer.feature.properties.id) {
+                                    
+        //                                      CurrentStaff.push({
+        //                                            name: checkValue(layer.feature.properties.craftName) ? layer.feature.properties.craftName : layer.feature.properties.id,
+        //                                            nameId: checkValue(layer.feature.properties.id) ? layer.feature.properties.id : layer.feature.properties.id,
+        //                                            id: layer.feature.properties.id
+        //                                        })
                                        
-                                }
-                            });
-                        }
+        //                        }
+        //                    });
+        //                }
 
-                    });
-                }
+        //            });
+        //        }
 
-                if (stagelayer.hasOwnProperty("_tooltip") && CurrentStaff.length !== stagelayer.feature.properties.CurrentStaff) {
-                    //if (CurrentStaff.length !== stagelayer.feature.properties.CurrentStaff) {
-                        stagelayer.setTooltipContent(stagelayer.feature.properties.name + "<br/>" + "Staffing: " + CurrentStaff.length);
-                        stagelayer.feature.properties.CurrentStaff = CurrentStaff.length;
-                    if (stagingAreas.hasOwnProperty("feature") && $('select[id=zoneselect] option:selected').val() === stagingAreas.feature.properties.id) {
-                            //if ($('select[id=zoneselect] option:selected').val() === stagingAreas.feature.properties.id) {
-                                GetPeopleInZone(stagelayer.feature.properties.idp2pdata, CurrentStaff);
-                            //}
-                        }
-                    //}
-                }
-            });
-        }
+        //        if (stagelayer.hasOwnProperty("_tooltip") && CurrentStaff.length !== stagelayer.feature.properties.CurrentStaff) {
+        //            //if (CurrentStaff.length !== stagelayer.feature.properties.CurrentStaff) {
+        //                stagelayer.setTooltipContent(stagelayer.feature.properties.name + "<br/>" + "Staffing: " + CurrentStaff.length);
+        //                stagelayer.feature.properties.CurrentStaff = CurrentStaff.length;
+        //            if (stagingAreas.hasOwnProperty("feature") && $('select[id=zoneselect] option:selected').val() === stagingAreas.feature.properties.id) {
+        //                    //if ($('select[id=zoneselect] option:selected').val() === stagingAreas.feature.properties.id) {
+        //                        GetPeopleInZone(stagelayer.feature.properties.idp2pdata, CurrentStaff);
+        //                    //}
+        //                }
+        //            //}
+        //        }
+        //    });
+        //}
+        return true;
     } catch (e) {
-        //console.log(e);
         throw new Error(e.toString());
     }
 }
