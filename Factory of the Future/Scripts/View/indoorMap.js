@@ -321,25 +321,23 @@ let layersControl = L.control.layers(baseLayers, overlayMaps, {
     }, position: 'bottomright', collapsed: false
 }).addTo(map);
 //Add staffing button
-L.easyButton({
+var staffBtn;
+staffBtn = L.easyButton({
     position: 'topcenter',
     states: [{
         stateName: 'openstaffing',
-        icon: '<div id="staffingbutton"></div>',
+        icon: '<div> ' +
+            '<div class="row staffing-row"><div class="col-sm-6 no-top-border">In</div><div class="col-sm-6 no-top-border">Sch</div><div class="col-sm-6 no-bottom-border" id="staffingbutton"></div><div class="col-sm-6 no-bottom-border">144</div></div>' +
+            '</div> ',
         onClick: function (control) {
             sidebar.open('reports');
             control.state('closestaffing');
         }
-    },
-    {
-        stateName: 'closestaffing',
-        icon: '<div"></div>',
-        onClick: function (control) {
-            sidebar.close('reports');
-            control.state('openstaffing');
-        }
     }]
-}).addTo(map);
+});
+staffBtn.button.style.width = '150px';
+staffBtn.button.style.height = '70px';
+staffBtn.addTo(map);
 //Add zoom reset button
 let btnZoomReset = L.easyButton({
     position: 'bottomright',

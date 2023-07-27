@@ -57,7 +57,7 @@ namespace Factory_of_the_Future
             catch (Exception e)
             {
                 new ErrorLogger().ExceptionLog(e);
-                new ErrorLogger().CustomLog(incomingData, string.Concat(AppParameters.AppSettings.APPLICATION_NAME, "UDP_InVaild_Message")).ConfigureAwait(false);
+                new ErrorLogger().CustomLog(incomingData, string.Concat(AppParameters.AppSettings.APPLICATION_NAME, "UDP_InVaild_Message"));
             }
 
             ReceiveAsync();
@@ -304,19 +304,6 @@ namespace Factory_of_the_Future
             {
                 new ErrorLogger().ExceptionLog(ex);
             }
-        }
-        private void SMSInit()
-        {
-            try
-            {
-                //_smsAPI = new SMS.SMS_API();
-            }
-            catch (Exception)
-            {
-
-                throw;
-            }
-
         }
         private void WSInit()
         {

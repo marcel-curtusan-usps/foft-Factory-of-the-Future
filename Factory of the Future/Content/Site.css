@@ -2256,3 +2256,24 @@ tr.hide-table-padding td {
   border: solid #f8f9fa;
   border-width: 0.2rem 0 0;
 }
+
+.staffing-row {
+    width: 120%;
+    position:relative;
+    right: 15px;
+   bottom:2px;
+    height: 60px;
+    margin:0;
+}
+
+.staffing-row div{
+    height:35px;
+    border:2px solid white;
+}
+
+.no-top-border {
+    border-top: 0 !important;
+}
+.no-bottom-border {
+    border-bottom: 0 !important;
+}
