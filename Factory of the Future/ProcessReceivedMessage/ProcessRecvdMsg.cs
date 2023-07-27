@@ -125,8 +125,19 @@ namespace Factory_of_the_Future
                         case "getSVZones":
                             await Task.Run(() => new SV_Zone().LoadAsync(_data, _Message_type, _connID)).ConfigureAwait(false);
                             break;
+                        ///*MPE call system Start*/
                         case "macro":
                             await Task.Run(() => new MPE_Alerts().LoadAsync(_data, _Message_type, _connID)).ConfigureAwait(false);
+                            break;
+                        ///*SELS RT Start*/
+                        case "getTypes":
+                            await Task.Run(() => new Tag_Types().LoadAsync(_data, _Message_type, _connID)).ConfigureAwait(false);
+                            break;
+                        case "tagIdToEmpId":
+                            await Task.Run(() => new Tag_to_EMP().LoadAsync(_data, _Message_type, _connID)).ConfigureAwait(false);
+                            break;
+                        case "getIvEmpData":
+                            await Task.Run(() => new Emp_Schedule().LoadAsync(_data, _Message_type, _connID)).ConfigureAwait(false);
                             break;
                         default:
                             break;

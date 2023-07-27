@@ -1016,7 +1016,8 @@ async function zonecurrentStaff() {
     try {
         let tagsOnWorkfloor = 0;
         $.map(map._layers, function (layer, i) {
-            if (layer.hasOwnProperty("feature") && layer.feature.hasOwnProperty("properties") && /person/i.test(layer.feature.properties.Tag_Type))
+            if (layer.hasOwnProperty("feature") && layer.feature.hasOwnProperty("properties") && /person/i.test(layer.feature.properties.Tag_Type)
+                && layer.feature.properties.tagVisible )
             {
                 tagsOnWorkfloor++;
             }

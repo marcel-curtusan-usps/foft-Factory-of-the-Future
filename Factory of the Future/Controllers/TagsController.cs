@@ -1,5 +1,6 @@
 ﻿using Newtonsoft.Json.Linq;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using System.Web.Http;
 using System.Web.Http.Description;
@@ -11,9 +12,14 @@ namespace Factory_of_the_Future.Controllers
     {
         //GET api/Tags
         [Route("")]
-        public IEnumerable<JObject> GetTags()
+        public IEnumerable<Marker> GetTags()
         {
-            return null; // AppParameters.Tag.Select(x => x.Value).ToList();
+            IEnumerable<Marker> query = new List<Marker>();
+            foreach (CoordinateSystem cs in FOTFManager.Instance.CoordinateSystem.Values)
+            {
+                query = cs.Locators.Where(sl => sl.Value.Properties.TagType == "Person").Select(r => r.Value.Properties).ToList();
+            }
+            return query;
         }
 
         //GET api/Tags/tag_id

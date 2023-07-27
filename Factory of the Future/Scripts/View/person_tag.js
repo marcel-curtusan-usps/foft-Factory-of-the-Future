@@ -188,3 +188,7 @@ async function updateTagLocation(layerindex)
     }
     return null;
 }
+
+async function getStaffInfo() {
+
+}

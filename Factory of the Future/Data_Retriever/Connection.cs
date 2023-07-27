@@ -617,12 +617,18 @@ namespace Factory_of_the_Future
                 }
                 else if (ConnectionInfo.ConnectionName.ToUpper().StartsWith("SELS".ToUpper()))
                 {
-                    if (!string.IsNullOrEmpty(AppParameters.AppSettings.FACILITY_P2P_SITEID))
+                    switch (ConnectionInfo.MessageType.ToUpper())
                     {
-                        if (!string.IsNullOrEmpty(ConnectionInfo.MessageType))
-                        {
-                            formatUrl = string.Format(ConnectionInfo.Url, AppParameters.AppSettings.FACILITY_P2P_SITEID, ConnectionInfo.MessageType);
-                        }
+                        case "GETTYPES":
+                            formatUrl = string.Format(ConnectionInfo.Url, ConnectionInfo.MessageType);
+                            break;
+                        case "TAGIDTOEMPID":
+                            formatUrl = string.Format(ConnectionInfo.Url, ConnectionInfo.MessageType);
+                            break;
+                        case "GETIVEMPDATA":
+                            DateTime Date = dtNow;
+                            formatUrl = string.Format(ConnectionInfo.Url, ConnectionInfo.MessageType , Date.ToString("yyyy-MM-dd"));
+                            break;
                     }
                 }
                 else if (ConnectionInfo.ConnectionName.ToUpper().StartsWith("Quuppa".ToUpper()))

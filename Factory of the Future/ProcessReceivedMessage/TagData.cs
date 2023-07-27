@@ -1,6 +1,7 @@
 ﻿using Factory_of_the_Future.Models;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using Swashbuckle.Swagger;
 using System;
 using System.Reflection;
 using System.Text.RegularExpressions;
@@ -34,60 +35,54 @@ namespace Factory_of_the_Future
                     if (tempData != null && tempData.HasValues)
                     {
                         tagData = tempData.ToObject<QuuppaTag>();
-
-                        foreach (Tag qtitem in tagData.Tags)
+                        foreach (CoordinateSystem cs in FOTFManager.Instance.CoordinateSystem.Values)
                         {
-                            if (!string.IsNullOrEmpty(qtitem.LocationCoordSysId) && qtitem.Location != null)
+                            foreach (Tags qtitem in tagData.Tags)
                             {
-                                update = false;
-                                Coordinatesupdate = false;
-                                marker = new GeoMarker
+                                if (cs.Id == qtitem.LocationCoordSysId)
                                 {
-                                    Geometry = new MarkerGeometry
+                                    if (cs.Locators.ContainsKey(qtitem.TagId) && cs.Locators.TryGetValue(qtitem.TagId, out GeoMarker currentMarker))
                                     {
-                                        Coordinates = qtitem.Location
-                                    },
-                                    Properties = new Marker
-                                    {
-                                        Id = !string.IsNullOrEmpty(qtitem.TagId) ? qtitem.TagId : "",
-                                        Name = !string.IsNullOrEmpty(qtitem.TagName) ? qtitem.TagName : "",
-                                        PositionTS = AppParameters.UnixTimeStampToDateTime(qtitem.LocationTS),
-                                        TagTS = AppParameters.UnixTimeStampToDateTime(tagData.ResponseTS),
-                                        FloorId = qtitem.LocationCoordSysId,
-                                        TagType = new GetTagType().Get(qtitem.TagName),
-                                        CraftName = GetCraftName(qtitem.TagName),
-                                        BadgeId = GetBadgeId(qtitem.TagName),
-                                        Color = !string.IsNullOrEmpty(qtitem.Color) ? qtitem.Color : "",
-                                        Zones = qtitem.LocationZoneIds,
-                                        TagVisible = !(qtitem.LocationMovementStatus == "noData")
-                                    }
-                                };
-                                marker.Properties.TagVisibleMils = (int)Math.Ceiling(marker.Properties.TagTS.Subtract(marker.Properties.PositionTS).TotalMilliseconds);
-                                foreach (CoordinateSystem cs in FOTFManager.Instance.CoordinateSystem.Values)
-                                {
-                                    if (cs.Id == qtitem.LocationCoordSysId && cs.Locators.ContainsKey(qtitem.TagId) && cs.Locators.TryGetValue(qtitem.TagId, out GeoMarker currentMarker))
-                                    {
-                                        currentMarker.Properties.Zones = marker.Properties.Zones;
-                                        posiblenewtag = false;
-                                        //geomatry update
-                                        if (JsonConvert.SerializeObject(currentMarker.Geometry.Coordinates, Formatting.None) != JsonConvert.SerializeObject(marker.Geometry.Coordinates, Formatting.None))
+                                        currentMarker.Properties.PositionTS = AppParameters.UnixTimeStampToDateTime(qtitem.LocationTS);
+                                        currentMarker.Properties.TagTS = AppParameters.UnixTimeStampToDateTime(tagData.ResponseTS);
+                                        currentMarker.Properties.FloorId = qtitem.LocationCoordSysId;
+                                        int tagVisibleCal = (int)Math.Ceiling(currentMarker.Properties.TagTS.Subtract(currentMarker.Properties.PositionTS).TotalMilliseconds);
+                                        if (currentMarker.Properties.TagVisibleMils != tagVisibleCal)
                                         {
-                                            currentMarker.Geometry.Coordinates = marker.Geometry.Coordinates;
+                                            currentMarker.Properties.TagVisibleMils = tagVisibleCal;
+                                            if (currentMarker.Properties.TagVisibleMils > AppParameters.AppSettings.POSITION_MAX_AGE)
+                                            {
+                                                currentMarker.Properties.TagVisible = false;
+                                            }
+                                            else
+                                            {
+                                                currentMarker.Properties.TagVisible = true;
+                                            }
                                             update = true;
                                         }
-
-                                        //properties update
-                                        foreach (PropertyInfo prop in currentMarker.Properties.GetType().GetProperties())
+                                        //geomatry update
+                                        if (JsonConvert.SerializeObject(currentMarker.Geometry.Coordinates, Formatting.None) != JsonConvert.SerializeObject(qtitem.Location, Formatting.None))
                                         {
-                                            if (!new Regex("^(Id|RFid|IsWearingTag|Zones|CraftName|TagUpdate|EmpId|Emptype|EmpName|IsLdcAlert|CurrentLDCs|Tacs|Sels|RawData|CameraData|Camera_Data|Vehicle_Status_Data|Missison|Source|NotificationId|RoutePath)$", RegexOptions.IgnoreCase).IsMatch(prop.Name))
-                                            {
-                                                if (prop.GetValue(marker.Properties, null).ToString() != prop.GetValue(currentMarker.Properties, null).ToString())
-                                                {
-                                                    prop.SetValue(currentMarker.Properties, prop.GetValue(marker.Properties, null));
-                                                    update = true;
-                                                }
-                                            }
+                                            currentMarker.Geometry.Coordinates = qtitem.Location;
+                                            update = true;
                                         }
+                                        if (JsonConvert.SerializeObject(currentMarker.Properties.Zones, Formatting.None) != JsonConvert.SerializeObject(qtitem.LocationZoneIds, Formatting.None))
+                                        {
+                                            currentMarker.Properties.Zones = qtitem.LocationZoneIds;
+                                            currentMarker.Properties.ZonesNames = qtitem.LocationCoordSysName;
+                                        }
+                                        //properties update
+                                        //foreach (PropertyInfo prop in currentMarker.Properties.GetType().GetProperties())
+                                        //{
+                                        //    if (!new Regex("^(Id|RFid|IsWearingTag|Zones|CraftName|TagUpdate|EmpId|Emptype|EmpName|IsLdcAlert|CurrentLDCs|Tacs|Sels|RawData|CameraData|Camera_Data|Vehicle_Status_Data|Missison|Source|NotificationId|RoutePath)$", RegexOptions.IgnoreCase).IsMatch(prop.Name))
+                                        //    {
+                                        //        if (prop.GetValue(marker.Properties, null).ToString() != prop.GetValue(currentMarker.Properties, null).ToString())
+                                        //        {
+                                        //            prop.SetValue(currentMarker.Properties, prop.GetValue(marker.Properties, null));
+                                        //            update = true;
+                                        //        }
+                                        //    }
+                                        //}
                                         if (update)
                                         {
                                             if (currentMarker.Properties.TagType == "Person")
@@ -103,13 +98,9 @@ namespace Factory_of_the_Future
                                     }
                                     else
                                     {
-                                        posiblenewtag = true;
+                                        await Task.Run(action: async () => await AddNewMarkerData(qtitem)).ConfigureAwait(false);
 
                                     }
-                                }
-                                if (posiblenewtag)
-                                {
-                                    await Task.Run(action: () => AddNewMarkerData(qtitem)).ConfigureAwait(false);
                                 }
                             }
                         }
@@ -128,7 +119,7 @@ namespace Factory_of_the_Future
             }
         }
 
-        private async Task<bool> AddNewMarkerData(Tag qtitem)
+        private async Task<bool> AddNewMarkerData(Tags qtitem)
         {
             try
             {
@@ -156,6 +147,7 @@ namespace Factory_of_the_Future
                                 Color = qtitem.Color
                             }
                         };
+                        marker.Properties.TagVisibleMils = (int)Math.Ceiling(marker.Properties.TagTS.Subtract(marker.Properties.PositionTS).TotalMilliseconds);
                         if (cs.Locators.TryAdd(qtitem.TagId, marker))
                         {
                             if (marker.Properties.TagType == "Person")

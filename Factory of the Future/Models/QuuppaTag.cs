@@ -31,9 +31,9 @@ namespace Factory_of_the_Future.Models
         public string FormatName { get; set; } = "";
 
         [JsonProperty("tags")]
-        public List<Tag> Tags { get; set; } = new List<Tag>();
+        public List<Tags> Tags { get; set; } = new List<Tags>();
     }
-    public class Tag
+    public class Tags
     {
         [JsonProperty("tagId")]
         public string TagId { get; set; } = "";

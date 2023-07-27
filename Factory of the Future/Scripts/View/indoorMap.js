@@ -286,6 +286,7 @@ sidebar.on('content', function (ev) {
           
             break;
         case 'reports':
+            Promise.all([getStaffInfo()]);
             //GetUserInfo();
             break;
         case 'userprofile':

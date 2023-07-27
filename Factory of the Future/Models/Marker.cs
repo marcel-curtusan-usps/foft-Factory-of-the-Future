@@ -50,12 +50,30 @@ namespace Factory_of_the_Future
 
         [JsonProperty("Tag_Update")]
         public bool TagUpdate { get; set; }
-
+        public bool isSch { get; set; }
+        public bool isTacs { get; set; }
+        public bool isePacs { get; set; }
+        public bool isPosition { get; set; }
         [JsonProperty("empId")]
         public string EmpId { get; set; } = "";
+        [JsonProperty("bdate")]
+        public string Bdate { get; set; } = "";
+        [JsonProperty("blunch")]
+        public string Blunch { get; set; } = "";
+        [JsonProperty("elunch")]
+        public string Elunch { get; set; } = "";
+        [JsonProperty("edate")]
+        public string Edate { get; set; } = "";
+        [JsonProperty("tourNumber")]
+        public string TourNumber { get; set; } = "";
+        [JsonProperty("reqDate")]
+        public string ReqDate { get; set; } = "";
+        [JsonProperty("daysOff")]
+        public string DaysOff { get; set; } = "";
 
         [JsonProperty("emptype")]
         public string Emptype { get; set; } = "";
+
         [JsonProperty("badgeId")]
         public string BadgeId { get; set; } = "";
 
@@ -99,5 +117,6 @@ namespace Factory_of_the_Future
         [JsonProperty("routePath")]
         public GeoLine RoutePath { get; set; } = new GeoLine();
         public List<DarvisCameraAlert> DarvisAlerts { get; internal set; } = new List<DarvisCameraAlert>();
+        public string ZonesNames { get; internal set; } = "";
     }
 }
