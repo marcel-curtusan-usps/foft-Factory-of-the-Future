@@ -37,6 +37,7 @@ namespace Factory_of_the_Future
                                 if (cs.Locators.ContainsKey(key) && cs.Locators.TryGetValue(key, out GeoMarker currentMarker))
                                 {
                                     currentMarker.Properties.CraftName = value;
+                                    currentMarker.Properties.Emptype = value;
                                 }
                             }
                         }

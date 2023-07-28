@@ -22,17 +22,17 @@ namespace Factory_of_the_Future
                     {
                         return "Vehicle";
                     }
-                    else if (Regex.IsMatch(name, AppParameters.AppSettings.TAG_PERSON, RegexOptions.IgnoreCase))
+                    else if (Regex.IsMatch(name, AppParameters.AppSettings.TAG_LOCATOR, RegexOptions.IgnoreCase))
                     {
-                        return "Person";
+                        return "Locator";
                     }
                     else if (Regex.IsMatch(name, AppParameters.AppSettings.TAG_HVI, RegexOptions.IgnoreCase))
                     {
                         return "HVI";
                     }
-                    else if (Regex.IsMatch(name, AppParameters.AppSettings.TAG_LOCATOR, RegexOptions.IgnoreCase))
+                    else if (Regex.IsMatch(name, AppParameters.AppSettings.TAG_PERSON, RegexOptions.IgnoreCase))
                     {
-                        return "Locator";
+                        return "Person";
                     }
                     else
                     {

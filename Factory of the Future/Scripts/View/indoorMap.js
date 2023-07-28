@@ -328,11 +328,21 @@ staffBtn = L.easyButton({
     states: [{
         stateName: 'openstaffing',
         icon: '<div> ' +
-            '<div class="row staffing-row"><div class="col-sm-6 no-top-border">In</div><div class="col-sm-6 no-top-border">Sch</div><div class="col-sm-6 no-bottom-border" id="staffingbutton"></div><div class="col-sm-6 no-bottom-border">144</div></div>' +
+            '<div class="row staffing-row"><div class="col-sm-6 no-top-border">Facilities</div><div class="col-sm-6 no-top-border">Schedule</div><div class="col-sm-6 no-bottom-border" id="staffingbutton"></div><div class="col-sm-6 no-bottom-border" id="schstaffingbutton">0</div></div>' +
             '</div> ',
         onClick: function (control) {
             sidebar.open('reports');
             control.state('closestaffing');
+        }
+    },
+    {
+        stateName: 'closestaffing',
+        icon: '<div> ' +
+            '<div class="row staffing-row"><div class="col-sm-6 no-top-border">Facilities</div><div class="col-sm-6 no-top-border">Schedule</div><div class="col-sm-6 no-bottom-border" id="staffingbutton"></div><div class="col-sm-6 no-bottom-border" id="schstaffingbutton">0</div></div>' +
+            '</div> ',
+        onClick: function (control) {
+            sidebar.close('reports');
+            control.state('openstaffing');
         }
     }]
 });

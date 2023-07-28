@@ -2544,5 +2544,45 @@ namespace Factory_of_the_Future
                 };
             }
         }
+
+        internal IEnumerable<JObject> GetStaffSchedule()
+        {
+            IEnumerable<JObject> scheduleEmployee = new List<JObject>();
+            try
+            {
+            
+                foreach (CoordinateSystem cs in FOTFManager.Instance.CoordinateSystem.Values)
+                {
+                    var query = cs.Locators.Where(sl => sl.Value.Properties.TagType == "Person").Select(r => r.Value.Properties).ToList();
+                    scheduleEmployee = from se in query
+                                       select new JObject
+                                       {
+                                           ["tagId"] = se.Id,
+                                           ["empId"] = se.EmpId,
+                                           ["tagType"] = se.TagType,
+                                           ["bdate"] = se.Bdate,
+                                           ["blunch"] = se.Blunch,
+                                           ["elunch"] = se.Elunch,
+                                           ["edate"] = se.Edate,
+                                           ["reqDate"] = se.ReqDate,
+                                           ["emptype"] = se.Emptype,
+                                           ["badgeId"] = se.BadgeId,
+                                           ["empName"] = se.EmpName,
+                                           ["craftName"] = se.CraftName,
+                                           ["isSch"] = se.isSch,
+                                           ["isTacs"] = se.isTacs,
+                                           ["isePacs"] = se.isePacs,
+                                           ["isPosition"] = se.isPosition
+                                       };
+                  
+                }
+                return scheduleEmployee;
+            }
+            catch (Exception e)
+            {
+                new ErrorLogger().ExceptionLog(e);
+                return scheduleEmployee;
+            }
+        }
     }
 }

@@ -53,10 +53,12 @@ namespace Factory_of_the_Future
                                             if (currentMarker.Properties.TagVisibleMils > AppParameters.AppSettings.POSITION_MAX_AGE)
                                             {
                                                 currentMarker.Properties.TagVisible = false;
+                                                currentMarker.Properties.isPosition = false;
                                             }
                                             else
                                             {
                                                 currentMarker.Properties.TagVisible = true;
+                                                currentMarker.Properties.isPosition = true;
                                             }
                                             update = true;
                                         }
@@ -147,7 +149,14 @@ namespace Factory_of_the_Future
                                 Color = qtitem.Color
                             }
                         };
-                        marker.Properties.TagVisibleMils = (int)Math.Ceiling(marker.Properties.TagTS.Subtract(marker.Properties.PositionTS).TotalMilliseconds);
+                        if (marker.Properties.TagType == "Person" || marker.Properties.TagType == "Locator")
+                        {
+                            marker.Properties.CameraData = null;
+                            marker.Properties.Vehicle_Status_Data = null;
+                            marker.Properties.Missison = null;
+                            marker.Properties.RoutePath = null;
+                        }
+                            marker.Properties.TagVisibleMils = (int)Math.Ceiling(marker.Properties.TagTS.Subtract(marker.Properties.PositionTS).TotalMilliseconds);
                         if (cs.Locators.TryAdd(qtitem.TagId, marker))
                         {
                             if (marker.Properties.TagType == "Person")

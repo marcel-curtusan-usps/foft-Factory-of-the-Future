@@ -1,6 +1,7 @@
 ﻿using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Web.Configuration;
@@ -32,22 +33,36 @@ namespace Factory_of_the_Future
                 tempData = JToken.Parse(_data);
                 if (tempData != null && tempData.HasValues)
                 {
-                    foreach (var item in from cs in FOTFManager.Instance.CoordinateSystem.Values
-                                         from JObject item in tempData
-                                         let query = cs.Locators.Where(sl => sl.Value.Properties.TagType == "Person" && sl.Value.Properties.EmpId == item["empId"].ToString()).Select(r => r.Value.Properties).ToList()
-                                         let tagID = query.FirstOrDefault().Id.ToString()// string tagID = cs.Locators.Where(sl => sl.Value.Properties.TagType == "Person" && sl.Value.Properties.EmpId == item["empId"].ToString()).Select(r => r.Value.Properties.Id).FirstOrDefault();
-                                         where !string.IsNullOrEmpty(tagID) && cs.Locators.ContainsKey(tagID)
-                                                                         && cs.Locators.TryGetValue(item["empId"].ToString(), out GeoMarker currentMarker)
-                                         select item)
+
+                    foreach (CoordinateSystem cs in FOTFManager.Instance.CoordinateSystem.Values)
                     {
-                        Console.Write(item);
-                        //currentMarker.Properties.Bdate = item["bdate"].ToString();
-                        //currentMarker.Properties.Bdate = item["edate"].ToString();
-                        //currentMarker.Properties.Bdate = item["blunch"].ToString();
-                        //currentMarker.Properties.Bdate = item["elunch"].ToString();
-                        //currentMarker.Properties.Bdate = item["tourNumber"].ToString();
-                        //currentMarker.Properties.Bdate = item["reqDate"].ToString();
-                        //currentMarker.Properties.Bdate = item["daysOff"].ToString();
+                        foreach (JObject empitem in tempData)
+                        {
+
+                            var tagID = cs.Locators.Where(sl => sl.Value.Properties.TagType == "Person" && sl.Value.Properties.EmpId == empitem["empId"].ToString()).Select(r => r.Value.Properties).ToList();
+                            if (tagID.Any() && cs.Locators.TryGetValue(tagID[0].Id, out GeoMarker currentMarker))
+                            {
+                                currentMarker.Properties.Bdate = empitem["bdate"].ToString();
+                                currentMarker.Properties.Edate = empitem["edate"].ToString();
+                                currentMarker.Properties.Blunch = empitem["blunch"].ToString();
+                                currentMarker.Properties.Elunch = empitem["elunch"].ToString();
+                                currentMarker.Properties.TourNumber = empitem["tourNumber"].ToString();
+                                currentMarker.Properties.ReqDate = empitem["reqDate"].ToString();
+                                currentMarker.Properties.DaysOff = empitem["daysOff"].ToString();
+                                //cal is schedule
+                                char[] offDays = empitem["daysOff"].ToString().ToCharArray();
+                                int dayofweek = (int)empitem["weekDay"];
+                                bool isShiftDone = getIsShiftDone(empitem["edate"].ToString());
+                                if (offDays[dayofweek].ToString() == "N" && !isShiftDone)
+                                {
+                                    currentMarker.Properties.isSch = true;
+                                }
+                                else
+                                {
+                                    currentMarker.Properties.isSch = false;
+                                }
+                            }
+                        }
                     }
                 }
                 return Task.FromResult(saveToFile);
@@ -62,6 +77,20 @@ namespace Factory_of_the_Future
 
                 Dispose();
             }
+        }
+
+        private bool getIsShiftDone(string endtime)
+        {
+           DateTime endtimeshc = DateTime.MinValue;
+            if (!string.IsNullOrEmpty(endtime))
+            {
+                endtimeshc = DateTime.Parse(endtime);
+                if (DateTime.Now <= endtimeshc)
+                {
+                    return true;
+                }
+            }
+            return false;
         }
 
         protected virtual void Dispose(bool disposing)

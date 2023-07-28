@@ -1267,8 +1267,29 @@
             </div>
             <!-- Sidebar panel Report Information -->
             <div class="leaflet-sidebar-pane overflow-auto" id="reports">
-                <h4 class="ml-p5rem">Report Information</span></h4>
+                <h4 class="ml-p5rem"><span>Report Information</span></h4>
                 <div class="btn-toolbar" role="toolbar" id="userinfo_div">
+                      <div id="div_staffinfo" class="container-fluid">
+                        <div class="card w-100">
+                            <div class="card-header pl-1">
+                                <h6 class="sectionHeader ml-1 mb-1">Staffing report</h6>
+                            </div>
+                            <div class="card-body overflow-auto">
+                                <div class="table-responsive">
+                                    <table class="table table-sm table-hover mb-1 border-bottom" id="staffingtable">
+                                        <thead class="thead-dark">
+                                            <tr>
+                                                <th>Type</th>
+                                                <th>Scheduled</th>
+                                                <th>In-Building</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody></tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                     <div id="div_userinfo" class="container-fluid">
                         <div class="card w-100">
                             <div class="card-header pl-1">
@@ -1318,7 +1339,7 @@
                             </div>
                         </div>
                     </div>
-                    <div id="div_complianceinfo" class="container-fluid ">
+                    <%--<div id="div_complianceinfo" class="container-fluid ">
                         <div class="card w-100">
                             <div class="card-header pl-1">
                                 <h6 class="sectionHeader ml-1 mb-1">Undetected Badges <span class="badge-info badge" name="undetected_count">0</span></h6>
@@ -1387,7 +1408,7 @@
                                 </div>
                             </div>
                         </div>
-                    </div>
+                    </div>--%>
                 </div>
             </div>
             <!-- Sidebar panel Trips Notification -->

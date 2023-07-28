@@ -19,6 +19,7 @@ let connecttimer;
 let fotfmanager = $.connection.FOTFManager;
 let timezone = {};
 let condition = false;
+let emplschedule = [];
 
 $(function () {
     new Promise(() => setInterval(() => { cBlock() }), 1000);
@@ -223,7 +224,19 @@ $(function () {
     $.connection.hub.qs = { 'page_type': "CF".toUpperCase() };
     $.connection.hub.start({ waitForPageLoad: false })
         .done(function () {
+            createStaffingDataTable("staffingtable");
             fotfmanager.server.joinGroup("QSM");
+            fotfmanager.server.getStaffSchedule().done(async (data) => {
+                let tagsscheduled = 0;
+                emplschedule = data;
+                $.map(data, function (empl, i) {
+                    if (/person/i.test(empl.tagType) && empl.isSch) {
+                        tagsscheduled++;
+                    }
+                });
+                $('div[id=schstaffingbutton]').text(tagsscheduled);
+                $('div[id=schstaffingbutton1]').text(tagsscheduled);
+            });
             if (/^(Admin|OIE)/i.test(User.Role)) {
                 init_geometry_editing();
             }
@@ -1008,23 +1021,14 @@ async function cBlock() {
     //}
 
     Promise.all([zonecurrentStaff()]);
+    Promise.all([staffCounts()]);
 }
 
 // current zone staff
 //TODO: look in to this more.
 async function zonecurrentStaff() {
     try {
-        let tagsOnWorkfloor = 0;
-        $.map(map._layers, function (layer, i) {
-            if (layer.hasOwnProperty("feature") && layer.feature.hasOwnProperty("properties") && /person/i.test(layer.feature.properties.Tag_Type)
-                && layer.feature.properties.tagVisible )
-            {
-                tagsOnWorkfloor++;
-            }
-        });
-        $('div[id=staffingbutton]').text(tagsOnWorkfloor);
-
-
+ 
         ////clear Old tags 
         //if (tagsMarkersGroup.hasOwnProperty("_layers")) {
         //    $.map(tagsMarkersGroup._layers, (layer) => {

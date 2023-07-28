@@ -248,6 +248,16 @@ namespace Factory_of_the_Future
             return _managerHub.GetIndoorMapFloor(id);
         }
 
+
+        /// <summary>
+        /// Get Staffing info
+        /// </summary>
+        /// <returns></returns>
+        /// 
+        public IEnumerable<JObject> GetStaffSchedule()
+        {
+            return _managerHub.GetStaffSchedule();
+        }
         //public async Task<string> UpdateTagName(string tagId, string tagName)
         //{
         //        bool result = await _managerHub.UpdateTagName(tagId, tagName).ConfigureAwait(false);
