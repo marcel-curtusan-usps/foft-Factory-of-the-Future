@@ -1,58 +1,68 @@
-﻿using Newtonsoft.Json.Linq;
+﻿using Factory_of_the_Future.Models;
+using Newtonsoft.Json.Linq;
 using System;
+using System.Collections.Generic;
 using System.Linq;
-using System.Text.RegularExpressions;
 using System.Threading.Tasks;
-using System.Xml.Linq;
 
 namespace Factory_of_the_Future
 {
-    internal class Tag_Types :IDisposable
+    internal class Door_Associated_Trips : IDisposable
     {
         private bool disposedValue;
         public dynamic _data { get; protected set; }
         public string _Message_type { get; protected set; }
         public string _connID { get; protected set; }
+        public bool update { get; protected set; }
         public JToken tempData = null;
-        private bool saveToFile;
-        internal Task<bool> LoadAsync(dynamic data, string message_type, string connID)
+        public List<Door_Association_Trips> door_association_temp_Data;
+        public Door_Associated_Trips()
         {
-            saveToFile = false;
+        }
+
+        internal async Task LoadAsync(dynamic data, string message_type, string connID)
+        {
             _data = data;
             _Message_type = message_type;
             _connID = connID;
+            update = false;
             try
             {
-                tempData = JToken.Parse(_data);
-                if (tempData != null && tempData.HasValues)
+                if (_data != null)
                 {
-                    foreach (var (cs, item) in FOTFManager.Instance.CoordinateSystem.Values.SelectMany(cs => tempData.Select(item => (cs, item))))
+
+                    tempData = JToken.Parse(_data);
+                    if (tempData != null && tempData.HasValues)
                     {
-                        string key = ((JProperty)item).Name;
-                        if (!new Regex("^(ts|issues)$", RegexOptions.IgnoreCase).IsMatch(key))
+                        char[] firstdelimiterChars = {','};
+                        char[] seconddelimiterChars = { '-' };
+                        door_association_temp_Data = tempData.ToObject<List<Door_Association_Trips>>().OrderBy(o => o.DoorBarcode).ToList();
+                        foreach (Door_Association_Trips door in door_association_temp_Data)
                         {
-                            string value = ((JProperty)item).Value.ToString();
-                            if (cs.Locators.ContainsKey(key) && cs.Locators.TryGetValue(key, out GeoMarker currentMarker))
+                            if (!string.IsNullOrEmpty(door.AssociatedTrips))
                             {
-                                currentMarker.Properties.CraftName = value;
-                                currentMarker.Properties.Emptype = value;
+                                string[] AssociatedTrips = door.AssociatedTrips.Split(firstdelimiterChars);
+                                for (int i = 0; i < AssociatedTrips.Length; i++)
+                                {
+                                    string[] routeTrip = AssociatedTrips[i].Split(seconddelimiterChars);
+                                    door.Route = routeTrip[0];
+                                    door.Trip = routeTrip[1];
+
+                                    await Task.Run(() => FOTFManager.Instance.saveDoorTripAssociation(door.DoorNum, door.Route, door.Trip)).ConfigureAwait(false);
+                                }
                             }
                         }
                     }
                 }
-                return Task.FromResult(saveToFile);
             }
             catch (Exception e)
             {
-                new ErrorLogger().ExceptionLog(e); 
-                return Task.FromResult(saveToFile);
+                new ErrorLogger().ExceptionLog(e);
             }
             finally
             {
-            
                 Dispose();
             }
-
         }
 
         protected virtual void Dispose(bool disposing)
@@ -75,7 +85,7 @@ namespace Factory_of_the_Future
         }
 
         // // TODO: override finalizer only if 'Dispose(bool disposing)' has code to free unmanaged resources
-        // ~Tag_Types()
+        // ~Door_Associated_Trips()
         // {
         //     // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
         //     Dispose(disposing: false);

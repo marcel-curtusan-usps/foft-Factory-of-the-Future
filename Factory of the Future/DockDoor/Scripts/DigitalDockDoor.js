@@ -36,8 +36,8 @@ async function updateDockDoorStatus(data) {
     try {
 
         //show the trip direction
-        if (!!data && data.length > 0 && data[0].atDoor) {
-            legdata = GetLegdata(data[0]);
+        if (!!data && data.length > 0) {
+            legdata = GetLegdata(data);
         }
         else {
             stopTimer();
@@ -153,7 +153,8 @@ function updateContainerDataTable(ldata, table) {
 function loadDataTable(data, table) {
     if ($.fn.dataTable.isDataTable("#" + table)) {
             $('#' + table).DataTable().rows.add(data).draw();
-        }
+    }
+    return true;
 }
 function removeLegsTripDataTable(table) {
     if ($.fn.dataTable.isDataTable("#" + table)) {
@@ -180,8 +181,9 @@ function createLegsTripDataTable(table) {
                 "mDataProp": key,
                 "class": "row-cts-des",
                 //"mRender": function (data, type, full) {
-                "mRender": function (full) {
-                    return full["legSiteName"] + " (" + full["legSiteId"] + ")";
+                "mRender": function (full, data) {
+                    return full;
+                    //return full["legSiteName"] + " (" + full["legSiteId"] + ")";
                 }
             };
         }
@@ -463,39 +465,80 @@ function remove_duplicates(objectsArray) {
 function GetLegdata(legdata)
 {
     try {
-        TripDirectionInd = legdata.tripDirectionInd;
-        $('button[id=currentTripDirectionInd]').text(legdata.tripDirectionInd === "I" ? "In-Bound" : "Out-bound");
-        if (CurrentTripMin === 0) {
-            //start
-            CountTimer = startTimer(legdata.scheduledDtm);
-        }
-        updateDataTable([legdata], "currentTripTable");
-        if (TripDirectionInd === "I") {
-            $('label[id=containertext]').text("Ready to Unload:");
-            $('#inboundDiv').css("display", "block");
-            $('#outboundDiv').css("display", "none");
-            $('label[id=tirpIncdtext]').text("Inbound");
-            $('div[id=incountdowndiv]').css("display", "block");
-            $('label[id=incountdowntext]').text("Scheduled" + "\n" + " Arrival");
-        }
-        if (TripDirectionInd === "O") {
-            //else if (TripDirectionInd === "O") {
-            if (!!legdata.containerScans && legdata.containerScans.length > 0) {
-                Promise.all([CreateContainerCount(legdata.containerScans)]);
+        let displayTrip = getdisplayTrip(legdata)
+
+        if (!!displayTrip) {
+
+            TripDirectionInd = displayTrip.tripDirectionInd;
+            $('button[id=currentTripDirectionInd]').text(displayTrip.tripDirectionInd === "I" ? "In-Bound" : "Out-bound");
+            if (CurrentTripMin === 0) {
+                //start
+                CountTimer = startTimer(displayTrip.scheduledDtm);
             }
-            $('label[id=containertext]').text("Ready not Loaded:");
-            $('#inboundDiv').css("display", "none");
-            $('#outboundDiv').css("display", "block");
-            $('label[id=tirpIncdtext]').text("Outbound");
-            $('label[id=outcountdowntext]').text("Scheduled " + "\n" + "Departure");
-            //timeCount
-            $('div[id=outcountdowndiv]').css("display", "block");
+            updateDataTable([displayTrip], "currentTripTable");
+            if (TripDirectionInd === "I") {
+                $('label[id=containertext]').text("Ready to Unload:");
+                $('#inboundDiv').css("display", "block");
+                $('#outboundDiv').css("display", "none");
+                $('label[id=tirpIncdtext]').text("Inbound");
+                $('div[id=incountdowndiv]').css("display", "block");
+                $('label[id=incountdowntext]').text("Scheduled" + "\n" + " Arrival");
+            }
+            if (TripDirectionInd === "O") {
+                //else if (TripDirectionInd === "O") {
+                if (!!displayTrip.containerScans && displayTrip.containerScans.length > 0) {
+                    Promise.all([CreateContainerCount(displayTrip.containerScans)]);
+                }
+                $('label[id=containertext]').text("Ready not Loaded:");
+                $('#inboundDiv').css("display", "none");
+                $('#outboundDiv').css("display", "block");
+                $('label[id=tirpIncdtext]').text("Outbound");
+                $('label[id=outcountdowntext]').text("Scheduled " + "\n" + "Departure");
+                //timeCount
+                $('div[id=outcountdowndiv]').css("display", "block");
+            }
+            return displayTrip;
         }
-        return legdata;
+        else {
+            return null;
+        }
 
-
+    
     } catch (e) {
         return null;
     }
 
+}
+function getdisplayTrip(data)
+{
+    let timenow = moment(DateTimeNow);
+    let reustltrip = null;
+    if (!!data) {
+        $.each(data, function (index,trip) {
+            let tripschduration = null;
+            let tripdptduration = null;
+            if (trip.atDoor) {
+               reustltrip = trip;
+            }
+            let tripschtime = moment().set({ 'year': trip.scheduledDtm.year, 'month': trip.scheduledDtm.month, 'date': trip.scheduledDtm.dayOfMonth, 'hour': trip.scheduledDtm.hourOfDay, 'minute': trip.scheduledDtm.minute, 'second': trip.scheduledDtm.second });
+            let tripdpttime = moment().set({ 'year': trip.actualDtm.year, 'month': trip.actualDtm.month, 'date': trip.actualDtm.dayOfMonth, 'hour': trip.actualDtm.hourOfDay, 'minute': trip.actualDtm.minute, 'second': trip.actualDtm.second });
+
+            //get the tip schedule time duration
+            if (tripschtime._isValid && tripschtime < timenow ) {
+                tripschduration = moment.duration(tripschtime.diff(timenow)).hours();
+            }
+            //get the tip depart time duration
+            if (tripdpttime._isValid && tripdpttime < timenow) {
+                tripdptduration = moment.duration(timenow.diff(tripdpttime)).hours();
+            }
+            if (tripschduration > 2 && !tripdptduration > 0) {
+                reustltrip = trip;
+            }
+
+        });
+    }
+    else {
+        return reustltrip;
+    }
+    return reustltrip;
 }

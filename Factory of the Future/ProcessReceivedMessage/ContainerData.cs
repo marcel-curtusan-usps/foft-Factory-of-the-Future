@@ -147,7 +147,7 @@ namespace Factory_of_the_Future
                         }
                     }
                 }
-                await Task.Run(() => RemoveContainers()).ConfigureAwait(true);
+                await Task.Run(() => RemoveContainers()).ConfigureAwait(false);
 
                 return saveToFile;
             }

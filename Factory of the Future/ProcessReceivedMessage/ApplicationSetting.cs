@@ -37,7 +37,7 @@ namespace Factory_of_the_Future
                                     AppParameters.AppSettings.FACILITY_LKEY = !string.IsNullOrEmpty(SV_Site_Info.ZipCode) ? SV_Site_Info.ZipCode : "";
                                     Task.Run(() => AppParameters.LoglocationSetup());
                                     FOTFManager.Instance.CoordinateSystem.Clear();
-                                    Task.Run(() => AppParameters.ResetParameters()).ConfigureAwait(true);
+                                    Task.Run(() => AppParameters.ResetParameters()).ConfigureAwait(false);
                                 }
                                 else
                                 {

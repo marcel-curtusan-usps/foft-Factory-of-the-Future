@@ -85,7 +85,7 @@ namespace Factory_of_the_Future
                                     
                                     if (AppParameters.MPEPerformance.TryUpdate(NewMachineInfo.MpeId, NewMachineInfo, currentMachine_Info))
                                     {
-                                        await Task.Run(() => FOTFManager.Instance.UpdateMpeData(currentMachine_Info.MpeId)).ConfigureAwait(true);
+                                        await Task.Run(() => FOTFManager.Instance.UpdateMpeData(currentMachine_Info.MpeId)).ConfigureAwait(false);
                                     }
                                     //foreach (PropertyInfo prop in NewMachineInfo.GetType().GetProperties())
                                     //{
@@ -106,7 +106,7 @@ namespace Factory_of_the_Future
                                 {
                                     if (AppParameters.MPEPerformance.TryAdd(NewMachineInfo.MpeId, NewMachineInfo))
                                     {
-                                        await Task.Run(() => FOTFManager.Instance.UpdateMpeData(NewMachineInfo.MpeId)).ConfigureAwait(true);
+                                        await Task.Run(() => FOTFManager.Instance.UpdateMpeData(NewMachineInfo.MpeId)).ConfigureAwait(false);
                                     }
                                 }
                             }

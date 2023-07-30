@@ -31,12 +31,12 @@ namespace Factory_of_the_Future
             //load all configuration 
             Task.Run(() =>
             AppParameters.Start()
-            ).ConfigureAwait(true);
+            ).ConfigureAwait(false);
             //start the clean up process
             Task.Run(async delegate {                
                 await Task.Delay(TimeSpan.FromSeconds(25)).ConfigureAwait(false);
                 BackgroundThread.Start();
-            }).ConfigureAwait(true);
+            }).ConfigureAwait(false);
         }
 
 

@@ -48,7 +48,11 @@ namespace Factory_of_the_Future
                         ///*Quuppa Data End*/
                         ///*SVWeb Data Start*/
                         case "doors":
-                            await Task.Run(() => new DoorData().LoadAsync(_data, _Message_type, _connID)).ConfigureAwait(true);
+                            await Task.Run(() => new DoorData().LoadAsync(_data, _Message_type, _connID)).ConfigureAwait(false);
+                            //Doors(data, connID);
+                            break;
+                        case "getdoor_associated_trips":
+                            await Task.Run(() => new Door_Associated_Trips().LoadAsync(_data, _Message_type, _connID)).ConfigureAwait(false);
                             //Doors(data, connID);
                             break;
                         case "trips":

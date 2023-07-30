@@ -137,7 +137,7 @@ namespace Factory_of_the_Future
             if (Status == 2 || Status == 5)
             {
                 ConnectionInfo.Status = "Stopped/Deactivated";
-                Task.Run(() => FOTFManager.Instance.BroadcastQSMUpdate(ConnectionInfo)).ConfigureAwait(true);
+                Task.Run(() => FOTFManager.Instance.BroadcastQSMUpdate(ConnectionInfo)).ConfigureAwait(false);
             }
 
         }
@@ -438,7 +438,7 @@ namespace Factory_of_the_Future
                 //start login connection status
                 string connStatus = string.Concat(DateTime.Now," Downloading Data from: ", ConnectionInfo.ConnectionName," message type: ", ConnectionInfo.MessageType);
                 //end login
-                Task.Run(() => new ErrorLogger().CustomLog(connStatus, string.Concat( "API_ConnectionStatus"))).ConfigureAwait(true);
+                Task.Run(() => new ErrorLogger().CustomLog(connStatus, string.Concat( "API_ConnectionStatus"))).ConfigureAwait(false);
                 if (!string.IsNullOrEmpty(AppParameters.AppSettings.FACILITY_TIMEZONE))
                 {
                     if (AppParameters.TimeZoneConvert.TryGetValue(AppParameters.AppSettings.FACILITY_TIMEZONE, out string windowsTimeZoneId))
@@ -644,7 +644,7 @@ namespace Factory_of_the_Future
                         bool URLValid = Uri.TryCreate(formatUrl, UriKind.Absolute, out uriResult) && (url.Scheme == Uri.UriSchemeHttp || url.Scheme == Uri.UriSchemeHttps);
                         if (URLValid)
                         {
-                            Task.Run(() => new ProcessRecvdMsg().StartProcess( new SendMessage().Get(uriResult, requestBody), MessageType, ConnectionInfo.Id)).ConfigureAwait(true);
+                            Task.Run(() => new ProcessRecvdMsg().StartProcess( new SendMessage().Get(uriResult, requestBody), MessageType, ConnectionInfo.Id)).ConfigureAwait(false);
                         }
                         else
                         {

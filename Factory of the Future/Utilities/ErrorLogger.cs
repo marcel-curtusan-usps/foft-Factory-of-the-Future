@@ -33,7 +33,7 @@ namespace Factory_of_the_Future
                     StringBuilder errorBuilder = new StringBuilder(AppParameters.AppSettings.APPLICATION_NAME + " " + type + " Info ");
                     errorBuilder.Append("DateTime = " + DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fff"));
                     errorBuilder.Append(" Data = " + Data);
-                    await Task.Run(() => new FileIO().Write(string.Concat(AppParameters.Logdirpath, AppParameters.LogFloder, "\\"), type + "_" + DateTime.Now.ToString("yyyy-MM-dd") + ".txt", errorBuilder.ToString())).ConfigureAwait(true);
+                    await Task.Run(() => new FileIO().Write(string.Concat(AppParameters.Logdirpath, AppParameters.LogFloder, "\\"), type + "_" + DateTime.Now.ToString("yyyy-MM-dd") + ".txt", errorBuilder.ToString())).ConfigureAwait(false);
                 
             }
 

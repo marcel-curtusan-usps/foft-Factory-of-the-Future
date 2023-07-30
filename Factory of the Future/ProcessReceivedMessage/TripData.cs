@@ -120,7 +120,7 @@ namespace Factory_of_the_Future
                             //{
                             if (AppParameters.RouteTripsList.TryUpdate(rt.Id, rt, currentRTData))
                             {
-                                Task.Run(() => FOTFManager.Instance.BroadcastTripsUpdate(rt)).ConfigureAwait(true);
+                                Task.Run(() => FOTFManager.Instance.BroadcastTripsUpdate(rt)).ConfigureAwait(false);
                                 update = true;
                             }
                             //}
@@ -134,7 +134,7 @@ namespace Factory_of_the_Future
                         //get trip Itinerary
                         if (!rt.Legs.Any())
                         {
-                            Task.Run(() => new ItineraryTrip_Update(GetItinerary(rt.Route, rt.Trip, AppParameters.AppSettings.FACILITY_NASS_CODE, new Utility().GetSvDate(rt.OperDate)), rt.Id)).ConfigureAwait(true);
+                            Task.Run(() => new ItineraryTrip_Update(GetItinerary(rt.Route, rt.Trip, AppParameters.AppSettings.FACILITY_NASS_CODE, new Utility().GetSvDate(rt.OperDate)), rt.Id)).ConfigureAwait(false);
                         }
                     }
                 }

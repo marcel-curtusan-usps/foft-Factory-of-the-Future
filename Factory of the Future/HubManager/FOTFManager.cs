@@ -411,7 +411,7 @@ namespace Factory_of_the_Future
                     {
                         if (cs.Zones.TryAdd(newtempgZone.Properties.Id, newtempgZone))
                         {
-                            Task.Run(() => BroadcastAddZone(newtempgZone, newtempgZone.Properties.FloorId, newtempgZone.Properties.ZoneType)).ConfigureAwait(true);
+                            Task.Run(() => BroadcastAddZone(newtempgZone, newtempgZone.Properties.FloorId, newtempgZone.Properties.ZoneType)).ConfigureAwait(false);
                             new FileIO().Write(string.Concat(AppParameters.Logdirpath, AppParameters.ConfigurationFloder), "Project_Data.json", AppParameters.ZoneOutPutdata(CoordinateSystem.Select(x => x.Value).ToList()));
                             return null;
                         }
@@ -2244,7 +2244,7 @@ namespace Factory_of_the_Future
             {
                 if (!string.IsNullOrEmpty(data))
                 {
-                    Task.Run(() => AppParameters.RunningConnection.Add(JsonConvert.DeserializeObject<Connection>(data), true)).ConfigureAwait(true);
+                    Task.Run(() => AppParameters.RunningConnection.Add(JsonConvert.DeserializeObject<Connection>(data), true)).ConfigureAwait(false);
                 }
                 return null;
             }
@@ -2261,7 +2261,7 @@ namespace Factory_of_the_Future
             {
                 if (!string.IsNullOrEmpty(data))
                 {
-                    Task.Run(() => AppParameters.RunningConnection.EditAsync(JsonConvert.DeserializeObject<Connection>(data))).ConfigureAwait(true);
+                    Task.Run(() => AppParameters.RunningConnection.EditAsync(JsonConvert.DeserializeObject<Connection>(data))).ConfigureAwait(false);
                 }
                 return null;
             }
@@ -2317,15 +2317,15 @@ namespace Factory_of_the_Future
                                     gz.Properties.MPEGroup = objectdata["MPE_Group"].ToString();
                                     gz.Properties.QuuppaOverride = true;
                                     gz.Properties.MPEWatchData = GetMPEPerfData(gz.Properties.Name);
-                                    await Task.Run(() => BroadcastMachineStatus(gz, floorID)).ConfigureAwait(true);
+                                    await Task.Run(() => BroadcastMachineStatus(gz, floorID)).ConfigureAwait(false);
                                     
                                     if (string.IsNullOrEmpty(tempMPEGroup)) //Adding a new MPE
                                     {
-                                        await Task.Run(() => BroadcastMPESDOAddition(gz.Properties.MPEWatchData, gz.Properties.MPEGroup)).ConfigureAwait(true);
+                                        await Task.Run(() => BroadcastMPESDOAddition(gz.Properties.MPEWatchData, gz.Properties.MPEGroup)).ConfigureAwait(false);
                                     }
                                     else  //Deleting existing MPE
                                     {
-                                        await Task.Run(() => BroadcastMPESDORemoval(gz.Properties.MPEWatchData, tempMPEGroup)).ConfigureAwait(true);
+                                        await Task.Run(() => BroadcastMPESDORemoval(gz.Properties.MPEWatchData, tempMPEGroup)).ConfigureAwait(false);
                                     }
                                    
                                     fileUpdate = true;

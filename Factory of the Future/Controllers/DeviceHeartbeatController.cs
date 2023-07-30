@@ -24,7 +24,7 @@ namespace Factory_of_the_Future.Controllers
             //start data process
             if (request_data.HasValues)
             {
-                await Task.Run(() => { new ConnectionDeviceStatus().Log(request_data, Request); }).ConfigureAwait(true);
+                await Task.Run(() => { new ConnectionDeviceStatus().Log(request_data, Request); }).ConfigureAwait(false);
                 return Content(HttpStatusCode.OK, FOTFManager.Instance.DeviceScan(request_data, ""));
             }
             else
