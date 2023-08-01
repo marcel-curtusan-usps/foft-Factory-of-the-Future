@@ -50,7 +50,7 @@
             <div class="item2">
                 <h1 class="card-title">Projected End Time:</h1>
                 <p id="projectedEndTime" class="card-text">00:00</p>
-                <h1 class="card-text">Planed End Time:</h1>
+                <h1 class="card-text">Planned End Time:</h1>
                 <p id="plannedEndTime" class="card-text">00:00</p>
             </div>
         </div>
