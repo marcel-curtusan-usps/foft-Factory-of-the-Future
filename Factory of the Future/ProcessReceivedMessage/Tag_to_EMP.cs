@@ -38,9 +38,14 @@ namespace Factory_of_the_Future
                             if (cs.Locators.ContainsKey(item["tag"].ToString()) && cs.Locators.TryGetValue(item["tag"].ToString(), out GeoMarker currentMarker))
                             {
                                 currentMarker.Properties.EmpId = item["emp"].ToString();
+                                saveToFile = true;
                             }
                         }
                     }
+                }
+                if (saveToFile)
+                {
+                    _ = Task.Run(() => new FileIO().Write(string.Concat(AppParameters.Logdirpath, AppParameters.ConfigurationFloder), "Project_Data.json", AppParameters.ZoneOutPutdata(FOTFManager.Instance.CoordinateSystem.Select(x => x.Value).ToList()))).ConfigureAwait(false);
                 }
                 return saveToFile;
             }

@@ -21,10 +21,10 @@ namespace Factory_of_the_Future.Controllers
             IEnumerable<JObject> scheduleEmployee = new List<JObject>();
             foreach (CoordinateSystem cs in FOTFManager.Instance.CoordinateSystem.Values)
             {
-                IEnumerable<JObject> scheduleEmployeetemp = new List<JObject>();
-                var  query = cs.Locators.Where(sl => sl.Value.Properties.TagType == "Person").Select(r => r.Value.Properties).ToList();
-                scheduleEmployeetemp = from se in query
-                                   select new JObject { 
+                var query = cs.Locators.Where(sl => sl.Value.Properties.TagType == "Person").Select(r => r.Value.Properties).ToList();
+                scheduleEmployee = from se in query
+                                   select new JObject
+                                   {
                                        ["tagId"] = se.Id,
                                        ["empId"] = se.EmpId,
                                        ["tagType"] = se.TagType,
@@ -42,7 +42,6 @@ namespace Factory_of_the_Future.Controllers
                                        ["isePacs"] = se.isePacs,
                                        ["isPosition"] = se.isPosition
                                    };
-                scheduleEmployee.Concat(scheduleEmployeetemp);
             }
             return scheduleEmployee;
         }

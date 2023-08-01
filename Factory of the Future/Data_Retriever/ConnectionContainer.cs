@@ -195,7 +195,7 @@ namespace Factory_of_the_Future
                 }
                 if (updateFile)
                 {
-                    new FileIO().Write(string.Concat(AppParameters.CodeBase.Parent.FullName.ToString(), AppParameters.Appsetting), "Connection.json", AppParameters.ConnectionOutPutdata(DataConnection.Select(y => y.ConnectionInfo).ToList()));
+                    Task.Run(() => new FileIO().Write(string.Concat(AppParameters.CodeBase.Parent.FullName.ToString(), AppParameters.Appsetting), "Connection.json", AppParameters.ConnectionOutPutdata(DataConnection.Select(y => y.ConnectionInfo).ToList()))).ConfigureAwait(true);
                 }
             }
             catch (Exception e)

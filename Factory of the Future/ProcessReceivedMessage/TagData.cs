@@ -23,7 +23,7 @@ namespace Factory_of_the_Future
         public bool posiblenewtag;
         internal async Task<bool> LoadAsync(dynamic data, string message_type, string connID)
         {
-            saveToFile = false;
+            saveToFile = true;
             _data = data;
             _Message_type = message_type;
             _connID = connID;

@@ -11,13 +11,14 @@ if (!String.prototype.supplant) {
 }
 let doornumber = "";
 let fotfmanager = $.connection.FOTFManager;
-let DateTimeNow = new Date();
 let CurrentTrip = false;
 let CurrentTripMin = 0;
 let CurrentTripInd = "";
 let connecttimer = 0;
 let connectattp = 0;
 let Timerinterval = 1;
+let timer = false;
+let tripschtimeduration = null;
 //hold the id
 let TimerID = -1;
 let CountTimer = 0;
@@ -68,14 +69,14 @@ $(function () {
                 });
         // Raised when the connection state changes. Provides the old state and the new state (Connecting, Connected, Reconnecting, or Disconnected).
         //$.connection.hub.stateChanged(function (state) {
-            //switch (state.newState) {
-            //    case 1: $('label[id=dockdoorNumber]');
-            //        break;
-            //    case 4:
-            //        $('label[id=dockdoorNumber]');
-            //        break;
-            //    default: $('label[id=dockdoorNumber]');
-            //}
+        //switch (state.newState) {
+        //    case 1: $('label[id=dockdoorNumber]');
+        //        break;
+        //    case 4:
+        //        $('label[id=dockdoorNumber]');
+        //        break;
+        //    default: $('label[id=dockdoorNumber]');
+        //}
         //});
         //handling Disconnect
         $.connection.hub.disconnected(function () {
@@ -109,7 +110,7 @@ async function StartDataConnection() {
     createLegsTripDataTable("currentTripTable");
     createLegsTripDataTable("nextTriptable");
     createContainerDataTable("containerLocationtable");
- 
+
 }
 function setHeight() {
     let height = (this.window.innerHeight > 0 ? this.window.innerHeight : this.screen.height) - 1;
@@ -152,7 +153,7 @@ function updateContainerDataTable(ldata, table) {
 }
 function loadDataTable(data, table) {
     if ($.fn.dataTable.isDataTable("#" + table)) {
-            $('#' + table).DataTable().rows.add(data).draw();
+        $('#' + table).DataTable().rows.add(data).draw();
     }
     return true;
 }
@@ -330,8 +331,8 @@ function startTimer(SVdtm) {
     }
 };
 
-function SetDisplayColor(duration) {
-    CurrentTripMin = duration.asMinutes();
+function SetDisplayColor() {
+    CurrentTripMin = tripschtimeduration.asMinutes();
 
     if (tripStatus <= 0 && TripDirectionInd === "O") {
         //if (TripDirectionInd === "O") {
@@ -349,19 +350,51 @@ function SetDisplayColor(duration) {
             Tripdisplay("");
         }
         //}
-        duration = moment.duration(duration.asSeconds() - Timerinterval, 'seconds');
-        $('.timecounter').html(duration.format("d [days] hh:mm:ss ", { trunc: true }));
+        tripschtimeduration = moment.duration(tripschtimeduration.asSeconds() - Timerinterval, 'seconds');
+        $('.timecounter').html(tripschtimeduration.format("d [days] hh:mm:ss ", { trunc: true }));
     }
     else {
-        $('.timecounter').html("Late");
-        Tripdisplay("red");
-        stopTimer();
+        if (!!legdata) {
+            let timenow = moment(new Date());
+            let triparvtime = moment().set({ 'year': legdata.doorDtm.year, 'month': legdata.doorDtm.month, 'date': legdata.doorDtm.dayOfMonth, 'hour': legdata.doorDtm.hourOfDay, 'minute': legdata.doorDtm.minute, 'second': legdata.doorDtm.second });
+
+            let tripschtime = moment().set({ 'year': legdata.scheduledDtm.year, 'month': legdata.scheduledDtm.month, 'date': legdata.scheduledDtm.dayOfMonth, 'hour': legdata.scheduledDtm.hourOfDay, 'minute': legdata.scheduledDtm.minute, 'second': legdata.scheduledDtm.second });
+            let triparvuration = null;
+            let tripschduration = null;
+            //get the tip schedule time duration
+            if (triparvtime._isValid && triparvtime < timenow) {
+                triparvuration = moment.duration(triparvtime.diff(timenow)).minutes();
+            }
+            else {
+                triparvuration = moment.duration(timenow.diff(triparvtime)).minutes();
+            }
+            //get the tip schedule time duration
+            if (tripschtime._isValid && tripschtime < timenow) {
+                tripschduration = moment.duration(tripschtime.diff(timenow)).minutes();
+            }
+            else {
+                tripschduration = moment.duration(timenow.diff(tripschtime)).minutes();
+            }
+            if (triparvuration < 0) {
+                $('.timecounter').html("");
+                $('label[id=incountdowntext]').text("Scheduled Trip " + "\n" + " Arrived");
+                $('.timecounter').html("At Door");
+                Tripdisplay("");
+                if (timer) {
+                    stop();
+                }
+            }
+            else {
+                $('.timecounter').html("Late");
+                Tripdisplay("red");
+                if (timer) {
+                    stop();
+                }
+            }
+        }
     }
 }
 
-function stopTimer() {
-    clearInterval(CountTimer);
-}
 function reset() {
     $('#inboundDiv').css("display", "none");
     $('#outboundDiv').css("display", "none");
@@ -373,13 +406,15 @@ function reset() {
     //timeCount
     $('div[id=countdowndiv]').css("display", "none");
     $('.timecounter').html("");
-   
+
     Tripdisplay("normal");
-    stopTimer();
+    if (time) {
+        stop();
+    }
 }
 function calculatescheduledDuration(t) {
     if (!!t) {
-        let timenow = moment(DateTimeNow);
+        let timenow = moment(new Date());
         let conditiontime = moment().set({ 'year': t.year, 'month': t.month, 'date': t.dayOfMonth, 'hour': t.hourOfDay, 'minute': t.minute, 'second': t.second });
         if (conditiontime._isValid) {
 
@@ -407,8 +442,8 @@ function Tripdisplay(color) {
                 $('div.card').addClass('cardRed');
                 $('table').addClass('tablewhite');
                 break;
-                /*case "normal":*/
-            default: 
+            /*case "normal":*/
+            default:
                 $('div.card').removeClass('cardRed').removeClass('cardYellow');
                 $('table').removeClass('tablewhite');
                 break;
@@ -462,8 +497,7 @@ function remove_duplicates(objectsArray) {
     return objectsArray;
 
 }
-function GetLegdata(legdata)
-{
+function GetLegdata(legdata) {
     try {
         let displayTrip = getdisplayTrip(legdata)
 
@@ -471,9 +505,10 @@ function GetLegdata(legdata)
 
             TripDirectionInd = displayTrip.tripDirectionInd;
             $('button[id=currentTripDirectionInd]').text(displayTrip.tripDirectionInd === "I" ? "In-Bound" : "Out-bound");
-            if (CurrentTripMin === 0) {
-                //start
-                CountTimer = startTimer(displayTrip.scheduledDtm);
+
+            if (!timer) {
+                tripschtimeduration = calculatescheduledDuration(displayTrip.scheduledDtm);
+                start();
             }
             updateDataTable([displayTrip], "currentTripTable");
             if (TripDirectionInd === "I") {
@@ -500,40 +535,46 @@ function GetLegdata(legdata)
             return displayTrip;
         }
         else {
+            if (time) {
+                stop();
+            }
             return null;
         }
 
-    
+
     } catch (e) {
         return null;
     }
 
 }
-function getdisplayTrip(data)
-{
-    let timenow = moment(DateTimeNow);
+function getdisplayTrip(data) {
+    let timenow = moment(new Date());
     let reustltrip = null;
     if (!!data) {
-        $.each(data, function (index,trip) {
+        $.each(data, function (index, trip) {
             let tripschduration = null;
             let tripdptduration = null;
             if (trip.atDoor) {
-               reustltrip = trip;
+                reustltrip = trip;
+                return true;
             }
             let tripschtime = moment().set({ 'year': trip.scheduledDtm.year, 'month': trip.scheduledDtm.month, 'date': trip.scheduledDtm.dayOfMonth, 'hour': trip.scheduledDtm.hourOfDay, 'minute': trip.scheduledDtm.minute, 'second': trip.scheduledDtm.second });
             let tripdpttime = moment().set({ 'year': trip.actualDtm.year, 'month': trip.actualDtm.month, 'date': trip.actualDtm.dayOfMonth, 'hour': trip.actualDtm.hourOfDay, 'minute': trip.actualDtm.minute, 'second': trip.actualDtm.second });
-
-            //get the tip schedule time duration
-            if (tripschtime._isValid && tripschtime < timenow ) {
+           //get the tip schedule time duration
+            if (tripschtime._isValid && tripschtime < timenow) {
                 tripschduration = moment.duration(tripschtime.diff(timenow)).hours();
+            }
+            else {
+                tripschduration = moment.duration(timenow.diff(tripschtime)).hours();
             }
             //get the tip depart time duration
             if (tripdpttime._isValid && tripdpttime < timenow) {
                 tripdptduration = moment.duration(timenow.diff(tripdpttime)).hours();
             }
-            if (tripschduration > 2 && !tripdptduration > 0) {
+            if (tripschduration > -4 && tripdptduration > 0) {
                 reustltrip = trip;
             }
+        
 
         });
     }
@@ -541,4 +582,16 @@ function getdisplayTrip(data)
         return reustltrip;
     }
     return reustltrip;
+}
+function start() {
+    //if(!timer) // allow only one timer at a time, working
+    //if(timer != true) /* not working */
+    //if(timer !== true) /* not working */
+    if (timer === false)
+        timer = setInterval(function () { SetDisplayColor() }, 1000)
+}
+
+function stop() {
+    clearInterval(timer);
+    timer = false; // false so you can go in if(!timer) condition
 }

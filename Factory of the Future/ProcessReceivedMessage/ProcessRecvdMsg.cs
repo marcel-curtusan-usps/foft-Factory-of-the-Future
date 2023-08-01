@@ -38,7 +38,7 @@ namespace Factory_of_the_Future
                             break;
                         /*Quuppa Data Start*/
                         case "getTagData":
-                            await Task.Run(() => new TagData().LoadAsync(_data, _Message_type, _connID)).ConfigureAwait(false);
+                            await Task.Run(() => new TagData().LoadAsync(_data, _Message_type, _connID)).ConfigureAwait(true);
                             // TagPosition(_data, _connID);
                             break;
                         case "getProjectInfo":
@@ -149,7 +149,7 @@ namespace Factory_of_the_Future
                 }
                 else
                 {
-                    await Task.Run(() => AppParameters.RunningConnection.ConnectionUpdate(connID, 4)).ConfigureAwait(false);
+                    await Task.Run(() => AppParameters.RunningConnection.ConnectionUpdate(connID, 4)).ConfigureAwait(true);
                 }
             }
             catch (Exception e)
