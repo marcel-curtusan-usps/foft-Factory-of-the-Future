@@ -20,6 +20,7 @@ let fotfmanager = $.connection.FOTFManager;
 let timezone = {};
 let condition = false;
 let emplschedule = [];
+let tagsscheduled = 0;
 
 $(function () {
     new Promise(() => setInterval(() => { cBlock() }), 1000);
@@ -227,7 +228,7 @@ $(function () {
             createStaffingDataTable("staffingtable");
             fotfmanager.server.joinGroup("QSM");
             fotfmanager.server.getStaffSchedule().done(async (data) => {
-                let tagsscheduled = 0;
+               
                 emplschedule = data;
                 $.map(data, function (empl, i) {
                     if (/person/i.test(empl.tagType) && empl.isSch) {
@@ -235,7 +236,6 @@ $(function () {
                     }
                 });
                 $('div[id=schstaffingbutton]').text(tagsscheduled);
-                $('div[id=schstaffingbutton1]').text(tagsscheduled);
             });
             if (/^(Admin|OIE)/i.test(User.Role)) {
                 init_geometry_editing();

@@ -1269,10 +1269,10 @@
             <div class="leaflet-sidebar-pane overflow-auto" id="reports">
                 <h4 class="ml-p5rem"><span>Report Information</span></h4>
                 <div class="btn-toolbar" role="toolbar" id="userinfo_div">
-                      <div id="div_staffinfo" class="container-fluid">
+                    <div id="div_staffinfo" class="container-fluid">
                         <div class="card w-100">
                             <div class="card-header pl-1">
-                                <h6 class="sectionHeader ml-1 mb-1">Staffing report</h6>
+                                <h6 class="sectionHeader ml-1 mb-1">Staffing Report</h6>
                             </div>
                             <div class="card-body overflow-auto">
                                 <div class="table-responsive">
@@ -1331,6 +1331,26 @@
                                                     <input class="frow-comp-1" id="badge" type="text" placeholder="Badge" /></td>
                                                 <td>
                                                     <input class="frow-comp-2" id="overtimebage_time" type="text" placeholder="Overtime" /></td>
+                                            </tr>
+                                        </thead>
+                                        <tbody></tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                     <div id="div_taginfo" style="display:none" class="container-fluid">
+                        <div class="card w-100">
+                            <div class="card-header pl-1">
+                                <h6 class="sectionHeader ml-1 mb-1">Tag Details</h6>
+                            </div>
+                            <div class="card-body overflow-auto">
+                                <div class="table-responsive">
+                                    <table class="table table-sm table-hover mb-1 border-bottom" id="tagInfotable">
+                                        <thead class="thead-dark">
+                                            <tr>
+                                                <th>Attribute</th>
+                                                <th>Value</th>
                                             </tr>
                                         </thead>
                                         <tbody></tbody>

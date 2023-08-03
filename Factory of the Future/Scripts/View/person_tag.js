@@ -115,7 +115,19 @@ let tagsMarkersGroup = new L.GeoJSON(null, {
                 classname = 'persontag_otNotAuth ' + VisiblefillOpacity;
             }
         }
-        
+        layer.on('click', function (e) {
+            hidestafftables();
+            $('div[id=div_taginfo]').css('display', '');
+            sidebar.open('reports');
+            if ($.fn.dataTable.isDataTable("#tagInfotable")) {
+                updateTagDataTable(formattagdata(feature.properties),"tagInfotable");
+            }
+            else {
+                createTagDataTable('tagInfotable');
+                updateTagDataTable(formattagdata(feature.properties),"tagInfotable");
+            }
+        });
+
         layer.bindTooltip("", {
             permanent: true,
             interactive: true,
@@ -201,7 +213,14 @@ async function hideOldTag()
         }
     })
 }
-
+async function hidestafftables()
+{
+    $('div[id=div_taginfo]').css('display', '');
+    $('div[id=div_userinfo]').css('display', 'none');
+    $('div[id=div_overtimeinfo]').css('display', 'none');
+    $('div[id=div_staffinfo]').css('display', 'none');
+    
+}
 async function staffCounts()
 {
     try {
@@ -255,7 +274,7 @@ async function getStaffInfo() {
         in_building: taglist.filter(r => r.isPosition).length
     });
 
-    console.log(stafftable);
+    //console.log(stafftable);
     updateStaffingDataTable(stafftable,'staffingtable')
 }
 function createStaffingDataTable(table) {
@@ -325,9 +344,96 @@ function updateStaffingDataTable(newdata, table) {
                     $('#' + table).DataTable().row(node).data(element).draw().invalidate();
                 }
             }
+
         })
         if (loadnew) {
             loadStaffingDatatable(newdata, table);
         }
     }
+}
+function createTagDataTable(table) {
+    let arrayColums = [{
+        "KEY_NAME": "",
+        "VALUE": ""
+    }]
+    let columns = [];
+    let tempc = {};
+    //$.each(arrayColums[0], function (key, value) {
+    $.each(arrayColums[0], function (key) {
+        tempc = {};
+        if (/KEY_NAME/i.test(key)) {
+            tempc = {
+                "title": 'Name',
+                "width": "30%",
+                "mDataProp": key
+            }
+        }
+        //else if (/VALUE/i.test(key)) {
+        if (/VALUE/i.test(key)) {
+            tempc = {
+                "title": "Value",
+                "width": "50%",
+                "mDataProp": key
+            }
+        }
+      
+        columns.push(tempc);
+
+    });
+    $('#' + table).DataTable({
+        dom: 'Bfrtip',
+        bFilter: false,
+        bdeferRender: true,
+        bpaging: false,
+        bPaginate: false,
+        autoWidth: false,
+        bInfo: false,
+        destroy: true,
+        language: {
+            zeroRecords: "No Data"
+        },
+        aoColumns: columns,
+        columnDefs: [
+        ],
+        sorting: [[0, "asc"]]
+
+    })
+}
+function updateTagDataTable(newdata, table) {
+    let loadnew = true;
+    if ($.fn.dataTable.isDataTable("#" + table)) {
+        $('#' + table).DataTable().rows(function (idx, data, node) {
+            loadnew = false;
+            for (const element of newdata) {
+                if (data.KEY_NAME === element.KEY_NAME) {
+                    $('#' + table).DataTable().row(node).data(element).draw().invalidate();
+                }
+            }
+        })
+        if (loadnew) {
+            loadStaffingDatatable(newdata, table);
+        }
+    }
+}
+function formattagdata(result) {
+    let reformatdata = [];
+    try {
+        for (let key in result) {
+            if (!$.isPlainObject(result[key]) && /^(id|daysOff|floorId|empId|elunch|edate|isePacs|isPosition|isSch|isTacs|isePacs|locationMovementStatus|Tag_Type|tourNumber|visible)/ig.test(key)) {
+
+                let temp = {
+                    "KEY_NAME": "",
+                    "VALUE": ""
+                };
+                temp['KEY_NAME'] = key;
+                temp['VALUE'] = result[key];
+                reformatdata.push(temp);
+            }
+        }
+
+    } catch (e) {
+        console.log(e);
+    }
+
+    return reformatdata;
 }

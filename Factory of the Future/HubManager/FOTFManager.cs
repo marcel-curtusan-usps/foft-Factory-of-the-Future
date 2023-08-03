@@ -2164,16 +2164,16 @@ namespace Factory_of_the_Future
                         {
                             int tagVisibleCalmil = (int)Math.Ceiling(DateTime.Now.Subtract(marker.Properties.LastSeenTS).TotalMilliseconds);
 
-                            if (tagVisibleCalmil > AppParameters.AppSettings.POSITION_MAX_AGE)
+                            if (tagVisibleCalmil <= AppParameters.AppSettings.POSITION_MAX_AGE)
                             {
-                                marker.Properties.TagVisibleMils = tagVisibleCalmil;
-                                if (marker.Properties.TagVisible)
-                                {
-                                    marker.Properties.TagVisible = false;
-                                    marker.Properties.isPosition = false;
-                                    BroadcastPersonTagStatus(marker, cs.Id);
-                                }
-                       
+                                return;
+                            }
+                            marker.Properties.TagVisibleMils = tagVisibleCalmil;
+                            if (marker.Properties.TagVisible)
+                            {
+                                marker.Properties.TagVisible = false;
+                                marker.Properties.isPosition = false;
+                                BroadcastPersonTagStatus(marker, cs.Id);
                             }
                         });
                     }
