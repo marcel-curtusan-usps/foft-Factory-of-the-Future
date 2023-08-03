@@ -11,6 +11,7 @@ using System.Management;
 using System.Net.Http;
 using System.Reflection;
 using System.Runtime.InteropServices.WindowsRuntime;
+using System.Security.Policy;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
@@ -24,7 +25,7 @@ namespace Factory_of_the_Future
         public readonly ConcurrentDictionary<string, CoordinateSystem> CoordinateSystem = new ConcurrentDictionary<string, CoordinateSystem>();
         public static FOTFManager Instance { get { return _instance.Value; } }
         private IHubConnectionContext<dynamic> Clients { get; set; }
-        public FOTFManager(IHubConnectionContext<dynamic> clients) { Clients = clients; }
+        //public FOTFManager(IHubConnectionContext<dynamic> clients) { Clients = clients; }
         //blocks
         private readonly object updateZoneStatuslock = new object();
         private readonly object updateTagStatuslock = new object();
@@ -43,7 +44,7 @@ namespace Factory_of_the_Future
 
         //timers
         //private readonly Timer VehicleTag_timer;
-        //private readonly Timer PersonTag_timer;
+        private readonly Timer PersonTag_timer;
         //private readonly Timer Zone_timer;
         //private readonly Timer QSM_timer;
         //private readonly Timer Machine_timer;
@@ -79,27 +80,27 @@ namespace Factory_of_the_Future
         private readonly TimeSpan _60000updateInterval = TimeSpan.FromMilliseconds(60000);
 
         //init timers
-        //private FOTFManager(IHubConnectionContext<dynamic> clients)
-        //{
-        //    Clients = clients;
-        //    VehicleTag_timer = new Timer(UpdateVehicleTagStatus, null, _250updateInterval, _250updateInterval);
-        //    PersonTag_timer = new Timer(UpdatePersonTagStatus, null, _250updateInterval, _250updateInterval);
-        //    /////Zone status.
-        //    Zone_timer = new Timer(UpdateZoneStatus, null, _2000updateInterval, _2000updateInterval);
-        //    //DockDoor_timer = new Timer(UpdateDockDoorStatus, null, _250updateInterval, _250updateInterval);
-        //    Machine_timer = new Timer(UpdateMachineStatus, null, _2000updateInterval, _2000updateInterval);
-        //    AGVLocation_timer = new Timer(UpdateAGVLocationStatus, null, _250updateInterval, _250updateInterval);
-        //    BinZone_timer = new Timer(UpdateBinZoneStatus, null, _2000updateInterval, _2000updateInterval);
-        //    /////SV Trips Data
-        //    SVTrips_timer = new Timer(UpdateSVTripsStatus, null, _30000updateInterval, _30000updateInterval);
-        //    ////   Notification data timer
-        //    Notification_timer = new Timer(UpdateNotificationtatus, null, _1000updateInterval, _1000updateInterval);
-        //    ////
-        //    //Connection status
-        //    //QSM_timer = new Timer(UpdateQSM, null, _250updateInterval, _250updateInterval);
-        //    //Camera update;
-        //    //Camera_timer = new Timer(UpdateCameraImages, null, _10000updateInterval, _60000updateInterval);
-        //}
+        private FOTFManager(IHubConnectionContext<dynamic> clients)
+        {
+            Clients = clients;
+            //VehicleTag_timer = new Timer(UpdateVehicleTagStatus, null, _250updateInterval, _250updateInterval);
+            PersonTag_timer = new Timer(UpdatePersonTagStatus, null, _250updateInterval, _250updateInterval);
+            /////Zone status.
+            //Zone_timer = new Timer(UpdateZoneStatus, null, _2000updateInterval, _2000updateInterval);
+            ////DockDoor_timer = new Timer(UpdateDockDoorStatus, null, _250updateInterval, _250updateInterval);
+            //Machine_timer = new Timer(UpdateMachineStatus, null, _2000updateInterval, _2000updateInterval);
+            //AGVLocation_timer = new Timer(UpdateAGVLocationStatus, null, _250updateInterval, _250updateInterval);
+            //BinZone_timer = new Timer(UpdateBinZoneStatus, null, _2000updateInterval, _2000updateInterval);
+            ///////SV Trips Data
+            //SVTrips_timer = new Timer(UpdateSVTripsStatus, null, _30000updateInterval, _30000updateInterval);
+            //////   Notification data timer
+            //Notification_timer = new Timer(UpdateNotificationtatus, null, _1000updateInterval, _1000updateInterval);
+            ////
+            //Connection status
+            //QSM_timer = new Timer(UpdateQSM, null, _250updateInterval, _250updateInterval);
+            //Camera update;
+            //Camera_timer = new Timer(UpdateCameraImages, null, _10000updateInterval, _60000updateInterval);
+        }
 
 
 
@@ -2151,24 +2152,29 @@ namespace Factory_of_the_Future
                     _updatePersonTagStatus = true;
                     //  var watch = new System.Diagnostics.Stopwatch();
                     // watch.Start();
-                    double tagVisibleRange = AppParameters.AppSettings.POSITION_MAX_AGE;
-                    //foreach (var Marker in from GeoMarker Marker in AppParameters.TagsList.Where(u => u.Value.Properties.TagUpdate
-                    //                          && u.Value.Properties.TagType.EndsWith("Person")).Select(x => x.Value)
-                    //                       where TryUpdatePersonTagStatus(Marker, tagVisibleRange)
-                    //                       select Marker)
-                    //{
-                    //    BroadcastPersonTagStatus(Marker);
-                    //}
+                    //double tagVisibleRange = AppParameters.AppSettings.POSITION_MAX_AGE;
+
+
+                    //reset the sch if not found 
+               
                     foreach (CoordinateSystem cs in CoordinateSystem.Values)
                     {
                         cs.Locators.Where(f => f.Value.Properties.TagType.EndsWith("Person")
-                        && f.Value.Properties.TagUpdate).Select(y => y.Value).ToList().ForEach(marker =>
+                        && Regex.IsMatch(f.Value.Properties.LocationMovementStatus, "(stationary|noData|moving)", RegexOptions.IgnoreCase)).Select(y => y.Value).ToList().ForEach(marker =>
                         {
-                            if (TryUpdatePersonTagStatus(marker, tagVisibleRange))
-                            {
-                                BroadcastPersonTagStatus(marker, cs.Id);
-                            }
+                            int tagVisibleCalmil = (int)Math.Ceiling(DateTime.Now.Subtract(marker.Properties.LastSeenTS).TotalMilliseconds);
 
+                            if (tagVisibleCalmil > AppParameters.AppSettings.POSITION_MAX_AGE)
+                            {
+                                marker.Properties.TagVisibleMils = tagVisibleCalmil;
+                                if (marker.Properties.TagVisible)
+                                {
+                                    marker.Properties.TagVisible = false;
+                                    marker.Properties.isPosition = false;
+                                    BroadcastPersonTagStatus(marker, cs.Id);
+                                }
+                       
+                            }
                         });
                     }
                     // watch.Stop();

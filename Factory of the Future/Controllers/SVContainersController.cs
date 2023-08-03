@@ -15,7 +15,7 @@ namespace Factory_of_the_Future.Controllers
     public class SVContainersController : ApiController
     {
         // GET: api/SVContainers
-
+        [HttpGet]
         [ResponseType(typeof(Container))]
         public async Task<IHttpActionResult>  Get(string dest,bool hasLoadScans, bool containerTerminat, bool containerAtDest, bool hasCloseScans )
         {
@@ -44,7 +44,7 @@ namespace Factory_of_the_Future.Controllers
             }
 
         }
-
+        [HttpGet]
         [ResponseType(typeof(Container))]
         public async Task<IHttpActionResult> GetTrip(string dest, int trip)
         {

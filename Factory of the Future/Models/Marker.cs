@@ -118,5 +118,9 @@ namespace Factory_of_the_Future
         public GeoLine RoutePath { get; set; } = new GeoLine();
         public List<DarvisCameraAlert> DarvisAlerts { get; internal set; } = new List<DarvisCameraAlert>();
         public string ZonesNames { get; internal set; } = "";
+        [JsonProperty("locationMovementStatus")]
+        public string LocationMovementStatus { get; internal set; } = "";
+        [JsonProperty("lastSeenTS")]
+        public DateTime LastSeenTS { get; internal set; } = DateTime.MinValue;
     }
 }

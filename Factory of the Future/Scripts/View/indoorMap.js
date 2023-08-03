@@ -322,14 +322,12 @@ let layersControl = L.control.layers(baseLayers, overlayMaps, {
     }, position: 'bottomright', collapsed: false
 }).addTo(map);
 //Add staffing button
-var staffBtn;
-staffBtn = L.easyButton({
+var staffBtn = L.easyButton({
     position: 'topcenter',
     states: [{
         stateName: 'openstaffing',
-        icon: '<div> ' +
-            '<div class="row staffing-row"><div class="col-sm-6 no-top-border">Facilities</div><div class="col-sm-6 no-top-border">Schedule</div><div class="col-sm-6 no-bottom-border" id="staffingbutton"></div><div class="col-sm-6 no-bottom-border" id="schstaffingbutton">0</div></div>' +
-            '</div> ',
+        icon:
+            '<div class="row staffing-row"><div class="col-sm-6 no-top-border">WorkZone</div><div class="col-sm-6 no-top-border">Schedule</div><div class="col-sm-6 no-bottom-border" id="staffingbutton" style="font-size:1.2vw"></div><div class="col-sm-6 no-bottom-border" id="schstaffingbutton" style="font-size:1.2vw">0</div></div>' ,
         onClick: function (control) {
             sidebar.open('reports');
             control.state('closestaffing');
@@ -337,9 +335,8 @@ staffBtn = L.easyButton({
     },
     {
         stateName: 'closestaffing',
-        icon: '<div> ' +
-            '<div class="row staffing-row"><div class="col-sm-6 no-top-border">Facilities</div><div class="col-sm-6 no-top-border">Schedule</div><div class="col-sm-6 no-bottom-border" id="staffingbutton"></div><div class="col-sm-6 no-bottom-border" id="schstaffingbutton">0</div></div>' +
-            '</div> ',
+        icon:
+            '<div class="row staffing-row"><div class="col-sm-6 no-top-border">WorkZone</div><div class="col-sm-6 no-top-border">Schedule</div><div class="col-sm-6 no-bottom-border" id="staffingbutton" style="font-size:1.2vw"></div><div class="col-sm-6 no-bottom-border" id="schstaffingbutton" style="font-size:1.2vw">0</div></div>',
         onClick: function (control) {
             sidebar.close('reports');
             control.state('openstaffing');

@@ -18,7 +18,7 @@ namespace Factory_of_the_Future
         public string _connID { get; protected set; }
         public string dockdoor_id { get; protected set; }
         public string doorInfo { get; protected set; }
-        public bool update { get; protected set; }
+        public bool update;
         public int NotloadedContainers { get; set; } = 0;
         public JToken tempData = null;
         public RouteTrips currenttrip = null;
@@ -27,12 +27,12 @@ namespace Factory_of_the_Future
         public List<DockDoorStatus> door_temp_Data;
 
 
-        internal async Task LoadAsync(dynamic data, string message_type, string connID)
+        internal async Task<bool> LoadAsync(dynamic data, string message_type, string connID)
         {
             _data = data;
             _Message_type = message_type;
             _connID = connID;
-            update = false;
+            update = true;
             try
             {
                 if (_data != null)
@@ -198,10 +198,12 @@ namespace Factory_of_the_Future
                         }
                     }
                 }
+                return update;
             }
             catch (Exception e)
             {
                 new ErrorLogger().ExceptionLog(e);
+                return update;
             }
             finally
             {
@@ -261,7 +263,7 @@ namespace Factory_of_the_Future
                 // TODO: free unmanaged resources (unmanaged objects) and override finalizer
                 // TODO: set large fields to null
                 disposedValue = true;
-                _data = null;
+                _data = string.Empty;
                 _Message_type = string.Empty;
                 _connID = string.Empty;
                 dockdoor_id = string.Empty;

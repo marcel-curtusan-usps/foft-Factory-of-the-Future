@@ -16,6 +16,7 @@ namespace Factory_of_the_Future
         public string _Message_type { get; protected set; }
         public string _connID { get; protected set; }
         public JToken tempData = null;
+        public List<string> tempemplyList = new List<string>();
         private bool saveToFile;
 
         public Emp_Schedule()
@@ -36,9 +37,10 @@ namespace Factory_of_the_Future
 
                     foreach (CoordinateSystem cs in FOTFManager.Instance.CoordinateSystem.Values)
                     {
+                        tempemplyList = new List<string>();
                         foreach (JObject empitem in tempData)
                         {
-
+                            tempemplyList.Add(empitem["empId"].ToString());
                             var tagID = cs.Locators.Where(sl => sl.Value.Properties.TagType == "Person" && sl.Value.Properties.EmpId == empitem["empId"].ToString()).Select(r => r.Value.Properties).ToList();
                             if (tagID.Any() && cs.Locators.TryGetValue(tagID[0].Id, out GeoMarker currentMarker))
                             {
@@ -63,6 +65,12 @@ namespace Factory_of_the_Future
                                 }
                             }
                         }
+                        //reset the sch if not found 
+                        cs.Locators.Where(sl => sl.Value.Properties.TagType == "Person" && tempemplyList.All(nt => nt != sl.Value.Properties.EmpId))
+                              .Select(r => r.Value.Properties).ToList().ForEach(tag =>
+                              {
+                                  tag.isSch = false;
+                              });
                     }
                 }
                 return Task.FromResult(saveToFile);
@@ -85,7 +93,7 @@ namespace Factory_of_the_Future
             if (!string.IsNullOrEmpty(endtime))
             {
                 endtimeshc = DateTime.Parse(endtime);
-                if (DateTime.Now <= endtimeshc)
+                if (endtimeshc < DateTime.Now)
                 {
                     return true;
                 }

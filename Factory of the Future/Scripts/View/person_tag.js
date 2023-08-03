@@ -2,7 +2,7 @@
 this is for the person details.
  */
 $.extend(fotfmanager.client, {
-    updatePersonTagStatus: async (tagupdate, id) => { updatePersonTag(tagupdate, id) },
+    updatePersonTagStatus: async (tagupdate, id) => { Promise.all([ updatePersonTag(tagupdate, id)]) },
     updateMarkerCoordinates: async (coordinates, floorid, markerid) => { Promise.all([MarkerCoordinates(coordinates, floorid,markerid)]) }
 });
 
@@ -40,7 +40,7 @@ async function updatePersonTag(tagpositionupdate,id) {
     try {
         if (id == baselayerid) {
             let layerindex = -0;
-           // Promise.all(hideOldTag());
+           /*Promise.all(hideOldTag());*/
             map.whenReady(() => {
                 if (map.hasOwnProperty("_layers")) {
                     $.map(map._layers, function (layer, i) {
@@ -164,14 +164,14 @@ async function updateTagLocation(layerindex)
             }
         }
                 //circleMarker._layers[layerindex].feature
-        //if (tagsMarkersGroup._layers[layerindex].feature.properties.tagVisibleMils > 80000) {
-        //    if (tagsMarkersGroup._layers[layerindex].hasOwnProperty("_tooltip") && tagsMarkersGroup._layers[layerindex]._tooltip.hasOwnProperty("_container") &&
-        //        !tagsMarkersGroup._layers[layerindex]._tooltip._container.classList.contains('tooltip-hidden')) {
+        if (tagsMarkersGroup._layers[layerindex].feature.properties.tagVisibleMils > 80000) {
+            if (tagsMarkersGroup._layers[layerindex].hasOwnProperty("_tooltip") && tagsMarkersGroup._layers[layerindex]._tooltip.hasOwnProperty("_container") &&
+                !tagsMarkersGroup._layers[layerindex]._tooltip._container.classList.contains('tooltip-hidden')) {
 
-        //        tagsMarkersGroup._layers[layerindex]._tooltip._container.classList.add('tooltip-hidden');
+                tagsMarkersGroup._layers[layerindex]._tooltip._container.classList.add('tooltip-hidden');
 
-        //    }
-        //}
+            }
+        }
         if (tagsMarkersGroup._layers[layerindex].feature.properties.tagVisibleMils < 80000) {
             //if the distance from the current location is more then 10000 meters the do not so the slide to
             let newLatLng = new L.latLng(tagsMarkersGroup._layers[layerindex].feature.geometry[1], tagsMarkersGroup._layers[layerindex].feature.geometry[0]);
@@ -195,6 +195,7 @@ async function hideOldTag()
         if (layer.hasOwnProperty("feature") && layer.feature.hasOwnProperty("properties") && /person/i.test(layer.feature.properties.Tag_Type))
         {
             if (layer.feature.properties.tagVisibleMils > 80000) {
+
                 layer._tooltip._container.classList.add('tooltip-hidden');
             } 
         }

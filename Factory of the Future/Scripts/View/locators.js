@@ -23,7 +23,7 @@ async function AddMarker(data, floorId) {
             else if (/^(Camera|CameraMarker)/i.test(data.properties.Tag_Type)) {
                 cameras.addData(data);
             }
-            else {
+            else if (data.geometry.coordinates.length > 0) {
                 locatorMarker.addData(data)
             }
         }

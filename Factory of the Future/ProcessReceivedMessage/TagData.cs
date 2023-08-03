@@ -21,6 +21,7 @@ namespace Factory_of_the_Future
         public bool Coordinatesupdate;
         public GeoMarker marker = null;
         public bool posiblenewtag;
+
         internal async Task<bool> LoadAsync(dynamic data, string message_type, string connID)
         {
             saveToFile = true;
@@ -44,9 +45,12 @@ namespace Factory_of_the_Future
                                     if (cs.Locators.ContainsKey(qtitem.TagId) && cs.Locators.TryGetValue(qtitem.TagId, out GeoMarker currentMarker))
                                     {
                                         currentMarker.Properties.PositionTS = AppParameters.UnixTimeStampToDateTime(qtitem.LocationTS);
-                                        currentMarker.Properties.TagTS = AppParameters.UnixTimeStampToDateTime(tagData.ResponseTS);
+                                        currentMarker.Properties.LastSeenTS = AppParameters.UnixTimeStampToDateTime(qtitem.LastSeenTS);
+                                        currentMarker.Properties.TagTS = AppParameters.UnixTimeStampToDateTime(qtitem.LastSeenTS);
                                         currentMarker.Properties.FloorId = qtitem.LocationCoordSysId;
-                                        int tagVisibleCal = (int)Math.Ceiling(currentMarker.Properties.TagTS.Subtract(currentMarker.Properties.PositionTS).TotalMilliseconds);
+                                        currentMarker.Properties.LocationMovementStatus = qtitem.LocationMovementStatus;
+                                        
+                                        int tagVisibleCal = (int)Math.Ceiling(DateTime.Now.Subtract(currentMarker.Properties.LastSeenTS).TotalMilliseconds);
                                         if (currentMarker.Properties.TagVisibleMils != tagVisibleCal)
                                         {
                                             currentMarker.Properties.TagVisibleMils = tagVisibleCal;

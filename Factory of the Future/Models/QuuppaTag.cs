@@ -50,6 +50,9 @@ namespace Factory_of_the_Future.Models
         [JsonProperty("locationType")]
         public string LocationType { get; set; } = "";
 
+        [JsonProperty("lastSeenTS", NullValueHandling = NullValueHandling.Ignore)]
+        public long LastSeenTS { get; set; } = 0;
+
         [JsonProperty("locationMovementStatus")]
         public string LocationMovementStatus { get; set; } = "";
 
