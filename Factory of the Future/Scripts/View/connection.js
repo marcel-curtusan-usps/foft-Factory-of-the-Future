@@ -354,15 +354,15 @@ function createConnectionDataTable(table) {
                 "width": "30%",
                 "mDataProp": key,
                 "mRender": function (data, type, full) {
-                    if (/^Admin/i.test(User.Role)) {
+                   /* if (/^Admin/i.test(User.Role)) {*/
                         Actioncolumn = true;
                         return '<button class="btn btn-light btn-sm mx-1 pi-iconEdit connectionedit" name="connectionedit"></button>' +
                             '<button class="btn btn-light btn-sm mx-1 pi-trashFill connectiondelete" name="connectiondelete"></button>'
-                    }
-                    else {
-                        Actioncolumn = false;
-                        return "";
-                    }
+                    //}
+                    //else {
+                    //    Actioncolumn = false;
+                    //    return "";
+                    //}
                 }
             }
         }

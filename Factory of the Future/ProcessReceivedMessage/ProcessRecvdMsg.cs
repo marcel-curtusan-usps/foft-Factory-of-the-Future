@@ -38,7 +38,7 @@ namespace Factory_of_the_Future
                             break;
                         /*Quuppa Data Start*/
                         case "getTagData":
-                            await Task.Run(() => new TagData().LoadAsync(_data, _Message_type, _connID)).ConfigureAwait(true);
+                            await Task.Run(() => new TagData().LoadAsync(_data, _Message_type, _connID)).ConfigureAwait(false);
                             // TagPosition(_data, _connID);
                             break;
                         case "getProjectInfo":

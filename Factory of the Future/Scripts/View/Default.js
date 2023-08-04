@@ -106,9 +106,10 @@ $(function () {
          
             //}
         }
+        ConnectionNameLoad($.parseJSON(User.AppSetting));
         if (/^Admin/i.test(User.Role)) {
          
-            ConnectionNameLoad($.parseJSON(User.AppSetting));
+           
             $("div[id=swaggercard").css('display', 'block');
             sidebar.addPanel({
                 id: 'setting',

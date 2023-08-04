@@ -35,11 +35,19 @@ namespace Factory_of_the_Future.Models
     }
     public class Tags
     {
-        [JsonProperty("tagId")]
+        [JsonProperty("deviceAddress")]
         public string TagId { get; set; } = "";
+        [JsonProperty("deviceType")]
+        public string DeviceType { get; set; } = "";
 
         [JsonProperty("tagName")]
         public string TagName { get; set; } = "";
+
+        [JsonProperty("tagState")]
+        public string TagState { get; set; } = "";
+
+        [JsonProperty("tagStateTS")]
+        public long LagStateTS { get; set; } = 0;
 
         [JsonProperty("color")]
         public string Color { get; set; } = "";
@@ -59,16 +67,25 @@ namespace Factory_of_the_Future.Models
         [JsonProperty("locationRadius")]
         public double? LocationRadius { get; set; } = 0.0;
 
-        [JsonProperty("location")]
+        [JsonProperty("smoothedPosition")]
         public List<double> Location { get; set; } = new List<double>();
 
         [JsonProperty("locationTS")]
         public long LocationTS { get; set; } = 0;
 
-        [JsonProperty("locationCoordSysId")]
+        [JsonProperty("lastPacketTS")]
+        public long LastPacketTS { get; set; } = 0;
+
+        [JsonProperty("triggerCount")]
+        public long TriggerCount { get; set; } = 0;
+
+        [JsonProperty("triggerCountTS")]
+        public long TriggerCountTS { get; set; } = 0;
+
+        [JsonProperty("coordinateSystemId")]
         public string LocationCoordSysId { get; set; } = "";
 
-        [JsonProperty("locationCoordSysName")]
+        [JsonProperty("coordinateSystemName")]
         public string LocationCoordSysName { get; set; } = "";
 
         [JsonProperty("locationZoneIds")]

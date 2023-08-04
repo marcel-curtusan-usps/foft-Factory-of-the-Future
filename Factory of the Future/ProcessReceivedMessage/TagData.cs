@@ -104,7 +104,7 @@ namespace Factory_of_the_Future
                                     }
                                     else
                                     {
-                                        await Task.Run(action: async () => await AddNewMarkerData(qtitem)).ConfigureAwait(false);
+                                       await Task.Run( () => AddNewMarkerData(qtitem)).ConfigureAwait(false);
 
                                     }
                                 }
@@ -125,7 +125,7 @@ namespace Factory_of_the_Future
             }
         }
 
-        private async Task<bool> AddNewMarkerData(Tags qtitem)
+        private void AddNewMarkerData(Tags qtitem)
         {
             try
             {
@@ -165,26 +165,20 @@ namespace Factory_of_the_Future
                         {
                             if (marker.Properties.TagType == "Person")
                             {
-                                await Task.Run(() => FOTFManager.Instance.BroadcastPersonTagStatus(marker, qtitem.LocationCoordSysId)).ConfigureAwait(false);
+                               Task.Run(() => FOTFManager.Instance.BroadcastPersonTagStatus(marker, qtitem.LocationCoordSysId)).ConfigureAwait(false);
                             }
                             else if (marker.Properties.TagType.EndsWith("Vehicle"))
                             {
-                                await Task.Run(() => FOTFManager.Instance.BroadcastVehicleTagStatus(marker, qtitem.LocationCoordSysId)).ConfigureAwait(false);
+                                Task.Run(() => FOTFManager.Instance.BroadcastVehicleTagStatus(marker, qtitem.LocationCoordSysId)).ConfigureAwait(false);
                             }
                             //update map with new marker.
                         }
                     }
                 }
-                return false;
             }
             catch (Exception e)
             {
                 new ErrorLogger().ExceptionLog(e);
-                return false;
-            }
-            finally
-            {
-                Dispose();
             }
         }
         private string GetBadgeId(string name)
