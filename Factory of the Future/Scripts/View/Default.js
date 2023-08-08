@@ -78,7 +78,7 @@ $(function () {
             });
             $('button[name=machineinfoedit]').css('display', 'block');
             //setup connection list
-            init_connection($.parseJSON(User.ConnectionList));
+            Promise.all([init_connection($.parseJSON(User.ConnectionList))]);
         }
         if (User.hasOwnProperty("FacilityTimeZone") && checkValue(User.FacilityTimeZone)) {
            /* if (checkValue(User.FacilityTimeZone)) {*/

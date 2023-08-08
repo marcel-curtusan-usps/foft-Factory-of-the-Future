@@ -333,16 +333,16 @@ namespace Factory_of_the_Future
             _managerHub.Removeuser(Context.ConnectionId);
             if (Context.QueryString["page_type"] == "CF")
             {
-                Task.Run(() => LeaveGroup("PeopleMarkers"));
-                Task.Run(() => LeaveGroup("VehiclsMarkers"));
-                Task.Run(() => LeaveGroup("CameraMarkers"));
-                Task.Run(() => LeaveGroup("MPEZones"));
-                Task.Run(() => LeaveGroup("Zones"));
-                Task.Run(() => LeaveGroup("BinZones"));
-                Task.Run(() => LeaveGroup("DockDoorZones"));
-                Task.Run(() => LeaveGroup("AGVLocationZones"));
-                Task.Run(() => LeaveGroup("QSM"));
-                Task.Run(() => LeaveGroup("Trips"));
+                LeaveGroup("PeopleMarkers");
+                LeaveGroup("VehiclsMarkers");
+                LeaveGroup("CameraMarkers");
+                LeaveGroup("MPEZones");
+                LeaveGroup("Zones");
+                LeaveGroup("BinZones");
+                LeaveGroup("DockDoorZones");
+                LeaveGroup("AGVLocationZones");
+                LeaveGroup("QSM");
+                LeaveGroup("Trips");
             }
             return base.OnDisconnected(stopCalled);
         }

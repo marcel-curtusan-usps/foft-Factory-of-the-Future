@@ -350,7 +350,7 @@ $('#zoneselect').change(function (e) {
     LoadstageDetails(selcValue);
 
 });
-function init_zones(zoneData, id) {
+async function init_zones(zoneData, id) {
     //Get Zones list
     let hasDockDoorZone = false;
     let hasMachineZone = false;

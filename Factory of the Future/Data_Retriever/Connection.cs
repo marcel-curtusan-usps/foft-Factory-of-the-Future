@@ -27,7 +27,7 @@ namespace Factory_of_the_Future
             ReceiveAsync();
         }
 
-        protected override void OnReceived(EndPoint endpoint, byte[] buffer, long offset, long size)
+        protected override async void OnReceived(EndPoint endpoint, byte[] buffer, long offset, long size)
         {
 
             string incomingData = Encoding.UTF8.GetString(buffer, (int)offset, (int)size);
@@ -50,14 +50,14 @@ namespace Factory_of_the_Future
                             ["status"] = "0",
                             ["tags"] = new JArray(incomingDataJobject)
                         };
-                        Task.Run(() => new ProcessRecvdMsg().StartProcess(JsonConvert.SerializeObject(temp1, Formatting.None), Conn.MessageType, Conn.Id)).ConfigureAwait(false);
+                      await  Task.Run(() => new ProcessRecvdMsg().StartProcess(JsonConvert.SerializeObject(temp1, Formatting.None), Conn.MessageType, Conn.Id)).ConfigureAwait(false);
                     }
                 }
             }
             catch (Exception e)
             {
                 new ErrorLogger().ExceptionLog(e);
-                Task.Run(() => new ErrorLogger().CustomLog(incomingData, string.Concat(AppParameters.AppSettings.APPLICATION_NAME, "UDP_InVaild_Message"))).ConfigureAwait(false);
+                await Task.Run(() => new ErrorLogger().CustomLog(incomingData, string.Concat(AppParameters.AppSettings.APPLICATION_NAME, "UDP_InVaild_Message"))).ConfigureAwait(false);
             }
 
             ReceiveAsync();

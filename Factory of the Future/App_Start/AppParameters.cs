@@ -134,10 +134,10 @@ namespace Factory_of_the_Future
                          new Load().GetMPEWatchSite();
                          new Load().GetRTLSSites();
                          new Load().GetNotificationDefault();
-                        await new Load().LoadTempIndoorapData("Project_Data.json").ConfigureAwait(true);
+                        await new Load().LoadTempIndoorapData("Project_Data.json").ConfigureAwait(false);
                          new Load().GetDoorTripAssociationAsync();
-                        await new Load().GetConnectionDefaultAsync().ConfigureAwait(true);
-                    }).ConfigureAwait(true);
+                        await new Load().GetConnectionDefaultAsync().ConfigureAwait(false);
+                    }).ConfigureAwait(false);
                     
                 }
             }
@@ -151,13 +151,14 @@ namespace Factory_of_the_Future
 
         private static bool GetAppSettings()
         {
+            string file_content = "";
             try
             {
-                string file_content = new FileIO().Read(string.Concat(CodeBase.Parent.FullName.ToString(), Appsetting), "AppSettings.json");
+                file_content = new FileIO().Read(string.Concat(CodeBase.Parent.FullName.ToString(), Appsetting), "AppSettings.json");
 
                 if (!string.IsNullOrEmpty(file_content))
                 {
-                    AppSettings = JsonConvert.DeserializeObject<AppSetting>(file_content); JObject.Parse(file_content);
+                    AppSettings = JsonConvert.DeserializeObject<AppSetting>(file_content);
 
                     if (string.IsNullOrEmpty(AppSettings.FACILITY_TIMEZONE))
                     {
@@ -182,6 +183,10 @@ namespace Factory_of_the_Future
             {
                 new ErrorLogger().ExceptionLog(e);
                 return false;
+            }
+            finally 
+            {
+                file_content = "";
             }
         }
        
@@ -429,14 +434,14 @@ namespace Factory_of_the_Future
                     }
                     conn.Stop_Delete();
                 }
-                RunningConnection = new ConnectionContainer();
+                //RunningConnection = new ConnectionContainer();
                 //ConnectionList = new ConcurrentDictionary<string, Connection>();
-                AppSettings.MPE_WATCH_ID = "";
+                //AppSettings.MPE_WATCH_ID = "";
 
-                if (ActiveServer)
-                {
-                    Start();
-                }
+                //if (ActiveServer)
+                //{
+                //    Start();
+                //}
             }
             catch (Exception e)
             {
