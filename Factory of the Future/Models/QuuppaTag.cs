@@ -43,7 +43,7 @@ namespace Factory_of_the_Future.Models
         [JsonProperty("tagName", NullValueHandling = NullValueHandling.Ignore)]
         public string TagName { get; set; } = "";
 
-        [JsonProperty("tagState")]
+        [JsonProperty("tagState", NullValueHandling = NullValueHandling.Ignore)]
         public string TagState { get; set; } = "";
 
         [JsonProperty("tagStateTS")]
@@ -76,7 +76,7 @@ namespace Factory_of_the_Future.Models
         [JsonProperty("lastPacketTS")]
         public long LastPacketTS { get; set; } = 0;
 
-        [JsonProperty("triggerCount")]
+        [JsonProperty("triggerCount", NullValueHandling = NullValueHandling.Ignore)]
         public long TriggerCount { get; set; } = 0;
 
         [JsonProperty("triggerCountTS",NullValueHandling = NullValueHandling.Ignore)]
@@ -88,10 +88,10 @@ namespace Factory_of_the_Future.Models
         [JsonProperty("coordinateSystemName")]
         public string LocationCoordSysName { get; set; } = "";
 
-        [JsonProperty("locationZoneIds")]
+        [JsonProperty("locationZoneIds", NullValueHandling = NullValueHandling.Ignore)]
         public List<string> LocationZoneIds { get; set; } = new List<string>();
 
-        [JsonProperty("locationZoneNames")]
+        [JsonProperty("locationZoneNames", NullValueHandling = NullValueHandling.Ignore)]
         public List<string> LocationZoneNames { get; set; } = new List<string>();
     }
 }

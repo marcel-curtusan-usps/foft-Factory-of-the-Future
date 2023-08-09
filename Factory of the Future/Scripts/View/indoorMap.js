@@ -235,7 +235,7 @@ map.on('baselayerchange', function (e) {
             locatorMarker.clearLayers();
             if (data.length > 0) {
                 Promise.all([init_zones(data[0].zones, baselayerid)]);
-                Promise.all([ init_locators(data[0].locators, baselayerid)]);
+                Promise.all([init_locators(data[0].locators, baselayerid)]);
             }
             assignIdsToLayerCheckboxes();
             setLayerCheckUncheckEvents();
@@ -504,7 +504,7 @@ async function init_mapSetup(MapData) {
                         //center image
                         map.setView(trackingarea.getBounds().getCenter(), 1.5);
                         Promise.all([init_zones(this.zones, baselayerid)]);
-                        //init_locators(this.locators, baselayerid);
+                        Promise.all([init_locators(this.locators, baselayerid)]);
                     }
                     else if (!!this.backgroundImages) {
                         layersControl.addBaseLayer(L.imageOverlay(img.src, trackingarea.getBounds(), { id: this.id, zindex: index }), this.backgroundImages.name);
