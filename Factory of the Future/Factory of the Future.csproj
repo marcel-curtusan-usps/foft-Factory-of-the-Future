@@ -36,7 +36,8 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <CodeAnalysisRuleSet>Factory of the Future-3.ruleset</CodeAnalysisRuleSet>
+    <CodeAnalysisRuleSet>
+    </CodeAnalysisRuleSet>
     <PlatformTarget>AnyCPU</PlatformTarget>
     <RunCodeAnalysis>true</RunCodeAnalysis>
     <CodeAnalysisIgnoreGeneratedCode>false</CodeAnalysisIgnoreGeneratedCode>
@@ -49,7 +50,8 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <CodeAnalysisRuleSet>Factory of the Future-3.ruleset</CodeAnalysisRuleSet>
+    <CodeAnalysisRuleSet>
+    </CodeAnalysisRuleSet>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Microsoft.AspNet.SignalR.Core, Version=2.4.2.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
@@ -401,9 +403,6 @@
     <Content Include="AppSetting\Notification.json" />
     <Content Include="AppSetting\Connection.json" />
     <Content Include="AppSetting\MPEWatch_Site_List.json" />
-    <Content Include="..\.sonarlint\9209_fotfsmartfacilitycsharp.ruleset">
-      <Link>9209_fotfsmartfacilitycsharp.ruleset</Link>
-    </Content>
     <Content Include="AppSetting\RTLS_Site_List.json" />
     <None Include="bundleconfig.json" />
     <None Include="compilerconfig.json" />
@@ -794,7 +793,7 @@
           <SaveServerSettingsInUserFile>False</SaveServerSettingsInUserFile>
         </WebProjectProperties>
       </FlavorProperties>
-      <UserProperties appsetting_4appsettings_1json__JsonSchema="https://json.schemastore.org/backportrc.json" mpekanban_4contents_4kanbandispatch_1json__JsonSchema="https://beaujs.com/schema.json" />
+      <UserProperties mpekanban_4contents_4kanbandispatch_1json__JsonSchema="https://beaujs.com/schema.json" appsetting_4appsettings_1json__JsonSchema="https://json.schemastore.org/backportrc.json" />
     </VisualStudio>
   </ProjectExtensions>
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
