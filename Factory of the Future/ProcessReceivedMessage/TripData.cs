@@ -76,13 +76,10 @@ namespace Factory_of_the_Future
                     if (rt.TripDirectionInd == "O" && rt.ActualDtm.Year == DateTime.Now.Year)
                     {
                         //remove trip
-                        if (!AppParameters.RouteTripsList.ContainsKey(rt.Id))
-                        {
-                            if (AppParameters.RouteTripsList.TryRemove(rt.Id, out currentRTData))
-                            {
-                                FOTFManager.Instance.BroadcastTripsRemove(rt.Id);
-                            }
 
+                        if (!AppParameters.RouteTripsList.ContainsKey(rt.Id) && AppParameters.RouteTripsList.TryRemove(rt.Id, out currentRTData))
+                        {
+                            FOTFManager.Instance.BroadcastTripsRemove(rt.Id);
                         }
                     }
                     else
