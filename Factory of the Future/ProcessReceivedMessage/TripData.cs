@@ -61,8 +61,8 @@ namespace Factory_of_the_Future
             bool update = false;
             try
             {
-                if ((Regex.IsMatch(rt.LegStatus, "(CANCELED|DEPARTED|OMITTED)", RegexOptions.IgnoreCase)
-                              || Regex.IsMatch(rt.Status, "(CANCELED|DEPARTED|OMITTED)", RegexOptions.IgnoreCase)))
+                if ((Regex.IsMatch(rt.LegStatus, AppParameters.AppSettings.SV_TRIP_STATUS, RegexOptions.IgnoreCase)
+                              || Regex.IsMatch(rt.Status, AppParameters.AppSettings.SV_TRIP_STATUS, RegexOptions.IgnoreCase)))
                 {
                     if (AppParameters.RouteTripsList.ContainsKey(rt.Id) && AppParameters.RouteTripsList.TryRemove(rt.Id, out currentRTData))
                     {

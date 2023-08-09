@@ -355,7 +355,7 @@ namespace Factory_of_the_Future
         {
             try
             {
-                return AppParameters.RouteTripsList.Where(x => !Regex.IsMatch(x.Value.State, "(CANCELED|DEPARTED|OMITTED)", RegexOptions.IgnoreCase)
+                return AppParameters.RouteTripsList.Where(x => !Regex.IsMatch(x.Value.State, AppParameters.AppSettings.SV_TRIP_STATUS, RegexOptions.IgnoreCase)
                 && x.Value.DoorNumber == id).OrderBy(d => d.Value.ScheduledDtmfmt).OrderByDescending(d => d.Value.AtDoor).Select(y => y.Value).ToList();
             }
             catch (Exception e)
@@ -2150,31 +2150,29 @@ namespace Factory_of_the_Future
                 if (!_updatePersonTagStatus)
                 {
                     _updatePersonTagStatus = true;
+                    DateTime dt = DateTime.Now;
                     //  var watch = new System.Diagnostics.Stopwatch();
                     // watch.Start();
                     //double tagVisibleRange = AppParameters.AppSettings.POSITION_MAX_AGE;
 
 
                     //reset the sch if not found 
-               
+
                     foreach (CoordinateSystem cs in CoordinateSystem.Values)
                     {
                         cs.Locators.Where(f => f.Value.Properties.TagType.EndsWith("Person")
-                        && Regex.IsMatch(f.Value.Properties.LocationMovementStatus, "(stationary|noData|moving)", RegexOptions.IgnoreCase)).Select(y => y.Value).ToList().ForEach(marker =>
+                        && Regex.IsMatch(f.Value.Properties.LocationMovementStatus, "(stationary|noData|moving)", RegexOptions.IgnoreCase)
+                        && (int)Math.Ceiling(dt.Subtract(f.Value.Properties.LastSeenTS).TotalMilliseconds) <= AppParameters.AppSettings.POSITION_MAX_AGE).Select(y => y.Value).ToList().ForEach(marker =>
                         {
-                            int tagVisibleCalmil = (int)Math.Ceiling(DateTime.Now.Subtract(marker.Properties.LastSeenTS).TotalMilliseconds);
 
-                            if (tagVisibleCalmil <= AppParameters.AppSettings.POSITION_MAX_AGE)
-                            {
-                                return;
-                            }
-                            marker.Properties.TagVisibleMils = tagVisibleCalmil;
+                            marker.Properties.TagVisibleMils = (int)Math.Ceiling(dt.Subtract(marker.Properties.LastSeenTS).TotalMilliseconds);
                             if (marker.Properties.TagVisible)
                             {
                                 marker.Properties.TagVisible = false;
                                 marker.Properties.isPosition = false;
                                 BroadcastPersonTagStatus(marker, cs.Id);
                             }
+
                         });
                     }
                     // watch.Stop();

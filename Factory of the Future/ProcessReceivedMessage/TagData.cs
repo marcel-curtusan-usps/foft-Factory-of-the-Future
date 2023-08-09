@@ -36,6 +36,7 @@ namespace Factory_of_the_Future
                     if (tempData != null && tempData.HasValues)
                     {
                         tagData = tempData.ToObject<QuuppaTag>();
+                        DateTime dt = DateTime.Now;
                         foreach (CoordinateSystem cs in FOTFManager.Instance.CoordinateSystem.Values)
                         {
                             foreach (Tags qtitem in tagData.Tags)
@@ -50,7 +51,7 @@ namespace Factory_of_the_Future
                                         currentMarker.Properties.FloorId = qtitem.LocationCoordSysId;
                                         currentMarker.Properties.LocationMovementStatus = qtitem.LocationMovementStatus;
                                         
-                                        int tagVisibleCal = (int)Math.Ceiling(DateTime.Now.Subtract(currentMarker.Properties.LastSeenTS).TotalMilliseconds);
+                                        int tagVisibleCal = (int)Math.Ceiling(dt.Subtract(currentMarker.Properties.LastSeenTS).TotalMilliseconds);
                                         if (currentMarker.Properties.TagVisibleMils != tagVisibleCal)
                                         {
                                             currentMarker.Properties.TagVisibleMils = tagVisibleCal;

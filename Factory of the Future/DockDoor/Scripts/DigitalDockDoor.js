@@ -571,7 +571,7 @@ function getdisplayTrip(data) {
             if (tripdpttime._isValid && tripdpttime < timenow) {
                 tripdptduration = moment.duration(timenow.diff(tripdpttime)).hours();
             }
-            if (tripschduration > -4 && tripdptduration > 0) {
+            if (tripschduration > -4 && (tripdptduration > 0 && tripdptduration < 3)) {
                 reustltrip = trip;
             }
         
