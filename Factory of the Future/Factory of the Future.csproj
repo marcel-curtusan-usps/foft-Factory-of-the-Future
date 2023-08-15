@@ -785,15 +785,14 @@
           <AutoAssignPort>True</AutoAssignPort>
           <DevelopmentServerPort>59289</DevelopmentServerPort>
           <DevelopmentServerVPath>/</DevelopmentServerVPath>
-          <IISUrl>http://localhost:59289</IISUrl>
+          <IISUrl>http://localhost:59289/</IISUrl>
           <NTLMAuthentication>False</NTLMAuthentication>
           <UseCustomServer>False</UseCustomServer>
-          <CustomServerUrl>
-          </CustomServerUrl>
+          <CustomServerUrl>http://56.72.36.200/cf</CustomServerUrl>
           <SaveServerSettingsInUserFile>False</SaveServerSettingsInUserFile>
         </WebProjectProperties>
       </FlavorProperties>
-      <UserProperties mpekanban_4contents_4kanbandispatch_1json__JsonSchema="https://beaujs.com/schema.json" appsetting_4appsettings_1json__JsonSchema="https://json.schemastore.org/backportrc.json" />
+      <UserProperties appsetting_4appsettings_1json__JsonSchema="https://json.schemastore.org/backportrc.json" mpekanban_4contents_4kanbandispatch_1json__JsonSchema="https://beaujs.com/schema.json" />
     </VisualStudio>
   </ProjectExtensions>
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">

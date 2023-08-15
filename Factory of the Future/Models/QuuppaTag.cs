@@ -46,7 +46,7 @@ namespace Factory_of_the_Future.Models
         [JsonProperty("tagState", NullValueHandling = NullValueHandling.Ignore)]
         public string TagState { get; set; } = "";
 
-        [JsonProperty("tagStateTS")]
+        [JsonProperty("tagStateTS", NullValueHandling = NullValueHandling.Ignore)]
         public long LagStateTS { get; set; } = 0;
 
         [JsonProperty("color")]
@@ -64,16 +64,16 @@ namespace Factory_of_the_Future.Models
         [JsonProperty("locationMovementStatus")]
         public string LocationMovementStatus { get; set; } = "";
 
-        [JsonProperty("locationRadius")]
+        [JsonProperty("locationRadius", NullValueHandling = NullValueHandling.Ignore)]
         public double? LocationRadius { get; set; } = 0.0;
 
         [JsonProperty("smoothedPosition")]
         public List<double> Location { get; set; } = new List<double>();
 
-        [JsonProperty("locationTS")]
+        [JsonProperty("locationTS", NullValueHandling = NullValueHandling.Ignore)]
         public long LocationTS { get; set; } = 0;
 
-        [JsonProperty("lastPacketTS")]
+        [JsonProperty("lastPacketTS", NullValueHandling = NullValueHandling.Ignore)]
         public long LastPacketTS { get; set; } = 0;
 
         [JsonProperty("triggerCount", NullValueHandling = NullValueHandling.Ignore)]
