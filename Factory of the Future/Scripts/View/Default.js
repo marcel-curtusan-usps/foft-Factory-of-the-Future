@@ -216,16 +216,31 @@ $(function () {
         }
     });
 
-    $.extend(fotfmanager.client, {
-        floorImage: async (MapData) => {
-           init_mapSetup(MapData);
-        }
-    });
-  
+    //comment back to test performance in server
+    //$.extend(fotfmanager.client, {
+    //    floorImage: async (MapData) => {
+    //       init_mapSetup(MapData);
+    //    }
+    //});
+    //see map value
+    function getMapInitMap() {
+        var api_map_URI = URLconstructor(window.location) + "/api/Map";
+        $.ajax({
+            url: api_map_URI,
+            dataType: "json",
+            type: "get",
+            contentType: "application/json",
+            success: function (MapData) {
+                init_mapSetup(MapData);
+            }
+
+        });
+    }
     // Start the connection
     $.connection.hub.qs = { 'page_type': "CF".toUpperCase() };
     $.connection.hub.start({ waitForPageLoad: false })
         .done(function () {
+            getMapInitMap();
             createStaffingDataTable("staffingtable");
             fotfmanager.server.joinGroup("QSM");
             fotfmanager.server.getStaffSchedule().done(async (data) => {
