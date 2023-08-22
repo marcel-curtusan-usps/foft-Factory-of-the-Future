@@ -78,6 +78,12 @@ namespace Factory_of_the_Future
                                             currentMarker.Properties.Zones = qtitem.LocationZoneIds;
                                             currentMarker.Properties.ZonesNames = qtitem.LocationCoordSysName;
                                         }
+                                        if (qtitem.LocationZoneIds.Count == 0)
+                                        {
+                                            currentMarker.Properties.TagVisible = false;
+                                            currentMarker.Properties.isPosition = false;
+                                            update = true;
+                                        }
                                         //properties update
                                         //foreach (PropertyInfo prop in currentMarker.Properties.GetType().GetProperties())
                                         //{

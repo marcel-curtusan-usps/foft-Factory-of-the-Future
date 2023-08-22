@@ -144,7 +144,7 @@ let tagsMarkersGroup = new L.GeoJSON(null, {
 async function updateTagLocation(layerindex)
 {
     try {
-   
+
         if (tagsMarkersGroup._layers[layerindex].feature.properties.tacs != null) {
             if (tagsMarkersGroup._layers[layerindex].feature.properties.tacs.isOvertime
                 && tagsMarkersGroup._layers[layerindex].feature.properties.tacs.isOvertimeAuth
@@ -161,7 +161,7 @@ async function updateTagLocation(layerindex)
                 tagsMarkersGroup._layers[layerindex]._tooltip._container.classList.add('persontag_otNotAuth');
             }
             else if (!tagsMarkersGroup._layers[layerindex].feature.properties.tacs.isOvertime
-                && !tagsMarkersGroup._layers[layerindex].feature.properties.tacs.isOvertimeAuth){
+                && !tagsMarkersGroup._layers[layerindex].feature.properties.tacs.isOvertimeAuth) {
                 if (tagsMarkersGroup._layers[layerindex]._tooltip._container.classList.contains('persontag_otNotAuth')) { tagsMarkersGroup._layers[layerindex]._tooltip._container.classList.remove('persontag'); }
                 if (tagsMarkersGroup._layers[layerindex]._tooltip._container.classList.contains('persontag_otAuth')) { tagsMarkersGroup._layers[layerindex]._tooltip._container.classList.remove('persontag_otAuth'); }
                 tagsMarkersGroup._layers[layerindex]._tooltip._container.classList.add('persontag');
@@ -175,21 +175,21 @@ async function updateTagLocation(layerindex)
                 tagsMarkersGroup._layers[layerindex]._tooltip._container.classList.add('persontag');
             }
         }
-                //circleMarker._layers[layerindex].feature
-        if (tagsMarkersGroup._layers[layerindex].feature.properties.tagVisibleMils > 80000) {
-            if (tagsMarkersGroup._layers[layerindex].hasOwnProperty("_tooltip") && tagsMarkersGroup._layers[layerindex]._tooltip.hasOwnProperty("_container") &&
-                !tagsMarkersGroup._layers[layerindex]._tooltip._container.classList.contains('tooltip-hidden')) {
+        //circleMarker._layers[layerindex].feature
 
-                tagsMarkersGroup._layers[layerindex]._tooltip._container.classList.add('tooltip-hidden');
+        if (tagsMarkersGroup._layers[layerindex].feature.properties.tagVisibleMils > 80000 && tagsMarkersGroup._layers[layerindex].hasOwnProperty("_tooltip") && tagsMarkersGroup._layers[layerindex]._tooltip.hasOwnProperty("_container") &&
+            !tagsMarkersGroup._layers[layerindex]._tooltip._container.classList.contains('tooltip-hidden')) {
 
-            }
+            tagsMarkersGroup._layers[layerindex]._tooltip._container.classList.add('tooltip-hidden');
+
         }
+
         if (tagsMarkersGroup._layers[layerindex].feature.properties.tagVisibleMils < 80000) {
             //if the distance from the current location is more then 10000 meters the do not so the slide to
             let newLatLng = new L.latLng(tagsMarkersGroup._layers[layerindex].feature.geometry[1], tagsMarkersGroup._layers[layerindex].feature.geometry[0]);
-       
+
             tagsMarkersGroup._layers[layerindex].slideTo(newLatLng, { duration: 2000 });
-            
+
             if (tagsMarkersGroup._layers[layerindex].hasOwnProperty("_tooltip") && tagsMarkersGroup._layers[layerindex]._tooltip.hasOwnProperty("_container") &&
                 tagsMarkersGroup._layers[layerindex]._tooltip._container.classList.contains('tooltip-hidden')) {
                 tagsMarkersGroup._layers[layerindex]._tooltip._container.classList.remove('tooltip-hidden');

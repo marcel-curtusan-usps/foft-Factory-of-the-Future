@@ -483,32 +483,33 @@ async function init_mapSetup(MapData) {
       //  fotfmanager.server.getMap().done(function (MapData) {
             if (MapData.length > 0) {
 
-                $.each(MapData, function (index) {
-                    Promise.all([loadFloorPlanDatatable([this],"floorplantable")]);
-                    //set new image
-                    let trackingarea = L.polygon([[100,150]],[[500,5000]]);
-                    let img = new Image();
-                    if (!!this.backgroundImages) {
-                        //load Base64 image
-                        img.src = this.backgroundImages.base64;
-                        //create he bound of the image.
-                        let bounds = [[this.backgroundImages.yMeter, this.backgroundImages.xMeter], [this.backgroundImages.heightMeter + this.backgroundImages.yMeter, this.backgroundImages.widthMeter + this.backgroundImages.xMeter]];
-                        trackingarea = L.polygon(bounds, {});
-                    }
-                    if (index === 0) {
-                        baselayerid = this.id;
-                        mainfloor.options.id = this.id;
-                        mainfloor.setUrl(img.src);
-                        mainfloor.setZIndex(index);
-                        mainfloor.setBounds(trackingarea.getBounds());
-                        //center image
-                        map.setView(trackingarea.getBounds().getCenter(), 1.5);
-                        Promise.all([init_zones(this.zones, baselayerid)]);
-                        Promise.all([init_locators(this.locators, baselayerid)]);
-                    }
-                    else if (!!this.backgroundImages) {
-                        layersControl.addBaseLayer(L.imageOverlay(img.src, trackingarea.getBounds(), { id: this.id, zindex: index }), this.backgroundImages.name);
+                $.each(MapData, function (index, backgroundImages) {
+                    if (!!backgroundImages) {
+                        Promise.all([loadFloorPlanDatatable([this], "floorplantable")]);
+                        //set new image
+                        let trackingarea = L.polygon([[100, 150]], [[500, 5000]]);
+                        let img = new Image();
+                            //load Base64 image
+                        img.src = backgroundImages.base64;
+                            //create he bound of the image.
+                            let bounds = [[backgroundImages.yMeter, backgroundImages.xMeter], [backgroundImages.heightMeter + backgroundImages.yMeter, backgroundImages.widthMeter + backgroundImages.xMeter]];
+                            trackingarea = L.polygon(bounds, {});
+                        
+                       // if (index === 0) {
+                            baselayerid = backgroundImages.coordinateSystemId;
+                            mainfloor.options.id = backgroundImages.coordinateSystemId;
+                            mainfloor.setUrl(img.src);
+                            mainfloor.setZIndex(index);
+                            mainfloor.setBounds(trackingarea.getBounds());
+                            //center image
+                            map.setView(trackingarea.getBounds().getCenter(), 1.5);
+                            //Promise.all([init_zones(this.zones, baselayerid)]);
+                            //Promise.all([init_locators(this.locators, baselayerid)]);
+                        //}
+                        //else if (!!this.backgroundImages) {
+                        //    layersControl.addBaseLayer(L.imageOverlay(img.src, trackingarea.getBounds(), { id: this.id, zindex: index }), this.backgroundImages.name);
 
+                        //}
                     }
                 });
                 init_arrive_depart_trips();

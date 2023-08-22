@@ -1865,34 +1865,58 @@ namespace Factory_of_the_Future
                 return null;
             }
         }
-        internal IEnumerable<CoordinateSystem> GetIndoorMap()
+        internal object GetIndoorMap()
         {
             try
             {
-                if (CoordinateSystem.Keys.Count == 0)
-                {
-                    ConcurrentDictionary<string, CoordinateSystem> CoordinateSystem = new ConcurrentDictionary<string, CoordinateSystem>();
+                //if (CoordinateSystem.Keys.Count == 0)
+                //{
+                //    ConcurrentDictionary<string, CoordinateSystem> CoordinateSystem = new ConcurrentDictionary<string, CoordinateSystem>();
 
-                    CoordinateSystem temp = new CoordinateSystem
-                    {
-                        Id = "temp",
-                        BackgroundImage = new BackgroundImage
-                        {
-                            Id = "temp",
-                            //FacilityName = !string.IsNullOrEmpty(AppParameters.AppSettings["FACILITY_NAME"].ToString()) ? AppParameters.AppSettings["FACILITY_NAME"].ToString() : "Site Not Configured",
-                            //ApplicationFullName = AppParameters.AppSettings["APPLICATION_FULLNAME"].ToString(),
-                            //ApplicationAbbr = AppParameters.AppSettings["APPLICATION_NAME"].ToString(),
+                //    CoordinateSystem temp = new CoordinateSystem
+                //    {
+                //        Id = "temp",
+                //        BackgroundImage = new BackgroundImage
+                //        {
+                //            Id = "temp",
+                //            //FacilityName = !string.IsNullOrEmpty(AppParameters.AppSettings["FACILITY_NAME"].ToString()) ? AppParameters.AppSettings["FACILITY_NAME"].ToString() : "Site Not Configured",
+                //            //ApplicationFullName = AppParameters.AppSettings["APPLICATION_FULLNAME"].ToString(),
+                //            //ApplicationAbbr = AppParameters.AppSettings["APPLICATION_NAME"].ToString(),
 
-                        }
-                    };
-                    CoordinateSystem.TryAdd(temp.Id, temp);
-                    return CoordinateSystem.OrderByDescending(or => or.Value.Zones).Select(y => y.Value).ToList();
-                }
-                else
-                {
-                    return CoordinateSystem.OrderByDescending(or => or.Value.Zones.Any()).Select(y => y.Value).ToList();
-                }
+                //        }
+                //    };
+                //    CoordinateSystem.TryAdd(temp.Id, temp);
+                //    return CoordinateSystem.OrderByDescending(or => or.Value.Zones).Select(y => y.Value.backgroundImages).ToList();
+                //}
+                //else
+                //{
+                    return CoordinateSystem.Select(y => y.Value.BackgroundImage).ToList();
+               // }
 
+            }
+            catch (Exception e)
+            {
+                new ErrorLogger().ExceptionLog(e);
+                return null;
+            }
+        }
+        internal object GetIndoorMapZones()
+        {
+            try
+            {
+                return CoordinateSystem.OrderByDescending(or => or.Value.Zones.Any()).Select(y => y.Value.Zones).ToList();
+            }
+            catch (Exception e)
+            {
+                new ErrorLogger().ExceptionLog(e);
+                return null;
+            }
+        }
+        internal object GetIndoorMapLocators()
+        {
+            try
+            {
+                return CoordinateSystem.Select(y => y.Value.Locators).ToList();
             }
             catch (Exception e)
             {
@@ -2162,11 +2186,11 @@ namespace Factory_of_the_Future
                     {
                         cs.Locators.Where(f => f.Value.Properties.TagType.EndsWith("Person")
                         && Regex.IsMatch(f.Value.Properties.LocationMovementStatus, "(stationary|noData|moving)", RegexOptions.IgnoreCase)
-                        && (int)Math.Ceiling(dt.Subtract(f.Value.Properties.LastSeenTS).TotalMilliseconds) <= AppParameters.AppSettings.POSITION_MAX_AGE).Select(y => y.Value).ToList().ForEach(marker =>
+                        && (int)Math.Ceiling(dt.Subtract(f.Value.Properties.LastSeenTS).TotalMilliseconds) >= AppParameters.AppSettings.POSITION_MAX_AGE).Select(y => y.Value).ToList().ForEach(marker =>
                         {
 
                             marker.Properties.TagVisibleMils = (int)Math.Ceiling(dt.Subtract(marker.Properties.LastSeenTS).TotalMilliseconds);
-                            if (marker.Properties.TagVisible)
+                            if (marker.Properties.Zones.Count == 0 ||  marker.Properties.TagVisibleMils <= (AppParameters.AppSettings.POSITION_MAX_AGE + 20000))
                             {
                                 marker.Properties.TagVisible = false;
                                 marker.Properties.isPosition = false;
@@ -2588,5 +2612,7 @@ namespace Factory_of_the_Future
                 return scheduleEmployee;
             }
         }
+
+      
     }
 }

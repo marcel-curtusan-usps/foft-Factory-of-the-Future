@@ -46,6 +46,7 @@ namespace Factory_of_the_Future
                                 if (qcitem.BackgroundImages.Any())
                                 {
                                     qcitem.BackgroundImages[0].Name = qcitem.Name;
+                                    qcitem.BackgroundImages[0].CoordinateSystemId = qcitem.Id;
                                 }
                               
                                 if (FOTFManager.Instance.CoordinateSystem.ContainsKey(qcitem.Id))
@@ -63,13 +64,15 @@ namespace Factory_of_the_Future
                                                     update = false;
 
                                                     foreach (PropertyInfo prop in qcbkgitem.GetType().GetProperties())
-                                                    {
+                                                    {   
+                                                        
+                                                     
                                                         // Check if qcbkgitem and cs.BackgroundImage objects are null
                                                         if (qcbkgitem == null || cs.BackgroundImage == null)
                                                         {
                                                             // Handle null object error
                                                             Console.WriteLine("Error: qcbkgitem or cs.BackgroundImage is null");
-                                                            break;
+                                                            continue;
                                                         }
 
                                                         // Get the property value from the qcbkgitem object
@@ -87,10 +90,13 @@ namespace Factory_of_the_Future
                                                         }
 
                                                         // Compare the property values and update if necessary
-                                                        if (!qcbkgitemValue.Equals(backgroundImageValue))
+                                                        if (!new Regex("^(coordinateSystemId)$", RegexOptions.IgnoreCase).IsMatch(prop.Name))
                                                         {
-                                                            prop.SetValue(cs.BackgroundImage, qcbkgitemValue);
-                                                            update = true;
+                                                            if (!qcbkgitemValue.Equals(backgroundImageValue))
+                                                            {
+                                                                prop.SetValue(cs.BackgroundImage, qcbkgitemValue);
+                                                                update = true;
+                                                            }
                                                         }
                                                         //if (prop.GetValue(qcbkgitem, null).ToString() != prop.GetValue(cs.BackgroundImage, null).ToString())
                                                         //{
@@ -219,6 +225,11 @@ namespace Factory_of_the_Future
                         for (int i = 0; i < tempData.Count(); i++)
                         {
                             tempCoordinateSystem = tempData[i].ToObject<CoordinateSystem>();
+                            if (tempCoordinateSystem.BackgroundImage != null)
+                            {
+                                tempCoordinateSystem.BackgroundImage.CoordinateSystemId = tempCoordinateSystem.Id;
+                            }
+                          
                             FOTFManager.Instance.AddMap(tempCoordinateSystem.Id, tempCoordinateSystem);
                         }
                     }

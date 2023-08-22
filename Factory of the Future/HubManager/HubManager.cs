@@ -239,7 +239,7 @@ namespace Factory_of_the_Future
         /// Get Map settings
         /// </summary>
         /// <returns></returns>
-        public IEnumerable<CoordinateSystem> GetMap()
+        public object GetMap()
         {
             return _managerHub.GetIndoorMap();
         }
@@ -306,6 +306,8 @@ namespace Factory_of_the_Future
             if (Context.QueryString["page_type"] == "CF")
             {
                 Clients.Caller.floorImage(_managerHub.GetIndoorMap());
+                Clients.Caller.floorZones(_managerHub.GetIndoorMapZones());
+                Clients.Caller.floorLocators(_managerHub.GetIndoorMapLocators());
             }
             Task.Run(() => new ErrorLogger().CustomLog(string.Concat(" Client Connected. User ID:"), string.Concat(AppParameters.AppSettings.APPLICATION_NAME, "_Applogs"))).ConfigureAwait(false);
 

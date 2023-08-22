@@ -66,7 +66,6 @@ namespace Factory_of_the_Future
         public static ConcurrentDictionary<string, string> RFiD { get; set; } = new ConcurrentDictionary<string, string>();
         public static ConcurrentDictionary<string, NotificationConditions> NotificationConditionsList { get; set; } = new ConcurrentDictionary<string, NotificationConditions>();
         //public static ConcurrentDictionary<string, ADUser> Users { get; set; } = new ConcurrentDictionary<string, ADUser>();
-        public static string QuuppaBaseUrl { get; set; }
         public static readonly ConnectionMapping<string> _connections = new ConnectionMapping<string>();
         public static ConnectionContainer RunningConnection { get; set; } = new ConnectionContainer();
         public static Dictionary<string, string> TimeZoneConvert { get; set; } = new Dictionary<string, string>()

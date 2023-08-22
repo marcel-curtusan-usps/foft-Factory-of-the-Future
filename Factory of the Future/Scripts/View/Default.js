@@ -21,9 +21,9 @@ let timezone = {};
 let condition = false;
 let emplschedule = [];
 let tagsscheduled = 0;
-
+let nIntervId;
 $(function () {
-    new Promise(() => setInterval(() => { cBlock() }), 1000);
+ 
     $(".bi").on("click", function () {
         $(this).toggleClass("bi-arrows-expand");
         $(this).toggleClass("bi-arrows-collapse");
@@ -81,9 +81,15 @@ $(function () {
             Promise.all([init_connection($.parseJSON(User.ConnectionList))]);
         }
         if (User.hasOwnProperty("FacilityTimeZone") && checkValue(User.FacilityTimeZone)) {
-           /* if (checkValue(User.FacilityTimeZone)) {*/
-                timezone = { Facility_TimeZone: User.FacilityTimeZone }
+            /* if (checkValue(User.FacilityTimeZone)) {*/
+            timezone = { Facility_TimeZone: User.FacilityTimeZone };
+            //if (!nIntervId) {
+            //    nIntervId = setInterval(cBlock, 1000);
+            //}
+            setInterval(async () => {
                 Promise.all([cBlock()]);
+            }, 1000);
+               /* Promise.all([cBlock()]);*/
             //}
         }
         if (User.hasOwnProperty("Environment") && /(DEV|SIT|CAT)/i.test(User.Environment)) {
@@ -216,26 +222,26 @@ $(function () {
         }
     });
 
-    //comment back to test performance in server
-    //$.extend(fotfmanager.client, {
-    //    floorImage: async (MapData) => {
-    //       init_mapSetup(MapData);
-    //    }
-    //});
-    //see map value
-    function getMapInitMap() {
-        var api_map_URI = URLconstructor(window.location) + "/api/Map";
-        $.ajax({
-            url: api_map_URI,
-            dataType: "json",
-            type: "get",
-            contentType: "application/json",
-            success: function (MapData) {
-                init_mapSetup(MapData);
-            }
-
-        });
-    }
+    $.extend(fotfmanager.client, {
+        floorImage: async (MapData) => {
+            init_mapSetup(MapData);
+        },
+        floorZones: async (Zonedata) => {
+            $.each(Zonedata, function (_index, data) {
+                if (data) {
+                    Promise.all([init_zones(data, baselayerid)]);
+                }
+            });
+        },
+        floorLocators: async (Locatorsdata) => {
+            $.each(Locatorsdata, function (_index, data) {
+                if (data) {
+                    Promise.all([init_locators(data, baselayerid)]);
+                }
+            });
+        }
+    });
+  
     // Start the connection
     $.connection.hub.qs = { 'page_type': "CF".toUpperCase() };
     $.connection.hub.start({ waitForPageLoad: false })
@@ -1021,21 +1027,12 @@ function formatSVmonthdayTime(t) {
     }
 }
 async function cBlock() {
-    let t = moment($.now());//let dt =;settime(moment(User.CurrentDateTime));
+    let t = moment($.now());
     $('#localTime').val(t.format('H:mm:ss'));
     $('#twentyfourmessage').text(GetTwentyFourMessage(t));
     if ($("#tfhcContent").length > 0) {
         SetClockHands(t);
     }
-    //let visible =  sidebar._panes.length > 0 ? sidebar._getTab("reports") : false;
-    //if (visible) {
-    //    if (visible.classList.length) {
-    //        if (visible.classList.contains('active')) {
-    //            //GetUserInfo();
-    //        }
-    //    }
-    //}
-
     Promise.all([zonecurrentStaff()]);
     Promise.all([staffCounts()]);
 }

@@ -35,7 +35,7 @@ namespace Factory_of_the_Future.Models
     }
     public class Tags
     {
-        [JsonProperty("deviceAddress")]
+        [JsonProperty("tagId")]
         public string TagId { get; set; } = "";
         [JsonProperty("deviceType")]
         public string DeviceType { get; set; } = "";
@@ -67,7 +67,7 @@ namespace Factory_of_the_Future.Models
         [JsonProperty("locationRadius", NullValueHandling = NullValueHandling.Ignore)]
         public double? LocationRadius { get; set; } = 0.0;
 
-        [JsonProperty("smoothedPosition")]
+        [JsonProperty("location")]
         public List<double> Location { get; set; } = new List<double>();
 
         [JsonProperty("locationTS", NullValueHandling = NullValueHandling.Ignore)]
@@ -82,10 +82,10 @@ namespace Factory_of_the_Future.Models
         [JsonProperty("triggerCountTS",NullValueHandling = NullValueHandling.Ignore)]
         public long TriggerCountTS { get; set; } = 0;
 
-        [JsonProperty("coordinateSystemId")]
+        [JsonProperty("locationCoordSysId")]
         public string LocationCoordSysId { get; set; } = "";
 
-        [JsonProperty("coordinateSystemName")]
+        [JsonProperty("locationCoordSysName")]
         public string LocationCoordSysName { get; set; } = "";
 
         [JsonProperty("locationZoneIds", NullValueHandling = NullValueHandling.Ignore)]
