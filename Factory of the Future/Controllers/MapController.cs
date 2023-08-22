@@ -12,10 +12,9 @@ namespace Factory_of_the_Future.Controllers
     public class MapController : ApiController, IDisposable
     {
         // GET: api/RFID
-        public IEnumerable<CoordinateSystem> Get()
+        public object Get()
         {
-            FOTFManager _managerHub = FOTFManager.Instance;
-            return  _managerHub.GetIndoorMap();
+            return FOTFManager.Instance.GetIndoorMap();
         }
 
         // GET: api/RFID/5
