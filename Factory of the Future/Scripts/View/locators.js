@@ -7,23 +7,18 @@ async function init_locators(marker, id) {
     $.each(marker, function () {
         Promise.all([AddMarker(this, this.properties.floorId)]);
     });
-    fotfmanager.server.joinGroup("PeopleMarkers");
-    fotfmanager.server.joinGroup("VehiclsMarkers");
+    //fotfmanager.server.joinGroup("PeopleMarkers");
+
     fotfmanager.server.joinGroup("CameraMarkers");
 }
 async function AddMarker(data, floorId) {
     try {
         if (floorId === baselayerid) {
-            if (/^(Vehicle)$/i.test(data.properties.Tag_Type)) {
-                piv_vehicles.addData(data);
-            }
-            else if (/(Autonomous Vehicle)/i.test(data.properties.Tag_Type)) {
-                agv_vehicles.addData(data);
-            }
-            else if (/^(Camera|CameraMarker)/i.test(data.properties.Tag_Type)) {
+       
+            if (/^(Camera|CameraMarker)/i.test(data.properties.Tag_Type)) {
                 cameras.addData(data);
             }
-            else if (data.geometry.coordinates.length > 0) {
+            if (data.geometry.coordinates.length > 0) {
                 locatorMarker.addData(data)
             }
         }

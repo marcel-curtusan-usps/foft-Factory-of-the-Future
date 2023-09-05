@@ -38,7 +38,7 @@ async function MarkerCoordinatesUpdate(layer)
 };
 async function updatePersonTag(tagpositionupdate,id) {
     try {
-        if (id == baselayerid) {
+        if (id === baselayerid) {
             let layerindex = -0;
            /*Promise.all(hideOldTag());*/
             map.whenReady(() => {
@@ -248,14 +248,14 @@ async function getStaffInfo() {
     let stafftable = [];
     $.map(map._layers, function (layer, i) {
         if (layer.hasOwnProperty("feature") && layer.feature.hasOwnProperty("properties") && /person/i.test(layer.feature.properties.Tag_Type)) {
-            taglist.push(layer.feature.properties)
+            taglist.push(layer.feature.properties);
         }
     });
     //find emp type
     $.map(emplschedule, function (list) {
-        if ($.inArray(list.emptype, empType) == -1) {
+        if ($.inArray(list.emptype, empType) === -1) {
             if (!!list.emptype) {
-                empType.push(list.emptype)
+                empType.push(list.emptype);
             }
         }
     });
@@ -264,25 +264,28 @@ async function getStaffInfo() {
         stafftable.push({
             type: list,
             sche: emplschedule.filter(r => r.emptype === list && r.isSch).length,
-            in_building: taglist.filter(r => r.emptype === list && r.isPosition).length
+            in_building: taglist.filter(r => r.emptype === list && r.isPosition).length,
+            epacs: taglist.filter(r => r.emptype === list && r.isePacs).length
         });
     });
     // add the total
     stafftable.push({
         type: "Total",
         sche: emplschedule.filter(r => r.isSch).length,
-        in_building: taglist.filter(r => r.isPosition).length
+        in_building: taglist.filter(r => r.isPosition).length,
+        epacs: taglist.filter(r => r.isePacs).length
     });
 
     //console.log(stafftable);
-    updateStaffingDataTable(stafftable,'staffingtable')
+    updateStaffingDataTable(stafftable, 'staffingtable');
 }
 function createStaffingDataTable(table) {
     let arrayColums = [{
         "type": "",
         "sche": "",
-        "in_building": ""
-    }]
+        "in_building": "",
+        "epacs": ""
+    }];
     let columns = [];
     let tempc = {};
     $.each(arrayColums[0], function (key) {
@@ -292,21 +295,28 @@ function createStaffingDataTable(table) {
                 "title": 'Type',
                 "width": "30%",
                 "mDataProp": key
-            }
+            };
         }
         if (/sche/i.test(key)) {
             tempc = {
                 "title": "Scheduled",
-                "width": "50%",
+                "width": "20%",
                 "mDataProp": key
-            }
+            };
         }
         if (/in_building/i.test(key)) {
             tempc = {
                 "title": "Work-floor",
-                "width": "50%",
+                "width": "20%",
                 "mDataProp": key
-            }
+            };
+        }
+        if (/epacs/i.test(key)) {
+            tempc = {
+                "title": "ePACS",
+                "width": "20%",
+                "mDataProp": key
+            };
         }
         columns.push(tempc);
 
@@ -327,7 +337,7 @@ function createStaffingDataTable(table) {
         columnDefs: [
         ],
         sorting: [[0, "asc"]]
-    })
+    });
 }
 function loadStaffingDatatable(data, table) {
     if ($.fn.dataTable.isDataTable("#" + table)) {

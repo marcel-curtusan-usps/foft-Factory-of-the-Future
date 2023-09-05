@@ -1281,6 +1281,7 @@
                                             <tr>
                                                 <th>Type</th>
                                                 <th>Scheduled</th>
+                                                 <th>Scan</th>
                                                 <th>In-Building</th>
                                             </tr>
                                         </thead>

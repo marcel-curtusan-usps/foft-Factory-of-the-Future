@@ -90,7 +90,28 @@ let piv_vehicles = new L.GeoJSON(null, {
         }).openTooltip();
     }
 });
-
+async function init_VehiclesMarkers(VehicleData, id) {
+    $.each(VehicleData, function () {
+        Promise.all([AddVehicleMarker(this, this.properties.floorId)]);
+    });
+    fotfmanager.server.joinGroup("VehiclsMarkers");
+}
+async function AddVehicleMarker(data, floorId) {
+    try {
+        if (floorId === baselayerid) {
+            if (/^(Vehicle)$/i.test(data.properties.Tag_Type)) {
+                piv_vehicles.addData(data);
+            }
+            if (/(Autonomous Vehicle)/i.test(data.properties.Tag_Type)) {
+                agv_vehicles.addData(data);
+            }
+        }
+    }
+    catch (e)
+    {
+//
+    }
+}
 let agv_vehicles = new L.GeoJSON(null, {
     pointToLayer: function (feature, latlng) {
         let vehicleIcon = L.divIcon({
@@ -115,7 +136,7 @@ let agv_vehicles = new L.GeoJSON(null, {
             riseOnHover: true,
             bubblingMouseEvents: true,
             popupOpen: true
-        })
+        });
     },
     onEachFeature: function (feature, layer) {
         layer.markerId = feature.properties.id;
@@ -126,7 +147,7 @@ let agv_vehicles = new L.GeoJSON(null, {
         updateVehicleDropdownClick(feature, layer, false);
         if (feature.properties.Vehicle_Status_Data !== null) {
             var new_state = Get_Vehicle_Status(feature.properties.Vehicle_Status_Data.STATE.replace(/VState/ig, ""));
-            if (/Obstructed|(Error)$/i.test(new_state)) {
+            if (/(Obstructed|Error)$/i.test(new_state)) {
                 obstructedState = 'obstructedflash';
             }
         }

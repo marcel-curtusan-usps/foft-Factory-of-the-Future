@@ -239,6 +239,20 @@ $(function () {
                     Promise.all([init_locators(data, baselayerid)]);
                 }
             });
+        },
+        floorVehiclesMarkers: async (Vehiclesdata) => {
+            $.each(Vehiclesdata, function (_index, data) {
+                if (data) {
+                    Promise.all([init_VehiclesMarkers(data, baselayerid)]);
+                }
+            });
+        },
+        floorPeopleMarkers: async (Peopledata) => {
+            $.each(Peopledata, function (_index, data) {
+                if (data) {
+                    Promise.all([init_locators(data, baselayerid)]);
+                }
+            });
         }
     });
   
@@ -246,7 +260,7 @@ $(function () {
     $.connection.hub.qs = { 'page_type': "CF".toUpperCase() };
     $.connection.hub.start({ waitForPageLoad: false })
         .done(function () {
-            getMapInitMap();
+         /*   getMapInitMap();*/
             createStaffingDataTable("staffingtable");
             fotfmanager.server.joinGroup("QSM");
             fotfmanager.server.getStaffSchedule().done(async (data) => {
