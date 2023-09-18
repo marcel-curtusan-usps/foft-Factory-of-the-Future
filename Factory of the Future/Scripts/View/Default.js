@@ -234,25 +234,32 @@ $(function () {
             });
         },
         floorLocators: async (Locatorsdata) => {
-            $.each(Locatorsdata, function (_index, data) {
-                if (data) {
-                    Promise.all([init_locators(data, baselayerid)]);
-                }
-            });
+            //$.each(Locatorsdata, function (_index, data) {
+            //    if (data) {
+            Promise.all([init_locators(Locatorsdata, baselayerid)]);
+            //    }
+            //});
+        },
+        floorCameraMarkers: async (Cameradata) => {
+            //$.each(Locatorsdata, function (_index, data) {
+            //    if (data) {
+            Promise.all([init_Cameradatalocators(Cameradata, baselayerid)]);
+            //    }
+            //});
         },
         floorVehiclesMarkers: async (Vehiclesdata) => {
-            $.each(Vehiclesdata, function (_index, data) {
-                if (data) {
-                    Promise.all([init_VehiclesMarkers(data, baselayerid)]);
-                }
-            });
+            //$.each(Vehiclesdata, function (_index, data) {
+            //    if (data) {
+            Promise.all([init_VehiclesMarkers(Vehiclesdata, baselayerid)]);
+            //    }
+            //});
         },
         floorPeopleMarkers: async (Peopledata) => {
-            $.each(Peopledata, function (_index, data) {
-                if (data) {
-                    Promise.all([init_locators(data, baselayerid)]);
-                }
-            });
+            //$.each(Peopledata, function (_index, data) {
+            //    if (data) {
+            Promise.all([init_Peoplelocators(Peopledata, baselayerid)]);
+            //    }
+            //});
         }
     });
   

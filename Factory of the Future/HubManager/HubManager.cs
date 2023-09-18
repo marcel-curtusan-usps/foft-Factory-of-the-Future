@@ -307,7 +307,10 @@ namespace Factory_of_the_Future
             {
                 Clients.Caller.floorImage(_managerHub.GetIndoorMap());
                 Clients.Caller.floorZones(_managerHub.GetIndoorMapZones());
-                Clients.Caller.floorLocators(_managerHub.GetIndoorMapLocators());
+                Clients.Caller.floorLocators(_managerHub.GetIndoorMapLocatortag());
+                Clients.Caller.floorCameraMarkers(_managerHub.GetIndoorMapCameratag());
+                Clients.Caller.floorPeopleMarkers(_managerHub.GetIndoorMapPersontag());
+                Clients.Caller.floorVehiclesMarkers(_managerHub.GetIndoorMapVehicletag());
             }
             Task.Run(() => new ErrorLogger().CustomLog(string.Concat(" Client Connected. User ID:"), string.Concat(AppParameters.AppSettings.APPLICATION_NAME, "_Applogs"))).ConfigureAwait(false);
 

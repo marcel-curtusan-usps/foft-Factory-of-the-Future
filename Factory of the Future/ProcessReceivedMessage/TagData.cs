@@ -4,6 +4,7 @@ using Newtonsoft.Json.Linq;
 using Swashbuckle.Swagger;
 using System;
 using System.Reflection;
+using System.Runtime.InteropServices.ComTypes;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
@@ -36,7 +37,8 @@ namespace Factory_of_the_Future
                     if (tempData != null && tempData.HasValues)
                     {
                         tagData = tempData.ToObject<QuuppaTag>();
-                        DateTime dt = DateTime.Now;
+                        
+                        DateTime dt = AppParameters.UnixTimeStampToDateTime(tagData.ResponseTS);
                         foreach (CoordinateSystem cs in FOTFManager.Instance.CoordinateSystem.Values)
                         {
                             foreach (Tags qtitem in tagData.Tags)
@@ -48,9 +50,14 @@ namespace Factory_of_the_Future
                                         currentMarker.Properties.PositionTS = AppParameters.UnixTimeStampToDateTime(qtitem.LocationTS);
                                         currentMarker.Properties.LastSeenTS = AppParameters.UnixTimeStampToDateTime(qtitem.LastSeenTS);
                                         currentMarker.Properties.TagTS = AppParameters.UnixTimeStampToDateTime(qtitem.LastSeenTS);
+                                        currentMarker.Properties.ServerTS = AppParameters.UnixTimeStampToDateTime(tagData.ResponseTS);
                                         currentMarker.Properties.FloorId = qtitem.LocationCoordSysId;
                                         currentMarker.Properties.LocationMovementStatus = qtitem.LocationMovementStatus;
-                                        
+                                        if (currentMarker.Properties.LocationType != qtitem.LocationType)
+                                        {
+                                            currentMarker.Properties.LocationType = qtitem.LocationType;
+                                            update = true;
+                                        }
                                         int tagVisibleCal = (int)Math.Ceiling(dt.Subtract(currentMarker.Properties.LastSeenTS).TotalMilliseconds);
                                         if (currentMarker.Properties.TagVisibleMils != tagVisibleCal)
                                         {
@@ -98,14 +105,15 @@ namespace Factory_of_the_Future
                                         //}
                                         if (update)
                                         {
-                                            if (currentMarker.Properties.TagType == "Person")
-                                            {
-                                                await Task.Run(() => FOTFManager.Instance.BroadcastPersonTagStatus(currentMarker, qtitem.LocationCoordSysId)).ConfigureAwait(false);
-                                            }
-                                            else if (currentMarker.Properties.TagType.EndsWith("Vehicle"))
-                                            {
-                                                await Task.Run(() => FOTFManager.Instance.BroadcastVehicleTagStatus(currentMarker, qtitem.LocationCoordSysId)).ConfigureAwait(false);
-                                            }
+                                            currentMarker.Properties.TagUpdate = true;
+                                            //if (currentMarker.Properties.TagType == "Person")
+                                            //{
+                                            //    await Task.Run(() => FOTFManager.Instance.BroadcastPersonTagStatus(currentMarker, qtitem.LocationCoordSysId)).ConfigureAwait(false);
+                                            //}
+                                            //else if (currentMarker.Properties.TagType.EndsWith("Vehicle"))
+                                            //{
+                                            //    await Task.Run(() => FOTFManager.Instance.BroadcastVehicleTagStatus(currentMarker, qtitem.LocationCoordSysId)).ConfigureAwait(false);
+                                            //}
                                         }
 
                                     }

@@ -2,10 +2,33 @@
 this is for the person details.
  */
 $.extend(fotfmanager.client, {
-    updatePersonTagStatus: async (tagupdate, id) => { Promise.all([ updatePersonTag(tagupdate, id)]) },
+    updatePersonTagStatus: async (tagupdate, id) => { Promise.all([updatePersonTag(tagupdate, id)]) },
+    updatePersonTagRemove: async (tagupdate, id) => { Promise.all([RemovePersonTag(tagupdate, id)]) },
     updateMarkerCoordinates: async (coordinates, floorid, markerid) => { Promise.all([MarkerCoordinates(coordinates, floorid,markerid)]) }
 });
-
+async function init_Peoplelocators(marker, id) {
+    $.each(marker, function (_index, data) {
+        Promise.all([AddMarker(data, data.properties.floorId)]);
+    });
+    fotfmanager.server.joinGroup("PeopleMarkers");
+}
+async function AddPeopleMarker(data, floorId) {
+    try {
+        if (floorId === baselayerid) {
+            tagsMarkersGroup.addData(tagpositionupdate);
+        }
+    }
+    catch (e) {
+        console.log(e);
+    }
+}
+async function RemovePersonTag(data, id) {
+    $.map(map._layers, function (layer, i) {
+        if (layer.markerId === id) {
+            layer.removeLayer();
+        }
+    });
+}
 async function MarkerCoordinates(Coordinates, flid, mkid)
 {
     try {
@@ -40,7 +63,7 @@ async function updatePersonTag(tagpositionupdate,id) {
     try {
         if (id === baselayerid) {
             let layerindex = -0;
-           /*Promise.all(hideOldTag());*/
+           Promise.all(hideOldTag());
             map.whenReady(() => {
                 if (map.hasOwnProperty("_layers")) {
                     $.map(map._layers, function (layer, i) {
@@ -107,7 +130,7 @@ let tagsMarkersGroup = new L.GeoJSON(null, {
         var classname = 'persontag ' + VisiblefillOpacity;
         if (feature.properties.tacs != null) {
             isOT = feature.properties.tacs.isOvertime;
-            isOTAuth = feature.properties.tacs.isOvertimeAuth
+            isOTAuth = feature.properties.tacs.isOvertimeAuth;
             if (isOT && isOTAuth) {
                 classname = 'persontag_otAuth ' + VisiblefillOpacity;
             }
@@ -136,10 +159,11 @@ let tagsMarkersGroup = new L.GeoJSON(null, {
             //className: 'persontag ' + VisiblefillOpacity
             className: classname
         }).openTooltip();
-    },
-    filter: function (feature, layer) {
-        return feature.properties.tagVisible;
     }
+    //,
+    //filter: function (feature, layer) {
+    //    return feature.properties.tagVisible;
+    //}
 })
 async function updateTagLocation(layerindex)
 {
@@ -204,14 +228,21 @@ async function updateTagLocation(layerindex)
 async function hideOldTag()
 {
     $.map(map._layers, function (layer, i) {
-        if (layer.hasOwnProperty("feature") && layer.feature.hasOwnProperty("properties") && /person/i.test(layer.feature.properties.Tag_Type))
-        {
-            if (layer.feature.properties.tagVisibleMils > 80000) {
+        if (layer.hasOwnProperty("feature") && layer.feature.hasOwnProperty("properties") && /person/i.test(layer.feature.properties.Tag_Type)) {
+            let lastseenTS = moment(layer.feature.properties.lastSeenTS);
+            let nowTS = moment(layer.feature.properties.serverTS)
+            if (layer.feature.properties.tagVisibleMils > 80000 || layer.feature.properties.locationMovementStatus === "noData") {
 
                 layer._tooltip._container.classList.add('tooltip-hidden');
-            } 
+            }
+            if (/noData/i.test(layer.feature.properties.locationMovementStatus)) {
+                layer._tooltip._container.classList.add('tooltip-hidden');
+            }
+            //if (nowTS > lastseenTS) {
+            //    layer._tooltip._container.classList.add('tooltip-hidden');
+            //}
         }
-    })
+    });
 }
 async function hidestafftables()
 {
@@ -429,7 +460,7 @@ function formattagdata(result) {
     let reformatdata = [];
     try {
         for (let key in result) {
-            if (!$.isPlainObject(result[key]) && /^(id|daysOff|floorId|empId|elunch|edate|isePacs|isPosition|isSch|isTacs|isePacs|locationMovementStatus|Tag_Type|tourNumber|visible)/ig.test(key)) {
+            if (!$.isPlainObject(result[key]) && /^(id|lastSeenTS|positionTS|locationType|daysOff|floorId|empId|elunch|edate|isePacs|isPosition|isSch|isTacs|isePacs|locationMovementStatus|Tag_Type|tourNumber|visible)/ig.test(key)) {
 
                 let temp = {
                     "KEY_NAME": "",

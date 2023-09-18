@@ -43,7 +43,7 @@ namespace Factory_of_the_Future
         private readonly object updateCameralock = new object();
 
         //timers
-        //private readonly Timer VehicleTag_timer;
+        private readonly Timer VehicleTag_timer;
         private readonly Timer PersonTag_timer;
         //private readonly Timer Zone_timer;
         //private readonly Timer QSM_timer;
@@ -83,7 +83,7 @@ namespace Factory_of_the_Future
         private FOTFManager(IHubConnectionContext<dynamic> clients)
         {
             Clients = clients;
-            //VehicleTag_timer = new Timer(UpdateVehicleTagStatus, null, _250updateInterval, _250updateInterval);
+            VehicleTag_timer = new Timer(UpdateVehicleTagStatus, null, _250updateInterval, _250updateInterval);
             PersonTag_timer = new Timer(UpdatePersonTagStatus, null, _250updateInterval, _250updateInterval);
             /////Zone status.
             //Zone_timer = new Timer(UpdateZoneStatus, null, _2000updateInterval, _2000updateInterval);
@@ -1912,16 +1912,118 @@ namespace Factory_of_the_Future
                 return null;
             }
         }
-        internal object GetIndoorMapLocators()
+        internal object GetIndoorMapLocatortag()
         {
+            List<GeoMarker> temp = new List<GeoMarker>();
             try
             {
-                return CoordinateSystem.Select(y => y.Value.Locators).ToList();
+                //return CoordinateSystem.Select(y => y.Value.Locators).ToList().ForEach();
+                foreach (CoordinateSystem cs in CoordinateSystem.Values)
+                {
+                    cs.Locators.Where(f => f.Value.Properties.TagType.EndsWith("Locator")
+                        ).Select(y => y.Value).ToList().ForEach(marker =>
+                        {
+                            temp.Add(marker);
+                        });
+                }
+                return temp;
             }
             catch (Exception e)
             {
                 new ErrorLogger().ExceptionLog(e);
-                return null;
+
+                temp = null;
+                return temp;
+            }
+            finally
+            {
+                temp = null;
+            }
+        }
+        internal object GetIndoorMapCameratag()
+        {
+            List<GeoMarker> temp = new List<GeoMarker>();
+            try
+            {
+                //return CoordinateSystem.Select(y => y.Value.Locators).ToList().ForEach();
+                foreach (CoordinateSystem cs in CoordinateSystem.Values)
+                {
+                    cs.Locators.Where(f => f.Value.Properties.TagType.EndsWith("CameraMarker")
+                        ).Select(y => y.Value).ToList().ForEach(marker =>
+                        {
+                            temp.Add(marker);
+                        });
+                }
+                return temp;
+            }
+            catch (Exception e)
+            {
+                new ErrorLogger().ExceptionLog(e);
+
+                temp = null;
+                return temp;
+            }
+            finally
+            {
+                temp = null;
+            }
+        }
+        internal object GetIndoorMapPersontag()
+        {
+            List<GeoMarker> temp = new List<GeoMarker>();
+            try
+            {
+                //return CoordinateSystem.Select(y => y.Value.Locators).ToList().ForEach();
+                foreach (CoordinateSystem cs in CoordinateSystem.Values)
+                {
+                    cs.Locators.Where(f => f.Value.Properties.TagType.EndsWith("Person")
+                        && f.Value.Properties.TagUpdate
+                        && f.Value.Properties.LocationMovementStatus != "noData"
+                        ).Select(y => y.Value).ToList().ForEach(marker =>
+                        {
+                            temp.Add(marker);
+                        });
+                }
+                return temp;
+            }
+            catch (Exception e)
+            {
+                new ErrorLogger().ExceptionLog(e);
+              
+                temp = null;
+                return temp;
+            }
+            finally 
+            {
+                temp = null;
+            }
+        }
+        internal object GetIndoorMapVehicletag()
+        {
+            List<GeoMarker> temp = new List<GeoMarker>();
+            try
+            {
+                //return CoordinateSystem.Select(y => y.Value.Locators).ToList().ForEach();
+                foreach (CoordinateSystem cs in CoordinateSystem.Values)
+                {
+                    cs.Locators.Where(f => f.Value.Properties.TagType.EndsWith("Vehicle")
+                        ).Select(y => y.Value).ToList().ForEach(marker =>
+                        {
+                            temp.Add(marker);
+                        });
+                }
+                return temp;
+            }
+            catch (Exception e)
+            {
+                new ErrorLogger().ExceptionLog(e);
+
+                temp = null;
+                return temp;
+            }
+            finally
+            {
+                temp = null;
             }
         }
 
@@ -2139,22 +2241,14 @@ namespace Factory_of_the_Future
                 if (!_updateTagStatus)
                 {
                     _updateTagStatus = true;
-                    double tagVisibleRange = AppParameters.AppSettings.POSITION_MAX_AGE;
-                    //foreach (var Tag in from GeoMarker Tag in AppParameters.TagsList.Where(u => u.Value.Properties.TagUpdate && u.Value.Properties.TagType.EndsWith("Vehicle")).Select(x => x.Value)
-                    //                    where TryUpdateVehicleTagStatus(Tag, tagVisibleRange)
-                    //                    select Tag)
-                    //{
-                    //    BroadcastVehicleTagStatus(Tag);
-                    //}
-
+                   
                     foreach (CoordinateSystem cs in CoordinateSystem.Values)
                     {
-                        cs.Locators.Where(f => f.Value.Properties.TagType.EndsWith("Vehicle") && f.Value.Properties.TagUpdate).Select(y => y.Value).ToList().ForEach(marker =>
+                        cs.Locators.Where(f => f.Value.Properties.TagType.EndsWith("Vehicle")
+                        && f.Value.Properties.TagUpdate
+                        ).Select(y => y.Value).ToList().ForEach(marker =>
                         {
-                            if (TryUpdateVehicleTagStatus(marker, tagVisibleRange))
-                            {
-                                BroadcastVehicleTagStatus(marker, cs.Id);
-                            }
+                            BroadcastVehicleTagStatus(marker, cs.Id);
 
                         });
                     }
@@ -2185,17 +2279,25 @@ namespace Factory_of_the_Future
                     foreach (CoordinateSystem cs in CoordinateSystem.Values)
                     {
                         cs.Locators.Where(f => f.Value.Properties.TagType.EndsWith("Person")
-                        && Regex.IsMatch(f.Value.Properties.LocationMovementStatus, "(stationary|noData|moving)", RegexOptions.IgnoreCase)
-                        && (int)Math.Ceiling(dt.Subtract(f.Value.Properties.LastSeenTS).TotalMilliseconds) >= AppParameters.AppSettings.POSITION_MAX_AGE).Select(y => y.Value).ToList().ForEach(marker =>
+                        && f.Value.Properties.TagUpdate
+                        ).Select(y => y.Value).ToList().ForEach(marker =>
                         {
-
-                            marker.Properties.TagVisibleMils = (int)Math.Ceiling(dt.Subtract(marker.Properties.LastSeenTS).TotalMilliseconds);
-                            if (marker.Properties.Zones.Count == 0 ||  marker.Properties.TagVisibleMils <= (AppParameters.AppSettings.POSITION_MAX_AGE + 20000))
+                            marker.Properties.TagUpdate = false;
+                            // marker.Properties.TagVisibleMils = (int)Math.Ceiling(dt.Subtract(marker.Properties.LastSeenTS).TotalMilliseconds);
+                            // if (marker.Properties.Zones.Count == 0 ||  marker.Properties.TagVisibleMils <= (AppParameters.AppSettings.POSITION_MAX_AGE + 20000))
+                            // {
+                            // marker.Properties.TagVisible = false;
+                            //marker.Properties.isPosition = false;
+                            if (!marker.Properties.isPosition)
                             {
-                                marker.Properties.TagVisible = false;
-                                marker.Properties.isPosition = false;
+                                BroadcastPersonTagRemove(marker, cs.Id);
+                            }
+                            else
+                            {
                                 BroadcastPersonTagStatus(marker, cs.Id);
                             }
+                                
+                           // }
 
                         });
                     }
@@ -2240,6 +2342,10 @@ namespace Factory_of_the_Future
         public void BroadcastPersonTagStatus(GeoMarker Marker, string id)
         {
             Clients.Group("PeopleMarkers").updatePersonTagStatus(Marker, id);
+        }
+        public void BroadcastPersonTagRemove(GeoMarker Marker, string id)
+        {
+            Clients.Group("PeopleMarkers").updatePersonTagRemove(Marker, id);
         }
         public void BroadcastMarkerCoordinatesUpdate(MarkerGeometry Coordinates, string floorid, string markerid)
         {

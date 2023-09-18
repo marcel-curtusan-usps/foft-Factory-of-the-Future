@@ -50,6 +50,8 @@ namespace Factory_of_the_Future
 
         [JsonProperty("Tag_Update")]
         public bool TagUpdate { get; set; }
+        [JsonProperty("serverTS")]
+        public DateTime ServerTS { get; set; } = DateTime.MinValue;
         public bool isSch { get; set; }
         public bool isTacs { get; set; }
         public bool isePacs { get; set; }
@@ -120,6 +122,9 @@ namespace Factory_of_the_Future
         public string ZonesNames { get; internal set; } = "";
         [JsonProperty("locationMovementStatus")]
         public string LocationMovementStatus { get; internal set; } = "";
+
+        [JsonProperty("locationType")]
+        public string LocationType { get; set; } = "";
         [JsonProperty("lastSeenTS")]
         public DateTime LastSeenTS { get; internal set; } = DateTime.MinValue;
     }

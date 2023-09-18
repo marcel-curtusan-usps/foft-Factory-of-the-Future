@@ -91,8 +91,8 @@ let piv_vehicles = new L.GeoJSON(null, {
     }
 });
 async function init_VehiclesMarkers(VehicleData, id) {
-    $.each(VehicleData, function () {
-        Promise.all([AddVehicleMarker(this, this.properties.floorId)]);
+    $.each(VehicleData, function (_index, data) {
+        Promise.all([AddVehicleMarker(data, data.properties.floorId)]);
     });
     fotfmanager.server.joinGroup("VehiclsMarkers");
 }
@@ -109,7 +109,7 @@ async function AddVehicleMarker(data, floorId) {
     }
     catch (e)
     {
-//
+      console.log(e);
     }
 }
 let agv_vehicles = new L.GeoJSON(null, {

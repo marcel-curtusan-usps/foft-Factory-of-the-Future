@@ -4,11 +4,9 @@ $.extend(fotfmanager.client, {
     removeMarker: async (data, id) => { Promise.all([RemoveMarker(data, id)]); }
 });
 async function init_locators(marker, id) {
-    $.each(marker, function () {
-        Promise.all([AddMarker(this, this.properties.floorId)]);
+    $.each(marker, function (_index, data) {
+        Promise.all([AddMarker(data, data.properties.floorId)]);
     });
-    //fotfmanager.server.joinGroup("PeopleMarkers");
-
     fotfmanager.server.joinGroup("CameraMarkers");
 }
 async function AddMarker(data, floorId) {
@@ -19,7 +17,7 @@ async function AddMarker(data, floorId) {
                 cameras.addData(data);
             }
             if (data.geometry.coordinates.length > 0) {
-                locatorMarker.addData(data)
+                locatorMarker.addData(data);
             }
         }
     } catch (e) {
@@ -31,7 +29,7 @@ async function RemoveMarker(data, floorId) {
         if (floorId === baselayerid) {
             map.eachLayer(function (layer) {
                 if (layer.markerId === data.properties.id) {
-                    map.removeLayer(layer)
+                    map.removeLayer(layer);
                 }
             });
         }
