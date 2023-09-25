@@ -25,7 +25,7 @@ namespace Factory_of_the_Future
         public ConcurrentDictionary<string, GeoMarker> templocators = null;
         public ConcurrentDictionary<string, GeoZone> tempZones = null;
         public bool update = false;
-        internal async Task<bool> LoadAsync(string data, string message_type, string connID)
+        internal Task<bool> LoadAsync(string data, string message_type, string connID)
         {
             bool saveToFile = false;
             _data = data;
@@ -235,12 +235,12 @@ namespace Factory_of_the_Future
                     }
 
                 }
-                return saveToFile;
+                return Task.FromResult(saveToFile);
             }
             catch (Exception e)
             {
                 new ErrorLogger().ExceptionLog(e);
-                return saveToFile;
+                return Task.FromResult(saveToFile);
             }
             finally
             {

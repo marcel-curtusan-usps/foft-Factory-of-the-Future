@@ -58,22 +58,7 @@ namespace Factory_of_the_Future
                                             currentMarker.Properties.LocationType = qtitem.LocationType;
                                             update = true;
                                         }
-                                        int tagVisibleCal = (int)Math.Ceiling(dt.Subtract(currentMarker.Properties.LastSeenTS).TotalMilliseconds);
-                                        if (currentMarker.Properties.TagVisibleMils != tagVisibleCal)
-                                        {
-                                            currentMarker.Properties.TagVisibleMils = tagVisibleCal;
-                                            if (currentMarker.Properties.TagVisibleMils > AppParameters.AppSettings.POSITION_MAX_AGE)
-                                            {
-                                                currentMarker.Properties.TagVisible = false;
-                                                currentMarker.Properties.isPosition = false;
-                                            }
-                                            else
-                                            {
-                                                currentMarker.Properties.TagVisible = true;
-                                                currentMarker.Properties.isPosition = true;
-                                            }
-                                            update = true;
-                                        }
+                                     
                                         //geomatry update
                                         if (JsonConvert.SerializeObject(currentMarker.Geometry.Coordinates, Formatting.None) != JsonConvert.SerializeObject(qtitem.Location, Formatting.None))
                                         {

@@ -1977,8 +1977,7 @@ namespace Factory_of_the_Future
                 foreach (CoordinateSystem cs in CoordinateSystem.Values)
                 {
                     cs.Locators.Where(f => f.Value.Properties.TagType.EndsWith("Person")
-                        && f.Value.Properties.TagUpdate
-                        && f.Value.Properties.LocationMovementStatus != "noData"
+                        && f.Value.Properties.isPosition
                         ).Select(y => y.Value).ToList().ForEach(marker =>
                         {
                             temp.Add(marker);
@@ -2283,21 +2282,28 @@ namespace Factory_of_the_Future
                         ).Select(y => y.Value).ToList().ForEach(marker =>
                         {
                             marker.Properties.TagUpdate = false;
-                            // marker.Properties.TagVisibleMils = (int)Math.Ceiling(dt.Subtract(marker.Properties.LastSeenTS).TotalMilliseconds);
-                            // if (marker.Properties.Zones.Count == 0 ||  marker.Properties.TagVisibleMils <= (AppParameters.AppSettings.POSITION_MAX_AGE + 20000))
-                            // {
-                            // marker.Properties.TagVisible = false;
-                            //marker.Properties.isPosition = false;
-                            if (!marker.Properties.isPosition)
+                            marker.Properties.TagVisibleMils = (int)Math.Ceiling(marker.Properties.ServerTS.Subtract(marker.Properties.LastSeenTS).TotalMilliseconds);
+
+                            if (marker.Properties.TagVisibleMils > AppParameters.AppSettings.POSITION_MAX_AGE)
+                            {
+                                marker.Properties.TagVisible = false;
+                                marker.Properties.isPosition = false;
+                            }
+                            else
+                            {
+                                marker.Properties.TagVisible = true;
+                                marker.Properties.isPosition = true;
+                            }
+                            if (!marker.Properties.TagVisible)
                             {
                                 BroadcastPersonTagRemove(marker, cs.Id);
                             }
                             else
                             {
-                                BroadcastPersonTagStatus(marker, cs.Id);
+                                //BroadcastPersonTagStatus(marker, cs.Id);
                             }
-                                
-                           // }
+                            
+                            // }
 
                         });
                     }

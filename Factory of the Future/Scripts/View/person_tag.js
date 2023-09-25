@@ -7,16 +7,21 @@ $.extend(fotfmanager.client, {
     updateMarkerCoordinates: async (coordinates, floorid, markerid) => { Promise.all([MarkerCoordinates(coordinates, floorid,markerid)]) }
 });
 async function init_Peoplelocators(marker, id) {
-    $.each(marker, function (_index, data) {
-        Promise.all([AddMarker(data, data.properties.floorId)]);
-    });
+    $('div[id=staffingbutton]').text(marker.length);
+    Promise.all([AddPeopleMarker(data, id)]);
+    //$.each(marker, function (_index, data) {
+    //    Promise.all([AddPeopleMarker(data, data.properties.floorId)]);
+    //});
     fotfmanager.server.joinGroup("PeopleMarkers");
+    tagsLoaded = true;
+    return tagsLoaded;
 }
 async function AddPeopleMarker(data, floorId) {
     try {
         if (floorId === baselayerid) {
-            tagsMarkersGroup.addData(tagpositionupdate);
+            tagsMarkersGroup.addData(data);
         }
+        return true;
     }
     catch (e) {
         console.log(e);
@@ -63,7 +68,7 @@ async function updatePersonTag(tagpositionupdate,id) {
     try {
         if (id === baselayerid) {
             let layerindex = -0;
-           Promise.all(hideOldTag());
+           Promise.all([hideOldTag()]);
             map.whenReady(() => {
                 if (map.hasOwnProperty("_layers")) {
                     $.map(map._layers, function (layer, i) {
@@ -230,7 +235,7 @@ async function hideOldTag()
     $.map(map._layers, function (layer, i) {
         if (layer.hasOwnProperty("feature") && layer.feature.hasOwnProperty("properties") && /person/i.test(layer.feature.properties.Tag_Type)) {
             let lastseenTS = moment(layer.feature.properties.lastSeenTS);
-            let nowTS = moment(layer.feature.properties.serverTS)
+            let positionTS = moment(layer.feature.properties.positionTS)
             if (layer.feature.properties.tagVisibleMils > 80000 || layer.feature.properties.locationMovementStatus === "noData") {
 
                 layer._tooltip._container.classList.add('tooltip-hidden');
@@ -238,9 +243,10 @@ async function hideOldTag()
             if (/noData/i.test(layer.feature.properties.locationMovementStatus)) {
                 layer._tooltip._container.classList.add('tooltip-hidden');
             }
-            //if (nowTS > lastseenTS) {
-            //    layer._tooltip._container.classList.add('tooltip-hidden');
-            //}
+            if (positionTS.year() === 1) {
+                layer._tooltip._container.classList.add('tooltip-hidden');
+            }
+          
         }
     });
 }
@@ -259,7 +265,7 @@ async function staffCounts()
  
         $.map(map._layers, function (layer, i) {
             if (layer.hasOwnProperty("feature") && layer.feature.hasOwnProperty("properties") && /person/i.test(layer.feature.properties.Tag_Type)
-                && layer.feature.properties.tagVisible) {
+                && layer.feature.properties.isPosition) {
                 tagsOnWorkfloor++;
             }
         });
@@ -285,7 +291,7 @@ async function getStaffInfo() {
     //find emp type
     $.map(emplschedule, function (list) {
         if ($.inArray(list.emptype, empType) === -1) {
-            if (!!list.emptype) {
+            if (!!list.emptype && !/Unknoun/i.test(list.emptype)) {
                 empType.push(list.emptype);
             }
         }
@@ -460,7 +466,7 @@ function formattagdata(result) {
     let reformatdata = [];
     try {
         for (let key in result) {
-            if (!$.isPlainObject(result[key]) && /^(id|lastSeenTS|positionTS|locationType|daysOff|floorId|empId|elunch|edate|isePacs|isPosition|isSch|isTacs|isePacs|locationMovementStatus|Tag_Type|tourNumber|visible)/ig.test(key)) {
+            if (!$.isPlainObject(result[key]) && /^(id|craftName|lastSeenTS|positionTS|locationType|daysOff|floorId|empId|elunch|edate|isePacs|isPosition|isSch|isTacs|isePacs|locationMovementStatus|Tag_Type|tourNumber|visible)/ig.test(key)) {
 
                 let temp = {
                     "KEY_NAME": "",

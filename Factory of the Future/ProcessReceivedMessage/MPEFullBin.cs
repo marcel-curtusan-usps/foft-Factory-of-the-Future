@@ -14,7 +14,7 @@ namespace Factory_of_the_Future
         private bool saveToFile;
         private List<string> FullBins = null;
         private List<string> FullBinList = new List<string>();
-        internal async Task<bool> LoadAsync(string mpeType, int mpeNumber, string binFullBins)
+        internal void LoadAsync(string mpeType, int mpeNumber, string binFullBins)
         {
             saveToFile = false;
             _mpeType = mpeType;
@@ -43,12 +43,12 @@ namespace Factory_of_the_Future
                         }
                     });
                 }
-                return saveToFile;
+           
             }
             catch (Exception e)
             {
                 new ErrorLogger().ExceptionLog(e);
-                return saveToFile;
+
             }
             finally
             {

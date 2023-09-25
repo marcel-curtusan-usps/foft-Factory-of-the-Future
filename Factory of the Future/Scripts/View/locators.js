@@ -7,8 +7,8 @@ async function init_locators(marker, id) {
     $.each(marker, function (_index, data) {
         Promise.all([AddMarker(data, data.properties.floorId)]);
     });
-    fotfmanager.server.joinGroup("CameraMarkers");
 }
+
 async function AddMarker(data, floorId) {
     try {
         if (floorId === baselayerid) {

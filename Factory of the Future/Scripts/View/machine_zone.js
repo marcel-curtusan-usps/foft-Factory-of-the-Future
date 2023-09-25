@@ -283,17 +283,19 @@ let polygonMachine = new L.GeoJSON(null, {
                 $('input[type=checkbox][name=followvehicle]').prop('checked', false).change();
                 map.setView(e.sourceTarget.getCenter(), 3);
                 if ((' ' + document.getElementById('sidebar').className + ' ').indexOf(' ' + 'collapsed' + ' ') <= -1) {
-                    if ($('#zoneselect').val() == feature.properties.id) {
+                    if ($('#zoneselect').val() === feature.properties.id) {
                         sidebar.close('home');
                     }
                     else {
                         sidebar.open('home');
+                        LoadMachineTables(feature.properties, 'machinetable');
                     }
                 }
                 else {
                     sidebar.open('home');
+                    LoadMachineTables(feature.properties, 'machinetable');
                 }
-                LoadMachineTables(feature.properties, 'machinetable');
+          
             });
             layer.bindTooltip(feature.properties.name + "<br/>" + "Staffing: " + (feature.properties.hasOwnProperty("CurrentStaff") ? feature.properties.CurrentStaff : "0"), {
                 permanent: true,
@@ -386,31 +388,31 @@ async function LoadMachineTables(dataproperties, table) {
                 machinetop_Table_Body.append(machinetop_row_template.supplant(formatmachinetoprow(dataproperties)));
 
                 if (dataproperties.MPEWatchData.hasOwnProperty("bin_full_bins")) {
-                    if (dataproperties.MPEWatchData.bin_full_bins != "") {
+                    if (dataproperties.MPEWatchData.bin_full_bins !== "") {
                         var result_style = document.getElementById('fullbin_tr').style;
                         result_style.display = 'table-row';
                         $("tr:visible").each(function (index) {
                             var curcolor = $(this).css("background-color");
-                            if (curcolor == "" || curcolor == "rgba(0, 0, 0, 0)" || curcolor == "rgba(0, 0, 0, 0.05)") {
+                            if (curcolor == "" || curcolor === "rgba(0, 0, 0, 0)" || curcolor === "rgba(0, 0, 0, 0.05)") {
                                 $(this).css("background-color", !!(index & 1) ? "rgba(0, 0, 0, 0)" : "rgba(0, 0, 0, 0.05)");
                             }
                         });
                     }
                 }
 
-                if (dataproperties.MPEWatchData.cur_operation_id == "918" || dataproperties.MPEWatchData.cur_operation_id == "919") {
+                if (dataproperties.MPEWatchData.cur_operation_id === "918" || dataproperties.MPEWatchData.cur_operation_id === "919") {
                     Promise.all([LoadMachineDPSTables(dataproperties, "dpstable")]);
                 }
-               
-                GetPeopleInZone(dataproperties.id, dataproperties.MPEWatchData.scheduled_staff, []);
+
+                Promise.all([GetPeopleInZone(dataproperties.id, dataproperties.MPEWatchData.scheduled_staff, [])]);
                 if (dataproperties.MPEWatchData.hasOwnProperty("current_run_end")) {
-                    if (dataproperties.MPEWatchData.current_run_end == "" || dataproperties.MPEWatchData.current_run_end == "0") {
+                    if (dataproperties.MPEWatchData.current_run_end === "" || dataproperties.MPEWatchData.current_run_end === "0") {
                         var runEndTR = document.getElementById('endtime_tr').style;
                         runEndTR.display = 'none';
 
                         $("tr:visible").each(function (index) {
                             var curcolor = $(this).css("background-color");
-                            if (curcolor == "" || curcolor == "rgba(0, 0, 0, 0)" || curcolor == "rgba(0, 0, 0, 0.05)") {
+                            if (curcolor === "" || curcolor === "rgba(0, 0, 0, 0)" || curcolor == "rgba(0, 0, 0, 0.05)") {
                                 $(this).css("background-color", !!(index & 1) ? "rgba(0, 0, 0, 0)" : "rgba(0, 0, 0, 0.05)");
                             }
                         });
@@ -418,24 +420,24 @@ async function LoadMachineTables(dataproperties, table) {
                     }
                 }
                 if (dataproperties.MPEWatchData.hasOwnProperty("ars_recrej3")) {
-                    if (dataproperties.MPEWatchData.ars_recrej3 != "0" && dataproperties.MPEWatchData.ars_recrej3 != "") {
+                    if (dataproperties.MPEWatchData.ars_recrej3 !== "0" && dataproperties.MPEWatchData.ars_recrej3 !== "") {
                         var arsrec_tr = document.getElementById('arsrec_tr').style;
                         arsrec_tr.display = 'table-row';
                         $("tr:visible").each(function (index) {
                             var curcolor = $(this).css("background-color");
-                            if (curcolor == "" || curcolor == "rgba(0, 0, 0, 0)" || curcolor == "rgba(0, 0, 0, 0.05)") {
+                            if (curcolor === "" || curcolor === "rgba(0, 0, 0, 0)" || curcolor === "rgba(0, 0, 0, 0.05)") {
                                 $(this).css("background-color", !!(index & 1) ? "rgba(0, 0, 0, 0)" : "rgba(0, 0, 0, 0.05)");
                             }
                         });
                     }
                 }
                 if (dataproperties.MPEWatchData.hasOwnProperty("sweep_recrej3")) {
-                    if (dataproperties.MPEWatchData.sweep_recrej3 != "0" && dataproperties.MPEWatchData.sweep_recrej3 != "") {
+                    if (dataproperties.MPEWatchData.sweep_recrej3 !== "0" && dataproperties.MPEWatchData.sweep_recrej3 !== "") {
                         var sweeprec_tr = document.getElementById('sweeprec_tr').style;
                         sweeprec_tr.display = 'table-row';
                         $("tr:visible").each(function (index) {
                             var curcolor = $(this).css("background-color");
-                            if (curcolor == "" || curcolor == "rgba(0, 0, 0, 0)" || curcolor == "rgba(0, 0, 0, 0.05)") {
+                            if (curcolor === "" || curcolor === "rgba(0, 0, 0, 0)" || curcolor === "rgba(0, 0, 0, 0.05)") {
                                 $(this).css("background-color", !!(index & 1) ? "rgba(0, 0, 0, 0)" : "rgba(0, 0, 0, 0.05)");
                             }
                         });

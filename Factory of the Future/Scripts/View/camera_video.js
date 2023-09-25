@@ -5,6 +5,24 @@
 $.extend(fotfmanager.client, {
     updateCameraStatus: async (cameraupdatesnew, id) => { CameraDataUpdate(cameraupdatesnew, id);  }
 });
+async function init_Cameradatalocators(marker, id) {
+    $.each(marker, function (_index, data) {
+        Promise.all([AddMarker(data, data.properties.floorId)]);
+    });
+    fotfmanager.server.joinGroup("CameraMarkers");
+}
+async function AddMarker(data, floorId) {
+    try {
+        if (floorId === baselayerid) {
+
+            if (/^(Camera|CameraMarker)/i.test(data.properties.Tag_Type)) {
+                cameras.addData(data);
+            }
+        }
+    } catch (e) {
+        console.log(e);
+    }
+}
 var brightRed = 255;
 var darkRed = 200;
 function drawAlertText(ctx, txt, font, viewWidth, viewHeight, x, y, txtBGColor, txtColor, bgHeight) {

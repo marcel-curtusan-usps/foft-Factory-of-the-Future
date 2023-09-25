@@ -19,7 +19,7 @@ namespace Factory_of_the_Future
         public JToken tempData = null;
         public JToken planInfo = null;
         //internal async Task LoadAsync(dynamic data/*, string connID*/)
-        internal async Task<bool> LoadAsync(dynamic data, string message_type, string connID)
+        internal void LoadAsync(dynamic data, string message_type, string connID)
         {
             saveToFile = false;
             _data = data;
@@ -46,12 +46,10 @@ namespace Factory_of_the_Future
 
                 //remove old data
                 RemoveOldDataFromMPEPRPGList();
-                return saveToFile;
             }
             catch (Exception ex)
             {
                 new ErrorLogger().ExceptionLog(ex);
-                return saveToFile;
             }
             finally
             {
