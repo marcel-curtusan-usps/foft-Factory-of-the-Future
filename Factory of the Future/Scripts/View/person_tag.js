@@ -343,7 +343,7 @@ function createStaffingDataTable(table) {
         }
         if (/in_building/i.test(key)) {
             tempc = {
-                "title": "Work-floor",
+                "title": "WorkZone",
                 "width": "20%",
                 "mDataProp": key
             };
