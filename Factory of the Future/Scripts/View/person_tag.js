@@ -8,7 +8,7 @@ $.extend(fotfmanager.client, {
 });
 async function init_Peoplelocators(marker, id) {
     $('div[id=staffingbutton]').text(marker.length);
-    Promise.all([AddPeopleMarker(data, id)]);
+    Promise.all([AddPeopleMarker(marker, id)]);
     //$.each(marker, function (_index, data) {
     //    Promise.all([AddPeopleMarker(data, data.properties.floorId)]);
     //});

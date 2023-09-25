@@ -22,107 +22,124 @@ namespace Factory_of_the_Future
         public bool Coordinatesupdate;
         public GeoMarker marker = null;
         public bool posiblenewtag;
-
-        internal async Task<bool> LoadAsync(dynamic data, string message_type, string connID)
+        private readonly object updateTaglock = new object();
+        private volatile bool _updateTag = false;
+        internal Task<bool> LoadAsync(dynamic data, string message_type, string connID)
         {
-            saveToFile = true;
-            _data = data;
-            _Message_type = message_type;
-            _connID = connID;
             try
             {
-                if (_data != null)
+                lock (updateTaglock)
                 {
-                    JToken tempData = JToken.Parse(_data);
-                    if (tempData != null && tempData.HasValues)
+                    if (!_updateTag)
                     {
-                        tagData = tempData.ToObject<QuuppaTag>();
-                        
-                        DateTime dt = AppParameters.UnixTimeStampToDateTime(tagData.ResponseTS);
-                        foreach (CoordinateSystem cs in FOTFManager.Instance.CoordinateSystem.Values)
+                        _updateTag = true;
+                        saveToFile = true;
+                        _data = data;
+                        _Message_type = message_type;
+                        _connID = connID;
+                        if (_data != null)
                         {
-                            foreach (Tags qtitem in tagData.Tags)
+                            JToken tempData = JToken.Parse(_data);
+                            if (tempData != null && tempData.HasValues)
                             {
-                                if (cs.Id == qtitem.LocationCoordSysId)
+                                tagData = tempData.ToObject<QuuppaTag>();
+
+                                DateTime dt = AppParameters.UnixTimeStampToDateTime(tagData.ResponseTS);
+                                foreach (CoordinateSystem cs in FOTFManager.Instance.CoordinateSystem.Values)
                                 {
-                                    if (cs.Locators.ContainsKey(qtitem.TagId) && cs.Locators.TryGetValue(qtitem.TagId, out GeoMarker currentMarker))
+                                    foreach (Tags qtitem in tagData.Tags)
                                     {
-                                        currentMarker.Properties.PositionTS = AppParameters.UnixTimeStampToDateTime(qtitem.LocationTS);
-                                        currentMarker.Properties.LastSeenTS = AppParameters.UnixTimeStampToDateTime(qtitem.LastSeenTS);
-                                        currentMarker.Properties.TagTS = AppParameters.UnixTimeStampToDateTime(qtitem.LastSeenTS);
-                                        currentMarker.Properties.ServerTS = AppParameters.UnixTimeStampToDateTime(tagData.ResponseTS);
-                                        currentMarker.Properties.FloorId = qtitem.LocationCoordSysId;
-                                        currentMarker.Properties.LocationMovementStatus = qtitem.LocationMovementStatus;
-                                        if (currentMarker.Properties.LocationType != qtitem.LocationType)
+                                        if (cs.Id == qtitem.LocationCoordSysId)
                                         {
-                                            currentMarker.Properties.LocationType = qtitem.LocationType;
-                                            update = true;
-                                        }
-                                     
-                                        //geomatry update
-                                        if (JsonConvert.SerializeObject(currentMarker.Geometry.Coordinates, Formatting.None) != JsonConvert.SerializeObject(qtitem.Location, Formatting.None))
-                                        {
-                                            currentMarker.Geometry.Coordinates = qtitem.Location;
-                                            update = true;
-                                        }
-                                        if (JsonConvert.SerializeObject(currentMarker.Properties.Zones, Formatting.None) != JsonConvert.SerializeObject(qtitem.LocationZoneIds, Formatting.None))
-                                        {
-                                            currentMarker.Properties.Zones = qtitem.LocationZoneIds;
-                                            currentMarker.Properties.ZonesNames = qtitem.LocationCoordSysName;
-                                        }
-                                        if (qtitem.LocationZoneIds.Count == 0)
-                                        {
-                                            currentMarker.Properties.TagVisible = false;
-                                            currentMarker.Properties.isPosition = false;
-                                            update = true;
-                                        }
-                                        //properties update
-                                        //foreach (PropertyInfo prop in currentMarker.Properties.GetType().GetProperties())
-                                        //{
-                                        //    if (!new Regex("^(Id|RFid|IsWearingTag|Zones|CraftName|TagUpdate|EmpId|Emptype|EmpName|IsLdcAlert|CurrentLDCs|Tacs|Sels|RawData|CameraData|Camera_Data|Vehicle_Status_Data|Missison|Source|NotificationId|RoutePath)$", RegexOptions.IgnoreCase).IsMatch(prop.Name))
-                                        //    {
-                                        //        if (prop.GetValue(marker.Properties, null).ToString() != prop.GetValue(currentMarker.Properties, null).ToString())
-                                        //        {
-                                        //            prop.SetValue(currentMarker.Properties, prop.GetValue(marker.Properties, null));
-                                        //            update = true;
-                                        //        }
-                                        //    }
-                                        //}
-                                        if (update)
-                                        {
-                                            currentMarker.Properties.TagUpdate = true;
-                                            //if (currentMarker.Properties.TagType == "Person")
-                                            //{
-                                            //    await Task.Run(() => FOTFManager.Instance.BroadcastPersonTagStatus(currentMarker, qtitem.LocationCoordSysId)).ConfigureAwait(false);
-                                            //}
-                                            //else if (currentMarker.Properties.TagType.EndsWith("Vehicle"))
-                                            //{
-                                            //    await Task.Run(() => FOTFManager.Instance.BroadcastVehicleTagStatus(currentMarker, qtitem.LocationCoordSysId)).ConfigureAwait(false);
-                                            //}
-                                        }
+                                            if (cs.Locators.ContainsKey(qtitem.TagId) && cs.Locators.TryGetValue(qtitem.TagId, out GeoMarker currentMarker))
+                                            {
+                                                currentMarker.Properties.PositionTS = AppParameters.UnixTimeStampToDateTime(qtitem.LocationTS);
+                                                currentMarker.Properties.LastSeenTS = AppParameters.UnixTimeStampToDateTime(qtitem.LastSeenTS);
+                                                currentMarker.Properties.TagTS = AppParameters.UnixTimeStampToDateTime(qtitem.LastSeenTS);
+                                                currentMarker.Properties.ServerTS = AppParameters.UnixTimeStampToDateTime(tagData.ResponseTS);
+                                                currentMarker.Properties.FloorId = qtitem.LocationCoordSysId;
+                                                if (currentMarker.Properties.LocationMovementStatus != qtitem.LocationMovementStatus)
+                                                {
+                                                    currentMarker.Properties.LocationMovementStatus = qtitem.LocationMovementStatus;
+                                                    if (qtitem.LocationMovementStatus == "noData")
+                                                    {
+                                                        currentMarker.Properties.TagVisible = false;
+                                                        currentMarker.Properties.isPosition = false;
+                                                    }
+                                                    update = true;
+                                                }
+                                                if (currentMarker.Properties.LocationType != qtitem.LocationType)
+                                                {
+                                                    if (qtitem.LocationType == "presence")
+                                                    {
+                                                        currentMarker.Properties.TagVisible = false;
+                                                    }
+                                                    currentMarker.Properties.LocationType = qtitem.LocationType;
+                                                    update = true;
+                                                }
 
-                                    }
-                                    else
-                                    {
-                                       await Task.Run( () => AddNewMarkerData(qtitem)).ConfigureAwait(false);
+                                                //geomatry update
+                                                if (JsonConvert.SerializeObject(currentMarker.Geometry.Coordinates, Formatting.None) != JsonConvert.SerializeObject(qtitem.Location, Formatting.None))
+                                                {
+                                                    currentMarker.Geometry.Coordinates = qtitem.Location;
+                                                    update = true;
+                                                }
+                                                if (JsonConvert.SerializeObject(currentMarker.Properties.Zones, Formatting.None) != JsonConvert.SerializeObject(qtitem.LocationZoneIds, Formatting.None))
+                                                {
+                                                    currentMarker.Properties.Zones = qtitem.LocationZoneIds;
+                                                    currentMarker.Properties.ZonesNames = qtitem.LocationCoordSysName;
+                                                }
+                                                if (qtitem.LocationZoneIds.Count == 0)
+                                                {
+                                                    currentMarker.Properties.TagVisible = false;
+                                                    currentMarker.Properties.isPosition = false;
+                                                    update = true;
+                                                }
+                                                if (qtitem.LocationZoneIds.Count == 0)
+                                                {
+                                                    currentMarker.Properties.TagVisible = false;
+                                                    currentMarker.Properties.isPosition = false;
+                                                    update = true;
+                                                }
+                                                if (update)
+                                                {
+                                                    currentMarker.Properties.TagUpdate = true;
+                                                    //if (currentMarker.Properties.TagType == "Person")
+                                                    //{
+                                                    //    await Task.Run(() => FOTFManager.Instance.BroadcastPersonTagStatus(currentMarker, qtitem.LocationCoordSysId)).ConfigureAwait(false);
+                                                    //}
+                                                    //else if (currentMarker.Properties.TagType.EndsWith("Vehicle"))
+                                                    //{
+                                                    //    await Task.Run(() => FOTFManager.Instance.BroadcastVehicleTagStatus(currentMarker, qtitem.LocationCoordSysId)).ConfigureAwait(false);
+                                                    //}
+                                                }
 
+                                            }
+                                            else
+                                            {
+                                               AddNewMarkerData(qtitem);
+
+                                            }
+                                        }
                                     }
                                 }
                             }
                         }
+                        _updateTag = false;
                     }
                 }
-                return saveToFile;
+                return Task.FromResult(saveToFile);
             }
             catch (Exception e)
             {
                 new ErrorLogger().ExceptionLog(e);
-                return saveToFile;
+                return Task.FromResult(saveToFile);
             }
             finally
             {
                 Dispose();
             }
+
         }
 
         private void AddNewMarkerData(Tags qtitem)
@@ -165,11 +182,11 @@ namespace Factory_of_the_Future
                         {
                             if (marker.Properties.TagType == "Person")
                             {
-                               Task.Run(() => FOTFManager.Instance.BroadcastPersonTagStatus(marker, qtitem.LocationCoordSysId)).ConfigureAwait(false);
+                                FOTFManager.Instance.BroadcastPersonTagStatus(marker, qtitem.LocationCoordSysId);
                             }
                             else if (marker.Properties.TagType.EndsWith("Vehicle"))
                             {
-                                Task.Run(() => FOTFManager.Instance.BroadcastVehicleTagStatus(marker, qtitem.LocationCoordSysId)).ConfigureAwait(false);
+                               FOTFManager.Instance.BroadcastVehicleTagStatus(marker, qtitem.LocationCoordSysId);
                             }
                             //update map with new marker.
                         }

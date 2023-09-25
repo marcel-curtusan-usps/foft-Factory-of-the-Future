@@ -2282,7 +2282,7 @@ namespace Factory_of_the_Future
                         ).Select(y => y.Value).ToList().ForEach(marker =>
                         {
                             marker.Properties.TagUpdate = false;
-                            marker.Properties.TagVisibleMils = (int)Math.Ceiling(marker.Properties.ServerTS.Subtract(marker.Properties.LastSeenTS).TotalMilliseconds);
+                            marker.Properties.TagVisibleMils = (int)Math.Ceiling(marker.Properties.ServerTS.Subtract(marker.Properties.PositionTS).TotalMilliseconds);
 
                             if (marker.Properties.TagVisibleMils > AppParameters.AppSettings.POSITION_MAX_AGE)
                             {
@@ -2300,7 +2300,7 @@ namespace Factory_of_the_Future
                             }
                             else
                             {
-                                //BroadcastPersonTagStatus(marker, cs.Id);
+                                BroadcastPersonTagStatus(marker, cs.Id);
                             }
                             
                             // }
