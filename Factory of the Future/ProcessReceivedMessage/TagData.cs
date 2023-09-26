@@ -32,6 +32,10 @@ namespace Factory_of_the_Future
                 {
                     if (!_updateTag)
                     {
+                        var watch = new System.Diagnostics.Stopwatch();
+                        watch.Start();
+                        _ = new ErrorLogger().CustomLog(string.Concat("Start Execution for all tags in call ", "StartTime: ", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fff") ," ms"),
+                        string.Concat(AppParameters.AppSettings.APPLICATION_NAME, "TagProcesslogs"));
                         _updateTag = true;
                         saveToFile = true;
                         _data = data;
@@ -102,6 +106,10 @@ namespace Factory_of_the_Future
                             }
                         }
                         _updateTag = false;
+                        watch.Stop();
+                        _ = new ErrorLogger().CustomLog(string.Concat("End Execution for all tags in call ", "EndTime: ", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fff"), "\nElapsed Time:", watch.ElapsedMilliseconds, " ms"),
+                            string.Concat(AppParameters.AppSettings.APPLICATION_NAME, "TagProcesslogs"));
+
                     }
                 }
                 return Task.FromResult(saveToFile);

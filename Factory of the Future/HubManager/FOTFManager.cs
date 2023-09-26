@@ -2271,11 +2271,6 @@ namespace Factory_of_the_Future
                     DateTime dt = DateTime.Now;
                     //  var watch = new System.Diagnostics.Stopwatch();
                     // watch.Start();
-                    //double tagVisibleRange = AppParameters.AppSettings.POSITION_MAX_AGE;
-
-
-                    //reset the sch if not found 
-
                     foreach (CoordinateSystem cs in CoordinateSystem.Values)
                     {
                         var marker = cs.Locators.Where(f => f.Value.Properties.TagType.EndsWith("Person")

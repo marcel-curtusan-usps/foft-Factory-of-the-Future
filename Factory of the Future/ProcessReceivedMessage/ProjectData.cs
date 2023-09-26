@@ -157,43 +157,43 @@ namespace Factory_of_the_Future
                                             }
 
                                             //locators
-                                            templocators = getLocators(qcitem.Locators, qcitem.Id); getLocators(qcitem.Locators, qcitem.Id);
-                                            foreach (var newlocator in templocators)
-                                            {
-                                                if (cs.Locators.ContainsKey(newlocator.Key) && cs.Locators.TryGetValue(newlocator.Key, out GeoMarker currentMarker))
-                                                {
-                                                    update = false;
-                                                    //geomatry update
-                                                    if (JsonConvert.SerializeObject(currentMarker.Geometry.Coordinates, Formatting.None) != JsonConvert.SerializeObject(newlocator.Value.Geometry.Coordinates, Formatting.None))
-                                                    {
-                                                        currentMarker.Geometry.Coordinates = newlocator.Value.Geometry.Coordinates;
-                                                        update = true;
-                                                    }
-                                                    //properties update
-                                                    foreach (PropertyInfo prop in currentMarker.Properties.GetType().GetProperties())
-                                                    {
-                                                        if (!new Regex("^(Id|RFid|Zones|TagVisible|TagVisibleMils|IsWearingTag|CraftName|PositionTS|TagTS|TagUpdate|EmpId|Emptype|EmpName|IsLdcAlert|CurrentLDCs|Tacs|Sels|RawData|CameraData|Vehicle_Status_Data|Missison|Source|NotificationId|RoutePath)$", RegexOptions.IgnoreCase).IsMatch(prop.Name))
-                                                        {
-                                                            if (prop.GetValue(newlocator.Value.Properties, null).ToString() != prop.GetValue(currentMarker.Properties, null).ToString())
-                                                            {
-                                                                prop.SetValue(currentMarker.Properties, prop.GetValue(newlocator.Value.Properties, null));
-                                                            }
-                                                        }
-                                                    }
-                                                    if (update)
-                                                    {
-                                                        _ = Task.Run(() => new FileIO().Write(string.Concat(AppParameters.Logdirpath, AppParameters.ConfigurationFloder), "Project_Data.json", AppParameters.ZoneOutPutdata(FOTFManager.Instance.CoordinateSystem.Select(x => x.Value).ToList())));
-                                                    }
-                                                }
-                                                else
-                                                {
-                                                    if (cs.Locators.TryAdd(newlocator.Key, newlocator.Value))
-                                                    {
-                                                        //add new zone
-                                                        _ = Task.Run(() => new FileIO().Write(string.Concat(AppParameters.Logdirpath, AppParameters.ConfigurationFloder), "Project_Data.json", AppParameters.ZoneOutPutdata(FOTFManager.Instance.CoordinateSystem.Select(x => x.Value).ToList())));
-                                                    }
-                                                }
-                                            }
+                                            //templocators = getLocators(qcitem.Locators, qcitem.Id); getLocators(qcitem.Locators, qcitem.Id);
+                                            //foreach (var newlocator in templocators)
+                                            //{
+                                            //    if (cs.Locators.ContainsKey(newlocator.Key) && cs.Locators.TryGetValue(newlocator.Key, out GeoMarker currentMarker))
+                                            //    {
+                                            //        update = false;
+                                            //        //geomatry update
+                                            //        if (JsonConvert.SerializeObject(currentMarker.Geometry.Coordinates, Formatting.None) != JsonConvert.SerializeObject(newlocator.Value.Geometry.Coordinates, Formatting.None))
+                                            //        {
+                                            //            currentMarker.Geometry.Coordinates = newlocator.Value.Geometry.Coordinates;
+                                            //            update = true;
+                                            //        }
+                                            //        //properties update
+                                            //        foreach (PropertyInfo prop in currentMarker.Properties.GetType().GetProperties())
+                                            //        {
+                                            //            if (!new Regex("^(Id|RFid|Zones|TagVisible|TagVisibleMils|IsWearingTag|CraftName|PositionTS|TagTS|TagUpdate|EmpId|Emptype|EmpName|IsLdcAlert|CurrentLDCs|Tacs|Sels|RawData|CameraData|Vehicle_Status_Data|Missison|Source|NotificationId|RoutePath)$", RegexOptions.IgnoreCase).IsMatch(prop.Name))
+                                            //            {
+                                            //                if (prop.GetValue(newlocator.Value.Properties, null).ToString() != prop.GetValue(currentMarker.Properties, null).ToString())
+                                            //                {
+                                            //                    prop.SetValue(currentMarker.Properties, prop.GetValue(newlocator.Value.Properties, null));
+                                            //                }
+                                            //            }
+                                            //        }
+                                            //        if (update)
+                                            //        {
+                                            //            _ = Task.Run(() => new FileIO().Write(string.Concat(AppParameters.Logdirpath, AppParameters.ConfigurationFloder), "Project_Data.json", AppParameters.ZoneOutPutdata(FOTFManager.Instance.CoordinateSystem.Select(x => x.Value).ToList())));
+                                            //        }
+                                            //    }
+                                            //    else
+                                            //    {
+                                            //        if (cs.Locators.TryAdd(newlocator.Key, newlocator.Value))
+                                            //        {
+                                            //            //add new zone
+                                            //            _ = Task.Run(() => new FileIO().Write(string.Concat(AppParameters.Logdirpath, AppParameters.ConfigurationFloder), "Project_Data.json", AppParameters.ZoneOutPutdata(FOTFManager.Instance.CoordinateSystem.Select(x => x.Value).ToList())));
+                                            //        }
+                                            //    }
+                                            //}
 
 
                                         }
@@ -207,7 +207,7 @@ namespace Factory_of_the_Future
                                         Name = qcitem.Name,
                                         Id = qcitem.Id,
                                         BackgroundImage = JToken.Parse(JsonConvert.SerializeObject(qcitem.BackgroundImages.FirstOrDefault(), Formatting.Indented)).ToObject<BackgroundImage>(),
-                                        Locators = getLocators(qcitem.Locators, qcitem.Id),
+                                        Locators = new ConcurrentDictionary<string, GeoMarker>(),//getLocators(qcitem.Locators, qcitem.Id),
                                         Zones = getZoness(qcitem.qcZones, qcitem.Id)
                                     }))
                                     {
@@ -270,7 +270,8 @@ namespace Factory_of_the_Future
                             CraftName = GetCraftName(item.Name),
                             BadgeId = GetBadgeId(item.Name),
                             Color = item.Color,
-                            TagVisible = item.Visible
+                            TagVisible = false,
+                            isPosition = false,
                         }
                     });
                 }

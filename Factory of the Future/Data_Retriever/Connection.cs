@@ -112,15 +112,14 @@ namespace Factory_of_the_Future
                 int SleptTime = 0;
                 do
                 {
-                    SleptTime += 1000;
-                    Thread.Sleep(1000);
+                    SleptTime += 100;
+                    Thread.Sleep(100);
 
 
                     if (!ConstantRefresh)
                     {
                         // If user wanted to stop watching this thread
                         // while thread was resting, we will exit
-
                         break;
                     }
                     if (Status == 5)
@@ -128,7 +127,7 @@ namespace Factory_of_the_Future
                         return;
                     }
 
-                } while (SleptTime < ConnectionInfo.DataRetrieve);
+                } while (SleptTime <= ConnectionInfo.DataRetrieve);
 
                 if (ConstantRefresh)
                 {
@@ -397,7 +396,7 @@ namespace Factory_of_the_Future
             DeleteThread.Start();
 
         }
-        public void Download()
+        public async void Download()
         {
 
             /*
@@ -438,9 +437,9 @@ namespace Factory_of_the_Future
                 formatUrl = string.Empty;
                 MessageType = ConnectionInfo.MessageType;
                 //start login connection status
-                string connStatus = string.Concat(DateTime.Now," Downloading Data from: ", ConnectionInfo.ConnectionName," message type: ", ConnectionInfo.MessageType);
+                string connStatus = string.Concat(DateTime.Now,"Start Downloading Data from: ", ConnectionInfo.ConnectionName," message type: ", ConnectionInfo.MessageType);
                 //end login
-                Task.Run(() => new ErrorLogger().CustomLog(connStatus, string.Concat( "API_ConnectionStatus"))).ConfigureAwait(false);
+                await Task.Run(() => new ErrorLogger().CustomLog(connStatus, string.Concat( "API_ConnectionStatus"))).ConfigureAwait(false);
                 if (!string.IsNullOrEmpty(AppParameters.AppSettings.FACILITY_TIMEZONE))
                 {
                     if (AppParameters.TimeZoneConvert.TryGetValue(AppParameters.AppSettings.FACILITY_TIMEZONE, out string windowsTimeZoneId))
@@ -646,7 +645,7 @@ namespace Factory_of_the_Future
                         bool URLValid = Uri.TryCreate(formatUrl, UriKind.Absolute, out uriResult) && (url.Scheme == Uri.UriSchemeHttp || url.Scheme == Uri.UriSchemeHttps);
                         if (URLValid)
                         {
-                            Task.Run(() => ProcessMsg.StartProcess( new SendMessage().Get(uriResult, requestBody), MessageType, ConnectionInfo.Id)).ConfigureAwait(false);
+                            await Task.Run(() => ProcessMsg.StartProcess( new SendMessage().Get(uriResult, requestBody), MessageType, ConnectionInfo.Id)).ConfigureAwait(false);
                         }
                         else
                         {
@@ -655,7 +654,7 @@ namespace Factory_of_the_Future
                             if (ConnectionInfo.Status != "Invalid URL")
                             {
                                 ConnectionInfo.Status = "Invalid URL";
-                                Task.Run(() => FOTFManager.Instance.BroadcastQSMUpdate(ConnectionInfo)).ConfigureAwait(false);
+                               await Task.Run(() => FOTFManager.Instance.BroadcastQSMUpdate(ConnectionInfo)).ConfigureAwait(false);
                             }
                            
                         }

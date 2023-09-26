@@ -2,9 +2,9 @@
 this is for the person details.
  */
 $.extend(fotfmanager.client, {
-    updatePersonTagStatus: async (tagupdate, id) => { Promise.all([updatePersonTag(tagupdate, id)]) },
-    updatePersonTagRemove: async (tagupdate, id) => { Promise.all([RemovePersonTag(tagupdate, id)]) },
-    updateMarkerCoordinates: async (coordinates, floorid, markerid) => { Promise.all([MarkerCoordinates(coordinates, floorid,markerid)]) }
+    updatePersonTagStatus: async (tagupdate, id) => { Promise.all([updatePersonTag(tagupdate, id)]); },
+    updatePersonTagRemove: async (tagupdate, id) => { Promise.all([RemovePersonTag(tagupdate, id)]); },
+    updateMarkerCoordinates: async (coordinates, floorid, markerid) => { Promise.all([MarkerCoordinates(coordinates, floorid, markerid)]); }
 });
 async function init_Peoplelocators(marker, id) {
     $('div[id=staffingbutton]').text(marker.length);
@@ -29,7 +29,7 @@ async function AddPeopleMarker(data, floorId) {
 }
 async function RemovePersonTag(data, id) {
     $.map(map._layers, function (layer, i) {
-        if (layer.markerId === id) {
+        if (layer.hasOwnProperty("feature") && layer.feature.properties.id === id) {
             layer.removeLayer();
         }
     });

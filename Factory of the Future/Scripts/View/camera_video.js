@@ -87,7 +87,7 @@ function alertChanged(prevDarvisAlerts, darvisAlerts) {
 }
 function CameraDataUpdate(cameradataUpdate, id) {
     try {
-        if (id == baselayerid) {
+        if (id === baselayerid) {
             map.whenReady(() => {
                 if (map.hasOwnProperty("_layers")) {
                     $.map(map._layers, function (layer, i) {
@@ -97,7 +97,7 @@ function CameraDataUpdate(cameradataUpdate, id) {
                             img.src = cameradataUpdate.properties.Camera_Data.base64Image;
                             var mapsize = map.getZoom();
                             var iconsizeh = 64;
-                            var iconsizew = 48
+                            var iconsizew = 48;
                             if (mapsize > 2) {
                                 iconsizeh = 64 * mapsize;
                                 iconsizew = 48 * mapsize;
@@ -342,10 +342,10 @@ var brightRedLoaded = false;
 var darkRedLoaded = false;
 brightRedExclamation.onload = function () {
     brightRedLoaded = true;
-}
+};
 darkRedExclamation.onload = function () {
     darkRedLoaded = true;
-}
+};
 exclamation.onload = function () {
     for (var i = 0; i <= 1; i++) {
         let red = brightRed;
@@ -432,7 +432,7 @@ let cameras = new L.GeoJSON(null, {
         img.src = feature.properties.Camera_Data.base64Image;
         var mapsize = map.getZoom();
         var iconsizeh = 64;
-        var iconsizew = 48
+        var iconsizew = 48;
         if (mapsize > 2) {
             iconsizeh = 64 * mapsize;
             iconsizew = 48 * mapsize;
@@ -550,13 +550,14 @@ function View_Web_Camera(Data) {
         }
         boundingInterval = setInterval(() => { updateBoundingBox(); }, 1000);
         // to be uncommented later when Alert coordinates are able to match the video stream
-       // getAlertBoundingBox(Data.DarvisAlerts, imageWidth, imageHeight).then((img) => {
-       ////  getAlertBoundingBox(null, 1, 1).then((img) => {
-       //     camera_modal_body.append(camera_layout.supplant(formatwebcameralayout(Data.name, Data.emptype, Data.empName,
-       //         img)));
-       //     $('#Camera_Modal').modal();
-       //     sidebar.close('');
-       // });
+        //getAlertBoundingBox(Data.DarvisAlerts, imageWidth, imageHeight).then((img) => {
+        //    getAlertBoundingBox(null, 1, 1).then((img) => {
+                camera_modal_body.append(camera_layout.supplant(formatwebcameralayout(Data.name, Data.emptype, Data.empName,
+                    img)));
+                $('#Camera_Modal').modal();
+                sidebar.close('');
+         
+        //});
     } catch (e) {
         $("#error_camera").text(e);
         console.log(e);

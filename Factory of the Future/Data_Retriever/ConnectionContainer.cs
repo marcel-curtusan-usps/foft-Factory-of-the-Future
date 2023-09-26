@@ -196,6 +196,7 @@ namespace Factory_of_the_Future
                 if (updateFile)
                 {
                     Task.Run(() => new FileIO().Write(string.Concat(AppParameters.CodeBase.Parent.FullName.ToString(), AppParameters.Appsetting), "Connection.json", AppParameters.ConnectionOutPutdata(DataConnection.Select(y => y.ConnectionInfo).ToList()))).ConfigureAwait(true);
+                    Task.Run(() => FOTFManager.Instance.BroadcastQSMUpdate(DataConnection.Where(r => r.ConnectionInfo.Id == updateConndata.Id).Select(y => y.ConnectionInfo).ToList().FirstOrDefault())).ConfigureAwait(false);
                 }
             }
             catch (Exception e)

@@ -1,8 +1,8 @@
 ﻿/// <reference path="indoormap.js" />
 $.extend(fotfmanager.client, {
-    updateQSMStatus: async (Connectionupdate) => { Promise.all([updateConnection(Connectionupdate)]) },
-    removeConnection: async (Connectionremove) => { Promise.all([removeConnection(Connectionremove)])},
-    addConnection: async (Connectionadd) => { Promise.all([addConnection(Connectionadd)]) }
+    updateQSMStatus: async (Connectionupdate) => { Promise.all([updateConnection(Connectionupdate)]); },
+    removeConnection: async (Connectionremove) => { Promise.all([removeConnection(Connectionremove)]); },
+    addConnection: async (Connectionadd) => { Promise.all([addConnection(Connectionadd)]); }
 });
 let connTypeRadio = null;
 //on close clear all inputs
@@ -285,7 +285,7 @@ async function init_connection(ConnectionList) {
     try {
         createConnectionDataTable("connectiontable");
         if (ConnectionList.length > 0) {
-            loadConnectionDatatable(ConnectionList.sort(SortByConnectionName), "connectiontable")
+            loadConnectionDatatable(ConnectionList.sort(SortByConnectionName), "connectiontable");
         }
     } catch (e) {
         console.log(e);
@@ -300,7 +300,7 @@ function createConnectionDataTable(table) {
         "Port": "",
         "Status": "",
         "Action": ""
-    }]
+    }];
     let columns = [];
     let tempc = {};
     $.each(arrayColums[0], function (key, value) {
@@ -457,7 +457,7 @@ function loadConnectionDatatable(data, table) {
         $('#' + table).DataTable().rows.add(data).draw();
     }
 }
-function updateConnectionDataTable(newdata, table) {
+async function updateConnectionDataTable(newdata, table) {
     let loadnew = true;
     if ($.fn.dataTable.isDataTable("#" + table)) {
         $('#' + table).DataTable().rows(function (idx, data, node) {
@@ -465,7 +465,7 @@ function updateConnectionDataTable(newdata, table) {
             if (data.Id === newdata.Id) {
                 $('#' + table).DataTable().row(node).data(newdata).draw().invalidate();
             }
-        })
+        });
         if (loadnew) {
             loadConnectionDatatable(newdata, table);
         }
@@ -473,11 +473,11 @@ function updateConnectionDataTable(newdata, table) {
 }
 function removeConnectionDataTable(removedata, table) {
     if ($.fn.dataTable.isDataTable("#" + table)) {
-        $('#' + table).DataTable().rows(function (idx, data, node) {
+        $('#' + table).DataTable().rows(function (data, node) {
             if (data.Id === removedata.Id) {
                 $('#' + table).DataTable().row(node).remove().draw();
             }
-        })
+        });
     }
 }
 function ConnectionNameLoad(data) {
@@ -543,20 +543,20 @@ function Edit_Connection(Data) {
     $('input[type=text][id=hostname]').val(Data.Hostname);
     $('input[type=text][id=port_number]').val(Data.Port);
     $('input[type=text][id=url]').val(Data.Url);
-    filtermessage_type(Data.ConnectionName, Data.MessageType)
+    filtermessage_type(Data.ConnectionName, Data.MessageType);
     $('select[name=data_retrieve]').val(Data.DataRetrieve);
     $('input[type=radio]').prop('disabled', true);
     if (Data.ApiConnection) {
         $('input[type=radio][id=api_connection]').prop('checked', Data.ApiConnection);
-        onAPIConnection()
+        onAPIConnection();
     }
     if (Data.UdpConnection) {
         $('input[type=radio][id=udp_connection]').prop('checked', Data.UdpConnection);
-        onudptcpipConnection()
+        onudptcpipConnection();
     }
     if (Data.TcpIpConnection) {
         $('input[type=radio][id=tcpip_connection]').prop('checked', Data.TcpIpConnection);
-        onudptcpipConnection()
+        onudptcpipConnection();
     }
     if (Data.WsConnection) {
         $('input[type=radio][id=ws_connection]').prop('checked', Data.WsConnection);
@@ -602,10 +602,13 @@ function Edit_Connection(Data) {
                 MessageType: $('select[name=message_type] option:selected').val(),
                 LastupdateByUsername: User.UserId,
                 Id: Data.Id
-            }
+            };
             if (!$.isEmptyObject(jsonObject)) {
-                fotfmanager.server.editAPI(JSON.stringify(jsonObject)).done(function (rData) {
-                    setTimeout(function () { $("#API_Connection_Modal").modal('hide'); sidebar.open('connections'); }, 500);
+                fotfmanager.server.editAPI(JSON.stringify(jsonObject)).done(function () {
+                    setTimeout(function () {
+                        $("#API_Connection_Modal").modal('hide');
+                        sidebar.open('connections');
+                    }, 500);
                 });
             }
 
