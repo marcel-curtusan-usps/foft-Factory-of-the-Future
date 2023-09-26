@@ -14,10 +14,11 @@ namespace Factory_of_the_Future
     public delegate void OnWsMessage(string msg);
     public delegate void OnWsEvent();
     public delegate void ThreadListenerCall();
+   
     class MulticastUdpServer : UdpServer
     {
         public MulticastUdpServer(IPAddress address, int port, Connection conn) : base(address, port, conn) { }
-
+        public ProcessRecvdMsg ProcessMsg = new ProcessRecvdMsg();
         protected override void OnStarted()
         {
             // Start receive datagrams
@@ -50,7 +51,7 @@ namespace Factory_of_the_Future
                             ["status"] = "0",
                             ["tags"] = new JArray(incomingDataJobject)
                         };
-                      await  Task.Run(() => new ProcessRecvdMsg().StartProcess(JsonConvert.SerializeObject(temp1, Formatting.None), Conn.MessageType, Conn.Id)).ConfigureAwait(false);
+                      await  Task.Run(() => this.ProcessMsg.StartProcess(JsonConvert.SerializeObject(temp1, Formatting.None), Conn.MessageType, Conn.Id)).ConfigureAwait(false);
                     }
                 }
             }
@@ -86,6 +87,7 @@ namespace Factory_of_the_Future
         public bool ConstantRefresh = false;
         public bool Stopping = false;
         public DateTime DownloadDatetime;
+        public ProcessRecvdMsg ProcessMsg = new ProcessRecvdMsg();
         //public bool Connected;
         public UdpClient client;
         public UdpServer udpserver;
@@ -250,7 +252,7 @@ namespace Factory_of_the_Future
 
             if (message.StartsWith("42"))
             {
-                Task.Run(() => new ProcessRecvdMsg().ProcessDarvisAlert42(message.Substring(2)));
+                Task.Run(() => ProcessMsg.ProcessDarvisAlert42(message.Substring(2)));
             }
 
         }
@@ -644,7 +646,7 @@ namespace Factory_of_the_Future
                         bool URLValid = Uri.TryCreate(formatUrl, UriKind.Absolute, out uriResult) && (url.Scheme == Uri.UriSchemeHttp || url.Scheme == Uri.UriSchemeHttps);
                         if (URLValid)
                         {
-                            Task.Run(() => new ProcessRecvdMsg().StartProcess( new SendMessage().Get(uriResult, requestBody), MessageType, ConnectionInfo.Id)).ConfigureAwait(false);
+                            Task.Run(() => ProcessMsg.StartProcess( new SendMessage().Get(uriResult, requestBody), MessageType, ConnectionInfo.Id)).ConfigureAwait(false);
                         }
                         else
                         {

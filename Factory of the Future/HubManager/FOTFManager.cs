@@ -2247,6 +2247,7 @@ namespace Factory_of_the_Future
                         && f.Value.Properties.TagUpdate
                         ).Select(y => y.Value).ToList().ForEach(marker =>
                         {
+                            marker.Properties.TagUpdate = false;
                             BroadcastVehicleTagStatus(marker, cs.Id);
 
                         });
@@ -2277,35 +2278,25 @@ namespace Factory_of_the_Future
 
                     foreach (CoordinateSystem cs in CoordinateSystem.Values)
                     {
-                        cs.Locators.Where(f => f.Value.Properties.TagType.EndsWith("Person")
+                        var marker = cs.Locators.Where(f => f.Value.Properties.TagType.EndsWith("Person")
                         && f.Value.Properties.TagUpdate
-                        ).Select(y => y.Value).ToList().ForEach(marker =>
+                        ).Select(y => y.Value).ToList();
+
+                        for (int i = 0; i < marker.Count(); i++)
                         {
-                            marker.Properties.TagUpdate = false;
-                            marker.Properties.TagVisibleMils = (int)Math.Ceiling(marker.Properties.ServerTS.Subtract(marker.Properties.PositionTS).TotalMilliseconds);
-
-                            if (marker.Properties.TagVisibleMils > AppParameters.AppSettings.POSITION_MAX_AGE)
+                            if (!marker[i].Properties.isPosition && marker[i].Properties.TagVisible)
                             {
-                                marker.Properties.TagVisible = false;
-                                marker.Properties.isPosition = false;
+                                BroadcastPersonTagRemove(marker[i], cs.Id);
+                                marker[i].Properties.TagVisible = false;
                             }
                             else
                             {
-                                marker.Properties.TagVisible = true;
-                                marker.Properties.isPosition = true;
+                                BroadcastPersonTagStatus(marker[i], cs.Id);
+                                marker[i].Properties.TagVisible = true;
                             }
-                            if (!marker.Properties.TagVisible)
-                            {
-                                BroadcastPersonTagRemove(marker, cs.Id);
-                            }
-                            else
-                            {
-                                BroadcastPersonTagStatus(marker, cs.Id);
-                            }
-                            
-                            // }
-
-                        });
+                            marker[i].Properties.TagUpdate = false;
+                        }
+                       
                     }
                     // watch.Stop();
                     // new ErrorLogger().CustomLog(string.Concat("Total Execution for all tags ", "Time: ", watch.ElapsedMilliseconds, " ms"), string.Concat((string)AppParameters.AppSettings.Property("APPLICATION_NAME").Value, "TagProcesslogs"));

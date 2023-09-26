@@ -58,49 +58,25 @@ namespace Factory_of_the_Future
                                                 currentMarker.Properties.TagTS = AppParameters.UnixTimeStampToDateTime(qtitem.LastSeenTS);
                                                 currentMarker.Properties.ServerTS = AppParameters.UnixTimeStampToDateTime(tagData.ResponseTS);
                                                 currentMarker.Properties.FloorId = qtitem.LocationCoordSysId;
-                                                if (currentMarker.Properties.LocationMovementStatus != qtitem.LocationMovementStatus)
-                                                {
-                                                    currentMarker.Properties.LocationMovementStatus = qtitem.LocationMovementStatus;
-                                                    if (qtitem.LocationMovementStatus == "noData")
-                                                    {
-                                                        currentMarker.Properties.TagVisible = false;
-                                                        currentMarker.Properties.isPosition = false;
-                                                    }
-                                                    update = true;
-                                                }
-                                                if (currentMarker.Properties.LocationType != qtitem.LocationType)
-                                                {
-                                                    if (qtitem.LocationType == "presence")
-                                                    {
-                                                        currentMarker.Properties.TagVisible = false;
-                                                    }
-                                                    currentMarker.Properties.LocationType = qtitem.LocationType;
-                                                    update = true;
-                                                }
-
-                                                //geomatry update
-                                                if (JsonConvert.SerializeObject(currentMarker.Geometry.Coordinates, Formatting.None) != JsonConvert.SerializeObject(qtitem.Location, Formatting.None))
+                                                currentMarker.Properties.TagVisibleMils = (int)Math.Ceiling(currentMarker.Properties.ServerTS.Subtract(currentMarker.Properties.PositionTS).TotalMilliseconds);
+                                                string ty = qtitem.Location.ToString();
+                                                string tr = currentMarker.Geometry.Coordinates.ToString();
+                                                if (new Regex("^(stationary|moving)$", RegexOptions.IgnoreCase).IsMatch(qtitem.LocationMovementStatus))
                                                 {
                                                     currentMarker.Geometry.Coordinates = qtitem.Location;
+                                                    currentMarker.Properties.LocationMovementStatus = qtitem.LocationMovementStatus;
+                                                    currentMarker.Properties.isPosition = true;
                                                     update = true;
                                                 }
-                                                if (JsonConvert.SerializeObject(currentMarker.Properties.Zones, Formatting.None) != JsonConvert.SerializeObject(qtitem.LocationZoneIds, Formatting.None))
+                                                else
                                                 {
-                                                    currentMarker.Properties.Zones = qtitem.LocationZoneIds;
-                                                    currentMarker.Properties.ZonesNames = qtitem.LocationCoordSysName;
-                                                }
-                                                if (qtitem.LocationZoneIds.Count == 0)
-                                                {
-                                                    currentMarker.Properties.TagVisible = false;
+                                                    currentMarker.Properties.LocationMovementStatus = qtitem.LocationMovementStatus;
                                                     currentMarker.Properties.isPosition = false;
                                                     update = true;
                                                 }
-                                                if (qtitem.LocationZoneIds.Count == 0)
-                                                {
-                                                    currentMarker.Properties.TagVisible = false;
-                                                    currentMarker.Properties.isPosition = false;
-                                                    update = true;
-                                                }
+                                                currentMarker.Properties.Zones = qtitem.LocationZoneIds;
+                                                currentMarker.Properties.ZonesNames = qtitem.LocationCoordSysName;
+                                                currentMarker.Properties.LocationType = qtitem.LocationType;
                                                 if (update)
                                                 {
                                                     currentMarker.Properties.TagUpdate = true;
@@ -117,7 +93,7 @@ namespace Factory_of_the_Future
                                             }
                                             else
                                             {
-                                               AddNewMarkerData(qtitem);
+                                                AddNewMarkerData(qtitem);
 
                                             }
                                         }
