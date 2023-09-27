@@ -65,6 +65,7 @@ namespace Factory_of_the_Future
                                                 currentMarker.Properties.TagVisibleMils = (int)Math.Ceiling(currentMarker.Properties.ServerTS.Subtract(currentMarker.Properties.PositionTS).TotalMilliseconds);
                                                 string newLocation = string.Join(",", qtitem.Location);
                                                 string oldLocation = string.Join(",", currentMarker.Geometry.Coordinates);
+                                                long posAge = qtitem.LastSeenTS - tagData.ResponseTS;
                                                 if (newLocation != oldLocation)
                                                 {
                                                     currentMarker.Geometry.Coordinates = qtitem.Location;
@@ -85,6 +86,10 @@ namespace Factory_of_the_Future
                                                 }
                                                 else
                                                 {
+                                                    if (true)
+                                                    {
+
+                                                    }
                                                     currentMarker.Properties.LocationMovementStatus = "stationary";
                                                     update = true;
                                                 }
