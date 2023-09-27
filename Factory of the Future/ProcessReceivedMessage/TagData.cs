@@ -3,6 +3,7 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Swashbuckle.Swagger;
 using System;
+using System.Linq;
 using System.Reflection;
 using System.Runtime.InteropServices.ComTypes;
 using System.Text.RegularExpressions;
@@ -58,14 +59,15 @@ namespace Factory_of_the_Future
                                             if (cs.Locators.ContainsKey(qtitem.TagId) && cs.Locators.TryGetValue(qtitem.TagId, out GeoMarker currentMarker))
                                             {
                                                 currentMarker.Properties.PositionTS = AppParameters.UnixTimeStampToDateTime(qtitem.LocationTS);
-                                                currentMarker.Properties.LastSeenTS = AppParameters.UnixTimeStampToDateTime(qtitem.LastSeenTS);
+                                                currentMarker.Properties.LastSeenTS_txt = AppParameters.UnixTimeStampToDateTime(qtitem.LastSeenTS);
+                                                currentMarker.Properties.LastSeenTS = qtitem.LastSeenTS;
                                                 currentMarker.Properties.TagTS = AppParameters.UnixTimeStampToDateTime(qtitem.LastSeenTS);
                                                 currentMarker.Properties.ServerTS = AppParameters.UnixTimeStampToDateTime(tagData.ResponseTS);
                                                 currentMarker.Properties.FloorId = qtitem.LocationCoordSysId;
-                                                currentMarker.Properties.TagVisibleMils = (int)Math.Ceiling(currentMarker.Properties.ServerTS.Subtract(currentMarker.Properties.PositionTS).TotalMilliseconds);
+                                                currentMarker.Properties.TagVisibleMils = tagData.ResponseTS - qtitem.LastSeenTS;
+                                                /*currentMarker.Properties.TagVisibleMils = (int)Math.Ceiling(currentMarker.Properties.ServerTS.Subtract(currentMarker.Properties.PositionTS).TotalMilliseconds);*/
                                                 string newLocation = string.Join(",", qtitem.Location);
                                                 string oldLocation = string.Join(",", currentMarker.Geometry.Coordinates);
-                                                long posAge = qtitem.LastSeenTS - tagData.ResponseTS;
                                                 if (newLocation != oldLocation)
                                                 {
                                                     currentMarker.Geometry.Coordinates = qtitem.Location;
@@ -86,12 +88,21 @@ namespace Factory_of_the_Future
                                                 }
                                                 else
                                                 {
-                                                    if (true)
+                                                    if (currentMarker.Properties.TagVisibleMils > AppParameters.AppSettings.POSITION_MAX_AGE)
                                                     {
+                                                        currentMarker.Properties.isPosition = false;
+                                                        currentMarker.Properties.LocationMovementStatus = "noData";
+                                                        if (!currentMarker.Properties.isPosition)
+                                                        {
+                                                            update = true;
+                                                        }
 
                                                     }
-                                                    currentMarker.Properties.LocationMovementStatus = "stationary";
-                                                    update = true;
+                                                    else
+                                                    {
+                                                        currentMarker.Properties.LocationMovementStatus = "stationary";
+                                                        update = true;
+                                                    }
                                                 }
                                                 currentMarker.Properties.Zones = qtitem.LocationZoneIds;
                                                 currentMarker.Properties.ZonesNames = qtitem.LocationCoordSysName;
@@ -117,6 +128,20 @@ namespace Factory_of_the_Future
                                             }
                                         }
                                     }
+                                     cs.Locators.Where(f => f.Value.Properties.TagType.EndsWith("Person")
+                                    &&  (tagData.ResponseTS - f.Value.Properties.LastSeenTS) > AppParameters.AppSettings.POSITION_MAX_AGE
+                                    ).Select(y => y.Value).ToList().ForEach((m) =>
+                                    {
+                                        m.Properties.isPosition = false;
+                                        m.Properties.TagVisible = false;
+                                        m.Properties.LocationMovementStatus = "noData";
+                                        if (!m.Properties.isPosition)
+                                        {
+                                            m.Properties.TagUpdate = true;
+                                            
+                                        }
+                                    });
+
                                 }
                                 FOTFManager.Instance.UpdatePersonTagStatus(new object());
                             }

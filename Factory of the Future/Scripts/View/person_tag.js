@@ -115,8 +115,10 @@ async function deleteFeature(data, id) {
 
     let delId = markerList[data];
     if (typeof delId !== 'undefined') {
+     
         tagsMarkersGroup.removeLayer(delId);
     }
+    $('div[id=staffingbutton]').text(markerList.length);
    
     //$.map(map._layers, function (layer, i) {
     //    if (layer.hasOwnProperty("feature") && layer.feature.properties.id === id) {
@@ -503,7 +505,7 @@ function formattagdata(result) {
     let reformatdata = [];
     try {
         for (let key in result) {
-            if (!$.isPlainObject(result[key]) && /^(id|craftName|lastSeenTS|positionTS|locationType|daysOff|floorId|empId|elunch|edate|isePacs|isPosition|isSch|isTacs|isePacs|locationMovementStatus|Tag_Type|tourNumber|visible)/ig.test(key)) {
+            if (!$.isPlainObject(result[key]) && /^(id|craftName|lastSeenTS|lastSeenTS_txt|positionTS|locationType|daysOff|floorId|empId|elunch|edate|isePacs|isPosition|isSch|isTacs|isePacs|locationMovementStatus|Tag_Type|tourNumber|visible)/ig.test(key)) {
 
                 let temp = {
                     "KEY_NAME": "",

@@ -28,7 +28,7 @@ namespace Factory_of_the_Future
         public bool TagVisible { get; set; } = false;
 
         [JsonProperty("tagVisibleMils")]
-        public int TagVisibleMils { get; set; } = 0;
+        public long TagVisibleMils { get; set; } = 0;
 
         [JsonProperty("isWearingTag")]
         public bool IsWearingTag { get; set; }
@@ -126,6 +126,7 @@ namespace Factory_of_the_Future
         [JsonProperty("locationType")]
         public string LocationType { get; set; } = "";
         [JsonProperty("lastSeenTS")]
-        public DateTime LastSeenTS { get; internal set; } = DateTime.MinValue;
+        public DateTime LastSeenTS_txt { get; internal set; } = DateTime.MinValue;
+        public long LastSeenTS { get; internal set; } = 0;
     }
 }
