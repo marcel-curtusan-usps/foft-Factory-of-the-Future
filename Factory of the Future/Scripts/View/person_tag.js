@@ -2,13 +2,39 @@
 this is for the person details.
  */
 $.extend(fotfmanager.client, {
-    updatePersonTagStatus: async (tagupdate, id) => { Promise.all([updatePersonTag(tagupdate, id)]); },
-    updatePersonTagRemove: async (tagupdate, id) => { Promise.all([RemovePersonTag(tagupdate, id)]); },
+    updatePersonTagStatus: async (tagupdate, id) => { Promise.all([updateFeature(tagupdate, id)]); },
+    updatePersonTagRemove: async (tagupdate, id) => { Promise.all([deleteFeature(tagupdate, id)]); },
     updateMarkerCoordinates: async (coordinates, floorid, markerid) => { Promise.all([MarkerCoordinates(coordinates, floorid, markerid)]); }
 });
+
+///update geojson data
+//var myFeaturesMap = {};
+
+//var myGeoJsonLayerGroup = L.geoJson({
+//    onEachFeature: function (feature, layer) {
+//        myFeaturesMap[feature.properties.objectID] = layer;
+//    }
+//}).addTo(map);
+
+//function addNewFeatureToGeoJsonLayerGroup(newGeoJsonData) {
+//    myGeoJsonLayerGroup.addData(newGeoJsonData);
+//}
+
+//function updateFeature(updatedGeoJsonData) {
+//    deleteFeature(updatedGeoJsonData); // Remove the previously created layer.
+//    addNewFeatureToGeoJsonLayerGroup(updatedGeoJsonData); // Replace it by the new data.
+//}
+
+//function deleteFeature(deletedGeoJsonData) {
+//    var deletedFeature = myFeaturesMap[deletedGeoJsonData.properties.objectID];
+//    myGeoJsonLayerGroup.removeLayer(deletedFeature);
+//}
+
+let markerList = {};
 async function init_Peoplelocators(marker, id) {
     $('div[id=staffingbutton]').text(marker.length);
-    Promise.all([AddPeopleMarker(marker, id)]);
+    tagsMarkersGroup.addData(marker);
+    /*Promise.all([AddPeopleMarker(marker, id)]);*/
     //$.each(marker, function (_index, data) {
     //    Promise.all([AddPeopleMarker(data, data.properties.floorId)]);
     //});
@@ -16,9 +42,10 @@ async function init_Peoplelocators(marker, id) {
     tagsLoaded = true;
     return tagsLoaded;
 }
-async function AddPeopleMarker(data, floorId) {
+async function addFeature(data) {
     try {
-        if (floorId === baselayerid) {
+        if (data.properties.floorId === baselayerid) {
+            $('div[id=staffingbutton]').text(markerList.length);
             tagsMarkersGroup.addData(data);
         }
         return true;
@@ -27,12 +54,75 @@ async function AddPeopleMarker(data, floorId) {
         console.log(e);
     }
 }
-async function RemovePersonTag(data, id) {
-    $.map(map._layers, function (layer, i) {
-        if (layer.hasOwnProperty("feature") && layer.feature.properties.id === id) {
-            layer.removeLayer();
-        }
-    });
+async function updateFeature(data, id) {
+    try {
+        Promise.all([deleteFeature(data.properties.id)]); // Remove the previously created layer.
+        Promise.all([addFeature(data)]); // Replace it by the new data.
+
+        //if (id === baselayerid) {
+        // let layerindex = -0;
+        //  Promise.all([hideOldTag()]);
+        // map.whenReady(() => {
+        //    if (map.hasOwnProperty("_layers")) {
+        //        $.map(map._layers, function (layer, i) {
+        //            if (layer.hasOwnProperty("feature")) {
+        //                if (layer.feature.properties.id === tagpositionupdate.properties.id) {
+        //                    layerindex = layer._leaflet_id;
+        //                    layer.feature.geometry = tagpositionupdate.geometry.coordinates;
+        //                    layer.feature.properties = tagpositionupdate.properties;
+        //                    Promise.all([updateTagLocation(layerindex)]);
+        //                    return false;
+        //                }
+        //            }
+        //        });
+        //    }
+        //});
+        // if (layerindex === -0) {
+        //    tagsMarkersGroup.addData(tagpositionupdate);
+        //}
+        //if (tagsMarkersGroup.hasOwnProperty("_layers")) {
+        //    $.map(tagsMarkersGroup._layers, function (layer) {
+
+        //        if (layer.hasOwnProperty("feature")) {
+        //            if (layer.feature.properties.id === tagpositionupdate.properties.id) {
+        //                layer.feature.properties = tagpositionupdate.properties;
+        //                layer.feature.geometry = tagpositionupdate.geometry.coordinates;
+        //                layerindex = layer._leaflet_id;
+
+        //                if (layer.feature.properties.tacs != null) {
+        //                    if (tagpositionupdate.properties.tacs != null) {
+        //                        layer.feature.properties.tacs.isOvertime = true;
+        //                    }
+        //                }
+
+
+        //                Promise.all([updateTagLocation(layerindex)]);
+
+
+        //                return false;
+        //            }
+        //        }
+        //    });
+
+        //}
+        //}
+
+    } catch (e) {
+        console.log(e);
+    }
+}
+async function deleteFeature(data, id) {
+
+    let delId = markerList[data];
+    if (typeof delId !== 'undefined') {
+        tagsMarkersGroup.removeLayer(delId);
+    }
+   
+    //$.map(map._layers, function (layer, i) {
+    //    if (layer.hasOwnProperty("feature") && layer.feature.properties.id === id) {
+    //        layer.removeLayer();
+    //    }
+    //});
 }
 async function MarkerCoordinates(Coordinates, flid, mkid)
 {
@@ -42,7 +132,7 @@ async function MarkerCoordinates(Coordinates, flid, mkid)
                 if (map.hasOwnProperty("_layers")) {
                     $.map(map._layers, function (layer, i) {
                         if (layer.hasOwnProperty("markerId") && layer.markerId === mkid) {
-                            layer.feature.geometry = Coordinates
+                            layer.feature.geometry = Coordinates;
                             Promise.all([MarkerCoordinatesUpdate(layer)]);
                             return false;
                         }
@@ -64,60 +154,7 @@ async function MarkerCoordinatesUpdate(layer)
         console.log();
     }
 };
-async function updatePersonTag(tagpositionupdate,id) {
-    try {
-        if (id === baselayerid) {
-            let layerindex = -0;
-           Promise.all([hideOldTag()]);
-            map.whenReady(() => {
-                if (map.hasOwnProperty("_layers")) {
-                    $.map(map._layers, function (layer, i) {
-                        if (layer.hasOwnProperty("feature")) {
-                            if (layer.feature.properties.id === tagpositionupdate.properties.id) {
-                                layerindex = layer._leaflet_id;
-                                layer.feature.geometry = tagpositionupdate.geometry.coordinates;
-                                layer.feature.properties = tagpositionupdate.properties;
-                                Promise.all([updateTagLocation(layerindex)]);
-                                return false;
-                            }
-                        }
-                    });
-                }
-            });
-            if (layerindex === -0) {
-                tagsMarkersGroup.addData(tagpositionupdate);
-            }
-            //if (tagsMarkersGroup.hasOwnProperty("_layers")) {
-            //    $.map(tagsMarkersGroup._layers, function (layer) {
 
-            //        if (layer.hasOwnProperty("feature")) {
-            //            if (layer.feature.properties.id === tagpositionupdate.properties.id) {
-            //                layer.feature.properties = tagpositionupdate.properties;
-            //                layer.feature.geometry = tagpositionupdate.geometry.coordinates;
-            //                layerindex = layer._leaflet_id;
-
-            //                if (layer.feature.properties.tacs != null) {
-            //                    if (tagpositionupdate.properties.tacs != null) {
-            //                        layer.feature.properties.tacs.isOvertime = true;
-            //                    }
-            //                }
-
-
-            //                Promise.all([updateTagLocation(layerindex)]);
-                            
-
-            //                return false;
-            //            }
-            //        }
-            //    });
-               
-            //}
-        }
-
-    } catch (e) {
-        console.log(e);
-    }
-}
 let tagsMarkersGroup = new L.GeoJSON(null, {
     pointToLayer: function (feature, latlng) {
         return new L.circleMarker(latlng, {
@@ -125,9 +162,10 @@ let tagsMarkersGroup = new L.GeoJSON(null, {
             opacity: 0,
             fillOpacity: 0,
             className: 'marker-person'
-        })
+        });
     },
     onEachFeature: function (feature, layer) {
+        markerList[feature.properties.id] = layer;
         layer.markerId = feature.properties.id;
         var VisiblefillOpacity = feature.properties.tagVisibleMils < 80000 ? "" : "tooltip-hidden";
         var isOT = false;
@@ -148,11 +186,11 @@ let tagsMarkersGroup = new L.GeoJSON(null, {
             $('div[id=div_taginfo]').css('display', '');
             sidebar.open('reports');
             if ($.fn.dataTable.isDataTable("#tagInfotable")) {
-                updateTagDataTable(formattagdata(feature.properties),"tagInfotable");
+                updateTagDataTable(formattagdata(feature.properties), "tagInfotable");
             }
             else {
                 createTagDataTable('tagInfotable');
-                updateTagDataTable(formattagdata(feature.properties),"tagInfotable");
+                updateTagDataTable(formattagdata(feature.properties), "tagInfotable");
             }
         });
 
@@ -164,12 +202,11 @@ let tagsMarkersGroup = new L.GeoJSON(null, {
             //className: 'persontag ' + VisiblefillOpacity
             className: classname
         }).openTooltip();
+    },
+    filter: function (feature, layer) {
+        return feature.properties.tagVisible;
     }
-    //,
-    //filter: function (feature, layer) {
-    //    return feature.properties.tagVisible;
-    //}
-})
+});
 async function updateTagLocation(layerindex)
 {
     try {

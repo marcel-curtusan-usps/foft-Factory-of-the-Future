@@ -63,19 +63,29 @@ namespace Factory_of_the_Future
                                                 currentMarker.Properties.ServerTS = AppParameters.UnixTimeStampToDateTime(tagData.ResponseTS);
                                                 currentMarker.Properties.FloorId = qtitem.LocationCoordSysId;
                                                 currentMarker.Properties.TagVisibleMils = (int)Math.Ceiling(currentMarker.Properties.ServerTS.Subtract(currentMarker.Properties.PositionTS).TotalMilliseconds);
-                                                string ty = qtitem.Location.ToString();
-                                                string tr = currentMarker.Geometry.Coordinates.ToString();
-                                                if (new Regex("^(stationary|moving)$", RegexOptions.IgnoreCase).IsMatch(qtitem.LocationMovementStatus))
+                                                string newLocation = string.Join(",", qtitem.Location);
+                                                string oldLocation = string.Join(",", currentMarker.Geometry.Coordinates);
+                                                if (newLocation != oldLocation)
                                                 {
                                                     currentMarker.Geometry.Coordinates = qtitem.Location;
-                                                    currentMarker.Properties.LocationMovementStatus = qtitem.LocationMovementStatus;
-                                                    currentMarker.Properties.isPosition = true;
+                                                    currentMarker.Properties.LocationMovementStatus = "moving";
                                                     update = true;
+                                                    //if (new Regex("^(stationary|moving)$", RegexOptions.IgnoreCase).IsMatch(qtitem.LocationMovementStatus))
+                                                    //{
+                                                    //    currentMarker.Properties.LocationMovementStatus = "moving";
+                                                    //    currentMarker.Properties.isPosition = true;
+                                                    //    update = true;
+                                                    //}
+                                                    //else
+                                                    //{
+                                                    //    currentMarker.Properties.LocationMovementStatus = qtitem.LocationMovementStatus;
+                                                    //    currentMarker.Properties.isPosition = false;
+                                                    //    update = true;
+                                                    //}
                                                 }
                                                 else
                                                 {
-                                                    currentMarker.Properties.LocationMovementStatus = qtitem.LocationMovementStatus;
-                                                    currentMarker.Properties.isPosition = false;
+                                                    currentMarker.Properties.LocationMovementStatus = "stationary";
                                                     update = true;
                                                 }
                                                 currentMarker.Properties.Zones = qtitem.LocationZoneIds;
@@ -103,6 +113,7 @@ namespace Factory_of_the_Future
                                         }
                                     }
                                 }
+                                FOTFManager.Instance.UpdatePersonTagStatus(new object());
                             }
                         }
                         _updateTag = false;

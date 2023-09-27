@@ -84,7 +84,7 @@ namespace Factory_of_the_Future
         {
             Clients = clients;
             VehicleTag_timer = new Timer(UpdateVehicleTagStatus, null, _250updateInterval, _250updateInterval);
-            PersonTag_timer = new Timer(UpdatePersonTagStatus, null, _250updateInterval, _250updateInterval);
+           // PersonTag_timer = new Timer(UpdatePersonTagStatus, null, _250updateInterval, _250updateInterval);
             /////Zone status.
             //Zone_timer = new Timer(UpdateZoneStatus, null, _2000updateInterval, _2000updateInterval);
             ////DockDoor_timer = new Timer(UpdateDockDoorStatus, null, _250updateInterval, _250updateInterval);
@@ -2261,7 +2261,7 @@ namespace Factory_of_the_Future
         {
             Clients.Group("VehiclsMarkers").updateVehicleTagStatus(marker, id);
         }
-        private void UpdatePersonTagStatus(object state)
+        public void UpdatePersonTagStatus(object state)
         {
             lock (updatePersonTagStatuslock)
             {
