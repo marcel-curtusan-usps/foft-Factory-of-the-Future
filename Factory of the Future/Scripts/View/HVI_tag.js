@@ -16,7 +16,7 @@ let hvi_tags = new L.GeoJSON(null, {
     },
     onEachFeature: function (feature, layer) {
         layer.markerId = feature.properties.id;
-        let VisiblefillOpacity = feature.properties.tagVisibleMils < 80000 ? "" : "tooltip-hidden";
+        let VisiblefillOpacity = feature.properties.posAge < 80000 ? "" : "tooltip-hidden";
         let classname = 'persontag ' + VisiblefillOpacity;
     
 

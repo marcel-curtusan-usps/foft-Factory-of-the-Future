@@ -23,12 +23,9 @@ namespace Factory_of_the_Future
 
         [JsonProperty("color")]
         public string Color { get; set; } = "";
-
-        [JsonProperty("tagVisible")]
-        public bool TagVisible { get; set; } = false;
-
-        [JsonProperty("tagVisibleMils")]
-        public long TagVisibleMils { get; set; } = 0;
+   
+        [JsonProperty("posAge")]
+        public long posAge { get; set; } = 0;
 
         [JsonProperty("isWearingTag")]
         public bool IsWearingTag { get; set; }
@@ -39,19 +36,21 @@ namespace Factory_of_the_Future
         [JsonProperty("craftName")]
         public string CraftName { get; set; } = "";
 
-        [JsonProperty("positionTS")]
-        public DateTime PositionTS { get; set; } = DateTime.MinValue;
+        [JsonProperty("positionTS_txt")]
+        public DateTime PositionTS_txt { get; set; } = DateTime.MinValue;
 
-        [JsonProperty("Tag_TS")]
-        public DateTime TagTS { get; set; } = DateTime.MinValue;
+        [JsonProperty("positionTS")]
+        public long PositionTS { get; set; } = 0;
 
         [JsonProperty("Tag_Type")]
         public string TagType { get; set; } = "";
 
         [JsonProperty("Tag_Update")]
         public bool TagUpdate { get; set; }
+        [JsonProperty("serverTS_txt")]
+        public DateTime ServerTS_txt { get; set; } = DateTime.MinValue;
         [JsonProperty("serverTS")]
-        public DateTime ServerTS { get; set; } = DateTime.MinValue;
+        public long ServerTS { get; set; } = 0;
         public bool isSch { get; set; }
         public bool isTacs { get; set; }
         public bool isePacs { get; set; }
@@ -125,8 +124,9 @@ namespace Factory_of_the_Future
 
         [JsonProperty("locationType")]
         public string LocationType { get; set; } = "";
-        [JsonProperty("lastSeenTS")]
+        [JsonProperty("lastSeenTS_txt")]
         public DateTime LastSeenTS_txt { get; internal set; } = DateTime.MinValue;
+        [JsonProperty("lastSeenTS")]
         public long LastSeenTS { get; internal set; } = 0;
     }
 }

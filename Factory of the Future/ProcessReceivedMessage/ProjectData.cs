@@ -270,7 +270,7 @@ namespace Factory_of_the_Future
                             CraftName = GetCraftName(item.Name),
                             BadgeId = GetBadgeId(item.Name),
                             Color = item.Color,
-                            TagVisible = false,
+                            Visible = false,
                             isPosition = false,
                         }
                     });
@@ -599,7 +599,7 @@ namespace Factory_of_the_Future
                             Lmarker.Properties.Color = locatorsitem.ContainsKey("color") ? locatorsitem["color"].ToString() : "";
                             Lmarker.Properties.TagType = GetTagType(Lmarker.Properties.Name);
                             Lmarker.Geometry = GetQuuppaTagGeometry(locatorsitem["location"]);
-                            Lmarker.Properties.TagVisible = (bool)locatorsitem["visible"];
+                            Lmarker.Properties.Visible = (bool)locatorsitem["visible"];
                             Lmarker.Properties.Source = "other";
                             if (FOTFManager.Instance.CoordinateSystem[csid].Locators.TryAdd(Lmarker.Properties.Id, Lmarker))
                             {

@@ -330,7 +330,7 @@ var staffBtn = L.easyButton({
             '<div class="row staffing-row"><div class="col-sm-6 no-top-border">WorkZone</div><div class="col-sm-6 no-top-border">Schedule</div><div class="col-sm-6 no-bottom-border" id="staffingbutton" style="font-size:1.2vw"></div><div class="col-sm-6 no-bottom-border" id="schstaffingbutton" style="font-size:1.2vw">0</div></div>' ,
         onClick: function (control) {
          
-            Promise.all(showstaffdiv());
+            Promise.all([showstaffdiv()]);
             sidebar.open('reports');
             control.state('closestaffing');
             $('div[id=schstaffingbutton]').text(tagsscheduled);
@@ -342,7 +342,7 @@ var staffBtn = L.easyButton({
             '<div class="row staffing-row"><div class="col-sm-6 no-top-border">WorkZone</div><div class="col-sm-6 no-top-border">Schedule</div><div class="col-sm-6 no-bottom-border" id="staffingbutton" style="font-size:1.2vw"></div><div class="col-sm-6 no-bottom-border" id="schstaffingbutton" style="font-size:1.2vw">0</div></div>',
         onClick: function (control) {
   
-            Promise.all(hideTagdiv());
+            Promise.all([hideTagdiv()]);
             sidebar.close('reports');
             control.state('openstaffing');
             $('div[id=schstaffingbutton]').text(tagsscheduled);

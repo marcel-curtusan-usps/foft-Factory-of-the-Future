@@ -471,7 +471,9 @@ namespace Factory_of_the_Future
                 //jsonResolver.IgnoreProperty(typeof(Marker), "CameraData");
                 jsonResolver.IgnoreProperty(typeof(Marker), "zones");
                 jsonResolver.IgnoreProperty(typeof(Marker), "isWearingTag");
-                jsonResolver.IgnoreProperty(typeof(Marker), "tagVisibleMils");
+                jsonResolver.IgnoreProperty(typeof(Marker), "posAge");
+                jsonResolver.IgnoreProperty(typeof(Marker), "lastSeenTS");
+                jsonResolver.IgnoreProperty(typeof(Marker), "lastSeenTS_txt");
                 jsonResolver.IgnoreProperty(typeof(Marker), "isLdcAlert");
                 jsonResolver.IgnoreProperty(typeof(Marker), "currentLDCs");
                 jsonResolver.IgnoreProperty(typeof(Marker), "Mission");
@@ -484,8 +486,11 @@ namespace Factory_of_the_Future
                 jsonResolver.IgnoreProperty(typeof(Marker), "Vehicle_Status_Data");
                 jsonResolver.IgnoreProperty(typeof(Marker), "positionTS");
                 jsonResolver.IgnoreProperty(typeof(Marker), "movementStatus");
-                jsonResolver.IgnoreProperty(typeof(Marker), "LocationMovementStatus");
+                jsonResolver.IgnoreProperty(typeof(Marker), "locationMovementStatus");
+                jsonResolver.IgnoreProperty(typeof(Marker), "locationType");
+                jsonResolver.IgnoreProperty(typeof(Marker), "notificationId");
                 jsonResolver.IgnoreProperty(typeof(Marker), "ZonesNames");
+                jsonResolver.IgnoreProperty(typeof(Marker), "visible");
                 jsonResolver.IgnoreProperty(typeof(Marker), "tacs");
                 jsonResolver.IgnoreProperty(typeof(Marker), "sels");
                 jsonResolver.IgnoreProperty(typeof(Marker), "base64Image");

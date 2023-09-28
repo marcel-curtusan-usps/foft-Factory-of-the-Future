@@ -1510,13 +1510,12 @@ namespace Factory_of_the_Future
                                 Lmarker.Properties.Id = newVehicleStatus.VEHICLE_MAC_ADDRESS;
                                 Lmarker.Properties.Name = newVehicleStatus.VEHICLE;
                                 Lmarker.Properties.TagType = new GetTagType().Get("AGV");
-                                Lmarker.Properties.TagTS = newVehicleStatus.TIME;
-                                Lmarker.Properties.PositionTS = newVehicleStatus.TIME;
+                                Lmarker.Properties.PositionTS_txt = newVehicleStatus.TIME;
                                 Lmarker.Geometry = GetVehicleGeometry(newVehicleStatus.X_LOCATION, newVehicleStatus.Y_LOCATION);
                                 Lmarker.Properties.Vehicle_Status_Data = newVehicleStatus;
                                 Lmarker.Properties.NotificationId = CheckNotification("", newVehicleStatus.STATE, "vehicle".ToLower(), Lmarker.Properties, Lmarker.Properties.NotificationId);
 
-                                Lmarker.Properties.TagVisible = true;
+                                Lmarker.Properties.Visible = true;
                                 FOTFManager.Instance.BroadcastVehicleTagStatus(Lmarker, cs.Id);
                                 if (!cs.Locators.TryAdd(Lmarker.Properties.Id, Lmarker))
                                 {

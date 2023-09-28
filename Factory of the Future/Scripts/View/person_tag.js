@@ -30,7 +30,7 @@ $.extend(fotfmanager.client, {
 //    myGeoJsonLayerGroup.removeLayer(deletedFeature);
 //}
 
-let markerList = {};
+let markerList = {} ;
 async function init_Peoplelocators(marker, id) {
     $('div[id=staffingbutton]').text(marker.length);
     tagsMarkersGroup.addData(marker);
@@ -45,7 +45,7 @@ async function init_Peoplelocators(marker, id) {
 async function addFeature(data) {
     try {
         if (data.properties.floorId === baselayerid) {
-            $('div[id=staffingbutton]').text(markerList.length);
+            $('div[id=staffingbutton]').text(markerList.lenght);
             tagsMarkersGroup.addData(data);
         }
         return true;
@@ -54,10 +54,24 @@ async function addFeature(data) {
         console.log(e);
     }
 }
-async function updateFeature(data, id) {
+async function updateFeature(data, floorId) {
     try {
-        Promise.all([deleteFeature(data.properties.id)]); // Remove the previously created layer.
-        Promise.all([addFeature(data)]); // Replace it by the new data.
+        if (floorId === baselayerid) {
+            let updateId = markerList[data.properties.id];
+            if (typeof updateId !== 'undefined' && map.hasLayer(updateId)) {
+                tagsMarkersGroup._layers[updateId._leaflet_id].feature = data
+                tagsMarkersGroup._layers[updateId._leaflet_id].slideTo(new L.LatLng(data.geometry.coordinates[1], data.geometry.coordinates[0]), { duration: 2000 });
+
+                markerList[data.properties.id] = tagsMarkersGroup._layers[updateId._leaflet_id]
+
+            }
+            else {
+                Promise.all([addFeature(data)]);
+            }
+        }
+
+        //Promise.all([deleteFeature(data.properties.id)]); // Remove the previously created layer.
+        //Promise.all([addFeature(data)]); // Replace it by the new data.
 
         //if (id === baselayerid) {
         // let layerindex = -0;
@@ -112,13 +126,16 @@ async function updateFeature(data, id) {
     }
 }
 async function deleteFeature(data, id) {
-
-    let delId = markerList[data];
-    if (typeof delId !== 'undefined') {
-     
-        tagsMarkersGroup.removeLayer(delId);
+    try {
+        let delId = markerList[data.properties.id];
+        if (typeof delId !== 'undefined') {
+            tagsMarkersGroup.removeLayer(delId);
+        }
+        $('div[id=staffingbutton]').text(markerList.length);
+    } catch (e) {
+        console.log(e);
     }
-    $('div[id=staffingbutton]').text(markerList.length);
+    
    
     //$.map(map._layers, function (layer, i) {
     //    if (layer.hasOwnProperty("feature") && layer.feature.properties.id === id) {
@@ -126,37 +143,6 @@ async function deleteFeature(data, id) {
     //    }
     //});
 }
-async function MarkerCoordinates(Coordinates, flid, mkid)
-{
-    try {
-        if (flid === baselayerid) {
-            map.whenReady(() => {
-                if (map.hasOwnProperty("_layers")) {
-                    $.map(map._layers, function (layer, i) {
-                        if (layer.hasOwnProperty("markerId") && layer.markerId === mkid) {
-                            layer.feature.geometry = Coordinates;
-                            Promise.all([MarkerCoordinatesUpdate(layer)]);
-                            return false;
-                        }
-                    });
-                }
-            });
-        }
-    } catch (e) {
-        console.log();
-    }
-}
-async function MarkerCoordinatesUpdate(layer)
-{
-    try {
-        let newLatLng = new L.latLng(layer.feature.geometry.coordinates[1], layer.feature.geometry.coordinates[0]);
-        layer.slideTo(newLatLng, { duration: 2000 });
-        return false;
-    } catch (e) {
-        console.log();
-    }
-};
-
 let tagsMarkersGroup = new L.GeoJSON(null, {
     pointToLayer: function (feature, latlng) {
         return new L.circleMarker(latlng, {
@@ -168,21 +154,21 @@ let tagsMarkersGroup = new L.GeoJSON(null, {
     },
     onEachFeature: function (feature, layer) {
         markerList[feature.properties.id] = layer;
-        layer.markerId = feature.properties.id;
-        var VisiblefillOpacity = feature.properties.tagVisibleMils < 80000 ? "" : "tooltip-hidden";
-        var isOT = false;
-        var isOTAuth = false;
-        var classname = 'persontag ' + VisiblefillOpacity;
-        if (feature.properties.tacs != null) {
-            isOT = feature.properties.tacs.isOvertime;
-            isOTAuth = feature.properties.tacs.isOvertimeAuth;
-            if (isOT && isOTAuth) {
-                classname = 'persontag_otAuth ' + VisiblefillOpacity;
-            }
-            else if (isOT && !isOTAuth) {
-                classname = 'persontag_otNotAuth ' + VisiblefillOpacity;
-            }
-        }
+        //layer.markerId = feature.properties.id;
+        //var VisiblefillOpacity = feature.properties.tagVisibleMils < 80000 ? "" : "tooltip-hidden";
+        //var isOT = false;
+        //var isOTAuth = false;
+        let classname = 'persontag ';// + VisiblefillOpacity;
+        //if (feature.properties.tacs != null) {
+        //    isOT = feature.properties.tacs.isOvertime;
+        //    isOTAuth = feature.properties.tacs.isOvertimeAuth;
+        //    if (isOT && isOTAuth) {
+        //        classname = 'persontag_otAuth ' + VisiblefillOpacity;
+        //    }
+        //    else if (isOT && !isOTAuth) {
+        //        classname = 'persontag_otNotAuth ' + VisiblefillOpacity;
+        //    }
+        //}
         layer.on('click', function (e) {
             hidestafftables();
             $('div[id=div_taginfo]').css('display', '');
@@ -204,9 +190,10 @@ let tagsMarkersGroup = new L.GeoJSON(null, {
             //className: 'persontag ' + VisiblefillOpacity
             className: classname
         }).openTooltip();
-    },
+    }
+    ,
     filter: function (feature, layer) {
-        return feature.properties.tagVisible;
+        return feature.properties.visible;
     }
 });
 async function updateTagLocation(layerindex)
@@ -245,14 +232,14 @@ async function updateTagLocation(layerindex)
         }
         //circleMarker._layers[layerindex].feature
 
-        if (tagsMarkersGroup._layers[layerindex].feature.properties.tagVisibleMils > 80000 && tagsMarkersGroup._layers[layerindex].hasOwnProperty("_tooltip") && tagsMarkersGroup._layers[layerindex]._tooltip.hasOwnProperty("_container") &&
+        if (tagsMarkersGroup._layers[layerindex].feature.properties.posAge > 80000 && tagsMarkersGroup._layers[layerindex].hasOwnProperty("_tooltip") && tagsMarkersGroup._layers[layerindex]._tooltip.hasOwnProperty("_container") &&
             !tagsMarkersGroup._layers[layerindex]._tooltip._container.classList.contains('tooltip-hidden')) {
 
             tagsMarkersGroup._layers[layerindex]._tooltip._container.classList.add('tooltip-hidden');
 
         }
 
-        if (tagsMarkersGroup._layers[layerindex].feature.properties.tagVisibleMils < 80000) {
+        if (tagsMarkersGroup._layers[layerindex].feature.properties.posAge < 80000) {
             //if the distance from the current location is more then 10000 meters the do not so the slide to
             let newLatLng = new L.latLng(tagsMarkersGroup._layers[layerindex].feature.geometry[1], tagsMarkersGroup._layers[layerindex].feature.geometry[0]);
 
@@ -275,7 +262,7 @@ async function hideOldTag()
         if (layer.hasOwnProperty("feature") && layer.feature.hasOwnProperty("properties") && /person/i.test(layer.feature.properties.Tag_Type)) {
             let lastseenTS = moment(layer.feature.properties.lastSeenTS);
             let positionTS = moment(layer.feature.properties.positionTS)
-            if (layer.feature.properties.tagVisibleMils > 80000 || layer.feature.properties.locationMovementStatus === "noData") {
+            if (layer.feature.properties.posAge > 80000 || layer.feature.properties.locationMovementStatus === "noData") {
 
                 layer._tooltip._container.classList.add('tooltip-hidden');
             }
@@ -302,9 +289,9 @@ async function staffCounts()
     try {
         let tagsOnWorkfloor = 0;
  
-        $.map(map._layers, function (layer, i) {
+        $.map(tagsMarkersGroup._layers, function (layer, i) {
             if (layer.hasOwnProperty("feature") && layer.feature.hasOwnProperty("properties") && /person/i.test(layer.feature.properties.Tag_Type)
-                && layer.feature.properties.isPosition) {
+                && layer.feature.properties.visible) {
                 tagsOnWorkfloor++;
             }
         });
@@ -322,17 +309,16 @@ async function getStaffInfo() {
     let taglist = [];
     let empType = [];
     let stafftable = [];
-    $.map(map._layers, function (layer, i) {
-        if (layer.hasOwnProperty("feature") && layer.feature.hasOwnProperty("properties") && /person/i.test(layer.feature.properties.Tag_Type)) {
+    $.map(tagsMarkersGroup._layers, function (layer, i) {
+        if (layer.hasOwnProperty("feature") && layer.feature.hasOwnProperty("properties") && /person/i.test(layer.feature.properties.Tag_Type)
+            && layer.feature.properties.visible) {
             taglist.push(layer.feature.properties);
         }
     });
     //find emp type
     $.map(emplschedule, function (list) {
-        if ($.inArray(list.emptype, empType) === -1) {
-            if (!!list.emptype && !/Unknoun/i.test(list.emptype)) {
+        if ($.inArray(list.emptype, empType) === -1 && !/Unknoun/i.test(list.emptype)) {
                 empType.push(list.emptype);
-            }
         }
     });
 

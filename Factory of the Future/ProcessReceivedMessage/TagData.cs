@@ -20,6 +20,7 @@ namespace Factory_of_the_Future
         private bool saveToFile;
         public QuuppaTag tagData = null;
         public bool update;
+        public bool remove;
         public bool Coordinatesupdate;
         public GeoMarker marker = null;
         public bool posiblenewtag;
@@ -35,7 +36,7 @@ namespace Factory_of_the_Future
                     {
                         var watch = new System.Diagnostics.Stopwatch();
                         watch.Start();
-                        _ = new ErrorLogger().CustomLog(string.Concat("Start Execution for all tags in call ", "StartTime: ", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fff") ," ms"),
+                        _ = new ErrorLogger().CustomLog(string.Concat("Start Execution for all tags in call ", "StartTime: ", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fff"), " ms"),
                         string.Concat(AppParameters.AppSettings.APPLICATION_NAME, "TagProcesslogs"));
                         _updateTag = true;
                         saveToFile = true;
@@ -49,101 +50,120 @@ namespace Factory_of_the_Future
                             {
                                 tagData = tempData.ToObject<QuuppaTag>();
 
-                                DateTime dt = AppParameters.UnixTimeStampToDateTime(tagData.ResponseTS);
+                               // DateTime dt = AppParameters.UnixTimeStampToDateTime(tagData.ResponseTS);
                                 foreach (CoordinateSystem cs in FOTFManager.Instance.CoordinateSystem.Values)
                                 {
                                     foreach (Tags qtitem in tagData.Tags)
                                     {
-                                        if (cs.Id == qtitem.LocationCoordSysId)
+                                        qtitem.ServerTS = tagData.ResponseTS;
+                                        update = false;
+                                        remove = true;
+                                        if (cs.Locators.ContainsKey(qtitem.TagId) && cs.Locators.TryGetValue(qtitem.TagId, out GeoMarker currentMarker))
                                         {
-                                            if (cs.Locators.ContainsKey(qtitem.TagId) && cs.Locators.TryGetValue(qtitem.TagId, out GeoMarker currentMarker))
+
+                                            currentMarker.Properties.PositionTS_txt = AppParameters.UnixTimeStampToDateTime(qtitem.LocationTS);
+                                            currentMarker.Properties.PositionTS = qtitem.LocationTS;
+                                            currentMarker.Properties.LastSeenTS_txt = AppParameters.UnixTimeStampToDateTime(qtitem.LastSeenTS);
+                                            currentMarker.Properties.LastSeenTS = qtitem.LastSeenTS;
+                                            currentMarker.Properties.ServerTS_txt = AppParameters.UnixTimeStampToDateTime(qtitem.ServerTS);
+                                            currentMarker.Properties.ServerTS = qtitem.ServerTS;
+                                            currentMarker.Properties.FloorId = qtitem.LocationCoordSysId;
+                                            currentMarker.Properties.posAge = qtitem.ServerTS - qtitem.LocationTS;
+                                            /*currentMarker.Properties.TagVisibleMils = (int)Math.Ceiling(currentMarker.Properties.ServerTS.Subtract(currentMarker.Properties.PositionTS).TotalMilliseconds);*/
+                                            string newLocation = string.Join(",", qtitem.Location);
+                                            string oldLocation = string.Join(",", currentMarker.Geometry.Coordinates);
+                                            if (newLocation != oldLocation)
                                             {
-                                                currentMarker.Properties.PositionTS = AppParameters.UnixTimeStampToDateTime(qtitem.LocationTS);
-                                                currentMarker.Properties.LastSeenTS_txt = AppParameters.UnixTimeStampToDateTime(qtitem.LastSeenTS);
-                                                currentMarker.Properties.LastSeenTS = qtitem.LastSeenTS;
-                                                currentMarker.Properties.TagTS = AppParameters.UnixTimeStampToDateTime(qtitem.LastSeenTS);
-                                                currentMarker.Properties.ServerTS = AppParameters.UnixTimeStampToDateTime(tagData.ResponseTS);
-                                                currentMarker.Properties.FloorId = qtitem.LocationCoordSysId;
-                                                currentMarker.Properties.TagVisibleMils = tagData.ResponseTS - qtitem.LastSeenTS;
-                                                /*currentMarker.Properties.TagVisibleMils = (int)Math.Ceiling(currentMarker.Properties.ServerTS.Subtract(currentMarker.Properties.PositionTS).TotalMilliseconds);*/
-                                                string newLocation = string.Join(",", qtitem.Location);
-                                                string oldLocation = string.Join(",", currentMarker.Geometry.Coordinates);
-                                                if (newLocation != oldLocation)
+                                                if (new Regex("^(noData|hidden)$", RegexOptions.IgnoreCase).IsMatch(qtitem.LocationMovementStatus))
                                                 {
-                                                    currentMarker.Geometry.Coordinates = qtitem.Location;
-                                                    currentMarker.Properties.LocationMovementStatus = "moving";
-                                                    update = true;
-                                                    //if (new Regex("^(stationary|moving)$", RegexOptions.IgnoreCase).IsMatch(qtitem.LocationMovementStatus))
-                                                    //{
-                                                    //    currentMarker.Properties.LocationMovementStatus = "moving";
-                                                    //    currentMarker.Properties.isPosition = true;
-                                                    //    update = true;
-                                                    //}
-                                                    //else
-                                                    //{
-                                                    //    currentMarker.Properties.LocationMovementStatus = qtitem.LocationMovementStatus;
-                                                    //    currentMarker.Properties.isPosition = false;
-                                                    //    update = true;
-                                                    //}
+                                                    currentMarker.Properties.LocationMovementStatus = "noData";
+                                                    currentMarker.Properties.isPosition = false;
+                                                    currentMarker.Properties.Visible = false;
+                                                    update = false;
+                                                    remove = true;
+                                                }
+                                                else if (currentMarker.Properties.posAge > AppParameters.AppSettings.POSITION_MAX_AGE)
+                                                {
+                                                    currentMarker.Properties.LocationMovementStatus = "noData";
+                                                    currentMarker.Properties.isPosition = false;
+                                                    currentMarker.Properties.Visible = false;
+                                                    update = false;
+                                                    remove = true;
                                                 }
                                                 else
                                                 {
-                                                    if (currentMarker.Properties.TagVisibleMils > AppParameters.AppSettings.POSITION_MAX_AGE)
-                                                    {
-                                                        currentMarker.Properties.isPosition = false;
-                                                        currentMarker.Properties.LocationMovementStatus = "noData";
-                                                        if (!currentMarker.Properties.isPosition)
-                                                        {
-                                                            update = true;
-                                                        }
-
-                                                    }
-                                                    else
-                                                    {
-                                                        currentMarker.Properties.LocationMovementStatus = "stationary";
-                                                        update = true;
-                                                    }
+                                                    currentMarker.Geometry.Coordinates = qtitem.Location;
+                                                    currentMarker.Properties.LocationMovementStatus = qtitem.LocationMovementStatus;
+                                                    currentMarker.Properties.isPosition = true;
+                                                    currentMarker.Properties.Visible = true;
+                                                    update = true;
+                                                    remove = false;
                                                 }
-                                                currentMarker.Properties.Zones = qtitem.LocationZoneIds;
-                                                currentMarker.Properties.ZonesNames = qtitem.LocationCoordSysName;
-                                                currentMarker.Properties.LocationType = qtitem.LocationType;
-                                                if (update)
-                                                {
-                                                    currentMarker.Properties.TagUpdate = true;
-                                                    //if (currentMarker.Properties.TagType == "Person")
-                                                    //{
-                                                    //    await Task.Run(() => FOTFManager.Instance.BroadcastPersonTagStatus(currentMarker, qtitem.LocationCoordSysId)).ConfigureAwait(false);
-                                                    //}
-                                                    //else if (currentMarker.Properties.TagType.EndsWith("Vehicle"))
-                                                    //{
-                                                    //    await Task.Run(() => FOTFManager.Instance.BroadcastVehicleTagStatus(currentMarker, qtitem.LocationCoordSysId)).ConfigureAwait(false);
-                                                    //}
-                                                }
-
                                             }
                                             else
                                             {
-                                                AddNewMarkerData(qtitem);
-
+                                                if (new Regex("^(noData)$", RegexOptions.IgnoreCase).IsMatch(qtitem.LocationMovementStatus))
+                                                {
+                                                    currentMarker.Properties.LocationMovementStatus = "noData";
+                                                    currentMarker.Properties.isPosition = false;
+                                                    currentMarker.Properties.Visible = false;
+                                                    update = false;
+                                                    remove = true;
+                                                }
+                                                else if(currentMarker.Properties.posAge > AppParameters.AppSettings.POSITION_MAX_AGE && currentMarker.Properties.Visible)
+                                                {
+                                                    currentMarker.Properties.Visible = false;
+                                                    currentMarker.Properties.isPosition = false;
+                                                    currentMarker.Properties.LocationMovementStatus = "noData";
+                                                    update = false;
+                                                    remove = true;
+                                                }
+                                                else
+                                                {
+                                                    remove = false;
+                                                }
                                             }
+                                            currentMarker.Properties.Zones = qtitem.LocationZoneIds;
+                                            currentMarker.Properties.ZonesNames = qtitem.LocationCoordSysName;
+                                            currentMarker.Properties.LocationType = qtitem.LocationType;
+                                            if (update)
+                                            {
+                                                currentMarker.Properties.TagUpdate = true;
+                                                if (currentMarker.Properties.TagType == "Person")
+                                                {
+                                                    FOTFManager.Instance.BroadcastPersonTagStatus(outputDataFormat(currentMarker), qtitem.LocationCoordSysId);
+                                                }
+                                                else if (currentMarker.Properties.TagType.EndsWith("Vehicle"))
+                                                {
+                                                    FOTFManager.Instance.BroadcastVehicleTagStatus(outputDataFormat(currentMarker), qtitem.LocationCoordSysId);
+                                                }
+                                            }
+                                            if (remove)
+                                            {
+                                                FOTFManager.Instance.BroadcastPersonTagRemove(outputDataFormat(currentMarker), currentMarker.Properties.FloorId);
+                                            }
+
                                         }
-                                    }
-                                     cs.Locators.Where(f => f.Value.Properties.TagType.EndsWith("Person")
-                                    &&  (tagData.ResponseTS - f.Value.Properties.LastSeenTS) > AppParameters.AppSettings.POSITION_MAX_AGE
-                                    ).Select(y => y.Value).ToList().ForEach((m) =>
-                                    {
-                                        m.Properties.isPosition = false;
-                                        m.Properties.TagVisible = false;
-                                        m.Properties.LocationMovementStatus = "noData";
-                                        if (!m.Properties.isPosition)
+                                        else
                                         {
-                                            m.Properties.TagUpdate = true;
-                                            
+                                            AddNewMarkerData(qtitem);
                                         }
-                                    });
+
+                                    }
+                                    cs.Locators.Where(f => f.Value.Properties.TagType.EndsWith("Person")
+                                   && (tagData.ResponseTS - f.Value.Properties.PositionTS) > AppParameters.AppSettings.POSITION_MAX_AGE
+                                   && f.Value.Properties.Visible
+                                   ).Select(y => y.Value).ToList().ForEach((m) =>
+                                   {
+                                       m.Properties.isPosition = false;
+                                       m.Properties.Visible = false;
+                                       m.Properties.LocationMovementStatus = "noData";
+                                       FOTFManager.Instance.BroadcastPersonTagRemove(outputDataFormat(m), m.Properties.FloorId);
+
+                                   });
 
                                 }
-                                FOTFManager.Instance.UpdatePersonTagStatus(new object());
+                                //FOTFManager.Instance.UpdatePersonTagStatus(new object());
                             }
                         }
                         _updateTag = false;
@@ -167,6 +187,62 @@ namespace Factory_of_the_Future
 
         }
 
+        private object outputDataFormat(GeoMarker m)
+        {
+            try
+            {
+                var jsonResolver = new PropertyRenameAndIgnoreSerializerContractResolver();
+
+                jsonResolver.IgnoreProperty(typeof(Marker), "rFId");
+                jsonResolver.IgnoreProperty(typeof(Marker), "color");
+                jsonResolver.IgnoreProperty(typeof(Marker), "isWearingTag");
+                jsonResolver.IgnoreProperty(typeof(Marker), "craftName");
+                jsonResolver.IgnoreProperty(typeof(Marker), "Tag_TS");
+                jsonResolver.IgnoreProperty(typeof(Marker), "Tag_Update");
+                jsonResolver.IgnoreProperty(typeof(Marker), "bdate");
+                jsonResolver.IgnoreProperty(typeof(Marker), "blunch");
+                jsonResolver.IgnoreProperty(typeof(Marker), "edate");
+                jsonResolver.IgnoreProperty(typeof(Marker), "elunch");
+                jsonResolver.IgnoreProperty(typeof(Marker), "empId");
+                jsonResolver.IgnoreProperty(typeof(Marker), "name");
+                jsonResolver.IgnoreProperty(typeof(Marker), "reqDate");
+                jsonResolver.IgnoreProperty(typeof(Marker), "tourNumber");
+                jsonResolver.IgnoreProperty(typeof(Marker), "daysOff");
+                jsonResolver.IgnoreProperty(typeof(Marker), "badgeId");
+                jsonResolver.IgnoreProperty(typeof(Marker), "isLdcAlert");
+                jsonResolver.IgnoreProperty(typeof(Marker), "currentLDCs");
+                jsonResolver.IgnoreProperty(typeof(Marker), "Mission");
+                jsonResolver.IgnoreProperty(typeof(Marker), "Mission");
+                jsonResolver.IgnoreProperty(typeof(Marker), "source");
+                jsonResolver.IgnoreProperty(typeof(Marker), "notificationId");
+                jsonResolver.IgnoreProperty(typeof(Marker), "routePath");
+                jsonResolver.IgnoreProperty(typeof(Marker), "locationMovementStatus");
+                jsonResolver.IgnoreProperty(typeof(Marker), "isWearingTag");
+                jsonResolver.IgnoreProperty(typeof(Marker), "isLdcAlert");
+                jsonResolver.IgnoreProperty(typeof(Marker), "currentLDCs");
+                jsonResolver.IgnoreProperty(typeof(Marker), "Mission");
+                jsonResolver.IgnoreProperty(typeof(Marker), "Tag_TS");
+                jsonResolver.IgnoreProperty(typeof(Marker), "Tag_Update");
+                jsonResolver.IgnoreProperty(typeof(Marker), "Raw_Data");
+                jsonResolver.IgnoreProperty(typeof(Marker), "Camera_Data");
+                jsonResolver.IgnoreProperty(typeof(Marker), "routePath");
+                jsonResolver.IgnoreProperty(typeof(Marker), "DarvisAlerts");
+                jsonResolver.IgnoreProperty(typeof(Marker), "Vehicle_Status_Data");
+                jsonResolver.IgnoreProperty(typeof(Marker), "movementStatus");
+                jsonResolver.IgnoreProperty(typeof(Marker), "tacs");
+                jsonResolver.IgnoreProperty(typeof(Marker), "sels");
+                jsonResolver.IgnoreProperty(typeof(Marker), "base64Image");
+                var serializerSettings = new JsonSerializerSettings();
+                serializerSettings.ContractResolver = jsonResolver;
+                return JToken.Parse(JsonConvert.SerializeObject(m, Formatting.Indented, serializerSettings));
+            }
+            catch (Exception e)
+            {
+                new ErrorLogger().ExceptionLog(e);
+                return null;
+            }
+        }
+
         private void AddNewMarkerData(Tags qtitem)
         {
             try
@@ -183,16 +259,22 @@ namespace Factory_of_the_Future
                             },
                             Properties = new Marker
                             {
-                                Id = !string.IsNullOrEmpty(qtitem.TagId) ? qtitem.TagId : "",
+                                Id = qtitem.TagId,
                                 Name = !string.IsNullOrEmpty(qtitem.TagName) ? qtitem.TagName : "",
-                                PositionTS = AppParameters.UnixTimeStampToDateTime(qtitem.LocationTS),
-                                TagTS = AppParameters.UnixTimeStampToDateTime(qtitem.LocationTS),
+                                PositionTS_txt = AppParameters.UnixTimeStampToDateTime(qtitem.LocationTS),
+                                PositionTS = qtitem.LocationTS,
+                                ServerTS_txt = AppParameters.UnixTimeStampToDateTime(qtitem.ServerTS),
+                                ServerTS = qtitem.ServerTS,
+                                LastSeenTS_txt = AppParameters.UnixTimeStampToDateTime(qtitem.LastSeenTS),
+                                LastSeenTS = qtitem.LastSeenTS,
                                 FloorId = qtitem.LocationCoordSysId,
                                 TagType = new GetTagType().Get(qtitem.TagName),
                                 CraftName = GetCraftName(qtitem.TagName),
                                 BadgeId = GetBadgeId(qtitem.TagName),
                                 Zones = qtitem.LocationZoneIds,
-                                Color = qtitem.Color
+                                Color = qtitem.Color,
+                                posAge = qtitem.ServerTS - qtitem.LastSeenTS,
+
                             }
                         };
                         if (marker.Properties.TagType == "Person" || marker.Properties.TagType == "Locator")
@@ -202,17 +284,16 @@ namespace Factory_of_the_Future
                             marker.Properties.Missison = null;
                             marker.Properties.RoutePath = null;
                         }
-                            marker.Properties.TagVisibleMils = (int)Math.Ceiling(marker.Properties.TagTS.Subtract(marker.Properties.PositionTS).TotalMilliseconds);
                         if (cs.Locators.TryAdd(qtitem.TagId, marker))
                         {
-                            if (marker.Properties.TagType == "Person")
-                            {
-                                FOTFManager.Instance.BroadcastPersonTagStatus(marker, qtitem.LocationCoordSysId);
-                            }
-                            else if (marker.Properties.TagType.EndsWith("Vehicle"))
-                            {
-                               FOTFManager.Instance.BroadcastVehicleTagStatus(marker, qtitem.LocationCoordSysId);
-                            }
+                            //if (marker.Properties.TagType == "Person")
+                            //{
+                            //    FOTFManager.Instance.BroadcastPersonTagStatus(marker, qtitem.LocationCoordSysId);
+                            //}
+                            //else if (marker.Properties.TagType.EndsWith("Vehicle"))
+                            //{
+                            //   FOTFManager.Instance.BroadcastVehicleTagStatus(marker, qtitem.LocationCoordSysId);
+                            //}
                             //update map with new marker.
                         }
                     }

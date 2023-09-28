@@ -37,7 +37,7 @@ namespace Factory_of_the_Future.Models
     {
         [JsonProperty("tagId")]
         public string TagId { get; set; } = "";
-        [JsonProperty("deviceType")]
+        [JsonProperty("deviceType", NullValueHandling = NullValueHandling.Ignore)]
         public string DeviceType { get; set; } = "";
 
         [JsonProperty("tagName", NullValueHandling = NullValueHandling.Ignore)]
@@ -52,22 +52,22 @@ namespace Factory_of_the_Future.Models
         [JsonProperty("color")]
         public string Color { get; set; } = "";
 
-        [JsonProperty("tagGroupName")]
+        [JsonProperty("tagGroupName", NullValueHandling = NullValueHandling.Ignore)]
         public string TagGroupName { get; set; } = "";
 
-        [JsonProperty("locationType")]
+        [JsonProperty("locationType", NullValueHandling = NullValueHandling.Ignore)]
         public string LocationType { get; set; } = "";
 
         [JsonProperty("lastSeenTS", NullValueHandling = NullValueHandling.Ignore)]
         public long LastSeenTS { get; set; } = 0;
 
-        [JsonProperty("locationMovementStatus")]
+        [JsonProperty("locationMovementStatus", NullValueHandling = NullValueHandling.Ignore)]
         public string LocationMovementStatus { get; set; } = "";
 
         [JsonProperty("locationRadius", NullValueHandling = NullValueHandling.Ignore)]
         public double? LocationRadius { get; set; } = 0.0;
 
-        [JsonProperty("location")]
+        [JsonProperty("location", NullValueHandling = NullValueHandling.Ignore)]
         public List<double> Location { get; set; } = new List<double>();
 
         [JsonProperty("locationTS", NullValueHandling = NullValueHandling.Ignore)]
@@ -82,10 +82,10 @@ namespace Factory_of_the_Future.Models
         [JsonProperty("triggerCountTS",NullValueHandling = NullValueHandling.Ignore)]
         public long TriggerCountTS { get; set; } = 0;
 
-        [JsonProperty("locationCoordSysId")]
+        [JsonProperty("locationCoordSysId", NullValueHandling = NullValueHandling.Ignore)]
         public string LocationCoordSysId { get; set; } = "";
 
-        [JsonProperty("locationCoordSysName")]
+        [JsonProperty("locationCoordSysName", NullValueHandling = NullValueHandling.Ignore)]
         public string LocationCoordSysName { get; set; } = "";
 
         [JsonProperty("locationZoneIds", NullValueHandling = NullValueHandling.Ignore)]
@@ -93,6 +93,7 @@ namespace Factory_of_the_Future.Models
 
         [JsonProperty("locationZoneNames", NullValueHandling = NullValueHandling.Ignore)]
         public List<string> LocationZoneNames { get; set; } = new List<string>();
+        public long ServerTS { get; internal set; }
     }
 }
 /* data from quuppa

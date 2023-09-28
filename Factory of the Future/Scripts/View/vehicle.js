@@ -1,43 +1,55 @@
 ﻿/*
 *this is for the Vehicle data load 
 */
-
+let vehicleList = {};
 $.extend(fotfmanager.client, {
     updateVehicleTagStatus: async (vehicleupdate, id) => { Promise.all([updateVehicleTag(vehicleupdate, id)]) }
 });
-async function updateVehicleTag(vehicleupdate, id) {
+async function updateVehicleTag(data, id) {
     try {
         if (id === baselayerid) {
-            let layerindex = -0;
-            map.whenReady(() => {
-                if (map.hasOwnProperty("_layers")) {
-                    $.map(map._layers, function (layer, i) {
-                        if (layer.hasOwnProperty("feature")) {
-                            if (layer.feature.properties.id === vehicleupdate.properties.id) {
-                                layerindex = layer._leaflet_id;
-                                layer.feature.geometry = vehicleupdate.geometry.coordinates;
-                                layer.feature.properties = vehicleupdate.properties;
-                                Promise.all([updateVehicleLocation(layerindex)]);
-                                return false;
-                            }
-                        }
-                    });
-                }
-                if (layerindex !== -0) {
-                    if ($('div[id=vehicle_div]').is(':visible') && $('div[id=vehicle_div]').attr("data-id") === vehicleupdate.properties.id) {
-                        updateVehicleInfo(layerindex);
-                    }
+            let updateId = vehicleList[data.properties.id];
+            if (typeof updateId !== 'undefined') {
+                if (data.properties.Tag_Type === "Vehicle") {
+                   /* piv_vehicles.addData(vehicleupdate);*/
+                    piv_vehicles._layers[updateId._leaflet_id].slideTo(new L.LatLng(data.geometry.coordinates[1], data.geometry.coordinates[0]), { duration: 2000 });
                 }
                 else {
-                    if (vehicleupdate.properties.Tag_Type === "Vehicle") {
-                        piv_vehicles.addData(vehicleupdate);
-                    }
-                    if (vehicleupdate.properties.Tag_Type === "Autonomous Vehicle") {
-                        agv_vehicles.addData(vehicleupdate);
-                    }
+                   /* agv_vehicles.addData(vehicleupdate);*/
+                    piv_vehicles._layers[updateId._leaflet_id].slideTo(new L.LatLng(data.geometry.coordinates[1], data.geometry.coordinates[0]), { duration: 2000 });
                 }
-            });
+            }
         }
+        //let layerindex = -0;
+        //map.whenReady(() => {
+        //    if (map.hasOwnProperty("_layers")) {
+        //        $.map(map._layers, function (layer, i) {
+        //            if (layer.hasOwnProperty("feature")) {
+        //                if (layer.feature.properties.id === vehicleupdate.properties.id) {
+        //                    layerindex = layer._leaflet_id;
+        //                    layer.feature.geometry = vehicleupdate.geometry.coordinates;
+        //                    layer.feature.properties = vehicleupdate.properties;
+        //                    Promise.all([updateVehicleLocation(layerindex)]);
+        //                    return false;
+        //                }
+        //            }
+        //        });
+        //    }
+        //    if (layerindex !== -0) {
+        //        if ($('div[id=vehicle_div]').is(':visible') && $('div[id=vehicle_div]').attr("data-id") === vehicleupdate.properties.id) {
+        //            updateVehicleInfo(layerindex);
+        //        }
+        //    }
+        //    else {
+        //        if (vehicleupdate.properties.Tag_Type === "Vehicle") {
+        //            piv_vehicles.addData(vehicleupdate);
+        //        }
+        //        if (vehicleupdate.properties.Tag_Type === "Autonomous Vehicle") {
+        //            agv_vehicles.addData(vehicleupdate);
+        //        }
+        //    }
+        //});
+
     } catch (e) {
         console.log(e);
     }
@@ -69,6 +81,7 @@ let piv_vehicles = new L.GeoJSON(null, {
         })
     },
     onEachFeature: function (feature, layer) {
+        vehicleList[feature.properties.id] = layer;
         layer.markerId = feature.properties.id;
         let obstructedState = '';
         $zoneSelect[0].selectize.addOption({ value: feature.properties.id, text: feature.properties.name });

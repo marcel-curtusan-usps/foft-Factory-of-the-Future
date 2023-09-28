@@ -83,8 +83,8 @@ namespace Factory_of_the_Future
         private FOTFManager(IHubConnectionContext<dynamic> clients)
         {
             Clients = clients;
-            VehicleTag_timer = new Timer(UpdateVehicleTagStatus, null, _250updateInterval, _250updateInterval);
-           // PersonTag_timer = new Timer(UpdatePersonTagStatus, null, _250updateInterval, _250updateInterval);
+            //VehicleTag_timer = new Timer(UpdateVehicleTagStatus, null, _250updateInterval, _250updateInterval);
+            //PersonTag_timer = new Timer(UpdatePersonTagStatus, null, _250updateInterval, _250updateInterval);
             /////Zone status.
             //Zone_timer = new Timer(UpdateZoneStatus, null, _2000updateInterval, _2000updateInterval);
             ////DockDoor_timer = new Timer(UpdateDockDoorStatus, null, _250updateInterval, _250updateInterval);
@@ -1977,7 +1977,7 @@ namespace Factory_of_the_Future
                 foreach (CoordinateSystem cs in CoordinateSystem.Values)
                 {
                     cs.Locators.Where(f => f.Value.Properties.TagType.EndsWith("Person")
-                        && f.Value.Properties.isPosition
+                        && f.Value.Properties.Visible
                         ).Select(y => y.Value).ToList().ForEach(marker =>
                         {
                             temp.Add(marker);
@@ -2257,7 +2257,7 @@ namespace Factory_of_the_Future
                 }
             }
         }
-        public void BroadcastVehicleTagStatus(GeoMarker marker, string id)
+        public void BroadcastVehicleTagStatus(object marker, string id)
         {
             Clients.Group("VehiclsMarkers").updateVehicleTagStatus(marker, id);
         }
@@ -2273,24 +2273,23 @@ namespace Factory_of_the_Future
                     // watch.Start();
                     foreach (CoordinateSystem cs in CoordinateSystem.Values)
                     {
-                        var marker = cs.Locators.Where(f => f.Value.Properties.TagType.EndsWith("Person")
-                        && f.Value.Properties.TagUpdate
-                        ).Select(y => y.Value).ToList();
-
-                        for (int i = 0; i < marker.Count(); i++)
-                        {
-                            if (!marker[i].Properties.isPosition && marker[i].Properties.TagVisible)
-                            {
-                                BroadcastPersonTagRemove(marker[i], cs.Id);
-                                marker[i].Properties.TagVisible = false;
-                            }
-                            else
-                            {
-                                BroadcastPersonTagStatus(marker[i], cs.Id);
-                                marker[i].Properties.TagVisible = true;
-                            }
-                            marker[i].Properties.TagUpdate = false;
-                        }
+                        cs.Locators.Where(f => f.Value.Properties.TagType.EndsWith("Person")
+                           && f.Value.Properties.TagUpdate
+                           ).Select(y => y.Value).ToList().ForEach(marker => 
+                           {
+                               marker.Properties.TagUpdate = false;
+                               if (!marker.Properties.isPosition && marker.Properties.Visible)
+                               {
+                                   BroadcastPersonTagRemove(marker, cs.Id);
+                                   marker.Properties.Visible = false;
+                               }
+                               else
+                               {
+                                   BroadcastPersonTagStatus(marker, cs.Id);
+                                   marker.Properties.Visible = true;
+                               }
+                               
+                           });
                        
                     }
                     // watch.Stop();
@@ -2299,43 +2298,13 @@ namespace Factory_of_the_Future
                 }
             }
         }
-        private bool TryUpdatePersonTagStatus(GeoMarker marker, double PositionMaxAge)
-        {
-            try
-            {
-                marker.Properties.TagUpdate = false;
-                bool TagVisible = marker.Properties.TagVisible;
-                bool tagUpdate = false;
-                int PositionCurrentAge = AppParameters.Get_TagTTL(marker.Properties.PositionTS, marker.Properties.TagTS);
-                if (PositionCurrentAge >= PositionMaxAge)
-                {
-                    TagVisible = false;
-                }
-                if (PositionCurrentAge <= PositionMaxAge)
-                {
-                    TagVisible = true;
-                    tagUpdate = true;
-                }
-                if (marker.Properties.TagVisible != TagVisible)
-                {
-                    marker.Properties.TagVisible = TagVisible;
-                    tagUpdate = true;
-                }
-                marker.Properties.TagVisibleMils = PositionCurrentAge;
-                return tagUpdate;
-            }
-            catch (Exception e)
-            {
-                new ErrorLogger().ExceptionLog(e);
-                return false;
-            }
-        }
+     
 
-        public void BroadcastPersonTagStatus(GeoMarker Marker, string id)
+        public void BroadcastPersonTagStatus(object Marker, string id)
         {
             Clients.Group("PeopleMarkers").updatePersonTagStatus(Marker, id);
         }
-        public void BroadcastPersonTagRemove(GeoMarker Marker, string id)
+        public void BroadcastPersonTagRemove(object Marker, string id)
         {
             Clients.Group("PeopleMarkers").updatePersonTagRemove(Marker, id);
         }
