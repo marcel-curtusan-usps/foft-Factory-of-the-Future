@@ -21,7 +21,7 @@ namespace Factory_of_the_Future
                 if (!string.IsNullOrEmpty(data))
                 {
                     dynamic appSettingObj = JToken.Parse(data);
-                    if (((Newtonsoft.Json.Linq.JContainer)appSettingObj).HasValues)
+                    if (((JContainer)appSettingObj).HasValues)
                     {
                         foreach (var kv in appSettingObj)
                         {
@@ -35,9 +35,10 @@ namespace Factory_of_the_Future
                                     AppParameters.AppSettings.FACILITY_ID = !string.IsNullOrEmpty(SV_Site_Info.FdbId) ? SV_Site_Info.FdbId : ""; 
                                     AppParameters.AppSettings.FACILITY_ZIP = !string.IsNullOrEmpty(SV_Site_Info.ZipCode) ? SV_Site_Info.ZipCode : ""; 
                                     AppParameters.AppSettings.FACILITY_LKEY = !string.IsNullOrEmpty(SV_Site_Info.ZipCode) ? SV_Site_Info.ZipCode : "";
-                                    Task.Run(() => AppParameters.LoglocationSetup());
-                                    FOTFManager.Instance.CoordinateSystem.Clear();
+                                    Task.Run(() => AppParameters.LoglocationSetup()).ConfigureAwait(false);
+                                    
                                     Task.Run(() => AppParameters.ResetParameters()).ConfigureAwait(false);
+                                    fileUpdate = true;
                                 }
                                 else
                                 {
@@ -46,6 +47,7 @@ namespace Factory_of_the_Future
                                     AppParameters.AppSettings.FACILITY_ID = "";
                                     AppParameters.AppSettings.FACILITY_ZIP = "";
                                     AppParameters.AppSettings.FACILITY_LKEY = "";
+                                    fileUpdate = true;
                                 }
 
                             }
@@ -55,41 +57,45 @@ namespace Factory_of_the_Future
                                 {
                                     AppParameters.AppSettings.LOG_LOCATION = kv.Value;
                                     Task.Run(() => AppParameters.LoglocationSetup());
+                                    fileUpdate = true;
                                 }
                             }
-                            foreach (PropertyInfo prop in AppParameters.AppSettings.GetType().GetProperties())
+                            if (!new Regex("^(LOG_LOCATION|FACILITY_NASS_CODE)$", RegexOptions.IgnoreCase, TimeSpan.FromSeconds(2)).IsMatch(kv.Name))
                             {
-                                if (new Regex("^(" + kv.Name + ")$", RegexOptions.IgnoreCase).IsMatch(prop.Name))
+                                foreach (PropertyInfo prop in AppParameters.AppSettings.GetType().GetProperties())
                                 {
-                                    if (prop.Name.StartsWith("ORACONN"))
+                                    if (new Regex("^(" + kv.Name + ")$", RegexOptions.IgnoreCase).IsMatch(prop.Name))
                                     {
-                                        kv.Value = AppParameters.Encrypt((string)kv.Value);
-                                    }
-                                    if (prop.Name.StartsWith("LOG_API_DATA") || prop.Name.StartsWith("LOCAL_PROJECT_DATA") || prop.Name.StartsWith("REMOTEDB") || prop.Name.StartsWith("SERVER_ACTIVE"))
-                                    {
-                                        if (kv.Value.ToString() == "True")
+                                        if (prop.Name.StartsWith("ORACONN"))
                                         {
-                                            NewValue = true;
+                                            kv.Value = AppParameters.Encrypt((string)kv.Value);
+                                        }
+                                        if (prop.Name.StartsWith("LOG_API_DATA") || prop.Name.StartsWith("LOCAL_PROJECT_DATA") || prop.Name.StartsWith("REMOTEDB") || prop.Name.StartsWith("SERVER_ACTIVE"))
+                                        {
+                                            if (kv.Value.ToString() == "True")
+                                            {
+                                                NewValue = true;
+                                            }
+                                            else
+                                            {
+                                                NewValue = false;
+                                            }
+                                            if (prop.GetValue(AppParameters.AppSettings, null).ToString() != NewValue.ToString())
+                                            {
+                                                prop.SetValue(AppParameters.AppSettings, NewValue);
+                                                fileUpdate = true;
+                                            }
                                         }
                                         else
                                         {
-                                            NewValue = false;
+                                            if (prop.GetValue(AppParameters.AppSettings, null).ToString() != (string)kv.Value)
+                                            {
+                                                prop.SetValue(AppParameters.AppSettings, (string)kv.Value);
+                                                fileUpdate = true;
+                                            }
                                         }
-                                        if (prop.GetValue(AppParameters.AppSettings, null).ToString() != NewValue.ToString())
-                                        {
-                                            prop.SetValue(AppParameters.AppSettings, NewValue);
-                                            fileUpdate = true;
-                                        }
-                                    }
-                                    else
-                                    {
-                                        if (prop.GetValue(AppParameters.AppSettings, null).ToString() != (string)kv.Value)
-                                        {
-                                            prop.SetValue(AppParameters.AppSettings, (string)kv.Value);
-                                            fileUpdate = true;
-                                        }
-                                    }
 
+                                    }
                                 }
                             }
                         }

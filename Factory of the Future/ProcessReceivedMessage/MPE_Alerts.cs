@@ -25,6 +25,7 @@ namespace Factory_of_the_Future.ProcessReceivedMessage
             {
                 if (!string.IsNullOrEmpty(_data))
                 {
+                    _data = _data.Replace("&quot;","'");
                     tempData = JToken.Parse(_data);
                     if (tempData != null && tempData.HasValues)
                     {

@@ -121,7 +121,7 @@ namespace Factory_of_the_Future
                             await Task.Run(() => new MPEWatch_RPGPerf().LoadAsync(_data, _Message_type, _connID)).ConfigureAwait(false);
                             break;
                         case "rpg_plan":
-                            await Task.Run(() => new MPEWatch_RPGPlan().LoadAsync(_data, _Message_type, _connID)).ConfigureAwait(false);
+                            new MPEWatch_RPGPlan().LoadAsync(_data, _Message_type, _connID);
                             break;
                         case "dps_run_estm":
                             await Task.Run(() => new MPEWatch_DPS().LoadAsync(_data, _Message_type, _connID)).ConfigureAwait(false);

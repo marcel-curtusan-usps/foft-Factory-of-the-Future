@@ -134,8 +134,8 @@ namespace Factory_of_the_Future
                          new Load().GetRTLSSites();
                          new Load().GetNotificationDefault();
                         await new Load().LoadTempIndoorapData("Project_Data.json").ConfigureAwait(false);
-                         new Load().GetDoorTripAssociationAsync();
                         await new Load().GetConnectionDefaultAsync().ConfigureAwait(false);
+                        new Load().GetDoorTripAssociationAsync();
                     }).ConfigureAwait(false);
                     
                 }
@@ -414,9 +414,8 @@ namespace Factory_of_the_Future
                 Containers = new ConcurrentDictionary<string, Container>();
                 MissionList = new ConcurrentDictionary<string, Mission>();
                 NotificationList = new ConcurrentDictionary<string, Notification>();
-
-
                 ZoneInfo = new ConcurrentDictionary<string, ZoneInfo>();
+                FOTFManager.Instance.CoordinateSystem.Clear();
                 foreach (Api_Connection conn in RunningConnection.DataConnection)
                 {
                     if (conn.ConnectionInfo.UdpConnection)
@@ -435,12 +434,12 @@ namespace Factory_of_the_Future
                 }
                 //RunningConnection = new ConnectionContainer();
                 //ConnectionList = new ConcurrentDictionary<string, Connection>();
-                //AppSettings.MPE_WATCH_ID = "";
+                AppSettings.MPE_WATCH_ID = "";
 
-                //if (ActiveServer)
-                //{
-                //    Start();
-                //}
+                if (ActiveServer)
+                {
+                _ = Start();
+                }
             }
             catch (Exception e)
             {
