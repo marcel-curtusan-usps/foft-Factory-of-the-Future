@@ -37,7 +37,7 @@ namespace Factory_of_the_Future
             ////start the clean up process
             Task.Run(async delegate
             {
-                await Task.Delay(TimeSpan.FromSeconds(25)).ConfigureAwait(false);
+                await Task.Delay(TimeSpan.FromSeconds(180)).ConfigureAwait(false);
                 BackgroundThread.Start();
             }).ConfigureAwait(false);
         }

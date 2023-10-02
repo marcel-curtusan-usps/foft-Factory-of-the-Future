@@ -67,6 +67,7 @@ namespace Factory_of_the_Future
         public static ConcurrentDictionary<string, NotificationConditions> NotificationConditionsList { get; set; } = new ConcurrentDictionary<string, NotificationConditions>();
         //public static ConcurrentDictionary<string, ADUser> Users { get; set; } = new ConcurrentDictionary<string, ADUser>();
         public static readonly ConnectionMapping<string> _connections = new ConnectionMapping<string>();
+        public static object connectionTypes = new object();
         public static ConnectionContainer RunningConnection { get; set; } = new ConnectionContainer();
         public static Dictionary<string, string> TimeZoneConvert { get; set; } = new Dictionary<string, string>()
         {
@@ -128,16 +129,17 @@ namespace Factory_of_the_Future
                         }
                     }
 
-                  await Task.Run(async () =>
-                    {
-                         new Load().GetMPEWatchSite();
-                         new Load().GetRTLSSites();
-                         new Load().GetNotificationDefault();
-                        await new Load().LoadTempIndoorapData("Project_Data.json").ConfigureAwait(false);
-                        await new Load().GetConnectionDefaultAsync().ConfigureAwait(false);
-                        new Load().GetDoorTripAssociationAsync();
-                    }).ConfigureAwait(false);
-                    
+                    await Task.Run(async () =>
+                      {
+                          new Load().GetMPEWatchSite();
+                          new Load().GetRTLSSites();
+                          new Load().GetNotificationDefault();
+                          new Load().GetConnectionTypes();
+                          await new Load().LoadTempIndoorapData("Project_Data.json").ConfigureAwait(false);
+                          await new Load().GetConnectionDefaultAsync().ConfigureAwait(false);
+                          new Load().GetDoorTripAssociationAsync();
+                      }).ConfigureAwait(false);
+
                 }
             }
             catch (Exception ex)
@@ -188,7 +190,7 @@ namespace Factory_of_the_Future
                 file_content = "";
             }
         }
-       
+ 
         internal static string ConnectionOutPutdata(List<Connection> connections)
         {
             try

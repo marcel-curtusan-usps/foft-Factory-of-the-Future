@@ -58,7 +58,6 @@ namespace Factory_of_the_Future.Models
         public string ORACONNSVSTRING { get; set; } = "";
         public string MPE_WATCH_ID { get; set; } = "";
         public double POSITION_MAX_AGE { get; set; } = 0.0;
-        public string CONNECTIONNAME { get; set; } = "";
         public string SV_TRIP_STATUS { get; set; } = "";
 
         public AppSetting ShallowCopy()

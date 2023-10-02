@@ -1927,6 +1927,8 @@
     <script src="Scripts/View/notification.js"></script>
     <!--Views for API Connection-->
     <script src="Scripts/View/connection.js"></script>
+        <!--Views for Connection type-->
+    <script src="Scripts/View/connectionTypes.js"></script>
     <!--Extra utility functions-->
     <script src="Scripts/View/utils.js"></script>
     <!--Views for bin zone details-->

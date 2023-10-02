@@ -155,10 +155,10 @@ let tagsMarkersGroup = new L.GeoJSON(null, {
     onEachFeature: function (feature, layer) {
         markerList[feature.properties.id] = layer;
         //layer.markerId = feature.properties.id;
-        //var VisiblefillOpacity = feature.properties.tagVisibleMils < 80000 ? "" : "tooltip-hidden";
+        let VisiblefillOpacity = feature.properties.visible ? "" : "tooltip-hidden";
         //var isOT = false;
         //var isOTAuth = false;
-        let classname = 'persontag ';// + VisiblefillOpacity;
+        let classname = 'persontag ' + VisiblefillOpacity;
         //if (feature.properties.tacs != null) {
         //    isOT = feature.properties.tacs.isOvertime;
         //    isOTAuth = feature.properties.tacs.isOvertimeAuth;

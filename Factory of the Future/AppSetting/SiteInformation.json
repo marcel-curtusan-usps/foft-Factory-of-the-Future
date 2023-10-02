@@ -1,0 +1,29 @@
+{
+  "LastupDate": "2023-09-14T06:18:22-04:00",
+  "siteId": "230",
+  "type": "PDC",
+  "name": "RICHMOND VA P&DC",
+  "displayName": "RICHMOND (VA) RPDC",
+  "timeZoneAbbr": "EST1",
+  "financeNumber": "517649",
+  "zipCode": "23150",
+  "areaCode": "1K",
+  "areaName": "Capital Metro",
+  "districtCode": "230",
+  "districtName": "Richmond",
+  "sfasNumber": "1111",
+  "localeKey": "012546",
+  "fdbId": "1450618",
+  "tours": {
+    "siteId": "230",
+    "tour1Start": "22:00",
+    "tour1End": "05:59",
+    "tour2Start": "06:00",
+    "tour2End": "13:59",
+    "tour3Start": "14:00",
+    "tour3End": "21:59",
+    "startingTour": 2,
+    "updtUserId": "j6gk00"
+  },
+  "utcOffset": -4
+}

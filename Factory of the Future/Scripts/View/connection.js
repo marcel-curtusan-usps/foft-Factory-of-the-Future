@@ -1,5 +1,4 @@
-﻿/// <reference path="indoormap.js" />
-$.extend(fotfmanager.client, {
+﻿$.extend(fotfmanager.client, {
     updateQSMStatus: async (Connectionupdate) => { Promise.all([updateConnection(Connectionupdate)]); },
     removeConnection: async (Connectionremove) => { Promise.all([removeConnection(Connectionremove)]); },
     addConnection: async (Connectionadd) => { Promise.all([addConnection(Connectionadd)]); }
@@ -480,26 +479,26 @@ function removeConnectionDataTable(removedata, table) {
         });
     }
 }
-function ConnectionNameLoad(data) {
-    try {
-        let connName = $.parseJSON(data.CONNECTIONNAME);
-        if (!$.isEmptyObject(connName)) {
-            $('<option/>').val("blank").html("").appendTo('#connection_name');
-            $('<option data-messagetype=blank>').val("").html("").appendTo('#message_type');
-            $.each(connName, function (key, value) {
-                $('<option/>').val(this.Name).html(this.Description + " (" + this.Name + ")").appendTo('#connection_name');
-                let name = this.Name;
-                $(this.MessageTypes).each(function (key, value) {
-                    $('<option data-messagetype=' + name + '>').val(this.Code).html(this.Description).appendTo('#message_type');
+//function ConnectionNameLoad(data) {
+//    try {
+//        let connName = $.parseJSON(data.CONNECTIONNAME);
+//        if (!$.isEmptyObject(connName)) {
+//            $('<option/>').val("blank").html("").appendTo('#connection_name');
+//            $('<option data-messagetype=blank>').val("").html("").appendTo('#message_type');
+//            $.each(connName, function (key, value) {
+//                $('<option/>').val(this.Name).html(this.Description + " (" + this.Name + ")").appendTo('#connection_name');
+//                let name = this.Name;
+//                $(this.MessageTypes).each(function (key, value) {
+//                    $('<option data-messagetype=' + name + '>').val(this.Code).html(this.Description).appendTo('#message_type');
 
-                });
-            });
-        };
+//                });
+//            });
+//        };
       
-    } catch (e) {
-        console.log(e);
-    }
-}
+//    } catch (e) {
+//        console.log(e);
+//    }
+//}
 //end table function 
 function Add_Connection() {
     $('div[id="serveripmenu"]').css("display", "");

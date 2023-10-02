@@ -13,6 +13,14 @@
     height: 100%;
 }
 
+td.details-control {
+    background: url('images/details_open.png') no-repeat center center;
+    cursor: pointer;
+}
+
+tr.shown td.details-control {
+    background: url('images/details_close.png') no-repeat center center;
+}
 /**Bootstrap override*/
 .card-body {
     padding: 0.05rem;
@@ -128,10 +136,10 @@
 .leaflet-tooltip.persontag {
     background-color: #3573b1;
     padding: 2px;
-    height: 18px;
-    min-width: 18px;
+    height: 12px;
+    min-width: 12px;
     border: 2px solid #3573b1;
-    border-radius: 9px;
+    border-radius: 6px;
     box-shadow: none;
     font-size: unset;
     font-weight: bold;

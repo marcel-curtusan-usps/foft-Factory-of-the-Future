@@ -90,6 +90,22 @@ namespace Factory_of_the_Future
                 new ErrorLogger().ExceptionLog(e);
             }
         }
+        internal void GetConnectionTypes()
+        {
+            try
+            {
+                string file_content = new FileIO().Read(string.Concat(AppParameters.CodeBase.Parent.FullName.ToString(), AppParameters.Appsetting), "ConnectionType.json");
+
+                if (!string.IsNullOrEmpty(file_content))
+                {
+                  AppParameters.connectionTypes = JsonConvert.DeserializeObject(file_content); 
+                }
+            }
+            catch (Exception e)
+            {
+                new ErrorLogger().ExceptionLog(e);
+            }
+        }
         //internal async Task GetRTLSSites()
         internal void GetRTLSSites()
         {

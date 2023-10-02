@@ -229,6 +229,8 @@
     <Content Include="Content\cssFOTFBundle.css" />
     <Content Include="Content\images\camera-fill.svg" />
     <Content Include="Content\images\camera-video.svg" />
+    <Content Include="Content\images\details_close.png" />
+    <Content Include="Content\images\details_open.png" />
     <Content Include="Content\images\layers-2x.png" />
     <Content Include="Content\images\layers.png" />
     <Content Include="Content\images\loader.png" />
@@ -369,6 +371,7 @@
     <Content Include="Scripts\supportScriptsBundle.min.js">
       <DependentUpon>supportScriptsBundle.js</DependentUpon>
     </Content>
+    <Content Include="Scripts\View\connectionTypes.js" />
     <Content Include="Scripts\View\default.js" />
     <Content Include="Scripts\esm\popper-utils.js" />
     <Content Include="Scripts\esm\popper-utils.min.js" />
@@ -404,6 +407,8 @@
     <Content Include="AppSetting\Connection.json" />
     <Content Include="AppSetting\MPEWatch_Site_List.json" />
     <Content Include="AppSetting\RTLS_Site_List.json" />
+    <Content Include="AppSetting\ConnectionType.json" />
+    <Content Include="AppSetting\SiteInformation.json" />
     <None Include="bundleconfig.json" />
     <None Include="compilerconfig.json" />
     <None Include="compilerconfig.json.defaults">
@@ -627,6 +632,7 @@
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
     <Compile Include="HubManager\ConnectionMapping.cs" />
+    <Compile Include="ProcessReceivedMessage\ConnectionTypes.cs" />
     <Compile Include="Models\DockDoorStatus.cs" />
     <Compile Include="Models\Door_Association_Trips.cs" />
     <Compile Include="Models\TrailerStatus.cs" />

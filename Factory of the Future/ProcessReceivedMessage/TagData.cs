@@ -45,6 +45,10 @@ namespace Factory_of_the_Future
                         _connID = connID;
                         if (_data != null)
                         {
+                            if (AppParameters.AppSettings.LOG_API_DATA)
+                            {
+                                new FileIO().Write(string.Concat(AppParameters.Logdirpath, AppParameters.LogFloder), string.Concat(message_type, DateTime.Now.ToString("yyyyMMdd"), ".txt"), JsonConvert.SerializeObject(_data, Formatting.Indented));
+                            }
                             JToken tempData = JToken.Parse(_data);
                             if (tempData != null && tempData.HasValues)
                             {
@@ -131,16 +135,16 @@ namespace Factory_of_the_Future
                                                 currentMarker.Properties.TagUpdate = true;
                                                 if (currentMarker.Properties.TagType == "Person")
                                                 {
-                                                    FOTFManager.Instance.BroadcastPersonTagStatus(outputDataFormat(currentMarker), qtitem.LocationCoordSysId);
+                                                    FOTFManager.Instance.BroadcastPersonTagStatus(OutputDataFormat(currentMarker), qtitem.LocationCoordSysId);
                                                 }
                                                 else if (currentMarker.Properties.TagType.EndsWith("Vehicle"))
                                                 {
-                                                    FOTFManager.Instance.BroadcastVehicleTagStatus(outputDataFormat(currentMarker), qtitem.LocationCoordSysId);
+                                                    FOTFManager.Instance.BroadcastVehicleTagStatus(OutputDataFormat(currentMarker), qtitem.LocationCoordSysId);
                                                 }
                                             }
                                             if (remove)
                                             {
-                                                FOTFManager.Instance.BroadcastPersonTagRemove(outputDataFormat(currentMarker), currentMarker.Properties.FloorId);
+                                                FOTFManager.Instance.BroadcastPersonTagRemove(OutputDataFormat(currentMarker), currentMarker.Properties.FloorId);
                                             }
 
                                         }
@@ -158,7 +162,7 @@ namespace Factory_of_the_Future
                                        m.Properties.isPosition = false;
                                        m.Properties.Visible = false;
                                        m.Properties.LocationMovementStatus = "noData";
-                                       FOTFManager.Instance.BroadcastPersonTagRemove(outputDataFormat(m), m.Properties.FloorId);
+                                       FOTFManager.Instance.BroadcastPersonTagRemove(OutputDataFormat(m), m.Properties.FloorId);
 
                                    });
 
@@ -187,7 +191,7 @@ namespace Factory_of_the_Future
 
         }
 
-        private object outputDataFormat(GeoMarker m)
+        private object OutputDataFormat(GeoMarker m)
         {
             try
             {

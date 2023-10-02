@@ -113,7 +113,6 @@ $(function () {
          
             //}
         }
-        ConnectionNameLoad($.parseJSON(User.AppSetting));
         if (/^Admin/i.test(User.Role)) {
          
            
@@ -123,44 +122,68 @@ $(function () {
                 tab: '<span class="iconCenter"><i class="pi-iconGearFill"></i></span>',
                 position: 'bottom',
                 pane: '<div class="btn-toolbar" role="toolbar" id="app_setting">' +
-                        '<div id="div_app_settingtable" class="container-fluid">' +
-                            '<div class="card w-100">' +
-                                '<div class="card-header pl-1">' +
-                                    '<h6 class="control-label sectionHeader ml-1 mb-1 d-flex justify-content-between">Workroom/Floor Image</h6>' +
-                                    '<button type="button" class="btn btn-primary float-left mb-2 ml-p5rem" name="addfloorpan">Add Image</button>' +
-                                        '<div class="table-responsive fixedHeader" style="max-height: calc(100vh - 100px); ">' +
-                                        '<h2 class="control-label sectionHeader ml-1 mb-1 d-flex justify-content-between">Loaded Workroom/Floor Image</h2>' +
-                                        '<table class="table table-sm table-hover table-condensed" id="floorplantable" style="border-collapse:collapse;">' +
-                                        '<thead class="thead-dark">' +
-                                        '<tr>' +
-                                        '<th class="row-name"><span class="ml-p25rem">Name</span></th><th class="row-value">Value</th><th class="row-action">Action</th>' +
-                                        '</tr>' +
-                                        '</thead>' +
-                                        '<tbody></tbody>' +
-                                        '</table>' +
-                                    '</div>' +
-                                '</div>' +
-                            '</div>' +
-                    '<div class="card w-100">' +
-                        '<div class="card-header pl-1">' +
-                        '<h6 class="control-label sectionHeader ml-1 mb-1 d-flex justify-content-between">Application Setting</h6>' +
-                            '</div>' +
-                                '<div class="card-body">' +
-                                    '<div class="table-responsive fixedHeader" style="max-height: calc(100vh - 100px); ">' +
-                                        '<table class="tableSettings table-sm table-hover table-condensed" id="app_settingtable" style="border-collapse:collapse;">' +
-                                        '<thead class="thead-dark">' +
-                                        '<tr>' +
-                                        '<th class="row-name"><span class="ml-p25rem">Name</span></th><th class="row-value">ID</th><th class="row-action">Action</th>' +
-                                        '</tr>' +
-                                        '</thead>' +
-                                        '<tbody></tbody>' +
-                                        '</table>' +
-                                    '</div>' +
-                                '</div>' +
-                            '</div >' +
-                        '</div>' +
-                    '</div>' +
-                  '</div>'
+                    '<div id="div_app_settingtable" class="container-fluid">'
+                    + '<div class="card w-100">'
+                    + '  <div class="card-header pl-1 d-flex justify-content-between">'
+                    + '   <h6 class="control-label sectionHeader ml-1 mb-1 d-flex justify-content-between">Site Info</h6>'
+                    + ' </div>'
+                    + '<div class="card-body">'
+                    + ' <div class="table-responsive fixedHeader">'
+                    + ' <table class="table table-sm table-hover table-condensed" id="siteConfigtable" style="border-collapse:collapse;">'
+                    + '  <thead class="thead-dark">'
+                    + '   <tbody>'
+                    + '   </tbody>'
+                    + '  </table>'
+                    + '</div>'
+                    + '</div>'
+                    + '</div>'
+                    + '<div class="card w-100">'
+                    + '  <div class="card-header pl-1 d-flex justify-content-between">'
+                    + '   <h6 class="control-label sectionHeader ml-1 mb-1 d-flex justify-content-between">Application Setting</h6>'
+                    + ' </div>'
+                    + '<div class="card-body">'
+                    + ' <div class="table-responsive fixedHeader">'
+                    + ' <table class="table table-sm table-hover table-condensed" id="app_settingtable" style="border-collapse:collapse;">'
+                    + '  <thead class="thead-dark">'
+                    + '   <tbody>'
+                    + '   </tbody>'
+                    + '  </table>'
+                    + '</div>'
+                    + '</div>'
+                    + '</div>'
+                    + ' <div class="card w-100" >'
+                    + ' <div class="card-header pl-1 d-flex justify-content-between">'
+                    + '   <h6 class="control-label sectionHeader ml-1 mb-1 d-flex justify-content-between">Loaded Workroom/Floor Image</h6>'
+                    + '   <button type="button" class="btn btn-primary btn-sm float-left mb-2 ml-p5rem" name="addfloorpan">Add</button>'
+                    + ' </div>'
+                    + ' <div class="table-responsive fixedHeader">'
+                    + '   <table class="table table-sm table-hover table-condensed" id="backgroundimagetable" style="border-collapse:collapse;">'
+                    + '      <thead class="thead-dark">'
+                    + '      <tbody>'
+                    + '      </tbody>'
+                    + '   </table>'
+                    + '   </div>'
+                    + ' </div>'
+                    + ' </div>'
+                    + '<div class="card w-100">'
+                    + ' <div class="card-header pl-1 d-flex justify-content-between">'
+                    + '     <h6 class="control-label sectionHeader ml-1 mb-1 d-flex justify-content-between">Connection Type</h6>'
+                    + '     <button type="button" class="btn btn-primary btn-sm float-left mb-2 ml-p5rem" name="addConnectionType">Add</button>'
+                    + '  </div>'
+                    + '  <div>'
+                    + '  <div class="card-body">'
+                    + '  <div class="table-responsive fixedHeader">'
+                    + '  <table class="table table-sm table-hover table-condensed" id="connectiontypetable" style="border-collapse:collapse;">'
+                    + '   <thead class="thead-dark">'
+                    + '   </thead>'
+                    + '  <tbody>'
+                    + '  </tbody>'
+                    + '  </table>'
+                    + ' </div>'
+                    + ' </div>'
+                    + '  </div>'
+                    + '</div>'
+                    + ' </div>'
             });
             init_AppSetting($.parseJSON(User.AppSetting));
             init_Foolplan();
@@ -235,32 +258,19 @@ $(function () {
             });
         },
         floorLocators: async (Locatorsdata) => {
-            //$.each(Locatorsdata, function (_index, data) {
-            //    if (data) {
             Promise.all([init_locators(Locatorsdata, baselayerid)]);
-            //    }
-            //});
         },
         floorCameraMarkers: async (Cameradata) => {
-            //$.each(Locatorsdata, function (_index, data) {
-            //    if (data) {
             Promise.all([init_Cameradatalocators(Cameradata, baselayerid)]);
-            //    }
-            //});
         },
         floorVehiclesMarkers: async (Vehiclesdata) => {
-            //$.each(Vehiclesdata, function (_index, data) {
-            //    if (data) {
             Promise.all([init_VehiclesMarkers(Vehiclesdata, baselayerid)]);
-            //    }
-            //});
         },
         floorPeopleMarkers: async (Peopledata) => {
-            //$.each(Peopledata, function (_index, data) {
-            //    if (data) {
             Promise.all([init_Peoplelocators(Peopledata, baselayerid)]);
-            //    }
-            //});
+        },
+        connectionType: async (data) => {
+            Promise.all([init_connectiontType(data)]);
         }
     });
   

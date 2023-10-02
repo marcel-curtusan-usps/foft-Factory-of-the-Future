@@ -37,6 +37,17 @@ namespace Factory_of_the_Future
             return new ApplicationSetting().EditAppSetting(data);
 
         }
+        public object GetConnectionTypes()
+        {
+            return new ConnectionTypes().Get();
+        }
+
+
+        public object EditConnectionTypes(string data)
+        {
+            return new ConnectionTypes().Edit(data);
+
+        }
 
         public IEnumerable<BackgroundImage> GetFloorPlanData()
         {
@@ -311,6 +322,8 @@ namespace Factory_of_the_Future
                 Clients.Caller.floorCameraMarkers(_managerHub.GetIndoorMapCameratag());
                 Clients.Caller.floorPeopleMarkers(_managerHub.GetIndoorMapPersontag());
                 Clients.Caller.floorVehiclesMarkers(_managerHub.GetIndoorMapVehicletag());
+
+                Clients.Caller.connectionType(new ConnectionTypes().Get());
             }
             Task.Run(() => new ErrorLogger().CustomLog(string.Concat(" Client Connected. User ID:"), string.Concat(AppParameters.AppSettings.APPLICATION_NAME, "_Applogs"))).ConfigureAwait(false);
 

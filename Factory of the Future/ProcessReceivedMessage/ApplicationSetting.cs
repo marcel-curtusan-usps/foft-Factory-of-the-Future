@@ -30,7 +30,7 @@ namespace Factory_of_the_Future
                                 SV_Site_Info SV_Site_Info = new Get_Site_Info().Get_Info((string)kv.Value);
                                 if (SV_Site_Info != null)
                                 {
-                                    kv.Value = SV_Site_Info.SiteId;
+                                    AppParameters.AppSettings.FACILITY_NASS_CODE = SV_Site_Info.SiteId;
                                     AppParameters.AppSettings.FACILITY_NAME = SV_Site_Info.DisplayName;
                                     AppParameters.AppSettings.FACILITY_ID = !string.IsNullOrEmpty(SV_Site_Info.FdbId) ? SV_Site_Info.FdbId : ""; 
                                     AppParameters.AppSettings.FACILITY_ZIP = !string.IsNullOrEmpty(SV_Site_Info.ZipCode) ? SV_Site_Info.ZipCode : ""; 
@@ -44,6 +44,7 @@ namespace Factory_of_the_Future
                                 {
                                     kv.Value = "";
                                     AppParameters.AppSettings.FACILITY_NAME = "Site Not Found";
+                                    AppParameters.AppSettings.FACILITY_NASS_CODE = "";
                                     AppParameters.AppSettings.FACILITY_ID = "";
                                     AppParameters.AppSettings.FACILITY_ZIP = "";
                                     AppParameters.AppSettings.FACILITY_LKEY = "";
