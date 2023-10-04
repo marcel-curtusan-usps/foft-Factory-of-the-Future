@@ -24,7 +24,7 @@ namespace Factory_of_the_Future
             // Start receive datagrams
             Conn.Status = "Running";
             Conn.ActiveConnection = true;
-            Task.Run(() => FOTFManager.Instance.BroadcastQSMUpdate(Conn)).ConfigureAwait(false);
+            _ = Task.Run(() => FOTFManager.Instance.BroadcastQSMUpdate(Conn)).ConfigureAwait(false);
             ReceiveAsync();
         }
 
@@ -422,13 +422,13 @@ namespace Factory_of_the_Future
             if (ConnectionInfo.Status != "Running")
             {
                 ConnectionInfo.Status = "Running";
-                Task.Run(() => FOTFManager.Instance.BroadcastQSMUpdate(ConnectionInfo)).ConfigureAwait(false);
+                _ = Task.Run(() => FOTFManager.Instance.BroadcastQSMUpdate(ConnectionInfo)).ConfigureAwait(false);
                
             }
         
             try
             {
-                NASS_CODE = AppParameters.AppSettings.FACILITY_NASS_CODE;
+                NASS_CODE = AppParameters.SiteInfo.SiteId;
 
                 requestBody = new JObject();
                 DateTime dtNow = DateTime.Now;
@@ -448,13 +448,13 @@ namespace Factory_of_the_Future
 
                     }
                 }
-                if (!string.IsNullOrEmpty(AppParameters.AppSettings.FACILITY_ID))
+                if (!string.IsNullOrEmpty(AppParameters.SiteInfo.FdbId))
                 {
-                    fdb = AppParameters.AppSettings.FACILITY_ID;
+                    fdb = AppParameters.SiteInfo.FdbId;
                 }
-                if (!string.IsNullOrEmpty(AppParameters.AppSettings.FACILITY_LKEY))
+                if (!string.IsNullOrEmpty(AppParameters.SiteInfo.LocaleKey))
                 {
-                    lkey = AppParameters.AppSettings.FACILITY_LKEY;
+                    lkey = AppParameters.SiteInfo.LocaleKey;
                 }
                 if (ConnectionInfo.ConnectionName.ToUpper().StartsWith("MPEWatch".ToUpper()))
                 {

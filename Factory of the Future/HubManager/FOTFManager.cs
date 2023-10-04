@@ -10,6 +10,7 @@ using System.Linq;
 using System.Management;
 using System.Net.Http;
 using System.Reflection;
+using System.Runtime.InteropServices.ComTypes;
 using System.Runtime.InteropServices.WindowsRuntime;
 using System.Security.Policy;
 using System.Text.RegularExpressions;
@@ -84,7 +85,7 @@ namespace Factory_of_the_Future
         {
             Clients = clients;
             //VehicleTag_timer = new Timer(UpdateVehicleTagStatus, null, _250updateInterval, _250updateInterval);
-            //PersonTag_timer = new Timer(UpdatePersonTagStatus, null, _250updateInterval, _250updateInterval);
+            PersonTag_timer = new Timer(UpdatePersonTagStatus, null, _250updateInterval, _250updateInterval);
             /////Zone status.
             //Zone_timer = new Timer(UpdateZoneStatus, null, _2000updateInterval, _2000updateInterval);
             ////DockDoor_timer = new Timer(UpdateDockDoorStatus, null, _250updateInterval, _250updateInterval);
@@ -2268,29 +2269,25 @@ namespace Factory_of_the_Future
                 if (!_updatePersonTagStatus)
                 {
                     _updatePersonTagStatus = true;
-                    DateTime dt = DateTime.Now;
+                    long dt = new DateTimeOffset(DateTime.Now.ToUniversalTime()).ToUnixTimeMilliseconds();
                     //  var watch = new System.Diagnostics.Stopwatch();
                     // watch.Start();
                     foreach (CoordinateSystem cs in CoordinateSystem.Values)
                     {
                         cs.Locators.Where(f => f.Value.Properties.TagType.EndsWith("Person")
-                           && f.Value.Properties.TagUpdate
-                           ).Select(y => y.Value).ToList().ForEach(marker => 
-                           {
-                               marker.Properties.TagUpdate = false;
-                               if (!marker.Properties.isPosition && marker.Properties.Visible)
-                               {
-                                   BroadcastPersonTagRemove(marker, cs.Id);
-                                   marker.Properties.Visible = false;
-                               }
-                               else
-                               {
-                                   BroadcastPersonTagStatus(marker, cs.Id);
-                                   marker.Properties.Visible = true;
-                               }
-                               
-                           });
-                       
+                             && (dt - f.Value.Properties.PositionTS) > AppParameters.AppSettings.TAG_TIMEOUTMILS
+                             && f.Value.Properties.Visible
+                             ).Select(y => y.Value).ToList().ForEach((m) =>
+                             {
+                                 m.Properties.isPosition = false;
+                                 m.Properties.posAge = 0;
+                                 m.Properties.Visible = false;
+                                 m.Properties.LocationMovementStatus = "noData";
+                                 FOTFManager.Instance.BroadcastPersonTagRemove(m.Properties.Id, m.Properties.FloorId);
+
+                             });
+
+
                     }
                     // watch.Stop();
                     // new ErrorLogger().CustomLog(string.Concat("Total Execution for all tags ", "Time: ", watch.ElapsedMilliseconds, " ms"), string.Concat((string)AppParameters.AppSettings.Property("APPLICATION_NAME").Value, "TagProcesslogs"));

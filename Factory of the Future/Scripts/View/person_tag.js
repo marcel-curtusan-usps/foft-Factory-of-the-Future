@@ -60,7 +60,7 @@ async function updateFeature(data, floorId) {
             let updateId = markerList[data.properties.id];
             if (typeof updateId !== 'undefined' && map.hasLayer(updateId)) {
                 tagsMarkersGroup._layers[updateId._leaflet_id].feature = data
-                tagsMarkersGroup._layers[updateId._leaflet_id].slideTo(new L.LatLng(data.geometry.coordinates[1], data.geometry.coordinates[0]), { duration: 2000 });
+                tagsMarkersGroup._layers[updateId._leaflet_id].slideTo(new L.LatLng(data.geometry.coordinates[1], data.geometry.coordinates[0]), { duration: 10000 });
 
                 markerList[data.properties.id] = tagsMarkersGroup._layers[updateId._leaflet_id]
 
@@ -125,9 +125,9 @@ async function updateFeature(data, floorId) {
         console.log(e);
     }
 }
-async function deleteFeature(data, id) {
+async function deleteFeature(id, floorId) {
     try {
-        let delId = markerList[data.properties.id];
+        let delId = markerList[id];
         if (typeof delId !== 'undefined') {
             tagsMarkersGroup.removeLayer(delId);
         }
@@ -158,7 +158,7 @@ let tagsMarkersGroup = new L.GeoJSON(null, {
         let VisiblefillOpacity = feature.properties.visible ? "" : "tooltip-hidden";
         //var isOT = false;
         //var isOTAuth = false;
-        let classname = 'persontag ' + VisiblefillOpacity;
+        let classname = getmarkerType(feature.properties.craftName) + VisiblefillOpacity;
         //if (feature.properties.tacs != null) {
         //    isOT = feature.properties.tacs.isOvertime;
         //    isOTAuth = feature.properties.tacs.isOvertimeAuth;
@@ -196,6 +196,32 @@ let tagsMarkersGroup = new L.GeoJSON(null, {
         return feature.properties.visible;
     }
 });
+function getmarkerType(type) {
+    try {
+        if (/supervisor/.test(type)) {
+            return 'persontag_supervisor ';
+        }
+        else if (/maintenance/.test(type)) {
+            return 'persontag_maintenance ';
+        }
+        else if (/pse/.test(type)) {
+            return 'persontag_pse ';
+        }
+        else if (/inplantsupport/.test(type)) {
+            return 'persontag_inplantsupport ';
+        }
+        else if (/(clerk|mailhandler)/.test(type)) {
+            return 'persontag ';
+        }
+        else {
+            return 'persontag_unknown ';
+        }
+
+    } catch (e) {
+        return 'persontag ';
+    }
+   
+}
 async function updateTagLocation(layerindex)
 {
     try {

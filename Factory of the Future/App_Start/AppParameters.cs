@@ -28,8 +28,9 @@ namespace Factory_of_the_Future
         public static string LogFloder { get; set; } = @"\Log";
         public static string Images { get; set; } = @"\Images";
         public static string ORAQuery { get; set; } = @"\OracleQuery";
-        public static AppSetting AppSettings { get; set; }
-       // public static JObject AppSettings { get; set; } = new JObject();
+        public static AppSetting AppSettings { get; set; } = null;
+        public static SV_Site_Info SiteInfo { get; set; } = null;
+        // public static JObject AppSettings { get; set; } = new JObject();
         public static string ApplicationEnvironment { get; set; } = string.Empty;
         public static string HWSerialNumber { get; set; } = string.Empty;
         public static string VersionInfo { get; set; } = string.Empty;
@@ -94,7 +95,7 @@ namespace Factory_of_the_Future
 
                 NoImage = "data:image/jpeg;base64," + ImageToByteArray("NoImageFeed.jpg");
                 // Load app settings and data asynchronously
-                if (GetAppSettings())
+                if (GetSiteInformation() && GetAppSettings())
                 {
 
                     if (string.IsNullOrEmpty(ApplicationEnvironment))
@@ -152,7 +153,7 @@ namespace Factory_of_the_Future
 
         private static bool GetAppSettings()
         {
-            string file_content = "";
+            string file_content = string.Empty;
             try
             {
                 file_content = new FileIO().Read(string.Concat(CodeBase.Parent.FullName.ToString(), Appsetting), "AppSettings.json");
@@ -187,10 +188,36 @@ namespace Factory_of_the_Future
             }
             finally 
             {
-                file_content = "";
+                file_content = string.Empty;
             }
         }
- 
+        private static bool GetSiteInformation()
+        {
+            string file_content;
+            try
+            {
+                
+                file_content = new FileIO().Read(string.Concat(CodeBase.Parent.FullName.ToString(), Appsetting), "SiteInformation.json");
+
+                if (!string.IsNullOrEmpty(file_content))
+                {
+                    SiteInfo = JsonConvert.DeserializeObject<SV_Site_Info>(file_content);
+
+                    return true;
+                }
+                else
+                {
+                    return false;
+                }
+
+            }
+            catch (Exception e)
+            {
+                new ErrorLogger().ExceptionLog(e);
+                return false;
+            }
+        }
+
         internal static string ConnectionOutPutdata(List<Connection> connections)
         {
             try
@@ -224,10 +251,10 @@ namespace Factory_of_the_Future
                         DirectoryInfo appDir = new DirectoryInfo(string.Concat(rootDir.ToString(), AppSettings.APPLICATION_NAME));
                         if (appDir.Exists)
                         {
-                            if (!string.IsNullOrEmpty(AppSettings.FACILITY_NASS_CODE))
+                            if (!string.IsNullOrEmpty(SiteInfo.SiteId))
                             {
 
-                                DirectoryInfo siteDir = new DirectoryInfo(string.Concat(appDir.ToString(), @"\", AppSettings.FACILITY_NASS_CODE));
+                                DirectoryInfo siteDir = new DirectoryInfo(string.Concat(appDir.ToString(), @"\", SiteInfo.SiteId));
                                 if (siteDir.Exists)
                                 {
                                     Logdirpath = siteDir;

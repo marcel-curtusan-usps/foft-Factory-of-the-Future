@@ -86,11 +86,12 @@ namespace Factory_of_the_Future
                                                     update = false;
                                                     remove = true;
                                                 }
-                                                else if (currentMarker.Properties.posAge > AppParameters.AppSettings.POSITION_MAX_AGE)
+                                                else if (currentMarker.Properties.posAge > AppParameters.AppSettings.TAG_TIMEOUTMILS)
                                                 {
                                                     currentMarker.Properties.LocationMovementStatus = "noData";
                                                     currentMarker.Properties.isPosition = false;
                                                     currentMarker.Properties.Visible = false;
+                                                    currentMarker.Properties.posAge = 0;
                                                     update = false;
                                                     remove = true;
                                                 }
@@ -106,19 +107,22 @@ namespace Factory_of_the_Future
                                             }
                                             else
                                             {
-                                                if (new Regex("^(noData)$", RegexOptions.IgnoreCase).IsMatch(qtitem.LocationMovementStatus))
+                                                //if (new Regex("^(noData)$", RegexOptions.IgnoreCase).IsMatch(qtitem.LocationMovementStatus))
+                                                //{
+                                                //    currentMarker.Properties.LocationMovementStatus = "noData";
+                                                //    currentMarker.Properties.isPosition = false;
+                                                //    currentMarker.Properties.Visible = false;
+                                                //    update = false;
+                                                //    remove = true;
+                                                //}
+                                                //else
+                                                
+                                                if(currentMarker.Properties.posAge > AppParameters.AppSettings.TAG_TIMEOUTMILS)
                                                 {
-                                                    currentMarker.Properties.LocationMovementStatus = "noData";
-                                                    currentMarker.Properties.isPosition = false;
-                                                    currentMarker.Properties.Visible = false;
-                                                    update = false;
-                                                    remove = true;
-                                                }
-                                                else if(currentMarker.Properties.posAge > AppParameters.AppSettings.POSITION_MAX_AGE && currentMarker.Properties.Visible)
-                                                {
                                                     currentMarker.Properties.Visible = false;
                                                     currentMarker.Properties.isPosition = false;
                                                     currentMarker.Properties.LocationMovementStatus = "noData";
+                                                    currentMarker.Properties.posAge = 0;
                                                     update = false;
                                                     remove = true;
                                                 }
@@ -144,7 +148,7 @@ namespace Factory_of_the_Future
                                             }
                                             if (remove)
                                             {
-                                                FOTFManager.Instance.BroadcastPersonTagRemove(OutputDataFormat(currentMarker), currentMarker.Properties.FloorId);
+                                                FOTFManager.Instance.BroadcastPersonTagRemove(currentMarker.Properties.Id, currentMarker.Properties.FloorId);
                                             }
 
                                         }
@@ -154,18 +158,7 @@ namespace Factory_of_the_Future
                                         }
 
                                     }
-                                    cs.Locators.Where(f => f.Value.Properties.TagType.EndsWith("Person")
-                                   && (tagData.ResponseTS - f.Value.Properties.PositionTS) > AppParameters.AppSettings.POSITION_MAX_AGE
-                                   && f.Value.Properties.Visible
-                                   ).Select(y => y.Value).ToList().ForEach((m) =>
-                                   {
-                                       m.Properties.isPosition = false;
-                                       m.Properties.Visible = false;
-                                       m.Properties.LocationMovementStatus = "noData";
-                                       FOTFManager.Instance.BroadcastPersonTagRemove(OutputDataFormat(m), m.Properties.FloorId);
-
-                                   });
-
+                              
                                 }
                                 //FOTFManager.Instance.UpdatePersonTagStatus(new object());
                             }
@@ -200,7 +193,7 @@ namespace Factory_of_the_Future
                 jsonResolver.IgnoreProperty(typeof(Marker), "rFId");
                 jsonResolver.IgnoreProperty(typeof(Marker), "color");
                 jsonResolver.IgnoreProperty(typeof(Marker), "isWearingTag");
-                jsonResolver.IgnoreProperty(typeof(Marker), "craftName");
+               // jsonResolver.IgnoreProperty(typeof(Marker), "craftName");
                 jsonResolver.IgnoreProperty(typeof(Marker), "Tag_TS");
                 jsonResolver.IgnoreProperty(typeof(Marker), "Tag_Update");
                 jsonResolver.IgnoreProperty(typeof(Marker), "bdate");

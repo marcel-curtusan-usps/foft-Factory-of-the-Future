@@ -12,11 +12,11 @@ async function updateVehicleTag(data, id) {
             if (typeof updateId !== 'undefined') {
                 if (data.properties.Tag_Type === "Vehicle") {
                    /* piv_vehicles.addData(vehicleupdate);*/
-                    piv_vehicles._layers[updateId._leaflet_id].slideTo(new L.LatLng(data.geometry.coordinates[1], data.geometry.coordinates[0]), { duration: 2000 });
+                    piv_vehicles._layers[updateId._leaflet_id].slideTo(new L.LatLng(data.geometry.coordinates[1], data.geometry.coordinates[0]), { duration: 10000 });
                 }
                 else {
                    /* agv_vehicles.addData(vehicleupdate);*/
-                    piv_vehicles._layers[updateId._leaflet_id].slideTo(new L.LatLng(data.geometry.coordinates[1], data.geometry.coordinates[0]), { duration: 2000 });
+                    piv_vehicles._layers[updateId._leaflet_id].slideTo(new L.LatLng(data.geometry.coordinates[1], data.geometry.coordinates[0]), { duration: 10000 });
                 }
             }
         }

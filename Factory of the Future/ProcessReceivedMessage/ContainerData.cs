@@ -38,7 +38,7 @@ namespace Factory_of_the_Future
                     Containers = JsonConvert.DeserializeObject<List<Container>>(Data);
                     if (Containers.Count > 0)
                     {
-                        string siteId = AppParameters.AppSettings.FACILITY_NASS_CODE;
+                        string siteId = AppParameters.SiteInfo.SiteId;
 
                         foreach (Container d in Containers)
                         {

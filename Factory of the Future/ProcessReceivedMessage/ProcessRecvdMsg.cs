@@ -105,7 +105,7 @@ namespace Factory_of_the_Future
                         case "MISSIONCANCELED":
                             if (!_data.ContainsKey("NASS_CODE"))
                             {
-                                _data["NASS_CODE"] = AppParameters.AppSettings.FACILITY_NASS_CODE;
+                                _data["NASS_CODE"] = AppParameters.SiteInfo.SiteId;
                             }
                             ERRORWITHWORK(_data);
                             break;
@@ -946,7 +946,7 @@ namespace Factory_of_the_Future
             try
             {
 
-                if (data.ContainsKey("NASS_CODE") && (string)data["NASS_CODE"] == AppParameters.AppSettings.FACILITY_NASS_CODE)
+                if (data.ContainsKey("NASS_CODE") && (string)data["NASS_CODE"] == AppParameters.SiteInfo.SiteId)
                 {
 
                     Mission tempMission = data.ToObject<Mission>(new JsonSerializer { NullValueHandling = NullValueHandling.Ignore });
@@ -1031,7 +1031,7 @@ namespace Factory_of_the_Future
         {
             try
             {
-                if (data.ContainsKey("NASS_CODE") && (string)data["NASS_CODE"] == AppParameters.AppSettings.FACILITY_NASS_CODE)
+                if (data.ContainsKey("NASS_CODE") && (string)data["NASS_CODE"] == AppParameters.SiteInfo.SiteId)
                 {
                     if (data.ContainsKey("VEHICLE"))
                     {
@@ -1075,7 +1075,7 @@ namespace Factory_of_the_Future
         {
             try
             {
-                if (data.ContainsKey("NASS_CODE") && (string)data["NASS_CODE"] == AppParameters.AppSettings.FACILITY_NASS_CODE)
+                if (data.ContainsKey("NASS_CODE") && (string)data["NASS_CODE"] == AppParameters.SiteInfo.SiteId)
                 {
                     Mission tempMission = data.ToObject<Mission>(new JsonSerializer { NullValueHandling = NullValueHandling.Ignore });
                     tempMission.MISSIONDROPOFFTIME = (DateTime)data["time".ToUpper()];
@@ -1163,7 +1163,7 @@ namespace Factory_of_the_Future
         {
             try
             {
-                if (data.ContainsKey("NASS_CODE") && (string)data["NASS_CODE"] == AppParameters.AppSettings.FACILITY_NASS_CODE)
+                if (data.ContainsKey("NASS_CODE") && (string)data["NASS_CODE"] == AppParameters.SiteInfo.SiteId)
                 {
                     Mission tempMission = data.ToObject<Mission>(new JsonSerializer { NullValueHandling = NullValueHandling.Ignore });
                     tempMission.MISSIONPICKUPTIME = (DateTime)data["time".ToUpper()];
@@ -1260,7 +1260,7 @@ namespace Factory_of_the_Future
         {
             try
             {
-                if (data.ContainsKey("NASS_CODE") && (string)data["NASS_CODE"] == AppParameters.AppSettings.FACILITY_NASS_CODE)
+                if (data.ContainsKey("NASS_CODE") && (string)data["NASS_CODE"] == AppParameters.SiteInfo.SiteId)
                 {
                     Mission tempMission = data.ToObject<Mission>(new JsonSerializer { NullValueHandling = NullValueHandling.Ignore });
                     tempMission.MISSIONASSIGNEDTIME = (DateTime)data["time".ToUpper()];
@@ -1366,7 +1366,7 @@ namespace Factory_of_the_Future
         {
             try
             {
-                if (data.ContainsKey("NASS_CODE") && (string)data["NASS_CODE"] == AppParameters.AppSettings.FACILITY_NASS_CODE)
+                if (data.ContainsKey("NASS_CODE") && (string)data["NASS_CODE"] == AppParameters.SiteInfo.SiteId)
                 {
                     if (data.HasValues && data.ContainsKey("requestId".ToUpper()))
                     {
@@ -1456,7 +1456,7 @@ namespace Factory_of_the_Future
             bool update = false;
             try
             {
-                if (data.ContainsKey("NASS_CODE") && (string)data["NASS_CODE"] == AppParameters.AppSettings.FACILITY_NASS_CODE)
+                if (data.ContainsKey("NASS_CODE") && (string)data["NASS_CODE"] == AppParameters.SiteInfo.SiteId)
                 {
                     if (data.ContainsKey("VEHICLE"))
                     {

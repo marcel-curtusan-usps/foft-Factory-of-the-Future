@@ -16,6 +16,8 @@ namespace Factory_of_the_Future
             Data = data;
             bool NewValue = false;
             bool fileUpdate = false;
+            bool SiteFileUpdate = false;
+            
             try
             {
                 if (!string.IsNullOrEmpty(data))
@@ -30,25 +32,16 @@ namespace Factory_of_the_Future
                                 SV_Site_Info SV_Site_Info = new Get_Site_Info().Get_Info((string)kv.Value);
                                 if (SV_Site_Info != null)
                                 {
-                                    AppParameters.AppSettings.FACILITY_NASS_CODE = SV_Site_Info.SiteId;
-                                    AppParameters.AppSettings.FACILITY_NAME = SV_Site_Info.DisplayName;
-                                    AppParameters.AppSettings.FACILITY_ID = !string.IsNullOrEmpty(SV_Site_Info.FdbId) ? SV_Site_Info.FdbId : ""; 
-                                    AppParameters.AppSettings.FACILITY_ZIP = !string.IsNullOrEmpty(SV_Site_Info.ZipCode) ? SV_Site_Info.ZipCode : ""; 
-                                    AppParameters.AppSettings.FACILITY_LKEY = !string.IsNullOrEmpty(SV_Site_Info.ZipCode) ? SV_Site_Info.ZipCode : "";
+                                  AppParameters.SiteInfo = SV_Site_Info;
                                     Task.Run(() => AppParameters.LoglocationSetup()).ConfigureAwait(false);
-                                    
                                     Task.Run(() => AppParameters.ResetParameters()).ConfigureAwait(false);
-                                    fileUpdate = true;
+                                    SiteFileUpdate = true;
                                 }
                                 else
                                 {
                                     kv.Value = "";
-                                    AppParameters.AppSettings.FACILITY_NAME = "Site Not Found";
-                                    AppParameters.AppSettings.FACILITY_NASS_CODE = "";
-                                    AppParameters.AppSettings.FACILITY_ID = "";
-                                    AppParameters.AppSettings.FACILITY_ZIP = "";
-                                    AppParameters.AppSettings.FACILITY_LKEY = "";
-                                    fileUpdate = true;
+                                    AppParameters.SiteInfo =new SV_Site_Info();
+                                    SiteFileUpdate = true;
                                 }
 
                             }
@@ -106,6 +99,10 @@ namespace Factory_of_the_Future
                 if (fileUpdate)
                 {
                     new FileIO().Write(string.Concat(AppParameters.CodeBase.Parent.FullName.ToString(), AppParameters.Appsetting), "AppSettings.json", JsonConvert.SerializeObject(AppParameters.AppSettings, Formatting.Indented));
+                }
+                if (SiteFileUpdate)
+                {
+                    new FileIO().Write(string.Concat(AppParameters.CodeBase.Parent.FullName.ToString(), AppParameters.Appsetting), "SiteInformation.json", JsonConvert.SerializeObject(AppParameters.AppSettings, Formatting.Indented));
                 }
                 return GetAppSetting();
             }

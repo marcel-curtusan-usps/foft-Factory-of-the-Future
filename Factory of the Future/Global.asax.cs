@@ -155,9 +155,9 @@ namespace Factory_of_the_Future
                     Session[SessionKey.IsAuthenticated] = HttpContext.Current.Request.IsAuthenticated;
                     Session[SessionKey.UserFirstName] = "";
                     Session[SessionKey.UserLastName] = "";
-                    Session[SessionKey.Facility_NASS_CODE] = AppParameters.AppSettings.FACILITY_NASS_CODE;
-                    Session[SessionKey.Facility_Id] = AppParameters.AppSettings.FACILITY_ID;
-                    Session[SessionKey.Facility_Name] = AppParameters.AppSettings.FACILITY_NAME;
+                    Session[SessionKey.Facility_NASS_CODE] = AppParameters.SiteInfo.SiteId;
+                    Session[SessionKey.Facility_Id] = AppParameters.SiteInfo.FdbId;
+                    Session[SessionKey.Facility_Name] = AppParameters.SiteInfo.DisplayName;
                     Session[SessionKey.Environment] = AppParameters.ApplicationEnvironment;
                     Session[SessionKey.FacilityTimeZone] = AppParameters.AppSettings.FACILITY_TIMEZONE;
                     Session[SessionKey.SoftwareVersion] = AppParameters.VersionInfo;

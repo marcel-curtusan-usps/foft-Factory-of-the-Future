@@ -27,7 +27,7 @@ namespace Factory_of_the_Future
                     con.IpAddress = "";
                     con.Port = 0;
                     con.Url = "";
-                    string sitename = AppParameters.AppSettings.FACILITY_NAME.ToString().ToLower().Replace(" ", "_").Replace("&", "").Replace("(", "").Replace(")", "");
+                    string sitename = AppParameters.SiteInfo.DisplayName.ToLower().Replace(" ", "_").Replace("&", "").Replace("(", "").Replace(")", "");
                     AppParameters.MPEWatchData.Where(r => r.Value.SiteNameLocal.ToLower() == sitename).Select(y => y.Value).ToList().ForEach(m =>
                     {
                         con.IpAddress = m.Host;
@@ -42,7 +42,7 @@ namespace Factory_of_the_Future
                     con.Port = 0;
                     con.Url = "";
                
-                    string sitename = AppParameters.AppSettings.FACILITY_NAME.ToLower().Replace(" ", "_").Replace("&", "").Replace("(", "").Replace(")", "");
+                    string sitename = AppParameters.SiteInfo.DisplayName.ToLower().Replace(" ", "_").Replace("&", "").Replace("(", "").Replace(")", "");
                     AppParameters.RTLShData.Where(r => r.Value.SiteNameLocal.ToLower() == sitename).Select(y => y.Value).ToList().ForEach(m =>
                     {
                         con.IpAddress = m.Host;

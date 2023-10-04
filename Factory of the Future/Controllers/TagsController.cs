@@ -25,9 +25,14 @@ namespace Factory_of_the_Future.Controllers
         //GET api/Tags/tag_id
         [Route("{id}")]
         [ResponseType(typeof(JObject))]
-        public IEnumerable<JObject> GetTagbyID(string id)
+        public IEnumerable<object> GetTagbyID(string id)
         {
-            return null; //AppParameters.Tag.Where(r => (string)r.Value["properties"]["id"] == id).Select(x => x.Value).ToList();
+            IEnumerable<object> query = new List<object>();
+            foreach (CoordinateSystem cs in FOTFManager.Instance.CoordinateSystem.Values)
+            {
+                query = cs.Locators.Where(sl => sl.Value.Properties.TagType == "Person" && sl.Value.Properties.Id == id).Select(r => r.Value.Properties).ToList();
+            }
+            return query;
         }
 
         //// GET api/<controller>

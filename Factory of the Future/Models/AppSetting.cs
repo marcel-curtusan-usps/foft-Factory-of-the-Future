@@ -10,12 +10,12 @@ namespace Factory_of_the_Future.Models
     {
         public string APPLICATION_NAME { get; set; } = "";
         public string APPLICATION_FULLNAME { get; set; } = "";
-        public string FACILITY_NAME { get; set; } = "";
-        public string FACILITY_ZIP { get; set; } = "";
-        public string FACILITY_ID { get; set; } = "";
-        public string FACILITY_NASS_CODE { get; set; }  
-        public string FACILITY_LKEY { get; set; } = "";
-        public string FACILITY_P2P_SITEID { get; set; } = "";
+        //public string FACILITY_NAME { get; set; } = "";
+        //public string FACILITY_ZIP { get; set; } = "";
+        //public string FACILITY_ID { get; set; } = "";
+        //public string FACILITY_NASS_CODE { get; set; }  
+        //public string FACILITY_LKEY { get; set; } = "";
+        //public string FACILITY_P2P_SITEID { get; set; } = "";
         public string FACILITY_TIMEZONE { get; set; }
         public bool LOG_API_DATA { get; set; } = false;
         public string RETENTION_DAYS { get; set; } = "";
@@ -32,7 +32,7 @@ namespace Factory_of_the_Future.Models
         public string TAG_LOCATOR { get; set; } = "";
         public string VIEWPORTS { get; set; } = "";
         public string TAG_PIV { get; set; } = "";
-        public string TAG_TIMEOUTMILS { get; set; } = "";
+        public long TAG_TIMEOUTMILS { get; set; } = 0;
         public string Domain { get; set; } = "";
         public string SV_SITE_URL { get; set; } = "";
         public string SV_ITINERARY { get; set; } = "";
