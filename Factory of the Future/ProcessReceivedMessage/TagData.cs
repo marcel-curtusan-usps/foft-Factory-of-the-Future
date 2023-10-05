@@ -86,6 +86,29 @@ namespace Factory_of_the_Future
                                                     update = false;
                                                     remove = true;
                                                 }
+                                                else if (qtitem.LocationType == "presence")
+                                                {
+                                                    //MJG: According to the quuppa source file TagDrawable.js:
+                                                    //"cannot render tags with 'presense' at all as the location coordinates are null."
+
+                                                    currentMarker.Properties.LocationMovementStatus = "presence";
+                                                    currentMarker.Properties.isPosition = false;
+                                                    currentMarker.Properties.Visible = false;
+                                                    update = false;
+                                                    remove = true;
+                                                }
+                                                else if (qtitem.LocationType == "proximity")
+                                                {
+                                                    //MJG: According to the quuppa source file TagDrawable.js, tags with location type 'proximity'
+                                                    //are not rendered by default. This can be enabled in quuppa settings but currently is not.
+
+                                                    currentMarker.Properties.LocationMovementStatus = "proximity";
+                                                    currentMarker.Properties.isPosition = false;
+                                                    currentMarker.Properties.Visible = false;
+                                                    update = false;
+                                                    remove = true;
+                                                }
+
                                                 else if (currentMarker.Properties.posAge > AppParameters.AppSettings.TAG_TIMEOUTMILS)
                                                 {
                                                     currentMarker.Properties.LocationMovementStatus = "noData";
