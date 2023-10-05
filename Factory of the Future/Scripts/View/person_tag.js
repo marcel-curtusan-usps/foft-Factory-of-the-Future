@@ -198,19 +198,19 @@ let tagsMarkersGroup = new L.GeoJSON(null, {
 });
 function getmarkerType(type) {
     try {
-        if (/supervisor/.test(type)) {
+        if (/supervisor/ig.test(type)) {
             return 'persontag_supervisor ';
         }
-        else if (/maintenance/.test(type)) {
+        else if (/maintenance/ig.test(type)) {
             return 'persontag_maintenance ';
         }
-        else if (/pse/.test(type)) {
+        else if (/pse/ig.test(type)) {
             return 'persontag_pse ';
         }
-        else if (/inplantsupport/.test(type)) {
+        else if (/inplantsupport/ig.test(type)) {
             return 'persontag_inplantsupport ';
         }
-        else if (/(clerk|mailhandler)/.test(type)) {
+        else if (/(clerk|mailhandler|mha)/ig.test(type)) {
             return 'persontag ';
         }
         else {
@@ -378,31 +378,32 @@ function createStaffingDataTable(table) {
     let tempc = {};
     $.each(arrayColums[0], function (key) {
         tempc = {};
+ 
         if (/type/i.test(key)) {
             tempc = {
                 "title": 'Type',
-                "width": "30%",
+                "width": "40%",
                 "mDataProp": key
             };
         }
         if (/sche/i.test(key)) {
             tempc = {
                 "title": "Scheduled",
-                "width": "20%",
+                "width": "15%",
                 "mDataProp": key
             };
         }
         if (/in_building/i.test(key)) {
             tempc = {
                 "title": "WorkZone",
-                "width": "20%",
+                "width": "15%",
                 "mDataProp": key
             };
         }
         if (/epacs/i.test(key)) {
             tempc = {
                 "title": "ePACS",
-                "width": "20%",
+                "width": "15%",
                 "mDataProp": key
             };
         }

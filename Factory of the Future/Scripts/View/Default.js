@@ -1067,7 +1067,7 @@ async function cBlock() {
     }
     Promise.all([zonecurrentStaff()]);
     if (tagsLoaded) {
-        Promise.all([staffCounts()]);
+       // Promise.all([staffCounts()]);
     }
 
 }
