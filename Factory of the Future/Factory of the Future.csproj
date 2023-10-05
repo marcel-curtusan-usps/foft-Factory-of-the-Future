@@ -371,6 +371,7 @@
     <Content Include="Scripts\supportScriptsBundle.min.js">
       <DependentUpon>supportScriptsBundle.js</DependentUpon>
     </Content>
+    <Content Include="Scripts\View\siteInfo.js" />
     <Content Include="Scripts\View\connectionTypes.js" />
     <Content Include="Scripts\View\default.js" />
     <Content Include="Scripts\esm\popper-utils.js" />
@@ -632,6 +633,7 @@
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
     <Compile Include="HubManager\ConnectionMapping.cs" />
+    <Compile Include="ProcessReceivedMessage\SiteInfo.cs" />
     <Compile Include="ProcessReceivedMessage\ConnectionTypes.cs" />
     <Compile Include="Models\DockDoorStatus.cs" />
     <Compile Include="Models\Door_Association_Trips.cs" />
@@ -799,7 +801,7 @@
           <SaveServerSettingsInUserFile>False</SaveServerSettingsInUserFile>
         </WebProjectProperties>
       </FlavorProperties>
-      <UserProperties appsetting_4appsettings_1json__JsonSchema="https://json.schemastore.org/backportrc.json" mpekanban_4contents_4kanbandispatch_1json__JsonSchema="https://beaujs.com/schema.json" />
+      <UserProperties mpekanban_4contents_4kanbandispatch_1json__JsonSchema="https://beaujs.com/schema.json" appsetting_4appsettings_1json__JsonSchema="https://json.schemastore.org/backportrc.json" />
     </VisualStudio>
   </ProjectExtensions>
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">

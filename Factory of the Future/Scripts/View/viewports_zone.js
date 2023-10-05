@@ -7,12 +7,6 @@ $(function () {
     });
     
 });
-async function updateviewportzone(data) {
-    try {
-    } catch (e) {
-        console.log(e);
-    }
-}
 var viewPortsAreas = new L.GeoJSON(null, {
     style: function (feature) {
         return {

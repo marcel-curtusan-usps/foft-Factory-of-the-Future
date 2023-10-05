@@ -21,7 +21,7 @@ async function AddMarker(data, floorId) {
             }
         }
     } catch (e) {
-        console.log(e);
+       
     }
 }
 async function RemoveMarker(data, floorId) {
@@ -34,7 +34,7 @@ async function RemoveMarker(data, floorId) {
             });
         }
     } catch (e) {
-        console.log(e);
+    
     }
 }
 let locatorMarker = new L.GeoJSON(null, {

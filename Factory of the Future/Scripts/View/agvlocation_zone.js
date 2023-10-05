@@ -83,7 +83,7 @@ async function updateAGVLocationZone(locationupdate) {
             }
         }
     } catch (e) {
-        console.log(e);
+      
     }
 }
 async function updatelocation(layerindex) {

@@ -48,7 +48,7 @@ async function addZone(data, floorId, zonetype) {
             })
         }
     } catch (e) {
-        console.log(e);
+  
     }
 }
 async function removeZone(data, floorId) {
@@ -61,7 +61,7 @@ async function removeZone(data, floorId) {
             });
         }
     } catch (e) {
-        console.log(e);
+    
     }
 }
 

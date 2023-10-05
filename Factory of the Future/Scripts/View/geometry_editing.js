@@ -325,7 +325,7 @@ function CreateZone(newlayer)
         });
 
     } catch (e) {
-        console.log(e);
+
     }
 }
 //function CreateBinZone(newlayer) {

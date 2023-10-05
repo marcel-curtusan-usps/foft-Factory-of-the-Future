@@ -14,6 +14,7 @@ async function init_connectiontType(data) {
             Promise.all([connectionTypeLoad(data), updateConnectiontypeDataTable(data, connectiontypetable)]);
         }
     } catch (e) {
+        throw new Error(e.toString());
     }
 }
 function format(rowData) {
@@ -166,7 +167,7 @@ async function createConnectiontypeSubtable(table, row_data) {
         $('#' + table).css('width', '95%')
 
     } catch (e) {
-        console.log(e);
+     
     }
 }
 async function connectionTypeLoad(connName) {
@@ -185,7 +186,7 @@ async function connectionTypeLoad(connName) {
         };
 
     } catch (e) {
-        console.log(e);
+    
     }
 }
 async function loadConnectiontypeDatatable(data, table) {

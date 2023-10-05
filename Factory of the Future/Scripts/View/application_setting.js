@@ -47,7 +47,7 @@ function init_AppSetting(AppsettingData) {
         
         loadAppSettingDatatable(formatdata(AppsettingData), "app_settingtable");
     } catch (e) {
-        console.log(e);
+        throw new Error(e.toString());
     }
 }
 //app setting
@@ -258,7 +258,7 @@ function formatdata(result) {
         }
 
     } catch (e) {
-        console.log(e);
+        throw new Error(e.toString());
     }
 
     return reformatdata;

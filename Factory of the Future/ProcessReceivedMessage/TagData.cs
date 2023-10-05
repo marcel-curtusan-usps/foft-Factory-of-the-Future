@@ -130,16 +130,6 @@ namespace Factory_of_the_Future
                                             }
                                             else
                                             {
-                                                //if (new Regex("^(noData)$", RegexOptions.IgnoreCase).IsMatch(qtitem.LocationMovementStatus))
-                                                //{
-                                                //    currentMarker.Properties.LocationMovementStatus = "noData";
-                                                //    currentMarker.Properties.isPosition = false;
-                                                //    currentMarker.Properties.Visible = false;
-                                                //    update = false;
-                                                //    remove = true;
-                                                //}
-                                                //else
-                                                
                                                 if(currentMarker.Properties.posAge > AppParameters.AppSettings.TAG_TIMEOUTMILS)
                                                 {
                                                     currentMarker.Properties.Visible = false;

@@ -1921,6 +1921,8 @@
     <script src="Scripts/View/default.js"></script>
     <!--Load application settings for the site-->
     <script src="Scripts/View/application_setting.js"></script>
+      <!--Load site info for the site-->
+    <script src="Scripts/View/siteInfo.js"></script>
     <!--Load Image Upload for the site-->
     <script src="Scripts/View/floorplan.js"></script>
     <!--Notification-->

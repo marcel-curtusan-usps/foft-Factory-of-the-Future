@@ -10,42 +10,23 @@ namespace Factory_of_the_Future
 {
     internal class ApplicationSetting 
     {
-        public string Data { get; set; }
+        public string _data { get; set; }
         internal AppSetting EditAppSetting(string data)
         {
-            Data = data;
+            _data = data;
             bool NewValue = false;
             bool fileUpdate = false;
-            bool SiteFileUpdate = false;
             
             try
             {
-                if (!string.IsNullOrEmpty(data))
+                if (!string.IsNullOrEmpty(_data))
                 {
-                    dynamic appSettingObj = JToken.Parse(data);
+                    dynamic appSettingObj = JToken.Parse(_data);
                     if (((JContainer)appSettingObj).HasValues)
                     {
                         foreach (var kv in appSettingObj)
                         {
-                            if (kv.Name == "FACILITY_NASS_CODE")
-                            {
-                                SV_Site_Info SV_Site_Info = new Get_Site_Info().Get_Info((string)kv.Value);
-                                if (SV_Site_Info != null)
-                                {
-                                  AppParameters.SiteInfo = SV_Site_Info;
-                                    Task.Run(() => AppParameters.LoglocationSetup()).ConfigureAwait(false);
-                                    Task.Run(() => AppParameters.ResetParameters()).ConfigureAwait(false);
-                                    SiteFileUpdate = true;
-                                }
-                                else
-                                {
-                                    kv.Value = "";
-                                    AppParameters.SiteInfo =new SV_Site_Info();
-                                    SiteFileUpdate = true;
-                                }
-
-                            }
-                            else if (kv.Name == "LOG_LOCATION")
+                           if (kv.Name == "LOG_LOCATION")
                             {
                                 if (!string.IsNullOrEmpty(kv.Value.ToString()))
                                 {
@@ -100,10 +81,7 @@ namespace Factory_of_the_Future
                 {
                     new FileIO().Write(string.Concat(AppParameters.CodeBase.Parent.FullName.ToString(), AppParameters.Appsetting), "AppSettings.json", JsonConvert.SerializeObject(AppParameters.AppSettings, Formatting.Indented));
                 }
-                if (SiteFileUpdate)
-                {
-                    new FileIO().Write(string.Concat(AppParameters.CodeBase.Parent.FullName.ToString(), AppParameters.Appsetting), "SiteInformation.json", JsonConvert.SerializeObject(AppParameters.AppSettings, Formatting.Indented));
-                }
+
                 return GetAppSetting();
             }
             catch (Exception e)
@@ -113,7 +91,7 @@ namespace Factory_of_the_Future
             }
             finally
             {
-                Data = null;
+                _data = null;
             }
         }
         internal AppSetting GetAppSetting()

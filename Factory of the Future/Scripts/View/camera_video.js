@@ -20,7 +20,7 @@ async function AddMarker(data, floorId) {
             }
         }
     } catch (e) {
-        console.log(e);
+     
     }
 }
 var brightRed = 255;
@@ -120,7 +120,7 @@ function CameraDataUpdate(cameradataUpdate, id) {
             });
         }
     } catch (e) {
-        console.log(e);
+   
     }
 }
 function UpdateCameraZoom() {
@@ -560,6 +560,6 @@ function View_Web_Camera(Data) {
         //});
     } catch (e) {
         $("#error_camera").text(e);
-        console.log(e);
+ 
     }
 }

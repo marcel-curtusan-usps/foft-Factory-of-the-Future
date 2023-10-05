@@ -166,7 +166,7 @@ async function init_Foolplan() {
         createFloorPlanDataTable("floorplantable");
 
     } catch (e) {
-        console.log(e);
+     
     }
 }
 function createFloorPlanDataTable(table) {
@@ -268,7 +268,7 @@ function removeFloorPlan(data) {
         })
     }
     catch (e) {
-        console.log(e);
+       
     }
 }
 //async function Load_Floorplan_Table(data,table) {

@@ -326,8 +326,12 @@ var staffBtn = L.easyButton({
     position: 'topcenter',
     states: [{
         stateName: 'openstaffing',
-        icon:
-            '<div class="row staffing-row"><div class="col-sm-6 no-top-border">WorkZone</div><div class="col-sm-6 no-top-border">Schedule</div><div class="col-sm-6 no-bottom-border" id="staffingbutton" style="font-size:1.2vw"></div><div class="col-sm-6 no-bottom-border" id="schstaffingbutton" style="font-size:1.2vw">0</div></div>' ,
+        icon: '<div class="row staffing-row">' +
+            '<div class="col-sm-6 no-top-border">Schedule</div>' +
+            '<div class="col-sm-6 no-top-border">WorkZone</div>' +
+            '<div class="col-sm-6 no-bottom-border" id="schstaffingbutton" style="font-size:1.2vw">0</div>' +
+            '<div class="col-sm-6 no-bottom-border" id="staffingbutton" style="font-size:1.2vw"></div>' +
+            '</div>',
         onClick: function (control) {
          
             Promise.all([showstaffdiv()]);
@@ -338,8 +342,12 @@ var staffBtn = L.easyButton({
     },
     {
         stateName: 'closestaffing',
-        icon:
-            '<div class="row staffing-row"><div class="col-sm-6 no-top-border">WorkZone</div><div class="col-sm-6 no-top-border">Schedule</div><div class="col-sm-6 no-bottom-border" id="staffingbutton" style="font-size:1.2vw"></div><div class="col-sm-6 no-bottom-border" id="schstaffingbutton" style="font-size:1.2vw">0</div></div>',
+        icon: '<div class="row staffing-row">' +
+            '<div class="col-sm-6 no-top-border">Schedule</div>' +
+            '<div class="col-sm-6 no-top-border">WorkZone</div>' +
+            '<div class="col-sm-6 no-bottom-border" id="schstaffingbutton" style="font-size:1.2vw">0</div>' +
+            '<div class="col-sm-6 no-bottom-border" id="staffingbutton" style="font-size:1.2vw"></div>' +
+            '</div>',
         onClick: function (control) {
   
             Promise.all([hideTagdiv()]);
@@ -661,7 +669,7 @@ async function GetUserInfo() {
                     })
                 }
             } catch (e) {
-                console.log(e);
+              
             }
         });
         //get undetected tags Data
@@ -695,7 +703,7 @@ async function GetUserInfo() {
                     })
                 }
             } catch (e) {
-                console.log(e);
+            
             }
         });
         //get LDC alerts
@@ -723,11 +731,10 @@ async function GetUserInfo() {
                     })
                 }
             } catch (e) {
-                console.log(e);
+             
             }
         });
     } catch (e) {
-        console.log(e)
     }
 }
 function formatldcalertsrow(properties) {

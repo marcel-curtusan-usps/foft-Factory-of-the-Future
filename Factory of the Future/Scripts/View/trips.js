@@ -28,7 +28,7 @@ async function init_arrive_depart_trips() {
             }
         });
     } catch (e) {
-        console.log(e);
+    
     }
 }
 //async function updateTrips(trip) {
@@ -96,7 +96,7 @@ async function process_trips(trip)
         }
        
     } catch (e) {
-        console.log(e);
+       
     }
 }
 async function removeTrips(id) {
@@ -304,7 +304,7 @@ function formatSVTime(value_time) {
             return time.format("HH:mm");
         }
     } catch (e) {
-        console.log(e);
+     
     }
 }
 
@@ -329,7 +329,7 @@ function LoadRouteTripDetails(id) {
         });
         $("#RouteTripDetails_Modal").modal();
     } catch (e) {
-        console.log(e);
+       
     }
 }
 function CreateTripconatinerdetails(table) {

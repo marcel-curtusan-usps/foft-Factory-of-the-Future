@@ -110,7 +110,7 @@ async function updateBinZone(binzoneupdate, id) {
             }
         }
     } catch (e) {
-        //console.log(e);
+      
         throw new Error(e.toString());
     }
 }

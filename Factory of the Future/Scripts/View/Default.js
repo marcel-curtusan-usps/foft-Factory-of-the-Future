@@ -129,7 +129,7 @@ $(function () {
                     + ' </div>'
                     + '<div class="card-body">'
                     + ' <div class="table-responsive fixedHeader">'
-                    + ' <table class="table table-sm table-hover table-condensed" id="siteConfigtable" style="border-collapse:collapse;">'
+                    + ' <table class="table table-sm table-hover table-condensed" id="siteInfotable" style="border-collapse:collapse;">'
                     + '  <thead class="thead-dark">'
                     + '   <tbody>'
                     + '   </tbody>'
@@ -271,6 +271,9 @@ $(function () {
         },
         connectionType: async (data) => {
             Promise.all([init_connectiontType(data)]);
+        },
+        siteInfo: async (data) => {
+            Promise.all([init_SiteInfo(data)]);
         }
     });
   
@@ -1053,9 +1056,8 @@ function formatSVmonthdayTime(t) {
             return "";
         }
     } catch (e) {
-        //console.log(e);
+      
         throw new Error(e.toString());
-       //return "";
     }
 }
 async function cBlock() {

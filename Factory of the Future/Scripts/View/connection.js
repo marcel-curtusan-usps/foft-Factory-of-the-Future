@@ -263,21 +263,21 @@ async function updateConnection(data) {
     try {
         updateConnectionDataTable(data, "connectiontable");
     } catch (e) {
-        console.log(e);
+        throw new Error(e.toString());
     }
 }
 async function removeConnection(data) {
     try {
         removeConnectionDataTable(data, "connectiontable");
     } catch (e) {
-        console.log(e);
+        throw new Error(e.toString());
     }
 }
 async function addConnection(data) {
     try {
         loadConnectionDatatable([data], "connectiontable");
     } catch (e) {
-        console.log(e);
+        throw new Error(e.toString());
     }
 }
 async function init_connection(ConnectionList) {
@@ -287,7 +287,7 @@ async function init_connection(ConnectionList) {
             loadConnectionDatatable(ConnectionList.sort(SortByConnectionName), "connectiontable");
         }
     } catch (e) {
-        console.log(e);
+        throw new Error(e.toString());
     }
 }
 //start table function
@@ -630,7 +630,7 @@ function Remove_Connection(data) {
         });
         $('#RemoveConfirmationModal').modal();
     } catch (e) {
-        console.log(e);
+     
     }
 }
 function enabletcpipudpSubmit() {

@@ -196,7 +196,7 @@ async function updateNotification(updatenotification) {
         }
     }
     catch (e) {
-        console.log(e);
+    
     }
 }
 async function updateagvTable(updatenotification) {
@@ -224,7 +224,7 @@ async function updateagvTable(updatenotification) {
             agvnotificationtable_Body.append(agv_row_template.supplant(formatagvnotifirow(updatenotification)));
         }
     } catch (e) {
-        console.log(e);
+       
     }
     return null;
 }
@@ -257,7 +257,7 @@ async function updatetripTable(updatenotification) {
             tripsnotificationtable_Body.append(trip_row_template.supplant(formattripnotifirow(updatenotification)));
         }
     } catch (e) {
-        console.log(e);
+    
     }
     return null;
 }
@@ -287,7 +287,7 @@ async function updateMPETable(updatenotification) {
         sortMPETable();
     }
     catch (e) {
-        console.log(e);
+      
     }
     return null;
 }
@@ -329,7 +329,7 @@ async function updatemissingassignedscantable(updatenotification) {
         }
     }
     catch (e) {
-        console.log(e);
+     
     }
     return null;
 }
@@ -347,7 +347,7 @@ async function gettipsanddoornotificationcounts() {
         }
     }
     catch (e) {
-        console.log(e);
+        
     }
     return null;
 }
@@ -365,7 +365,7 @@ async function updatemissingarrivedscantable(updatenotification) {
         }
     }
     catch (e) {
-        console.log(e);
+       
     }
     return null;
 }
@@ -383,7 +383,7 @@ async function updatemissinclosedscantable(updatenotification) {
         }
     }
     catch (e) {
-        console.log(e);
+     
     }
     return null;
 }
@@ -395,16 +395,14 @@ async function updatedockdoorloadafterdeparttable(updatenotification) {
             if (updatenotification.hasOwnProperty("DELETE")) {
                 dockdoorloadafterdeparttable_Body.find('tr[data-id=' + updatenotification.NotificationID + ']').remove();
             }
-            //else {
-            //    dockdoorloadafterdeparttable_Body.find('tr[data-id=' + updatenotification.NotificationID + ']').replaceWith(dockdoorloadafterdeparttable_row_template.supplant(formatdockdoorloadafterdeparttablerow(updatenotification)));
-            //}
+            
         }
         else {
             dockdoorloadafterdeparttable_Body.append(dockdoorloadafterdeparttable_row_template.supplant(formatdockdoorloadafterdeparttablerow(updatenotification)));
         }
     }
     catch (e) {
-        console.log(e);
+       
     }
     return null;
 }
@@ -451,7 +449,7 @@ async function delete_notification(id)
         });
         return null;
     } catch (e) {
-        console.log(e);
+     
     }
   
 }
@@ -464,7 +462,7 @@ async function update_notification(id) {
         });
         return null;
     } catch (e) {
-        console.log(e);
+       
     }
 
 }
@@ -481,7 +479,7 @@ function LoadNotification(value) {
             });
         });
     } catch (e) {
-        console.log(e);
+      
     }
 }
 function LoadNotificationsetup(Data, table) {
@@ -924,7 +922,7 @@ async function EditNotification(Id, table) {
             }
         });
     } catch (e) {
-        console.log(e);
+     
     }
 }
 async function RemoveNotification(id, table) {
@@ -1059,7 +1057,7 @@ function spitName(name, index) {
         var tempName = name.split("|");
         return tempName[index];
     } catch (e) {
-        console.log(e);
+      
     }
 }
 function ConverMPENotificationTime(secs) {
@@ -1077,7 +1075,7 @@ function ConverMPENotificationTime(secs) {
         }
         return "";
     } catch (e) {
-        console.log(e);
+   
     }
 }
 function GetMPENotificationTime(secs) {

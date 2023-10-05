@@ -51,7 +51,7 @@ async function addFeature(data) {
         return true;
     }
     catch (e) {
-        console.log(e);
+        throw new Error(e.toString());
     }
 }
 async function updateFeature(data, floorId) {
@@ -70,59 +70,8 @@ async function updateFeature(data, floorId) {
             }
         }
 
-        //Promise.all([deleteFeature(data.properties.id)]); // Remove the previously created layer.
-        //Promise.all([addFeature(data)]); // Replace it by the new data.
-
-        //if (id === baselayerid) {
-        // let layerindex = -0;
-        //  Promise.all([hideOldTag()]);
-        // map.whenReady(() => {
-        //    if (map.hasOwnProperty("_layers")) {
-        //        $.map(map._layers, function (layer, i) {
-        //            if (layer.hasOwnProperty("feature")) {
-        //                if (layer.feature.properties.id === tagpositionupdate.properties.id) {
-        //                    layerindex = layer._leaflet_id;
-        //                    layer.feature.geometry = tagpositionupdate.geometry.coordinates;
-        //                    layer.feature.properties = tagpositionupdate.properties;
-        //                    Promise.all([updateTagLocation(layerindex)]);
-        //                    return false;
-        //                }
-        //            }
-        //        });
-        //    }
-        //});
-        // if (layerindex === -0) {
-        //    tagsMarkersGroup.addData(tagpositionupdate);
-        //}
-        //if (tagsMarkersGroup.hasOwnProperty("_layers")) {
-        //    $.map(tagsMarkersGroup._layers, function (layer) {
-
-        //        if (layer.hasOwnProperty("feature")) {
-        //            if (layer.feature.properties.id === tagpositionupdate.properties.id) {
-        //                layer.feature.properties = tagpositionupdate.properties;
-        //                layer.feature.geometry = tagpositionupdate.geometry.coordinates;
-        //                layerindex = layer._leaflet_id;
-
-        //                if (layer.feature.properties.tacs != null) {
-        //                    if (tagpositionupdate.properties.tacs != null) {
-        //                        layer.feature.properties.tacs.isOvertime = true;
-        //                    }
-        //                }
-
-
-        //                Promise.all([updateTagLocation(layerindex)]);
-
-
-        //                return false;
-        //            }
-        //        }
-        //    });
-
-        //}
-        //}
-
     } catch (e) {
-        console.log(e);
+        throw new Error(e.toString());
     }
 }
 async function deleteFeature(id, floorId) {
@@ -133,15 +82,8 @@ async function deleteFeature(id, floorId) {
         }
         $('div[id=staffingbutton]').text(markerList.length);
     } catch (e) {
-        console.log(e);
+        throw new Error(e.toString());
     }
-    
-   
-    //$.map(map._layers, function (layer, i) {
-    //    if (layer.hasOwnProperty("feature") && layer.feature.properties.id === id) {
-    //        layer.removeLayer();
-    //    }
-    //});
 }
 let tagsMarkersGroup = new L.GeoJSON(null, {
     pointToLayer: function (feature, latlng) {
@@ -278,7 +220,7 @@ async function updateTagLocation(layerindex)
             }
         }
     } catch (e) {
-        console.log(e);
+        throw new Error(e.toString());
     }
     return null;
 }
@@ -350,6 +292,7 @@ async function getStaffInfo() {
 
     $.map(empType, function (list) {
         stafftable.push({
+            icon: "",
             type: list,
             sche: emplschedule.filter(r => r.emptype === list && r.isSch).length,
             in_building: taglist.filter(r => r.emptype === list && r.isPosition).length,
@@ -358,6 +301,7 @@ async function getStaffInfo() {
     });
     // add the total
     stafftable.push({
+        icon: "",
         type: "Total",
         sche: emplschedule.filter(r => r.isSch).length,
         in_building: taglist.filter(r => r.isPosition).length,
@@ -369,6 +313,7 @@ async function getStaffInfo() {
 }
 function createStaffingDataTable(table) {
     let arrayColums = [{
+        "icon": "",
         "type": "",
         "sche": "",
         "in_building": "",
@@ -378,7 +323,7 @@ function createStaffingDataTable(table) {
     let tempc = {};
     $.each(arrayColums[0], function (key) {
         tempc = {};
- 
+       
         if (/type/i.test(key)) {
             tempc = {
                 "title": 'Type',
@@ -386,26 +331,43 @@ function createStaffingDataTable(table) {
                 "mDataProp": key
             };
         }
-        if (/sche/i.test(key)) {
+        else if (/sche/i.test(key)) {
             tempc = {
                 "title": "Scheduled",
                 "width": "15%",
                 "mDataProp": key
             };
         }
-        if (/in_building/i.test(key)) {
+        else if (/in_building/i.test(key)) {
             tempc = {
                 "title": "WorkZone",
                 "width": "15%",
                 "mDataProp": key
             };
         }
-        if (/epacs/i.test(key)) {
+        else if (/epacs/i.test(key)) {
             tempc = {
                 "title": "ePACS",
                 "width": "15%",
                 "mDataProp": key
             };
+        }
+        else if (/icon/i.test(key)) {
+            tempc = {
+                "title": 'Icon',
+                "width": "5%",
+                "mDataProp": key,
+                "mRender": function (data, type, full) {
+                        let r = '<div class="leaflet-tooltip.' + getmarkerType(full.type) + '"></>';
+                        return r;
+                }
+            };
+        }
+        else {
+            tempc = {
+                "title": capitalize_Words(key.replace(/\_/, ' ')),
+                "mDataProp": key
+            }
         }
         columns.push(tempc);
 
@@ -425,7 +387,12 @@ function createStaffingDataTable(table) {
         aoColumns: columns,
         columnDefs: [
         ],
-        sorting: [[0, "asc"]]
+        sorting: [[1, "asc"]],
+        rowCallback: function (row, data, index) {
+            $(row).find('td:eq(2)').css('text-align', 'center');
+            $(row).find('td:eq(3)').css('text-align', 'center');
+            $(row).find('td:eq(4)').css('text-align', 'center');
+        }
     });
 }
 function loadStaffingDatatable(data, table) {
@@ -531,7 +498,7 @@ function formattagdata(result) {
         }
 
     } catch (e) {
-        console.log(e);
+        throw new Error(e.toString());
     }
 
     return reformatdata;

@@ -134,25 +134,11 @@ async function updateMachineZone(data, id) {
             });
         }
     } catch (e) {
-        console.log(e);
+       
     }
 }
 
-//async function updateMPEAlertData(data, id) {
-//    try {
-//        if (id == baselayerid) {
-//            $.map(polygonMachine._layers, function (layer, i) {
-//                if (layer.hasOwnProperty("feature") && layer.feature.properties.id === id) {
-//                    layer.feature.properties.GpioValue = data;
-//                    updateMPEAlert(layer._leaflet_id);
-//                    return false;
-//                }
-//            });
-//        }
-//    } catch (e) {
-//        console.log(e);
-//    }
-//}
+
 async function updateMPEAlertData(data, floorId, zoneId) {
     try {
         if (baselayerid === floorId) {
@@ -180,7 +166,7 @@ async function updateMPEAlertData(data, floorId, zoneId) {
         }
     }
     catch (e) {
-        console.log(e);
+      
     }
 
 }
@@ -362,7 +348,7 @@ async function LoadMachineDPSTables(dataproperties, table) {
             }
         }
     } catch (e) {
-        console.log(e);
+      
     }
 }
 async function LoadMachineTables(dataproperties, table) {
@@ -455,7 +441,7 @@ async function LoadMachineTables(dataproperties, table) {
             }
         }
     } catch (e) {
-        console.log(e);
+      
     }
 }
 function formatmachinetoprow(properties) {
@@ -819,7 +805,7 @@ async function Edit_Machine_Info(id) {
             }
         }
     } catch (e) {
-        console.log(e);
+      
     }
 }
 function enablezoneSubmit() {
@@ -869,7 +855,7 @@ function GetMacineBackground(mpeWatchData) {
         }
     }
     catch (e) {
-        console.log(e);
+ 
     }
 
 }
@@ -905,7 +891,7 @@ function FormatMachineRowColors(mpeWatchData, starttime) {
         }
     }
     catch (e) {
-        //console.log(e);
+       
         throw new Error(e.toString());
     }
 }

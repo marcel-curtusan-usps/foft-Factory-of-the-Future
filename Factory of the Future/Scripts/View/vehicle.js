@@ -51,7 +51,7 @@ async function updateVehicleTag(data, id) {
         //});
 
     } catch (e) {
-        console.log(e);
+       
     }
 }
 let piv_vehicles = new L.GeoJSON(null, {
@@ -122,7 +122,7 @@ async function AddVehicleMarker(data, floorId) {
     }
     catch (e)
     {
-      console.log(e);
+  
     }
 }
 let agv_vehicles = new L.GeoJSON(null, {
@@ -216,7 +216,7 @@ function updateVehicleInfo(layerindex) {
         }
 
     } catch (e) {
-        console.log(e);
+       
     }
 }
 async function AGVStausUpdate(layerindex)
@@ -289,7 +289,7 @@ async function AGVStausUpdate(layerindex)
             //}
         }
     } catch (e) {
-        console.log(e);
+ 
     }
 }
 async function LoadVehicleTable(dataproperties, updateTagName) {
@@ -319,7 +319,7 @@ async function LoadVehicleTable(dataproperties, updateTagName) {
             $zoneSelect[0].selectize.updateOption(dataproperties.id, { value: dataproperties.id, text: dataproperties.name });
         }
     } catch (e) {
-        console.log(e);
+      
     }
 }
 let pivrow_template = '<tr data-id="{TagId}" id="vehicletagid">' +

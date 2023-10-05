@@ -69,7 +69,7 @@ async function startSearch(sc) {
             }
         }
     } catch (e) {
-        console.log(e);
+     
     }
 }
 let search_row_template = '<tr data-id="{layer_id}" data-tag="{tag_id}">' +
