@@ -358,7 +358,7 @@ function createStaffingDataTable(table) {
                 "width": "5%",
                 "mDataProp": key,
                 "mRender": function (data, type, full) {
-                        let r = '<div class="leaflet-tooltip.' + getmarkerType(full.type) + '"></>';
+                    let r = '<span class="leaflet-tooltip.' + getmarkerType(full.type) + '" ></span>' ;
                         return r;
                 }
             };
