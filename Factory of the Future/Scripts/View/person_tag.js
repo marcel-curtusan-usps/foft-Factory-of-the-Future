@@ -6,7 +6,7 @@ $.extend(fotfmanager.client, {
     updatePersonTagRemove: async (tagupdate, id) => { Promise.all([deleteFeature(tagupdate, id)]); },
     updateMarkerCoordinates: async (coordinates, floorid, markerid) => { Promise.all([MarkerCoordinates(coordinates, floorid, markerid)]); }
 });
-
+//rt2
 ///update geojson data
 //var myFeaturesMap = {};
 
