@@ -1,6 +1,7 @@
 ﻿/*
 this is for the person details.
- */
+ *///
+
 $.extend(fotfmanager.client, {
     updatePersonTagStatus: async (tagupdate, id) => { Promise.all([updateFeature(tagupdate, id)]); },
     updatePersonTagRemove: async (tagupdate, id) => { Promise.all([deleteFeature(tagupdate, id)]); },
