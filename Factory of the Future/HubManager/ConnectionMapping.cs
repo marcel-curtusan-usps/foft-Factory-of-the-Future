@@ -27,7 +27,7 @@ namespace Factory_of_the_Future
 
                 lock (connections)
                 {
-                    connections.Add(connectionId);
+                    _ = connections.Add(connectionId);
                 }
             }
         }
@@ -53,11 +53,11 @@ namespace Factory_of_the_Future
 
                 lock (connections)
                 {
-                    connections.Remove(connectionId);
+                    _ = connections.Remove(connectionId);
 
                     if (connections.Count == 0)
                     {
-                        _connections.Remove(key);
+                        _ = _connections.Remove(key);
                     }
                 }
             }

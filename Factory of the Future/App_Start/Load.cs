@@ -80,7 +80,7 @@ namespace Factory_of_the_Future
                     {
                         if (!AppParameters.NotificationConditionsList.ContainsKey(tempnotification[i].Id))
                         {
-                            AppParameters.NotificationConditionsList.TryAdd(tempnotification[i].Id, tempnotification[i]);
+                            _ = AppParameters.NotificationConditionsList.TryAdd(tempnotification[i].Id, tempnotification[i]);
                         }
                     }
                 }
@@ -126,7 +126,7 @@ namespace Factory_of_the_Future
                             item.URL = item.LocalLink;
                             if (!string.IsNullOrEmpty(item.Host) && !AppParameters.RTLShData.ContainsKey(item.Host))
                             {
-                                AppParameters.RTLShData.TryAdd(item.Host, item);
+                                _ = AppParameters.RTLShData.TryAdd(item.Host, item);
                             }
                         }
                     }
@@ -158,7 +158,7 @@ namespace Factory_of_the_Future
                             item.URL = string.Concat(item.LocalLink, "mpemaster.api_page.get_data_by_time?id={0}&data_source={1}&start_time={2}&end_time={3}");
                             if (!string.IsNullOrEmpty(item.Host) && !AppParameters.MPEWatchData.ContainsKey(item.Host))
                             {
-                                AppParameters.MPEWatchData.TryAdd(item.Host, item);
+                                _ = AppParameters.MPEWatchData.TryAdd(item.Host, item);
                             }
                         }
                     }

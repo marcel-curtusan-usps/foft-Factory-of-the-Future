@@ -97,7 +97,7 @@ namespace Factory_of_the_Future
             {
                 if (!AppParameters.MPEPRPGList.TryAdd(newRPGPlan.Id, newRPGPlan))
                 {
-                    new ErrorLogger().CustomLog("Unable to Add new RPG Plan" + newRPGPlan.MpeType + " " + newRPGPlan.MachineNum.ToString() + " " + newRPGPlan.SortProgramName, string.Concat(AppParameters.AppSettings.APPLICATION_NAME, "_Applogs")).ConfigureAwait(false);
+                    _ = new ErrorLogger().CustomLog("Unable to Add new RPG Plan" + newRPGPlan.MpeType + " " + newRPGPlan.MachineNum.ToString() + " " + newRPGPlan.SortProgramName, string.Concat(AppParameters.AppSettings.APPLICATION_NAME, "_Applogs")).ConfigureAwait(false);
                 }
             }
         }
@@ -111,7 +111,7 @@ namespace Factory_of_the_Future
                 return intExpectedThroughput;
             }
 
-            new ErrorLogger().CustomLog("Unable to get expected throughput from RPGPlan object method GetExpectedThroughput", string.Concat(AppParameters.AppSettings.APPLICATION_NAME, "_Applogs")).ConfigureAwait(false);
+            _ = new ErrorLogger().CustomLog("Unable to get expected throughput from RPGPlan object method GetExpectedThroughput", string.Concat(AppParameters.AppSettings.APPLICATION_NAME, "_Applogs")).ConfigureAwait(false);
             return 0;
         }
 
@@ -124,7 +124,7 @@ namespace Factory_of_the_Future
                 {
                     if (!AppParameters.MPEPRPGList.TryRemove(existingkey, out RPGPlan existingValue))
                     {
-                        new ErrorLogger().CustomLog("Unable to remove RPG Plan item" + existingValue.MpeName + " " + existingValue.MpeType + " " + existingValue.MachineNum, string.Concat(AppParameters.AppSettings.APPLICATION_NAME, "_Applogs")).ConfigureAwait(false);
+                        _ = new ErrorLogger().CustomLog("Unable to remove RPG Plan item" + existingValue.MpeName + " " + existingValue.MpeType + " " + existingValue.MachineNum, string.Concat(AppParameters.AppSettings.APPLICATION_NAME, "_Applogs")).ConfigureAwait(false);
                     }
                 }
             }

@@ -17796,54 +17796,6 @@ a.text-dark:hover, a.text-dark:focus {
 .control-icon.pm-disabled {
     filter: opacity(0.6);
 }
-/*
- * DOM element rendering detection
- * https://davidwalsh.name/detect-node-insertion
- */
-@keyframes chartjs-render-animation {
-	from { opacity: 0.99; }
-	to { opacity: 1; }
-}
-
-.chartjs-render-monitor {
-	animation: chartjs-render-animation 0.001s;
-}
-
-/*
- * DOM element resizing detection
- * https://github.com/marcj/css-element-queries
- */
-.chartjs-size-monitor,
-.chartjs-size-monitor-expand,
-.chartjs-size-monitor-shrink {
-	position: absolute;
-	direction: ltr;
-	left: 0;
-	top: 0;
-	right: 0;
-	bottom: 0;
-	overflow: hidden;
-	pointer-events: none;
-	visibility: hidden;
-	z-index: -1;
-}
-
-.chartjs-size-monitor-expand > div {
-	position: absolute;
-	width: 1000000px;
-	height: 1000000px;
-	left: 0;
-	top: 0;
-}
-
-.chartjs-size-monitor-shrink > div {
-	position: absolute;
-	width: 200%;
-	height: 200%;
-	left: 0;
-	top: 0;
-}
-
 html, body {
   width: 100%;
   height: 100%;
@@ -17852,6 +17804,38 @@ html, body {
   /* Better Font Rendering =========== */
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+.marker-pin {
+  width: 30px;
+  height: 30px;
+  border-radius: 50% 50% 50% 0;
+  background: #c30b82;
+  position: absolute;
+  transform: rotate(-45deg);
+  left: 50%;
+  top: 50%;
+  margin: -15px 0 0 -15px;
+}
+
+.marker-pin::after {
+  content: "";
+  width: 24px;
+  height: 24px;
+  margin: 3px 0 0 3px;
+  background: #fff;
+  position: absolute;
+  border-radius: 50%;
+}
+
+.custom-div-icon i {
+  position: absolute;
+  width: 22px;
+  font-size: 22px;
+  left: 0;
+  right: 0;
+  margin: 7px auto;
+  text-align: center;
 }
 
 .staffing-row {

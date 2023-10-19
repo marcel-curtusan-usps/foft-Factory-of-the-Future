@@ -32,23 +32,23 @@ namespace Factory_of_the_Future
                                 }
                                 command.Parameters.Clear();
                                 command.BindByName = true;
-                                command.Parameters.Add(":SESSION_ID", OracleDbType.Varchar2, session[SessionKey.Session_ID], ParameterDirection.Input);
-                                command.Parameters.Add(":CONNECTIONID", OracleDbType.Varchar2, session[SessionKey.Session_ID], ParameterDirection.Input);
-                                command.Parameters.Add(":WORKSTATION_ID", OracleDbType.Varchar2, session[SessionKey.IpAddress], ParameterDirection.Input);
-                                command.Parameters.Add(":DOMAIN", OracleDbType.Varchar2, session[SessionKey.Domain], ParameterDirection.Input);
-                                command.Parameters.Add(":NASS_CODE", OracleDbType.Varchar2, session[SessionKey.Facility_NASS_CODE], ParameterDirection.Input);
-                                command.Parameters.Add(":FDB_ID", OracleDbType.Varchar2, session[SessionKey.Facility_FDBID], ParameterDirection.Input);
-                                command.Parameters.Add(":BROWSER_TYPE", OracleDbType.Varchar2, session[SessionKey.Browser_Type], ParameterDirection.Input);
-                                command.Parameters.Add(":BROWSER_NAME", OracleDbType.Varchar2, session[SessionKey.Browser_Name], ParameterDirection.Input);
-                                command.Parameters.Add(":BROWSER_VERSION", OracleDbType.Varchar2, session[SessionKey.Browser_Version], ParameterDirection.Input);
-                                command.Parameters.Add(":SOFTWARE_VERSION", OracleDbType.Varchar2, session[SessionKey.SoftwareVersion], ParameterDirection.Input);
-                                command.Parameters.Add(":SERVER_IP", OracleDbType.Varchar2, session[SessionKey.Server_IpAddress], ParameterDirection.Input);
-                                command.Parameters.Add(":ACE_ID", OracleDbType.Varchar2, session[SessionKey.AceId], ParameterDirection.Input);
-                                command.Parameters.Add(":APPPLIACTION_ENVIRONMENT", OracleDbType.Varchar2, AppParameters.ApplicationEnvironment, ParameterDirection.Input);
-                                command.Parameters.Add(":USER_ROLE", OracleDbType.Varchar2, session[SessionKey.UserRole], ParameterDirection.Input);
-                                command.Parameters.Add(":FULL_NAME", OracleDbType.Varchar2, session[SessionKey.UserFirstName] + " " + session[SessionKey.UserLastName], ParameterDirection.Input);
-                                command.Parameters.Add(":LOGIN_DATE", OracleDbType.TimeStamp, DateTime.Now, ParameterDirection.Input);
-                                command.Parameters.Add(":APP_TYPE", OracleDbType.Varchar2, session[SessionKey.ApplicationAbbr], ParameterDirection.Input);
+                                _ = command.Parameters.Add(":SESSION_ID", OracleDbType.Varchar2, session[SessionKey.Session_ID], ParameterDirection.Input);
+                                _ = command.Parameters.Add(":CONNECTIONID", OracleDbType.Varchar2, session[SessionKey.Session_ID], ParameterDirection.Input);
+                                _ = command.Parameters.Add(":WORKSTATION_ID", OracleDbType.Varchar2, session[SessionKey.IpAddress], ParameterDirection.Input);
+                                _ = command.Parameters.Add(":DOMAIN", OracleDbType.Varchar2, session[SessionKey.Domain], ParameterDirection.Input);
+                                _ = command.Parameters.Add(":NASS_CODE", OracleDbType.Varchar2, session[SessionKey.Facility_NASS_CODE], ParameterDirection.Input);
+                                _ = command.Parameters.Add(":FDB_ID", OracleDbType.Varchar2, session[SessionKey.Facility_FDBID], ParameterDirection.Input);
+                                _ = command.Parameters.Add(":BROWSER_TYPE", OracleDbType.Varchar2, session[SessionKey.Browser_Type], ParameterDirection.Input);
+                                _ = command.Parameters.Add(":BROWSER_NAME", OracleDbType.Varchar2, session[SessionKey.Browser_Name], ParameterDirection.Input);
+                                _ = command.Parameters.Add(":BROWSER_VERSION", OracleDbType.Varchar2, session[SessionKey.Browser_Version], ParameterDirection.Input);
+                                _ = command.Parameters.Add(":SOFTWARE_VERSION", OracleDbType.Varchar2, session[SessionKey.SoftwareVersion], ParameterDirection.Input);
+                                _ = command.Parameters.Add(":SERVER_IP", OracleDbType.Varchar2, session[SessionKey.Server_IpAddress], ParameterDirection.Input);
+                                _ = command.Parameters.Add(":ACE_ID", OracleDbType.Varchar2, session[SessionKey.AceId], ParameterDirection.Input);
+                                _ = command.Parameters.Add(":APPPLIACTION_ENVIRONMENT", OracleDbType.Varchar2, AppParameters.ApplicationEnvironment, ParameterDirection.Input);
+                                _ = command.Parameters.Add(":USER_ROLE", OracleDbType.Varchar2, session[SessionKey.UserRole], ParameterDirection.Input);
+                                _ = command.Parameters.Add(":FULL_NAME", OracleDbType.Varchar2, session[SessionKey.UserFirstName] + " " + session[SessionKey.UserLastName], ParameterDirection.Input);
+                                _ = command.Parameters.Add(":LOGIN_DATE", OracleDbType.TimeStamp, DateTime.Now, ParameterDirection.Input);
+                                _ = command.Parameters.Add(":APP_TYPE", OracleDbType.Varchar2, session[SessionKey.ApplicationAbbr], ParameterDirection.Input);
                                 command.ExecuteReader().Close();
 
                             }
@@ -82,8 +82,8 @@ namespace Factory_of_the_Future
                                 }
                                 command.Parameters.Clear();
                                 command.BindByName = true;
-                                command.Parameters.Add(":SESSION_ID", OracleDbType.Varchar2, session[SessionKey.Session_ID], ParameterDirection.Input);
-                                command.Parameters.Add(":LOGOUT_DATE", OracleDbType.TimeStamp, DateTime.Now, ParameterDirection.Input);
+                                _ = command.Parameters.Add(":SESSION_ID", OracleDbType.Varchar2, session[SessionKey.Session_ID], ParameterDirection.Input);
+                                _ = command.Parameters.Add(":LOGOUT_DATE", OracleDbType.TimeStamp, DateTime.Now, ParameterDirection.Input);
                                 command.ExecuteReader().Close();
                             }
                         }

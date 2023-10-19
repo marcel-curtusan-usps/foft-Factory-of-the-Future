@@ -33,8 +33,8 @@ namespace Factory_of_the_Future
                                 if (SV_Site_Info != null)
                                 {
                                     AppParameters.SiteInfo = SV_Site_Info;
-                                    Task.Run(() => AppParameters.LoglocationSetup()).ConfigureAwait(false);
-                                    Task.Run(() => AppParameters.ResetParameters()).ConfigureAwait(false);
+                                    _ = Task.Run(() => AppParameters.LoglocationSetup()).ConfigureAwait(false);
+                                    _ = Task.Run(() => AppParameters.ResetParameters()).ConfigureAwait(false);
                                     SiteFileUpdate = true;
                                 }
                                 else

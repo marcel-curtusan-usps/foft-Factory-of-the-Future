@@ -38,7 +38,7 @@ namespace Factory_of_the_Future
                         // hold additional metadata for an API. Version and title are required but you can also provide
                         // additional fields by chaining methods off SingleApiVersion.
                         //
-                        c.SingleApiVersion("v1", "Connected Facilities");
+                        _ = c.SingleApiVersion("v1", "Connected Facilities");
 
                         // If you want the output Swagger docs to be indented properly, enable the "PrettyPrint" option.
                         //
@@ -64,11 +64,11 @@ namespace Factory_of_the_Future
                         // you'll need to implement a custom IDocumentFilter and/or IOperationFilter to set these properties
                         // according to your specific authorization implementation
                         //
-                        c.BasicAuth("basic")
+                        _ = c.BasicAuth("basic")
                             .Description("Basic HTTP Authentication");
 
                         // NOTE: You must also configure 'EnableApiKeySupport' below in the SwaggerUI section
-                        c.ApiKey("APIAuthorization")
+                        _ = c.ApiKey("APIAuthorization")
                             .Description("API Key Authentication")
                             .Name("APIAuthorization")
                             .In("header");

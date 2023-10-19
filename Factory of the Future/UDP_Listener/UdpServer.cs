@@ -468,7 +468,7 @@ namespace Factory_of_the_Future
                 return true;
 
             // Fill the main send buffer
-            _sendBuffer.Append(buffer, offset, size);
+            _ = _sendBuffer.Append(buffer, offset, size);
 
             // Update statistic
             BytesSending = _sendBuffer.Size;
@@ -728,7 +728,7 @@ namespace Factory_of_the_Future
         protected virtual void OnStarting()
         {
             Conn.Status = "Strating";
-           Task.Run( () => FOTFManager.Instance.BroadcastQSMUpdate(Conn)).ConfigureAwait(false);
+            _ = Task.Run(() => FOTFManager.Instance.BroadcastQSMUpdate(Conn)).ConfigureAwait(false);
         }
         /// <summary>
         /// Handle server started notification
@@ -737,7 +737,7 @@ namespace Factory_of_the_Future
         {
             Conn.Status = "Running";
             Conn.ActiveConnection = true;
-            Task.Run(() => FOTFManager.Instance.BroadcastQSMUpdate(Conn)).ConfigureAwait(false);
+            _ = Task.Run(() => FOTFManager.Instance.BroadcastQSMUpdate(Conn)).ConfigureAwait(false);
         }
         /// <summary>
         /// Handle server stopping notification
@@ -746,7 +746,7 @@ namespace Factory_of_the_Future
         {
             Conn.Status = " Stopping";
             Conn.ActiveConnection = false;
-            Task.Run(() => FOTFManager.Instance.BroadcastQSMUpdate(Conn)).ConfigureAwait(false);
+            _ = Task.Run(() => FOTFManager.Instance.BroadcastQSMUpdate(Conn)).ConfigureAwait(false);
         }
         /// <summary>
         /// Handle server stopped notification
@@ -755,7 +755,7 @@ namespace Factory_of_the_Future
         {
             Conn.Status = " Stopped/Deactivated";
             Conn.ActiveConnection = false;
-            Task.Run(() => FOTFManager.Instance.BroadcastQSMUpdate(Conn)).ConfigureAwait(false);
+            _ = Task.Run(() => FOTFManager.Instance.BroadcastQSMUpdate(Conn)).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -790,14 +790,14 @@ namespace Factory_of_the_Future
                             ["status"] = "0",
                             ["tags"] = new JArray(incomingDataJobject)
                         };
-                        Task.Run(() => new ProcessRecvdMsg().StartProcess(JsonConvert.SerializeObject(temp1, Formatting.None), Conn.MessageType, Conn.Id)).ConfigureAwait(false);
+                        _ = Task.Run(() => new ProcessRecvdMsg().StartProcess(JsonConvert.SerializeObject(temp1, Formatting.None), Conn.MessageType, Conn.Id)).ConfigureAwait(false);
                     }
                 }
             }
             catch (Exception e)
             {
                 new ErrorLogger().ExceptionLog(e);
-                new ErrorLogger().CustomLog(incomingData, string.Concat(AppParameters.AppSettings.APPLICATION_NAME, "UDP_InVaild_Message"));
+                _ = new ErrorLogger().CustomLog(incomingData, string.Concat(AppParameters.AppSettings.APPLICATION_NAME, "UDP_InVaild_Message"));
             }
 
         }
@@ -819,7 +819,7 @@ namespace Factory_of_the_Future
         protected virtual void OnError(SocketError error)
         {
             Conn.Status = "No data";
-            Task.Run(() => FOTFManager.Instance.BroadcastQSMUpdate(Conn)).ConfigureAwait(false);
+            _ = Task.Run(() => FOTFManager.Instance.BroadcastQSMUpdate(Conn)).ConfigureAwait(false);
         }
 
         #endregion
@@ -883,7 +883,7 @@ namespace Factory_of_the_Future
                 if (disposingManagedResources)
                 {
                     // Dispose managed resources here...
-                    Stop();
+                    _ = Stop();
                 }
 
                 // Dispose unmanaged resources here...

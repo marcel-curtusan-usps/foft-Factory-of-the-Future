@@ -74,7 +74,7 @@ namespace Factory_of_the_Future
                 maindir = new DirectoryInfo(DirectoryPath);
                 if (!maindir.Exists)
                 {
-                    Directory.CreateDirectory(maindir.FullName);
+                    _ = Directory.CreateDirectory(maindir.FullName);
                     maindir = new DirectoryInfo(maindir.FullName);
                 }
                 if (maindir.Exists)

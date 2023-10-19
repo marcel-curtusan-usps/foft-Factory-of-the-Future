@@ -35,7 +35,7 @@ namespace Factory_of_the_Future.MPEKanban
                             List<Kanban> tempLocation = temp.ToObject<List<Kanban>>();
                             foreach (Kanban kanbanitem in tempLocation)
                             {
-                                Kanban_List.TryAdd(kanbanitem.MPENAME, kanbanitem);
+                                _ = Kanban_List.TryAdd(kanbanitem.MPENAME, kanbanitem);
                             }
                         }
 

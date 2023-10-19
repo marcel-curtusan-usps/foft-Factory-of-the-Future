@@ -7,7 +7,7 @@ namespace Factory_of_the_Future
         private bool disposedValue;
         public EventDtm scheduledDtm = null;
         public DateTime tripDtm = new DateTime(1, 1, 1, 0, 0, 0);
-        public string sortplan_name { get; protected set; } = "";
+        public string Sortplan_name { get; protected set; } = "";
         internal DateTime GetSvDate(EventDtm data)
         {
             scheduledDtm = data;
@@ -86,19 +86,19 @@ namespace Factory_of_the_Future
                     int dotindex = sortplan.IndexOf(".", 1);
                     if ((dotindex == -1))
                     {
-                        sortplan_name = sortplan;
+                        Sortplan_name = sortplan;
                     }
                     else
                     {
-                        sortplan_name = sortplan.Substring(0, dotindex);
+                        Sortplan_name = sortplan.Substring(0, dotindex);
                     }
                 }
-                return sortplan_name;
+                return Sortplan_name;
             }
             catch (Exception e)
             {
                 new ErrorLogger().ExceptionLog(e);
-                return sortplan_name;
+                return Sortplan_name;
             }
             finally
             {
@@ -119,7 +119,7 @@ namespace Factory_of_the_Future
                 disposedValue = true;
                 scheduledDtm = null;
                 tripDtm = new DateTime(1, 1, 1, 0, 0, 0);
-                sortplan_name = string.Empty;
+                Sortplan_name = string.Empty;
             }
         }
 

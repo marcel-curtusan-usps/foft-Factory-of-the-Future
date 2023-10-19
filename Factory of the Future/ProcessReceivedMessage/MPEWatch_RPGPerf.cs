@@ -49,7 +49,7 @@ namespace Factory_of_the_Future
                         string windowsTimeZoneId = "";
                         if (!string.IsNullOrEmpty(AppParameters.AppSettings.FACILITY_TIMEZONE))
                         {
-                            AppParameters.TimeZoneConvert.TryGetValue(AppParameters.AppSettings.FACILITY_TIMEZONE, out windowsTimeZoneId);
+                            _ = AppParameters.TimeZoneConvert.TryGetValue(AppParameters.AppSettings.FACILITY_TIMEZONE, out windowsTimeZoneId);
                         }
 
                         NewMPEData = GetMPEPerfList(machineInfo);
@@ -294,7 +294,7 @@ namespace Factory_of_the_Future
                 int ExpectedThruput = 0;
                 if (!string.IsNullOrEmpty(rpgExpectedThruput))
                 {
-                    int.TryParse(rpgExpectedThruput.Split(' ').FirstOrDefault(), out ExpectedThruput);
+                    _ = int.TryParse(rpgExpectedThruput.Split(' ').FirstOrDefault(), out ExpectedThruput);
                 }
                 return ExpectedThruput;
             }
@@ -386,7 +386,7 @@ namespace Factory_of_the_Future
         {
             try
             {
-                int.TryParse(string.Join(string.Empty, Regex.Matches(value, @"\d+").OfType<Match>().Select(m => m.Value)).ToString(), out int n);
+                _ = int.TryParse(string.Join(string.Empty, Regex.Matches(value, @"\d+").OfType<Match>().Select(m => m.Value)).ToString(), out int n);
                 return n;
             }
             catch (Exception e)

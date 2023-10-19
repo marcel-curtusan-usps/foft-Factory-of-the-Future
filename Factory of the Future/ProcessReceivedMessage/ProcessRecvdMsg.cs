@@ -488,7 +488,7 @@ namespace Factory_of_the_Future
             catch (Exception e)
             {
                 new ErrorLogger().ExceptionLog(e);
-                Task.Run(() => UpdateConnection(conID, "error"));
+                _ = Task.Run(() => UpdateConnection(conID, "error"));
             }
 
         }
@@ -992,7 +992,7 @@ namespace Factory_of_the_Future
                     {
                         if (AppParameters.MissionList.ContainsKey(tempMission.REQUEST_ID) && !AppParameters.MissionList.TryRemove(tempMission.REQUEST_ID, out Mission mission))
                         {
-                            new ErrorLogger().CustomLog("unable to remove Mission " + mission.REQUEST_ID + " to list", string.Concat(AppParameters.AppSettings.APPLICATION_NAME, "Appslogs"));
+                            _ = new ErrorLogger().CustomLog("unable to remove Mission " + mission.REQUEST_ID + " to list", string.Concat(AppParameters.AppSettings.APPLICATION_NAME, "Appaloosa"));
                         }
                     }
                     //update AGV zone location
@@ -1122,7 +1122,7 @@ namespace Factory_of_the_Future
                     {
                         if (AppParameters.MissionList.ContainsKey(tempMission.REQUEST_ID) && !AppParameters.MissionList.TryRemove(tempMission.REQUEST_ID, out Mission mission))
                         {
-                            new ErrorLogger().CustomLog("unable to remove Mission " + mission.REQUEST_ID + " to list", string.Concat(AppParameters.AppSettings.APPLICATION_NAME, "Appslogs"));
+                            _ = new ErrorLogger().CustomLog("unable to remove Mission " + mission.REQUEST_ID + " to list", string.Concat(AppParameters.AppSettings.APPLICATION_NAME, "Appaloosa"));
                         }
                     }
 
@@ -1284,13 +1284,13 @@ namespace Factory_of_the_Future
 
                     if (AppParameters.MissionList.Keys.Count == 0)
                     {
-                        AppParameters.MissionList.TryAdd(tempMission.REQUEST_ID, tempMission);
+                        _ = AppParameters.MissionList.TryAdd(tempMission.REQUEST_ID, tempMission);
                     }
                     else if (!AppParameters.MissionList.ContainsKey(tempMission.REQUEST_ID))
                     {
                         if (!AppParameters.MissionList.TryAdd(tempMission.REQUEST_ID, tempMission))
                         {
-                            new ErrorLogger().CustomLog("unable to add Mission " + tempMission.REQUEST_ID + " to list", string.Concat(AppParameters.AppSettings.FACILITY_TIMEZONE, "Appslogs"));
+                            _ = new ErrorLogger().CustomLog("unable to add Mission " + tempMission.REQUEST_ID + " to list", string.Concat(AppParameters.AppSettings.FACILITY_TIMEZONE, "Appaloosa"));
                         }
                     }
                     else
@@ -1394,7 +1394,7 @@ namespace Factory_of_the_Future
                         {
                             if (!AppParameters.MissionList.TryAdd(tempMission.REQUEST_ID, tempMission))
                             {
-                                new ErrorLogger().CustomLog("unable to add Mission " + tempMission.REQUEST_ID + " to list", string.Concat(AppParameters.AppSettings.APPLICATION_NAME, "Appslogs"));
+                                _ = new ErrorLogger().CustomLog("unable to add Mission " + tempMission.REQUEST_ID + " to list", string.Concat(AppParameters.AppSettings.APPLICATION_NAME, "Appaloosa"));
                             }
                         }
                         else
@@ -1403,7 +1403,7 @@ namespace Factory_of_the_Future
                             {
                                 if (!AppParameters.MissionList.TryAdd(tempMission.REQUEST_ID, tempMission))
                                 {
-                                    new ErrorLogger().CustomLog("unable to add Mission " + tempMission.REQUEST_ID + " to list", string.Concat(AppParameters.AppSettings.APPLICATION_NAME, "Appslogs"));
+                                    _ = new ErrorLogger().CustomLog("unable to add Mission " + tempMission.REQUEST_ID + " to list", string.Concat(AppParameters.AppSettings.APPLICATION_NAME, "Appaloosa"));
                                 }
                             }
                         }
@@ -1519,7 +1519,7 @@ namespace Factory_of_the_Future
                                 FOTFManager.Instance.BroadcastVehicleTagStatus(Lmarker, cs.Id);
                                 if (!cs.Locators.TryAdd(Lmarker.Properties.Id, Lmarker))
                                 {
-                                    new ErrorLogger().CustomLog("Unable to Add Marker " + newVehicleStatus.VEHICLE_MAC_ADDRESS, string.Concat(AppParameters.AppSettings.APPLICATION_NAME, "_Applogs"));
+                                    _ = new ErrorLogger().CustomLog("Unable to Add Marker " + newVehicleStatus.VEHICLE_MAC_ADDRESS, string.Concat(AppParameters.AppSettings.APPLICATION_NAME, "_Applogs"));
                                 }
                             }
                             //    cs.Locators.Where(f => f.Value.Properties.Name == newVehicleStatus.VEHICLE 
@@ -1623,7 +1623,7 @@ namespace Factory_of_the_Future
                        newNotifi.Notification_ID = noteification_id;
                        newNotifi.Notification_Update = true;
                        newNotifi.Type_Time = properties.Vehicle_Status_Data.TIME;
-                       AppParameters.NotificationList.TryAdd(noteification_id, newNotifi);
+                       _ = AppParameters.NotificationList.TryAdd(noteification_id, newNotifi);
 
                    });
 
@@ -1775,7 +1775,7 @@ namespace Factory_of_the_Future
                 {
                     if (!AppParameters.NotificationList.ContainsKey(notificationID))
                     {
-                        int.TryParse(durationTime, out int intStr);
+                        _ = int.TryParse(durationTime, out int intStr);
                         string machineName = machineData["mpe_type"].ToString().Trim() + "-" + machineData["mpe_number"].ToString().Trim().PadLeft(3, '0');
                         Notification ojbMerge = new Notification
                         {
@@ -1792,7 +1792,7 @@ namespace Factory_of_the_Future
                             WarningAction = newCondition.WarningAction,
                             CriticalAction = newCondition.CriticalAction
                         };
-                        AppParameters.NotificationList.TryAdd(notificationID, ojbMerge);
+                        _ = AppParameters.NotificationList.TryAdd(notificationID, ojbMerge);
                     }
                 }
             }
@@ -2125,7 +2125,7 @@ namespace Factory_of_the_Future
                         CriticalAction = newCondition.CriticalAction,
                         Type_Duration = 0
                     };
-                    AppParameters.NotificationList.TryAdd(notificationID, _notification);
+                    _ = AppParameters.NotificationList.TryAdd(notificationID, _notification);
                 }
             }
         }

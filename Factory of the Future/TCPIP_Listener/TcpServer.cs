@@ -289,7 +289,7 @@ namespace Factory_of_the_Future
             catch (ObjectDisposedException) { }
 
             // Disconnect all sessions
-            DisconnectAll();
+            _ = DisconnectAll();
 
             // Update the started flag
             IsStarted = false;
@@ -310,7 +310,7 @@ namespace Factory_of_the_Future
                 return false;
 
             while (IsStarted)
-                Thread.Yield();
+                _ = Thread.Yield();
 
             return Start();
         }
@@ -416,7 +416,7 @@ namespace Factory_of_the_Future
 
             // Disconnect all sessions
             foreach (var session in Sessions.Values)
-                session.Disconnect();
+                _ = session.Disconnect();
 
             return true;
         }
@@ -439,7 +439,7 @@ namespace Factory_of_the_Future
         internal void RegisterSession(TcpSession session)
         {
             // Register a new session
-            Sessions.TryAdd(session.Id, session);
+            _ = Sessions.TryAdd(session.Id, session);
         }
 
         /// <summary>
@@ -449,7 +449,7 @@ namespace Factory_of_the_Future
         internal void UnregisterSession(Guid id)
         {
             // Unregister session by Id
-            Sessions.TryRemove(id, out TcpSession _);
+            _ = Sessions.TryRemove(id, out _);
         }
 
         #endregion
@@ -464,7 +464,7 @@ namespace Factory_of_the_Future
         protected virtual void OnStarting()
         {
             Conn.Status = "Strating";
-            Task.Run(() => FOTFManager.Instance.BroadcastQSMUpdate(Conn)).ConfigureAwait(false);
+            _ = Task.Run(() => FOTFManager.Instance.BroadcastQSMUpdate(Conn)).ConfigureAwait(false);
         }
         /// <summary>
         /// Handle server started notification
@@ -473,7 +473,7 @@ namespace Factory_of_the_Future
         {
             Conn.Status = "Running";
             Conn.ActiveConnection = true;
-            Task.Run(() => FOTFManager.Instance.BroadcastQSMUpdate(Conn)).ConfigureAwait(false);
+            _ = Task.Run(() => FOTFManager.Instance.BroadcastQSMUpdate(Conn)).ConfigureAwait(false);
         }
         /// <summary>
         /// Handle server stopping notification
@@ -482,7 +482,7 @@ namespace Factory_of_the_Future
         {
             Conn.Status = " Stopping";
             Conn.ActiveConnection = false;
-            Task.Run(() => FOTFManager.Instance.BroadcastQSMUpdate(Conn)).ConfigureAwait(false);
+            _ = Task.Run(() => FOTFManager.Instance.BroadcastQSMUpdate(Conn)).ConfigureAwait(false);
         }
         /// <summary>
         /// Handle server stopped notification
@@ -491,7 +491,7 @@ namespace Factory_of_the_Future
         {
             Conn.Status = " Stopped/Deactivated";
             Conn.ActiveConnection = false;
-            Task.Run(() => FOTFManager.Instance.BroadcastQSMUpdate(Conn)).ConfigureAwait(false);
+            _ = Task.Run(() => FOTFManager.Instance.BroadcastQSMUpdate(Conn)).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -587,7 +587,7 @@ namespace Factory_of_the_Future
                 if (disposingManagedResources)
                 {
                     // Dispose managed resources here...
-                    Stop();
+                    _ = Stop();
                 }
 
                 // Dispose unmanaged resources here...

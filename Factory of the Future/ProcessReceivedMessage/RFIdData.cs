@@ -38,7 +38,7 @@ namespace Factory_of_the_Future
                     if (tempData != null && tempData.HasValues)
                     {
                         //AppParameters.RFiD.TryAdd(Guid.NewGuid().ToString(), JsonConvert.SerializeObject(tempData, Formatting.Indented));
-                        AppParameters.RFiD.TryAdd(Guid.NewGuid().ToString(), _data);
+                        _ = AppParameters.RFiD.TryAdd(Guid.NewGuid().ToString(), _data);
                         new FileIO().Write(string.Concat(AppParameters.Logdirpath, AppParameters.ConfigurationFloder), "RFiD_Data_" + DateTime.Now.ToString("yyyyMMdd") + ".json", JsonConvert.SerializeObject(AppParameters.NotificationConditionsList.Select(x => x.Value).ToList(), Formatting.Indented));
                     }
                     if (AppParameters.RFiD.Count() > 2000)

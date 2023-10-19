@@ -12,13 +12,13 @@ namespace Factory_of_the_Future
             {
                 
                     StringBuilder errorBuilder = new StringBuilder(AppParameters.AppSettings.APPLICATION_NAME + " Application Error");
-                    errorBuilder.Append("Exception:DateTime = " + DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fff"));
-                    errorBuilder.Append("Exception:Data = " + e.Data);
-                    errorBuilder.Append("Exception:InnerException = " + e.InnerException);
-                    errorBuilder.Append("Exception:Message = " + e.Message);
-                    errorBuilder.Append("Exception:StackTrace = " + e.StackTrace);
-                    errorBuilder.Append("Exception:TargetSite = " + e.TargetSite);
-                    errorBuilder.Append("Exception:Source = " + e.Source);
+                _ = errorBuilder.Append("Exception:DateTime = " + DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fff"));
+                _ = errorBuilder.Append("Exception:Data = " + e.Data);
+                _ = errorBuilder.Append("Exception:InnerException = " + e.InnerException);
+                _ = errorBuilder.Append("Exception:Message = " + e.Message);
+                _ = errorBuilder.Append("Exception:StackTrace = " + e.StackTrace);
+                _ = errorBuilder.Append("Exception:TargetSite = " + e.TargetSite);
+                _ = errorBuilder.Append("Exception:Source = " + e.Source);
 
                     new FileIO().Write(string.Concat(AppParameters.Logdirpath, AppParameters.LogFloder, "\\"), (string)AppParameters.AppSettings.APPLICATION_NAME + "_Applogs_" + DateTime.Now.ToString("yyyy-MM-dd") + ".txt", errorBuilder.ToString());
                 
@@ -31,8 +31,8 @@ namespace Factory_of_the_Future
             if (AppParameters.Logdirpath != null && new Directory_Check().DirPath(AppParameters.Logdirpath))
             {
                     StringBuilder errorBuilder = new StringBuilder(AppParameters.AppSettings.APPLICATION_NAME + " " + type + " Info ");
-                    errorBuilder.Append("DateTime = " + DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fff"));
-                    errorBuilder.Append(" Data = " + Data);
+                _ = errorBuilder.Append("DateTime = " + DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fff"));
+                _ = errorBuilder.Append(" Data = " + Data);
                     await Task.Run(() => new FileIO().Write(string.Concat(AppParameters.Logdirpath, AppParameters.LogFloder, "\\"), type + "_" + DateTime.Now.ToString("yyyy-MM-dd") + ".txt", errorBuilder.ToString())).ConfigureAwait(false);
                 
             }

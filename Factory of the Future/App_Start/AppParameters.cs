@@ -261,13 +261,13 @@ namespace Factory_of_the_Future
                                     DirectoryInfo siteConfigDir = new DirectoryInfo(string.Concat(siteDir.ToString(), ConfigurationFloder));
                                     if (!siteConfigDir.Exists)
                                     {
-                                        Directory.CreateDirectory(siteConfigDir.FullName.ToString());
+                                        _ = Directory.CreateDirectory(siteConfigDir.FullName.ToString());
                                         LoglocationSetup();
                                     }
                                 }
                                 else
                                 {
-                                    Directory.CreateDirectory(siteDir.FullName.ToString());
+                                    _ = Directory.CreateDirectory(siteDir.FullName.ToString());
                                     Logdirpath = null;
                                     LoglocationSetup();
                                 }
@@ -275,7 +275,7 @@ namespace Factory_of_the_Future
                         }
                         else
                         {
-                            Directory.CreateDirectory(appDir.FullName);
+                            _ = Directory.CreateDirectory(appDir.FullName);
                             Logdirpath = null;
                             LoglocationSetup();
                         }

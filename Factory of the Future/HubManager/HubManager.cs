@@ -182,7 +182,7 @@ namespace Factory_of_the_Future
 
         public void EditZone(string data)
         {
-            Task.Run(() => _managerHub.EditZoneAsync(data)).ConfigureAwait(false);
+            _ = Task.Run(() => _managerHub.EditZoneAsync(data)).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -329,7 +329,7 @@ namespace Factory_of_the_Future
                 Clients.Caller.siteInfo(AppParameters.SiteInfo);
                 Clients.Caller.connectionType(new ConnectionTypes().Get());
             }
-            Task.Run(() => new ErrorLogger().CustomLog(string.Concat(" Client Connected. User ID:"), string.Concat(AppParameters.AppSettings.APPLICATION_NAME, "_Applogs"))).ConfigureAwait(false);
+            _ = Task.Run(() => new ErrorLogger().CustomLog(string.Concat(" Client Connected. User ID:"), string.Concat(AppParameters.AppSettings.APPLICATION_NAME, "_Applogs"))).ConfigureAwait(false);
 
             return base.OnConnected();
         }
@@ -355,16 +355,16 @@ namespace Factory_of_the_Future
             _managerHub.Removeuser(Context.ConnectionId);
             if (Context.QueryString["page_type"] == "CF")
             {
-                LeaveGroup("PeopleMarkers");
-                LeaveGroup("VehiclsMarkers");
-                LeaveGroup("CameraMarkers");
-                LeaveGroup("MPEZones");
-                LeaveGroup("Zones");
-                LeaveGroup("BinZones");
-                LeaveGroup("DockDoorZones");
-                LeaveGroup("AGVLocationZones");
-                LeaveGroup("QSM");
-                LeaveGroup("Trips");
+                _ = LeaveGroup("PeopleMarkers");
+                _ = LeaveGroup("VehiclsMarkers");
+                _ = LeaveGroup("CameraMarkers");
+                _ = LeaveGroup("MPEZones");
+                _ = LeaveGroup("Zones");
+                _ = LeaveGroup("BinZones");
+                _ = LeaveGroup("DockDoorZones");
+                _ = LeaveGroup("AGVLocationZones");
+                _ = LeaveGroup("QSM");
+                _ = LeaveGroup("Trips");
             }
             return base.OnDisconnected(stopCalled);
         }

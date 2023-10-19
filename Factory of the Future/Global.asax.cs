@@ -135,8 +135,8 @@ namespace Factory_of_the_Future
                     if (itemindex != -1)
                     {
                         // new User_Log().LogoutUser(AppParameters.CodeBase.Parent.FullName.ToString(), _sessions[itemindex]);
-                        Task.Run(() => RemoveUserToListAsync(HttpContext.Current.Session)).ConfigureAwait(false);
-                        _sessions.Remove(_sessions[itemindex]);
+                        _ = Task.Run(() => RemoveUserToListAsync(HttpContext.Current.Session)).ConfigureAwait(false);
+                        _ = _sessions.Remove(_sessions[itemindex]);
                     }
                     Session["SessionID"] = null;
                 }
@@ -170,7 +170,7 @@ namespace Factory_of_the_Future
                     Session[SessionKey.Browser_Name] = HttpContext.Current.Request.Browser.Browser;
                     Session[SessionKey.Browser_Version] = HttpContext.Current.Request.Browser.Version;
                     authCookie = AuthenticationCookie.Create(Session[SessionKey.AceId].ToString(), Converter.ObjectToString(Session), true);
-                    Task.Run(() => AddUserToListAsync(Session)).ConfigureAwait(false);
+                    _ = Task.Run(() => AddUserToListAsync(Session)).ConfigureAwait(false);
                     Response.Cookies.Add(authCookie);
                 }
                 catch (Exception ex)

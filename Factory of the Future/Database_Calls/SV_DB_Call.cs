@@ -49,11 +49,11 @@ namespace Factory_of_the_Future
                                                     {
                                                         if (!property.Key.EndsWith("_time"))
                                                         {
-                                                            command.Parameters.Add(string.Concat(":", property.Key) ?? "", OracleDbType.Varchar2, (string)property.Value, ParameterDirection.Input);
+                                                            _ = command.Parameters.Add(string.Concat(":", property.Key) ?? "", OracleDbType.Varchar2, (string)property.Value, ParameterDirection.Input);
                                                         }
                                                         else
                                                         {
-                                                            command.Parameters.Add(string.Concat(":", property.Key) ?? "", OracleDbType.TimeStamp, (DateTime)property.Value, ParameterDirection.Input);
+                                                            _ = command.Parameters.Add(string.Concat(":", property.Key) ?? "", OracleDbType.TimeStamp, (DateTime)property.Value, ParameterDirection.Input);
                                                         }
                                                     }
                                                 }

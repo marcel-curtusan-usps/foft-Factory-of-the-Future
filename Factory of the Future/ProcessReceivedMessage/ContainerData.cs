@@ -170,7 +170,7 @@ namespace Factory_of_the_Future
                 {
                     foreach (string m in AppParameters.Containers.Where(r => DateTime.Now.Subtract(r.Value.EventDtm).TotalDays >= 3).Select(y => y.Key))
                     {
-                        AppParameters.Containers.TryRemove(m, out _container);
+                        _ = AppParameters.Containers.TryRemove(m, out _container);
                     }
                 }
             }

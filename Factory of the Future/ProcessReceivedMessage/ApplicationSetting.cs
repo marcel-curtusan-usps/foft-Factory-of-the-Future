@@ -31,7 +31,7 @@ namespace Factory_of_the_Future
                                 if (!string.IsNullOrEmpty(kv.Value.ToString()))
                                 {
                                     AppParameters.AppSettings.LOG_LOCATION = kv.Value;
-                                    Task.Run(() => AppParameters.LoglocationSetup());
+                                    _ = Task.Run(() => AppParameters.LoglocationSetup());
                                     fileUpdate = true;
                                 }
                             }

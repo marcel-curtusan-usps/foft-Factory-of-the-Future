@@ -38,7 +38,7 @@ namespace Factory_of_the_Future.Controllers
                 connection.ApiConnected = true;
                 connection.ActiveConnection = true;
                 connection.Status = "Running";
-                ToProcesser(request_data, connection.Id).ConfigureAwait(false);
+                _ = ToProcesser(request_data, connection.Id).ConfigureAwait(false);
                 FOTFManager.Instance.BroadcastQSMUpdate(connection);
             }
             else
@@ -49,7 +49,7 @@ namespace Factory_of_the_Future.Controllers
                     connection.ApiConnected = true;
                     connection.ActiveConnection = true;
                     connection.Status = "Running";
-                    ToProcesser(request_data, connection.Id).ConfigureAwait(false);
+                    _ = ToProcesser(request_data, connection.Id).ConfigureAwait(false);
                     FOTFManager.Instance.BroadcastQSMUpdate(connection);
                 }
                 else
@@ -80,7 +80,7 @@ namespace Factory_of_the_Future.Controllers
                     MessageType = "data_listener",
                     LasttimeApiConnected = DateTime.Now,
                 };
-                FOTFManager.Instance.AddAPI(JsonConvert.SerializeObject(con, Formatting.Indented));
+                _ = FOTFManager.Instance.AddAPI(JsonConvert.SerializeObject(con, Formatting.Indented));
                 return con;
             }
             catch (Exception e)

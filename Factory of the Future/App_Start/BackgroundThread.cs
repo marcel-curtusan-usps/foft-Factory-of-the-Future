@@ -18,12 +18,12 @@ namespace Factory_of_the_Future
                         if (AppParameters.ActiveServer)
                         {
                             //data Retention
-                            Task.Run(() => DataRetentionProcess.Start()).ConfigureAwait(false);
+                            _ = Task.Run(() => DataRetentionProcess.Start()).ConfigureAwait(false);
                         }
                         else
                         {
-                            Task.Run(() => AppParameters.ResetParameters());
-                            Task.Run(() => new ErrorLogger().CustomLog("Rest Application", string.Concat(AppParameters.AppSettings.APPLICATION_NAME, "_Applogs"))).ConfigureAwait(false);
+                            _ = Task.Run(() => AppParameters.ResetParameters());
+                            _ = Task.Run(() => new ErrorLogger().CustomLog("Rest Application", string.Concat(AppParameters.AppSettings.APPLICATION_NAME, "_Applogs"))).ConfigureAwait(false);
                             //AppParameters.Users = new ConcurrentDictionary<string, ADUser>();
 
                         }

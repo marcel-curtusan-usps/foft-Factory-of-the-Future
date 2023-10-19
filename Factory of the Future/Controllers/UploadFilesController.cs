@@ -22,7 +22,7 @@ namespace Factory_of_the_Future.Controllers
                 string path = string.Concat(AppParameters.Logdirpath, AppParameters.Images);
                 if (!Directory.Exists(path))
                 {
-                    Directory.CreateDirectory(path);
+                    _ = Directory.CreateDirectory(path);
                 }
                 /*
                     id =	String	Unique id of this BackgroundImage
@@ -70,7 +70,7 @@ namespace Factory_of_the_Future.Controllers
                         CoordinateSystemId = CSystem.Id,
                     };
                     CSystem.BackgroundImage = temp;
-                    Task.Run(() => FOTFManager.Instance.AddMap(CSystem.Id, CSystem));
+                    _ = Task.Run(() => FOTFManager.Instance.AddMap(CSystem.Id, CSystem));
 
                 }
                 ////Fetch the File Name.

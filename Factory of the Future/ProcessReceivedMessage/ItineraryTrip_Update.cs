@@ -38,7 +38,7 @@ namespace Factory_of_the_Future
                                     {
                                         if (legitem.LegDestSiteID != existingVal.OriginSiteId && existingVal.LegNumber >= legitem.LegNumber)
                                         {
-                                            destsites.Append("(^" + legitem.LegDestSiteID + "$)|");
+                                            _ = destsites.Append("(^" + legitem.LegDestSiteID + "$)|");
                                         }
                                     }
                                 }

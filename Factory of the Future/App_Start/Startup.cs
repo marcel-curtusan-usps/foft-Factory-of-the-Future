@@ -16,9 +16,9 @@ namespace Factory_of_the_Future
     {
         public void Configuration(IAppBuilder app)
         {
-            app.Use(typeof(ClaimsMiddleware));
+            _ = app.Use(typeof(ClaimsMiddleware));
             GlobalHost.Configuration.DefaultMessageBufferSize = 32;
-            app.Map("/signalr", map =>
+            _ = app.Map("/signalr", map =>
             {
 
                 map.RunSignalR();
@@ -29,13 +29,13 @@ namespace Factory_of_the_Future
                 EnableJavaScriptProxies = true,
                 EnableDetailedErrors = true
             };
-            app.MapSignalR(config);
+            _ = app.MapSignalR(config);
             //load all configuration 
-            Task.Run(() =>
+            _ = Task.Run(() =>
            AppParameters.Start()
             ).ConfigureAwait(false);
             ////start the clean up process
-            Task.Run(async delegate
+            _ = Task.Run(async delegate
             {
                 await Task.Delay(TimeSpan.FromSeconds(180)).ConfigureAwait(false);
                 BackgroundThread.Start();

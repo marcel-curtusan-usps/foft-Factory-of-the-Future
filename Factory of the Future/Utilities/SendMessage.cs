@@ -87,7 +87,7 @@ namespace Factory_of_the_Future
                     _responseDatastring = new StreamReader(webError.Response.GetResponseStream()).ReadToEnd();
                     if (!string.IsNullOrEmpty(_responseDatastring))
                     {
-                        new ErrorLogger().CustomLog(_responseDatastring, string.Concat(AppParameters.AppSettings.APPLICATION_NAME, "UDP_InVaild_Message"));
+                        _ = new ErrorLogger().CustomLog(_responseDatastring, string.Concat(AppParameters.AppSettings.APPLICATION_NAME, "UDP_InVaild_Message"));
                         return "";
                     }
                 }

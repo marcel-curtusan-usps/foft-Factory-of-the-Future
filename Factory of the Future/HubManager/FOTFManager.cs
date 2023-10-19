@@ -413,7 +413,7 @@ namespace Factory_of_the_Future
                     {
                         if (cs.Zones.TryAdd(newtempgZone.Properties.Id, newtempgZone))
                         {
-                            Task.Run(() => BroadcastAddZone(newtempgZone, newtempgZone.Properties.FloorId, newtempgZone.Properties.ZoneType)).ConfigureAwait(false);
+                            _ = Task.Run(() => BroadcastAddZone(newtempgZone, newtempgZone.Properties.FloorId, newtempgZone.Properties.ZoneType)).ConfigureAwait(false);
                             new FileIO().Write(string.Concat(AppParameters.Logdirpath, AppParameters.ConfigurationFloder), "Project_Data.json", AppParameters.ZoneOutPutdata(CoordinateSystem.Select(x => x.Value).ToList()));
                             return null;
                         }
@@ -1412,7 +1412,7 @@ namespace Factory_of_the_Future
                     //to remove data from list after CANCELED|DEPARTED|OMITTED|COMPLETE
                     if (AppParameters.RouteTripsList.TryRemove(routetripid, out RouteTrips r))
                     {
-                        Task.Run(() => CheckNotification(trip.State, state, "routetrip", trip, trip.NotificationId));
+                        _ = Task.Run(() => CheckNotification(trip.State, state, "routetrip", trip, trip.NotificationId));
                         BroadcastTripsRemove(r.Id);
                     }
                 }
@@ -1510,7 +1510,7 @@ namespace Factory_of_the_Future
             {
                 if (!CoordinateSystem.TryAdd(id, cSystem))
                 {
-                    new ErrorLogger().CustomLog("Unable to add CoordinateSystem " + id, string.Concat(AppParameters.AppSettings.APPLICATION_NAME, "_Applogs")).ConfigureAwait(false);
+                    _ = new ErrorLogger().CustomLog("Unable to add CoordinateSystem " + id, string.Concat(AppParameters.AppSettings.APPLICATION_NAME, "_Applogs")).ConfigureAwait(false);
                 }
 
                 _ = Task.Run(() => new FileIO().Write(string.Concat(AppParameters.Logdirpath, AppParameters.ConfigurationFloder), "Project_Data.json", AppParameters.ZoneOutPutdata(CoordinateSystem.Select(x => x.Value).ToList())));
@@ -1557,7 +1557,7 @@ namespace Factory_of_the_Future
                        newNotifi.Notification_ID = noteification_id;
                        newNotifi.Notification_Update = true;
                        newNotifi.Type_Time = new Utility().GetSvDate(trip.ScheduledDtm);
-                       AppParameters.NotificationList.TryAdd(noteification_id, newNotifi);
+                       _ = AppParameters.NotificationList.TryAdd(noteification_id, newNotifi);
 
                    });
 
@@ -1593,7 +1593,7 @@ namespace Factory_of_the_Future
                 {
                     trip.DoorId = string.Concat("99D", data["DoorNumber"].ToString().PadLeft(4, '-'));
                     trip.DoorNumber = data["DoorNumber"].ToString();
-                    Task.Run(() => saveDoorTripAssociation(trip.DoorNumber, trip.Route, trip.Trip)).ConfigureAwait(false);
+                    _ = Task.Run(() => saveDoorTripAssociation(trip.DoorNumber, trip.Route, trip.Trip)).ConfigureAwait(false);
 
                     UpdateDoorZone(trip.DoorNumber);
                 }
@@ -1817,7 +1817,7 @@ namespace Factory_of_the_Future
             Staff StaffingSortplanData = new Staff();
             try
             {
-                AppParameters.StaffingSortplansList.TryGetValue(id, out StaffingSortplanData);
+                _ = AppParameters.StaffingSortplansList.TryGetValue(id, out StaffingSortplanData);
                 return StaffingSortplanData;
             }
             catch (Exception ex)
@@ -1833,7 +1833,7 @@ namespace Factory_of_the_Future
             try
             {
                 string tempsortplan = curSortplan.Length >= 7 ? curSortplan.Substring(0, 7) : curSortplan;
-                AppParameters.DPSList.TryGetValue(tempsortplan, out DPSData);
+                _ = AppParameters.DPSList.TryGetValue(tempsortplan, out DPSData);
 
                 return DPSData;
             }
@@ -2336,7 +2336,7 @@ namespace Factory_of_the_Future
             {
                 if (!string.IsNullOrEmpty(data))
                 {
-                    Task.Run(() => AppParameters.RunningConnection.Add(JsonConvert.DeserializeObject<Connection>(data), true)).ConfigureAwait(false);
+                    _ = Task.Run(() => AppParameters.RunningConnection.Add(JsonConvert.DeserializeObject<Connection>(data), true)).ConfigureAwait(false);
                 }
                 return null;
             }
@@ -2353,7 +2353,7 @@ namespace Factory_of_the_Future
             {
                 if (!string.IsNullOrEmpty(data))
                 {
-                    Task.Run(() => AppParameters.RunningConnection.EditAsync(JsonConvert.DeserializeObject<Connection>(data))).ConfigureAwait(false);
+                    _ = Task.Run(() => AppParameters.RunningConnection.EditAsync(JsonConvert.DeserializeObject<Connection>(data))).ConfigureAwait(false);
                 }
                 return null;
             }
@@ -2369,7 +2369,7 @@ namespace Factory_of_the_Future
             {
                 if (!string.IsNullOrEmpty(data))
                 {
-                    Task.Run(() => AppParameters.RunningConnection.Remove(JsonConvert.DeserializeObject<Connection>(data))).ConfigureAwait(true);
+                    _ = Task.Run(() => AppParameters.RunningConnection.Remove(JsonConvert.DeserializeObject<Connection>(data))).ConfigureAwait(true);
                 }
 
                 return null;
@@ -2493,7 +2493,7 @@ namespace Factory_of_the_Future
             {
                 AppParameters._connections.Remove(connectionId, connectionId);
                 string data = string.Concat("Client closed the connection. | Connection ID: : " + connectionId);
-                new ErrorLogger().CustomLog(data, string.Concat(AppParameters.AppSettings.APPLICATION_NAME,"_Applogs")).ConfigureAwait(false);
+                _ = new ErrorLogger().CustomLog(data, string.Concat(AppParameters.AppSettings.APPLICATION_NAME, "_Applogs")).ConfigureAwait(false);
 
                 //remove users 
                 //foreach (string user in AppParameters.Users.Where(r => r.Value.LoginDate.Subtract(DateTime.Now).TotalDays > 2).Select(y => y.Key))

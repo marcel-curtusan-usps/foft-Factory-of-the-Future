@@ -639,7 +639,7 @@ namespace Factory_of_the_Future
 
             foreach (var prop in jsonPropertyNames)
             {
-                _ignores[type].Add(prop);
+                _ = _ignores[type].Add(prop);
             }
         }
 

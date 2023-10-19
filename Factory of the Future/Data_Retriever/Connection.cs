@@ -28,7 +28,7 @@ namespace Factory_of_the_Future
             ReceiveAsync();
         }
 
-        protected override async void OnReceived(EndPoint endpoint, byte[] buffer, long offset, long size)
+        protected override void OnReceived(EndPoint endpoint, byte[] buffer, long offset, long size)
         {
 
             string incomingData = Encoding.UTF8.GetString(buffer, (int)offset, (int)size);
@@ -51,14 +51,14 @@ namespace Factory_of_the_Future
                             ["status"] = "0",
                             ["tags"] = new JArray(incomingDataJobject)
                         };
-                      _ = Task.Run(() => this.ProcessMsg.StartProcess(JsonConvert.SerializeObject(temp1, Formatting.None), Conn.MessageType, Conn.Id)).ConfigureAwait(false);
+                        _ = Task.Run(() => this.ProcessMsg.StartProcess(JsonConvert.SerializeObject(temp1, Formatting.None), Conn.MessageType, Conn.Id)).ConfigureAwait(false);
                     }
                 }
             }
             catch (Exception e)
             {
                 new ErrorLogger().ExceptionLog(e);
-                    _ = Task.Run(() => new ErrorLogger().CustomLog(incomingData, string.Concat(AppParameters.AppSettings.APPLICATION_NAME, "UDP_InVaild_Message"))).ConfigureAwait(false);
+                _ = Task.Run(() => new ErrorLogger().CustomLog(incomingData, string.Concat(AppParameters.AppSettings.APPLICATION_NAME, "UDP_InVaild_Message"))).ConfigureAwait(false);
             }
 
             ReceiveAsync();
@@ -95,12 +95,12 @@ namespace Factory_of_the_Future
         public WebSocketInstanceHandler webSocketIntanceHandler;
         internal Connection ConnectionInfo;
         private bool disposedValue;
-        public JObject requestBody { get; protected set; }
+        public JObject RequestBody { get; protected set; }
         public string NASS_CODE { get; protected set; }
-        public string fdb { get; protected set; }
-        public string lkey { get; protected set; }
-        public string formatUrl { get; protected set; }
-        public string responseData { get; protected set; }
+        public string Fdb { get; protected set; }
+        public string Lkey { get; protected set; }
+        public string FormatUrl { get; protected set; }
+        public string ResponseData { get; protected set; }
 
         public void DownloadLoop()
         {
@@ -142,7 +142,7 @@ namespace Factory_of_the_Future
             }
 
         }
-        public void _ThreadRefresh()
+        public void ThreadRefresh()
         {
             /*
              * This starts the automatic downloading on
@@ -152,64 +152,84 @@ namespace Factory_of_the_Future
              */
             Status = 0;
             DownloadDatetime = DateTime.Now;
-            Thread RefreshLoopThread = new Thread(new ThreadStart(DownloadLoop));
-            RefreshLoopThread.IsBackground = true;
+            Thread RefreshLoopThread = new Thread(new ThreadStart(DownloadLoop))
+            {
+                IsBackground = true
+            };
             RefreshLoopThread.Start();
         }
-        public void _ThreadDownload()
+        public void ThreadDownload()
         {
             Stopping = false;
             DownloadDatetime = DateTime.Now;
-            Thread DownloadThread = new Thread(new ThreadStart(Download));
-            DownloadThread.IsBackground = true;
+            Thread DownloadThread = new Thread(new ThreadStart(Download))
+            {
+                IsBackground = true
+            };
             DownloadThread.Start();
         }
-        internal void _TCPThreadListener()
+        internal void TCPThreadListener()
         {
-            Thread ListenerThread = new Thread(new ThreadStart(TCPInit));
-            ListenerThread.IsBackground = true;
+            Thread ListenerThread = new Thread(new ThreadStart(TCPInit))
+            {
+                IsBackground = true
+            };
             ListenerThread.Start();
         }
-        public void _UDPThreadListener()
+        public void UDPThreadListener()
         {
-            Thread ListenerThread = new Thread(new ThreadStart(UDPInit));
-            ListenerThread.IsBackground = true;
+            Thread ListenerThread = new Thread(new ThreadStart(UDPInit))
+            {
+                IsBackground = true
+            };
             ListenerThread.Start();
         }
-        public void _WSThreadListener()
+        public void WSThreadListener()
         {
-            Thread ListenerThread = new Thread(new ThreadStart(WSInit));
-            ListenerThread.IsBackground = true;
+            Thread ListenerThread = new Thread(new ThreadStart(WSInit))
+            {
+                IsBackground = true
+            };
             ListenerThread.Start();
         }
-        public void _StopUDPListener()
+        public void StopUDPListener()
         {
-            Thread StopListenerThread = new Thread(new ThreadStart(UDPStop));
-            StopListenerThread.IsBackground = true;
+            Thread StopListenerThread = new Thread(new ThreadStart(UDPStop))
+            {
+                IsBackground = true
+            };
             StopListenerThread.Start();
         }
-        public void _StartUDPListener()
+        public void StartUDPListener()
         {
-            Thread StartListenerThread = new Thread(new ThreadStart(UDPStart));
-            StartListenerThread.IsBackground = true;
+            Thread StartListenerThread = new Thread(new ThreadStart(UDPStart))
+            {
+                IsBackground = true
+            };
             StartListenerThread.Start();
         }
-        public void _StopTCPListener()
+        public void StopTCPListener()
         {
-            Thread StopListenerThread = new Thread(new ThreadStart(TCPStop));
-            StopListenerThread.IsBackground = true;
+            Thread StopListenerThread = new Thread(new ThreadStart(TCPStop))
+            {
+                IsBackground = true
+            };
             StopListenerThread.Start();
         }
-        public void _StartTCPListener()
+        public void StartTCPListener()
         {
-            Thread StartListenerThread = new Thread(new ThreadStart(TCPStart));
-            StartListenerThread.IsBackground = true;
+            Thread StartListenerThread = new Thread(new ThreadStart(TCPStart))
+            {
+                IsBackground = true
+            };
             StartListenerThread.Start();
         }
-        public void _StopWSListener()
+        public void StopWSListener()
         {
-            Thread DeleteThread = new Thread(new ThreadStart(WSStop));
-            DeleteThread.IsBackground = true;
+            Thread DeleteThread = new Thread(new ThreadStart(WSStop))
+            {
+                IsBackground = true
+            };
             DeleteThread.Start();
 
         }
@@ -218,11 +238,11 @@ namespace Factory_of_the_Future
             //Start UDP server
             if (udpserver != null)
             {
-                udpserver.Start();
+                _ = udpserver.Start();
             }
             else
             {
-                _UDPThreadListener();
+                UDPThreadListener();
             }
 
             Stopping = false;
@@ -234,11 +254,11 @@ namespace Factory_of_the_Future
             //Start TCP server
             if (tcpServer != null)
             {
-                tcpServer.Start();
+                _ = tcpServer.Start();
             }
             else
             {
-                _TCPThreadListener();
+                TCPThreadListener();
             }
 
             Stopping = false;
@@ -273,7 +293,7 @@ namespace Factory_of_the_Future
             //stop UDP server
             if (udpserver != null)
             {
-                udpserver.Stop();
+                _ = udpserver.Stop();
                 Stopping = true;
                 Status = 2;
             }
@@ -283,7 +303,7 @@ namespace Factory_of_the_Future
             //stop UDP server
             if (tcpServer != null)
             {
-                tcpServer.Stop();
+                _ = tcpServer.Stop();
                 Stopping = true;
                 Status = 2;
             }
@@ -354,7 +374,7 @@ namespace Factory_of_the_Future
                     ConnectionInfo.IpAddress = AppParameters.ServerIpAddress;
                     //udpserver = new UdpServer(IPAddress.Any, ConnectionInfo.Port, ConnectionInfo);
                     udpserver = new MulticastUdpServer(IPAddress.Any, ConnectionInfo.Port, ConnectionInfo);
-                    udpserver.Start();
+                    _ = udpserver.Start();
                     Status = 1;
                 }
             }
@@ -369,7 +389,7 @@ namespace Factory_of_the_Future
                 {
                     ConnectionInfo.IpAddress = AppParameters.ServerIpAddress;
                     tcpServer = new TcpServer(ConnectionInfo.IpAddress, ConnectionInfo.Port, ConnectionInfo);
-                    tcpServer.Start();
+                    _ = tcpServer.Start();
                     Status = 1;
                 }
             }
@@ -377,26 +397,32 @@ namespace Factory_of_the_Future
         }
         public void UDPDelete()
         {
-            Thread DeleteThread = new Thread(new ThreadStart(UDPStop));
-            DeleteThread.IsBackground = true;
+            Thread DeleteThread = new Thread(new ThreadStart(UDPStop))
+            {
+                IsBackground = true
+            };
             DeleteThread.Start();
 
         }
         public void TCPDelete()
         {
-            Thread DeleteThread = new Thread(new ThreadStart(TCPStop));
-            DeleteThread.IsBackground = true;
+            Thread DeleteThread = new Thread(new ThreadStart(TCPStop))
+            {
+                IsBackground = true
+            };
             DeleteThread.Start();
 
         }
         public void WSDelete()
         {
-            Thread DeleteThread = new Thread(new ThreadStart(WSStop));
-            DeleteThread.IsBackground = true;
+            Thread DeleteThread = new Thread(new ThreadStart(WSStop))
+            {
+                IsBackground = true
+            };
             DeleteThread.Start();
 
         }
-        public async void Download()
+        public void Download()
         {
 
             /*
@@ -423,21 +449,21 @@ namespace Factory_of_the_Future
             {
                 ConnectionInfo.Status = "Running";
                 _ = Task.Run(() => FOTFManager.Instance.BroadcastQSMUpdate(ConnectionInfo)).ConfigureAwait(false);
-               
+
             }
-        
+
             try
             {
                 NASS_CODE = AppParameters.SiteInfo.SiteId;
 
-                requestBody = new JObject();
+                RequestBody = new JObject();
                 DateTime dtNow = DateTime.Now;
-                fdb = string.Empty;
-                lkey = string.Empty;
-                formatUrl = string.Empty;
+                Fdb = string.Empty;
+                Lkey = string.Empty;
+                FormatUrl = string.Empty;
                 MessageType = ConnectionInfo.MessageType;
                 //start login connection status
-                string connStatus = string.Concat(DateTime.Now,"Start Downloading Data from: ", ConnectionInfo.ConnectionName," message type: ", ConnectionInfo.MessageType);
+                string connStatus = string.Concat(DateTime.Now, "Start Downloading Data from: ", ConnectionInfo.ConnectionName, " message type: ", ConnectionInfo.MessageType);
                 //end login
                 _ = Task.Run(() => new ErrorLogger().CustomLog(connStatus, string.Concat("API_ConnectionStatus"))).ConfigureAwait(false);
                 if (!string.IsNullOrEmpty(AppParameters.AppSettings.FACILITY_TIMEZONE))
@@ -450,11 +476,11 @@ namespace Factory_of_the_Future
                 }
                 if (!string.IsNullOrEmpty(AppParameters.SiteInfo.FdbId))
                 {
-                    fdb = AppParameters.SiteInfo.FdbId;
+                    Fdb = AppParameters.SiteInfo.FdbId;
                 }
                 if (!string.IsNullOrEmpty(AppParameters.SiteInfo.LocaleKey))
                 {
-                    lkey = AppParameters.SiteInfo.LocaleKey;
+                    Lkey = AppParameters.SiteInfo.LocaleKey;
                 }
                 if (ConnectionInfo.ConnectionName.ToUpper().StartsWith("MPEWatch".ToUpper()))
                 {
@@ -484,14 +510,14 @@ namespace Factory_of_the_Future
                                     DateTime dtEnd = modsDate.AddDays(5);
                                     start_time = modsDate.ToString("MM/dd/yyyy_HH:mm:ss");
                                     end_time = dtEnd.ToString("MM/dd/yyyy_HH:mm:ss");
-                                    formatUrl = string.Format(ConnectionInfo.Url, MpeWatch_id, MpeWatch_data_source, start_time, end_time);
+                                    FormatUrl = string.Format(ConnectionInfo.Url, MpeWatch_id, MpeWatch_data_source, start_time, end_time);
                                     break;
                                 case "DPS_RUN_ESTM":
                                     DateTime modStart = dtNow.Date.AddHours(00).AddMinutes(00).AddSeconds(00);
                                     DateTime modEnd = dtNow.Date.AddHours(23).AddMinutes(59).AddSeconds(59);
                                     start_time = modStart.ToString("MM/dd/yyyy HH:mm:ss");
                                     end_time = modEnd.ToString("MM/dd/yyyy HH:mm:ss");
-                                    formatUrl = string.Format(ConnectionInfo.Url, MpeWatch_id, MpeWatch_data_source, start_time, end_time);
+                                    FormatUrl = string.Format(ConnectionInfo.Url, MpeWatch_id, MpeWatch_data_source, start_time, end_time);
                                     break;
                                 case "RPG_RUN_PERF":
                                     string strTimeDiff = "-" + ConnectionInfo.DataRetrieve;
@@ -503,7 +529,7 @@ namespace Factory_of_the_Future
                                     DateTime startDate = endDate.AddMilliseconds(dblTimeDiff);
                                     start_time = startDate.ToString("MM/dd/yyyy_HH:mm:ss");
                                     end_time = endDate.ToString("MM/dd/yyyy_HH:mm:ss");
-                                    formatUrl = string.Format(ConnectionInfo.Url, MpeWatch_id, MpeWatch_data_source, start_time, end_time);
+                                    FormatUrl = string.Format(ConnectionInfo.Url, MpeWatch_id, MpeWatch_data_source, start_time, end_time);
                                     break;
                                 default:
                                     break;
@@ -518,7 +544,7 @@ namespace Factory_of_the_Future
                             {
                                 MessageType = "mpe_watch_id";
                                 int index = ConnectionInfo.Url.IndexOf("ge.");
-                                formatUrl = string.Concat(ConnectionInfo.Url.Substring(0, (index + 3)), "get_id?group_name=client");
+                                FormatUrl = string.Concat(ConnectionInfo.Url.Substring(0, (index + 3)), "get_id?group_name=client");
                             }
                         }
                     }
@@ -541,13 +567,13 @@ namespace Factory_of_the_Future
                     {
                         string start_time = string.Concat(DateTime.Now.AddHours(-ConnectionInfo.HoursBack).ToString("yyyy-MM-dd'T'HH:"), "00:00");
                         string end_time = DateTime.Now.AddHours(+ConnectionInfo.HoursForward).ToString("yyyy-MM-dd'T'HH:mm:ss");
-                        formatUrl = string.Format(ConnectionInfo.Url, NASS_CODE, start_time, end_time);
+                        FormatUrl = string.Format(ConnectionInfo.Url, NASS_CODE, start_time, end_time);
                     }
                     else
                     {
                         string start_time = string.Concat(DateTime.Now.AddHours(-10).ToString("yyyy-MM-dd'T'HH:"), "00:00");
                         string end_time = DateTime.Now.AddHours(+2).ToString("yyyy-MM-dd'T'HH:mm:ss");
-                        formatUrl = string.Format(ConnectionInfo.Url, NASS_CODE, start_time, end_time);
+                        FormatUrl = string.Format(ConnectionInfo.Url, NASS_CODE, start_time, end_time);
                     }
                 }
                 else if (ConnectionInfo.ConnectionName.ToUpper().StartsWith("Web_Camera".ToUpper()))
@@ -562,16 +588,16 @@ namespace Factory_of_the_Future
                                     try
                                     {
                                         //Update when change to FQN
-                                        formatUrl = string.Format(ConnectionInfo.Url, Camera.Properties.Name.Trim());
+                                        FormatUrl = string.Format(ConnectionInfo.Url, Camera.Properties.Name.Trim());
                                         string imageBase64 = AppParameters.NoImage;
-                                        if (!string.IsNullOrEmpty(formatUrl))
+                                        if (!string.IsNullOrEmpty(FormatUrl))
                                         {
                                             if (ConnectionInfo.ActiveConnection)
                                             {
                                                 using (WebClient client = new WebClient())
                                                 {
                                                     client.Headers.Add(HttpRequestHeader.ContentType, "application/octet-stream");
-                                                    byte[] result = client.DownloadData(formatUrl);
+                                                    byte[] result = client.DownloadData(FormatUrl);
                                                     imageBase64 = "data:image/jpeg;base64," + Convert.ToBase64String(result);
 
 
@@ -597,23 +623,23 @@ namespace Factory_of_the_Future
                     }
                     else if (ConnectionInfo.MessageType.ToUpper().EndsWith("Cameras".ToUpper()))
                     {
-                        if (!string.IsNullOrEmpty(fdb))
+                        if (!string.IsNullOrEmpty(Fdb))
                         {
-                            formatUrl = string.Format(ConnectionInfo.Url, fdb);
+                            FormatUrl = string.Format(ConnectionInfo.Url, Fdb);
 
                         }
                     }
                 }
                 else if (ConnectionInfo.ConnectionName.ToUpper().StartsWith("MPE_Alerts".ToUpper()))
                 {
-                    formatUrl = string.Format(ConnectionInfo.Url);
+                    FormatUrl = string.Format(ConnectionInfo.Url);
                 }
                 else if (ConnectionInfo.ConnectionName.ToUpper().StartsWith("IV".ToUpper()))
                 {
-                    if (!string.IsNullOrEmpty(lkey))
+                    if (!string.IsNullOrEmpty(Lkey))
                     {
-                        requestBody = new JObject { ["lkey"] = lkey };
-                        formatUrl = string.Format(ConnectionInfo.Url, ConnectionInfo.MessageType);
+                        RequestBody = new JObject { ["lkey"] = Lkey };
+                        FormatUrl = string.Format(ConnectionInfo.Url, ConnectionInfo.MessageType);
                     }
                 }
                 else if (ConnectionInfo.ConnectionName.ToUpper().StartsWith("SELS".ToUpper()))
@@ -621,31 +647,30 @@ namespace Factory_of_the_Future
                     switch (ConnectionInfo.MessageType.ToUpper())
                     {
                         case "GETTYPES":
-                            formatUrl = string.Format(ConnectionInfo.Url, ConnectionInfo.MessageType);
+                            FormatUrl = string.Format(ConnectionInfo.Url, ConnectionInfo.MessageType);
                             break;
                         case "TAGIDTOEMPID":
-                            formatUrl = string.Format(ConnectionInfo.Url, ConnectionInfo.MessageType);
+                            FormatUrl = string.Format(ConnectionInfo.Url, ConnectionInfo.MessageType);
                             break;
                         case "GETIVEMPDATA":
                             DateTime Date = dtNow;
-                            formatUrl = string.Format(ConnectionInfo.Url, ConnectionInfo.MessageType , Date.ToString("yyyy-MM-dd"));
+                            FormatUrl = string.Format(ConnectionInfo.Url, ConnectionInfo.MessageType, Date.ToString("yyyy-MM-dd"));
                             break;
                     }
                 }
                 else if (ConnectionInfo.ConnectionName.ToUpper().StartsWith("Quuppa".ToUpper()))
                 {
-                    formatUrl = string.Format(ConnectionInfo.Url, ConnectionInfo.MessageType);
+                    FormatUrl = string.Format(ConnectionInfo.Url, ConnectionInfo.MessageType);
                 }
-                if (!string.IsNullOrEmpty(formatUrl))
+                if (!string.IsNullOrEmpty(FormatUrl))
                 {
                     try
                     {
-                        Uri url = new Uri(formatUrl);
-                        Uri uriResult;
-                        bool URLValid = Uri.TryCreate(formatUrl, UriKind.Absolute, out uriResult) && (url.Scheme == Uri.UriSchemeHttp || url.Scheme == Uri.UriSchemeHttps);
+                        Uri url = new Uri(FormatUrl);
+                        bool URLValid = Uri.TryCreate(FormatUrl, UriKind.Absolute, out Uri uriResult) && (url.Scheme == Uri.UriSchemeHttp || url.Scheme == Uri.UriSchemeHttps);
                         if (URLValid)
                         {
-                            _ = Task.Run(() => ProcessMsg.StartProcess(new SendMessage().Get(uriResult, requestBody), MessageType, ConnectionInfo.Id)).ConfigureAwait(false);
+                            _ = Task.Run(() => ProcessMsg.StartProcess(new SendMessage().Get(uriResult, RequestBody), MessageType, ConnectionInfo.Id)).ConfigureAwait(false);
                         }
                         else
                         {
@@ -654,9 +679,9 @@ namespace Factory_of_the_Future
                             if (ConnectionInfo.Status != "Invalid URL")
                             {
                                 ConnectionInfo.Status = "Invalid URL";
-                               _ = Task.Run(() => FOTFManager.Instance.BroadcastQSMUpdate(ConnectionInfo)).ConfigureAwait(false);
+                                _ = Task.Run(() => FOTFManager.Instance.BroadcastQSMUpdate(ConnectionInfo)).ConfigureAwait(false);
                             }
-                           
+
                         }
                     }
                     catch (WebException ex)
@@ -721,7 +746,7 @@ namespace Factory_of_the_Future
             }
         }
 
-        private void _ThreadStop()
+        private void ThreadStop()
         {
             Stopping = true;
             do
@@ -730,7 +755,7 @@ namespace Factory_of_the_Future
             } while (Status == 1);
             Status = 2;
         }
-        private void _ThreadDelete()
+        private void ThreadDelete()
         {
             Stopping = true;
 
@@ -741,14 +766,18 @@ namespace Factory_of_the_Future
         }
         public void Stop()
         {
-            Thread StopThread = new Thread(new ThreadStart(_ThreadStop));
-            StopThread.IsBackground = true;
+            Thread StopThread = new Thread(new ThreadStart(ThreadStop))
+            {
+                IsBackground = true
+            };
             StopThread.Start();
         }
         public void Stop_Delete()
         {
-            Thread DeleteThread = new Thread(new ThreadStart(_ThreadDelete));
-            DeleteThread.IsBackground = true;
+            Thread DeleteThread = new Thread(new ThreadStart(ThreadDelete))
+            {
+                IsBackground = true
+            };
             DeleteThread.Start();
 
         }
@@ -766,10 +795,10 @@ namespace Factory_of_the_Future
                 // TODO: set large fields to null
                 disposedValue = true;
                 NASS_CODE = string.Empty;
-                fdb = string.Empty;
-                lkey = string.Empty;
-                formatUrl = string.Empty;
-                responseData = string.Empty;
+                Fdb = string.Empty;
+                Lkey = string.Empty;
+                FormatUrl = string.Empty;
+                ResponseData = string.Empty;
             }
         }
 

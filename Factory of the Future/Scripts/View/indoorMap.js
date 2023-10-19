@@ -259,7 +259,7 @@ var lastMapZoom = null;
 map.on('zoomend', function () {
     //setTimeout(checkSparklineVisibility, 100);
     //updateAllCameras(Date.now());
-    UpdateCameraZoom();
+    //UpdateCameraZoom();
     if (map.getZoom() != 2) {
         btnZoomReset.button.removeAttribute("style", "display:none;");
     }

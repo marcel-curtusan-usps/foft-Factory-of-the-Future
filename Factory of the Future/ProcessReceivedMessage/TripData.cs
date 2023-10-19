@@ -37,7 +37,7 @@ namespace Factory_of_the_Future
                         temp = tempData.ToObject<List<RouteTrips>>();
                         foreach (RouteTrips rt in temp)
                         {
-                            ProcessTrip(rt);
+                            _ = ProcessTrip(rt);
 
                         }
 
@@ -117,7 +117,7 @@ namespace Factory_of_the_Future
                             //{
                             if (AppParameters.RouteTripsList.TryUpdate(rt.Id, rt, currentRTData))
                             {
-                                Task.Run(() => FOTFManager.Instance.BroadcastTripsUpdate(rt)).ConfigureAwait(false);
+                                _ = Task.Run(() => FOTFManager.Instance.BroadcastTripsUpdate(rt)).ConfigureAwait(false);
                                 update = true;
                             }
                             //}
@@ -131,7 +131,7 @@ namespace Factory_of_the_Future
                         //get trip Itinerary
                         if (!rt.Legs.Any())
                         {
-                            Task.Run(() => new ItineraryTrip_Update(GetItinerary(rt.Route, rt.Trip, AppParameters.SiteInfo.SiteId, new Utility().GetSvDate(rt.OperDate)), rt.Id)).ConfigureAwait(false);
+                            _ = Task.Run(() => new ItineraryTrip_Update(GetItinerary(rt.Route, rt.Trip, AppParameters.SiteInfo.SiteId, new Utility().GetSvDate(rt.OperDate)), rt.Id)).ConfigureAwait(false);
                         }
                     }
                 }

@@ -265,7 +265,7 @@ namespace Factory_of_the_Future
             {
                 // Update statistic
                 BytesSent += sent;
-                Interlocked.Add(ref Server._bytesSent, sent);
+                _ = Interlocked.Add(ref Server._bytesSent, sent);
 
                 // Call the buffer sent handler
                 OnSent(sent, BytesPending + BytesSending);
@@ -275,7 +275,7 @@ namespace Factory_of_the_Future
             if (ec != SocketError.Success)
             {
                 SendError(ec);
-                Disconnect();
+                _ = Disconnect();
             }
 
             return sent;
@@ -334,7 +334,7 @@ namespace Factory_of_the_Future
                 }
 
                 // Fill the main send buffer
-                _sendBufferMain.Append(buffer);
+                _ = _sendBufferMain.Append(buffer);
 
                 // Update statistic
                 BytesPending = _sendBufferMain.Size;
@@ -394,7 +394,7 @@ namespace Factory_of_the_Future
             {
                 // Update statistic
                 BytesReceived += received;
-                Interlocked.Add(ref Server._bytesReceived, received);
+                _ = Interlocked.Add(ref Server._bytesReceived, received);
 
                 // Call the buffer received handler
                 OnReceived(buffer, 0, received);
@@ -404,7 +404,7 @@ namespace Factory_of_the_Future
             if (ec != SocketError.Success)
             {
                 SendError(ec);
-                Disconnect();
+                _ = Disconnect();
             }
 
             return received;
@@ -582,7 +582,7 @@ namespace Factory_of_the_Future
             {
                 // Update statistic
                 BytesReceived += size;
-                Interlocked.Add(ref Server._bytesReceived, size);
+                _ = Interlocked.Add(ref Server._bytesReceived, size);
 
                 // Call the buffer received handler
                 OnReceived(_receiveBuffer.Data, 0, size);
@@ -594,7 +594,7 @@ namespace Factory_of_the_Future
                     if (((2 * size) > OptionReceiveBufferLimit) && (OptionReceiveBufferLimit > 0))
                     {
                         SendError(SocketError.NoBufferSpaceAvailable);
-                        Disconnect();
+                        _ = Disconnect();
                         return false;
                     }
 
@@ -611,12 +611,12 @@ namespace Factory_of_the_Future
                 if (size > 0)
                     return true;
                 else
-                    Disconnect();
+                    _ = Disconnect();
             }
             else
             {
                 SendError(e.SocketError);
-                Disconnect();
+                _ = Disconnect();
             }
 
             return false;
@@ -638,7 +638,7 @@ namespace Factory_of_the_Future
                 // Update statistic
                 BytesSending -= size;
                 BytesSent += size;
-                Interlocked.Add(ref Server._bytesSent, size);
+                _ = Interlocked.Add(ref Server._bytesSent, size);
 
                 // Increase the flush buffer offset
                 _sendBufferFlushOffset += size;
@@ -661,7 +661,7 @@ namespace Factory_of_the_Future
             else
             {
                 SendError(e.SocketError);
-                Disconnect();
+                _ = Disconnect();
                 return false;
             }
         }
@@ -794,7 +794,7 @@ namespace Factory_of_the_Future
                 if (disposingManagedResources)
                 {
                     // Dispose managed resources here...
-                    Disconnect();
+                    _ = Disconnect();
                 }
 
                 // Dispose unmanaged resources here...

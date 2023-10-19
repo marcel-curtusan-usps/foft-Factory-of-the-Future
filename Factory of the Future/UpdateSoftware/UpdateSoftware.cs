@@ -32,7 +32,7 @@ namespace Factory_of_the_Future
                     using (StreamReader reader = process.StandardOutput)
                     {
                         string result = reader.ReadToEnd();
-                        new ErrorLogger().CustomLog(reader.ToString(), "UpdateSoftware");
+                        _ = new ErrorLogger().CustomLog(reader.ToString(), "UpdateSoftware");
                     }
                 }
             }

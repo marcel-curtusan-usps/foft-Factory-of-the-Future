@@ -29,7 +29,7 @@ namespace Factory_of_the_Future.Controllers
                 //start data process
                 if (request_data.HasValues)
                 {
-                    Task.Run(() => new ProcessRecvdMsg().StartProcess(JsonConvert.SerializeObject(request_data, Formatting.None), "dps_run_estm", "")).ConfigureAwait(false);
+                    _ = Task.Run(() => new ProcessRecvdMsg().StartProcess(JsonConvert.SerializeObject(request_data, Formatting.None), "dps_run_estm", "")).ConfigureAwait(false);
                     return new JObject();
                     // return SV_DB_Call.GetData(request_data);
                 }

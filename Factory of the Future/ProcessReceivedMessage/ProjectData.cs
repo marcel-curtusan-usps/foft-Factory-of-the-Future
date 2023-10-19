@@ -255,7 +255,7 @@ namespace Factory_of_the_Future
             {
                 foreach (Locator item in locators)
                 {
-                    temp.TryAdd(item.Id, new GeoMarker
+                    _ = temp.TryAdd(item.Id, new GeoMarker
                     {
                         Geometry = new MarkerGeometry
                         {
@@ -291,7 +291,7 @@ namespace Factory_of_the_Future
             {
                 foreach (qcZone item in zones)
                 {
-                    temp.TryAdd(item.Id, new GeoZone
+                    _ = temp.TryAdd(item.Id, new GeoZone
                     {
                         Geometry = QuuppaZoneGeometry(item.PolygonData),
                         Properties = new Properties
@@ -335,7 +335,7 @@ namespace Factory_of_the_Future
         {
             try
             {
-                int.TryParse(string.Join(string.Empty, Regex.Matches(name, @"\d+").OfType<Match>().Select(m => m.Value)).ToString(), out int n);
+                _ = int.TryParse(string.Join(string.Empty, Regex.Matches(name, @"\d+").OfType<Match>().Select(m => m.Value)).ToString(), out int n);
                 return n;
             }
             catch (Exception e)

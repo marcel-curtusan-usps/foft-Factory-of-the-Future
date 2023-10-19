@@ -39,7 +39,7 @@ namespace Factory_of_the_Future
                         }
                         if (MPE.Properties.MPEBins.Count() != FullBinList.Count())
                         {
-                           Task.Run(() => FOTFManager.Instance.BroadcastBinZoneStatus(MPE, cs.Id)).ConfigureAwait(false);
+                            _ = Task.Run(() => FOTFManager.Instance.BroadcastBinZoneStatus(MPE, cs.Id)).ConfigureAwait(false);
                         }
                     });
                 }

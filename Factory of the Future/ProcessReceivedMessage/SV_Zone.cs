@@ -33,7 +33,7 @@ namespace Factory_of_the_Future
                     {
                         foreach (SVBullpen Bullpen_item in SV_Bullpen)
                         {
-                            AppParameters.SVZoneNameList.AddOrUpdate(Bullpen_item.LocationId, Bullpen_item,
+                            _ = AppParameters.SVZoneNameList.AddOrUpdate(Bullpen_item.LocationId, Bullpen_item,
                                (key, oldValue) =>
                                {
                                    return Bullpen_item;

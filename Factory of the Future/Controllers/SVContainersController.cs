@@ -86,7 +86,7 @@ namespace Factory_of_the_Future.Controllers
                 if (request_data.HasValues)
                 {
                     //Send data to be processed.
-                    Task.Run(() => new ProcessRecvdMsg().StartProcess(JsonConvert.SerializeObject(request_data, Formatting.None), "container", "")).ConfigureAwait(false);
+                    _ = Task.Run(() => new ProcessRecvdMsg().StartProcess(JsonConvert.SerializeObject(request_data, Formatting.None), "container", "")).ConfigureAwait(false);
                 }
             }
             else

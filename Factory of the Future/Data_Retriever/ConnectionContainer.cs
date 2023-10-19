@@ -60,23 +60,23 @@ namespace Factory_of_the_Future
                     NewConnection.ConstantRefresh = false;
                     if (con.UdpConnection)
                     {
-                        NewConnection._UDPThreadListener();
+                        NewConnection.UDPThreadListener();
                     }
                     else if (con.TcpIpConnection)
                     {
-                        NewConnection._TCPThreadListener();
+                        NewConnection.TCPThreadListener();
                     }
                     else if (con.WsConnection)
                     {
-                        NewConnection._WSThreadListener();
+                        NewConnection.WSThreadListener();
                     }
                     else if (con.ApiConnection)
                     {
                         if (con.DataRetrieve != 0)
                         {
                             NewConnection.ConstantRefresh = true;
-                            NewConnection._ThreadDownload();
-                            NewConnection._ThreadRefresh();
+                            NewConnection.ThreadDownload();
+                            NewConnection.ThreadRefresh();
                         }
                     }
                 }
@@ -130,11 +130,11 @@ namespace Factory_of_the_Future
                             Connection_item.ConnectionInfo.ActiveConnection = updateConndata.ActiveConnection;
                             if (updateConndata.UdpConnection)
                             {
-                                Connection_item._StopUDPListener();
+                                Connection_item.StopUDPListener();
                             }
                             else if (updateConndata.TcpIpConnection)
                             {
-                                Connection_item._StopTCPListener();
+                                Connection_item.StopTCPListener();
                             }
                             else if (updateConndata.WsConnection)
                             {
@@ -155,23 +155,23 @@ namespace Factory_of_the_Future
                                 Connection_item.ConnectionInfo.UdpConnection = updateConndata.UdpConnection;
                                 if (Connection_item.ConnectionInfo.Port != updateConndata.Port)
                                 {
-                                    Connection_item._StartUDPListener();
+                                    Connection_item.StartUDPListener();
                                 }
-                                Connection_item._StartUDPListener();
+                                Connection_item.StartUDPListener();
                             }
                             else if (updateConndata.TcpIpConnection)
                             {
                                 Connection_item.ConnectionInfo.TcpIpConnection = updateConndata.TcpIpConnection;
                                 if (Connection_item.ConnectionInfo.Port != updateConndata.Port)
                                 {
-                                    Connection_item._StopTCPListener();
+                                    Connection_item.StopTCPListener();
                                 }
-                                Connection_item._StartTCPListener();
+                                Connection_item.StartTCPListener();
                             }
                             else if (updateConndata.WsConnection)
                             {
                                 Connection_item.ConnectionInfo.WsConnection = updateConndata.WsConnection;
-                                Connection_item._WSThreadListener();
+                                Connection_item.WSThreadListener();
                             }
                             else if (updateConndata.ApiConnection)
                             {
@@ -184,8 +184,8 @@ namespace Factory_of_the_Future
                                     if (Connection_item.Status != 1)
                                     {
                                         Connection_item.ConstantRefresh = true;
-                                        Connection_item._ThreadDownload();
-                                        Connection_item._ThreadRefresh();
+                                        Connection_item.ThreadDownload();
+                                        Connection_item.ThreadRefresh();
                                     }
                                 }
 
@@ -195,8 +195,8 @@ namespace Factory_of_the_Future
                 }
                 if (updateFile)
                 {
-                    Task.Run(() => new FileIO().Write(string.Concat(AppParameters.CodeBase.Parent.FullName.ToString(), AppParameters.Appsetting), "Connection.json", AppParameters.ConnectionOutPutdata(DataConnection.Select(y => y.ConnectionInfo).ToList()))).ConfigureAwait(true);
-                    Task.Run(() => FOTFManager.Instance.BroadcastQSMUpdate(DataConnection.Where(r => r.ConnectionInfo.Id == updateConndata.Id).Select(y => y.ConnectionInfo).ToList().FirstOrDefault())).ConfigureAwait(false);
+                    _ = Task.Run(() => new FileIO().Write(string.Concat(AppParameters.CodeBase.Parent.FullName.ToString(), AppParameters.Appsetting), "Connection.json", AppParameters.ConnectionOutPutdata(DataConnection.Select(y => y.ConnectionInfo).ToList()))).ConfigureAwait(true);
+                    _ = Task.Run(() => FOTFManager.Instance.BroadcastQSMUpdate(DataConnection.Where(r => r.ConnectionInfo.Id == updateConndata.Id).Select(y => y.ConnectionInfo).ToList().FirstOrDefault())).ConfigureAwait(false);
                 }
             }
             catch (Exception e)
@@ -267,12 +267,12 @@ namespace Factory_of_the_Future
                         NewConnection = Connection_item;
                         if (NewConnection.ConnectionInfo.UdpConnection)
                         {
-                            NewConnection._StopUDPListener();
+                            NewConnection.StopUDPListener();
                             conStoped = true;
                         }
                         else if (NewConnection.ConnectionInfo.TcpIpConnection)
                         {
-                            NewConnection._StopTCPListener();
+                            NewConnection.StopTCPListener();
                             conStoped = true;
                         }
                         else if (NewConnection.ConnectionInfo.WsConnection)
@@ -290,7 +290,7 @@ namespace Factory_of_the_Future
                 }
                 if (conStoped)
                 {
-                    AppParameters.RunningConnection.DataConnection.Remove(NewConnection);
+                    _ = AppParameters.RunningConnection.DataConnection.Remove(NewConnection);
                     await Task.Run(() => FOTFManager.Instance.BroadcastRemoveConnection(NewConnection.ConnectionInfo)).ConfigureAwait(false);
                     updateFile = true;
                 }

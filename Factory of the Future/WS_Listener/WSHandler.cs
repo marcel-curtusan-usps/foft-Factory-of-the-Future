@@ -32,18 +32,12 @@ namespace Factory_of_the_Future
         public void Connect(string name)
         {
             WebSocketInstance instance = GetWSInstance(name);
-            if (instance != null)
-            {
-                instance.Connect(instance.Uri);
-            }
+            instance?.Connect(instance.Uri);
         }
         public void Close(string name)
         {
             WebSocketInstance instance = GetWSInstance(name);
-            if (instance != null)
-            {
-                instance.Close();
-            }
+            instance?.Close();
         }
         public bool Connected(string name)
         {
@@ -68,10 +62,7 @@ namespace Factory_of_the_Future
         }
         public void Dispose()
         {
-            if (wsClient != null)
-            {
-                wsClient.Dispose();
-            }
+            wsClient?.Dispose();
         }
         public bool Connected
         { get; set; }
@@ -87,10 +78,7 @@ namespace Factory_of_the_Future
 
         public void Close()
         {
-            if (wsClient != null)
-            {
-                wsClient.Close();
-            }
+            wsClient?.Close();
         }
 
 

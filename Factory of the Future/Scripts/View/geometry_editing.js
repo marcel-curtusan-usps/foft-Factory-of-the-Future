@@ -408,6 +408,12 @@ function RemoveMarkerItem(removeLayer) {
     try {
         sidebar.close();
         fotfmanager.server.removeMarker(removeLayer.layer.feature.properties.id).done(function (Data) {
+            if (removeLayer.layer.feature.properties.Tag_Type === "CameraMarker") {
+                //if modal is open close it
+                if (($('#Camera_Modal').data('bs.modal') || {})._isShown) {
+                    $('#Camera_Modal').modal('hide')
+                }
+            }
             setTimeout(function () { $("#Remove_Layer_Modal").modal('hide'); }, 500);
         });
     } catch (e) {
