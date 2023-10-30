@@ -1,4 +1,4 @@
-Factory of the future
+#Factory of the future
 
 Factory of the future is a web-based ASP.NET Application, FOTF Application is designed for server to push content to connected clients upon change to the content, in real-time, with JavaScript and c# client , With the application runs on IIS it uses USPS existing groups for authentication.
 
